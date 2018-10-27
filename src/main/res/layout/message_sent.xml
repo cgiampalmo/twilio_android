@@ -68,15 +68,16 @@
                     android:gravity="center_vertical"
                     android:src="@drawable/ic_lock_black_18dp" />
 
-                <ImageView
-                    android:id="@+id/edit_indicator"
-                    android:layout_width="?attr/TextSizeCaption"
-                    android:layout_height="?attr/TextSizeCaption"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="4sp"
-                    android:alpha="0.54"
-                    android:gravity="center_vertical"
-                    android:src="@drawable/ic_mode_edit_black_18dp" />
+                <!--HONEYBADGER AM0-120 Remove lock icon from received messages-->
+                <!--<ImageView-->
+                    <!--android:id="@+id/edit_indicator"-->
+                    <!--android:layout_width="?attr/TextSizeCaption"-->
+                    <!--android:layout_height="?attr/TextSizeCaption"-->
+                    <!--android:layout_gravity="center_vertical"-->
+                    <!--android:layout_marginLeft="4sp"-->
+                    <!--android:alpha="0.54"-->
+                    <!--android:gravity="center_vertical"-->
+                    <!--android:src="@drawable/ic_mode_edit_black_18dp" />-->
 
                 <ImageView
                     android:id="@+id/indicator_received"

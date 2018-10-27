@@ -244,7 +244,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
         super.onCreateOptionsMenu(menu);
         final Intent i = getIntent();
         boolean showEnterJid = i != null && i.getBooleanExtra(EXTRA_SHOW_ENTER_JID, false);
-        menu.findItem(R.id.action_scan_qr_code).setVisible(isCameraFeatureAvailable() && showEnterJid);
+        //menu.findItem(R.id.action_scan_qr_code).setVisible(isCameraFeatureAvailable() && showEnterJid);
         return true;
     }
 
@@ -285,11 +285,12 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_scan_qr_code:
-                ScanActivity.scan(this);
-                return true;
-        }
+        //HONEYBADGER AM-120 Remove the top right barcode scanning feature
+//        switch (item.getItemId()) {
+//            case R.id.action_scan_qr_code:
+//                ScanActivity.scan(this);
+//                return true;
+//        }
         return super.onOptionsItemSelected(item);
     }
 

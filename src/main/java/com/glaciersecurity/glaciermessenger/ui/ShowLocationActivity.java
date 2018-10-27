@@ -173,18 +173,19 @@ public class ShowLocationActivity extends LocationActivity implements LocationLi
 					Toast.makeText(this,R.string.url_copied_to_clipboard,Toast.LENGTH_SHORT).show();
 				}
 				return true;
-			case R.id.action_share_location:
-				final Intent shareIntent = new Intent();
-				shareIntent.setAction(Intent.ACTION_SEND);
-				shareIntent.putExtra(Intent.EXTRA_TEXT, createGeoUri().toString());
-				shareIntent.setType("text/plain");
-				try {
-					startActivity(Intent.createChooser(shareIntent, getText(R.string.share_with)));
-				} catch (final ActivityNotFoundException e) {
-					//This should happen only on faulty androids because normally chooser is always available
-					Toast.makeText(this, R.string.no_application_found_to_open_file, Toast.LENGTH_SHORT).show();
-				}
-				return true;
+				//HONEYBADGER AM-120 Disable and hide "Share Location Plugin"
+//			case R.id.action_share_location:
+//				final Intent shareIntent = new Intent();
+//				shareIntent.setAction(Intent.ACTION_SEND);
+//				shareIntent.putExtra(Intent.EXTRA_TEXT, createGeoUri().toString());
+//				shareIntent.setType("text/plain");
+//				try {
+//					startActivity(Intent.createChooser(shareIntent, getText(R.string.share_with)));
+//				} catch (final ActivityNotFoundException e) {
+//					//This should happen only on faulty androids because normally chooser is always available
+//					Toast.makeText(this, R.string.no_application_found_to_open_file, Toast.LENGTH_SHORT).show();
+//				}
+//				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}

@@ -426,7 +426,14 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             } else {
                 name = user.getName();
             }
-            menu.setHeaderTitle(name);
+            //HONEYBADGER: AM-120 add leading # if group
+            final boolean groupChat = mConversation.getMode() == Conversation.MODE_MULTI;
+            if (groupChat){
+                menu.setHeaderTitle('#'+name);
+            } else {
+                menu.setHeaderTitle(name);
+            }
+            // end AM-120
             if (user.getRealJid() != null) {
                 MenuItem showContactDetails = menu.findItem(R.id.action_contact_details);
                 MenuItem startConversation = menu.findItem(R.id.start_conversation);
@@ -702,6 +709,11 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             if (contact != null) {
                 binding.contactDisplayName.setText(contact.getDisplayName());
                 binding.contactJid.setText((name != null ? name + " \u2022 " : "") + getStatus(user));
+                //HONEYBADGER: AM-120 add leading # if group
+                if (mConversation.getMode() == Conversation.MODE_MULTI) {
+                    binding.contactDisplayName.setText("#" + contact.getDisplayName());
+                }
+                // end AM-120
             } else {
                 binding.contactDisplayName.setText(name == null ? "" : name);
                 binding.contactJid.setText(getStatus(user));

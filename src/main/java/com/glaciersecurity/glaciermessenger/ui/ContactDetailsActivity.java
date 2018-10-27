@@ -418,10 +418,11 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         } else {
             binding.showInactiveDevices.setVisibility(View.GONE);
         }
-        binding.scanButton.setVisibility(hasKeys && isCameraFeatureAvailable() ? View.VISIBLE : View.GONE);
-        if (hasKeys) {
-            binding.scanButton.setOnClickListener((v) -> ScanActivity.scan(this));
-        }
+        // HONEYBADGER AM-120 Remove the top right barcode scanning feature
+//        binding.scanButton.setVisibility(hasKeys && isCameraFeatureAvailable() ? View.VISIBLE : View.GONE);
+//        if (hasKeys) {
+//            binding.scanButton.setOnClickListener((v) -> ScanActivity.scan(this));
+//        }
         if (Config.supportOpenPgp() && contact.getPgpKeyId() != 0) {
             hasKeys = true;
             View view = inflater.inflate(R.layout.contact_key, binding.detailsContactKeys, false);

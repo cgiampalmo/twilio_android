@@ -4,9 +4,10 @@
     <item
         android:id="@+id/context_contact_details"
         android:title="@string/view_contact_details"/>
-    <item
-        android:id="@+id/context_show_qr"
-        android:title="@string/show_qr_code"/>
+    <!--HONEYBADGER AM-120 Remove the top right barcode scanning feature-->
+    <!--<item-->
+        <!--android:id="@+id/context_show_qr"-->
+        <!--android:title="@string/show_qr_code"/>-->
     <item
         android:id="@+id/context_contact_block_unblock"
         android:title="@string/block_contact"/>

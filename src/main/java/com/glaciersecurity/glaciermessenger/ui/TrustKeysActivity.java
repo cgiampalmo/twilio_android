@@ -99,8 +99,9 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.trust_keys, menu);
-		MenuItem scanQrCode = menu.findItem(R.id.action_scan_qr_code);
-		scanQrCode.setVisible((ownKeysToTrust.size() > 0 || foreignActuallyHasKeys()) && isCameraFeatureAvailable());
+		//HONEYBADGER AM-120 Remove the top right barcode scanning feature\
+		//MenuItem scanQrCode = menu.findItem(R.id.action_scan_qr_code);
+		//scanQrCode.setVisible((ownKeysToTrust.size() > 0 || foreignActuallyHasKeys()) && isCameraFeatureAvailable());
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -113,16 +114,17 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.action_scan_qr_code:
-				if (hasPendingKeyFetches()) {
-					Toast.makeText(this, R.string.please_wait_for_keys_to_be_fetched, Toast.LENGTH_SHORT).show();
-				} else {
-					ScanActivity.scan(this);
-					//new IntentIntegrator(this).initiateScan(Arrays.asList("AZTEC","QR_CODE"));
-					return true;
-				}
-		}
+		//HONEYBADGER AM-120 Remove the top right barcode scanning feature
+//		switch (item.getItemId()) {
+//			case R.id.action_scan_qr_code:
+//				if (hasPendingKeyFetches()) {
+//					Toast.makeText(this, R.string.please_wait_for_keys_to_be_fetched, Toast.LENGTH_SHORT).show();
+//				} else {
+//					ScanActivity.scan(this);
+//					//new IntentIntegrator(this).initiateScan(Arrays.asList("AZTEC","QR_CODE"));
+//					return true;
+//				}
+//		}
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -191,20 +193,21 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 							}
 					);
 				}
-				if (fingerprints.size() == 0) {
-					keysCardBinding.noKeysToAccept.setVisibility(View.VISIBLE);
-					if (hasNoOtherTrustedKeys(jid)) {
-						if (!mAccount.getRoster().getContact(jid).mutualPresenceSubscription()) {
-							keysCardBinding.noKeysToAccept.setText(R.string.error_no_keys_to_trust_presence);
-						} else {
-							keysCardBinding.noKeysToAccept.setText(R.string.error_no_keys_to_trust_server_error);
-						}
-					} else {
-						keysCardBinding.noKeysToAccept.setText(getString(R.string.no_keys_just_confirm, mAccount.getRoster().getContact(jid).getDisplayName()));
-					}
-				} else {
-					keysCardBinding.noKeysToAccept.setVisibility(View.GONE);
-				}
+				//HONEYBADGER AM-120 Enable and hide Blind Trust Before Verification
+//				if (fingerprints.size() == 0) {
+//					keysCardBinding.noKeysToAccept.setVisibility(View.VISIBLE);
+//					if (hasNoOtherTrustedKeys(jid)) {
+//						if (!mAccount.getRoster().getContact(jid).mutualPresenceSubscription()) {
+//							keysCardBinding.noKeysToAccept.setText(R.string.error_no_keys_to_trust_presence);
+//						} else {
+//							keysCardBinding.noKeysToAccept.setText(R.string.error_no_keys_to_trust_server_error);
+//						}
+//					} else {
+//						keysCardBinding.noKeysToAccept.setText(getString(R.string.no_keys_just_confirm, mAccount.getRoster().getContact(jid).getDisplayName()));
+//					}
+//				} else {
+//					keysCardBinding.noKeysToAccept.setVisibility(View.GONE);
+//				}
 				binding.foreignKeys.addView(keysCardBinding.foreignKeysCard);
 			}
 		}

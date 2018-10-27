@@ -580,9 +580,10 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		getMenuInflater().inflate(R.menu.start_conversation, menu);
 		MenuItem menuHideOffline = menu.findItem(R.id.action_hide_offline);
 		MenuItem joinGroupChat = menu.findItem(R.id.action_join_conference);
-		MenuItem qrCodeScanMenuItem = menu.findItem(R.id.action_scan_qr_code);
+		//HONEYBADGER AM-120 Remove the top right barcode scanning feature
+		//MenuItem qrCodeScanMenuItem = menu.findItem(R.id.action_scan_qr_code);
 		joinGroupChat.setVisible(binding.startConversationViewPager.getCurrentItem() == 1);
-		qrCodeScanMenuItem.setVisible(isCameraFeatureAvailable());
+		//qrCodeScanMenuItem.setVisible(isCameraFeatureAvailable());
 		menuHideOffline.setChecked(this.mHideOfflineContacts);
 		mMenuSearchView = menu.findItem(R.id.action_search);
 		mMenuSearchView.setOnActionExpandListener(mOnActionExpandListener);
@@ -612,9 +613,10 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			case R.id.action_join_conference:
 				showJoinConferenceDialog(null);
 				return true;
-			case R.id.action_scan_qr_code:
-				UriHandlerActivity.scan(this);
-				return true;
+			//HONEYBADGER AM-120 Remove the top right barcode scanning feature
+//			case R.id.action_scan_qr_code:
+//				UriHandlerActivity.scan(this);
+//				return true;
 			case R.id.action_hide_offline:
 				mHideOfflineContacts = !item.isChecked();
 				getPreferences().edit().putBoolean("hide_offline", mHideOfflineContacts).commit();
@@ -1139,9 +1141,10 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				case R.id.context_contact_details:
 					activity.openDetailsForContact();
 					break;
-				case R.id.context_show_qr:
-					activity.showQrForContact();
-					break;
+				//HONEYBADGER Remove the top right barcode scanning feature
+//				case R.id.context_show_qr:
+//					activity.showQrForContact();
+//					break;
 				case R.id.context_contact_block_unblock:
 					activity.toggleContactBlock();
 					break;
@@ -1151,9 +1154,10 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				case R.id.context_join_conference:
 					activity.openConversationForBookmark();
 					break;
-				case R.id.context_share_uri:
-					activity.shareBookmarkUri();
-					break;
+				//HONEYBADGER AM-120 remove "Share URI with"
+//				case R.id.context_share_uri:
+//					activity.shareBookmarkUri();
+//					break;
 				case R.id.context_delete_conference:
 					activity.deleteConference();
 			}

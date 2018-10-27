@@ -394,18 +394,19 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_conversations, menu);
-		MenuItem qrCodeScanMenuItem = menu.findItem(R.id.action_scan_qr_code);
-		if (qrCodeScanMenuItem != null) {
-			if (isCameraFeatureAvailable()) {
-				Fragment fragment = getFragmentManager().findFragmentById(R.id.main_fragment);
-				boolean visible = getResources().getBoolean(R.bool.show_qr_code_scan)
-						&& fragment != null
-						&& fragment instanceof ConversationsOverviewFragment;
-				qrCodeScanMenuItem.setVisible(visible);
-			} else {
-				qrCodeScanMenuItem.setVisible(false);
-			}
-		}
+
+//		MenuItem qrCodeScanMenuItem = menu.findItem(R.id.action_scan_qr_code);
+//		if (qrCodeScanMenuItem != null) {
+//			if (isCameraFeatureAvailable()) {
+//				Fragment fragment = getFragmentManager().findFragmentById(R.id.main_fragment);
+//				boolean visible = getResources().getBoolean(R.bool.show_qr_code_scan)
+//						&& fragment != null
+//						&& fragment instanceof ConversationsOverviewFragment;
+//				qrCodeScanMenuItem.setVisible(visible);
+//			} else {
+//				qrCodeScanMenuItem.setVisible(false);
+//			}
+//		}
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -479,9 +480,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					return true;
 				}
 				break;
-			case R.id.action_scan_qr_code:
-				UriHandlerActivity.scan(this);
-				return true;
+			//HONEYBADGER AM-120 Remove the top right barcode scanning feature
+//			case R.id.action_scan_qr_code:
+//				UriHandlerActivity.scan(this);
+//				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -576,6 +578,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				final Conversation conversation = ((ConversationFragment) mainFragment).getConversation();
 				if (conversation != null) {
 					actionBar.setTitle(EmojiWrapper.transform(conversation.getName()));
+					//HONEYBADGER AM-120 leading # if group
+					if (conversation.getMode() == Conversation.MODE_MULTI) {
+						actionBar.setTitle(EmojiWrapper.transform(conversation.getName()));
+					}
 					actionBar.setDisplayHomeAsUpEnabled(true);
 					return;
 				}

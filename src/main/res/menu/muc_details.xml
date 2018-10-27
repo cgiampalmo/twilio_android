@@ -2,25 +2,32 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-        android:id="@+id/action_share"
-        android:icon="?attr/icon_share"
-        android:orderInCategory="15"
-        app:showAsAction="always"
-        android:title="@string/share_uri_with">
-        <menu>
-            <item
-                android:id="@+id/action_share_uri"
-                android:title="@string/share_as_uri"/>
-            <item
-                android:id="@+id/action_share_http"
-                android:title="@string/share_as_http"/>
-            <item
-                android:id="@+id/action_show_qr_code"
-                android:title="@string/show_qr_code"/>
-        </menu>
-    </item>
 
+    //HONEYBADGER AM-120 Remove the top right barcode scanning feature
+    <!--<item-->
+        <!--android:id="@+id/action_share"-->
+        <!--android:icon="?attr/icon_share"-->
+        <!--android:orderInCategory="15"-->
+        <!--app:showAsAction="always"-->
+        <!--android:title="@string/share_uri_with">-->
+        <!--<menu>-->
+            <!--<item-->
+                <!--android:id="@+id/action_share_uri"-->
+                <!--android:title="@string/share_as_uri"/>-->
+            <!--<item-->
+                <!--android:id="@+id/action_share_http"-->
+                <!--android:title="@string/share_as_http"/>-->
+            <!--<item-->
+                <!--android:id="@+id/action_show_qr_code"-->
+                <!--android:title="@string/show_qr_code"/>-->
+        <!--</menu>-->
+    <!--</item>-->
+    //HONEYBADGER AM-120 Move Core Connection to the top of the Settings menu
+    <item
+        android:id="@+id/action_glaciervpn"
+        android:orderInCategory="75"
+        android:showAsAction="never"
+        android:title="@string/action_glaciervpn" />
     <item
         android:id="@+id/action_save_as_bookmark"
         android:orderInCategory="80"
@@ -48,9 +55,4 @@
         android:orderInCategory="100"
         app:showAsAction="never"
         android:title="@string/action_settings"/>
-    <item
-        android:id="@+id/action_glaciervpn"
-        android:orderInCategory="110"
-        android:showAsAction="never"
-        android:title="@string/action_glaciervpn"/>
 </menu>

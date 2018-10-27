@@ -47,35 +47,37 @@ public abstract class OmemoActivity extends XmppActivity {
 				&& fingerprint instanceof String
 				&& fingerprintStatus instanceof FingerprintStatus) {
 			getMenuInflater().inflate(R.menu.omemo_key_context, menu);
-			MenuItem distrust = menu.findItem(R.id.distrust_key);
-			MenuItem verifyScan = menu.findItem(R.id.verify_scan);
-			if (this instanceof TrustKeysActivity) {
-				distrust.setVisible(false);
-				verifyScan.setVisible(false);
-			} else {
-				FingerprintStatus status = (FingerprintStatus) fingerprintStatus;
-				if (!status.isActive() || status.isVerified()) {
-					verifyScan.setVisible(false);
-				}
-				distrust.setVisible(status.isVerified() || (!status.isActive() && status.isTrusted()));
-			}
+			//HONEYBADGER AM-120 blind trust and remove scan
+//			MenuItem distrust = menu.findItem(R.id.distrust_key);
+//			MenuItem verifyScan = menu.findItem(R.id.verify_scan);
+//			if (this instanceof TrustKeysActivity) {
+//				distrust.setVisible(false);
+//				verifyScan.setVisible(false);
+//			} else {
+//				FingerprintStatus status = (FingerprintStatus) fingerprintStatus;
+//				if (!status.isActive() || status.isVerified()) {
+//					verifyScan.setVisible(false);
+//				}
+//				distrust.setVisible(status.isVerified() || (!status.isActive() && status.isTrusted()));
+//			}
 			this.mSelectedAccount = (Account) account;
 			this.mSelectedFingerprint = (String) fingerprint;
 		}
 	}
 
+	//HONEYBADGER AM-120
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.distrust_key:
-				showPurgeKeyDialog(mSelectedAccount, mSelectedFingerprint);
-				break;
+//			case R.id.distrust_key:
+//				showPurgeKeyDialog(mSelectedAccount, mSelectedFingerprint);
+//				break;
 			case R.id.copy_omemo_key:
 				copyOmemoFingerprint(mSelectedFingerprint);
 				break;
-			case R.id.verify_scan:
-				ScanActivity.scan(this);
-				break;
+//			case R.id.verify_scan:
+//				ScanActivity.scan(this);
+//				break;
 		}
 		return true;
 	}

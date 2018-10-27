@@ -117,9 +117,13 @@
         <item name="colorAccent">@color/blue_a100</item>
         <item name="popupOverlayStyle">@style/ThemeOverlay.AppCompat.Dark</item>
 
-        <item name="color_background_primary">@color/grey800</item>
-        <item name="color_background_secondary">@color/grey900</item>
-        <item name="color_background_tertiary">@color/grey700</item>
+        <!--HONEYBADGER AM-120 Dark mode conversations view should be black like the actual conversation, not grey-->
+        <item name="color_background_primary">@color/black54</item>
+        <item name="color_background_secondary">@color/black12</item>
+        <item name="color_background_tertiary">@color/black87</item>
+        <!--<item name="color_background_primary">@color/grey800</item>-->
+        <!--<item name="color_background_secondary">@color/grey900</item>-->
+        <!--<item name="color_background_tertiary">@color/grey700</item>-->
         <item name="activity_background_search">@drawable/search_background_dark</item>
         <item name="activity_background_no_results">@drawable/no_results_background_dark</item>
         <item name="list_item_background">@drawable/list_item_background_dark</item>
@@ -198,7 +202,7 @@
         <item type="reference" name="icon_settings">@drawable/ic_settings_white_24dp</item>
         <item type="reference" name="icon_import_export">@drawable/ic_import_export_white_24dp</item>
         <item type="reference" name="icon_share">@drawable/ic_share_white_24dp</item>
-        <item type="reference" name="icon_scan_qr_code">@drawable/ic_qr_code_scan_white_24dp</item>
+        <!--<item type="reference" name="icon_scan_qr_code">@drawable/ic_qr_code_scan_white_24dp</item>-->
         <item type="reference" name="icon_scroll_down">@drawable/ic_scroll_to_end_white</item>
 
         <item type="reference" name="icon_gps_not_fixed">@drawable/ic_gps_not_fixed_white_24dp</item>

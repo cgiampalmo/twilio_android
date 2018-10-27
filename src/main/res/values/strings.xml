@@ -3,7 +3,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_add">New chat</string>
     <string name="action_accounts">Manage Accounts</string>
-    <string name="action_end_conversation">Clear/End Chat</string>
+    <string name="action_end_conversation">End Chat</string>
     <string name="action_contact_details">Contact Details</string>
     <string name="action_muc_details">Group details</string>
     <string name="action_secure">Secure chat</string>
@@ -87,7 +87,7 @@
     <string name="send_unencrypted_message">Send unencrypted message</string>
     <string name="send_message">Send message</string>
     <string name="send_message_to_x">Send message to %s</string>
-    <string name="send_omemo_message">Send OMEMO encrypted message</string>
+    <string name="send_omemo_message">Send Glacier message</string>
     <string name="send_omemo_x509_message">Send v\\OMEMO encrypted message</string>
     <string name="send_pgp_message">Send OpenPGP encrypted message</string>
     <string name="your_nick_has_been_changed">Your nickname has been changed</string>
@@ -106,11 +106,11 @@
     <string name="contacts_have_no_pgp_keys">Messenger is unable to encrypt your messages because your contacts are not announcing their public key.\n\n<small>Please ask your contacts to setup OpenPGP.</small></string>
     <string name="pref_general">General</string>
     <string name="pref_accept_files">Accept files</string>
-    <string name="pref_accept_files_summary">Automatically accept files smaller than…</string>
+    <string name="pref_accept_files_summary">Automatically accept files smaller than 10MiB</string>
     <string name="pref_attachments">Attachments</string>
     <string name="pref_return_to_previous">Quick Sharing</string>
     <string name="pref_return_to_previous_summary">Immediately return to previous activity instead of opening the chat session after sharing something</string>
-    <string name="pref_notification_settings">Notification</string>
+    <string name="pref_notification_settings">Notifications</string>
     <string name="pref_notifications">Notifications</string>
     <string name="pref_notifications_summary">Notify when a new message arrives</string>
     <string name="pref_vibrate">Vibrate</string>
@@ -213,12 +213,12 @@
     <string name="fetching_keys">Fetching keys…</string>
     <string name="done">Done</string>
     <string name="decrypt">Decrypt</string>
-    <string name="conferences">Group chats</string>
+    <string name="conferences">Groups</string>
     <string name="search">Search</string>
     <string name="dialog_title_create_contact">Create Contact</string>
     <string name="enter_contact">Enter Contact</string>
-    <string name="join_conference">Join group chat</string>
-    <string name="dialog_title_join_conference">Join Group Chat</string>
+    <string name="join_conference">Join group</string>
+    <string name="dialog_title_join_conference">Join Chat</string>
     <string name="delete_contact">Delete contact</string>
     <string name="view_contact_details">View contact details</string>
     <string name="block_contact">Block contact</string>
@@ -546,7 +546,7 @@
     <string name="pref_broadcast_last_activity_summary">Let all your contacts know when you use Messenger</string>
     <string name="pref_privacy">Privacy</string>
     <string name="pref_theme_options">Theme</string>
-    <string name="pref_theme_options_summary">Select the color palette</string>
+    <string name="pref_theme_options_summary">Select Theme</string>
     <string name="pref_theme_light">Light theme</string>
     <string name="pref_theme_dark">Dark theme</string>
     <string name="pref_use_green_background">Green Background</string>
