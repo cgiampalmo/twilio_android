@@ -286,11 +286,11 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //HONEYBADGER AM-120 Remove the top right barcode scanning feature
-//        switch (item.getItemId()) {
+        switch (item.getItemId()) {
 //            case R.id.action_scan_qr_code:
 //                ScanActivity.scan(this);
 //                return true;
-//        }
+        }
         return super.onOptionsItemSelected(item);
     }
 

@@ -36,7 +36,8 @@ import static com.glaciersecurity.glaciermessenger.ui.ConversationFragment.ATTAC
 import static com.glaciersecurity.glaciermessenger.ui.ConversationFragment.ATTACHMENT_CHOICE_TAKE_PHOTO;
 
 public enum SendButtonAction {
-	TEXT, TAKE_PHOTO, SEND_LOCATION, RECORD_VOICE, CANCEL, CHOOSE_PICTURE, RECORD_VIDEO;
+	TEXT, TAKE_PHOTO, RECORD_VOICE, CANCEL, CHOOSE_PICTURE, RECORD_VIDEO;
+	//HONEYBADGER AM-120 remove enum SEND_LOCATION
 
 	public static SendButtonAction valueOfOrDefault(String setting, SendButtonAction text) {
 		try {
@@ -48,8 +49,8 @@ public enum SendButtonAction {
 
 	public static SendButtonAction of(int attachmentChoice) {
 		switch (attachmentChoice) {
-			case ATTACHMENT_CHOICE_LOCATION:
-				return SEND_LOCATION;
+//			case ATTACHMENT_CHOICE_LOCATION:
+//				return SEND_LOCATION;
 			case ATTACHMENT_CHOICE_RECORD_VOICE:
 				return RECORD_VOICE;
 			case ATTACHMENT_CHOICE_RECORD_VIDEO:
@@ -67,8 +68,8 @@ public enum SendButtonAction {
 		switch (this) {
 			case TAKE_PHOTO:
 				return ATTACHMENT_CHOICE_TAKE_PHOTO;
-			case SEND_LOCATION:
-				return ATTACHMENT_CHOICE_LOCATION;
+//			case SEND_LOCATION:
+//				return ATTACHMENT_CHOICE_LOCATION;
 			case RECORD_VOICE:
 				return ATTACHMENT_CHOICE_RECORD_VOICE;
 			case CHOOSE_PICTURE:

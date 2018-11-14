@@ -284,13 +284,13 @@ public final class ScanActivity extends Activity implements SurfaceTextureListen
 		if (requestCode != REQUEST_CAMERA_PERMISSIONS_TO_SCAN) {
 			return;
 		}
-		if (grantResults.length > 0) {
-			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-				scan(activity);
-			} else {
-				Toast.makeText(activity, R.string.qr_code_scanner_needs_access_to_camera, Toast.LENGTH_SHORT).show();
-			}
-		}
+//		if (grantResults.length > 0) {
+//			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//				scan(activity);
+//			} else {
+//				Toast.makeText(activity, R.string.qr_code_scanner_needs_access_to_camera, Toast.LENGTH_SHORT).show();
+//			}
+//		}
 	}
 
 	private final class AutoFocusRunnable implements Runnable {

@@ -41,7 +41,7 @@
 		<item>@string/attach_record_video</item>
 		<item>@string/attach_choose_picture</item>
 		<item>@string/attach_record_voice</item>
-		<item>@string/send_location</item>
+		<!--<item>@string/send_location</item>-->
 	</string-array>
 
 	<string-array name="quick_action_values">
@@ -51,7 +51,7 @@
 		<item>RECORD_VIDEO</item>
 		<item>CHOOSE_PICTURE</item>
 		<item>RECORD_VOICE</item>
-		<item>SEND_LOCATION</item>
+		<!--<item>SEND_LOCATION</item>-->
 	</string-array>
 
 	<string-array name="picture_compression_values">

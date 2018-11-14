@@ -146,10 +146,10 @@ public class UriHandlerActivity extends AppCompatActivity {
 			case Intent.ACTION_SENDTO:
 				handleUri(data.getData());
 				break;
-			case ACTION_SCAN_QR_CODE:
-				Intent intent = new Intent(this, ScanActivity.class);
-				startActivityForResult(intent, REQUEST_SCAN_QR_CODE);
-				return;
+//			case ACTION_SCAN_QR_CODE:
+//				Intent intent = new Intent(this, ScanActivity.class);
+//				startActivityForResult(intent, REQUEST_SCAN_QR_CODE);
+//				return;
 		}
 
 		finish();
@@ -160,19 +160,19 @@ public class UriHandlerActivity extends AppCompatActivity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		super.onActivityResult(requestCode, requestCode, intent);
-		if (requestCode == REQUEST_SCAN_QR_CODE && resultCode == RESULT_OK) {
-			String result = intent.getStringExtra(ScanActivity.INTENT_EXTRA_RESULT);
-			if (result != null) {
-				if (result.startsWith("BEGIN:VCARD\n")) {
-					Matcher matcher = VCARD_XMPP_PATTERN.matcher(result);
-					if (matcher.find()) {
-						result = matcher.group(2);
-					}
-				}
-				Uri uri = Uri.parse(result);
-				handleUri(uri, true);
-			}
-		}
+//		if (requestCode == REQUEST_SCAN_QR_CODE && resultCode == RESULT_OK) {
+//			String result = intent.getStringExtra(ScanActivity.INTENT_EXTRA_RESULT);
+//			if (result != null) {
+//				if (result.startsWith("BEGIN:VCARD\n")) {
+//					Matcher matcher = VCARD_XMPP_PATTERN.matcher(result);
+//					if (matcher.find()) {
+//						result = matcher.group(2);
+//					}
+//				}
+//				Uri uri = Uri.parse(result);
+//				handleUri(uri, true);
+//			}
+//		}
 		finish();
 	}
 }

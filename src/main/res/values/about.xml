@@ -27,11 +27,13 @@
   ~ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
   ~ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   -->
-
+<!--HONEYBADGER AM120 edit about message to reflex glacier messenger-->
 <resources>
     <string name="pref_about_message" translatable="false">
-			Conversations • the very last word in instant messaging.
-			\n\nCopyright © 2014-2018 Daniel Gultsch
+			Glacier Messenger - Secure Communications as a Service
+			\n\nCopyright 2017-2018 Glacier Security Inc
+			\n\nwww.glaciersecurity.com
+			\n\nsupport@glaciersecurity.com
 			\n\nThis program is free software: you can redistribute it and/or modify
 			it under the terms of the GNU General Public License as published by
 			the Free Software Foundation, either version 3 of the License, or
@@ -42,8 +44,9 @@
 			GNU General Public License for more details.
 			\n\nYou should have received a copy of the GNU General Public License
 			along with this program. If not, see https://www.gnu.org/licenses
-			\n\nDownload the full source code at https://github.com/siacs/Conversations
+			\n\nDownload the full source code at https://github.com/GlacierSecurityInc
 			\n\n\nLibraries
+			\n\nhttps://github.com/siacs/Conversations
 			\n\nhttps://github.com/ypresto/android-transcoder\n(Apache License, Version 2.0)
 			\n\nhttps://www.bouncycastle.org\n(The MIT License (MIT))
 			\n\nhttps://www.gnu.org/software/libidn\n(Apache License, Version 2.0)

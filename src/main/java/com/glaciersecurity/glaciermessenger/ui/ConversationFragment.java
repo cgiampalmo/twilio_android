@@ -393,7 +393,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				switch (action) {
 					case TAKE_PHOTO:
 					case RECORD_VIDEO:
-					case SEND_LOCATION:
+//					case SEND_LOCATION:
 					case RECORD_VOICE:
 					case CHOOSE_PICTURE:
 						attachFile(action.toChoice());
@@ -1173,17 +1173,17 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			return super.onOptionsItemSelected(item);
 		}
 		switch (item.getItemId()) {
-			case R.id.encryption_choice_axolotl:
-			case R.id.encryption_choice_pgp:
-			case R.id.encryption_choice_none:
-				handleEncryptionSelection(item);
-				break;
+//			case R.id.encryption_choice_axolotl:
+//			case R.id.encryption_choice_pgp:
+//			case R.id.encryption_choice_none:
+//				handleEncryptionSelection(item);
+//				break;
 			case R.id.attach_choose_picture:
 			case R.id.attach_take_picture:
 			case R.id.attach_record_video:
 			case R.id.attach_choose_file:
 			case R.id.attach_record_voice:
-			case R.id.attach_location:
+//			case R.id.attach_location:
 				handleAttachmentSelection(item);
 				break;
 			/* GOOBER WIPE ALL HISTORY
@@ -1245,48 +1245,48 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			case R.id.attach_record_voice:
 				attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
 				break;
-			case R.id.attach_location:
-				attachFile(ATTACHMENT_CHOICE_LOCATION);
-				break;
+//			case R.id.attach_location:
+//				attachFile(ATTACHMENT_CHOICE_LOCATION);
+//				break;
 		}
 	}
 
-	private void handleEncryptionSelection(MenuItem item) {
-		if (conversation == null) {
-			return;
-		}
-		switch (item.getItemId()) {
-			case R.id.encryption_choice_none:
-				conversation.setNextEncryption(Message.ENCRYPTION_NONE);
-				item.setChecked(true);
-				break;
-			case R.id.encryption_choice_pgp:
-				if (activity.hasPgp()) {
-					if (conversation.getAccount().getPgpSignature() != null) {
-						conversation.setNextEncryption(Message.ENCRYPTION_PGP);
-						item.setChecked(true);
-					} else {
-						activity.announcePgp(conversation.getAccount(), conversation, null, activity.onOpenPGPKeyPublished);
-					}
-				} else {
-					activity.showInstallPgpDialog();
-				}
-				break;
-			case R.id.encryption_choice_axolotl:
-				Log.d(Config.LOGTAG, AxolotlService.getLogprefix(conversation.getAccount())
-						+ "Enabled axolotl for Contact " + conversation.getContact().getJid());
-				conversation.setNextEncryption(Message.ENCRYPTION_AXOLOTL);
-				item.setChecked(true);
-				break;
-			default:
-				conversation.setNextEncryption(Message.ENCRYPTION_NONE);
-				break;
-		}
-		activity.xmppConnectionService.updateConversation(conversation);
-		updateChatMsgHint();
-		getActivity().invalidateOptionsMenu();
-		activity.refreshUi();
-	}
+//	private void handleEncryptionSelection(MenuItem item) {
+//		if (conversation == null) {
+//			return;
+//		}
+//		switch (item.getItemId()) {
+//			case R.id.encryption_choice_none:
+//				conversation.setNextEncryption(Message.ENCRYPTION_NONE);
+//				item.setChecked(true);
+//				break;
+//			case R.id.encryption_choice_pgp:
+//				if (activity.hasPgp()) {
+//					if (conversation.getAccount().getPgpSignature() != null) {
+//						conversation.setNextEncryption(Message.ENCRYPTION_PGP);
+//						item.setChecked(true);
+//					} else {
+//						activity.announcePgp(conversation.getAccount(), conversation, null, activity.onOpenPGPKeyPublished);
+//					}
+//				} else {
+//					activity.showInstallPgpDialog();
+//				}
+//				break;
+//			case R.id.encryption_choice_axolotl:
+//				Log.d(Config.LOGTAG, AxolotlService.getLogprefix(conversation.getAccount())
+//						+ "Enabled axolotl for Contact " + conversation.getContact().getJid());
+//				conversation.setNextEncryption(Message.ENCRYPTION_AXOLOTL);
+//				item.setChecked(true);
+//				break;
+//			default:
+//				conversation.setNextEncryption(Message.ENCRYPTION_NONE);
+//				break;
+//		}
+//		activity.xmppConnectionService.updateConversation(conversation);
+//		updateChatMsgHint();
+//		getActivity().invalidateOptionsMenu();
+//		activity.refreshUi();
+//	}
 
 	public void attachFile(final int attachmentChoice) {
 		if (attachmentChoice == ATTACHMENT_CHOICE_RECORD_VOICE) {

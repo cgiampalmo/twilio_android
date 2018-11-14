@@ -200,9 +200,9 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 		String filesize = null;
 		String info = null;
 		boolean error = false;
-		if (viewHolder.indicatorReceived != null) {
-			viewHolder.indicatorReceived.setVisibility(View.GONE);
-		}
+//		if (viewHolder.indicatorReceived != null) {
+//			viewHolder.indicatorReceived.setVisibility(View.GONE);
+//		}
 
 		if (viewHolder.edit_indicator != null) {
 			if (message.edited()) {
@@ -245,12 +245,12 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 				break;
 			case Message.STATUS_SEND_RECEIVED:
 				if (mIndicateReceived) {
-					viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
+					//viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
 				}
 				break;
 			case Message.STATUS_SEND_DISPLAYED:
 				if (mIndicateReceived) {
-					viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
+					//viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
 				}
 				break;
 			case Message.STATUS_SEND_FAILED:
@@ -285,17 +285,17 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 					verified = true;
 				}
 			}
-			if (verified) {
-				viewHolder.indicator.setImageResource(darkBackground ? R.drawable.ic_verified_user_white_18dp : R.drawable.ic_verified_user_black_18dp);
-			} else {
-				viewHolder.indicator.setImageResource(darkBackground ? R.drawable.ic_lock_white_18dp : R.drawable.ic_lock_black_18dp);
-			}
-			if (darkBackground) {
-				viewHolder.indicator.setAlpha(0.7f);
-			} else {
-				viewHolder.indicator.setAlpha(0.57f);
-			}
-			viewHolder.indicator.setVisibility(View.VISIBLE);
+//			if (verified) {
+//				viewHolder.indicator.setImageResource(darkBackground ? R.drawable.ic_verified_user_white_18dp : R.drawable.ic_verified_user_black_18dp);
+//			} else {
+//				viewHolder.indicator.setImageResource(darkBackground ? R.drawable.ic_lock_white_18dp : R.drawable.ic_lock_black_18dp);
+//			}
+//			if (darkBackground) {
+//				viewHolder.indicator.setAlpha(0.7f);
+//			} else {
+//				viewHolder.indicator.setAlpha(0.57f);
+//			}
+//			viewHolder.indicator.setVisibility(View.VISIBLE);
 		}
 
 		String formatedTime = UIHelper.readableTimeDifferenceFull(getContext(), message.getMergedTimeSent());
@@ -630,12 +630,12 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 					viewHolder.message_box = view.findViewById(R.id.message_box);
 					viewHolder.contact_picture = view.findViewById(R.id.message_photo);
 					viewHolder.download_button = view.findViewById(R.id.download_button);
-					viewHolder.indicator = view.findViewById(R.id.security_indicator);
+//					viewHolder.indicator = view.findViewById(R.id.security_indicator);
 					viewHolder.edit_indicator = view.findViewById(R.id.edit_indicator);
 					viewHolder.image = view.findViewById(R.id.message_image);
 					viewHolder.messageBody = view.findViewById(R.id.message_body);
 					viewHolder.time = view.findViewById(R.id.message_time);
-					viewHolder.indicatorReceived = view.findViewById(R.id.indicator_received);
+//					viewHolder.indicatorReceived = view.findViewById(R.id.indicator_received);
 					viewHolder.audioPlayer = view.findViewById(R.id.audio_player);
 					break;
 				case RECEIVED:
@@ -643,12 +643,12 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 					viewHolder.message_box = view.findViewById(R.id.message_box);
 					viewHolder.contact_picture = view.findViewById(R.id.message_photo);
 					viewHolder.download_button = view.findViewById(R.id.download_button);
-					viewHolder.indicator = view.findViewById(R.id.security_indicator);
+//					viewHolder.indicator = view.findViewById(R.id.security_indicator);
 					viewHolder.edit_indicator = view.findViewById(R.id.edit_indicator);
 					viewHolder.image = view.findViewById(R.id.message_image);
 					viewHolder.messageBody = view.findViewById(R.id.message_body);
 					viewHolder.time = view.findViewById(R.id.message_time);
-					viewHolder.indicatorReceived = view.findViewById(R.id.indicator_received);
+//					viewHolder.indicatorReceived = view.findViewById(R.id.indicator_received);
 					viewHolder.encryption = view.findViewById(R.id.message_encryption);
 					viewHolder.audioPlayer = view.findViewById(R.id.audio_player);
 					break;
@@ -987,7 +987,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 		protected Button download_button;
 		protected ImageView image;
 		protected ImageView indicator;
-		protected ImageView indicatorReceived;
+		//protected ImageView indicatorReceived;
 		protected TextView time;
 		protected CopyTextView messageBody;
 		protected ImageView contact_picture;
