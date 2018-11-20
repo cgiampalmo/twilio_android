@@ -10,6 +10,6 @@
         <!--android:id="@+id/distrust_key"-->
         <!--android:title="@string/distrust_omemo_key"/>-->
     <item
-        android:id="@+id/copy_omemo_key"
+        android:id="@+id/copy_glacier_messenger_key"
         android:title="@string/copy_fingerprint"/>
 </menu>

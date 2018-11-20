@@ -1,5 +1,6 @@
 package com.glaciersecurity.glaciermessenger.services;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
@@ -941,6 +942,7 @@ public class XmppConnectionService extends Service {
 		}
 	}
 
+
 	@SuppressLint("TrulyRandom")
 	@Override
 	public void onCreate() {
@@ -958,6 +960,7 @@ public class XmppConnectionService extends Service {
 				return bitmap.getByteCount() / 1024;
 			}
 		};
+
 		if (mLastActivity == 0) {
 			mLastActivity = getPreferences().getLong(SETTING_LAST_ACTIVITY_TS, System.currentTimeMillis());
 		}
@@ -1013,6 +1016,8 @@ public class XmppConnectionService extends Service {
 			registerReceiver(this.mEventReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		}
 	}
+
+
 
 	@Override
 	public void onTrimMemory(int level) {

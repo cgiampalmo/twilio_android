@@ -1,5 +1,6 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
@@ -9,6 +10,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -154,6 +157,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
 
         return v;
     }
+
 
     /**
      * setUpTitleText

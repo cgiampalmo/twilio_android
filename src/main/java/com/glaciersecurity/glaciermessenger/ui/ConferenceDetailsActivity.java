@@ -603,11 +603,17 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         final MucOptions mucOptions = mConversation.getMucOptions();
         final User self = mucOptions.getSelf();
         String account;
-        if (Config.DOMAIN_LOCK != null) {
-            account = mConversation.getAccount().getJid().getLocal();
-        } else {
-            account = mConversation.getAccount().getJid().asBareJid().toString();
-        }
+        // HONEYBADGER AM-120 rm jid from display name
+        //or... //account = mConversation.getAccount().getJid().asBareJid().toString();
+        account = mConversation.getAccount().getDisplayName();
+
+//        if (Config.DOMAIN_LOCK != null) {
+//            account = mConversation.getAccount().getJid().getLocal();
+//        } else {
+//            account = mConversation.getAccount().getJid().asBareJid().toString();
+//        }
+
+
         this.binding.editMucNameButton.setVisibility((self.getAffiliation().ranks(MucOptions.Affiliation.OWNER) || mucOptions.canChangeSubject()) ? View.VISIBLE : View.GONE);
         this.binding.detailsAccount.setText(getString(R.string.using_account, account));
         this.binding.jid.setText(mConversation.getJid().asBareJid().toEscapedString());
@@ -616,11 +622,12 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         String subject = mucOptions.getSubject();
         final boolean hasTitle;
         if (printableValue(roomName)) {
-            this.binding.mucTitle.setText(EmojiWrapper.transform(roomName));
+            //HONEYBADGER AM120 # for groups
+            this.binding.mucTitle.setText("#"+EmojiWrapper.transform(roomName));
             this.binding.mucTitle.setVisibility(View.VISIBLE);
             hasTitle = true;
         } else if (!printableValue(subject)) {
-            this.binding.mucTitle.setText(EmojiWrapper.transform(mConversation.getName()));
+            this.binding.mucTitle.setText("#"+EmojiWrapper.transform(mConversation.getName()));
             hasTitle = true;
             this.binding.mucTitle.setVisibility(View.VISIBLE);
         } else {
@@ -655,11 +662,12 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             } else {
                 this.binding.mucInfoMam.setText(R.string.server_info_unavailable);
             }
-            if (self.getAffiliation().ranks(MucOptions.Affiliation.OWNER)) {
-                this.binding.changeConferenceButton.setVisibility(View.VISIBLE);
-            } else {
+            //HONEYBADGER AM-88 we don't want these options available
+//            if (self.getAffiliation().ranks(MucOptions.Affiliation.OWNER)) {
+//                this.binding.changeConferenceButton.setVisibility(View.VISIBLE);
+//            } else {
                 this.binding.changeConferenceButton.setVisibility(View.INVISIBLE);
-            }
+            //}
         } else {
             this.binding.mucMoreDetails.setVisibility(View.GONE);
             this.binding.mucInfoMore.setVisibility(View.GONE);
@@ -709,11 +717,9 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             if (contact != null) {
                 binding.contactDisplayName.setText(contact.getDisplayName());
                 binding.contactJid.setText((name != null ? name + " \u2022 " : "") + getStatus(user));
-                //HONEYBADGER: AM-120 add leading # if group
                 if (mConversation.getMode() == Conversation.MODE_MULTI) {
-                    binding.contactDisplayName.setText("#" + contact.getDisplayName());
+                    binding.contactDisplayName.setText(contact.getDisplayName());
                 }
-                // end AM-120
             } else {
                 binding.contactDisplayName.setText(name == null ? "" : name);
                 binding.contactJid.setText(getStatus(user));

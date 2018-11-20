@@ -1,7 +1,9 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
@@ -74,6 +76,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
 		invalidateOptionsMenu();
 		mAccountAdapter.notifyDataSetChanged();
 	}
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

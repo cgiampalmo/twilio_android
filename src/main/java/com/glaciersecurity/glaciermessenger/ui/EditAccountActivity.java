@@ -502,6 +502,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.mAvatar.setOnClickListener(this.mAvatarClickListener);
 		this.mDisableOsOptimizationsButton = (Button) findViewById(R.id.os_optimization_disable);
 		this.getmDisableOsOptimizationsBody = (TextView) findViewById(R.id.os_optimization_body);
+		//HONEYBADGER AM-120 rm fingerprint info
 		this.mPgpFingerprintBox = (RelativeLayout) findViewById(R.id.pgp_fingerprint_box);
 		this.mPgpFingerprint = (TextView) findViewById(R.id.pgp_fingerprint);
 		this.getmPgpFingerprintDesc = (TextView) findViewById(R.id.pgp_fingerprint_desc);
@@ -627,9 +628,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			this.messageFingerprint = intent.getStringExtra("fingerprint");
 			if (!mInitMode) {
 				this.binding.accountRegisterNew.setVisibility(View.GONE);
-				if (getSupportActionBar() != null) {
-					getSupportActionBar().setTitle(getString(R.string.account_details));
-				}
+				//HONEYBADGER AM-120 rm "using account ... "
+//				if (getSupportActionBar() != null) {
+//					getSupportActionBar().setTitle(getString(R.string.account_details));
+//				}
 			} else {
 				this.mAvatar.setVisibility(View.GONE);
 				ActionBar ab = getSupportActionBar();
@@ -1016,7 +1018,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			if (pgpKeyId != 0 && Config.supportOpenPgp()) {
 				OnClickListener openPgp = view -> launchOpenKeyChain(pgpKeyId);
 				OnClickListener delete = view -> showDeletePgpDialog();
-				this.mPgpFingerprintBox.setVisibility(View.VISIBLE);
+				this.mPgpFingerprintBox.setVisibility(View.GONE);
 				this.mPgpFingerprint.setText(OpenPgpUtils.convertKeyIdToHex(pgpKeyId));
 				this.mPgpFingerprint.setOnClickListener(openPgp);
 				if ("pgp".equals(messageFingerprint)) {
@@ -1038,7 +1040,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					this.mOwnFingerprintDesc.setText(R.string.omemo_fingerprint);
 				}
 				this.mAxolotlFingerprint.setText(CryptoHelper.prettifyFingerprint(ownAxolotlFingerprint.substring(2)));
-				this.mAxolotlFingerprintToClipboardButton.setVisibility(View.VISIBLE);
+				this.mAxolotlFingerprintToClipboardButton.setVisibility(View.GONE);
 				this.mAxolotlFingerprintToClipboardButton.setOnClickListener(v -> copyOmemoFingerprint(ownAxolotlFingerprint));
 			} else {
 				this.mAxolotlFingerprintBox.setVisibility(View.GONE);
@@ -1089,8 +1091,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				errorLayout = null;
 			}
 
+
 			// GOOBER TEST USERNAME - only display username (without '@xxx.xx.xx.xxx')
-			// binding.accountJid.setText(mAccount.getUsername());
+			//HONEYBADGER
+			binding.accountJid.setText(mAccount.getDisplayName());
 
 			removeErrorsOnAllBut(errorLayout);
 			this.binding.stats.setVisibility(View.GONE);

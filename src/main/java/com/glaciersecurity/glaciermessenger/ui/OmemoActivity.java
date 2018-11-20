@@ -1,22 +1,15 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.databinding.DataBindingUtil;
-import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.content.Intent;
-import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
 
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
 
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
@@ -46,7 +39,7 @@ public abstract class OmemoActivity extends XmppActivity {
 				&& fingerprintStatus != null
 				&& fingerprint instanceof String
 				&& fingerprintStatus instanceof FingerprintStatus) {
-			getMenuInflater().inflate(R.menu.omemo_key_context, menu);
+			getMenuInflater().inflate(R.menu.glacier_messenger_key_context, menu);
 			//HONEYBADGER AM-120 blind trust and remove scan
 //			MenuItem distrust = menu.findItem(R.id.distrust_key);
 //			MenuItem verifyScan = menu.findItem(R.id.verify_scan);
@@ -58,7 +51,7 @@ public abstract class OmemoActivity extends XmppActivity {
 //				if (!status.isActive() || status.isVerified()) {
 //					verifyScan.setVisible(false);
 //				}
-//				distrust.setVisible(status.isVerified() || (!status.isActive() && status.isTrusted()));
+//				distrust.setVisible(false);
 //			}
 			this.mSelectedAccount = (Account) account;
 			this.mSelectedFingerprint = (String) fingerprint;
@@ -72,7 +65,7 @@ public abstract class OmemoActivity extends XmppActivity {
 //			case R.id.distrust_key:
 //				showPurgeKeyDialog(mSelectedAccount, mSelectedFingerprint);
 //				break;
-			case R.id.copy_omemo_key:
+			case R.id.copy_glacier_messenger_key:
 				copyOmemoFingerprint(mSelectedFingerprint);
 				break;
 //			case R.id.verify_scan:

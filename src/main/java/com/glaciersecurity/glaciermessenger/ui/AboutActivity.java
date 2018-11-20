@@ -20,5 +20,6 @@ public class AboutActivity extends AppCompatActivity {
         setContentView(R.layout.activity_about);
         setSupportActionBar(findViewById(R.id.toolbar));
         configureActionBar(getSupportActionBar());
+
     }
 }

@@ -56,7 +56,7 @@ public class AccountAdapter extends ArrayAdapter<Account> {
 		TextView jid = view.findViewById(R.id.account_jid);
 
 		// GOOBER USERNAME - display only username
-		jid.setText(account.getJid().asBareJid().toString());
+		jid.setText(account.getDisplayName());
 		/* if (Config.DOMAIN_LOCK != null) {
 			jid.setText(account.getJid().getLocal());
 		} else {

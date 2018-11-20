@@ -1,12 +1,15 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.glaciersecurity.glaciermessenger.R;
@@ -26,6 +29,7 @@ public class WelcomeActivity extends XmppActivity {
 	void onBackendConnected() {
 
 	}
+
 
 	@Override
 	public void onStart() {

@@ -274,7 +274,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 			viewHolder.time.setTextColor(this.getMessageTextColor(darkBackground, false));
 		}
 		if (message.getEncryption() == Message.ENCRYPTION_NONE) {
-			viewHolder.indicator.setVisibility(View.GONE);
+			//viewHolder.indicator.setVisibility(View.GONE);
 		} else {
 			boolean verified = false;
 			if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL) {
@@ -986,7 +986,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 		protected LinearLayout message_box;
 		protected Button download_button;
 		protected ImageView image;
-		protected ImageView indicator;
+		//protected ImageView indicator;
 		//protected ImageView indicatorReceived;
 		protected TextView time;
 		protected CopyTextView messageBody;

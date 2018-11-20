@@ -194,20 +194,20 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 					);
 				}
 				//HONEYBADGER AM-120 Enable and hide Blind Trust Before Verification
-//				if (fingerprints.size() == 0) {
-//					keysCardBinding.noKeysToAccept.setVisibility(View.VISIBLE);
-//					if (hasNoOtherTrustedKeys(jid)) {
-//						if (!mAccount.getRoster().getContact(jid).mutualPresenceSubscription()) {
-//							keysCardBinding.noKeysToAccept.setText(R.string.error_no_keys_to_trust_presence);
-//						} else {
-//							keysCardBinding.noKeysToAccept.setText(R.string.error_no_keys_to_trust_server_error);
-//						}
-//					} else {
-//						keysCardBinding.noKeysToAccept.setText(getString(R.string.no_keys_just_confirm, mAccount.getRoster().getContact(jid).getDisplayName()));
-//					}
-//				} else {
-//					keysCardBinding.noKeysToAccept.setVisibility(View.GONE);
-//				}
+				if (fingerprints.size() == 0) {
+					keysCardBinding.noKeysToAccept.setVisibility(View.VISIBLE);
+					if (hasNoOtherTrustedKeys(jid)) {
+						if (!mAccount.getRoster().getContact(jid).mutualPresenceSubscription()) {
+							keysCardBinding.noKeysToAccept.setText(R.string.error_no_keys_to_trust_presence);
+						} else {
+							keysCardBinding.noKeysToAccept.setText(R.string.error_no_keys_to_trust_server_error);
+						}
+					} else {
+						keysCardBinding.noKeysToAccept.setText(getString(R.string.no_keys_just_confirm, mAccount.getRoster().getContact(jid).getDisplayName()));
+					}
+				} else {
+					keysCardBinding.noKeysToAccept.setVisibility(View.GONE);
+				}
 				binding.foreignKeys.addView(keysCardBinding.foreignKeysCard);
 			}
 		}
@@ -374,7 +374,8 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 						Toast.makeText(TrustKeysActivity.this, R.string.error_fetching_omemo_key, Toast.LENGTH_SHORT).show();
 						break;
 					case SUCCESS_TRUSTED:
-						Toast.makeText(TrustKeysActivity.this, R.string.blindly_trusted_omemo_keys, Toast.LENGTH_LONG).show();
+						// GOOBER - Remove toast for blindly trust message
+						//Toast.makeText(TrustKeysActivity.this, R.string.blindly_trusted_omemo_keys, Toast.LENGTH_LONG).show();
 						break;
 					case SUCCESS_VERIFIED:
 						Toast.makeText(TrustKeysActivity.this,
