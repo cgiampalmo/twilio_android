@@ -415,6 +415,12 @@ public class XmppConnectionService extends Service {
 		toggleForegroundService();
 	}
 
+	public void checkNewPermission(){
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED )) {
+			getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, contactObserver);
+		}
+	}
+
 	public boolean areMessagesInitialized() {
 		return this.restoredFromDatabaseLatch.getCount() == 0;
 	}
@@ -960,7 +966,6 @@ public class XmppConnectionService extends Service {
 				return bitmap.getByteCount() / 1024;
 			}
 		};
-
 		if (mLastActivity == 0) {
 			mLastActivity = getPreferences().getLong(SETTING_LAST_ACTIVITY_TS, System.currentTimeMillis());
 		}
@@ -979,7 +984,9 @@ public class XmppConnectionService extends Service {
 
 		restoreFromDatabase();
 
-		getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, contactObserver);
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED )) {
+			getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, contactObserver);
+		}
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 			Log.d(Config.LOGTAG,"starting file observer");
 			new Thread(fileObserver::startWatching).start();
@@ -1016,7 +1023,6 @@ public class XmppConnectionService extends Service {
 			registerReceiver(this.mEventReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		}
 	}
-
 
 
 	@Override

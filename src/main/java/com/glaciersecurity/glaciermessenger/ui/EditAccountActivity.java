@@ -469,7 +469,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		this.password = null;
 		this.username = null;
 		this.organization = null;
@@ -543,6 +542,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		if (Config.DISALLOW_REGISTRATION_IN_UI) {
 			this.binding.accountRegisterNew.setVisibility(View.GONE);
 		}
+		askForPermissions();
 
 		// Cognito - Initialize application
 		AppHelper.init(getApplicationContext());
@@ -728,7 +728,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		invalidateOptionsMenu();
 
 		// GOOBER COGNITO - get storage permsissions
-		askForPermissions();
+
 
 	}
 
@@ -739,6 +739,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			return Config.DOMAIN_LOCK;
 		}
 	}
+
+
 
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {

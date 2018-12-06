@@ -297,50 +297,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	/**
 	 * GOOBER PERMISSIONS - Ask for permissions
 	 */
-	private void askForPermissions() {
-		final int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
 
-		String[] request = {Manifest.permission.READ_CONTACTS, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "StartConversationActivity::askForPermissions-1");
-			List<String> permissionsNeeded = new ArrayList<String>();
-
-			final List<String> permissionsList = new ArrayList<String>();
-			// GOOBER - added WRITE_EXTERNAL_STORAGE permission ahead of time so that it doesn't ask
-			// when time comes which inevitably fails at that point.
-			if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
-				permissionsNeeded.add("Write Storage");
-			if (!addPermission(permissionsList, Manifest.permission.READ_CONTACTS))
-				permissionsNeeded.add("Read Contacts");
-			if (!addPermission(permissionsList, Manifest.permission.CAMERA))
-				permissionsNeeded.add("Camera");
-			if (!addPermission(permissionsList, Manifest.permission.LOCATION_HARDWARE))
-				permissionsNeeded.add("Location Hardware");
-			 if (!addPermission(permissionsList, Manifest.permission.RECORD_AUDIO))
-				permissionsNeeded.add("Record Audio");
-
-			if (permissionsList.size() > 0) {
-				if (permissionsNeeded.size() > 0) {
-					// Need Rationale
-					String message = "You need to grant access to " + permissionsNeeded.get(0);
-					for (int i = 1; i < permissionsNeeded.size(); i++) {
-						message = message + ", " + permissionsNeeded.get(i);
-					}
-
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-						requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
-								REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
-					}
-
-					return;
-				}
-				requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
-						REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
-
-				return;
-			}
-		}
-	}
 
 	private boolean addPermission(List<String> permissionsList, String permission) {
 
@@ -356,23 +313,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		return false;
 	}
 
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
-		UriHandlerActivity.onRequestPermissionResult(this, requestCode, grantResults);
-		if (grantResults.length > 0) {
-			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-				switch (requestCode) {
-					case REQUEST_OPEN_MESSAGE:
-						refreshUiReal();
-						ConversationFragment.openPendingMessage(this);
-						break;
-					case REQUEST_PLAY_PAUSE:
-						ConversationFragment.startStopPending(this);
-						break;
-				}
-			}
-		}
-	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, final Intent data) {
@@ -386,7 +326,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	}
 
 	private void handleActivityResult(ActivityResult activityResult) {
-		askForPermissions();
 		if (activityResult.resultCode == Activity.RESULT_OK) {
 			handlePositiveActivityResult(activityResult.requestCode, activityResult.data);
 		} else {
@@ -437,7 +376,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		askForPermissions();
 		ConversationMenuConfigurator.reloadFeatures(this);
 		OmemoSetting.load(this);
 		new EmojiService(this).init();
