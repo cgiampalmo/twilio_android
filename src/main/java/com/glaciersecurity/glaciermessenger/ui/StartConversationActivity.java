@@ -334,12 +334,13 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		final int theme = findTheme();
 		if (this.mTheme != theme) {
 			recreate();
-		} else {
-			if (pendingViewIntent.peek() == null) {
-				askForPermissions();
-				// askForContactsPermissions();
-			}
 		}
+//		else {
+//			if (pendingViewIntent.peek() == null) {
+//				askForPermissions();
+//				//askForContactsPermissions();
+//			}
+//		}
 		mConferenceAdapter.refreshSettings();
 		mContactsAdapter.refreshSettings();
 	}
@@ -675,75 +676,6 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	}
 
 	/**
-	 * GOOBER PIN - Ask for permissions
-	 */
-	private void askForPermissions() {
-		final int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
-
-		//String[] request = {Manifest.permission.READ_CONTACTS, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			Log.d("GOOBER", "StartConversationActivity::askForPermissions-1");
-			List<String> permissionsNeeded = new ArrayList<String>();
-
-			final List<String> permissionsList = new ArrayList<String>();
-			// GOOBER - added WRITE_EXTERNAL_STORAGE permission ahead of time so that it doesn't ask
-			// when time comes which inevitably fails at that point.
-			if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
-				permissionsNeeded.add("Write Storage");
-			if (!addPermission(permissionsList, Manifest.permission.READ_EXTERNAL_STORAGE))
-				permissionsNeeded.add("Read Storage");
-			if (!addPermission(permissionsList, Manifest.permission.READ_CONTACTS))
-				permissionsNeeded.add("Read Contacts");
-			if (!addPermission(permissionsList, Manifest.permission.WRITE_CONTACTS))
-				permissionsNeeded.add("Write Contacts");
-			/* if (!addPermission(permissionsList, Manifest.permission.CAMERA))
-				permissionsNeeded.add("Camera"); */
-
-			if (permissionsList.size() > 0) {
-				if (permissionsNeeded.size() > 0) {
-					// Need Rationale
-					String message = "You need to grant access to " + permissionsNeeded.get(0);
-					for (int i = 1; i < permissionsNeeded.size(); i++) {
-						message = message + ", " + permissionsNeeded.get(i);
-					}
-
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-						requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
-								REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
-					}
-
-					return;
-				}
-				requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
-						REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
-
-				return;
-			}
-		}
-	}
-
-	/**
-	 * GOOBER - add permission
-	 *
-	 * @param permissionsList
-	 * @param permission
-	 * @return
-	 */
-	private boolean addPermission(List<String> permissionsList, String permission) {
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			if (this.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-				permissionsList.add(permission);
-				// Check for Rationale Option
-				if (!shouldShowRequestPermissionRationale(permission))
-					return false;
-			}
-			return true;
-		}
-		return false;
-	}
-
-	/**
 	 * GOOBER PIN - Removed in favor of prompting for multiple permissions above
 	 */
 	/* private void askForContactsPermissions() {
@@ -775,13 +707,13 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
-//		if (grantResults.length > 0)
-//			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//				ScanActivity.onRequestPermissionResult(this, requestCode, grantResults);
-//				if (requestCode == REQUEST_SYNC_CONTACTS && xmppConnectionServiceBound) {
-//					xmppConnectionService.loadPhoneContacts();
-//				}
-//			}
+		if (grantResults.length > 0)
+			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+				ScanActivity.onRequestPermissionResult(this, requestCode, grantResults);
+				if (requestCode == REQUEST_SYNC_CONTACTS && xmppConnectionServiceBound) {
+					xmppConnectionService.loadPhoneContacts();
+				}
+			}
 	}
 
 	private void configureHomeButton() {
@@ -1154,10 +1086,9 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				case R.id.context_join_conference:
 					activity.openConversationForBookmark();
 					break;
-				//HONEYBADGER AM-120 remove "Share URI with"
-//				case R.id.context_share_uri:
-//					activity.shareBookmarkUri();
-//					break;
+				case R.id.context_share_uri:
+					activity.shareBookmarkUri();
+					break;
 				case R.id.context_delete_conference:
 					activity.deleteConference();
 			}

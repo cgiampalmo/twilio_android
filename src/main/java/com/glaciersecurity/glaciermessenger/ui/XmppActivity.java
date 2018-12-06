@@ -395,9 +395,6 @@ public abstract class XmppActivity extends PinActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		finishOnCreate();
-	}
-	protected void finishOnCreate(){
 		askForPermissions();
 		metrics = getResources().getDisplayMetrics();
 		ExceptionHelper.init(getApplicationContext());
@@ -1022,6 +1019,7 @@ public abstract class XmppActivity extends PinActivity {
 	/**
 	 * GOOBER PERMISSIONS - Ask for permissions
 	 */
+	//HONEYBADGER AM-120 added all ne
 	private void askForPermissions() {
 		final int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
 
@@ -1039,10 +1037,15 @@ public abstract class XmppActivity extends PinActivity {
 					permissionsNeeded.add("Read Contacts");
 				if (!addPermission(permissionsList, Manifest.permission.CAMERA))
 					permissionsNeeded.add("Camera");
-				if (!addPermission(permissionsList, Manifest.permission.LOCATION_HARDWARE))
-					permissionsNeeded.add("Location Hardware");
+			if (!addPermission(permissionsList, Manifest.permission.RECORD_AUDIO))
+				permissionsNeeded.add("Record Audio");
 				if (!addPermission(permissionsList, Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS))
-					permissionsNeeded.add("Record Audio");
+					permissionsNeeded.add("Ignore Battery Optimizations");
+			if (!addPermission(permissionsList, Manifest.permission.ACCESS_FINE_LOCATION))
+				permissionsNeeded.add("Fine Location");
+			if (!addPermission(permissionsList, Manifest.permission.ACCESS_COARSE_LOCATION))
+				permissionsNeeded.add("Coarse Location");
+
 
 			if (permissionsList.size() > 0) {
 				if (permissionsNeeded.size() > 0) {
@@ -1088,12 +1091,16 @@ public abstract class XmppActivity extends PinActivity {
 		return false;
 	}
 
+	//HONEYBADGER retry actions that their  permission might have been updated/granted and additional service is possible
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
 		UriHandlerActivity.onRequestPermissionResult(this, requestCode, grantResults);
 		if (grantResults.length > 0) {
 			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-				xmppConnectionService.checkNewPermission();
+				if (xmppConnectionService != null){
+					xmppConnectionService.checkNewPermission();
+				}
+				this.isCameraFeatureAvailable = getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
 			}
 		}
 	}
