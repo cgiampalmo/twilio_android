@@ -74,8 +74,8 @@
   <string name="choose_presence">기기 선택</string>
   <string name="send_unencrypted_message">암호화하지 않은 메세지 전송</string>
   <string name="send_message_to_x">%s 에게 매세지 보내기 </string>
-  <string name="send_omemo_message">OMEMO로 암호화된 메세지</string>
-  <string name="send_omemo_x509_message">v\\OMEMO로 암호화된 메세지 전송</string>
+  <string name="send_glacier_message">OMEMO로 암호화된 메세지</string>
+  <string name="send_glacier_x509_message">v\\OMEMO로 암호화된 메세지 전송</string>
   <string name="send_pgp_message">OpenPGP 암호화된 메세지 전송 </string>
   <string name="your_nick_has_been_changed">닉네임이 변경되었습니다 </string>
   <string name="send_unencrypted">암호화하지 않고 전송 </string>
@@ -146,7 +146,7 @@
   <string name="encryption_choice_unencrypted">암호화되지 않음</string>
   <string name="encryption_choice_otr">OTR</string>
   <string name="encryption_choice_pgp">OpenPGP </string>
-  <string name="encryption_choice_omemo">OMEMO</string>
+  <string name="encryption_choice_glacier">OMEMO</string>
   <string name="mgmt_account_delete">계정 삭제 </string>
   <string name="mgmt_account_disable">임시로 해제</string>
   <string name="mgmt_account_publish_avatar">아바타 공개 </string>
@@ -185,12 +185,12 @@
   <string name="install_openkeychain">암호화된 메세지. 복호화하기 위해 OpenKeychain을 설치하세요. </string>
   <string name="openpgp_messages_found">OpenPGP 암호화 메세지 발견 </string>
   <string name="openpgp_key_id">OpenPGP 키ID</string>
-  <string name="omemo_fingerprint">OMEMO 핑거프린트</string>
-  <string name="omemo_fingerprint_x509">v\\OMEMO 핑거프린트</string>
-  <string name="omemo_fingerprint_selected_message">메세지의 OMEMO 핑거프린트</string>
-  <string name="omemo_fingerprint_x509_selected_message">메세지의 v\\OMEMO 핑거프린트</string>
+  <string name="glacier_id">OMEMO 핑거프린트</string>
+  <string name="glacier_id_x509">v\\OMEMO 핑거프린트</string>
+  <string name="glacier_id_selected_message">메세지의 OMEMO 핑거프린트</string>
+  <string name="glacier_id_x509_selected_message">메세지의 v\\OMEMO 핑거프린트</string>
   <string name="other_devices">다른 기기들</string>
-  <string name="trust_omemo_fingerprints">OMEMO 핑거프린트 신뢰</string>
+  <string name="trust_glacier_id">OMEMO 핑거프린트 신뢰</string>
   <string name="fetching_keys">키 가져오는 중...</string>
   <string name="done">완료</string>
   <string name="decrypt">복호화 </string>
@@ -251,7 +251,7 @@
   <string name="pref_use_indicate_received_summary">만약 지원될 경우, 수신된 메세지는 초록색 기호로 표시됩니다. </string>
   <string name="pref_use_send_button_to_indicate_status_summary">연락처 상태를 표시하기 위해 전송 버튼을 색칠함 </string>
   <string name="pref_expert_options_other">기타 </string>
-  <string name="toast_message_omemo_fingerprint">OMEMO 핑거프린트가 클립보드에 복사되었습니다</string>
+  <string name="toast_message_glacier_id">OMEMO 핑거프린트가 클립보드에 복사되었습니다</string>
   <string name="using_account">using account %s</string>
   <string name="checking_x">HTTP 호스트에서 %s 확인 중</string>
   <string name="not_connected_try_again">접속중이 아닙니다. 다시 시도하세요. </string>
@@ -290,8 +290,8 @@
   <string name="pref_show_dynamic_tags_summary">연락처 밑에 읽기 전용 태그 표시 </string>
   <string name="enable_notifications">알림 사용 </string>
   <string name="account_image_description">계정 아바타 </string>
-  <string name="copy_omemo_clipboard_description">OMEMO 핑거프린트를 클립보드에 복사</string>
-  <string name="regenerate_omemo_key">OMEMO 키 다시 생성</string>
+  <string name="copy_glacier_clipboard_description">OMEMO 핑거프린트를 클립보드에 복사</string>
+  <string name="regenerate_glacier_key">OMEMO 키 다시 생성</string>
   <string name="clear_other_devices">기기 제거</string>
   <string name="clear_other_devices_desc">OMEMO 선언으로부터 모든 기기를 지우시겠습니까? 다음에 기기들이 접속할 때, 기기들이 스스로 다시 선언하지만, 그 동안에 보내진 메세지는 받지 못할수도 있습니다.</string>
   <string name="fetching_history_from_server">서버로부터 기록 가져오는중 </string>
@@ -397,8 +397,8 @@
   <string name="certificate_chain_is_not_trusted">인증서 체인을 신뢰할 수 없습니다</string>
   <string name="jid_does_not_match_certificate">Jabber ID가 인증서와 일치하지 않습니다</string>
   <string name="action_renew_certificate">인증서 갱신</string>
-  <string name="error_fetching_omemo_key">OMEMO key를 가져오는 도중 오류가 발생했습니다</string>
-  <string name="verified_omemo_key_with_certificate">OMEMO 키와 인증서 검증됨</string>
+  <string name="error_fetching_glacier_key">OMEMO key를 가져오는 도중 오류가 발생했습니다</string>
+  <string name="verified_glacier_key_with_certificate">OMEMO 키와 인증서 검증됨</string>
   <string name="device_does_not_support_certificates">기기가 선택된 클라이언트 인증서를 지원하지 않습니다</string>
   <string name="pref_connection_options">연결</string>
   <string name="pref_use_tor">Tor를 통해 접속</string>
@@ -484,8 +484,8 @@
   <string name="remote_server_not_found">원격 서버 찾을 수 없음</string>
   <string name="unable_to_update_account">계정을 업데이트 할수없음</string>
   <string name="report_jid_as_spammer">이 JID를 원치 않는 메시지 전송으로 보고합니다.</string>
-  <string name="pref_delete_omemo_identities">OMEMO ID를 삭제</string>
-  <string name="pref_delete_omemo_identities_summary">OMEMO 키를 다시 생성합니다. 모든 연락처를 다시 확인해야합니다. 최후의 수단으로만 사용하십시오.</string>
+  <string name="pref_delete_glacier_identities">OMEMO ID를 삭제</string>
+  <string name="pref_delete_glacier_identities_summary">OMEMO 키를 다시 생성합니다. 모든 연락처를 다시 확인해야합니다. 최후의 수단으로만 사용하십시오.</string>
   <string name="error_publish_avatar_offline">아바타를 게시하려면 연결된 상태여야 합니다.</string>
   <string name="show_error_message">에러 메세지 보이기</string>
   <string name="error_message">에러 메세지</string>
@@ -504,9 +504,9 @@
   <string name="pref_clean_cache_summary">캐시 폴더를 삭제합니다 (카메라에서 사용)</string>
   <string name="pref_clean_private_storage_summary">파일이 저장되어있는 개인 스토리지를 정리합니다 (서버에서 다시 다운로드 할 수 있습니다)</string>
   <string name="i_followed_this_link_from_a_trusted_source">신뢰할 수 있는 소스에서 해당 링크를 따라갑니다</string>
-  <string name="verifying_omemo_keys_trusted_source">링크를 클릭 한 후 %1$s의 OMEMO 키를 확인하려고 합니다. 이것은 %2$s이 링크를 공개한 신뢰할 수 있는 소스에서 따라가고 있을 때만 안전합니다.</string>
-  <string name="verify_omemo_keys">OMEMO 키를 검증</string>
-  <string name="distrust_omemo_key_text">이 장치의 자격 증명을 삭제 하시겠습니까?\n장치와 해당 장치에서 메시지는 신뢰할 수없는 것으로 표시됩니다.</string>
+  <string name="verifying_glacier_keys_trusted_source">링크를 클릭 한 후 %1$s의 OMEMO 키를 확인하려고 합니다. 이것은 %2$s이 링크를 공개한 신뢰할 수 있는 소스에서 따라가고 있을 때만 안전합니다.</string>
+  <string name="verify_glacier_keys">OMEMO 키를 검증</string>
+  <string name="distrust_glacier_key_text">이 장치의 자격 증명을 삭제 하시겠습니까?\n장치와 해당 장치에서 메시지는 신뢰할 수없는 것으로 표시됩니다.</string>
   <string name="pref_automatically_delete_messages_description">설정된 기간보다 오래된 메시지를 장치에서 자동으로 삭제합니다.</string>
   <string name="pref_notifications_from_strangers_summary">모르는 사람으로부터 받은 메시지를 알립니다.</string>
 </resources>

@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Pattern;
 
 import com.glaciersecurity.glaciermessenger.Config;
@@ -256,7 +255,7 @@ public final class CryptoHelper {
 				return R.string.encryption_choice_otr;
 			case Message.ENCRYPTION_AXOLOTL:
 			case Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE:
-				return R.string.encryption_choice_omemo;
+				return R.string.encryption_choice_glacier;
 			case Message.ENCRYPTION_NONE:
 				return R.string.encryption_choice_unencrypted;
 			default:

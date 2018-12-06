@@ -86,8 +86,8 @@
             android:title="@string/pref_clean_private_storage"/>
         <Preference
             android:key="delete_omemo_identities"
-            android:summary="@string/pref_delete_omemo_identities_summary"
-            android:title="@string/pref_delete_omemo_identities"/>
+            android:summary="@string/pref_delete_glacier_identities_summary"
+            android:title="@string/pref_delete_glacier_identities"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_notification_settings">
         <CheckBoxPreference

@@ -641,10 +641,10 @@ public class Account extends AbstractEntity {
 		if (axolotlService == null) {
 			return fingerprints;
 		}
-		fingerprints.add(new XmppUri.Fingerprint(XmppUri.FingerprintType.OMEMO, axolotlService.getOwnFingerprint().substring(2), axolotlService.getOwnDeviceId()));
+		fingerprints.add(new XmppUri.Fingerprint(XmppUri.FingerprintType.GLACIER, axolotlService.getOwnFingerprint().substring(2), axolotlService.getOwnDeviceId()));
 		for (XmppAxolotlSession session : axolotlService.findOwnSessions()) {
 			if (session.getTrust().isVerified() && session.getTrust().isActive()) {
-				fingerprints.add(new XmppUri.Fingerprint(XmppUri.FingerprintType.OMEMO, session.getFingerprint().substring(2).replaceAll("\\s", ""), session.getRemoteAddress().getDeviceId()));
+				fingerprints.add(new XmppUri.Fingerprint(XmppUri.FingerprintType.GLACIER, session.getFingerprint().substring(2).replaceAll("\\s", ""), session.getRemoteAddress().getDeviceId()));
 			}
 		}
 		return fingerprints;

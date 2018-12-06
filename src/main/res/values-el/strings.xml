@@ -81,8 +81,8 @@
   <string name="send_unencrypted_message">Αποστολή κρυπτογραφημένου μηνύματος</string>
   <string name="send_message">Αποστολή μηνύματος</string>
   <string name="send_message_to_x">Αποστολή μηνύματος %s</string>
-  <string name="send_omemo_message">Αποστολή OMEMO κρυπτογραφημένου μηνύματος</string>
-  <string name="send_omemo_x509_message">Αποστολή v\\OMEMO κρυπτογραφημένου μηνύματος</string>
+  <string name="send_glacier_message">Αποστολή OMEMO κρυπτογραφημένου μηνύματος</string>
+  <string name="send_glacier_x509_message">Αποστολή v\\OMEMO κρυπτογραφημένου μηνύματος</string>
   <string name="send_pgp_message">Αποστολή κρυπτογραφημένου μηνύματος OpenPGP</string>
   <string name="your_nick_has_been_changed">Το ψευδώνυμό σας έχει αλλάξει</string>
   <string name="send_unencrypted">Αποστολή χωρίς κρυπτογράφηση</string>
@@ -155,7 +155,7 @@
   <string name="encryption_choice_unencrypted">Μη κρυπτογραφημένο</string>
   <string name="encryption_choice_otr">OTR</string>
   <string name="encryption_choice_pgp">OpenPGP</string>
-  <string name="encryption_choice_omemo">OMEMO</string>
+  <string name="encryption_choice_glacier">OMEMO</string>
   <string name="mgmt_account_delete">Διαγραφή λογαριασμού</string>
   <string name="mgmt_account_disable">Προσωρινά μη διαθέσιμο</string>
   <string name="mgmt_account_publish_avatar">Δημοσίευση εικόνας προφίλ</string>
@@ -195,7 +195,7 @@
   <string name="install_openkeychain">Κρυπτογραφημένο μήνυμα. Παρακαλώ εγκαταστήστε το OpenKeychain για αποκρυπτογράφηση</string>
   <string name="openpgp_messages_found">Βρέθηκαν μηνύματα κρυπτογραφημένα με OpenPGP</string>
   <string name="other_devices">\'Αλλες συσκευές</string>
-  <string name="trust_omemo_fingerprints">Εμπιστευτίτε τα OMEMO αποτυπώματα</string>
+  <string name="trust_glacier_id">Εμπιστευτίτε τα OMEMO αποτυπώματα</string>
   <string name="done">Έγινε</string>
   <string name="decrypt">Αποκρυπτογράφηση</string>
   <string name="conferences">Ομαδικές συζητήσεις</string>

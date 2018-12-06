@@ -3868,7 +3868,7 @@ public class XmppConnectionService extends Service {
 		boolean performedVerification = false;
 		final AxolotlService axolotlService = contact.getAccount().getAxolotlService();
 		for (XmppUri.Fingerprint fp : fingerprints) {
-			if (fp.type == XmppUri.FingerprintType.OMEMO) {
+			if (fp.type == XmppUri.FingerprintType.GLACIER) {
 				String fingerprint = "05" + fp.fingerprint.replaceAll("\\s", "");
 				FingerprintStatus fingerprintStatus = axolotlService.getFingerprintTrust(fingerprint);
 				if (fingerprintStatus != null) {
@@ -3888,7 +3888,7 @@ public class XmppConnectionService extends Service {
 		final AxolotlService axolotlService = account.getAxolotlService();
 		boolean verifiedSomething = false;
 		for (XmppUri.Fingerprint fp : fingerprints) {
-			if (fp.type == XmppUri.FingerprintType.OMEMO) {
+			if (fp.type == XmppUri.FingerprintType.GLACIER) {
 				String fingerprint = "05" + fp.fingerprint.replaceAll("\\s", "");
 				Log.d(Config.LOGTAG, "trying to verify own fp=" + fingerprint);
 				FingerprintStatus fingerprintStatus = axolotlService.getFingerprintTrust(fingerprint);

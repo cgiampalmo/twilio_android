@@ -604,7 +604,7 @@
                                     android:layout_height="wrap_content"
                                     android:alpha="?attr/icon_alpha"
                                     android:background="?attr/selectableItemBackgroundBorderless"
-                                    android:contentDescription="@string/copy_omemo_clipboard_description"
+                                    android:contentDescription="@string/copy_glacier_clipboard_description"
                                     android:padding="@dimen/image_button_padding"
                                     android:src="?attr/icon_copy"
                                     android:visibility="visible"/>
@@ -615,7 +615,7 @@
                                     android:layout_height="wrap_content"
                                     android:alpha="?attr/icon_alpha"
                                     android:background="?attr/selectableItemBackgroundBorderless"
-                                    android:contentDescription="@string/regenerate_omemo_key"
+                                    android:contentDescription="@string/regenerate_glacier_key"
                                     android:padding="@dimen/image_button_padding"
                                     android:src="?attr/icon_refresh"
                                     android:visibility="gone"/>

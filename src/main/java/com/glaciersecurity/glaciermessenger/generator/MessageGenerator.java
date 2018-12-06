@@ -1,7 +1,5 @@
 package com.glaciersecurity.glaciermessenger.generator;
 
-import android.util.Log;
-
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -13,7 +11,6 @@ import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.XmppAxolotlMessage;
 import com.glaciersecurity.glaciermessenger.entities.Account;
-import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.Message;
 import com.glaciersecurity.glaciermessenger.http.P1S3UrlStreamHandler;
@@ -25,7 +22,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.stanzas.MessagePacket;
 import rocks.xmpp.addr.Jid;
 
 public class MessageGenerator extends AbstractGenerator {
-	private static final String OMEMO_FALLBACK_MESSAGE = "I sent you an OMEMO encrypted message but your client doesn’t seem to support that. Find more information on https://conversations.im/omemo";
+	private static final String GLACIER_FALLBACK_MESSAGE = "I sent you an Glacier encrypted message but your client doesn’t seem to support that. Find more information on www.glaciersecurity.com";
 	private static final String PGP_FALLBACK_MESSAGE = "I sent you a PGP encrypted message but your client doesn’t seem to support that.";
 
 	public MessageGenerator(XmppConnectionService service) {
@@ -81,10 +78,10 @@ public class MessageGenerator extends AbstractGenerator {
 			return null;
 		}
 		packet.setAxolotlMessage(axolotlMessage.toElement());
-		packet.setBody(OMEMO_FALLBACK_MESSAGE);
+		packet.setBody(GLACIER_FALLBACK_MESSAGE);
 		packet.addChild("store", "urn:xmpp:hints");
 		packet.addChild("encryption", "urn:xmpp:eme:0")
-				.setAttribute("name", "OMEMO")
+				.setAttribute("name", "Glacier")
 				.setAttribute("namespace", AxolotlService.PEP_PREFIX);
 		return packet;
 	}

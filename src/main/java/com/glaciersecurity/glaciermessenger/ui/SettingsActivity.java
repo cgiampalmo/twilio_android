@@ -20,8 +20,6 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import java.io.File;
@@ -251,13 +249,13 @@ public class SettingsActivity extends XmppActivity implements
 			String value = omemoPreference.getValue();
 			switch (value) {
 				case "always":
-					omemoPreference.setSummary(R.string.pref_omemo_setting_summary_always);
+					omemoPreference.setSummary(R.string.pref_glacier_setting_summary_always);
 					break;
 				case "default_on":
-					omemoPreference.setSummary(R.string.pref_omemo_setting_summary_default_on);
+					omemoPreference.setSummary(R.string.pref_glacier_setting_summary_default_on);
 					break;
 				case "default_off":
-					omemoPreference.setSummary(R.string.pref_omemo_setting_summary_default_off);
+					omemoPreference.setSummary(R.string.pref_glacier_setting_summary_default_off);
 					break;
 			}
 		} else {
@@ -306,7 +304,7 @@ public class SettingsActivity extends XmppActivity implements
 
 	private boolean deleteOmemoIdentities() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(R.string.pref_delete_omemo_identities);
+		builder.setTitle(R.string.pref_delete_glacier_identities);
 		final List<CharSequence> accounts = new ArrayList<>();
 		for (Account account : xmppConnectionService.getAccounts()) {
 			if (account.isEnabled()) {

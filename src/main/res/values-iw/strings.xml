@@ -69,7 +69,7 @@
   <string name="delete_messages">מחק הודעות</string>
   <string name="also_end_conversation">סיים את השיחה לאחר מכן</string>
   <string name="send_unencrypted_message">שלח הודעה בלתי מוצפנת</string>
-  <string name="send_omemo_message">של הודעה בהצפנת OMEMO</string>
+  <string name="send_glacier_message">של הודעה בהצפנת OMEMO</string>
   <string name="send_pgp_message">שלח הודעה בהצפנת OpenPGP</string>
   <string name="your_nick_has_been_changed">שם הכינוי שלך השתנה</string>
   <string name="send_unencrypted">שלח ללא הצפנה</string>
@@ -125,7 +125,7 @@
   <string name="encryption_choice_unencrypted">לא מוצפן</string>
   <string name="encryption_choice_otr">OTR</string>
   <string name="encryption_choice_pgp">OpenPGP</string>
-  <string name="encryption_choice_omemo">OMEMO</string>
+  <string name="encryption_choice_glacier">OMEMO</string>
   <string name="mgmt_account_delete">מחק</string>
   <string name="mgmt_account_disable">נטרל זמנית</string>
   <string name="mgmt_account_publish_avatar">פרסם תמונת פרופיל</string>
@@ -159,10 +159,10 @@
   <string name="last_seen_days">נראה לאחרונה לפני %d ימים</string>
   <string name="install_openkeychain">הודעה מוצפנת. אנא התקן את OpenKeychain כדי לפענח.</string>
   <string name="openpgp_messages_found">הודעות מוצפנות OpenPGP נמצאו</string>
-  <string name="omemo_fingerprint">טביעת אצבע של OMEMO</string>
-  <string name="omemo_fingerprint_selected_message">טביעת אצבע OMEMO של ההודעה</string>
+  <string name="glacier_id">טביעת אצבע של OMEMO</string>
+  <string name="glacier_id_selected_message">טביעת אצבע OMEMO של ההודעה</string>
   <string name="other_devices">מכשירים אחרים</string>
-  <string name="trust_omemo_fingerprints">סמוך על טביעות אצבע OMEMO</string>
+  <string name="trust_glacier_id">סמוך על טביעות אצבע OMEMO</string>
   <string name="done">בוצע</string>
   <string name="decrypt">פענח</string>
   <string name="search">חפש</string>
@@ -214,7 +214,7 @@
   <string name="pref_use_indicate_received_summary">יופיע סימן \"וי\" ליד כל הודעה שהתקבלה על ידי איש הקשר, במידה והפעולה נתמכת על ידי איש הקשר.</string>
   <string name="pref_use_send_button_to_indicate_status_summary">צבעו של לחצן שליחת ההודעות יעיד על סטטוס איש הקשר.</string>
   <string name="pref_expert_options_other">אחר</string>
-  <string name="toast_message_omemo_fingerprint">טביעת אצבע של OMEMO הועתקה</string>
+  <string name="toast_message_glacier_id">טביעת אצבע של OMEMO הועתקה</string>
   <string name="using_account">משתמש בחשבון: %s</string>
   <string name="not_connected_try_again">אינך מחובר. נסה שוב אחר כך</string>
   <string name="check_x_filesize">בדוק גודל %s</string>
@@ -244,8 +244,8 @@
   <string name="pref_show_dynamic_tags_summary">הראה תגי read-only מתחת לאנשי הקשר</string>
   <string name="enable_notifications">אפשר התראות</string>
   <string name="account_image_description">תמונת פרופיל</string>
-  <string name="copy_omemo_clipboard_description">העתק טביעת אצבע OMEMO</string>
-  <string name="regenerate_omemo_key">צור מפתח OMEMO חדש</string>
+  <string name="copy_glacier_clipboard_description">העתק טביעת אצבע OMEMO</string>
+  <string name="regenerate_glacier_key">צור מפתח OMEMO חדש</string>
   <string name="clear_other_devices">נקה מכשירים</string>
   <string name="clear_other_devices_desc">האם אתה בטוח שברצונך לנקות את כל המכשירים מהכרזת ה OMEMO? בפעם הבאה שהמכשירים יתחברו, הם יכריזו שוב על עצמם, אך הם עלולים לאבד הודעות עד להכרזה זו.</string>
   <string name="fetching_history_from_server">הורדת היסטוריה מהשרת</string>
@@ -335,7 +335,7 @@
   <string name="certificate_chain_is_not_trusted">שרשרת תעודה אינה מהימנה</string>
   <string name="jid_does_not_match_certificate">אין התאמה בין מזהה Jabber לבין תעודה</string>
   <string name="action_renew_certificate">חידוש תעודה</string>
-  <string name="error_fetching_omemo_key">שגיאה בתפיסת OMEMO!</string>
+  <string name="error_fetching_glacier_key">שגיאה בתפיסת OMEMO!</string>
   <string name="pref_use_tor">התחבר דרך Tor</string>
   <string name="account_settings_hostname">שם מארח</string>
   <string name="account_settings_port">פורט</string>

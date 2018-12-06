@@ -67,7 +67,7 @@
   <string name="delete_messages">Vymazať správy</string>
   <string name="also_end_conversation">Neskôr ukončiť konverzáciu</string>
   <string name="send_unencrypted_message">Poslať nezašifrovanú správu</string>
-  <string name="send_omemo_message">Poslať OMEMO šifrovanú správu</string>
+  <string name="send_glacier_message">Poslať OMEMO šifrovanú správu</string>
   <string name="send_pgp_message">Poslať OpenPGP šifrovanú správu</string>
   <string name="your_nick_has_been_changed">Prezývka sa zmenila</string>
   <string name="send_unencrypted">Poslať nešifrované</string>
@@ -122,7 +122,7 @@
   <string name="encryption_choice_unencrypted">Nezašifrovaný</string>
   <string name="encryption_choice_otr">OTR</string>
   <string name="encryption_choice_pgp">OpenPGP</string>
-  <string name="encryption_choice_omemo">OMEMO</string>
+  <string name="encryption_choice_glacier">OMEMO</string>
   <string name="mgmt_account_delete">Vymazať účet</string>
   <string name="mgmt_account_disable">Dočasne vypnúť</string>
   <string name="mgmt_account_publish_avatar">Zverejniť avatar</string>
@@ -156,10 +156,10 @@
   <string name="last_seen_days">naposledy prihlásený pred %d dňami</string>
   <string name="install_openkeychain">Šifrovaná správa. Nainštalujte, prosím, OpenKeychain pre dešifrovanie.</string>
   <string name="openpgp_messages_found">Našla sa OpenPGP šifrovaná správa</string>
-  <string name="omemo_fingerprint">OMEMO identifikátor</string>
-  <string name="omemo_fingerprint_selected_message">OMEMO identifkátor správy</string>
+  <string name="glacier_id">OMEMO identifikátor</string>
+  <string name="glacier_id_selected_message">OMEMO identifkátor správy</string>
   <string name="other_devices">Ostatné zariadenia</string>
-  <string name="trust_omemo_fingerprints">Dôverovať OMEMO identifikátoru</string>
+  <string name="trust_glacier_id">Dôverovať OMEMO identifikátoru</string>
   <string name="done">Dokončený</string>
   <string name="decrypt">Dešifrovať</string>
   <string name="search">Hľadať</string>
@@ -242,7 +242,7 @@
   <string name="pref_show_dynamic_tags_summary">Zobraziť etikety na čítanie pod kontakty</string>
   <string name="enable_notifications">Povoliť upozornenia</string>
   <string name="account_image_description">Avatar účtu</string>
-  <string name="copy_omemo_clipboard_description">Skopírovať OMEMO identifikátor do schránky</string>
+  <string name="copy_glacier_clipboard_description">Skopírovať OMEMO identifikátor do schránky</string>
   <string name="fetching_history_from_server">Načítať históriu zo serveru</string>
   <string name="no_more_history_on_server">Na serveri nie je žiadna ďalšia história</string>
   <string name="updating">Aktualizujem...</string>

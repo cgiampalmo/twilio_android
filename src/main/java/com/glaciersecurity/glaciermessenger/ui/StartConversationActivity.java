@@ -901,12 +901,12 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 
 	private void displayVerificationWarningDialog(final Contact contact, final Invite invite) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(R.string.verify_omemo_keys);
+		builder.setTitle(R.string.verify_glacier_keys);
 		View view = getLayoutInflater().inflate(R.layout.dialog_verify_fingerprints, null);
 		final CheckBox isTrustedSource = view.findViewById(R.id.trusted_source);
 		TextView warning = view.findViewById(R.id.warning);
 		String jid = contact.getJid().asBareJid().toString();
-		SpannableString spannable = new SpannableString(getString(R.string.verifying_omemo_keys_trusted_source, jid, contact.getDisplayName()));
+		SpannableString spannable = new SpannableString(getString(R.string.verifying_glacier_keys_trusted_source, jid, contact.getDisplayName()));
 		int start = spannable.toString().indexOf(jid);
 		if (start >= 0) {
 			spannable.setSpan(new TypefaceSpan("monospace"), start, start + jid.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

@@ -81,8 +81,8 @@
   <string name="send_unencrypted_message">暗号化されていないメッセージを送信</string>
   <string name="send_message">メッセージを送信</string>
   <string name="send_message_to_x">メッセージを %s に送信</string>
-  <string name="send_omemo_message">OMEMO 暗号化メッセージを送信</string>
-  <string name="send_omemo_x509_message">v\\OMEMO 暗号化メッセージを送信</string>
+  <string name="send_glacier_message">OMEMO 暗号化メッセージを送信</string>
+  <string name="send_glacier_x509_message">v\\OMEMO 暗号化メッセージを送信</string>
   <string name="send_pgp_message">OpenPGP 暗号化メッセージを送信</string>
   <string name="your_nick_has_been_changed">あなたのニックネームが変更されました</string>
   <string name="send_unencrypted">暗号化されていない送信</string>
@@ -155,7 +155,7 @@
   <string name="encryption_choice_unencrypted">暗号化されていない</string>
   <string name="encryption_choice_otr">OTR</string>
   <string name="encryption_choice_pgp">OpenPGP</string>
-  <string name="encryption_choice_omemo">OMEMO</string>
+  <string name="encryption_choice_glacier">OMEMO</string>
   <string name="mgmt_account_delete">アカウントを削除</string>
   <string name="mgmt_account_disable">一時的に無効にする</string>
   <string name="mgmt_account_publish_avatar">アバターを公開</string>
@@ -197,12 +197,12 @@
   <string name="install_openkeychain">暗号化されたメッセージ。復号化するには OpenKeychain をインストールしてください。</string>
   <string name="openpgp_messages_found">OpenPGP 暗号化されたメッセージが見つかりました</string>
   <string name="openpgp_key_id">OpenPGP 鍵 ID</string>
-  <string name="omemo_fingerprint">OMEMO フィンガープリント</string>
-  <string name="omemo_fingerprint_x509">v\\OMEMO フィンガープリント</string>
-  <string name="omemo_fingerprint_selected_message">メッセージの OMEMO フィンガープリント</string>
-  <string name="omemo_fingerprint_x509_selected_message">メッセージの v\\OMEMO フィンガープリント</string>
+  <string name="glacier_id">OMEMO フィンガープリント</string>
+  <string name="glacier_id_x509">v\\OMEMO フィンガープリント</string>
+  <string name="glacier_id_selected_message">メッセージの OMEMO フィンガープリント</string>
+  <string name="glacier_id_x509_selected_message">メッセージの v\\OMEMO フィンガープリント</string>
   <string name="other_devices">他のデバイス</string>
-  <string name="trust_omemo_fingerprints">OMEMO フィンガープリントを信頼</string>
+  <string name="trust_glacier_id">OMEMO フィンガープリントを信頼</string>
   <string name="fetching_keys">鍵の取得中…</string>
   <string name="done">完了</string>
   <string name="decrypt">復号化</string>
@@ -273,7 +273,7 @@
   <string name="pref_use_send_button_to_indicate_status_summary">送信ボタンに連絡先ステータスを示す色が付きます</string>
   <string name="pref_expert_options_other">その他</string>
   <string name="pref_autojoin">自動で談話室に参加</string>
-  <string name="toast_message_omemo_fingerprint">OMEMO フィンガープリントをクリップボードにコピーしました!</string>
+  <string name="toast_message_glacier_id">OMEMO フィンガープリントをクリップボードにコピーしました!</string>
   <string name="conference_banned">この談話室から締め出されています</string>
   <string name="conference_members_only">この談話室はメンバー制です</string>
   <string name="conference_kicked">この談話室から蹴り出されています</string>
@@ -321,8 +321,8 @@
   <string name="no_conference_server_found">談話室のサーバーが見つかりませんでした</string>
   <string name="conference_creation_failed">談話室の作成に失敗しました。</string>
   <string name="account_image_description">アカウント アバター</string>
-  <string name="copy_omemo_clipboard_description">OMEMO フィンガープリントをクリップボードにコピー</string>
-  <string name="regenerate_omemo_key">OMEMO 鍵を再生成</string>
+  <string name="copy_glacier_clipboard_description">OMEMO フィンガープリントをクリップボードにコピー</string>
+  <string name="regenerate_glacier_key">OMEMO 鍵を再生成</string>
   <string name="clear_other_devices">デバイスをクリア</string>
   <string name="clear_other_devices_desc">OMEMO のアナウンスから他のすべてのデバイスをクリアしてもよろしいですか? お使いのデバイスが次回接続したとき、それらは自分自身を再アナウンスしますが、それらはその間に送信されたメッセージを受信できない場合があります。</string>
   <string name="error_no_keys_to_trust_server_error">この連絡先で使用可能な鍵がありません。\nサーバーから新しい鍵を取得できませんでした。連絡先のサーバーに問題がある可能性があります。</string>
@@ -441,8 +441,8 @@
   <string name="certificate_chain_is_not_trusted">証明書チェーンは信頼済ではありません</string>
   <string name="jid_does_not_match_certificate">Jabber ID が証明書と一致しません</string>
   <string name="action_renew_certificate">証明書を更新</string>
-  <string name="error_fetching_omemo_key">OMEMO 鍵の取得中にエラー!</string>
-  <string name="verified_omemo_key_with_certificate">OMEMO 鍵の取得中にエラー!</string>
+  <string name="error_fetching_glacier_key">OMEMO 鍵の取得中にエラー!</string>
+  <string name="verified_glacier_key_with_certificate">OMEMO 鍵の取得中にエラー!</string>
   <string name="device_does_not_support_certificates">お使いのデバイスはクライアント証明書の選択をサポートしていません!</string>
   <string name="pref_connection_options">接続</string>
   <string name="pref_use_tor">Tor 経由で接続</string>
@@ -532,8 +532,8 @@
   <string name="remote_server_not_found">リモートサーバーが見つかりません</string>
   <string name="unable_to_update_account">アカウントを更新できません</string>
   <string name="report_jid_as_spammer">この JID を不要なメッセージ送信として報告します。</string>
-  <string name="pref_delete_omemo_identities">OMEMO ID を削除</string>
-  <string name="pref_delete_omemo_identities_summary">OMEMO 鍵を再生成します。すべての連絡先を再度確認する必要があります。最後の手段としてのみ使用してください。</string>
+  <string name="pref_delete_glacier_identities">OMEMO ID を削除</string>
+  <string name="pref_delete_glacier_identities_summary">OMEMO 鍵を再生成します。すべての連絡先を再度確認する必要があります。最後の手段としてのみ使用してください。</string>
   <string name="delete_selected_keys">選択した鍵を削除</string>
   <string name="error_publish_avatar_offline">アバターを公開するには接続する必要があります。</string>
   <string name="show_error_message">エラーメッセージを表示</string>
@@ -544,7 +544,7 @@
   <string name="error_unable_to_create_temporary_file">一時ファイルを作成できません</string>
   <string name="this_device_has_been_verified">このデバイスは検証済です</string>
   <string name="copy_fingerprint">フィンガープリントをコピー</string>
-  <string name="all_omemo_keys_have_been_verified">すべての OMEMO 鍵は検証済です</string>
+  <string name="all_glacier_keys_have_been_verified">すべての OMEMO 鍵は検証済です</string>
   <string name="barcode_does_not_contain_fingerprints_for_this_conversation">バーコードに、この会話のフィンガープリントが含まれていません。</string>
   <string name="verified_fingerprints">フィンガープリントを検証しました</string>
   <string name="use_camera_icon_to_scan_barcode">カメラを使用して連絡先のバーコードをスキャンします</string>
@@ -554,7 +554,7 @@
   <string name="share_as_http">HTTP リンクとして共有</string>
   <string name="pref_blind_trust_before_verification">検証前に白紙信託する</string>
   <string name="pref_blind_trust_before_verification_summary">以前に確認されていない連絡先の新しいデバイスをすべて自動的に信頼し、確認済の連絡先が新しいデバイスを追加するたびに手動で確認するよう促します。</string>
-  <string name="blindly_trusted_omemo_keys">OMEMO 鍵を白紙信託しました</string>
+  <string name="blindly_trusted_glacier_keys">OMEMO 鍵を白紙信託しました</string>
   <string name="not_trusted">信頼されていない</string>
   <string name="invalid_barcode">不正な 2D バーコード</string>
   <string name="pref_clean_cache_summary">キャッシュフォルダーをクリアします (カメラアプリケーションで使用)</string>
@@ -562,10 +562,10 @@
   <string name="pref_clean_private_storage">プライベートストレージをクリア</string>
   <string name="pref_clean_private_storage_summary">ファイルが保存されているプライベートストレージをクリアします (サーバーから再ダウンロードできます)</string>
   <string name="i_followed_this_link_from_a_trusted_source">信頼できるソースからこのリンクをたどりました</string>
-  <string name="verifying_omemo_keys_trusted_source">リンクをクリックした後、%1$s の OMEMO 鍵を検証しようとしています。 これは、%2$s がこのリンクを公開した、信頼できるソースからこのリンクをたどった場合にのみ安全です。</string>
-  <string name="verify_omemo_keys">OMEMO 鍵を検証</string>
-  <string name="distrust_omemo_key">信頼できないデバイス</string>
-  <string name="distrust_omemo_key_text">このデバイスの検証を削除してもよろしいですか?\nこのデバイスと、そのデバイスからのメッセージは信頼できないとマークされます。</string>
+  <string name="verifying_glacier_keys_trusted_source">リンクをクリックした後、%1$s の OMEMO 鍵を検証しようとしています。 これは、%2$s がこのリンクを公開した、信頼できるソースからこのリンクをたどった場合にのみ安全です。</string>
+  <string name="verify_glacier_keys">OMEMO 鍵を検証</string>
+  <string name="distrust_glaicer_key">信頼できないデバイス</string>
+  <string name="distrust_glacier_key_text">このデバイスの検証を削除してもよろしいですか?\nこのデバイスと、そのデバイスからのメッセージは信頼できないとマークされます。</string>
   <plurals name="seconds">
     <item quantity="other">%d秒</item>
   </plurals>
@@ -624,9 +624,9 @@
   <string name="error_trustkey_general">Conversations は %1$s に暗号化メッセージを送れません。この連絡先が利用しているサーバーが古すぎるか、クライアントが OMEMO を扱えません。</string>
   <string name="error_trustkey_hint_mutual">ヒント: お互いが名簿に加えれば解決するでしょう。</string>
   <string name="draft">下書き:</string>
-  <string name="pref_omemo_setting">OMEMO 暗号化</string>
-  <string name="pref_omemo_setting_summary_always">OMEMO は1対1の会話とグループチャットで常に使用されます。</string>
-  <string name="pref_omemo_setting_summary_default_on">デフォルトで新しい会話で OMEMO を使用します。</string>
+  <string name="pref_glacier_setting">OMEMO 暗号化</string>
+  <string name="pref_glacier_setting_summary_always">OMEMO は1対1の会話とグループチャットで常に使用されます。</string>
+  <string name="pref_glacier_setting_summary_default_on">デフォルトで新しい会話で OMEMO を使用します。</string>
   <string name="create_shortcut">ショートカットを作成</string>
   <string name="pref_font_size">フォントの大きさ</string>
   <string name="pref_font_size_summary">このアプリで使用される相対フォントサイズ</string>

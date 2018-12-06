@@ -82,8 +82,8 @@
   <string name="send_unencrypted_message">Envia un missatge no xifrat</string>
   <string name="send_message">Envia un missatge</string>
   <string name="send_message_to_x">Envia un missatge a %s</string>
-  <string name="send_omemo_message">Envia un missatge xifrat amb OMEMO</string>
-  <string name="send_omemo_x509_message">Envia un missatge xifrat amb v\\OMEMO</string>
+  <string name="send_glacier_message">Envia un missatge xifrat amb OMEMO</string>
+  <string name="send_glacier_x509_message">Envia un missatge xifrat amb v\\OMEMO</string>
   <string name="send_pgp_message">Envia un missatge xifrat amb OpenPGP</string>
   <string name="your_nick_has_been_changed">S\'ha canviat el sobrenom</string>
   <string name="send_unencrypted">Envia sense xifrar</string>
@@ -156,7 +156,7 @@
   <string name="encryption_choice_unencrypted">Sense xifrar</string>
   <string name="encryption_choice_otr">OTR</string>
   <string name="encryption_choice_pgp">OpenPGP</string>
-  <string name="encryption_choice_omemo">OMEMO</string>
+  <string name="encryption_choice_glacier">OMEMO</string>
   <string name="mgmt_account_delete">Elimina el compte</string>
   <string name="mgmt_account_disable">Inhabilita temporalment</string>
   <string name="mgmt_account_publish_avatar">Publica l\'avatar</string>
@@ -198,12 +198,12 @@
   <string name="install_openkeychain">Missatge xifrat. Si us plau instal.leu l\'OpenKeychain per desxifrar-lo.</string>
   <string name="openpgp_messages_found">S\'han trobat missatges xifrats amb OpenPGP</string>
   <string name="openpgp_key_id">Identificador de la clau d\'OpenPGP</string>
-  <string name="omemo_fingerprint">Empremta digital OMEMO</string>
-  <string name="omemo_fingerprint_x509">Empremta digital v\\OMEMO</string>
-  <string name="omemo_fingerprint_selected_message">Empremta digital OMEMO del missatge</string>
-  <string name="omemo_fingerprint_x509_selected_message">Empremta digital v\\OMEMO del missatge</string>
+  <string name="glacier_id">Empremta digital OMEMO</string>
+  <string name="glacier_id_x509">Empremta digital v\\OMEMO</string>
+  <string name="glacier_id_selected_message">Empremta digital OMEMO del missatge</string>
+  <string name="glacier_id_x509_selected_message">Empremta digital v\\OMEMO del missatge</string>
   <string name="other_devices">Altres dispositius</string>
-  <string name="trust_omemo_fingerprints">Confia en les empremtes digitals d\'OMEMO</string>
+  <string name="trust_glacier_id">Confia en les empremtes digitals d\'OMEMO</string>
   <string name="fetching_keys">S\'estan obtenint les claus...</string>
   <string name="done">Fet</string>
   <string name="decrypt">Desxifra</string>
@@ -277,7 +277,7 @@
   <string name="pref_expert_options_other">Altres</string>
   <string name="pref_autojoin">Uniu-vos automàticament als xats de grup</string>
   <string name="pref_autojoin_summary">Respecta l\'indicador d\'autoentrada als marcadors de xat de grup</string>
-  <string name="toast_message_omemo_fingerprint">S\'ha copiat l\'empremta digital d\'OMEMO al porta-retalls.</string>
+  <string name="toast_message_glacier_id">S\'ha copiat l\'empremta digital d\'OMEMO al porta-retalls.</string>
   <string name="conference_banned">Estàs prohibit en aquest xat de grup</string>
   <string name="conference_members_only">Aquest xat en grup només és de membres</string>
   <string name="conference_kicked">Heu estat expulsat d\'aquest xat de grup</string>
@@ -328,8 +328,8 @@
   <string name="no_conference_server_found">No s\'ha trobat cap servidor de xat de grup</string>
   <string name="conference_creation_failed">No s\'ha pogut crear el xat de grup</string>
   <string name="account_image_description">Avatar del compte</string>
-  <string name="copy_omemo_clipboard_description">Copieu l\'empremta digital OMEMO al porta-retalls</string>
-  <string name="regenerate_omemo_key">Regenerar la clau OMEMO</string>
+  <string name="copy_glacier_clipboard_description">Copieu l\'empremta digital OMEMO al porta-retalls</string>
+  <string name="regenerate_glacier_key">Regenerar la clau OMEMO</string>
   <string name="clear_other_devices">Esborra els dispositius</string>
   <string name="clear_other_devices_desc">Estàs segur que vols esborrar tots els altres dispositius de l\'anunci OMEMO? La
  propera vegada que connectin els vostres dispositius, es tornaran a 
@@ -461,8 +461,8 @@ mentrestant.</string>
   <string name="certificate_chain_is_not_trusted">La cadena de certificats no és de confiança</string>
   <string name="jid_does_not_match_certificate">L\'identificador de Jabber no coincideix amb el certificat</string>
   <string name="action_renew_certificate">Renova el certificat</string>
-  <string name="error_fetching_omemo_key">S\'ha produït un error en obtenir la clau OMEMO!.</string>
-  <string name="verified_omemo_key_with_certificate">Clau OMEMO verificada amb certificat!</string>
+  <string name="error_fetching_glacier_key">S\'ha produït un error en obtenir la clau OMEMO!.</string>
+  <string name="verified_glacier_key_with_certificate">Clau OMEMO verificada amb certificat!</string>
   <string name="device_does_not_support_certificates">El vostre dispositiu no admet la selecció de certificats de client.</string>
   <string name="pref_connection_options">Connexió</string>
   <string name="pref_use_tor">Connectar mitjançant Tor</string>
@@ -570,8 +570,8 @@ d\'altres proveïdors donant-los la vostra ID Jabber completa.</string>
   <string name="remote_server_not_found">El servidor remot no s\'ha trobat</string>
   <string name="unable_to_update_account">No es pot actualitzar el compte</string>
   <string name="report_jid_as_spammer">Informar d\'aquest JID com l\'enviament de missatges no desitjats.</string>
-  <string name="pref_delete_omemo_identities">Elimineu les identitats OMEMO</string>
-  <string name="pref_delete_omemo_identities_summary">Regenereu les vostres claus OMEMO. Tots els contactes hauran de tornar-vos a verificar. Utilitzeu això només com a últim recurs.</string>
+  <string name="pref_delete_glacier_identities">Elimineu les identitats OMEMO</string>
+  <string name="pref_delete_glacier_identities_summary">Regenereu les vostres claus OMEMO. Tots els contactes hauran de tornar-vos a verificar. Utilitzeu això només com a últim recurs.</string>
   <string name="delete_selected_keys">Elimineu les tecles seleccionades</string>
   <string name="error_publish_avatar_offline">Cal que us connecteu per publicar el vostre avatar.</string>
   <string name="show_error_message">Mostra el missatge d\'error</string>
@@ -583,7 +583,7 @@ d\'altres proveïdors donant-los la vostra ID Jabber completa.</string>
   <string name="error_unable_to_create_temporary_file">No es pot crear un fitxer temporal</string>
   <string name="this_device_has_been_verified">S\'ha verificat aquest dispositiu</string>
   <string name="copy_fingerprint">Copieu l\'empremta digital</string>
-  <string name="all_omemo_keys_have_been_verified">S\'han verificat totes les claus OMEMO</string>
+  <string name="all_glacier_keys_have_been_verified">S\'han verificat totes les claus OMEMO</string>
   <string name="barcode_does_not_contain_fingerprints_for_this_conversation">El codi de barres no conté empremtes digitals per a aquesta conversa.</string>
   <string name="verified_fingerprints">Empremtes digitals verificades</string>
   <string name="use_camera_icon_to_scan_barcode">Utilitzeu la càmera per escanejar el codi de barres d\'un contacte</string>
@@ -593,7 +593,7 @@ d\'altres proveïdors donant-los la vostra ID Jabber completa.</string>
   <string name="share_as_http">Comparteix com a enllaç HTTP</string>
   <string name="pref_blind_trust_before_verification">Confiança cega abans de la verificació</string>
   <string name="pref_blind_trust_before_verification_summary">Confiï automàticament en tots els dispositius nous de contactes que no s\'hagin verificat abans, i sol·liciteu la confirmació manual cada vegada que un contacte verificat afegeix un nou dispositiu.</string>
-  <string name="blindly_trusted_omemo_keys">Tecles OMEMO de confiança cega</string>
+  <string name="blindly_trusted_glacier_keys">Tecles OMEMO de confiança cega</string>
   <string name="not_trusted">No confiable</string>
   <string name="invalid_barcode">Codi de barres 2D no vàlid</string>
   <string name="pref_clean_cache_summary">Carpeta de memòria cache neta (utilitzada per l\'aplicació de la càmera)</string>
@@ -601,12 +601,12 @@ d\'altres proveïdors donant-los la vostra ID Jabber completa.</string>
   <string name="pref_clean_private_storage">Netejar l\'emmagatzematge privat</string>
   <string name="pref_clean_private_storage_summary">Netejar emmagatzematge privat on es mantenen els fitxers (es poden tornar a descarregar del servidor)</string>
   <string name="i_followed_this_link_from_a_trusted_source">He seguit aquest enllaç des d\'una font de confiança</string>
-  <string name="verifying_omemo_keys_trusted_source">Esteu a punt de verificar les claus OMEMO de %1$sdesprés de fer clic a un enllaç. Això només és segur si seguiu aquest enllaç des d\'una font de confiança on només %2$s podria haver publicat aquest enllaç.</string>
-  <string name="verify_omemo_keys">Comproveu les claus OMEMO</string>
+  <string name="verifying_glacier_keys_trusted_source">Esteu a punt de verificar les claus OMEMO de %1$sdesprés de fer clic a un enllaç. Això només és segur si seguiu aquest enllaç des d\'una font de confiança on només %2$s podria haver publicat aquest enllaç.</string>
+  <string name="verify_glacier_keys">Comproveu les claus OMEMO</string>
   <string name="show_inactive_devices">Mostra inactiu</string>
   <string name="hide_inactive_devices">Amaga inactiu</string>
-  <string name="distrust_omemo_key">Dispositiu no confiable</string>
-  <string name="distrust_omemo_key_text">Estàs segur que vols eliminar la verificació d\'aquest dispositiu?\nAquest dispositiu i missatges procedents d\'aquest dispositiu es marcaran com a no confiables.</string>
+  <string name="distrust_glaicer_key">Dispositiu no confiable</string>
+  <string name="distrust_glacier_key_text">Estàs segur que vols eliminar la verificació d\'aquest dispositiu?\nAquest dispositiu i missatges procedents d\'aquest dispositiu es marcaran com a no confiables.</string>
   <plurals name="seconds">
     <item quantity="one">1%d segons</item>
     <item quantity="other">%d segons</item>
@@ -688,10 +688,10 @@ d\'afegir Converses a la llista d\'aplicacions protegides.</string>
 que l\'administrador del servidor llegeixi els missatges, però pot ser l\'única forma de comunicar-se amb persones que utilitzin clients obsolets.</string>
   <string name="disable_now">Desactiva ara</string>
   <string name="draft">Esborrany:</string>
-  <string name="pref_omemo_setting">Encriptació OMEMO</string>
-  <string name="pref_omemo_setting_summary_always">OMEMO sempre s\'utilitzarà per a xerrades individuals i privades en grup.</string>
-  <string name="pref_omemo_setting_summary_default_on">OMEMO s\'utilitzarà per defecte per a les noves converses.</string>
-  <string name="pref_omemo_setting_summary_default_off">OMEMO haurà de ser activat explícitament per a noves converses.</string>
+  <string name="pref_glacier_setting">Encriptació OMEMO</string>
+  <string name="pref_glacier_setting_summary_always">OMEMO sempre s\'utilitzarà per a xerrades individuals i privades en grup.</string>
+  <string name="pref_glacier_setting_summary_default_on">OMEMO s\'utilitzarà per defecte per a les noves converses.</string>
+  <string name="pref_glacier_setting_summary_default_off">OMEMO haurà de ser activat explícitament per a noves converses.</string>
   <string name="create_shortcut">Crear accés directe</string>
   <string name="pref_font_size">Grandària de la font</string>
   <string name="pref_font_size_summary">La grandària relativa de la font utilitzada dins de l\'aplicació.</string>

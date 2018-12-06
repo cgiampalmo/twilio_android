@@ -29,7 +29,6 @@ import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 //import android.support.v7.app.AlertDialog;
 //import android.support.v7.app.AlertDialog.Builder;
@@ -63,7 +62,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -71,7 +69,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -118,7 +115,6 @@ import com.glaciersecurity.glaciermessenger.services.BarcodeProvider;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService.OnAccountUpdate;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService.OnCaptchaRequested;
-import com.glaciersecurity.glaciermessenger.ui.adapter.KnownHostsAdapter;
 import com.glaciersecurity.glaciermessenger.ui.adapter.PresenceTemplateAdapter;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
@@ -1036,10 +1032,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				this.mAxolotlFingerprintBox.setVisibility(View.VISIBLE);
 				if (ownAxolotlFingerprint.equals(messageFingerprint)) {
 					this.mOwnFingerprintDesc.setTextAppearance(this, R.style.TextAppearance_Conversations_Caption_Highlight);
-					this.mOwnFingerprintDesc.setText(R.string.omemo_fingerprint_selected_message);
+					this.mOwnFingerprintDesc.setText(R.string.glacier_id_selected_message);
 				} else {
 					this.mOwnFingerprintDesc.setTextAppearance(this, R.style.TextAppearance_Conversations_Caption);
-					this.mOwnFingerprintDesc.setText(R.string.omemo_fingerprint);
+					this.mOwnFingerprintDesc.setText(R.string.glacier_id);
 				}
 				this.mAxolotlFingerprint.setText(CryptoHelper.prettifyFingerprint(ownAxolotlFingerprint.substring(2)));
 				this.mAxolotlFingerprintToClipboardButton.setVisibility(View.GONE);

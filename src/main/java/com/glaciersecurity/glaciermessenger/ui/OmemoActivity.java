@@ -92,10 +92,10 @@ public abstract class OmemoActivity extends XmppActivity {
 	protected abstract void processFingerprintVerification(XmppUri uri);
 
 	protected void copyOmemoFingerprint(String fingerprint) {
-		if (copyTextToClipboard(CryptoHelper.prettifyFingerprint(fingerprint.substring(2)), R.string.omemo_fingerprint)) {
+		if (copyTextToClipboard(CryptoHelper.prettifyFingerprint(fingerprint.substring(2)), R.string.glacier_id)) {
 			Toast.makeText(
 					this,
-					R.string.toast_message_omemo_fingerprint,
+					R.string.toast_message_glacier_id,
 					Toast.LENGTH_SHORT).show();
 		}
 	}
@@ -178,15 +178,15 @@ public abstract class OmemoActivity extends XmppActivity {
 		binding.key.setOnClickListener(toast);
 		binding.keyType.setOnClickListener(toast);
 		if (showTag) {
-			binding.keyType.setText(getString(x509 ? R.string.omemo_fingerprint_x509 : R.string.omemo_fingerprint));
+			binding.keyType.setText(getString(x509 ? R.string.glacier_id_x509 : R.string.glacier_id));
 		} else {
 			binding.keyType.setVisibility(View.GONE);
 		}
 		if (highlight) {
 			binding.keyType.setTextAppearance(this,R.style.TextAppearance_Conversations_Caption_Highlight);
-			binding.keyType.setText(getString(x509 ? R.string.omemo_fingerprint_x509_selected_message : R.string.omemo_fingerprint_selected_message));
+			binding.keyType.setText(getString(x509 ? R.string.glacier_id_x509_selected_message : R.string.glacier_id_selected_message));
 		} else {
-			binding.keyType.setText(getString(x509 ? R.string.omemo_fingerprint_x509 : R.string.omemo_fingerprint));
+			binding.keyType.setText(getString(x509 ? R.string.glacier_id_x509 : R.string.glacier_id));
 		}
 
 		binding.key.setText(CryptoHelper.prettifyFingerprint(fingerprint.substring(2)));
@@ -194,8 +194,8 @@ public abstract class OmemoActivity extends XmppActivity {
 
 	public void showPurgeKeyDialog(final Account account, final String fingerprint) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(R.string.distrust_omemo_key);
-		builder.setMessage(R.string.distrust_omemo_key_text);
+		builder.setTitle(R.string.distrust_glaicer_key);
+		builder.setMessage(R.string.distrust_glacier_key_text);
 		builder.setNegativeButton(getString(R.string.cancel), null);
 		builder.setPositiveButton(R.string.confirm,
 				(dialog, which) -> {

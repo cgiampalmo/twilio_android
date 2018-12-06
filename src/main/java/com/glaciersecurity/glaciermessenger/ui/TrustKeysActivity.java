@@ -145,7 +145,7 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 			boolean performedVerification = xmppConnectionService.verifyFingerprints(mAccount.getRoster().getContact(uri.getJid()), uri.getFingerprints());
 			boolean keys = reloadFingerprints();
 			if (performedVerification && !keys && !hasNoOtherTrustedKeys() && !hasPendingKeyFetches()) {
-				Toast.makeText(this, R.string.all_omemo_keys_have_been_verified, Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, R.string.all_glacier_keys_have_been_verified, Toast.LENGTH_SHORT).show();
 				finishOk(false);
 				return;
 			} else if (performedVerification) {
@@ -160,7 +160,7 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 	}
 
 	private void populateView() {
-		setTitle(getString(R.string.trust_omemo_fingerprints));
+		setTitle(getString(R.string.trust_glacier_id));
 		binding.ownKeysDetails.removeAllViews();
 		binding.foreignKeys.removeAllViews();
 		boolean hasOwnKeys = false;
@@ -371,7 +371,7 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 				}
 				switch (report) {
 					case ERROR:
-						Toast.makeText(TrustKeysActivity.this, R.string.error_fetching_omemo_key, Toast.LENGTH_SHORT).show();
+						Toast.makeText(TrustKeysActivity.this, R.string.error_fetching_glacier_key, Toast.LENGTH_SHORT).show();
 						break;
 					case SUCCESS_TRUSTED:
 						// GOOBER - Remove toast for blindly trust message
@@ -379,7 +379,7 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 						break;
 					case SUCCESS_VERIFIED:
 						Toast.makeText(TrustKeysActivity.this,
-								Config.X509_VERIFICATION ? R.string.verified_omemo_key_with_certificate : R.string.all_omemo_keys_have_been_verified,
+								Config.X509_VERIFICATION ? R.string.verified_glacier_key_with_certificate : R.string.all_glacier_keys_have_been_verified,
 								Toast.LENGTH_LONG).show();
 						break;
 				}

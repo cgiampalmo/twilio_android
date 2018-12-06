@@ -139,7 +139,7 @@ public class XmppUri {
 				if (key.startsWith(OMEMO_URI_PARAM)) {
 					try {
 						int id = Integer.parseInt(key.substring(OMEMO_URI_PARAM.length()));
-						fingerprints.add(new Fingerprint(FingerprintType.OMEMO, value, id));
+						fingerprints.add(new Fingerprint(FingerprintType.GLACIER, value, id));
 					} catch (Exception e) {
 						//ignoring invalid device id
 					}
@@ -215,7 +215,7 @@ public class XmppUri {
 	}
 
 	public enum FingerprintType {
-		OMEMO
+		GLACIER
 	}
 
 	public static String getFingerprintUri(String base, List<XmppUri.Fingerprint> fingerprints, char seperator) {
@@ -223,7 +223,7 @@ public class XmppUri {
 		builder.append('?');
 		for (int i = 0; i < fingerprints.size(); ++i) {
 			XmppUri.FingerprintType type = fingerprints.get(i).type;
-			if (type == XmppUri.FingerprintType.OMEMO) {
+			if (type == XmppUri.FingerprintType.GLACIER) {
 				builder.append(XmppUri.OMEMO_URI_PARAM);
 				builder.append(fingerprints.get(i).deviceId);
 			}
