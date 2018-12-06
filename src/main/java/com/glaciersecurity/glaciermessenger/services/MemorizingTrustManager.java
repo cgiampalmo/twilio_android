@@ -741,14 +741,15 @@ public class MemorizingTrustManager {
 	void interactCert(final X509Certificate[] chain, String authType, CertificateException cause)
 			throws CertificateException
 	{
-		switch (interact(certChainMessage(chain, cause), R.string.mtm_accept_cert)) {
-		case MTMDecision.DECISION_ALWAYS:
+		//HONEYBADGER AM-120 always accept initial cert
+//		switch (interact(certChainMessage(chain, cause), R.string.mtm_accept_cert)) {
+//		case MTMDecision.DECISION_ALWAYS:
 			storeCert(chain[0]); // only store the server cert, not the whole chain
-		case MTMDecision.DECISION_ONCE:
-			break;
-		default:
-			throw (cause);
-		}
+//		case MTMDecision.DECISION_ONCE:
+//			break;
+//		default:
+//			throw (cause);
+//		}
 	}
 
 	boolean interactHostname(X509Certificate cert, String hostname)

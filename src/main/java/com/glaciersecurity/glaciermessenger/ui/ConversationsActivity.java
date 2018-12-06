@@ -294,25 +294,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		return true;
 	}
 
-	/**
-	 * GOOBER PERMISSIONS - Ask for permissions
-	 */
-
-
-	private boolean addPermission(List<String> permissionsList, String permission) {
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-			permissionsList.add(permission);
-			// Check for Rationale Option
-			if (!shouldShowRequestPermissionRationale(permission))
-				return false;
-
-			return true;
-		}
-		return false;
-	}
-
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, final Intent data) {
