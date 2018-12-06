@@ -34,7 +34,9 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.support.annotation.BoolRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -46,7 +48,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -55,7 +56,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.glaciersecurity.glaciermessenger.lollipin.lib.PinActivity;
 import com.glaciersecurity.glaciermessenger.Config;
@@ -79,6 +79,8 @@ import com.glaciersecurity.glaciermessenger.utils.ThemeHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.OnKeyStatusUpdated;
 import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
 import rocks.xmpp.addr.Jid;
+
+import static android.Manifest.permission.READ_CONTACTS;
 
 // GOOBER PIN - extend to use PIN everywherety
 // public abstract class XmppActivity extends ActionBarActivity {
@@ -388,9 +390,15 @@ public abstract class XmppActivity extends PinActivity {
 		}
 	}
 
+	//private boolean hasAddressedPermissions = false;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		finishOnCreate();
+	}
+	protected void finishOnCreate(){
+		askForPermissions();
 		metrics = getResources().getDisplayMetrics();
 		ExceptionHelper.init(getApplicationContext());
 		this.isCameraFeatureAvailable = getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
@@ -402,6 +410,11 @@ public abstract class XmppActivity extends PinActivity {
 
 		this.mUsingEnterKey = usingEnterKey();
 	}
+
+
+
+
+
 
 	protected boolean isCameraFeatureAvailable() {
 		return this.isCameraFeatureAvailable;
@@ -917,6 +930,10 @@ public abstract class XmppActivity extends PinActivity {
 		String onValueEdited(String value);
 	}
 
+	protected interface OnBoolEdited {
+		boolean onBoolEdited(boolean bool);
+	}
+
 	public static class ConferenceInvite {
 		private String uuid;
 		private List<Jid> jids = new ArrayList<>();
@@ -1001,4 +1018,84 @@ public abstract class XmppActivity extends PinActivity {
 			return bitmapWorkerTaskReference.get();
 		}
 	}
+
+	/**
+	 * GOOBER PERMISSIONS - Ask for permissions
+	 */
+	private void askForPermissions() {
+		final int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
+
+		//String[] request = {Manifest.permission.READ_CONTACTS, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "StartConversationActivity::askForPermissions-1");
+			List<String> permissionsNeeded = new ArrayList<String>();
+
+				final List<String> permissionsList = new ArrayList<String>();
+				// GOOBER - added WRITE_EXTERNAL_STORAGE permission ahead of time so that it doesn't ask
+				// when time comes which inevitably fails at that point.
+				if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+					permissionsNeeded.add("Write Storage");
+				if (!addPermission(permissionsList, READ_CONTACTS))
+					permissionsNeeded.add("Read Contacts");
+				if (!addPermission(permissionsList, Manifest.permission.CAMERA))
+					permissionsNeeded.add("Camera");
+				if (!addPermission(permissionsList, Manifest.permission.LOCATION_HARDWARE))
+					permissionsNeeded.add("Location Hardware");
+				if (!addPermission(permissionsList, Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS))
+					permissionsNeeded.add("Record Audio");
+
+			if (permissionsList.size() > 0) {
+				if (permissionsNeeded.size() > 0) {
+					// Need Rationale
+					String message = "You need to grant access to " + permissionsNeeded.get(0);
+					for (int i = 1; i < permissionsNeeded.size(); i++) {
+						message = message + ", " + permissionsNeeded.get(i);
+					}
+
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+						requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
+								REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
+					}
+
+					return;
+				}
+				requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
+						REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
+
+				return;
+			}
+		}
+	}
+
+	/**
+	 * GOOBER PERMISSIONS - add permission
+	 *
+	 * @param permissionsList
+	 * @param permission
+	 * @return
+	 */
+	private boolean addPermission(List<String> permissionsList, String permission) {
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if (this.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+				permissionsList.add(permission);
+				// Check for Rationale Option
+				if (!shouldShowRequestPermissionRationale(permission))
+					return false;
+			}
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+		UriHandlerActivity.onRequestPermissionResult(this, requestCode, grantResults);
+		if (grantResults.length > 0) {
+			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+				xmppConnectionService.checkNewPermission();
+			}
+		}
+	}
+
 }
