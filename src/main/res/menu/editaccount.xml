@@ -2,7 +2,7 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_glaciervpn"
-        android:orderInCategory="75"
+        android:orderInCategory="50"
         android:showAsAction="never"
         android:title="@string/action_glaciervpn"/>
     <item
@@ -30,14 +30,17 @@
                 android:title="@string/share_as_barcode"/>
             <item
                 android:id="@+id/action_show_qr_code"
-                android:title="@string/show_qr_code"/>
+                android:title="@string/show_qr_code"
+                android:visible="false"/>
         </menu>
     </item>
 
+    <!--HONEYBADGER remove view of block-->
     <item
         android:id="@+id/action_show_block_list"
         app:showAsAction="never"
         android:orderInCategory="95"
+        android:visible="false"
         android:title="@string/show_block_list"/>
 
     <item

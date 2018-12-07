@@ -716,18 +716,18 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             String name = user.getName();
             if (contact != null) {
                 binding.contactDisplayName.setText(contact.getDisplayName());
-                binding.contactJid.setText((name != null ? name + " \u2022 " : "") + getStatus(user));
+                //binding.contactJid.setText((name != null ? name + " \u2022 " : "") + getStatus(user));
                 if (mConversation.getMode() == Conversation.MODE_MULTI) {
                     binding.contactDisplayName.setText(contact.getDisplayName());
                 }
             } else {
                 binding.contactDisplayName.setText(name == null ? "" : name);
-                binding.contactJid.setText(getStatus(user));
+                //binding.contactJid.setText(getStatus(user));
 
             }
             loadAvatar(user, binding.contactPhoto);
             if (user.getRole() == MucOptions.Role.NONE) {
-                binding.contactJid.setAlpha(INACTIVE_ALPHA);
+                //binding.contactJid.setAlpha(INACTIVE_ALPHA);
                 binding.key.setAlpha(INACTIVE_ALPHA);
                 binding.contactDisplayName.setAlpha(INACTIVE_ALPHA);
                 binding.contactPhoto.setAlpha(INACTIVE_ALPHA);

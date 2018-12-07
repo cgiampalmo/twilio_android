@@ -13,6 +13,8 @@
         android:layout_height="wrap_content"
         android:focusable="true"
         android:imeOptions="flagNoExtractUi|actionSearch"
-        android:inputType="textEmailAddress|textNoSuggestions"/>
+        android:inputType="textEmailAddress|textNoSuggestions"
+        android:hint="@string/search_for_contacts_or_groups"/>
+
 
 </RelativeLayout>

@@ -166,7 +166,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		public static ViewHolder get(ContactBinding binding) {
 			ViewHolder viewHolder = new ViewHolder();
 			viewHolder.name = binding.contactDisplayName;
-			viewHolder.jid = binding.contactJid;
+//			viewHolder.jid = binding.contactJid;
 			viewHolder.avatar = binding.contactPhoto;
 			viewHolder.tags = binding.tags;
 			binding.getRoot().setTag(viewHolder);
