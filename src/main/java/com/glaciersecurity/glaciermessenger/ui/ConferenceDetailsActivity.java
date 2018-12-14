@@ -422,18 +422,12 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             if (contact != null && contact.showInRoster()) {
                 name = contact.getDisplayName();
             } else if (user.getRealJid() != null) {
-                name = user.getRealJid().asBareJid().toString();
             } else {
-                name = user.getName();
             }
-            //HONEYBADGER: AM-120 add leading # if group
-            final boolean groupChat = mConversation.getMode() == Conversation.MODE_MULTI;
-            if (groupChat){
-                menu.setHeaderTitle('#'+name);
-            } else {
-                menu.setHeaderTitle(name);
-            }
-            // end AM-120
+            name = user.getName();
+
+            menu.setHeaderTitle(name);
+
             if (user.getRealJid() != null) {
                 MenuItem showContactDetails = menu.findItem(R.id.action_contact_details);
                 MenuItem startConversation = menu.findItem(R.id.start_conversation);
@@ -604,8 +598,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         final User self = mucOptions.getSelf();
         String account;
         // HONEYBADGER AM-120 rm jid from display name
-        //or... //account = mConversation.getAccount().getJid().asBareJid().toString();
-        account = mConversation.getAccount().getDisplayName();
+        account = mConversation.getAccount().getJid().asBareJid().toString();
 
 //        if (Config.DOMAIN_LOCK != null) {
 //            account = mConversation.getAccount().getJid().getLocal();
@@ -615,7 +608,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
 
 
         this.binding.editMucNameButton.setVisibility((self.getAffiliation().ranks(MucOptions.Affiliation.OWNER) || mucOptions.canChangeSubject()) ? View.VISIBLE : View.GONE);
-        this.binding.detailsAccount.setText(getString(R.string.using_account, account));
+//        this.binding.detailsAccount.setText(getString(R.string.using_account, account));
         this.binding.jid.setText(mConversation.getJid().asBareJid().toEscapedString());
         this.binding.yourPhoto.setImageBitmap(avatarService().get(mConversation,(int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
         String roomName = mucOptions.getName();
@@ -666,7 +659,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
 //            if (self.getAffiliation().ranks(MucOptions.Affiliation.OWNER)) {
 //                this.binding.changeConferenceButton.setVisibility(View.VISIBLE);
 //            } else {
-                this.binding.changeConferenceButton.setVisibility(View.INVISIBLE);
+              //  this.binding.changeConferenceButton.setVisibility(View.INVISIBLE);
             //}
         } else {
             this.binding.mucMoreDetails.setVisibility(View.GONE);

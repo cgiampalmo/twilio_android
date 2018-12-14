@@ -200,13 +200,16 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 					if (hasNoOtherTrustedKeys(jid)) {
 						if (!mAccount.getRoster().getContact(jid).mutualPresenceSubscription()) {
 							keysCardBinding.noKeysToAccept.setText(R.string.error_no_keys_to_trust_presence);
-						} else {
+						}
+						else {
 							keysCardBinding.noKeysToAccept.setText(R.string.error_no_keys_to_trust_server_error);
 						}
-					} else {
+					}
+					else {
 						keysCardBinding.noKeysToAccept.setText(getString(R.string.no_keys_just_confirm, mAccount.getRoster().getContact(jid).getDisplayName()));
 					}
-				} else {
+				}
+				else {
 					keysCardBinding.noKeysToAccept.setVisibility(View.GONE);
 				}
 				binding.foreignKeys.addView(keysCardBinding.foreignKeysCard);

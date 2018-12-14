@@ -165,14 +165,14 @@ public class ShowLocationActivity extends LocationActivity implements LocationLi
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.action_copy_location:
-				final ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-				if (clipboard != null) {
-					final ClipData clip = ClipData.newPlainText("location", createGeoUri().toString());
-					clipboard.setPrimaryClip(clip);
-					Toast.makeText(this,R.string.url_copied_to_clipboard,Toast.LENGTH_SHORT).show();
-				}
-				return true;
+//			case R.id.action_copy_location:
+//				final ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+//				if (clipboard != null) {
+//					final ClipData clip = ClipData.newPlainText("location", createGeoUri().toString());
+//					clipboard.setPrimaryClip(clip);
+//					Toast.makeText(this,R.string.url_copied_to_clipboard,Toast.LENGTH_SHORT).show();
+//				}
+//				return true;
 				//HONEYBADGER AM-120 Disable and hide "Share Location Plugin"
 //			case R.id.action_share_location:
 //				final Intent shareIntent = new Intent();

@@ -7,7 +7,7 @@ public class FingerprintStatus implements Comparable<FingerprintStatus> {
 
     private static final long DO_NOT_OVERWRITE = -1;
 
-    private Trust trust = Trust.UNTRUSTED;
+    private Trust trust = Trust.TRUSTED;
     private boolean active = false;
     private long lastActivation = DO_NOT_OVERWRITE;
 

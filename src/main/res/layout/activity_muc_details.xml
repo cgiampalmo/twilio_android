@@ -289,14 +289,14 @@
                                 android:src="?attr/icon_notifications"/>
                         </RelativeLayout>
 
-                        <TextView
-                            android:id="@+id/details_account"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:layout_marginTop="32dp"
-                            android:text="@string/using_account"
-                            android:textAppearance="@style/TextAppearance.Conversations.Caption"/>
+                        <!--<TextView-->
+                            <!--android:id="@+id/details_account"-->
+                            <!--android:layout_width="wrap_content"-->
+                            <!--android:layout_height="wrap_content"-->
+                            <!--android:layout_gravity="end"-->
+                            <!--android:layout_marginTop="32dp"-->
+                            <!--android:text="@string/using_account"-->
+                            <!--android:textAppearance="@style/TextAppearance.Conversations.Caption"/>-->
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
 

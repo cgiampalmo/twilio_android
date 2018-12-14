@@ -38,8 +38,7 @@
                         android:layout_height="wrap_content"
                         android:padding="@dimen/card_padding_regular">
 
-                        <!-- GOOBER AVATAR - Removed as it seems to occasionally cause serious -->
-                        delay when logging in
+                        <!-- GOOBER AVATAR - Removed as it seems to occasionally cause serious delay when logging in -->
                         <com.makeramen.roundedimageview.RoundedImageView
                             android:id="@+id/avater"
                             android:layout_width="@dimen/avatar_on_details_screen_size"

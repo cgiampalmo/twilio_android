@@ -351,9 +351,9 @@ public abstract class XmppActivity extends PinActivity {
 			case android.R.id.home:
 				finish();
 				break;
-			case R.id.action_show_qr_code:
-				showQrCode();
-				break;
+//			case R.id.action_show_qr_code:
+//				showQrCode();
+//				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}

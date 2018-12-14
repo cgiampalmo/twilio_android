@@ -119,7 +119,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 AlertDialog.Builder builder = new AlertDialog.Builder(
                         ContactDetailsActivity.this);
                 builder.setTitle(getString(R.string.action_add_phone_book));
-                builder.setMessage(getString(R.string.add_phone_book_text, contact.getJid().toString()));
+                builder.setMessage(getString(R.string.add_phone_book_text, contact.getDisplayName()));
                 builder.setNegativeButton(getString(R.string.cancel), null);
                 builder.setPositiveButton(getString(R.string.add), addToPhonebook);
                 builder.create().show();
@@ -295,11 +295,11 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         invalidateOptionsMenu();
         setTitle(contact.getDisplayName());
         if (contact.showInRoster()) {
-            binding.detailsSendPresence.setVisibility(View.VISIBLE);
-            binding.detailsReceivePresence.setVisibility(View.VISIBLE);
+//            binding.detailsSendPresence.setVisibility(View.VISIBLE);
+//            binding.detailsReceivePresence.setVisibility(View.VISIBLE);
             binding.addContactButton.setVisibility(View.GONE);
-            binding.detailsSendPresence.setOnCheckedChangeListener(null);
-            binding.detailsReceivePresence.setOnCheckedChangeListener(null);
+//            binding.detailsSendPresence.setOnCheckedChangeListener(null);
+//            binding.detailsReceivePresence.setOnCheckedChangeListener(null);
 
             List<String> statusMessages = contact.getPresences().getStatusMessages();
             if (statusMessages.size() == 0) {
@@ -320,44 +320,44 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 binding.statusMessage.setText(builder);
             }
 
-            if (contact.getOption(Contact.Options.FROM)) {
-                binding.detailsSendPresence.setText(R.string.send_presence_updates);
-                binding.detailsSendPresence.setChecked(true);
-            } else if (contact.getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST)) {
-                binding.detailsSendPresence.setChecked(false);
-                binding.detailsSendPresence.setText(R.string.send_presence_updates);
-            } else {
-                binding.detailsSendPresence.setText(R.string.preemptively_grant);
-                if (contact.getOption(Contact.Options.PREEMPTIVE_GRANT)) {
-                    binding.detailsSendPresence.setChecked(true);
-                } else {
-                    binding.detailsSendPresence.setChecked(false);
-                }
-            }
-            if (contact.getOption(Contact.Options.TO)) {
-                binding.detailsReceivePresence.setText(R.string.receive_presence_updates);
-                binding.detailsReceivePresence.setChecked(true);
-            } else {
-                binding.detailsReceivePresence.setText(R.string.ask_for_presence_updates);
-                if (contact.getOption(Contact.Options.ASKING)) {
-                    binding.detailsReceivePresence.setChecked(true);
-                } else {
-                    binding.detailsReceivePresence.setChecked(false);
-                }
-            }
-            if (contact.getAccount().isOnlineAndConnected()) {
-                binding.detailsReceivePresence.setEnabled(true);
-                binding.detailsSendPresence.setEnabled(true);
-            } else {
-                binding.detailsReceivePresence.setEnabled(false);
-                binding.detailsSendPresence.setEnabled(false);
-            }
-            binding.detailsSendPresence.setOnCheckedChangeListener(this.mOnSendCheckedChange);
-            binding.detailsReceivePresence.setOnCheckedChangeListener(this.mOnReceiveCheckedChange);
+//            if (contact.getOption(Contact.Options.FROM)) {
+//                binding.detailsSendPresence.setText(R.string.send_presence_updates);
+//                binding.detailsSendPresence.setChecked(true);
+//            } else if (contact.getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST)) {
+//                binding.detailsSendPresence.setChecked(false);
+//                binding.detailsSendPresence.setText(R.string.send_presence_updates);
+//            } else {
+//                binding.detailsSendPresence.setText(R.string.preemptively_grant);
+//                if (contact.getOption(Contact.Options.PREEMPTIVE_GRANT)) {
+//                    binding.detailsSendPresence.setChecked(true);
+//                } else {
+//                    binding.detailsSendPresence.setChecked(false);
+//                }
+//            }
+//            if (contact.getOption(Contact.Options.TO)) {
+//                binding.detailsReceivePresence.setText(R.string.receive_presence_updates);
+//                binding.detailsReceivePresence.setChecked(true);
+//            } else {
+//                binding.detailsReceivePresence.setText(R.string.ask_for_presence_updates);
+//                if (contact.getOption(Contact.Options.ASKING)) {
+//                    binding.detailsReceivePresence.setChecked(true);
+//                } else {
+//                    binding.detailsReceivePresence.setChecked(false);
+//                }
+//            }
+//            if (contact.getAccount().isOnlineAndConnected()) {
+//                binding.detailsReceivePresence.setEnabled(true);
+//                binding.detailsSendPresence.setEnabled(true);
+//            } else {
+//                binding.detailsReceivePresence.setEnabled(false);
+//                binding.detailsSendPresence.setEnabled(false);
+//            }
+//            binding.detailsSendPresence.setOnCheckedChangeListener(this.mOnSendCheckedChange);
+//            binding.detailsReceivePresence.setOnCheckedChangeListener(this.mOnReceiveCheckedChange);
         } else {
             binding.addContactButton.setVisibility(View.VISIBLE);
-            binding.detailsSendPresence.setVisibility(View.GONE);
-            binding.detailsReceivePresence.setVisibility(View.GONE);
+//            binding.detailsSendPresence.setVisibility(View.GONE);
+//            binding.detailsReceivePresence.setVisibility(View.GONE);
             binding.statusMessage.setVisibility(View.GONE);
         }
 
@@ -374,14 +374,20 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 binding.detailsLastseen.setVisibility(View.GONE);
             }
         }
+        //HONEYBADGER AM-120 remove jid only show account name
 
-        binding.detailsContactjid.setText(IrregularUnicodeDetector.style(this, contact.getJid()));
+        //binding.detailsContactjid.setText(IrregularUnicodeDetector.style(this, contact.getJid()));
+        binding.detailsContactjid.setText(contact.getDisplayName());
+
         String account;
-        if (Config.DOMAIN_LOCK != null) {
-            account = contact.getAccount().getJid().getLocal();
-        } else {
-            account = contact.getAccount().getJid().asBareJid().toString();
-        }
+        //HONEYBADGER AM-120 remove jid only show account name
+//        if (Config.DOMAIN_LOCK != null) {
+//            account = contact.getAccount().getJid().getLocal();
+//        } else {
+//            account = contact.getAccount().getJid().asBareJid().toString();
+//        }
+        account = contact.getDisplayName();
+
 //        binding.detailsAccount.setText(getString(R.string.using_account, account));
         binding.detailsContactBadge.setImageBitmap(avatarService().get(contact, (int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
         binding.detailsContactBadge.setOnClickListener(this.onBadgeClick);

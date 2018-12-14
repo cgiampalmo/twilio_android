@@ -50,7 +50,8 @@ public final class Tokenizer implements Iterator<String>, Iterable<String> {
 	}
 
 	/**
-	 * Removes the last object returned by {@code next} from the collection.
+	 *
+	 * -Removes the last object returned by {@code next} from the collection.
 	 * This method can only be called once between each call to {@code next}.
 	 *
 	 * @throws UnsupportedOperationException if removing is not supported by the collection being

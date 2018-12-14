@@ -33,13 +33,12 @@
                 android:singleLine="true"
                 android:textAppearance="@style/TextAppearance.Conversations.Subhead"/>
 
-            <!--HONEYBADGER - AMO-120 remove view of JID-->
-            <!--<TextView-->
-                <!--android:id="@+id/contact_jid"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:singleLine="true"-->
-                <!--android:textAppearance="@style/TextAppearance.Conversations.Body1.Secondary"/>-->
+            <TextView
+                android:id="@+id/contact_jid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:textAppearance="@style/TextAppearance.Conversations.Body1.Secondary"/>
 
             <com.wefika.flowlayout.FlowLayout
                 android:id="@+id/tags"

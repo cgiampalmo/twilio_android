@@ -112,11 +112,11 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		final Jid jid = item.getJid();
 		if (jid != null) {
 			// GOOBER USERNAME - don't show jid in contact list
-			// viewHolder.jid.setVisibility(View.VISIBLE);
-			viewHolder.jid.setVisibility(View.INVISIBLE);
-			viewHolder.jid.setText(IrregularUnicodeDetector.style(activity, jid));
-		} else {
-			viewHolder.jid.setVisibility(View.GONE);
+//			viewHolder.jid.setVisibility(View.VISIBLE);
+//			viewHolder.jid.setVisibility(View.INVISIBLE);
+//			viewHolder.jid.setText(IrregularUnicodeDetector.style(activity, jid));
+//		} else {
+//			viewHolder.jid.setVisibility(View.GONE);
 		}
 		viewHolder.name.setText(EmojiWrapper.transform(item.getDisplayName()));
 		loadAvatar(item, viewHolder.avatar);
@@ -155,7 +155,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 
 	private static class ViewHolder {
 		private TextView name;
-		private TextView jid;
+		//private TextView jid;
 		private ImageView avatar;
 		private FlowLayout tags;
 

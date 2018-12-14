@@ -129,6 +129,7 @@ public abstract class OmemoActivity extends XmppActivity {
 		binding.getRoot().setTag(R.id.TAG_FINGERPRINT_STATUS, status);
 		boolean x509 = Config.X509_VERIFICATION && status.getTrust() == FingerprintStatus.Trust.VERIFIED_X509;
 		final View.OnClickListener toast;
+		// HONEYBADGER Am-120 blind trust
 		binding.tglTrust.setChecked(status.isTrusted());
 
 		if (status.isActive()) {

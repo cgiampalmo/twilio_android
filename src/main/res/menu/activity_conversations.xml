@@ -20,7 +20,7 @@
         app:showAsAction="never"/>
     <item
         android:id="@+id/action_glaciervpn"
-        android:orderInCategory="80"
+        android:orderInCategory="10"
         android:showAsAction="never"
         android:title="@string/action_glaciervpn"/>
 </menu>
