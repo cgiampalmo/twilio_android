@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
@@ -381,8 +382,10 @@ public class NotificationService {
 		if (messages.size() >= 1) {
 			final Conversation conversation = (Conversation) messages.get(0).getConversation();
 			final UnreadConversation.Builder mUnreadBuilder = new UnreadConversation.Builder(conversation.getName().toString());
+			/* GOOBER - Instead of using publish icon, use default glacier icon
 			mBuilder.setLargeIcon(mXmppConnectionService.getAvatarService()
-					.get(conversation, getPixel(64)));
+					.get(conversation, getPixel(64)));*/
+			mBuilder.setLargeIcon(BitmapFactory.decodeResource(mXmppConnectionService.getResources(), R.drawable.glacier_launcher)); //ALF AM-91 changed from ic_launcher
 			mBuilder.setContentTitle(conversation.getName());
 			if (Config.HIDE_MESSAGE_TEXT_IN_NOTIFICATION) {
 				int count = messages.size();
