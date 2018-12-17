@@ -4,6 +4,7 @@
     <string name="action_add">New chat</string>
     <string name="action_accounts">Manage Accounts</string>
     <string name="action_end_conversation">End Chat</string>
+    <string name="action_leave_group">Leave Group</string> <!-- ALF AM-122 -->
     <string name="action_contact_details">Contact Details</string>
     <string name="action_muc_details">Group details</string>
     <string name="action_secure">Secure chat</string>
@@ -178,7 +179,7 @@
     <string name="account_settings_example_jabber_id">username</string>
     <string name="password">Password</string>
     <string name="orgid">Org ID</string>
-    <string name="invalid_jid">This is not a valid Chat ID</string>
+    <string name="invalid_jid">This is not a valid group name</string> <!-- ALF AM-119 -->
     <string name="error_out_of_memory">Out of memory. Image is too large</string>
     <string name="add_phone_book_text">Do you want to add %s to your address book?</string>
     <string name="server_info_show_more">Server info</string>
@@ -217,7 +218,7 @@
     <string name="search">Search</string>
     <string name="dialog_title_create_contact">Create Contact</string>
     <string name="enter_contact">Enter Contact</string>
-    <string name="join_conference">Join group</string>
+    <string name="join_conference">New group</string>
     <string name="dialog_title_join_conference">Join Chat</string>
     <string name="delete_contact">Delete contact</string>
     <string name="view_contact_details">View contact details</string>
@@ -227,11 +228,20 @@
     <string name="select">Select</string>
     <string name="contact_already_exists">The contact already exists</string>
     <string name="join">Join</string>
-    <string name="conference_address">Group chat address</string>
+    <string name="conference_address">Group name</string> <!-- ALF AM-78 room to group -->
     <!--<string name="conference_address_example">room@conference.example.com/nick</string>-->
+    <!-- ALF AM-88 next 5, changed wording AM-123 -->
+    <string name="conference_address_example">Group Name</string>
+    <string name="invite_only_desc">Invite only groups have a 20 user recommended limit and are managed by the owner</string>
+    <string name="open_group_desc">Open groups have no user limit and store group chat history</string>
+    <string name="invite_only">Invite Only</string>
+    <string name="group_already_exists">This group already exists</string>
     <string name="save_as_bookmark">Save as bookmark</string>
     <string name="delete_bookmark">Delete bookmark</string>
     <string name="bookmark_already_exists">This bookmark already exists</string>
+    <!-- ALF AM-51 -->
+    <string name="added_to_group">added to the group</string>
+    <string name="left_group">left the group</string>
     <string name="action_edit_subject">Edit group chat subject</string>
     <string name="topic">Topic</string>
     <string name="joining_conference">Joining group chat…</string>
@@ -273,11 +283,16 @@
     <string name="pref_expert_options_summary">Please be careful with these</string>
     <string name="title_activity_about">About Messenger</string>
     <string name="pref_about_conversations_summary">Build and licensing information</string>
+    <!-- ALF AM-48 -->
+    <string name="pref_display_name">Display Name</string>
+    <string name="pref_display_name_description">Change display name</string>
     <string name="title_pref_quiet_hours">Quiet Hours</string>
     <string name="title_pref_quiet_hours_start_time">Start time</string>
     <string name="title_pref_quiet_hours_end_time">End time</string>
     <string name="title_pref_enable_quiet_hours">Enable quiet hours</string>
     <string name="pref_quiet_hours_summary">Notifications will be silenced during quiet hours</string>
+    <string name="pref_use_larger_font">Increase font size</string>
+    <string name="pref_use_larger_font_summary">Use larger font sizes across the entire app</string>
     <string name="pref_use_send_button_to_indicate_status">Send button indicates status</string>
     <string name="pref_use_indicate_received">Request message receipts</string>
     <string name="pref_use_indicate_received_summary">Received messages will be marked with a green tick if supported</string>
@@ -318,6 +333,10 @@
     <string name="pref_export_logs">Export history</string>
     <string name="pref_export_logs_summary">Write chat history logs to SD card</string>
     <string name="notification_export_logs_title">Writing logs to SD card</string>
+    <!-- ALF AM-90 next 3 -->
+    <string name="channel_name">Messenger</string>
+    <string name="channel_description">Messenger</string>
+    <string name="channel_id">Messenger</string>
     <string name="choose_file">Choose file</string>
     <string name="receiving_x_file">Receiving %1$s (%2$d%% completed)</string>
     <string name="download_x_file">Download %s</string>
@@ -367,7 +386,7 @@
     <string name="remove_membership">Revoke membership</string>
     <string name="grant_admin_privileges">Grant admin privileges</string>
     <string name="remove_admin_privileges">Revoke admin privileges</string>
-    <string name="remove_from_room">Remove from room</string>
+    <string name="remove_from_room">Remove from group</string>
     <string name="could_not_change_affiliation">Could not change affiliation of %s</string>
     <string name="ban_from_conference">Ban from group chat</string>
     <string name="removing_from_public_conference">You are trying to remove %s from a public group chat. The only way to do that is to ban that user for ever.</string>
@@ -382,6 +401,16 @@
     <string name="you_are_not_participating">You are not participating</string>
     <string name="modified_conference_options">Modified group chat options!</string>
     <string name="could_not_modify_conference_options">Could not modify group chat options</string>
+    <!-- ALF AM-53 start -->
+    <string name="fifteen_seconds">15 seconds</string>
+    <string name="one_minute">1 minute</string>
+    <string name="five_minutes">5 minutes</string>
+    <string name="one_day">1 day</string>
+    <string name="one_week">1 week</string>
+    <string name="conversation_message_timer">Disappearing messages</string>
+    <string name="pref_global_message_timer">Global disappearing messages</string>
+    <string name="pref_global_message_timer_description">Set messages to be deleted locally and on any receiving client after configured time</string>
+    <!-- ALF AM-53 end -->
     <string name="never">Never</string>
     <string name="until_further_notice">Until further notice</string>
     <string name="snooze">Snooze</string>
@@ -567,8 +596,10 @@
     <string name="remote_server_not_found">Remote server not found</string>
     <string name="unable_to_update_account">Unable to update account</string>
     <string name="report_jid_as_spammer">Report this JID as sending unwanted messages.</string>
-    <string name="pref_delete_glacier_identities">Delete Glacier identities</string>
-    <string name="pref_delete_glacier_identities_summary">Regenerate your Glacier keys. All your contacts will have to verify you again. Use this only as a last resort.</string>
+    <!-- ALF AM-79 next three -->
+    <string name="pref_reset_omemo_message">This may help if you\'re having problems with message delivery. All of your messages will be kept.</string>
+    <string name="pref_delete_glacier_identities">Reset Secure Connections</string>
+    <string name="pref_delete_glacier_identities_summary">Regenerate your Glacier keys. All your contacts will have to verify you again.</string>
     <string name="delete_selected_keys">Delete selected keys</string>
     <string name="error_publish_avatar_offline">You need to be connected to publish your avatar.</string>
     <string name="show_error_message">Show error message</string>
@@ -764,6 +795,9 @@
     <string name="login_error_message">Unable to validate login information.  Please enter login information again.</string>
     <string name="signin_fail_title">Sign-in failed</string>
     <string name="enter_password">enter password</string>
+    <!-- ALF AM-16 -->
+    <string name="support_button_key">Support</string>
+    <string name="support_button_summary">Report Issue or Feedback</string>
 
     <!-- AM-74 -->
     <string name="error_connecting">Error Connecting</string>
@@ -835,7 +869,7 @@
     <string name="action_glaciervpn">Core Connection</string>
 
     <string name="end_conversation">End</string>
-    <string name="end_conversation_msg">Do you want to end this chat session?\n\n<b>Note:</b> This will not influence messages stored on other devices.</string>
+    <string name="end_conversation_msg">Do you want to end this chat session?\n</string> <!-- ALF AM-8 removed Note -->
     <string name="also_clear_history">Delete all messages in this chat session</string>
     <string name="action_wipe_all_history">Wipe All History</string>
     <string name="wipe_all_history_msg">\n<b>Warning:</b> This will not influence messages stored on other devices.</string>
@@ -843,4 +877,13 @@
     <string name="end_all_chat">End all chat sessions chat session</string>
     <string name="delete_all_cached_files">Delete all cached files</string>
     <string name="wipe_all_history">Continue</string>
+
+    <string name="glaciersecurity_webtitle">Web Address</string>
+    <string name="glaciersecurity_contacttitle">Contact Information</string>
+    <string name="glaciersecurity_problems">If you are experiencing problems or are in need of additional assistance, please contact us at:</string>
+    <string name="glaciersecurity_contactphone">Phone #: (844) 345-2243</string>
+    <string name="glaciersecurity_contactemail">Email: info@glaciersecurity.com</string>
+    <string name="glaciersecurity_property">Messenger is a property of Glacier Security</string>
+    <string name="glaciersecurity_help">Please visit us at glaciersecurity.com</string>
+    <string name="version_info">%1$s %2$s</string>
 </resources>
