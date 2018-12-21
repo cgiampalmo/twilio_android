@@ -40,6 +40,12 @@ public class MessageGenerator extends AbstractGenerator {
 			if (this.mXmppConnectionService.indicateReceived() && !isWithSelf) {
 				packet.addChild("request", "urn:xmpp:receipts");
 			}
+
+			//ALF AM-53
+			if (message.getTimer() > 0) {
+				packet.addChild("x", "jabber:x:msgexpire")
+						.setAttribute("seconds", message.getTimer());
+			}
 		} else if (message.getType() == Message.TYPE_PRIVATE) { //TODO files and images might be private as well
 			packet.setTo(message.getCounterpart());
 			packet.setType(MessagePacket.TYPE_CHAT);

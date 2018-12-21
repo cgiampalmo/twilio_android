@@ -103,6 +103,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	private boolean mActivityPaused = true;
 	private AtomicBoolean mRedirectInProcess = new AtomicBoolean(false);
 
+	private boolean initialConnect = true; //ALF AM-78
+
 	private static boolean isViewIntent(Intent i) {
 		return i != null && ACTION_VIEW_CONVERSATION.equals(i.getAction()) && i.hasExtra(EXTRA_CONVERSATION);
 	}
@@ -154,6 +156,18 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			}
 		}
 		showDialogsIfMainIsOverview();
+
+		//ALF AM-78
+		if (initialConnect) {
+			initialConnect = false;
+			for (Account account : xmppConnectionService.getAccounts()) {
+				if (account.getStatus() != Account.State.DISABLED) {
+					if (account.getXmppConnection() != null) {
+						account.getXmppConnection().sendRoomDiscoveries();
+					}
+				}
+			}
+		}
 	}
 
 	private boolean performRedirectIfNecessary(boolean noAnimation) {

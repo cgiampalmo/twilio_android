@@ -40,6 +40,7 @@ public class Account extends AbstractEntity {
 	public static final String DISPLAY_NAME = "display_name";
 	public static final String HOSTNAME = "hostname";
 	public static final String PORT = "port";
+	public static final String TIMER = "timer"; //ALF AM-53
 	public static final String STATUS = "status";
 	public static final String STATUS_MESSAGE = "status_message";
 	public static final String RESOURCE = "resource";
@@ -236,12 +237,14 @@ public class Account extends AbstractEntity {
 	protected String displayName = null;
 	protected String hostname = null;
 	protected int port = 5222;
+	protected int timer; //ALF AM-53
 	protected boolean online = false;
 	private AxolotlService axolotlService = null;
 	private PgpDecryptionService pgpDecryptionService = null;
 	private XmppConnection xmppConnection = null;
 	private long mEndGracePeriod = 0L;
 	private final Roster roster = new Roster(this);
+	private List<Jid> availableGroups = new CopyOnWriteArrayList<>(); //ALF AM-78
 	private List<Bookmark> bookmarks = new CopyOnWriteArrayList<>();
 	private final Collection<Jid> blocklist = new CopyOnWriteArraySet<>();
 	private Presence.Status presenceStatus = Presence.Status.ONLINE;
@@ -249,12 +252,13 @@ public class Account extends AbstractEntity {
 
 	public Account(final Jid jid, final String password) {
 		this(java.util.UUID.randomUUID().toString(), jid,
-				password, 0, null, "", null, null, null, 5222, Presence.Status.ONLINE, null);
+				password, 0, null, "", null, null, null, 5222, Message.TIMER_NONE, Presence.Status.ONLINE, null);
+		//ALF AM-53 added TIMER and in params below
 	}
 
 	private Account(final String uuid, final Jid jid,
 	                final String password, final int options, final String rosterVersion, final String keys,
-	                final String avatar, String displayName, String hostname, int port,
+	                final String avatar, String displayName, String hostname, int port, int timer,
 	                final Presence.Status status, String statusMessage) {
 		this.uuid = uuid;
 		this.jid = jid;
@@ -272,6 +276,7 @@ public class Account extends AbstractEntity {
 		this.displayName = displayName;
 		this.hostname = hostname;
 		this.port = port;
+		this.timer = timer; //ALF AM-53 (and in params list above)
 		this.presenceStatus = status;
 		this.presenceStatusMessage = statusMessage;
 	}
@@ -298,6 +303,7 @@ public class Account extends AbstractEntity {
 				cursor.getString(cursor.getColumnIndex(DISPLAY_NAME)),
 				cursor.getString(cursor.getColumnIndex(HOSTNAME)),
 				cursor.getInt(cursor.getColumnIndex(PORT)),
+				cursor.getInt(cursor.getColumnIndex(TIMER)), //ALF AM-53
 				Presence.Status.fromShowString(cursor.getString(cursor.getColumnIndex(STATUS))),
 				cursor.getString(cursor.getColumnIndex(STATUS_MESSAGE)));
 	}
@@ -354,6 +360,15 @@ public class Account extends AbstractEntity {
 
 	public String getHostname() {
 		return this.hostname == null ? "" : this.hostname;
+	}
+
+	//ALF AM-53 (next two)
+	public int getTimer() {
+		return this.timer;
+	}
+
+	public void setTimer(int timer) {
+		this.timer = timer;
 	}
 
 	public boolean isOnion() {
@@ -477,6 +492,7 @@ public class Account extends AbstractEntity {
 		values.put(DISPLAY_NAME, displayName);
 		values.put(HOSTNAME, hostname);
 		values.put(PORT, port);
+		values.put(TIMER, timer); //ALF AM-53
 		values.put(STATUS, presenceStatus.toShowString());
 		values.put(STATUS_MESSAGE, presenceStatusMessage);
 		values.put(RESOURCE, jid.getResource());
@@ -568,6 +584,24 @@ public class Account extends AbstractEntity {
 
 	public Roster getRoster() {
 		return this.roster;
+	}
+
+	//ALF AM-78 (next three)
+	public List<Jid> getAvailableGroups() {
+		return this.availableGroups;
+	}
+
+	public void setAvailableGroups(final List<Jid> groups) {
+		this.availableGroups = groups;
+	}
+
+	public boolean groupExists(final Jid conferenceJid) {
+		for (final Jid jid : this.availableGroups) {
+			if (jid != null && jid.equals(conferenceJid.asBareJid())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public List<Bookmark> getBookmarks() {

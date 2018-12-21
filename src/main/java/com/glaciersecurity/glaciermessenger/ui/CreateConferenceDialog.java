@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 
@@ -44,17 +45,18 @@ public class CreateConferenceDialog extends DialogFragment {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.dialog_title_create_conference);
         CreateConferenceDialogBinding binding = DataBindingUtil.inflate(getActivity().getLayoutInflater(), R.layout.create_conference_dialog, null, false);
-        ArrayList<String> mActivatedAccounts = getArguments().getStringArrayList(ACCOUNTS_LIST_KEY);
-        StartConversationActivity.populateAccountSpinner(getActivity(), mActivatedAccounts, binding.account);
+        //ArrayList<String> mActivatedAccounts = getArguments().getStringArrayList(ACCOUNTS_LIST_KEY);
+        //ALF AM-88 also sending null for spinner from call to onCreate
+        //StartConversationActivity.populateAccountSpinner(getActivity(), mActivatedAccounts, binding.account);
         builder.setView(binding.getRoot());
-        builder.setPositiveButton(R.string.choose_participants, (dialog, which) -> mListener.onCreateDialogPositiveClick(binding.account, binding.groupChatName.getText().toString().trim()));
+        builder.setPositiveButton(R.string.choose_participants, (dialog, which) -> mListener.onCreateDialogPositiveClick(null, binding.groupChatName.getText().toString().trim(), binding.inviteOnly, binding.groupChatName));
         builder.setNegativeButton(R.string.cancel, null);
-        DelayedHintHelper.setHint(R.string.providing_a_name_is_optional, binding.groupChatName);
+        DelayedHintHelper.setHint(R.string.conference_address_example, binding.groupChatName); //ALF AM-88
         return builder.create();
     }
 
     public interface CreateConferenceDialogListener {
-        void onCreateDialogPositiveClick(Spinner spinner, String subject);
+        void onCreateDialogPositiveClick(Spinner spinner, String subject, CheckBox inviteOnly, EditText editName);
     }
 
     @Override

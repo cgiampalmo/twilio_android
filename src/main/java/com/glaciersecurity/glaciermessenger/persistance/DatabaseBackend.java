@@ -61,7 +61,7 @@ import rocks.xmpp.addr.Jid;
 public class DatabaseBackend extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "history";
-	private static final int DATABASE_VERSION = 42;
+	private static final int DATABASE_VERSION = 43; //ALF AM-53 changed 42 to 43
 	private static DatabaseBackend instance = null;
 	private static String CREATE_CONTATCS_STATEMENT = "create table "
 			+ Contact.TABLENAME + "(" + Contact.ACCOUNT + " TEXT, "
@@ -201,6 +201,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 				+ Account.PASSWORD + " TEXT,"
 				+ Account.DISPLAY_NAME + " TEXT, "
 				+ Account.STATUS + " TEXT,"
+				+ Account.TIMER + " INTEGER DEFAULT 0, " //ALF AM-53
 				+ Account.STATUS_MESSAGE + " TEXT,"
 				+ Account.ROSTERVERSION + " TEXT,"
 				+ Account.OPTIONS + " NUMBER, "
@@ -215,6 +216,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 				+ Conversation.ACCOUNT + " TEXT, " + Conversation.CONTACTJID
 				+ " TEXT, " + Conversation.CREATED + " NUMBER, "
 				+ Conversation.STATUS + " NUMBER, " + Conversation.MODE
+				+ " NUMBER, " + Conversation.TIMER + " INTEGER DEFAULT 0, " //ALF AM-53
 				+ " NUMBER, " + Conversation.ATTRIBUTES + " TEXT, FOREIGN KEY("
 				+ Conversation.ACCOUNT + ") REFERENCES " + Account.TABLENAME
 				+ "(" + Account.UUID + ") ON DELETE CASCADE);");
@@ -224,6 +226,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 				+ " TEXT, " + Message.TRUE_COUNTERPART + " TEXT,"
 				+ Message.BODY + " TEXT, " + Message.ENCRYPTION + " NUMBER, "
 				+ Message.STATUS + " NUMBER," + Message.TYPE + " NUMBER, "
+				+ Message.TIMER + " INTEGER DEFAULT 0, " //ALF AM-53
+				+ Message.ENDTIME + " NUMBER, " //ALF AM-53, AM-83
 				+ Message.RELATIVE_FILE_PATH + " TEXT, "
 				+ Message.SERVER_MSG_ID + " TEXT, "
 				+ Message.FINGERPRINT + " TEXT, "
@@ -516,6 +520,14 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
 		if (oldVersion < 42 && newVersion >= 42) {
 			db.execSQL("DROP TRIGGER IF EXISTS after_message_delete");
+		}
+
+		//ALF AM-53
+		if (oldVersion < 43 && newVersion >= 43) {
+			db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.TIMER + " INTEGER DEFAULT 0");
+			db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.ENDTIME + " NUMBER");
+			db.execSQL("ALTER TABLE " + Account.TABLENAME + " ADD COLUMN " + Account.TIMER + " INTEGER DEFAULT 0");
+			db.execSQL("ALTER TABLE " + Conversation.TABLENAME + " ADD COLUMN " + Conversation.TIMER + " INTEGER DEFAULT 0");
 		}
 	}
 
@@ -924,6 +936,23 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 		db.delete(Message.TABLENAME, "timeSent<?", args);
 		db.setTransactionSuccessful();
 		db.endTransaction();
+	}
+
+	//ALF AM-53
+	public void removeDisappearingMessages(ArrayList<String> uuids) {
+		StringBuilder sb = new StringBuilder(Message.UUID + " IN (");
+		for (int i=0; i<uuids.size(); i++) {
+			if (i == 0)
+				sb.append("?");
+			else
+				sb.append(",?");
+		}
+		sb.append(")");
+		String[] idsarr = new String[uuids.size()];
+		uuids.toArray(idsarr);
+
+		SQLiteDatabase db = this.getWritableDatabase();
+		db.delete(Message.TABLENAME, sb.toString(), idsarr);
 	}
 
 	public MamReference getLastMessageReceived(Account account) {

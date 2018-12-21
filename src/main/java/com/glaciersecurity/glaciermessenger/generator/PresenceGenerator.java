@@ -63,6 +63,14 @@ public class PresenceGenerator extends AbstractGenerator {
 		return packet;
 	}
 
+	//ALF AM-48
+	public PresencePacket sendPresenceWithvCard(Account account, String displayName) {
+		final PresencePacket packet = selfPresence(account, account.getPresenceStatus(), false);
+		final Element vcard = packet.addChild("x", "vcard-temp:x:update");
+		vcard.addChild("displayname").setContent(displayName);
+		return packet;
+	}
+
 	public PresencePacket leave(final MucOptions mucOptions) {
 		PresencePacket presencePacket = new PresencePacket();
 		presencePacket.setTo(mucOptions.getSelf().getFullJid());

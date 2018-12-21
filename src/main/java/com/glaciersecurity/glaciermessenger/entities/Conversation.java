@@ -42,6 +42,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 	public static final String STATUS = "status";
 	public static final String CREATED = "created";
 	public static final String MODE = "mode";
+	public static final String TIMER = "timer"; //ALF AM-53
 	public static final String ATTRIBUTES = "attributes";
 
 	public static final String ATTRIBUTE_MUTED_TILL = "muted_till";
@@ -66,6 +67,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 	private int status;
 	private long created;
 	private int mode;
+	private int timer; //ALF AM-53
 	private JSONObject attributes = new JSONObject();
 	private Jid nextCounterpart;
 	private transient MucOptions mucOptions = null;
@@ -79,13 +81,13 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 	                    final int mode) {
 		this(java.util.UUID.randomUUID().toString(), name, null, account
 						.getUuid(), contactJid, System.currentTimeMillis(),
-				STATUS_AVAILABLE, mode, "");
+				STATUS_AVAILABLE, mode, Message.TIMER_NONE,""); //ALF AM-53 timer
 		this.account = account;
 	}
 
 	public Conversation(final String uuid, final String name, final String contactUuid,
 	                    final String accountUuid, final Jid contactJid, final long created, final int status,
-	                    final int mode, final String attributes) {
+	                    final int mode, final int timer, final String attributes) {
 		this.uuid = uuid;
 		this.name = name;
 		this.contactUuid = contactUuid;
@@ -94,6 +96,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 		this.created = created;
 		this.status = status;
 		this.mode = mode;
+		this.timer = timer; //ALF AM-53
 		try {
 			this.attributes = new JSONObject(attributes == null ? "" : attributes);
 		} catch (JSONException e) {
@@ -110,6 +113,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 				cursor.getLong(cursor.getColumnIndex(CREATED)),
 				cursor.getInt(cursor.getColumnIndex(STATUS)),
 				cursor.getInt(cursor.getColumnIndex(MODE)),
+				cursor.getInt(cursor.getColumnIndex(TIMER)), //ALF AM-53
 				cursor.getString(cursor.getColumnIndex(ATTRIBUTES)));
 	}
 
@@ -442,7 +446,8 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 					message.markRead();
 					unread.add(message);
 				}
-				if (message.getUuid().equals(upToUuid)) {
+				//ALF AM-53 added != null
+				if (message.getUuid() != null && message.getUuid().equals(upToUuid)) {
 					return unread;
 				}
 			}
@@ -545,6 +550,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 		values.put(CREATED, created);
 		values.put(STATUS, status);
 		values.put(MODE, mode);
+		values.put(TIMER, timer); //ALF AM-53
 		values.put(ATTRIBUTES, attributes.toString());
 		return values;
 	}
@@ -555,6 +561,15 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
 	public void setMode(int mode) {
 		this.mode = mode;
+	}
+
+	//ALF AM-53 (next two)
+	public int getTimer() {
+		return this.timer;
+	}
+
+	public void setTimer(int timer) {
+		this.timer = timer;
 	}
 
 	/**

@@ -392,8 +392,8 @@
     <string name="removing_from_public_conference">You are trying to remove %s from a public group chat. The only way to do that is to ban that user for ever.</string>
     <string name="ban_now">Ban now</string>
     <string name="could_not_change_role">Could not change role of %s</string>
-    <string name="public_conference">Publicly accessible group chat</string>
-    <string name="private_conference">Private, members only group chat</string>
+    <string name="public_conference">Open group</string> <!-- AM-88 from Publicly accessible room -->
+    <string name="private_conference">Invite Only group</string> <!-- AM-88 from Private, members only room -->
     <string name="conference_options">Group chat options</string>
     <string name="members_only">Private, members only</string>
     <string name="non_anonymous">Non-anonymous</string>

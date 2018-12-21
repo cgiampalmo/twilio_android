@@ -164,6 +164,29 @@ public class UIHelper {
 		}
 	}
 
+	//ALF AM-53
+	public static String readableTimeRemaining(long time) {
+		if (time <= 0) {
+			return "0 s left";
+		}
+
+		if (time < 60) {
+			return time + " s left";
+		} else if (time < 60 * 60) {
+			int min = (int) Math.round(time / 60.0);
+			return min + " min left";
+		} else if (time < 60 * 60 * 24) {
+			int hr = (int)Math.round(time / (60.0 * 60.0));
+			return hr + " hr left";
+		} else {
+			int days = (int)Math.round(time / (60.0 * 60.0 * 24.0));
+			if (days == 1) {
+				return days + " day left";
+			}
+			return days + " days left";
+		}
+	}
+
 	private static boolean today(Date date) {
 		return sameDay(date, new Date(System.currentTimeMillis()));
 	}

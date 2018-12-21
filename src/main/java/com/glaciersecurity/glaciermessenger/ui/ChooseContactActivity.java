@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView.MultiChoiceModeListener;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ import rocks.xmpp.addr.Jid;
 public class ChooseContactActivity extends AbstractSearchableListItemActivity implements MultiChoiceModeListener {
     public static final String EXTRA_TITLE_RES_ID = "extra_title_res_id";
     public static final String EXTRA_GROUP_CHAT_NAME = "extra_group_chat_name";
+    public static final String EXTRA_PUBLIC_GROUP = "extra_public_group"; //ALF AM-88
     public static final String EXTRA_SELECT_MULTIPLE = "extra_select_multiple";
     public static final String EXTRA_SHOW_ENTER_JID = "extra_show_enter_jid";
     public static final String EXTRA_CONVERSATION = "extra_conversation";
@@ -195,6 +197,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
         data.putExtra("contacts", getSelectedContactJids());
         data.putExtra(EXTRA_SELECT_MULTIPLE, true);
         data.putExtra(EXTRA_ACCOUNT, request.getStringExtra(EXTRA_ACCOUNT));
+        data.putExtra(EXTRA_PUBLIC_GROUP, request.getBooleanExtra(EXTRA_PUBLIC_GROUP, false)); //ALF AM-88
         copy(request, data);
         setResult(RESULT_OK, data);
         finish();
