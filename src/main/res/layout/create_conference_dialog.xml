@@ -25,29 +25,25 @@
 
         <!-- AM-88 next 4 -->
         <TextView
-            android:id="@+id/invite_only_desc"
+            style="@style/InputLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/invite_only_desc"
-            android:textSize="?attr/TextSizeBody" />
+            android:text="@string/invite_only_desc"/>
 
         <TextView
-            android:id="@+id/open_group_desc"
+            style="@style/InputLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/open_group_desc"
-            android:textSize="?attr/TextSizeBody" />
+            android:text="@string/open_group_desc"/>
 
         <CheckBox
             android:id="@+id/invite_only"
+            style="@style/Widget.Conversations.CheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:checked="true"
-            android:text="@string/invite_only"
-            android:textSize="?attr/TextSizeBody"/>
+            android:text="@string/invite_only"/>
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"

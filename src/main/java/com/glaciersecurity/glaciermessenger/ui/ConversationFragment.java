@@ -75,6 +75,7 @@ import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.Conversational;
 import com.glaciersecurity.glaciermessenger.entities.DownloadableFile;
+import com.glaciersecurity.glaciermessenger.entities.IndividualMessage;
 import com.glaciersecurity.glaciermessenger.entities.Message;
 import com.glaciersecurity.glaciermessenger.entities.MucOptions;
 import com.glaciersecurity.glaciermessenger.entities.Presence;
@@ -2265,7 +2266,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				conversation.populateWithMessages(this.messageList);
 				updateSnackBar(conversation);
 				updateStatusMessages();
-				updateGroupChanged(); //ALF AM-51
+				if (conversation.getMode() == Conversation.MODE_MULTI) { //ALF AM-51
+					updateGroupChanged();
+				}
 				if (conversation.getReceivedMessagesCountSinceUuid(lastMessageUuid) != 0) {
 					binding.unreadCountCustomView.setVisibility(View.VISIBLE);
 					binding.unreadCountCustomView.setUnreadCount(conversation.getReceivedMessagesCountSinceUuid(lastMessageUuid));
@@ -2369,8 +2372,8 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		disMessageStatus.setEndTime(Long.MAX_VALUE);
 		disMessageStatus.setTimer(Message.TIMER_NONE);
 		activity.xmppConnectionService.databaseBackend.createMessage(disMessageStatus);
-		ConversationFragment.this.conversation.add(disMessageStatus);
-		ConversationFragment.this.conversation.populateWithMessages(ConversationFragment.this.messageList);
+		this.conversation.add(disMessageStatus);
+		this.conversation.populateWithMessages(ConversationFragment.this.messageList);
 		messageListAdapter.notifyDataSetChanged();
 	}
 

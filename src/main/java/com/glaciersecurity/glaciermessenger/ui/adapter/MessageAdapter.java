@@ -695,7 +695,6 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 		if (type == GROUP_CHANGE) { //ALF AM-51
 			viewHolder.status_message.setText(message.getBody());
 			viewHolder.message_box.setBackgroundResource(activity.isDarkTheme() ? R.drawable.date_bubble_grey : R.drawable.date_bubble_white);
-			viewHolder.status_message.setTextColor(android.R.attr.textColorSecondary);
 			return view;
 		} else if (type == DATE_SEPARATOR) {
 			if (UIHelper.today(message.getTimeSent())) {
