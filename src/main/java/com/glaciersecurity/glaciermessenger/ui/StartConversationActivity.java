@@ -449,7 +449,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.setTitle(R.string.action_delete_contact);
-		builder.setMessage(getString(R.string.remove_contact_text, contact.getJid()));
+		builder.setMessage(getString(R.string.remove_contact_text, contact.getJid().getLocal())); //ALF AM-30
 		builder.setPositiveButton(R.string.delete, (dialog, which) -> {
 			xmppConnectionService.deleteContactOnServer(contact);
 			filter(mSearchEditText.getText().toString());
@@ -465,7 +465,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.setTitle(R.string.delete_bookmark);
 		builder.setMessage(getString(R.string.remove_bookmark_text,
-				bookmark.getJid()));
+				bookmark.getJid().getLocal())); //ALF AM-30
 		builder.setPositiveButton(R.string.delete, (dialog, which) -> {
 			bookmark.setConversation(null);
 			Account account = bookmark.getAccount();
