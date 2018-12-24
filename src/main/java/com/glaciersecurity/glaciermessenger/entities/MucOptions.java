@@ -824,6 +824,21 @@ public class MucOptions {
 			for (User user : users) {
 				if (user.affiliation.ranks(Affiliation.MEMBER) && user.realJid != null && (!user.isDomain() || includeDomains)) {
 					members.add(user.realJid);
+				} else if (user.realJid == null) { //ALF AM-60 quick fix
+					try {
+						String[] bits = user.fullJid.toString().split("conference.");
+						String last = bits[bits.length-1];
+						String[] parts = last.split("/");
+						String real = parts[parts.length-1] + "@" + parts[0];
+						user.realJid = Jid.of(real);
+						if (!user.affiliation.ranks(Affiliation.MEMBER)) {
+							user.setAffiliation(Affiliation.MEMBER.toString());
+						}
+						members.add(user.realJid);
+					} catch (Exception e) {}
+				} else if (!user.affiliation.ranks(Affiliation.MEMBER)) { //ALF AM-60 quick fix 2
+					user.setAffiliation(Affiliation.MEMBER.toString());
+					members.add(user.realJid);
 				}
 			}
 		}

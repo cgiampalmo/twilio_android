@@ -59,6 +59,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.crypto.OmemoSetting;
+import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.databinding.ActivityConversationsBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
@@ -77,10 +78,11 @@ import com.glaciersecurity.glaciermessenger.utils.EmojiWrapper;
 import com.glaciersecurity.glaciermessenger.utils.ExceptionHelper;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
 import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
+import com.glaciersecurity.glaciermessenger.xmpp.OnKeyStatusUpdated; //ALF AM-60
 
 import static com.glaciersecurity.glaciermessenger.ui.ConversationFragment.REQUEST_DECRYPT_PGP;
 
-public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast {
+public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, OnKeyStatusUpdated {
 
 	public static final String ACTION_VIEW_CONVERSATION = "com.glaciersecurity.glaciermessenger.action.VIEW";
 	public static final String EXTRA_CONVERSATION = "conversationUuid";
@@ -512,8 +514,31 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			} else {
 				pendingViewIntent.push(intent);
 			}
+
+			//ALF AM-60
+			String uuid = intent.getStringExtra(EXTRA_CONVERSATION);
+			Conversation conversation = uuid != null ? xmppConnectionService.findConversationByUuid(uuid) : null;
+			if (conversation != null) {
+				if (conversation.getMode() == Conversation.MODE_MULTI && (conversation.getMucOptions().membersOnly())) { //ALF AM-88 added &&
+					AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
+					axolotlService.createSessionsIfNeeded(conversation);
+					conversation.reloadFingerprints(axolotlService.getCryptoTargets(conversation));
+				}
+			}
 		}
 		setIntent(createLauncherIntent(this));
+	}
+
+	//ALF AM-60
+	@Override
+	public void onKeyStatusUpdated(final AxolotlService.FetchStatus report) {
+		Conversation conversation = ConversationFragment.getConversationReliable(this);
+		if (conversation != null && conversation.getMode() == Conversation.MODE_MULTI) {
+			AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
+			conversation.reloadFingerprints(axolotlService.getCryptoTargets(conversation));
+			conversation.commitTrusts();
+			xmppConnectionService.updateConversation(conversation);
+		}
 	}
 
 	@Override

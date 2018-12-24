@@ -114,13 +114,12 @@ import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 import com.glaciersecurity.glaciermessenger.xmpp.chatstate.ChatState;
 import com.glaciersecurity.glaciermessenger.xmpp.jingle.JingleConnection;
 
-import org.whispersystems.libsignal.IdentityKey;
-
 import rocks.xmpp.addr.Jid;
 
 import static com.glaciersecurity.glaciermessenger.ui.XmppActivity.EXTRA_ACCOUNT;
 import static com.glaciersecurity.glaciermessenger.ui.XmppActivity.REQUEST_INVITE_TO_CONVERSATION;
 import static com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils.hideSoftKeyboard;
+
 
 
 public class ConversationFragment extends XmppFragment implements EditMessage.KeyboardListener {
@@ -772,7 +771,18 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			intent.putExtra(EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toString());
 			intent.putExtra("choice", attachmentChoice);
 			intent.putExtra("conversation", conversation.getUuid());
-			startActivityForResult(intent, requestCode);
+
+			//ALF AM-60 ...if
+			if (requestCode == REQUEST_TRUST_KEYS_TEXT ||
+					requestCode == REQUEST_TRUST_KEYS_MENU) { //ALF AM-124
+				conversation.commitTrusts();
+				if (conversation.getMode() == Conversation.MODE_MULTI) {
+					activity.xmppConnectionService.updateConversation(conversation);
+				}
+				return false;
+			} else {
+				startActivityForResult(intent, requestCode);
+			}
 			return true;
 		} else {
 			return false;
@@ -2059,15 +2069,15 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		activity.xmppConnectionService.getNotificationService().setOpenConversation(this.conversation);
 
 		// GOOBER - Use this b/c iOS cannot do OMEMO in group chat  //ALF AM-88
-		/*if ((conversation.getMode() == Conversation.MODE_MULTI) && !(conversation.getMucOptions().membersOnly())) {
+		if ((conversation.getMode() == Conversation.MODE_MULTI) && !(conversation.getMucOptions().membersOnly())) {
 			conversation.setNextEncryption(Message.ENCRYPTION_NONE);
 		} else {
 			//ALF AM-60
 			AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
 			axolotlService.createSessionsIfNeeded(conversation);
-			reloadFingerprints(axolotlService.getCryptoTargets(conversation));
+			conversation.reloadFingerprints(axolotlService.getCryptoTargets(conversation));
 			conversation.setNextEncryption(Message.ENCRYPTION_AXOLOTL); //ALF AM-52
-		}*/
+		}
 
 		return true;
 	}
