@@ -35,6 +35,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.content.DialogInterface; //ALF
+//import android.content.DialogInterface.OnClickListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -53,9 +55,11 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -71,6 +75,7 @@ import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.Conversational;
 import com.glaciersecurity.glaciermessenger.entities.DownloadableFile;
+import com.glaciersecurity.glaciermessenger.entities.IndividualMessage;
 import com.glaciersecurity.glaciermessenger.entities.Message;
 import com.glaciersecurity.glaciermessenger.entities.MucOptions;
 import com.glaciersecurity.glaciermessenger.entities.Presence;
@@ -96,6 +101,7 @@ import com.glaciersecurity.glaciermessenger.ui.util.SendButtonAction;
 import com.glaciersecurity.glaciermessenger.ui.util.SendButtonTool;
 import com.glaciersecurity.glaciermessenger.ui.util.ShareUtil;
 import com.glaciersecurity.glaciermessenger.ui.widget.EditMessage;
+import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.GeoHelper;
 import com.glaciersecurity.glaciermessenger.utils.MessageUtils;
 import com.glaciersecurity.glaciermessenger.utils.NickValidityChecker;
@@ -107,11 +113,13 @@ import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 import com.glaciersecurity.glaciermessenger.xmpp.chatstate.ChatState;
 import com.glaciersecurity.glaciermessenger.xmpp.jingle.JingleConnection;
+
 import rocks.xmpp.addr.Jid;
 
 import static com.glaciersecurity.glaciermessenger.ui.XmppActivity.EXTRA_ACCOUNT;
 import static com.glaciersecurity.glaciermessenger.ui.XmppActivity.REQUEST_INVITE_TO_CONVERSATION;
 import static com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils.hideSoftKeyboard;
+
 
 
 public class ConversationFragment extends XmppFragment implements EditMessage.KeyboardListener {
@@ -154,6 +162,11 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	private Toast messageLoaderToast;
 	private ConversationsActivity activity;
 	private boolean reInitRequiredOnStart = true;
+
+	//ALF AM-53
+	private Handler disappearingHandler;
+	private Runnable disRunnable;
+
 	private OnClickListener clickToMuc = new OnClickListener() {
 
 		@Override
@@ -758,7 +771,18 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			intent.putExtra(EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toString());
 			intent.putExtra("choice", attachmentChoice);
 			intent.putExtra("conversation", conversation.getUuid());
-			startActivityForResult(intent, requestCode);
+
+			//ALF AM-60 ...if
+			if (requestCode == REQUEST_TRUST_KEYS_TEXT ||
+					requestCode == REQUEST_TRUST_KEYS_MENU) { //ALF AM-124
+				conversation.commitTrusts();
+				if (conversation.getMode() == Conversation.MODE_MULTI) {
+					activity.xmppConnectionService.updateConversation(conversation);
+				}
+				return false;
+			} else {
+				startActivityForResult(intent, requestCode);
+			}
 			return true;
 		} else {
 			return false;
@@ -907,16 +931,27 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		final MenuItem menuMute = menu.findItem(R.id.action_mute);
 		final MenuItem menuUnmute = menu.findItem(R.id.action_unmute);
 
+		//ALF AM-53
+		final MenuItem menuConversationTimer = menu.findItem(R.id.action_conversation_timer);
+
+		//ALF AM-122
+		final MenuItem menuLeaveGroup = menu.findItem(R.id.action_leave_group);
 
 		if (conversation != null) {
 			if (conversation.getMode() == Conversation.MODE_MULTI) {
 				menuContactDetails.setVisible(false);
 				menuInviteContact.setVisible(conversation.getMucOptions().canInvite());
+				menuConversationTimer.setVisible(false); //ALF AM-53
+				menuLeaveGroup.setVisible(true); //ALF AM-122 (and next line)
+				//menuEndConversation.setVisible(false); doesn't exist yet
 			} else {
 				menuContactDetails.setVisible(!this.conversation.withSelf());
 				menuMucDetails.setVisible(false);
 				final XmppConnectionService service = activity.xmppConnectionService;
 				menuInviteContact.setVisible(service != null && service.findConferenceServer(conversation.getAccount()) != null);
+				menuConversationTimer.setVisible(true); //ALF AM-53
+				menuLeaveGroup.setVisible(false); //ALF AM-122 (and next line)
+				//menuEndConversation.setVisible(true); doesn't exist yet
 			}
 			if (conversation.isMuted()) {
 				menuMute.setVisible(false);
@@ -1190,6 +1225,16 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			case R.id.action_archive:
 				activity.xmppConnectionService.archiveConversation(conversation);
 				break;*/
+			case R.id.action_conversation_timer: //ALF AM-53
+				this.conversationMessageTimerDialog(conversation);
+				break;
+			// GOOBER - add end conversation capability
+			//case R.id.action_end_conversation:
+			//	this.endConversationDialog(conversation);
+			//	break;
+			case R.id.action_leave_group:  //ALF AM-122
+				this.endConversationDialog(conversation);
+				break;
 			case R.id.action_contact_details:
 				activity.switchToContactDetails(conversation.getContact());
 				break;
@@ -1443,9 +1488,30 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				activity.onConversationsListItemUpdated();
 				refresh();
 			}
+
+			//ALF AM-51, AM-64
+			if (conversation.getMode() == Conversation.MODE_MULTI) {
+				sendLeavingGroupMessage(conversation);
+			}
+
 			activity.xmppConnectionService.archiveConversation(conversation);
 		});
 		builder.create().show();
+	}
+
+	/**
+	 * //ALF AM-51
+	 */
+	public void sendLeavingGroupMessage(final Conversation conversation) {
+		final Account account = conversation.getAccount();
+		String dname = account.getDisplayName();
+		if (dname == null) { dname = account.getUsername(); }
+		String bod = dname + " " + getString(R.string.left_group);
+		Message message = new Message(conversation, bod, conversation.getNextEncryption());
+		activity.xmppConnectionService.sendMessage(message);
+		// sleep required so message goes out before conversation thread stopped
+		// maybe show a spinner?
+		try { Thread.sleep(2000); } catch (InterruptedException ie) {}
 	}
 
 	@SuppressLint("InflateParams")
@@ -1466,6 +1532,37 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				refresh();
 			}
 		});
+		builder.create().show();
+	}
+
+	//ALF AM-53
+	protected void conversationMessageTimerDialog(final Conversation conversation) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setTitle(R.string.conversation_message_timer); //Global message timer
+		//final View dialogView = getActivity().getLayoutInflater().inflate(R.layout.dialog_message_timer, null);
+		final String[] ctimers = getResources().getStringArray(R.array.timer_options_durations);
+		final String[] ctimersStrs = getResources().getStringArray(R.array.timer_options_descriptions);
+		builder.setItems(R.array.timer_options_descriptions,
+				new android.content.DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(final DialogInterface dialog, final int which) {
+						String timerStr = ctimers[which];
+						int timer;
+						try {
+							timer = Integer.parseInt(timerStr);
+						} catch(NumberFormatException nfe) {
+							timer = Message.TIMER_NONE;
+						}
+
+						conversation.setTimer(timer);
+						setTimerStatus(ctimersStrs[which],false);
+						activity.xmppConnectionService.updateConversation(conversation);
+						activity.onConversationsListItemUpdated();
+						refresh();
+						getActivity().invalidateOptionsMenu();
+					}
+				});
 		builder.create().show();
 	}
 
@@ -1797,6 +1894,10 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				findAndReInitByUuidOrArchive(uuid);
 			}
 		}
+
+		if (this.conversation == null || this.conversation.getMode() == Conversation.MODE_SINGLE) {
+			this.startDisappearingMessagesHandler(); //ALF AM-53
+		}
 	}
 
 	@Override
@@ -1816,6 +1917,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			updateChatState(this.conversation, msg);
 			this.activity.xmppConnectionService.getNotificationService().setOpenConversation(null);
 		}
+
+		this.endDisappearingMessagesHandler(); //ALF AM-53
+
 		this.reInitRequiredOnStart = true;
 	}
 
@@ -1901,6 +2005,44 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		this.conversation.messagesLoaded.set(true);
 		Log.d(Config.LOGTAG, "scrolledToBottomAndNoPending=" + Boolean.toString(scrolledToBottomAndNoPending));
 
+		//ALF AM-53
+		if (disappearingHandler == null) {
+			disappearingHandler = new Handler();
+			disRunnable = new Runnable() {
+				@Override
+				public void run() {
+					ArrayList<String> removedIds = new ArrayList();
+					boolean updateStatus = false;
+					synchronized (ConversationFragment.this.messageList) {
+						for (int m = ConversationFragment.this.messageList.size() - 1; m >= 0; m--) {
+							Message message = ConversationFragment.this.messageList.get(m);
+							if (message.getTimer() != Message.TIMER_NONE) {
+								if (message.getTimeRemaining() <= 0 && message.getUuid() != null) {
+									removedIds.add(message.getUuid());
+								} else {
+									updateStatus = true;
+								}
+							}
+						}
+					}
+					if (removedIds.size() > 0) {
+						activity.xmppConnectionService.databaseBackend.removeDisappearingMessages(removedIds);
+						List<Message> dbmessages = activity.xmppConnectionService.databaseBackend.getMessages(ConversationFragment.this.conversation, Config.PAGE_SIZE);
+						ConversationFragment.this.conversation.clearMessages();
+						ConversationFragment.this.conversation.addAll(0, dbmessages);
+						ConversationFragment.this.conversation.populateWithMessages(ConversationFragment.this.messageList);
+						messageListAdapter.notifyDataSetChanged(); // or updateUI?
+					} else if (updateStatus) {
+						messageListAdapter.notifyDataSetChanged();
+					}
+
+					// and here comes the "trick"
+					disappearingHandler.postDelayed(this, 1000);
+				}
+			};
+			disappearingHandler.postDelayed(disRunnable, 2000);
+		}
+
 		if (hasExtras || scrolledToBottomAndNoPending) {
 			resetUnreadMessagesCount();
 			synchronized (this.messageList) {
@@ -1925,7 +2067,33 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		this.binding.messagesView.post(this::fireReadEvent);
 		//TODO if we only do this when this fragment is running on main it won't *bing* in tablet layout which might be unnecessary since we can *see* it
 		activity.xmppConnectionService.getNotificationService().setOpenConversation(this.conversation);
+
+		// GOOBER - Use this b/c iOS cannot do OMEMO in group chat  //ALF AM-88
+		if ((conversation.getMode() == Conversation.MODE_MULTI) && !(conversation.getMucOptions().membersOnly())) {
+			conversation.setNextEncryption(Message.ENCRYPTION_NONE);
+		} else {
+			//ALF AM-60
+			AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
+			axolotlService.createSessionsIfNeeded(conversation);
+			conversation.reloadFingerprints(axolotlService.getCryptoTargets(conversation));
+			conversation.setNextEncryption(Message.ENCRYPTION_AXOLOTL); //ALF AM-52
+		}
+
 		return true;
+	}
+
+	//ALF AM-53
+	public void startDisappearingMessagesHandler() {
+		if (disappearingHandler != null && disRunnable != null) {
+			disappearingHandler.postDelayed(disRunnable, 1000);
+		}
+	}
+
+	//ALF AM-53
+	public void endDisappearingMessagesHandler() {
+		if (disappearingHandler != null && disRunnable != null) {
+			disappearingHandler.removeCallbacks(disRunnable);
+		}
 	}
 
 	private void resetUnreadMessagesCount() {
@@ -2108,6 +2276,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				conversation.populateWithMessages(this.messageList);
 				updateSnackBar(conversation);
 				updateStatusMessages();
+				if (conversation.getMode() == Conversation.MODE_MULTI) { //ALF AM-51
+					updateGroupChanged();
+				}
 				if (conversation.getReceivedMessagesCountSinceUuid(lastMessageUuid) != 0) {
 					binding.unreadCountCustomView.setVisibility(View.VISIBLE);
 					binding.unreadCountCustomView.setUnreadCount(conversation.getReceivedMessagesCountSinceUuid(lastMessageUuid));
@@ -2183,6 +2354,37 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		}
 		this.binding.textSendButton.setTag(action);
 		this.binding.textSendButton.setImageResource(SendButtonTool.getSendButtonImageResource(getActivity(), action, status));
+	}
+
+	//ALF AM-51
+	protected void updateGroupChanged() {
+		synchronized (this.messageList) {
+			for(int i = this.messageList.size() - 1; i >= 0; --i) {
+				final Message current = this.messageList.get(i);
+				if (current.getBody().endsWith(getString(R.string.added_to_group)) ||
+						current.getBody().endsWith(getString(R.string.left_group))) {
+					this.messageList.add(i+1,Message.createGroupChangedSeparator(current));
+					this.messageList.remove(i);
+				}
+			}
+		}
+	}
+
+	//ALF AM-53
+	protected void setTimerStatus(String tstatus, boolean global) {
+		String timerStatus = "Disappearing message time set to " + tstatus;
+		if (global) {
+			timerStatus = "Global disappearing message time set to " + tstatus;
+		}
+
+		Message disMessageStatus = Message.createStatusMessage(conversation, timerStatus);
+		disMessageStatus.setTime(System.currentTimeMillis());
+		disMessageStatus.setEndTime(Long.MAX_VALUE);
+		disMessageStatus.setTimer(Message.TIMER_NONE);
+		activity.xmppConnectionService.databaseBackend.createMessage(disMessageStatus);
+		this.conversation.add(disMessageStatus);
+		this.conversation.populateWithMessages(ConversationFragment.this.messageList);
+		messageListAdapter.notifyDataSetChanged();
 	}
 
 	protected void updateDateSeparators() {

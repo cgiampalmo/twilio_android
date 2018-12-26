@@ -52,6 +52,14 @@ public class Message extends AbstractEntity {
 	public static final int TYPE_STATUS = 3;
 	public static final int TYPE_PRIVATE = 4;
 
+	//ALF AM-53
+	public static final int TIMER_NONE = 0;
+	public static final int TIMER_15S = 15;
+	public static final int TIMER_1M = 60;
+	public static final int TIMER_5M = 300;
+	public static final int TIMER_1D = 86400;
+	public static final int TIMER_1W = 604800;
+
 	public static final String CONVERSATION = "conversationUuid";
 	public static final String COUNTERPART = "counterpart";
 	public static final String TRUE_COUNTERPART = "trueCounterpart";
@@ -60,6 +68,8 @@ public class Message extends AbstractEntity {
 	public static final String ENCRYPTION = "encryption";
 	public static final String STATUS = "status";
 	public static final String TYPE = "type";
+	public static final String TIMER = "timer"; //ALF AM-53
+	public static final String ENDTIME = "endtime"; //ALF AM-53
 	public static final String CARBON = "carbon";
 	public static final String OOB = "oob";
 	public static final String EDITED = "edited";
@@ -84,6 +94,8 @@ public class Message extends AbstractEntity {
 	protected int encryption;
 	protected int status;
 	protected int type;
+	protected int timer; //ALF AM-53
+	protected long endTime; //ALF AM-53
 	protected boolean carbon = false;
 	protected boolean oob = false;
 	protected String edited = null;
@@ -108,6 +120,7 @@ public class Message extends AbstractEntity {
 
 	protected Message(Conversational conversation) {
 		this.conversation = conversation;
+		this.conversationUuid = conversation.getUuid(); //ALF AM-53
 	}
 
 	public Message(Conversational conversation, String body, int encryption) {
@@ -124,6 +137,8 @@ public class Message extends AbstractEntity {
 				encryption,
 				status,
 				TYPE_TEXT,
+				TIMER_NONE, //ALF AM-53
+				Long.MAX_VALUE, //ALF AM-53 (for end time)
 				false,
 				null,
 				null,
@@ -135,11 +150,21 @@ public class Message extends AbstractEntity {
 				null,
 				null,
 				false);
+
+		//ALF AM-53 moved from constructor below because was overwriting database
+		if (conversation.getMode() == Conversation.MODE_SINGLE &&
+				status != STATUS_RECEIVED && this.timer == TIMER_NONE) {
+			if (conversation.getTimer() > 0) {
+				this.setTimer(conversation.getTimer());
+			} else if (conversation.getAccount().getTimer() > 0) {
+				this.setTimer(conversation.getAccount().getTimer());
+			}
+		}
 	}
 
 	protected Message(final Conversational conversation, final String uuid, final String conversationUUid, final Jid counterpart,
 	                final Jid trueCounterpart, final String body, final long timeSent,
-	                final int encryption, final int status, final int type, final boolean carbon,
+	                final int encryption, final int status, final int type, final int timer, final long endtime, final boolean carbon,
 	                final String remoteMsgId, final String relativeFilePath,
 	                final String serverMsgId, final String fingerprint, final boolean read,
 	                final String edited, final boolean oob, final String errorMessage, final Set<ReadByMarker> readByMarkers,
@@ -154,6 +179,8 @@ public class Message extends AbstractEntity {
 		this.encryption = encryption;
 		this.status = status;
 		this.type = type;
+		this.timer = timer; //ALF AM-53 (and in params list above)
+		this.endTime = endtime; //ALF AM-53
 		this.carbon = carbon;
 		this.remoteMsgId = remoteMsgId;
 		this.relativeFilePath = relativeFilePath;
@@ -202,6 +229,8 @@ public class Message extends AbstractEntity {
 				cursor.getInt(cursor.getColumnIndex(ENCRYPTION)),
 				cursor.getInt(cursor.getColumnIndex(STATUS)),
 				cursor.getInt(cursor.getColumnIndex(TYPE)),
+				cursor.getInt(cursor.getColumnIndex(TIMER)), //ALF AM-53
+				cursor.getLong(cursor.getColumnIndex(ENDTIME)), //ALF AM-53
 				cursor.getInt(cursor.getColumnIndex(CARBON)) > 0,
 				cursor.getString(cursor.getColumnIndex(REMOTE_MSG_ID)),
 				cursor.getString(cursor.getColumnIndex(RELATIVE_FILE_PATH)),
@@ -230,6 +259,15 @@ public class Message extends AbstractEntity {
 		return message;
 	}
 
+	//ALF AM-51
+	public static Message createGroupChangedSeparator(Message message) {
+		final Message separator = new Message(message.getConversation());
+		separator.setType(Message.TYPE_STATUS);
+		separator.body = message.getBody();
+		separator.setTime(message.getTimeSent());
+		return separator;
+	}
+
 	@Override
 	public ContentValues getContentValues() {
 		ContentValues values = new ContentValues();
@@ -250,6 +288,8 @@ public class Message extends AbstractEntity {
 		values.put(ENCRYPTION, encryption);
 		values.put(STATUS, status);
 		values.put(TYPE, type);
+		values.put(TIMER, timer); //ALF AM-53
+		values.put(ENDTIME, endTime); //ALF AM-53
 		values.put(CARBON, carbon ? 1 : 0);
 		values.put(REMOTE_MSG_ID, remoteMsgId);
 		values.put(RELATIVE_FILE_PATH, relativeFilePath);
@@ -379,10 +419,14 @@ public class Message extends AbstractEntity {
 
 	public void markRead() {
 		this.read = true;
+		if (this.timer != TIMER_NONE) {
+			this.endTime = System.currentTimeMillis() + (timer * 1000); //ALF AM-53
+		}
 	}
 
 	public void markUnread() {
 		this.read = false;
+		this.endTime = Long.MAX_VALUE; //ALF AM-53
 	}
 
 	public void setTime(long time) {
@@ -403,6 +447,30 @@ public class Message extends AbstractEntity {
 
 	public void setType(int type) {
 		this.type = type;
+	}
+
+	//ALF AM-53 (next five)
+	public int getTimer() {
+		return this.timer;
+	}
+
+	public void setTimer(int timer) {
+		this.timer = timer;
+		if (timer != TIMER_NONE) {
+			this.endTime = System.currentTimeMillis() + (timer * 1000);
+		}
+	}
+
+	public long getEndTime() {
+		return this.endTime;
+	}
+
+	public void setEndTime(long endtime) {
+		this.endTime = endtime;
+	}
+
+	public long getTimeRemaining() {
+		return (this.endTime - System.currentTimeMillis()) / 1000;
 	}
 
 	public boolean isCarbon() {
@@ -562,6 +630,8 @@ public class Message extends AbstractEntity {
 						message.getEncryption() != Message.ENCRYPTION_DECRYPTION_FAILED &&
 						this.getType() == message.getType() &&
 						//this.getStatus() == message.getStatus() &&
+						this.getTimer() == message.getTimer() && //ALF AM-53
+						this.getEndTime() == message.getEndTime() && //ALF AM-53
 						isStatusMergeable(this.getStatus(), message.getStatus()) &&
 						this.getEncryption() == message.getEncryption() &&
 						this.getCounterpart() != null &&
@@ -575,6 +645,8 @@ public class Message extends AbstractEntity {
 						!this.treatAsDownloadable() &&
 						!message.getBody().startsWith(ME_COMMAND) &&
 						!this.getBody().startsWith(ME_COMMAND) &&
+						!message.getBody().endsWith("added to the group") &&
+						!message.getBody().endsWith("left the group") && //ALF AM-51
 						!this.bodyIsOnlyEmojis() &&
 						!message.bodyIsOnlyEmojis() &&
 						((this.axolotlFingerprint == null && message.axolotlFingerprint == null) || this.axolotlFingerprint.equals(message.getFingerprint())) &&

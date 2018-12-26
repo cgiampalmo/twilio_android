@@ -9,18 +9,24 @@ import android.text.TextUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.whispersystems.libsignal.IdentityKey;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.crypto.OmemoSetting;
 import com.glaciersecurity.glaciermessenger.crypto.PgpDecryptionService;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
+import com.glaciersecurity.glaciermessenger.crypto.axolotl.FingerprintStatus;
+import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.JidHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.chatstate.ChatState;
 import com.glaciersecurity.glaciermessenger.xmpp.mam.MamReference;
@@ -42,6 +48,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 	public static final String STATUS = "status";
 	public static final String CREATED = "created";
 	public static final String MODE = "mode";
+	public static final String TIMER = "timer"; //ALF AM-53
 	public static final String ATTRIBUTES = "attributes";
 
 	public static final String ATTRIBUTE_MUTED_TILL = "muted_till";
@@ -66,6 +73,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 	private int status;
 	private long created;
 	private int mode;
+	private int timer; //ALF AM-53
 	private JSONObject attributes = new JSONObject();
 	private Jid nextCounterpart;
 	private transient MucOptions mucOptions = null;
@@ -75,17 +83,21 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 	private String mFirstMamReference = null;
 	private Message correctingMessage;
 
+	//ALF AM-60
+	private final Map<String, Boolean> ownKeysToTrust = new HashMap<>();
+	private final Map<Jid,Map<String, Boolean>> foreignKeysToTrust = new HashMap<>();
+
 	public Conversation(final String name, final Account account, final Jid contactJid,
 	                    final int mode) {
 		this(java.util.UUID.randomUUID().toString(), name, null, account
 						.getUuid(), contactJid, System.currentTimeMillis(),
-				STATUS_AVAILABLE, mode, "");
+				STATUS_AVAILABLE, mode, Message.TIMER_NONE,""); //ALF AM-53 timer
 		this.account = account;
 	}
 
 	public Conversation(final String uuid, final String name, final String contactUuid,
 	                    final String accountUuid, final Jid contactJid, final long created, final int status,
-	                    final int mode, final String attributes) {
+	                    final int mode, final int timer, final String attributes) {
 		this.uuid = uuid;
 		this.name = name;
 		this.contactUuid = contactUuid;
@@ -94,6 +106,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 		this.created = created;
 		this.status = status;
 		this.mode = mode;
+		this.timer = timer; //ALF AM-53
 		try {
 			this.attributes = new JSONObject(attributes == null ? "" : attributes);
 		} catch (JSONException e) {
@@ -110,6 +123,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 				cursor.getLong(cursor.getColumnIndex(CREATED)),
 				cursor.getInt(cursor.getColumnIndex(STATUS)),
 				cursor.getInt(cursor.getColumnIndex(MODE)),
+				cursor.getInt(cursor.getColumnIndex(TIMER)), //ALF AM-53
 				cursor.getString(cursor.getColumnIndex(ATTRIBUTES)));
 	}
 
@@ -442,7 +456,8 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 					message.markRead();
 					unread.add(message);
 				}
-				if (message.getUuid().equals(upToUuid)) {
+				//ALF AM-53 added != null
+				if (message.getUuid() != null && message.getUuid().equals(upToUuid)) {
 					return unread;
 				}
 			}
@@ -545,6 +560,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 		values.put(CREATED, created);
 		values.put(STATUS, status);
 		values.put(MODE, mode);
+		values.put(TIMER, timer); //ALF AM-53
 		values.put(ATTRIBUTES, attributes.toString());
 		return values;
 	}
@@ -555,6 +571,83 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
 	public void setMode(int mode) {
 		this.mode = mode;
+	}
+
+	//ALF AM-53 (next two)
+	public int getTimer() {
+		return this.timer;
+	}
+
+	public void setTimer(int timer) {
+		this.timer = timer;
+	}
+
+	//ALF AM-60 (set public, also imports)
+	public boolean reloadFingerprints(List<Jid> contactJids) {
+		List<Jid> acceptedTargets = this.getAcceptedCryptoTargets();
+		ownKeysToTrust.clear();
+		AxolotlService service = this.getAccount().getAxolotlService();
+		Set<IdentityKey> ownKeysSet = service.getKeysWithTrust(FingerprintStatus.createActiveUndecided());
+		for(final IdentityKey identityKey : ownKeysSet) {
+			final String fingerprint = CryptoHelper.bytesToHex(identityKey.getPublicKey().serialize());
+			if(!ownKeysToTrust.containsKey(fingerprint)) {
+				ownKeysToTrust.put(fingerprint, false);
+			}
+		}
+		synchronized (this.foreignKeysToTrust) {
+			foreignKeysToTrust.clear();
+			for (Jid jid : contactJids) {
+				Set<IdentityKey> foreignKeysSet = service.getKeysWithTrust(FingerprintStatus.createActiveUndecided(), jid);
+				if (hasNoOtherTrustedKeys(jid) && ownKeysSet.size() == 0) {
+					foreignKeysSet.addAll(service.getKeysWithTrust(FingerprintStatus.createActive(false), jid));
+				}
+				Map<String, Boolean> foreignFingerprints = new HashMap<>();
+				for (final IdentityKey identityKey : foreignKeysSet) {
+					final String fingerprint = CryptoHelper.bytesToHex(identityKey.getPublicKey().serialize());
+					if (!foreignFingerprints.containsKey(fingerprint)) {
+						foreignFingerprints.put(fingerprint, false);
+					}
+				}
+				if (foreignFingerprints.size() > 0 || !acceptedTargets.contains(jid)) {
+					foreignKeysToTrust.put(jid, foreignFingerprints);
+				}
+			}
+		}
+		return ownKeysSet.size() + foreignKeysToTrust.size() > 0;
+	}
+
+	//ALF AM-60
+	private boolean hasNoOtherTrustedKeys(Jid contact) {
+		return this.getAccount() == null ||
+				this.getAccount().getAxolotlService().getNumTrustedKeys(contact) == 0;
+	}
+
+	//ALF AM-60 (also changed to public)
+	public void commitTrusts() {
+		for(final String fingerprint :ownKeysToTrust.keySet()) {
+			this.getAccount().getAxolotlService().setFingerprintTrust(
+					fingerprint,
+					FingerprintStatus.createActive(ownKeysToTrust.get(fingerprint)));
+		}
+		List<Jid> acceptedTargets = this.getAcceptedCryptoTargets();
+		synchronized (this.foreignKeysToTrust) {
+			for (Map.Entry<Jid, Map<String, Boolean>> entry : foreignKeysToTrust.entrySet()) {
+				Jid jid = entry.getKey();
+				Map<String, Boolean> value = entry.getValue();
+				if (!acceptedTargets.contains(jid)) {
+					acceptedTargets.add(jid);
+				}
+				for (final String fingerprint : value.keySet()) {
+					this.getAccount().getAxolotlService().setFingerprintTrust(
+							fingerprint,
+							FingerprintStatus.createActive(value.get(fingerprint)));
+				}
+			}
+		}
+		if (this.getMode() == Conversation.MODE_MULTI) {
+			this.setAcceptedCryptoTargets(acceptedTargets);
+			//xmppConnectionService.updateConversation(conversation);
+		}
 	}
 
 	/**

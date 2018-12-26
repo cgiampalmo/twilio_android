@@ -33,6 +33,7 @@ import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.crypto.OmemoSetting;
 import com.glaciersecurity.glaciermessenger.entities.Account;
+import com.glaciersecurity.glaciermessenger.entities.Message;
 import com.glaciersecurity.glaciermessenger.services.ExportLogsService;
 import com.glaciersecurity.glaciermessenger.services.MemorizingTrustManager;
 import com.glaciersecurity.glaciermessenger.ui.util.Color;
@@ -50,10 +51,12 @@ public class SettingsActivity extends XmppActivity implements
 	public static final String MANUALLY_CHANGE_PRESENCE = "manually_change_presence";
 	public static final String BLIND_TRUST_BEFORE_VERIFICATION = "btbv";
 	public static final String AUTOMATIC_MESSAGE_DELETION = "automatic_message_deletion";
+	public static final String GLOBAL_MESSAGE_TIMER = "global_message_timer"; //ALF AM-53
 	public static final String BROADCAST_LAST_ACTIVITY = "last_activity";
 	public static final String THEME = "theme";
 	public static final String SHOW_DYNAMIC_TAGS = "show_dynamic_tags";
 	public static final String OMEMO_SETTING = "omemo";
+	public static final String DISPLAYNAME = "displayname"; //ALF AM-48
 
 	public static final int REQUEST_WRITE_LOGS = 0xbf8701;
 	private SettingsFragment mSettingsFragment;
@@ -382,6 +385,21 @@ public class SettingsActivity extends XmppActivity implements
 			reconnectAccounts();
 		} else if (name.equals(AUTOMATIC_MESSAGE_DELETION)) {
 			xmppConnectionService.expireOldMessages(true);
+		} else if (name.equals(DISPLAYNAME)) { //ALF AM-48
+			String newname = preferences.getString(name, null);
+			changeDisplayName(newname);
+		} else if (name.equals(GLOBAL_MESSAGE_TIMER)) { //ALF AM-53
+			int timer = Message.TIMER_NONE;
+			String timerStr = preferences.getString(name, null);
+			if (timerStr != null)
+			{
+				try {
+					timer = Integer.parseInt(timerStr);
+				} catch(NumberFormatException nfe) {
+					timer = Message.TIMER_NONE;
+				}
+			}
+			changeGlobalTimer(timer);
 		} else if (name.equals(THEME)) {
 			final int theme = findTheme();
 			if (this.mTheme != theme) {
@@ -389,6 +407,23 @@ public class SettingsActivity extends XmppActivity implements
 			}
 		}
 
+	}
+
+	//ALF AM-53
+	public void changeGlobalTimer(int timer) {
+		for (Account account : xmppConnectionService.getAccounts()) {
+			account.setTimer(timer);
+			xmppConnectionService.databaseBackend.updateAccount(account);
+		}
+	}
+
+	//ALF AM-48
+	public void changeDisplayName(String newname) {
+		for (Account account : xmppConnectionService.getAccounts()) {
+			account.setDisplayName(newname);
+			xmppConnectionService.databaseBackend.updateAccount(account);
+			xmppConnectionService.publishDisplayName(account);
+		}
 	}
 
 	@Override

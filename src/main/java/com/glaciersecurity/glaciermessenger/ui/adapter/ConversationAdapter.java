@@ -189,7 +189,10 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 					viewHolder.sender.setTypeface(null, Typeface.BOLD);
 				}
 			}
-			if (message.getStatus() == Message.STATUS_RECEIVED) {
+			if (message.getBody().endsWith(activity.getString(R.string.added_to_group)) ||
+					message.getBody().endsWith(activity.getString(R.string.left_group))) { //ALF AM-51
+				viewHolder.sender.setVisibility(View.GONE);
+			} else if (message.getStatus() == Message.STATUS_RECEIVED) {
 				if (conversation.getMode() == Conversation.MODE_MULTI) {
 					viewHolder.sender.setVisibility(View.VISIBLE);
 					viewHolder.sender.setText(UIHelper.getMessageDisplayName(message).split("\\s+")[0] + ':');

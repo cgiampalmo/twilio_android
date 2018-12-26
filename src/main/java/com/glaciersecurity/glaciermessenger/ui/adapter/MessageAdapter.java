@@ -89,6 +89,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 	private static final int RECEIVED = 1;
 	private static final int STATUS = 2;
 	private static final int DATE_SEPARATOR = 3;
+	private static final int GROUP_CHANGE = 4; //ALF AM-51
 	private final XmppActivity activity;
 	private final ListSelectionManager listSelectionManager = new ListSelectionManager();
 	private final AudioPlayer audioPlayer;
@@ -166,12 +167,15 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 
 	@Override
 	public int getViewTypeCount() {
-		return 4;
-	}
+		return 5;
+	} //ALF AM-51 4 to 5
 
 	private int getItemViewType(Message message) {
 		if (message.getType() == Message.TYPE_STATUS) {
-			if (DATE_SEPARATOR_BODY.equals(message.getBody())) {
+			if (message.getBody().endsWith(getContext().getString(R.string.added_to_group)) ||
+					message.getBody().endsWith(getContext().getString(R.string.left_group))) {
+				return GROUP_CHANGE; //ALF AM-51
+			} else if (DATE_SEPARATOR_BODY.equals(message.getBody())) {
 				return DATE_SEPARATOR;
 			} else {
 				return STATUS;
@@ -273,6 +277,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 			}
 			viewHolder.time.setTextColor(this.getMessageTextColor(darkBackground, false));
 		}
+
 		if (message.getEncryption() == Message.ENCRYPTION_NONE) {
 			//viewHolder.indicator.setVisibility(View.GONE);
 		} else {
@@ -299,6 +304,12 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 		}
 
 		String formatedTime = UIHelper.readableTimeDifferenceFull(getContext(), message.getMergedTimeSent());
+		//ALF AM-53 insert countdown here append to formatted time
+		if (message.getTimer() != Message.TIMER_NONE) {
+			formatedTime = formatedTime + ", " + UIHelper.readableTimeRemaining(
+					message.getTimeRemaining());
+		}
+
 		if (message.getStatus() <= Message.STATUS_RECEIVED) {
 			if ((filesize != null) && (info != null)) {
 				viewHolder.time.setText(formatedTime + " \u00B7 " + filesize + " \u00B7 " + info);
@@ -620,6 +631,11 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 		if (view == null) {
 			viewHolder = new ViewHolder();
 			switch (type) {
+				case GROUP_CHANGE: //ALF AM-51
+					view = activity.getLayoutInflater().inflate(R.layout.message_date_bubble, parent, false);
+					viewHolder.status_message = (TextView) view.findViewById(R.id.message_body);
+					viewHolder.message_box = (LinearLayout) view.findViewById(R.id.message_box);
+					break;
 				case DATE_SEPARATOR:
 					view = activity.getLayoutInflater().inflate(R.layout.message_date_bubble, parent, false);
 					viewHolder.status_message = view.findViewById(R.id.message_body);
@@ -676,7 +692,11 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 
 		boolean darkBackground = type == RECEIVED && (!isInValidSession || mUseGreenBackground) || activity.isDarkTheme();
 
-		if (type == DATE_SEPARATOR) {
+		if (type == GROUP_CHANGE) { //ALF AM-51
+			viewHolder.status_message.setText(message.getBody());
+			viewHolder.message_box.setBackgroundResource(activity.isDarkTheme() ? R.drawable.date_bubble_grey : R.drawable.date_bubble_white);
+			return view;
+		} else if (type == DATE_SEPARATOR) {
 			if (UIHelper.today(message.getTimeSent())) {
 				viewHolder.status_message.setText(R.string.today);
 			} else if (UIHelper.yesterday(message.getTimeSent())) {
@@ -698,8 +718,13 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 				viewHolder.status_message.setText(message.getBody());
 				boolean showAvatar;
 				if (conversation.getMode() == Conversation.MODE_SINGLE) {
-					showAvatar = true;
-					loadAvatar(message, viewHolder.contact_picture, activity.getPixel(32));
+					//ALF AM-53 if
+					if (message.getBody().startsWith("Disappearing message")) {
+						showAvatar = false;
+					} else {
+						showAvatar = true;
+						loadAvatar(message, viewHolder.contact_picture, activity.getPixel(32));
+					}
 				} else if (message.getCounterpart() != null || message.getTrueCounterpart() != null || (message.getCounterparts() != null && message.getCounterparts().size() > 0)) {
 					showAvatar = true;
 					loadAvatar(message, viewHolder.contact_picture, activity.getPixel(32));

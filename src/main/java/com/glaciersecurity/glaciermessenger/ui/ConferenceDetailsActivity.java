@@ -43,6 +43,7 @@ import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Bookmark;
 import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
+import com.glaciersecurity.glaciermessenger.entities.Message;
 import com.glaciersecurity.glaciermessenger.entities.MucOptions;
 import com.glaciersecurity.glaciermessenger.entities.MucOptions.User;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
@@ -72,6 +73,16 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         @Override
         public void onClick(View v) {
             inviteToConversation(mConversation);
+
+            // GOOBER - automatically go into OMEMO when starting conversation or when creating own room
+            // Stay unencrypted when going to public/persistent room.  We do this here b/c otherwise it will not
+            // send a secure message when creating own room.
+            // GOOBER - Use this b/c iOS cannot do OMEMO in group chat  //ALF AM-88
+            if ((mConversation.getMode() == Conversation.MODE_MULTI) && !(mConversation.getMucOptions().membersOnly())) {
+                mConversation.setNextEncryption(Message.ENCRYPTION_NONE);
+            } else {
+                mConversation.setNextEncryption(Message.ENCRYPTION_AXOLOTL); //ALF AM-52
+            }
         }
     };
     private ActivityMucDetailsBinding binding;
@@ -609,7 +620,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
 
         this.binding.editMucNameButton.setVisibility((self.getAffiliation().ranks(MucOptions.Affiliation.OWNER) || mucOptions.canChangeSubject()) ? View.VISIBLE : View.GONE);
 //        this.binding.detailsAccount.setText(getString(R.string.using_account, account));
-        this.binding.jid.setText(mConversation.getJid().asBareJid().toEscapedString());
+        //this.binding.jid.setText(mConversation.getJid().asBareJid().toEscapedString()); //ALF AM-49
         this.binding.yourPhoto.setImageBitmap(avatarService().get(mConversation,(int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
         String roomName = mucOptions.getName();
         String subject = mucOptions.getSubject();
@@ -659,7 +670,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
 //            if (self.getAffiliation().ranks(MucOptions.Affiliation.OWNER)) {
 //                this.binding.changeConferenceButton.setVisibility(View.VISIBLE);
 //            } else {
-              //  this.binding.changeConferenceButton.setVisibility(View.INVISIBLE);
+                this.binding.changeConferenceButton.setVisibility(View.GONE);
             //}
         } else {
             this.binding.mucMoreDetails.setVisibility(View.GONE);

@@ -42,6 +42,7 @@ import org.openintents.openpgp.IOpenPgpService2;
 import org.openintents.openpgp.util.OpenPgpApi;
 import org.openintents.openpgp.util.OpenPgpServiceConnection;
 
+import java.math.BigInteger;
 import java.net.URL;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
@@ -691,7 +692,7 @@ public class XmppConnectionService extends Service {
 						CryptoHelper.getAccountFingerprint(account,PhoneHelper.getAndroidId(this)).equals(pushedAccountHash),
 						pingCandidates);
 			}
-			if (pingNow) {
+			if (pingNow || action == ACTION_IDLE_PING) { //ALF AM-103 added ||
 				for (Account account : pingCandidates) {
 					final boolean lowTimeout = isInLowPingTimeoutMode(account);
 					account.getXmppConnection().sendPing();
@@ -1123,7 +1124,8 @@ public class XmppConnectionService extends Service {
 
 	@TargetApi(Build.VERSION_CODES.M)
 	private void scheduleNextIdlePing() {
-		final long timeToWake = SystemClock.elapsedRealtime() + (Config.IDLE_PING_INTERVAL * 1000);
+		//ALF AM-103 changed IDLE to MIN
+		final long timeToWake = SystemClock.elapsedRealtime() + (Config.PING_MIN_INTERVAL * 1000);
 		final AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 		if (alarmManager == null) {
 		    return;
@@ -1433,6 +1435,21 @@ public class XmppConnectionService extends Service {
 					Log.d(Config.LOGTAG,"quickly restored "+quickLoad.getName()+" after " + diffMessageRestore + "ms");
 				}
 				for (Conversation conversation : this.conversations) {
+					//ALF AM-53 startup message deletion code
+					List<Message> messages = databaseBackend.getMessages(conversation, Config.PAGE_SIZE);
+					ArrayList<String> removedIds = new ArrayList();
+					for (int m=messages.size()-1; m>=0; m--){
+						Message message = messages.get(m);
+						if (message.getTimer() != Message.TIMER_NONE && message.getTimeRemaining() <= 0) {
+							removedIds.add(message.getUuid());
+							messages.remove(m);
+						}
+					}
+					if (removedIds.size() > 0) {
+						databaseBackend.removeDisappearingMessages(removedIds);
+						conversation.addAll(0, messages);
+					}
+
 					if (quickLoad != conversation) {
 						restoreMessages(conversation);
 					}
@@ -1743,13 +1760,14 @@ public class XmppConnectionService extends Service {
 		synchronized (this.conversations) {
 			getMessageArchiveService().kill(conversation);
 			if (conversation.getMode() == Conversation.MODE_MULTI) {
+				Bookmark bookmark = conversation.getBookmark(); //ALF AM-78 moved out of if
 				if (conversation.getAccount().getStatus() == Account.State.ONLINE) {
-					Bookmark bookmark = conversation.getBookmark();
 					if (bookmark != null && bookmark.autojoin() && respectAutojoin()) {
 						bookmark.setAutojoin(false);
 						pushBookmarks(bookmark.getAccount());
 					}
 				}
+				conversation.getAccount().getBookmarks().remove(bookmark); //ALF AM-78
 				leaveMuc(conversation);
 			} else {
 				if (conversation.getContact().getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST)) {
@@ -2454,6 +2472,7 @@ public class XmppConnectionService extends Service {
 	public boolean createAdhocConference(final Account account,
 	                                     final String name,
 	                                     final Iterable<Jid> jids,
+										 final boolean publicgroup, //ALF AM-88
 	                                     final UiCallback<Conversation> callback) {
 		Log.d(Config.LOGTAG, account.getJid().asBareJid().toString() + ": creating adhoc conference with " + jids.toString());
 		if (account.getStatus() == Account.State.ONLINE) {
@@ -2465,20 +2484,37 @@ public class XmppConnectionService extends Service {
 					}
 					return false;
 				}
-				final Jid jid = Jid.of(CryptoHelper.pronounceable(getRNG()), server, null);
+
+				//ALF AM-78 if
+				final Jid jid;
+				if (name != null) {
+					jid = Jid.of(name + "@" + server); //ALF AM-111
+				} else {
+					jid = Jid.of(CryptoHelper.pronounceable(getRNG()), server, null);
+				}
+
 				final Conversation conversation = findOrCreateConversation(account, jid, true, false, true);
 				joinMuc(conversation, new OnConferenceJoined() {
 					@Override
 					public void onConferenceJoined(final Conversation conversation) {
-						final Bundle configuration = IqGenerator.defaultRoomConfiguration();
+						//ALF AM-88
+						final Bundle configuration;
+						if (publicgroup) {
+							configuration = IqGenerator.defaultPublicRoomConfiguration();
+						} else {
+							configuration = IqGenerator.defaultRoomConfiguration();
+						}
+
 						if (!TextUtils.isEmpty(name)) {
 							configuration.putString("muc#roomconfig_roomname", name);
 						}
 						pushConferenceConfiguration(conversation, configuration, new OnConfigurationPushed() {
 							@Override
 							public void onPushSucceeded() {
+								ArrayList<Jid> joiners = new ArrayList<>(); //ALF AM-51
 								for (Jid invite : jids) {
 									invite(conversation, invite);
+									joiners.add(invite); //ALF AM-51
 								}
 								if (account.countPresences() > 1) {
 									directInvite(conversation, account.getJid().asBareJid());
@@ -2487,6 +2523,8 @@ public class XmppConnectionService extends Service {
 								if (callback != null) {
 									callback.success(conversation);
 								}
+
+								sendJoiningGroupMessage(conversation, joiners, true);//ALF AM-51
 							}
 
 							@Override
@@ -2512,6 +2550,37 @@ public class XmppConnectionService extends Service {
 			}
 			return false;
 		}
+	}
+
+	/**
+	 * //ALF AM-51
+	 */
+	public void sendJoiningGroupMessage(final Conversation conversation, List joiners, boolean includeAccount) {
+		// sleep required so message goes out before conversation thread stopped
+		// maybe show a spinner?
+		try { Thread.sleep(2000); } catch (InterruptedException ie) {}
+		final Account account = conversation.getAccount();
+		String dname = account.getDisplayName();
+		if (dname == null) { dname = account.getUsername(); }
+		if (!includeAccount) { dname = ""; }
+		String bod = dname;
+		for (int j=0; j<joiners.size(); j++) {
+			Contact contact = account.getRoster().getContact((Jid)joiners.get(j));
+			if (bod.length() > 0) {
+				bod = bod + ", ";
+			}
+			if (contact != null) {
+				bod = bod + contact.getDisplayName();
+			} else {
+				Jid cjid = (Jid)joiners.get(j);
+				String[] splitter =  cjid.asBareJid().toString().split("@");
+				bod = bod + splitter[0];
+			}
+		}
+
+		bod = bod + " " + getString(R.string.added_to_group);
+		Message message = new Message(conversation, bod, Message.ENCRYPTION_NONE);
+		this.sendMessage(message);
 	}
 
 	public void fetchConferenceConfiguration(final Conversation conversation) {
@@ -3739,6 +3808,18 @@ public class XmppConnectionService extends Service {
 					Log.d(Config.LOGTAG, account1.getJid().asBareJid() + ": could not publish nick");
 				}
 			});
+
+			//ALF AM-48
+			IqPacket publishv = mIqGenerator.publishVcardWithNick(displayName);
+			sendIqPacket(account, publishv, new OnIqPacketReceived() {
+				@Override
+				public void onIqPacketReceived(Account account, IqPacket packet) {
+					if (packet.getType() == IqPacket.TYPE.ERROR) {
+						Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not publish vcardnick");
+					}
+				}
+			});
+			sendPresencePacket(account, mPresenceGenerator.sendPresenceWithvCard(account, displayName));
 		}
 	}
 

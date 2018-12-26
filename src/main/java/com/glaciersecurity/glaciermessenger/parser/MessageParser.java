@@ -277,6 +277,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 		final Element mucUserElement = packet.findChild("x", "http://jabber.org/protocol/muc#user");
 		final String pgpEncrypted = packet.findChildContent("x", "jabber:x:encrypted");
 		final Element replaceElement = packet.findChild("replace", "urn:xmpp:message-correct:0");
+		final Element timerElement = packet.findChild("x", "jabber:x:msgexpire"); //ALF AM-53
 		final Element oob = packet.findChild("x", Namespace.OOB);
 		final Element xP1S3 = packet.findChild("x", Namespace.P1_S3_FILE_TRANSFER);
 		final URL xP1S3url = xP1S3 == null ? null : P1S3UrlStreamHandler.of(xP1S3);
@@ -437,6 +438,20 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 
 			message.setCounterpart(counterpart);
 			message.setRemoteMsgId(remoteMsgId);
+
+			//ALF AM-53
+			if (timerElement != null && timerElement.getAttribute("seconds") != null) {
+				String timerStr = timerElement.getAttribute("seconds");
+				try {
+					int timer = Integer.parseInt(timerStr);
+					message.setTimer(timer);
+				} catch(NumberFormatException nfe) {
+					message.setTimer(Message.TIMER_NONE);
+				}
+			} else {
+				message.setTimer(Message.TIMER_NONE);
+			}
+
 			message.setServerMsgId(serverMsgId);
 			message.setCarbon(isCarbon);
 			message.setTime(timestamp);
@@ -494,6 +509,11 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 								replacedMessage.setServerMsgId(message.getServerMsgId());
 							}
 							replacedMessage.setEncryption(message.getEncryption());
+
+							//ALF AM-53
+							replacedMessage.setTimer(message.getTimer());
+							replacedMessage.setEndTime(message.getEndTime());
+
 							if (replacedMessage.getStatus() == Message.STATUS_RECEIVED) {
 								replacedMessage.markUnread();
 							}

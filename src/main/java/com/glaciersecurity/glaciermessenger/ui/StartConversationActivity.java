@@ -2,6 +2,7 @@ package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
@@ -45,6 +46,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
+import android.widget.Checkable;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -53,6 +55,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -75,6 +78,7 @@ import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
+import com.glaciersecurity.glaciermessenger.xmpp.InvalidJid;
 import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 import rocks.xmpp.addr.Jid;
@@ -99,6 +103,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	private EditText mSearchEditText;
 	private AtomicBoolean mRequestedContactsPermission = new AtomicBoolean(false);
 	private boolean mHideOfflineContacts = false;
+	private Account curAccount = null; //ALF AM-78
 	private MenuItem.OnActionExpandListener mOnActionExpandListener = new MenuItem.OnActionExpandListener() {
 
 		@Override
@@ -402,10 +407,23 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		bookmark.setConversation(conversation);
 		if (!bookmark.autojoin() && getPreferences().getBoolean("autojoin", getResources().getBoolean(R.bool.autojoin))) {
 			bookmark.setAutojoin(true);
-			xmppConnectionService.pushBookmarks(bookmark.getAccount());
+			//xmppConnectionService.pushBookmarks(bookmark.getAccount()); //ALF AM-78
 		}
 		SoftKeyboardUtils.hideSoftKeyboard(this);
 		switchToConversation(conversation);
+
+		//ALF AM-78, AM-84 should only send join group message if bookmark doesn't already exist.
+		boolean found = false;
+		for (Bookmark existbookmark : bookmark.getAccount().getBookmarks()) {
+			if (existbookmark.getJid().toString().equals(bookmark.getJid().asBareJid().toString())) {
+				found = true;
+			}
+		}
+		if (!found) {
+			bookmark.getAccount().getBookmarks().add(bookmark);
+			xmppConnectionService.pushBookmarks(bookmark.getAccount());
+			xmppConnectionService.sendJoiningGroupMessage(conversation, new ArrayList(), true);
+		}
 	}
 
 	protected void openDetailsForContact() {
@@ -431,7 +449,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.setTitle(R.string.action_delete_contact);
-		builder.setMessage(getString(R.string.remove_contact_text, contact.getJid()));
+		builder.setMessage(getString(R.string.remove_contact_text, contact.getJid().getLocal())); //ALF AM-30
 		builder.setPositiveButton(R.string.delete, (dialog, which) -> {
 			xmppConnectionService.deleteContactOnServer(contact);
 			filter(mSearchEditText.getText().toString());
@@ -447,7 +465,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.setTitle(R.string.delete_bookmark);
 		builder.setMessage(getString(R.string.remove_bookmark_text,
-				bookmark.getJid()));
+				bookmark.getJid().getLocal())); //ALF AM-30
 		builder.setPositiveButton(R.string.delete, (dialog, which) -> {
 			bookmark.setConversation(null);
 			Account account = bookmark.getAccount();
@@ -612,7 +630,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				navigateBack();
 				return true;
 			case R.id.action_join_conference:
-				showJoinConferenceDialog(null);
+				showCreateConferenceDialog(); //AM-78
+				//showJoinConferenceDialog(null);
 				return true;
 			//HONEYBADGER AM-120 Remove the top right barcode scanning feature
 //			case R.id.action_scan_qr_code:
@@ -661,8 +680,15 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 					Account account = extractAccount(intent);
 					final String name = intent.getStringExtra(ChooseContactActivity.EXTRA_GROUP_CHAT_NAME);
 					final List<Jid> jids = ChooseContactActivity.extractJabberIds(intent);
+
+					//ALF AM-88 (and added publicgroup to createAdhoc call)
+					boolean publicgroup = false;
+					if (intent.getBooleanExtra(ChooseContactActivity.EXTRA_PUBLIC_GROUP, false)) {
+						publicgroup = true;
+					}
+
 					if (account != null && jids.size() > 0) {
-						if (xmppConnectionService.createAdhocConference(account, name, jids, mAdhocConferenceCallback)) {
+						if (xmppConnectionService.createAdhocConference(account, name, jids, publicgroup, mAdhocConferenceCallback)) {
 							mToast = Toast.makeText(this, R.string.creating_conference, Toast.LENGTH_LONG);
 							mToast.show();
 						}
@@ -734,12 +760,19 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			this.mPostponedActivityResult = null;
 		}
 		this.mActivatedAccounts.clear();
+		this.curAccount = null; //ALF AM-78
 		for (Account account : xmppConnectionService.getAccounts()) {
 			if (account.getStatus() != Account.State.DISABLED) {
 				if (Config.DOMAIN_LOCK != null) {
 					this.mActivatedAccounts.add(account.getJid().getLocal());
 				} else {
 					this.mActivatedAccounts.add(account.getJid().asBareJid().toString());
+				}
+
+				//ALF AM-78
+				if (this.curAccount == null) {
+					this.curAccount = account;
+					this.curAccount.getXmppConnection().sendRoomDiscoveries();
 				}
 			}
 		}
@@ -888,10 +921,22 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		this.conferences.clear();
 		for (Account account : xmppConnectionService.getAccounts()) {
 			if (account.getStatus() != Account.State.DISABLED) {
-				for (Bookmark bookmark : account.getBookmarks()) {
+				/*for (Bookmark bookmark : account.getBookmarks()) {
 					if (bookmark.match(this, needle)) {
 						this.conferences.add(bookmark);
 					}
+				}*/
+				//AM-84 removed the part of AM-78 that filtered out existing bookmarks
+				for (Jid group : account.getAvailableGroups()) {
+					final Bookmark gbookmark = new Bookmark(account, group.asBareJid());
+					gbookmark.setAutojoin(getPreferences().getBoolean("autojoin", true));
+					String nick = group.getResource();
+					if (nick != null && !nick.isEmpty()) {
+						gbookmark.setNick(nick);
+					}
+					gbookmark.setBookmarkName(group.getLocal());
+
+					this.conferences.add(gbookmark);
 				}
 			}
 		}
@@ -938,21 +983,51 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	}
 
 	@Override
-	public void onCreateDialogPositiveClick(Spinner spinner, String name) {
+	public void onCreateDialogPositiveClick(Spinner spinner, String name, CheckBox inviteOnly, EditText editName) {
 		if (!xmppConnectionServiceBound) {
 			return;
 		}
-		final Account account = getSelectedAccount(spinner);
+
+		final Account account; //ALF AM-88 on 228 update
+		if (spinner == null) {
+			account = this.curAccount;
+		} else {
+			account = getSelectedAccount(spinner);
+		}
+
+		//final Account account = getSelectedAccount(spinner);
 		if (account == null) {
 			return;
 		}
-		Intent intent = new Intent(getApplicationContext(), ChooseContactActivity.class);
-		intent.putExtra(ChooseContactActivity.EXTRA_SHOW_ENTER_JID, false);
-		intent.putExtra(ChooseContactActivity.EXTRA_SELECT_MULTIPLE, true);
-		intent.putExtra(ChooseContactActivity.EXTRA_GROUP_CHAT_NAME, name.trim());
-		intent.putExtra(ChooseContactActivity.EXTRA_ACCOUNT, account.getJid().asBareJid().toString());
-		intent.putExtra(ChooseContactActivity.EXTRA_TITLE_RES_ID, R.string.choose_participants);
-		startActivityForResult(intent, REQUEST_CREATE_CONFERENCE);
+
+		//ALF AM-88
+		String groupname = name.replaceAll("[^a-zA-Z0-9]", "");
+		final Jid conferenceJid;
+		try {
+			conferenceJid = Jid.of(groupname + "@conference" + account.getJid().getDomain());
+		} catch (final Exception e) {
+			editName.setError(getString(R.string.invalid_jid));
+			return;
+		}
+
+		//ALF AM-78
+		if (curAccount.hasBookmarkFor(conferenceJid) || curAccount.groupExists(conferenceJid)) {
+			editName.setError(getString(R.string.group_already_exists));
+		} else {
+			Intent intent = new Intent(getApplicationContext(), ChooseContactActivity.class);
+			intent.putExtra(ChooseContactActivity.EXTRA_SHOW_ENTER_JID, true); //ALF from false
+			intent.putExtra(ChooseContactActivity.EXTRA_SELECT_MULTIPLE, true);
+			intent.putExtra(ChooseContactActivity.EXTRA_GROUP_CHAT_NAME, groupname.trim());
+
+			//ALF AM-88
+			if (!inviteOnly.isChecked()) {
+				intent.putExtra("publicgroup", true);
+			}
+			intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toString());
+			intent.putExtra(ChooseContactActivity.EXTRA_TITLE_RES_ID, R.string.choose_participants);
+
+			startActivityForResult(intent, REQUEST_CREATE_CONFERENCE);
+		}
 	}
 
 	@Override

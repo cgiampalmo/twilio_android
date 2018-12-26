@@ -151,6 +151,10 @@ public class PresenceParser extends AbstractParser implements
 						mucOptions.setError(MucOptions.Error.UNKNOWN);
 						Log.d(Config.LOGTAG, "unknown error in conference: " + packet);
 					}
+				} else if (codes.contains(MucOptions.STATUS_CODE_SHUTDOWN)) { //ALF AM-78
+					mucOptions.setError(MucOptions.Error.SHUTDOWN);
+					mXmppConnectionService.archiveConversation(conversation);
+					mXmppConnectionService.updateConversationUi();
 				} else if (!from.isBareJid()){
 					Element item = x.findChild("item");
 					if (item != null) {
@@ -178,6 +182,10 @@ public class PresenceParser extends AbstractParser implements
 					mucOptions.setError(MucOptions.Error.BANNED);
 				} else if (error.hasChild("registration-required")) {
 					mucOptions.setError(MucOptions.Error.MEMBERS_ONLY);
+				} else if (error != null && error.hasChild("item-not-found")) { //ALF AM-78
+					mucOptions.setError(MucOptions.Error.SHUTDOWN);
+					mXmppConnectionService.archiveConversation(conversation);
+					mXmppConnectionService.updateConversationUi();
 				} else if (error.hasChild("resource-constraint")) {
 					mucOptions.setError(MucOptions.Error.RESOURCE_CONSTRAINT);
 				} else if (error.hasChild("gone")) {
@@ -253,6 +261,14 @@ public class PresenceParser extends AbstractParser implements
 			if (contact.setPresenceName(packet.findChildContent("nick", Namespace.NICK))) {
 				mXmppConnectionService.getAvatarService().clear(contact);
 			}
+
+			//ALF AM-48
+			Element xel = packet.findChild("x", "vcard-temp:x:update");
+			String displayname = xel == null ? null : xel.findChildContent("displayname");
+			if (displayname != null) {
+				contact.setServerName(displayname);
+			}
+
 			Avatar avatar = Avatar.parsePresence(packet.findChild("x", "vcard-temp:x:update"));
 			if (avatar != null && (!contact.isSelf() || account.getAvatar() == null)) {
 				avatar.owner = from.asBareJid();

@@ -107,6 +107,7 @@ public class XmppConnection implements Runnable {
 	private static final int PACKET_IQ = 0;
 	private static final int PACKET_MESSAGE = 1;
 	private static final int PACKET_PRESENCE = 2;
+	private static Jid discoItemConf; //ALF AM-78
 	public final OnIqPacketReceived registrationResponseListener = new OnIqPacketReceived() {
 		@Override
 		public void onIqPacketReceived(Account account, IqPacket packet) {
@@ -1275,6 +1276,11 @@ public class XmppConnection implements Runnable {
 					}
 				}
 				for (Jid jid : items) {
+					//ALF AM-78
+					if (jid.getDomain().startsWith("conference")) {
+						discoItemConf = jid;
+					}
+
 					sendServiceDiscoveryInfo(jid);
 				}
 			} else {
@@ -1284,6 +1290,43 @@ public class XmppConnection implements Runnable {
 				if (mPendingServiceDiscoveries.decrementAndGet() == 0
 						&& mWaitForDisco.compareAndSet(true, false)) {
 					finalizeBind();
+				}
+			}
+
+			//ALF AM-78, AM-10
+			sendRoomDiscoveries();
+		});
+	}
+
+	//ALF AM-78
+	public void sendRoomDiscoveries() {
+		if (discoItemConf == null) {
+			return;
+		}
+
+		mPendingServiceDiscoveries.incrementAndGet();
+		final IqPacket iq = new IqPacket(IqPacket.TYPE.GET);
+		iq.setTo(Jid.of(discoItemConf.getDomain()));
+		iq.query("http://jabber.org/protocol/disco#items");
+		this.sendIqPacket(iq, new OnIqPacketReceived() {
+
+			@Override
+			public void onIqPacketReceived(final Account account, final IqPacket packet) {
+				if (packet.getType() == IqPacket.TYPE.RESULT) {
+					ArrayList<Jid> items = new ArrayList<Jid>();
+					final List<Element> elements = packet.query().getChildren();
+					for (final Element element : elements) {
+						if (element.getName().equals("item")) {
+							final Jid jid = element.getAttributeAsJid("jid");
+							//ALF AM-84 added contains @
+							if (jid != null && !jid.equals(account.getServer()) && jid.toString().contains("@")) {
+								items.add(jid);
+							}
+						}
+					}
+					account.setAvailableGroups(items);
+				} else {
+					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not query disco items of " + discoItemConf);
 				}
 			}
 		});

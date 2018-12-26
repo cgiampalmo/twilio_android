@@ -16,6 +16,26 @@
                 android:targetClass="com.huawei.systemmanager.optimize.process.ProtectActivity"
                 android:targetPackage="com.huawei.systemmanager"/>
         </PreferenceScreen>
+        <com.glaciersecurity.glaciermessenger.ui.AboutPreference
+            android:title="@string/title_activity_about"
+            android:summary="@string/pref_use_larger_font_summary"/>
+        <!-- AM-16 -->
+        <Preference android:title="@string/support_button_key"
+            android:key="@string/support_button_key"
+            android:summary="@string/support_button_summary">
+            <intent android:action="android.intent.action.VIEW"
+                android:data="https://0z0g1.typeform.com/to/GA6wp3" />
+        </Preference>
+
+        <!-- ALF AM-48 -->
+        <EditTextPreference
+            android:key="displayname"
+            android:summary="@string/pref_display_name_description"
+            android:title="@string/pref_display_name"
+            android:persistent="true"
+            android:dialogTitle="@string/pref_display_name"
+            android:dialogMessage="@string/pref_display_name_description"
+            android:defaultValue="@string/displayname" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_privacy">
         <!--HONEYBADGER AM-120 OMEMO encryption set to Always (unless in a public group chat) and then hide this setting-->
@@ -54,6 +74,14 @@
             <!--android:key="btbv"-->
             <!--android:summary="@string/pref_blind_trust_before_verification_summary"-->
             <!--android:title="@string/pref_blind_trust_before_verification"/>-->
+        <!-- ALF AM-53 -->
+        <ListPreference
+            android:key="global_message_timer"
+            android:title="@string/pref_global_message_timer"
+            android:summary="@string/pref_global_message_timer_description"
+            android:defaultValue="@integer/message_timer"
+            android:entries="@array/timer_options_descriptions"
+            android:entryValues="@array/timer_options_durations" />
         <ListPreference
             android:defaultValue="@integer/automatic_message_deletion"
             android:key="automatic_message_deletion"

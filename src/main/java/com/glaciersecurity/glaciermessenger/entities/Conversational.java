@@ -45,4 +45,6 @@ public interface Conversational {
 	int getMode();
 
 	String getUuid();
+
+	int getTimer(); //ALF AM-53
 }

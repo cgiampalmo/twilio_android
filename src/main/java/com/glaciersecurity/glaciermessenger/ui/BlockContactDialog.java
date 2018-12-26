@@ -33,7 +33,7 @@ public final class BlockContactDialog {
 		} else {
 			int resBlockAction = blockable instanceof Conversation && ((Conversation) blockable).isWithStranger() ? R.string.block_stranger : R.string.action_block_contact;
 			builder.setTitle(isBlocked ? R.string.action_unblock_contact : resBlockAction);
-			value = blockable.getJid().asBareJid().toString();
+			value = blockable.getJid().asBareJid().getLocal(); //ALF AM-30
 			spannable = new SpannableString(xmppActivity.getString(isBlocked ? R.string.unblock_contact_text : R.string.block_contact_text, value));
 		}
 		int start = spannable.toString().indexOf(value);

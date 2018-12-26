@@ -43,8 +43,9 @@ public class IndividualMessage extends Message {
 		super(conversation);
 	}
 
-	private IndividualMessage(Conversational conversation, String uuid, String conversationUUid, Jid counterpart, Jid trueCounterpart, String body, long timeSent, int encryption, int status, int type, boolean carbon, String remoteMsgId, String relativeFilePath, String serverMsgId, String fingerprint, boolean read, String edited, boolean oob, String errorMessage, Set<ReadByMarker> readByMarkers, boolean markable) {
-		super(conversation, uuid, conversationUUid, counterpart, trueCounterpart, body, timeSent, encryption, status, type, carbon, remoteMsgId, relativeFilePath, serverMsgId, fingerprint, read, edited, oob, errorMessage, readByMarkers, markable);
+	//ALF AM-53 added timer and endtime
+	private IndividualMessage(Conversational conversation, String uuid, String conversationUUid, Jid counterpart, Jid trueCounterpart, String body, long timeSent, int encryption, int status, int type, int timer, long endtime, boolean carbon, String remoteMsgId, String relativeFilePath, String serverMsgId, String fingerprint, boolean read, String edited, boolean oob, String errorMessage, Set<ReadByMarker> readByMarkers, boolean markable) {
+		super(conversation, uuid, conversationUUid, counterpart, trueCounterpart, body, timeSent, encryption, status, type, timer, endtime, carbon, remoteMsgId, relativeFilePath, serverMsgId, fingerprint, read, edited, oob, errorMessage, readByMarkers, markable);
 	}
 
 	@Override
@@ -95,6 +96,7 @@ public class IndividualMessage extends Message {
 		} catch (IllegalArgumentException e) {
 			trueCounterpart = null;
 		}
+		//ALF AM-53 added timer and endtime
 		return new IndividualMessage(conversation,
 				cursor.getString(cursor.getColumnIndex(UUID)),
 				cursor.getString(cursor.getColumnIndex(CONVERSATION)),
@@ -105,6 +107,8 @@ public class IndividualMessage extends Message {
 				cursor.getInt(cursor.getColumnIndex(ENCRYPTION)),
 				cursor.getInt(cursor.getColumnIndex(STATUS)),
 				cursor.getInt(cursor.getColumnIndex(TYPE)),
+				cursor.getInt(cursor.getColumnIndex(TIMER)),
+				cursor.getLong(cursor.getColumnIndex(ENDTIME)),
 				cursor.getInt(cursor.getColumnIndex(CARBON)) > 0,
 				cursor.getString(cursor.getColumnIndex(REMOTE_MSG_ID)),
 				cursor.getString(cursor.getColumnIndex(RELATIVE_FILE_PATH)),

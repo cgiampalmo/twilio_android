@@ -38,12 +38,14 @@ public class StubConversation implements Conversational {
 	private final String uuid;
 	private final Jid jid;
 	private final int mode;
+	private final int timer; //ALF AM-53
 
 	public StubConversation(Account account, String uuid, Jid jid, int mode) {
 		this.account = account;
 		this.uuid = uuid;
 		this.jid = jid;
 		this.mode = mode;
+		this.timer = Message.TIMER_NONE; //ALF AM-53
 	}
 
 	@Override
@@ -70,4 +72,7 @@ public class StubConversation implements Conversational {
 	public String getUuid() {
 		return uuid;
 	}
+
+	//ALF AM-53
+	public int getTimer() { return timer; }
 }

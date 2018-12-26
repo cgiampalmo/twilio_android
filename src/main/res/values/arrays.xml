@@ -34,6 +34,25 @@
 		<item>-1</item>
 	</integer-array>
 
+	<!-- ALF AM-53 next two -->
+	<string-array name="timer_options_descriptions">
+		<item>@string/none</item>
+		<item>@string/fifteen_seconds</item>
+		<item>@string/one_minute</item>
+		<item>@string/five_minutes</item>
+		<item>@string/one_day</item>
+		<item>@string/one_week</item>
+	</string-array>
+
+	<string-array name="timer_options_durations">
+		<item>0</item>
+		<item>15</item>
+		<item>60</item>
+		<item>300</item>
+		<item>86400</item>
+		<item>604800</item>
+	</string-array>
+
 	<string-array name="quick_actions">
 		<item>@string/none</item>
 		<item>@string/recently_used</item>

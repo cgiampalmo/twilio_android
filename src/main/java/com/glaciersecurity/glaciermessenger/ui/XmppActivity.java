@@ -775,6 +775,14 @@ public abstract class XmppActivity extends PinActivity {
 				}
 				mPendingConferenceInvite = null;
 			}
+
+			//ALF AM-51, AM-73 (added MODE_MULTI)
+			if (mPendingConferenceInvite != null) {
+				Conversation conv = xmppConnectionService.findConversationByUuid(mPendingConferenceInvite.uuid);
+				if (conv != null && conv.getMode() == Conversation.MODE_MULTI && mPendingConferenceInvite.jids.size() > 0) {
+					xmppConnectionService.sendJoiningGroupMessage(conv, mPendingConferenceInvite.jids, false);
+				}
+			}
 		}
 	}
 
@@ -958,7 +966,7 @@ public abstract class XmppActivity extends PinActivity {
 				return false;
 			} else {
 				jids.add(conversation.getJid().asBareJid());
-				return service.createAdhocConference(conversation.getAccount(), null, jids, activity.adhocCallback);
+				return service.createAdhocConference(conversation.getAccount(), null, jids, false, activity.adhocCallback); //ALF AM-88 added false
 			}
 		}
 	}
