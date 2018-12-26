@@ -81,6 +81,17 @@ public class HttpDownloadConnection implements Transferable {
 			} else {
 				mUrl = CryptoHelper.toHttpsUrl(new URL(message.getBody().split("\n")[0]));
 			}
+
+			//ALF AM-100
+			String host = mUrl.getHost();
+			if (mXmppConnectionService.getAccounts().size() >= 1) {
+				String curdomain = mXmppConnectionService.getAccounts().get(0).getJid().getDomain();
+				if (!(curdomain.equalsIgnoreCase(host))) {
+					String newurl = mUrl.toString().replace(host, curdomain);
+					mUrl = new URL(newurl);
+				}
+			}
+
 			String[] parts = mUrl.getPath().toLowerCase().split("\\.");
 			String lastPart = parts.length >= 1 ? parts[parts.length - 1] : null;
 			String secondToLast = parts.length >= 2 ? parts[parts.length - 2] : null;
