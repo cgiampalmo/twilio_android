@@ -6,7 +6,7 @@
     <bool name="notifications_from_strangers">false</bool>
     <bool name="headsup_notifications">true</bool>
     <bool name="dnd_on_silent_mode">false</bool>
-    <string name="displayname">YourName</string> <!-- ALF AM-48 -->
+    <string name="displayname">displayname</string> <!-- ALF AM-48 -->
     <integer name="message_timer">0</integer> <!-- ALF AM-53 -->
     <bool name="treat_vibrate_as_silent">false</bool>
     <bool name="confirm_messages">true</bool>

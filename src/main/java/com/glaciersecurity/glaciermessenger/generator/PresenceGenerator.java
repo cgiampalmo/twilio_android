@@ -67,6 +67,7 @@ public class PresenceGenerator extends AbstractGenerator {
 	public PresencePacket sendPresenceWithvCard(Account account, String displayName) {
 		final PresencePacket packet = selfPresence(account, account.getPresenceStatus(), false);
 		final Element vcard = packet.addChild("x", "vcard-temp:x:update");
+		vcard.addChild("photo");
 		vcard.addChild("displayname").setContent(displayName);
 		return packet;
 	}

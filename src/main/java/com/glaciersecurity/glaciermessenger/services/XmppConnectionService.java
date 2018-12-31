@@ -3811,12 +3811,9 @@ public class XmppConnectionService extends Service {
 
 			//ALF AM-48
 			IqPacket publishv = mIqGenerator.publishVcardWithNick(displayName);
-			sendIqPacket(account, publishv, new OnIqPacketReceived() {
-				@Override
-				public void onIqPacketReceived(Account account, IqPacket packet) {
-					if (packet.getType() == IqPacket.TYPE.ERROR) {
-						Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not publish vcardnick");
-					}
+			sendIqPacket(account, publishv, (account2, packet2) -> {
+				if (packet2.getType() == IqPacket.TYPE.ERROR) {
+					Log.d(Config.LOGTAG, account2.getJid().asBareJid() + ": could not publish vcardnick");
 				}
 			});
 			sendPresencePacket(account, mPresenceGenerator.sendPresenceWithvCard(account, displayName));
