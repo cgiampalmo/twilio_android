@@ -265,6 +265,7 @@ public class Message extends AbstractEntity {
 		separator.setType(Message.TYPE_STATUS);
 		separator.body = message.getBody();
 		separator.setTime(message.getTimeSent());
+		if (message.isRead()) { separator.markRead(); }
 		return separator;
 	}
 

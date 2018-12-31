@@ -167,6 +167,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	private Handler disappearingHandler;
 	private Runnable disRunnable;
 
+	//ALF AM-51
+	private String lastGroupRemoved = null;
+
 	private OnClickListener clickToMuc = new OnClickListener() {
 
 		@Override
@@ -1716,6 +1719,11 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 					while (message.next() != null && message.next().wasMergedIntoPrevious()) {
 						message = message.next();
 					}
+
+					//ALF AM-51
+					if (lastGroupRemoved != null) {
+						return lastGroupRemoved;
+					}
 					return message.getUuid();
 				}
 			}
@@ -2358,11 +2366,15 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 
 	//ALF AM-51
 	protected void updateGroupChanged() {
+		lastGroupRemoved = null;
 		synchronized (this.messageList) {
 			for(int i = this.messageList.size() - 1; i >= 0; --i) {
 				final Message current = this.messageList.get(i);
 				if (current.getBody().endsWith(getString(R.string.added_to_group)) ||
 						current.getBody().endsWith(getString(R.string.left_group))) {
+					if (lastGroupRemoved == null && i == this.messageList.size() - 1) {
+						lastGroupRemoved = current.getUuid();
+					}
 					this.messageList.add(i+1,Message.createGroupChangedSeparator(current));
 					this.messageList.remove(i);
 				}
