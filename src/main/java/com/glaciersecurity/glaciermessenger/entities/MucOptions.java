@@ -411,8 +411,9 @@ public class MucOptions {
     }
 
 	public boolean canInvite() {
-		Field field = getRoomInfoForm().getFieldByName("muc#roomconfig_allowinvites");
-		return !membersOnly() || self.getRole().ranks(Role.MODERATOR) || (field != null && "1".equals(field.getValue()));
+		return true; //ALF AM-50
+		//Field field = getRoomInfoForm().getFieldByName("muc#roomconfig_allowinvites");
+		//return !membersOnly() || self.getRole().ranks(Role.MODERATOR) || (field != null && "1".equals(field.getValue()));
 	}
 
 	public boolean canChangeSubject() {
