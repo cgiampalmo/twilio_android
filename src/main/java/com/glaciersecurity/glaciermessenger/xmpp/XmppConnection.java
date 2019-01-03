@@ -68,6 +68,7 @@ import com.glaciersecurity.glaciermessenger.crypto.sasl.ScramSha256;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Message;
 import com.glaciersecurity.glaciermessenger.entities.ServiceDiscoveryResult;
+import com.glaciersecurity.glaciermessenger.entities.Bookmark; //ALF AM-84
 import com.glaciersecurity.glaciermessenger.generator.IqGenerator;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
 import com.glaciersecurity.glaciermessenger.services.MemorizingTrustManager;
@@ -1324,6 +1325,16 @@ public class XmppConnection implements Runnable {
 							}
 						}
 					}
+
+					//ALF AM-84 adding groups that user belongs to from other virtual hosts
+					List<Bookmark> blist = account.getBookmarks();
+					for (Bookmark bmark : blist) {
+						Jid bmarkjid = bmark.getJid();
+						if (!(items.contains(bmarkjid))) {
+							items.add(bmarkjid);
+						}
+					}
+
 					account.setAvailableGroups(items);
 				} else {
 					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not query disco items of " + discoItemConf);

@@ -593,6 +593,9 @@ public class Account extends AbstractEntity {
 
 	public void setAvailableGroups(final List<Jid> groups) {
 		this.availableGroups = groups;
+		if (groupUpdateListener != null) {
+			groupUpdateListener.onGroupUpdate();
+		}
 	}
 
 	public boolean groupExists(final Jid conferenceJid) {
@@ -602,6 +605,16 @@ public class Account extends AbstractEntity {
 			}
 		}
 		return false;
+	}
+
+	//ALF AM-84 next two
+	public interface OnGroupUpdate {
+		void onGroupUpdate();
+	}
+
+	private OnGroupUpdate groupUpdateListener;
+	public void setGroupUpdateListener(OnGroupUpdate onGroupUpdate) {
+		groupUpdateListener = onGroupUpdate;
 	}
 
 	public List<Bookmark> getBookmarks() {
