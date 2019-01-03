@@ -874,6 +874,11 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 						activity.mToast = Toast.makeText(activity, R.string.creating_conference, Toast.LENGTH_LONG);
 						activity.mToast.show();
 					}
+
+					//ALF AM-51, AM-73 (added MODE_MULTI)
+					if (conversation != null && conversation.getMode() == Conversation.MODE_MULTI && invite.getJids().size() > 0) {
+						activity.xmppConnectionService.sendJoiningGroupMessage(conversation, invite.getJids(), false);
+					}
 				}
 				break;
 		}

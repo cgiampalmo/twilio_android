@@ -955,6 +955,11 @@ public abstract class XmppActivity extends PinActivity {
 			return invite;
 		}
 
+		//ALF AM-51
+        public List<Jid> getJids() {
+		    return jids;
+        }
+
 		public boolean execute(XmppActivity activity) {
 			XmppConnectionService service = activity.xmppConnectionService;
 			Conversation conversation = service.findConversationByUuid(this.uuid);

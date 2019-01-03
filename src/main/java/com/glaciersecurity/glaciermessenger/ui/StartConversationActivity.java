@@ -793,7 +793,12 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	//ALF AM-84
 	@Override
 	public void onGroupUpdate() {
-		filterConferences(null);
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				filterConferences(null);
+			}
+		});
 	}
 
 	protected boolean processViewIntent(@NonNull Intent intent) {
