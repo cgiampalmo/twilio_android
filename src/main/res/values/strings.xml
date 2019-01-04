@@ -279,7 +279,7 @@
     <string name="pref_security_settings">Security</string>
     <string name="pref_allow_message_correction">Allow message correction</string>
     <string name="pref_allow_message_correction_summary">Allow your contacts to retroactively edit their messages</string>
-    <string name="pref_expert_options">Expert settings</string>
+    <string name="pref_expert_options">Advanced settings</string> <!-- ALF AM-163 changed Expert to Advanced -->
     <string name="pref_expert_options_summary">Please be careful with these</string>
     <string name="title_activity_about">About Messenger</string>
     <string name="pref_about_conversations_summary">Build and licensing information</string>

@@ -539,7 +539,7 @@ public class UIHelper {
 		switch (conversation.getNextEncryption()) {
 			case Message.ENCRYPTION_NONE:
 				if (Config.multipleEncryptionChoices()) {
-					return context.getString(R.string.send_unencrypted_message);
+					return context.getString(R.string.send_glacier_message); //ALF AM-153 from send_unencrypted
 				} else {
 					return context.getString(R.string.send_message_to_x, conversation.getName());
 				}

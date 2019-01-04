@@ -36,7 +36,7 @@
     <bool name="away_when_screen_off">false</bool>
     <bool name="autojoin">true</bool>
     <bool name="indicate_received">true</bool>
-    <bool name="enable_foreground_service">false</bool>
+    <bool name="enable_foreground_service">true</bool> <!-- ALF AM-164 -->
     <bool name="never_send">false</bool>
     <bool name="return_to_previous">false</bool>
     <bool name="validate_hostname">false</bool>
