@@ -35,8 +35,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.content.DialogInterface; //ALF
-//import android.content.DialogInterface.OnClickListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -51,15 +49,14 @@ import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
+import android.widget.EditText; //ALF AM-75
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -91,6 +88,7 @@ import com.glaciersecurity.glaciermessenger.ui.util.ActivityResult;
 import com.glaciersecurity.glaciermessenger.ui.util.AttachmentTool;
 import com.glaciersecurity.glaciermessenger.ui.util.ConversationMenuConfigurator;
 import com.glaciersecurity.glaciermessenger.ui.util.DateSeparator;
+import com.glaciersecurity.glaciermessenger.ui.util.DelayedHintHelper;
 import com.glaciersecurity.glaciermessenger.ui.util.EditMessageActionModeCallback;
 import com.glaciersecurity.glaciermessenger.ui.util.ListViewUtils;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
@@ -939,6 +937,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 
 		//ALF AM-122
 		final MenuItem menuLeaveGroup = menu.findItem(R.id.action_leave_group);
+		final MenuItem menuEndConversation = menu.findItem(R.id.action_end_conversation);
 
 		if (conversation != null) {
 			if (conversation.getMode() == Conversation.MODE_MULTI) {
@@ -946,7 +945,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				menuInviteContact.setVisible(conversation.getMucOptions().canInvite());
 				menuConversationTimer.setVisible(false); //ALF AM-53
 				menuLeaveGroup.setVisible(true); //ALF AM-122 (and next line)
-				//menuEndConversation.setVisible(false); doesn't exist yet
+				menuEndConversation.setVisible(false);
 			} else {
 				menuContactDetails.setVisible(!this.conversation.withSelf());
 				menuMucDetails.setVisible(false);
@@ -954,7 +953,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				menuInviteContact.setVisible(service != null && service.findConferenceServer(conversation.getAccount()) != null);
 				menuConversationTimer.setVisible(true); //ALF AM-53
 				menuLeaveGroup.setVisible(false); //ALF AM-122 (and next line)
-				//menuEndConversation.setVisible(true); doesn't exist yet
+				menuEndConversation.setVisible(true);
 			}
 			if (conversation.isMuted()) {
 				menuMute.setVisible(false);
@@ -1248,7 +1247,12 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				startActivity(intent);
 				break;
 			case R.id.action_invite:
-				startActivityForResult(ChooseContactActivity.create(activity, conversation), REQUEST_INVITE_TO_CONVERSATION);
+				//ALF AM-75 added if for 1:1
+				if (conversation.getMode() == Conversation.MODE_SINGLE) {
+					newGroupNameDialog(conversation);
+				} else {
+					startActivityForResult(ChooseContactActivity.create(activity, conversation), REQUEST_INVITE_TO_CONVERSATION);
+				}
 				break;
 			case R.id.action_end_conversation:
 				endConversationDialog(conversation);
@@ -1466,6 +1470,32 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			return;
 		}
 		activity.xmppConnectionService.getHttpConnectionManager().createNewDownloadConnection(message, true);
+	}
+
+
+	/**
+	 * //ALF AM-75, when in a 1:1 conversation and invite a contact to form a group
+	 *
+	 * @param conversation
+	 */
+	@SuppressLint("InflateParams")
+	protected void newGroupNameDialog(final Conversation conversation) {
+		android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getActivity());
+		builder.setTitle(getString(R.string.dialog_title_create_conference));
+		View dialogView = getActivity().getLayoutInflater().inflate(
+				R.layout.invite_new_conference_dialog, null);
+		builder.setView(dialogView);
+		final EditText nameBox = (EditText) dialogView
+				.findViewById(R.id.group_chat_name);
+		builder.setNegativeButton(getString(R.string.cancel), null);
+		DelayedHintHelper.setHint(R.string.conference_address_example, nameBox);
+
+		builder.setPositiveButton(getString(R.string.invite_contact), (dialog, which) -> {
+		    Intent intent = ChooseContactActivity.create(activity, conversation);
+            intent.putExtra(ChooseContactActivity.EXTRA_GROUP_CHAT_NAME, nameBox.getText().toString().trim());
+			startActivityForResult(intent, REQUEST_INVITE_TO_CONVERSATION);
+		});
+		builder.create().show();
 	}
 
 	/**

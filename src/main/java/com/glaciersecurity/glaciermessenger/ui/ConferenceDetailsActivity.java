@@ -635,8 +635,12 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             hasTitle = true;
             this.binding.mucTitle.setVisibility(View.VISIBLE);
         } else {
-            hasTitle = false;
-            this.binding.mucTitle.setVisibility(View.GONE);
+            //hasTitle = false;
+            //this.binding.mucTitle.setVisibility(View.GONE);
+            //ALF AM-80
+            this.binding.mucTitle.setText("#"+EmojiWrapper.transform(mConversation.getName()));
+            hasTitle = true;
+            this.binding.mucTitle.setVisibility(View.VISIBLE);
         }
         if (printableValue(subject)) {
             SpannableStringBuilder spannable = new SpannableStringBuilder(subject);

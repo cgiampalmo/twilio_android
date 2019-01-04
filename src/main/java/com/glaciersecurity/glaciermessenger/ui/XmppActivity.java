@@ -941,11 +941,13 @@ public abstract class XmppActivity extends PinActivity {
 
 	public static class ConferenceInvite {
 		private String uuid;
+		private String groupname;
 		private List<Jid> jids = new ArrayList<>();
 
 		public static ConferenceInvite parse(Intent data) {
 			ConferenceInvite invite = new ConferenceInvite();
 			invite.uuid = data.getStringExtra(ChooseContactActivity.EXTRA_CONVERSATION);
+			invite.groupname = data.getStringExtra(ChooseContactActivity.EXTRA_GROUP_CHAT_NAME); //ALF AM-75
 			if (invite.uuid == null) {
 				return null;
 			}
@@ -966,7 +968,8 @@ public abstract class XmppActivity extends PinActivity {
 				return false;
 			} else {
 				jids.add(conversation.getJid().asBareJid());
-				return service.createAdhocConference(conversation.getAccount(), null, jids, false, activity.adhocCallback); //ALF AM-88 added false
+				//ALF AM-75 added group name
+				return service.createAdhocConference(conversation.getAccount(), this.groupname, jids, false, activity.adhocCallback); //ALF AM-88 added false
 			}
 		}
 	}
