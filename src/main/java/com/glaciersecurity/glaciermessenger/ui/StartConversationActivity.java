@@ -1,8 +1,6 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
@@ -12,7 +10,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
@@ -46,7 +43,6 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
-import android.widget.Checkable;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -55,7 +51,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -64,6 +59,7 @@ import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.databinding.ActivityStartConversationBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
+import com.glaciersecurity.glaciermessenger.entities.Account.OnGroupUpdate; //ALF AM-84
 import com.glaciersecurity.glaciermessenger.entities.Bookmark;
 import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
@@ -78,12 +74,11 @@ import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
-import com.glaciersecurity.glaciermessenger.xmpp.InvalidJid;
 import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 import rocks.xmpp.addr.Jid;
 
-public class StartConversationActivity extends XmppActivity implements XmppConnectionService.OnConversationUpdate, OnRosterUpdate, OnUpdateBlocklist, CreateConferenceDialog.CreateConferenceDialogListener, JoinConferenceDialog.JoinConferenceDialogListener {
+public class StartConversationActivity extends XmppActivity implements XmppConnectionService.OnConversationUpdate, OnRosterUpdate, OnUpdateBlocklist, OnGroupUpdate, CreateConferenceDialog.CreateConferenceDialogListener, JoinConferenceDialog.JoinConferenceDialogListener {
 
 	public final static String DOMAIN_IP = "172.16.2.240";
 
@@ -772,6 +767,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				//ALF AM-78
 				if (this.curAccount == null) {
 					this.curAccount = account;
+					this.curAccount.setGroupUpdateListener(this);
 					this.curAccount.getXmppConnection().sendRoomDiscoveries();
 				}
 			}
@@ -792,6 +788,12 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			Log.d(Config.LOGTAG, "calling on backend connected on dialog");
 			((OnBackendConnected) fragment).onBackendConnected();
 		}
+	}
+
+	//ALF AM-84
+	@Override
+	public void onGroupUpdate() {
+		filterConferences(null);
 	}
 
 	protected boolean processViewIntent(@NonNull Intent intent) {
@@ -941,6 +943,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			}
 		}
 		Collections.sort(this.conferences);
+		Log.d(Config.LOGTAG, "Conferences updated with " + this.conferences.size()); //ALF AM-84
 		mConferenceAdapter.notifyDataSetChanged();
 	}
 
