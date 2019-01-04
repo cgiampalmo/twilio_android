@@ -837,13 +837,23 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 				viewHolder.message_box.setBackgroundResource(bubble);
 				viewHolder.encryption.setVisibility(View.GONE);
 			} else {
-				viewHolder.message_box.setBackgroundResource(R.drawable.message_bubble_received_warning);
-				viewHolder.encryption.setVisibility(View.VISIBLE);
-				if (omemoEncryption && !message.isTrusted()) {
-					viewHolder.encryption.setText(R.string.not_trusted);
+				//ALF AM-96 added the following section and commented out below
+				int bubble;
+				if (!mUseGreenBackground) {
+					bubble = activity.getThemeResource(R.attr.message_bubble_received_monochrome, R.drawable.message_bubble_received_white);
 				} else {
-					viewHolder.encryption.setText(CryptoHelper.encryptionTypeToText(message.getEncryption()));
+					bubble = activity.getThemeResource(R.attr.message_bubble_received_green, R.drawable.message_bubble_received);
 				}
+				viewHolder.message_box.setBackgroundResource(bubble);
+				viewHolder.encryption.setVisibility(View.GONE);
+
+				//viewHolder.message_box.setBackgroundResource(R.drawable.message_bubble_received_warning);
+				//viewHolder.encryption.setVisibility(View.VISIBLE); //ALF AM-96 and commented out below
+				//if (omemoEncryption && !message.isTrusted()) {
+				//	viewHolder.encryption.setText(R.string.not_trusted);
+				//} else {
+				//	viewHolder.encryption.setText(CryptoHelper.encryptionTypeToText(message.getEncryption()));
+				//}
 			}
 		}
 
