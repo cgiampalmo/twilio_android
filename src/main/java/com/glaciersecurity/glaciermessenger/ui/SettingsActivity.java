@@ -308,7 +308,10 @@ public class SettingsActivity extends XmppActivity implements
 	private boolean deleteOmemoIdentities() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.pref_delete_glacier_identities);
-		final List<CharSequence> accounts = new ArrayList<>();
+		builder.setMessage(R.string.pref_reset_omemo_message); //ALF AM-79
+
+		//ALF AM-79 commented out
+		/*final List<CharSequence> accounts = new ArrayList<>();
 		for (Account account : xmppConnectionService.getAccounts()) {
 			if (account.isEnabled()) {
 				accounts.add(account.getJid().asBareJid().toString());
@@ -325,10 +328,16 @@ public class SettingsActivity extends XmppActivity implements
 				}
 			}
 			alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
-		});
+		});*/
+
 		builder.setNegativeButton(R.string.cancel, null);
-		builder.setPositiveButton(R.string.delete_selected_keys, (dialog, which) -> {
-			for (int i = 0; i < checkedItems.length; ++i) {
+		builder.setPositiveButton(R.string.reset, (dialog, which) -> { //ALF AM-79 to reset
+			for(Account account : xmppConnectionService.getAccounts()) {
+				if (account != null) {
+					account.getAxolotlService().regenerateKeys(true);
+				}
+			}
+			/*for (int i = 0; i < checkedItems.length; ++i) {
 				if (checkedItems[i]) {
 					try {
 						Jid jid = Jid.of(accounts.get(i).toString());
@@ -341,11 +350,11 @@ public class SettingsActivity extends XmppActivity implements
 					}
 
 				}
-			}
+			}*/
 		});
 		AlertDialog dialog = builder.create();
 		dialog.show();
-		dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+		//dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false); //ALF AM-79
 		return true;
 	}
 

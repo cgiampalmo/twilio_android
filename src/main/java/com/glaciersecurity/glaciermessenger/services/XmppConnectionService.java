@@ -3271,6 +3271,24 @@ public class XmppConnectionService extends Service {
 		updateConversationUi();
 	}
 
+	//ALF AM-75
+	public void handleFailedEncryption(Message message, boolean delay) {
+		// recall session stuff if possible?
+		message.setEncryption(Message.ENCRYPTION_NONE);
+		this.resendMessage(message, delay);
+
+		Conversation conv = (Conversation)message.getConversation();
+		if (conv != null && conv.getMode() == Conversation.MODE_MULTI && conv.getMucOptions().membersOnly())
+		{
+			AxolotlService axolotlService = conv.getAccount().getAxolotlService();
+			axolotlService.createSessionsIfNeeded(conv);
+			conv.reloadFingerprints(axolotlService.getCryptoTargets(conv));
+			conv.commitTrusts();
+			conv.setNextEncryption(Message.ENCRYPTION_AXOLOTL);
+			updateConversation(conv);
+		}
+	}
+
 	private SharedPreferences getPreferences() {
 		return PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 	}

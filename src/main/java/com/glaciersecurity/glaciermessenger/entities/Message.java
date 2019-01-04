@@ -648,9 +648,11 @@ public class Message extends AbstractEntity {
 						!this.getBody().startsWith(ME_COMMAND) &&
 						!message.getBody().endsWith("added to the group") &&
 						!message.getBody().endsWith("left the group") && //ALF AM-51
+						!this.getBody().endsWith("added to the group") &&
+						!this.getBody().endsWith("left the group") && //ALF AM-51, AM-75
 						!this.bodyIsOnlyEmojis() &&
 						!message.bodyIsOnlyEmojis() &&
-						((this.axolotlFingerprint == null && message.axolotlFingerprint == null) || this.axolotlFingerprint.equals(message.getFingerprint())) &&
+						((this.axolotlFingerprint == null && message.axolotlFingerprint == null) || (this.axolotlFingerprint != null && message.axolotlFingerprint != null && this.axolotlFingerprint.equals(message.getFingerprint()))) && //ALF AM-75 added != nulls
 						UIHelper.sameDay(message.getTimeSent(), this.getTimeSent()) &&
 						this.getReadByMarkers().equals(message.getReadByMarkers()) &&
 						!this.conversation.getJid().asBareJid().equals(Config.BUG_REPORTS)
