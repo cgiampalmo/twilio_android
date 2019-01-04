@@ -32,7 +32,7 @@
     <attr name="TextColorError" format="reference|color"/>
 
     <attr name="ic_send_cancel_offline" format="reference"/>
-    <!--<attr name="ic_send_location_offline" format="reference"/>-->
+    <attr name="ic_send_location_offline" format="reference"/>
     <attr name="ic_send_photo_offline" format="reference"/>
     <attr name="ic_send_picture_offline" format="reference"/>
     <attr name="ic_send_text_offline" format="reference"/>

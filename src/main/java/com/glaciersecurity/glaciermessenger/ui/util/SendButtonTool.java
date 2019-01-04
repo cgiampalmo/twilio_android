@@ -60,16 +60,16 @@ public class SendButtonTool {
 					return SendButtonAction.CANCEL;
 				} else {
 					String setting = preferences.getString("quick_action", activity.getResources().getString(R.string.quick_action));
-//					if (!setting.equals("none") && UIHelper.receivedLocationQuestion(c.getLatestMessage())) {
-//						return SendButtonAction.SEND_LOCATION;
-//					} else {
+					if (!setting.equals("none") && UIHelper.receivedLocationQuestion(c.getLatestMessage())) {
+						return SendButtonAction.SEND_LOCATION;
+					} else {
 						if (setting.equals("recent")) {
 							setting = preferences.getString(ConversationFragment.RECENTLY_USED_QUICK_ACTION, SendButtonAction.TEXT.toString());
 							return SendButtonAction.valueOfOrDefault(setting, SendButtonAction.TEXT);
 						} else {
 							return SendButtonAction.valueOfOrDefault(setting, SendButtonAction.TEXT);
 						}
-					//}
+					}
 				}
 			} else {
 				return SendButtonAction.TEXT;
@@ -131,19 +131,19 @@ public class SendButtonTool {
 					default:
 						return getThemeResource(activity, R.attr.ic_send_voice_offline, R.drawable.ic_send_voice_offline);
 				}
-//			case SEND_LOCATION:
-//				switch (status) {
-//					case CHAT:
-//					case ONLINE:
-//						return R.drawable.ic_send_location_online;
-//					case AWAY:
-//						return R.drawable.ic_send_location_away;
-//					case XA:
-//					case DND:
-//						return R.drawable.ic_send_location_dnd;
-//					default:
-//						return getThemeResource(activity, R.attr.ic_send_location_offline, R.drawable.ic_send_location_offline);
-//				}
+			case SEND_LOCATION:
+				switch (status) {
+					case CHAT:
+					case ONLINE:
+						return R.drawable.ic_send_location_online;
+					case AWAY:
+						return R.drawable.ic_send_location_away;
+					case XA:
+					case DND:
+						return R.drawable.ic_send_location_dnd;
+					default:
+						return getThemeResource(activity, R.attr.ic_send_location_offline, R.drawable.ic_send_location_offline);
+				}
 			case CANCEL:
 				switch (status) {
 					case CHAT:

@@ -135,10 +135,10 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 			final boolean showPreviewText;
 			if (fileAvailable && (message.isFileOrImage() || message.treatAsDownloadable() || message.isGeoUri())) {
 				final int imageResource;
-//				if (message.isGeoUri()) {
-//					imageResource = activity.getThemeResource(R.attr.ic_attach_location, R.drawable.ic_attach_location);
-//					showPreviewText = false;
-//				} else {
+				if (message.isGeoUri()) {
+					imageResource = activity.getThemeResource(R.attr.ic_attach_location, R.drawable.ic_attach_location);
+					showPreviewText = false;
+				} else {
 					final String mime = message.getMimeType();
 					switch (mime == null ? "" : mime.split("/")[0]) {
 						case "image":
@@ -158,7 +158,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 							showPreviewText = true;
 							break;
 					}
-				//}
+				}
 				viewHolder.lastMessageIcon.setImageResource(imageResource);
 				viewHolder.lastMessageIcon.setVisibility(View.VISIBLE);
 			} else {
