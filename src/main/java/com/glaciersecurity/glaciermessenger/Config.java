@@ -36,7 +36,7 @@ public final class Config {
 
 	public static final String LOGTAG = "conversations";
 
-	public static final Jid BUG_REPORTS = Jid.of("bugs@conversations.im");
+	public static final Jid BUG_REPORTS = Jid.of("bugs@glaciersecurity.com"); //ALF AM-161
 
 
 	public static final String DOMAIN_LOCK = null; //only allow account creation for this domain

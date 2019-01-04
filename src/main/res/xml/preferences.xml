@@ -264,11 +264,12 @@
             android:key="quick_action"
             android:summary="@string/pref_quick_action_summary"
             android:title="@string/pref_quick_action"/>
-        <CheckBoxPreference
+        <!-- ALF AM-160 TODO Will use in future for user status page -->
+        <!-- <CheckBoxPreference
             android:defaultValue="@bool/show_dynamic_tags"
             android:key="show_dynamic_tags"
             android:summary="@string/pref_show_dynamic_tags_summary"
-            android:title="@string/pref_show_dynamic_tags"/>
+            android:title="@string/pref_show_dynamic_tags"/> -->
     </PreferenceCategory>
     <PreferenceCategory
         android:key="advanced"
@@ -368,11 +369,12 @@
                     <!--android:key="indicate_received"-->
                     <!--android:summary="@string/pref_use_indicate_received_summary"-->
                     <!--android:title="@string/pref_use_indicate_received"/>-->
-                <CheckBoxPreference
+                <!-- ALF AM-164 -->
+                <!-- <CheckBoxPreference
                     android:defaultValue="@bool/enable_foreground_service"
                     android:key="enable_foreground_service"
                     android:summary="@string/pref_keep_foreground_service_summary"
-                    android:title="@string/pref_keep_foreground_service"/>
+                    android:title="@string/pref_keep_foreground_service"/> -->
                 <Preference
                     android:key="export_logs"
                     android:summary="@string/pref_export_logs_summary"
