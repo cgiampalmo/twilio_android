@@ -307,7 +307,7 @@ public class XmppAxolotlMessage {
 
 			} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
 					| InvalidAlgorithmParameterException | IllegalBlockSizeException
-					| BadPaddingException | NoSuchProviderException e) {
+					| BadPaddingException | NoSuchProviderException | RuntimeException e) { //ALF AM-128 added RuntimeException)
 				throw new CryptoFailedException(e);
 			}
 		}
