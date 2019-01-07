@@ -2276,7 +2276,8 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				case INVALID_NICK:
 					showSnackbar(R.string.invalid_muc_nick, R.string.edit, clickToMuc);
 				case SHUTDOWN:
-					showSnackbar(R.string.conference_shutdown, R.string.try_again, joinMuc);
+					//showSnackbar(R.string.conference_shutdown, R.string.try_again, joinMuc);
+                    showSnackbar(R.string.conference_shutdown, R.string.leave, leaveMuc); //ALF AM-112
 					break;
 				case DESTROYED:
 					showSnackbar(R.string.conference_destroyed, R.string.leave, leaveMuc);
