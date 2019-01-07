@@ -131,6 +131,8 @@ import com.glaciersecurity.glaciermessenger.xmpp.forms.Data;
 import com.glaciersecurity.glaciermessenger.xmpp.pep.Avatar;
 import rocks.xmpp.addr.Jid;
 
+import static android.view.View.VISIBLE;
+
 public class EditAccountActivity extends OmemoActivity implements OnAccountUpdate, OnUpdateBlocklist,
 		OnKeyStatusUpdated, OnCaptchaRequested, KeyChainAliasCallback, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnMamPreferencesFetched, Handler.Callback, OpenVPNProfileListener {
 
@@ -593,7 +595,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		final MenuItem showMoreInfo = menu.findItem(R.id.action_server_info_show_more);
 		if (showMoreInfo.isVisible()) {
-			showMoreInfo.setChecked(mMoreTable.getVisibility() == View.VISIBLE);
+			showMoreInfo.setChecked(mMoreTable.getVisibility() == VISIBLE);
 		}
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -643,7 +645,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		SharedPreferences preferences = getPreferences();
 		mUseTor = Config.FORCE_ORBOT || preferences.getBoolean("use_tor", false);
 		this.mShowOptions = mUseTor || preferences.getBoolean("show_connection_options", false);
-		this.mNamePort.setVisibility(mShowOptions ? View.VISIBLE : View.GONE);
+		this.mNamePort.setVisibility(mShowOptions ? VISIBLE : View.GONE);
 
 		// GOOBER CORE integration
 		mHandler = new Handler(this);
@@ -667,7 +669,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		if (mAccount != null) {
 			savedInstanceState.putString("account", mAccount.getJid().asBareJid().toString());
 			savedInstanceState.putBoolean("initMode", mInitMode);
-			savedInstanceState.putBoolean("showMoreTable", mMoreTable.getVisibility() == View.VISIBLE);
+			savedInstanceState.putBoolean("showMoreTable", mMoreTable.getVisibility() == VISIBLE);
 		}
 		super.onSaveInstanceState(savedInstanceState);
 	}
@@ -786,7 +788,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	private void changeMoreTableVisibility(boolean visible) {
-		mMoreTable.setVisibility(visible ? View.VISIBLE : View.GONE);
+		mMoreTable.setVisibility(visible ? VISIBLE : View.GONE);
 	}
 
 	private void gotoChangePassword(String newPassword) {
@@ -812,7 +814,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			binding.statusMessage.append(current);
 		}
 		setAvailabilityRadioButton(mAccount.getPresenceStatus(), binding);
-		binding.show.setVisibility(manualStatus ? View.VISIBLE : View.GONE);
+		binding.show.setVisibility(manualStatus ? VISIBLE : View.GONE);
 		List<PresenceTemplate> templates = xmppConnectionService.getPresenceTemplates(mAccount);
 		PresenceTemplateAdapter presenceTemplateAdapter = new PresenceTemplateAdapter(this, R.layout.simple_list_item, templates);
 		binding.statusMessage.setAdapter(presenceTemplateAdapter);
@@ -910,7 +912,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			this.mHostname.getEditableText().append(this.mAccount.getHostname());
 			this.mPort.setText("");
 			this.mPort.getEditableText().append(String.valueOf(this.mAccount.getPort()));
-			this.mNamePort.setVisibility(mShowOptions ? View.VISIBLE : View.GONE);
+			this.mNamePort.setVisibility(mShowOptions ? VISIBLE : View.GONE);
 
 		}
 
@@ -927,7 +929,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 
 		if (!mInitMode) {
-			this.mAvatar.setVisibility(View.VISIBLE);
+			this.mAvatar.setVisibility(VISIBLE);
 			this.mAvatar.setImageBitmap(avatarService().get(this.mAccount, (int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
 		} else {
 			this.mAvatar.setVisibility(View.GONE);
@@ -942,13 +944,13 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			}
 			this.binding.accountRegisterNew.setVisibility(View.GONE);
 		} else if (this.mAccount.isOptionSet(Account.OPTION_REGISTER)) {
-			this.binding.accountRegisterNew.setVisibility(View.VISIBLE);
+			this.binding.accountRegisterNew.setVisibility(VISIBLE);
 		} else {
 			this.binding.accountRegisterNew.setVisibility(View.GONE);
 		}
 		if (this.mAccount.isOnlineAndConnected() && !this.mFetchingAvatar) {
 			Features features = this.mAccount.getXmppConnection().getFeatures();
-			this.binding.stats.setVisibility(View.VISIBLE);
+			this.binding.stats.setVisibility(VISIBLE);
 			boolean showBatteryWarning = !xmppConnectionService.getPushManagementService().available(mAccount) && isOptimizingBattery();
 			boolean showDataSaverWarning = isAffectedByDataSaver();
 			showOsOptimizationWarning(showBatteryWarning, showDataSaverWarning);
@@ -1005,7 +1007,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				this.binding.serverInfoHttpUpload.setText(R.string.server_info_unavailable);
 			}
 
-			this.binding.pushRow.setVisibility(xmppConnectionService.getPushManagementService().isStub() ? View.GONE : View.VISIBLE);
+			this.binding.pushRow.setVisibility(xmppConnectionService.getPushManagementService().isStub() ? View.GONE : VISIBLE);
 
 			if (xmppConnectionService.getPushManagementService().available(mAccount)) {
 				this.binding.serverInfoPush.setText(R.string.server_info_available);
@@ -1029,7 +1031,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			}
 			final String ownAxolotlFingerprint = this.mAccount.getAxolotlService().getOwnFingerprint();
 			if (ownAxolotlFingerprint != null && Config.supportOmemo()) {
-				this.mAxolotlFingerprintBox.setVisibility(View.VISIBLE);
+				this.mAxolotlFingerprintBox.setVisibility(VISIBLE);
 				if (ownAxolotlFingerprint.equals(messageFingerprint)) {
 					this.mOwnFingerprintDesc.setTextAppearance(this, R.style.TextAppearance_Conversations_Caption_Highlight);
 					this.mOwnFingerprintDesc.setText(R.string.glacier_id_selected_message);
@@ -1053,12 +1055,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				}
 			}
 			if (hasKeys && Config.supportOmemo()) {
-				this.binding.otherDeviceKeysCard.setVisibility(View.VISIBLE);
+				this.binding.otherDeviceKeysCard.setVisibility(VISIBLE);
 				Set<Integer> otherDevices = mAccount.getAxolotlService().getOwnDeviceIds();
 				if (otherDevices == null || otherDevices.isEmpty()) {
 					mClearDevicesButton.setVisibility(View.GONE);
 				} else {
-					mClearDevicesButton.setVisibility(View.VISIBLE);
+					mClearDevicesButton.setVisibility(VISIBLE);
 				}
 			} else {
 				this.binding.otherDeviceKeysCard.setVisibility(View.GONE);
@@ -1135,7 +1137,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	private void showOsOptimizationWarning(boolean showBatteryWarning, boolean showDataSaverWarning) {
-		this.binding.osOptimization.setVisibility(showBatteryWarning || showDataSaverWarning ? View.VISIBLE : View.GONE);
+		this.binding.osOptimization.setVisibility(showBatteryWarning || showDataSaverWarning ? VISIBLE : View.GONE);
 		if (showDataSaverWarning) {
 			this.binding.osOptimizationHeadline.setText(R.string.data_saver_enabled);
 			this.getmDisableOsOptimizationsBody.setText(R.string.data_saver_enabled_explained);
@@ -1412,6 +1414,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 			// Go back to login screen
 			setLoginContentView();
+
 		}
 
 		@Override
@@ -1784,6 +1787,18 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		mOrgID.setText("");
 	}
 
+
+	//HONEYBADGER AM-151  hide password from background
+	private void resetLogin(){
+		binding.accountJid.setVisibility(View.VISIBLE);
+		mPassword.setVisibility(View.VISIBLE);
+		mOrgID.setVisibility(View.VISIBLE);
+
+		binding.accountJid.setText("");
+		mPassword.setText("");
+		mOrgID.setText("");
+	}
+
 	/**
 	 * GOOBER - Restore accounts from file
 	 */
@@ -1804,7 +1819,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				for (int i = 0; i < accounts.size(); i++) {
 					BackupAccountManager.Account tmpAccount = accounts.get(i);
 
+					//HONEYBADGER TODO AM_151 is introduced here... not sure why text field itself ever needs to be set
 					// Auto login with username/password
+					binding.accountJid.setVisibility(View.INVISIBLE);
+					mPassword.setVisibility(View.INVISIBLE);
+					mOrgID.setVisibility(View.INVISIBLE);
+
 					String goober = tmpAccount.getAttribute(BackupAccountManager.USERNAME_KEY);
 					binding.accountJid.setText(getFullyQualifiedJid(tmpAccount.getAttribute(BackupAccountManager.USERNAME_KEY))); // + "@" + StartConversationActivity.DOMAIN_IP);
 					mPassword.setText(tmpAccount.getAttribute(BackupAccountManager.PASSWORD_KEY));
@@ -1815,11 +1835,16 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					backupAccountManager.copyAccountFileFromPublicToPrivate(BackupAccountManager.APPTYPE_MESSENGER);
 					backupAccountManager.deleteAccountFile(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
 
+
+					//HONEYBADGER AM_151 clear password and fields
+					resetLogin();
+
 					return true;
 				}
 			}
 		}
-
+		//HONEYBADGER AM_151 clear password and fields
+		resetLogin();
 		return false;
 	}
 
@@ -1863,11 +1888,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		mOrgID.setText("");
 
 		// set visibility
-		mAccountJidLayout.setVisibility(View.VISIBLE);
+		mAccountJidLayout.setVisibility(VISIBLE);
 		mAccountJidLayout.setError(null);
-		mAccountPasswordLayout.setVisibility(View.VISIBLE);
+		mAccountPasswordLayout.setVisibility(VISIBLE);
 		mAccountPasswordLayout.setError(null);
-		mOrgID.setVisibility(View.VISIBLE);
+		mOrgID.setVisibility(VISIBLE);
 		mOrgID.setError(null);
 
 		mLoginButton.setText(getString(R.string.login_button_label));
