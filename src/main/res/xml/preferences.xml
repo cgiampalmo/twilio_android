@@ -127,22 +127,22 @@
             <!--android:summary="@string/pref_omemo_setting_summary_default_on"-->
             <!--android:title="@string/pref_omemo_setting"-->
             <!--/>-->
-        <CheckBoxPreference
-            android:defaultValue="@bool/confirm_messages"
-            android:key="confirm_messages"
-            android:summary="@string/pref_confirm_messages_summary"
-            android:title="@string/pref_confirm_messages"/>
+        <!--<CheckBoxPreference-->
+            <!--android:defaultValue="@bool/confirm_messages"-->
+            <!--android:key="confirm_messages"-->
+            <!--android:summary="@string/pref_confirm_messages_summary"-->
+            <!--android:title="@string/pref_confirm_messages"/>-->
         <!--HONEYBADGER AM-120 Enable and Hide Typing notifications-->
         <!--<CheckBoxPreference-->
             <!--android:defaultValue="@bool/chat_states"-->
             <!--android:key="chat_states"-->
             <!--android:summary="@string/pref_chat_states_summary"-->
             <!--android:title="@string/pref_chat_states"/>-->
-        <CheckBoxPreference
-            android:defaultValue="@bool/last_activity"
-            android:key="last_activity"
-            android:summary="@string/pref_broadcast_last_activity_summary"
-            android:title="@string/pref_broadcast_last_activity"/>
+        <!--<CheckBoxPreference-->
+            <!--android:defaultValue="@bool/last_activity"-->
+            <!--android:key="last_activity"-->
+            <!--android:summary="@string/pref_broadcast_last_activity_summary"-->
+            <!--android:title="@string/pref_broadcast_last_activity"/>-->
     </PreferenceCategory>
     <!--HONEYBADGER AM-120 Move the Security settings to the main settings page above Notifications section-->
     <PreferenceCategory
@@ -230,13 +230,13 @@
             <!--android:title="@string/pref_use_share_location_plugin"/>-->
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_ui_options">
-        <!--<ListPreference-->
-            <!--android:defaultValue="@string/theme"-->
-            <!--android:entries="@array/themes"-->
-            <!--android:entryValues="@array/themes_values"-->
-            <!--android:key="theme"-->
-            <!--android:summary="@string/pref_theme_options_summary"-->
-            <!--android:title="@string/pref_theme_options"/>-->
+        <ListPreference
+            android:defaultValue="@string/theme"
+            android:entries="@array/themes"
+            android:entryValues="@array/themes_values"
+            android:key="theme"
+            android:summary="@string/pref_theme_options_summary"
+            android:title="@string/pref_theme_options"/>
         <!--HONEYBADGER AM-120 Disable and hide Green Background-->
         <!--<CheckBoxPreference-->
             <!--android:defaultValue="@bool/use_green_background"-->

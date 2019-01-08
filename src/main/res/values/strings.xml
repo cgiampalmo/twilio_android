@@ -207,9 +207,9 @@
     <string name="openpgp_key_id">OpenPGP Key ID</string>
     <string name="glacier_id">Glacier ID</string>
     <string name="glacier_id_x509">v\\Glacier ID</string>
-    <string name="glacier_id_selected_message">Glacier ID of message</string>
-    <string name="glacier_id_x509_selected_message">v\\Glacier ID of message</string>
-    <string name="other_devices">Other devices</string>
+    <string name="glacier_id_selected_message">Glacier ID of Message</string>
+    <string name="glacier_id_x509_selected_message">v\\Glacier ID of Message</string>
+    <string name="other_devices">Other Devices</string>
     <string name="trust_glacier_id">Trust Glacier ID</string>
     <string name="fetching_keys">Fetching keys…</string>
     <string name="done">Done</string>
@@ -218,17 +218,17 @@
     <string name="search">Search</string>
     <string name="dialog_title_create_contact">Create Contact</string>
     <string name="enter_contact">Enter Contact</string>
-    <string name="join_conference">New group</string>
+    <string name="join_conference">Join Group</string>
     <string name="dialog_title_join_conference">Join Chat</string>
-    <string name="delete_contact">Delete contact</string>
-    <string name="view_contact_details">View contact details</string>
-    <string name="block_contact">Block contact</string>
-    <string name="unblock_contact">Unblock contact</string>
+    <string name="delete_contact">Delete Contact</string>
+    <string name="view_contact_details">View Contact Details</string>
+    <string name="block_contact">Block Contact</string>
+    <string name="unblock_contact">Unblock Contact</string>
     <string name="create">Create</string>
     <string name="select">Select</string>
     <string name="contact_already_exists">The contact already exists</string>
     <string name="join">Join</string>
-    <string name="conference_address">Group name</string> <!-- ALF AM-78 room to group -->
+    <string name="conference_address">Group Name</string> <!-- ALF AM-78 room to group -->
     <!--<string name="conference_address_example">room@conference.example.com/nick</string>-->
     <!-- ALF AM-88 next 5, changed wording AM-123 -->
     <string name="conference_address_example">Group Name</string>
@@ -236,12 +236,12 @@
     <string name="open_group_desc">Open groups have no user limit and store group chat history</string>
     <string name="invite_only">Invite Only</string>
     <string name="group_already_exists">This group already exists</string>
-    <string name="save_as_bookmark">Save as bookmark</string>
-    <string name="delete_bookmark">Delete bookmark</string>
+    <string name="save_as_bookmark">Save as Bookmark</string>
+    <string name="delete_bookmark">Delete Bookmark</string>
     <string name="bookmark_already_exists">This bookmark already exists</string>
     <!-- ALF AM-51 -->
-    <string name="added_to_group">added to the group</string>
-    <string name="left_group">left the group</string>
+    <string name="added_to_group">Added to the Group</string>
+    <string name="left_group">Left the Group</string>
     <string name="action_edit_subject">Edit group chat subject</string>
     <string name="topic">Topic</string>
     <string name="joining_conference">Joining group chat…</string>
