@@ -1532,6 +1532,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					Log.d("GOOBER", "File unconfirmed: " + Environment.getExternalStorageDirectory() + "/" + key);
 				}
 				// s3DownloadInterface.onDownloadSuccess("Success");
+
+				//HONEYBAGER AM-151 values used in restore Accountes from File --> safe to reset fields
+				//TODO resetLogin();
 			}
 		}
 	}
@@ -1777,7 +1780,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * GOOBER
 	 */
 	private void launchUser() {
-		// reset valoues
+		// reset values
 		download_keys = null;
 
 		// sign out current user
@@ -1790,13 +1793,23 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	//HONEYBADGER AM-151  hide password from background
 	private void resetLogin(){
-		binding.accountJid.setVisibility(View.VISIBLE);
-		mPassword.setVisibility(View.VISIBLE);
-		mOrgID.setVisibility(View.VISIBLE);
+		showPrivateLoginFields();
 
 		binding.accountJid.setText("");
 		mPassword.setText("");
 		mOrgID.setText("");
+	}
+
+	private void showPrivateLoginFields(){
+		binding.accountJid.setVisibility(View.VISIBLE);
+		mPassword.setVisibility(View.VISIBLE);
+		mOrgID.setVisibility(View.VISIBLE);
+	}
+
+	private void hidePrivateLoginFields(){
+		binding.accountJid.setVisibility(View.INVISIBLE);
+		mPassword.setVisibility(View.INVISIBLE);
+		mOrgID.setVisibility(View.INVISIBLE);
 	}
 
 	/**
@@ -1811,6 +1824,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			// retreive account information
 			BackupAccountManager.AccountInfo accountInfo = backupAccountManager.getAccountInfo(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
 			if (accountInfo != null) {
+				//HONEYBADGER TODO AM_151 is introduced here... not sure why text field itself ever needs to be set
+				// Auto login with username/password
+				hidePrivateLoginFields();
 
 				// retrieve account information
 				ArrayList<BackupAccountManager.Account> accounts = accountInfo.getAccounts();
@@ -1818,12 +1834,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				// should only be one account...
 				for (int i = 0; i < accounts.size(); i++) {
 					BackupAccountManager.Account tmpAccount = accounts.get(i);
-
-					//HONEYBADGER TODO AM_151 is introduced here... not sure why text field itself ever needs to be set
-					// Auto login with username/password
-					binding.accountJid.setVisibility(View.INVISIBLE);
-					mPassword.setVisibility(View.INVISIBLE);
-					mOrgID.setVisibility(View.INVISIBLE);
 
 					String goober = tmpAccount.getAttribute(BackupAccountManager.USERNAME_KEY);
 					binding.accountJid.setText(getFullyQualifiedJid(tmpAccount.getAttribute(BackupAccountManager.USERNAME_KEY))); // + "@" + StartConversationActivity.DOMAIN_IP);
@@ -1834,17 +1844,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					// GOOBER TEST - Move/Don't move account file.  Used to test auto login feature.
 					backupAccountManager.copyAccountFileFromPublicToPrivate(BackupAccountManager.APPTYPE_MESSENGER);
 					backupAccountManager.deleteAccountFile(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
-
-
-					//HONEYBADGER AM_151 clear password and fields
-					resetLogin();
-
 					return true;
 				}
 			}
 		}
-		//HONEYBADGER AM_151 clear password and fields
-		resetLogin();
 		return false;
 	}
 
@@ -2056,6 +2059,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	/**
 	 * GOOBER COGNITO - log in automatically to messenger with given username/password
 	 */
+
+	//TODO AM-151 we are relying on the text fields which may or maynot have been altered with a stored account.. I think we should be looking at an VPN object instead
+
 	private void autoLoginMessenger() {
 		final String password = mPassword.getText().toString();
 		final boolean wasDisabled = mAccount != null && mAccount.getStatus() == Account.State.DISABLED;
