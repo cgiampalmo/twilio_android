@@ -65,9 +65,9 @@ public abstract class OmemoActivity extends XmppActivity {
 //			case R.id.distrust_key:
 //				showPurgeKeyDialog(mSelectedAccount, mSelectedFingerprint);
 //				break;
-			case R.id.copy_glacier_messenger_key:
-				copyOmemoFingerprint(mSelectedFingerprint);
-				break;
+//			case R.id.copy_glacier_messenger_key:
+//				copyOmemoFingerprint(mSelectedFingerprint);
+//				break;
 //			case R.id.verify_scan:
 //				ScanActivity.scan(this);
 //				break;

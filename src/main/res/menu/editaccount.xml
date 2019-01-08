@@ -25,13 +25,13 @@
             <item
                 android:id="@+id/action_share_http"
                 android:title="@string/share_as_http"/>
-            <item
-                android:id="@+id/action_share_barcode"
-                android:title="@string/share_as_barcode"/>
-            <item
-                android:id="@+id/action_show_qr_code"
-                android:title="@string/show_qr_code"
-                android:visible="false"/>
+            <!--<item-->
+                <!--android:id="@+id/action_share_barcode"-->
+                <!--android:title="@string/share_as_barcode"/>-->
+            <!--<item-->
+                <!--android:id="@+id/action_show_qr_code"-->
+                <!--android:title="@string/show_qr_code"-->
+                <!--android:visible="false"/>-->
         </menu>
     </item>
 

@@ -67,8 +67,8 @@ public enum SendButtonAction {
 		switch (this) {
 			case TAKE_PHOTO:
 				return ATTACHMENT_CHOICE_TAKE_PHOTO;
-//			case SEND_LOCATION:
-//				return ATTACHMENT_CHOICE_LOCATION;
+			case SEND_LOCATION:
+				return ATTACHMENT_CHOICE_LOCATION;
 			case RECORD_VOICE:
 				return ATTACHMENT_CHOICE_RECORD_VOICE;
 			case CHOOSE_PICTURE:

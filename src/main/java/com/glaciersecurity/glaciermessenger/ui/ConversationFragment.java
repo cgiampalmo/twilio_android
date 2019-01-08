@@ -407,7 +407,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				switch (action) {
 					case TAKE_PHOTO:
 					case RECORD_VIDEO:
-//					case SEND_LOCATION:
+					case SEND_LOCATION:
 					case RECORD_VOICE:
 					case CHOOSE_PICTURE:
 						attachFile(action.toChoice());
@@ -1225,7 +1225,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			case R.id.attach_record_video:
 			case R.id.attach_choose_file:
 			case R.id.attach_record_voice:
-//			case R.id.attach_location:
+			case R.id.attach_location:
 				handleAttachmentSelection(item);
 				break;
 			/* GOOBER WIPE ALL HISTORY
@@ -1302,9 +1302,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			case R.id.attach_record_voice:
 				attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
 				break;
-//			case R.id.attach_location:
-//				attachFile(ATTACHMENT_CHOICE_LOCATION);
-//				break;
+			case R.id.attach_location:
+				attachFile(ATTACHMENT_CHOICE_LOCATION);
+				break;
 		}
 	}
 

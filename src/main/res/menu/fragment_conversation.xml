@@ -56,10 +56,10 @@
                 android:title="@string/attach_record_voice"
                 android:icon="?attr/ic_attach_record"/>
 
-            <!--<item-->
-                <!--android:id="@+id/attach_location"-->
-                <!--android:title="@string/send_location"-->
-                <!--android:icon="?attr/ic_attach_location"/>-->
+            <item
+                android:id="@+id/attach_location"
+                android:title="@string/send_location"
+                android:icon="?attr/ic_attach_location"/>
         </menu>
     </item>
     <item

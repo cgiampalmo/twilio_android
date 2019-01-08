@@ -754,9 +754,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			case R.id.action_server_info_show_more:
 				changeMoreTableVisibility(!item.isChecked());
 				break;
-			case R.id.action_share_barcode:
-				shareBarcode();
-				break;
+//			case R.id.action_share_barcode:
+//				shareBarcode();
+//				break;
 			case R.id.action_share_http:
 				shareLink(true);
 				break;
@@ -779,13 +779,13 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		return super.onOptionsItemSelected(item);
 	}
 
-	private void shareBarcode() {
-		Intent intent = new Intent(Intent.ACTION_SEND);
-		intent.putExtra(Intent.EXTRA_STREAM, BarcodeProvider.getUriForAccount(this, mAccount));
-		intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-		intent.setType("image/png");
-		startActivity(Intent.createChooser(intent, getText(R.string.share_with)));
-	}
+//	private void shareBarcode() {
+//		Intent intent = new Intent(Intent.ACTION_SEND);
+//		intent.putExtra(Intent.EXTRA_STREAM, BarcodeProvider.getUriForAccount(this, mAccount));
+//		intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//		intent.setType("image/png");
+//		startActivity(Intent.createChooser(intent, getText(R.string.share_with)));
+//	}
 
 	private void changeMoreTableVisibility(boolean visible) {
 		mMoreTable.setVisibility(visible ? VISIBLE : View.GONE);

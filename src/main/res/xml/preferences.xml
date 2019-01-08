@@ -37,6 +37,86 @@
             android:dialogMessage="@string/pref_display_name_description"
             android:defaultValue="@string/displayname" />
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_notification_settings">
+        <CheckBoxPreference
+            android:defaultValue="@bool/show_notification"
+            android:key="show_notification"
+            android:summary="@string/pref_notifications_summary"
+            android:title="@string/pref_notifications"/>
+        <!--HONEYBADGER AM-120 Disable and Hide Notifications from strangers-->
+        <!--<CheckBoxPreference-->
+        <!--android:defaultValue="@bool/notifications_from_strangers"-->
+        <!--android:dependency="show_notification"-->
+        <!--android:key="notifications_from_strangers"-->
+        <!--android:summary="@string/pref_notifications_from_strangers_summary"-->
+        <!--android:title="@string/pref_notifications_from_strangers"/>-->
+        <!--HONEYBADGER AM-120 Enable and Hide Heads up notifications-->
+        <!--<CheckBoxPreference-->
+        <!--android:defaultValue="@bool/headsup_notifications"-->
+        <!--android:dependency="show_notification"-->
+        <!--android:key="notification_headsup"-->
+        <!--android:summary="@string/pref_headsup_notifications_summary"-->
+        <!--android:title="@string/pref_headsup_notifications"/>-->
+        <CheckBoxPreference
+            android:defaultValue="@bool/vibrate_on_notification"
+            android:dependency="show_notification"
+            android:key="vibrate_on_notification"
+            android:summary="@string/pref_vibrate_summary"
+            android:title="@string/pref_vibrate"/>
+        <CheckBoxPreference
+            android:defaultValue="@bool/led"
+            android:dependency="show_notification"
+            android:key="led"
+            android:summary="@string/pref_led_summary"
+            android:title="@string/pref_led"/>
+        <RingtonePreference
+            android:defaultValue="@string/notification_ringtone"
+            android:dependency="show_notification"
+            android:key="notification_ringtone"
+            android:ringtoneType="notification"
+            android:summary="@string/pref_sound_summary"
+            android:title="@string/pref_sound"/>
+        <PreferenceScreen
+            android:dependency="show_notification"
+            android:key="quiet_hours"
+            android:summary="@string/pref_quiet_hours_summary"
+            android:title="@string/title_pref_quiet_hours">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="com.glaciersecurity.glaciermessenger.ui.SettingsActivity"
+                android:targetPackage="@string/applicationId">
+                <extra
+                    android:name="page"
+                    android:value="quiet_hours"/>
+            </intent>
+            <CheckBoxPreference
+                android:defaultValue="@bool/enable_quiet_hours"
+                android:key="enable_quiet_hours"
+                android:summary="@string/pref_quiet_hours_summary"
+                android:title="@string/title_pref_enable_quiet_hours"/>
+            <com.glaciersecurity.glaciermessenger.ui.TimePreference
+                android:dependency="enable_quiet_hours"
+                android:key="quiet_hours_start"
+                android:negativeButtonText="@string/cancel"
+                android:positiveButtonText="@string/set"
+                android:title="@string/title_pref_quiet_hours_start_time"/>
+            <com.glaciersecurity.glaciermessenger.ui.TimePreference
+                android:dependency="enable_quiet_hours"
+                android:key="quiet_hours_end"
+                android:negativeButtonText="@string/cancel"
+                android:positiveButtonText="@string/set"
+                android:title="@string/title_pref_quiet_hours_end_time"/>
+        </PreferenceScreen>
+        <ListPreference
+            android:defaultValue="@integer/grace_period"
+            android:dependency="show_notification"
+            android:entries="@array/grace_periods"
+            android:entryValues="@array/grace_periods_values"
+            android:key="grace_period_length"
+            android:summary="@string/pref_notification_grace_period_summary"
+            android:title="@string/pref_notification_grace_period"
+            />
+    </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_privacy">
         <!--HONEYBADGER AM-120 OMEMO encryption set to Always (unless in a public group chat) and then hide this setting-->
         <!--<ListPreference-->
@@ -118,86 +198,6 @@
             android:summary="@string/pref_delete_glacier_identities_summary"
             android:title="@string/pref_delete_glacier_identities"/>
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/pref_notification_settings">
-        <CheckBoxPreference
-            android:defaultValue="@bool/show_notification"
-            android:key="show_notification"
-            android:summary="@string/pref_notifications_summary"
-            android:title="@string/pref_notifications"/>
-        <!--HONEYBADGER AM-120 Disable and Hide Notifications from strangers-->
-        <!--<CheckBoxPreference-->
-            <!--android:defaultValue="@bool/notifications_from_strangers"-->
-            <!--android:dependency="show_notification"-->
-            <!--android:key="notifications_from_strangers"-->
-            <!--android:summary="@string/pref_notifications_from_strangers_summary"-->
-            <!--android:title="@string/pref_notifications_from_strangers"/>-->
-        <!--HONEYBADGER AM-120 Enable and Hide Heads up notifications-->
-        <!--<CheckBoxPreference-->
-            <!--android:defaultValue="@bool/headsup_notifications"-->
-            <!--android:dependency="show_notification"-->
-            <!--android:key="notification_headsup"-->
-            <!--android:summary="@string/pref_headsup_notifications_summary"-->
-            <!--android:title="@string/pref_headsup_notifications"/>-->
-        <CheckBoxPreference
-            android:defaultValue="@bool/vibrate_on_notification"
-            android:dependency="show_notification"
-            android:key="vibrate_on_notification"
-            android:summary="@string/pref_vibrate_summary"
-            android:title="@string/pref_vibrate"/>
-        <CheckBoxPreference
-            android:defaultValue="@bool/led"
-            android:dependency="show_notification"
-            android:key="led"
-            android:summary="@string/pref_led_summary"
-            android:title="@string/pref_led"/>
-        <RingtonePreference
-            android:defaultValue="@string/notification_ringtone"
-            android:dependency="show_notification"
-            android:key="notification_ringtone"
-            android:ringtoneType="notification"
-            android:summary="@string/pref_sound_summary"
-            android:title="@string/pref_sound"/>
-        <PreferenceScreen
-            android:dependency="show_notification"
-            android:key="quiet_hours"
-            android:summary="@string/pref_quiet_hours_summary"
-            android:title="@string/title_pref_quiet_hours">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:targetClass="com.glaciersecurity.glaciermessenger.ui.SettingsActivity"
-                android:targetPackage="@string/applicationId">
-                <extra
-                    android:name="page"
-                    android:value="quiet_hours"/>
-            </intent>
-            <CheckBoxPreference
-                android:defaultValue="@bool/enable_quiet_hours"
-                android:key="enable_quiet_hours"
-                android:summary="@string/pref_quiet_hours_summary"
-                android:title="@string/title_pref_enable_quiet_hours"/>
-            <com.glaciersecurity.glaciermessenger.ui.TimePreference
-                android:dependency="enable_quiet_hours"
-                android:key="quiet_hours_start"
-                android:negativeButtonText="@string/cancel"
-                android:positiveButtonText="@string/set"
-                android:title="@string/title_pref_quiet_hours_start_time"/>
-            <com.glaciersecurity.glaciermessenger.ui.TimePreference
-                android:dependency="enable_quiet_hours"
-                android:key="quiet_hours_end"
-                android:negativeButtonText="@string/cancel"
-                android:positiveButtonText="@string/set"
-                android:title="@string/title_pref_quiet_hours_end_time"/>
-        </PreferenceScreen>
-        <ListPreference
-            android:defaultValue="@integer/grace_period"
-            android:dependency="show_notification"
-            android:entries="@array/grace_periods"
-            android:entryValues="@array/grace_periods_values"
-            android:key="grace_period_length"
-            android:summary="@string/pref_notification_grace_period_summary"
-            android:title="@string/pref_notification_grace_period"
-            />
-    </PreferenceCategory>
     <PreferenceCategory
         android:key="attachments"
         android:title="@string/pref_attachments">
@@ -230,13 +230,13 @@
             <!--android:title="@string/pref_use_share_location_plugin"/>-->
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_ui_options">
-        <ListPreference
-            android:defaultValue="@string/theme"
-            android:entries="@array/themes"
-            android:entryValues="@array/themes_values"
-            android:key="theme"
-            android:summary="@string/pref_theme_options_summary"
-            android:title="@string/pref_theme_options"/>
+        <!--<ListPreference-->
+            <!--android:defaultValue="@string/theme"-->
+            <!--android:entries="@array/themes"-->
+            <!--android:entryValues="@array/themes_values"-->
+            <!--android:key="theme"-->
+            <!--android:summary="@string/pref_theme_options_summary"-->
+            <!--android:title="@string/pref_theme_options"/>-->
         <!--HONEYBADGER AM-120 Disable and hide Green Background-->
         <!--<CheckBoxPreference-->
             <!--android:defaultValue="@bool/use_green_background"-->
@@ -388,7 +388,4 @@
             android:summary="@string/pref_never_send_crash_summary"
             android:title="@string/pref_never_send_crash"/>
     </PreferenceCategory>
-    <com.glaciersecurity.glaciermessenger.ui.AboutPreference
-        android:summary="@string/pref_about_conversations_summary"
-        android:title="@string/title_activity_about"/>
 </PreferenceScreen>
