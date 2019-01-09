@@ -118,8 +118,8 @@
         <item name="popupOverlayStyle">@style/ThemeOverlay.AppCompat.Dark</item>
 
         <!--HONEYBADGER AM-120 Dark mode conversations view should be black like the actual conversation, not grey-->
-        <item name="color_background_primary">@color/black54</item>
-        <item name="color_background_secondary">@color/black12</item>
+        <item name="color_background_primary">@color/primary800</item>
+        <item name="color_background_secondary">@color/primary800</item>
         <item name="color_background_tertiary">@color/black87</item>
         <!--<item name="color_background_primary">@color/grey800</item>-->
         <!--<item name="color_background_secondary">@color/grey900</item>-->

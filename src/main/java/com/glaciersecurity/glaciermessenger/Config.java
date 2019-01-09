@@ -34,13 +34,14 @@ public final class Config {
 		return (ENCRYPTION_MASK & (ENCRYPTION_MASK - 1)) != 0;
 	}
 
-	public static final String LOGTAG = "conversations";
+	//HONEYBADGER AM-173
+	public static final String LOGTAG = "Glacier Messenger";
 
 	public static final Jid BUG_REPORTS = Jid.of("bugs@glaciersecurity.com"); //ALF AM-161
 
 
 	public static final String DOMAIN_LOCK = null; //only allow account creation for this domain
-	public static final String MAGIC_CREATE_DOMAIN = "conversations.im";
+	public static final String MAGIC_CREATE_DOMAIN = "glacierMessenger.im";
 	public static final boolean DISALLOW_REGISTRATION_IN_UI = false; //hide the register checkbox
 
 	public static final boolean USE_RANDOM_RESOURCE_ON_EVERY_BIND = false;
