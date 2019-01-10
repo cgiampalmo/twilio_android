@@ -1070,6 +1070,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			if (this.mAccount.errorStatus()) {
 				// GOOBER COGNITO - close wait dialog and clear password
 				closeWaitDialog();
+				// GOOBER - if unauthorized, delete account from services
+				// so that app stays on login screen
+				xmppConnectionService.deleteAccount(mAccount); //ALF AM-143?
 				this.binding.accountJid.getEditableText().clear();
 				mJid.setText("");
 				mPassword.setText("");
@@ -1376,6 +1379,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			} else {
 				closeWaitDialog();
 				showDialogMessage(getString(R.string.signin_fail_title), "Invalid Org ID");
+
+				// log out of cognito
+				logOut();
 			}
 		}
 
@@ -1812,6 +1818,35 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		mOrgID.setVisibility(View.INVISIBLE);
 	}
 
+	// App methods
+	// Logout of Cognito and display logout screen
+	// This is actually cuplicate of logOut() but call
+	// is comes from layout xml file.  Hence View is
+	// defined.
+	//ALF AM-143
+	public void logOut(View view) {
+		// logout of Cognito
+		cognitoCurrentUserSignout();
+
+		// clear s3bucket client
+		Util.clearS3Client(getApplicationContext());
+		setLoginContentView();
+		//resetLogin();
+
+		mLoginButton.setText(R.string.login_button_label);
+		//mLogoutButton.setVisibility(View.INVISIBLE);
+	}
+
+	// App methods
+	// Logout of Cognito and display logout screen
+	// This is actually cuplicate of logOut(View) but call
+	// comes from function call in program.
+	public void logOut() {
+		// logout of Cognito
+		cognitoCurrentUserSignout();
+		setLoginContentView();
+	}
+
 	/**
 	 * GOOBER - Restore accounts from file
 	 */
@@ -1934,6 +1969,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			} else {
 				closeWaitDialog();
 				showDialogMessage(getString(R.string.signin_fail_title), getString(R.string.login_error_message));
+
+				// log out of cognito
+				logOut();
 			}
 		} catch (AmazonS3Exception ase) {
 			Log.d("GOOBER","Caught an AmazonS3Exception, " +
