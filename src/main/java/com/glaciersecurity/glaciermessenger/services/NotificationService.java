@@ -80,7 +80,7 @@ public class NotificationService {
 
 	public NotificationService(final XmppConnectionService service) {
 		this.mXmppConnectionService = service;
-		createNotificationChannel(); //ALF AM-90
+		createNotificationChannel(); //ALF AM-90, AM-168
 	}
 
 	public boolean notify(final Message message) {
@@ -335,7 +335,7 @@ public class NotificationService {
 
 	private Builder buildMultipleConversation() {
 		//final Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService);
-		//ALF AM-90 added channelid
+		//ALF AM-90, AM-168 added channelid
 		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, mXmppConnectionService.getString(R.string.channel_id));
 		final NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
 		style.setBigContentTitle(notifications.size()
@@ -383,7 +383,7 @@ public class NotificationService {
 	}
 
 	private Builder buildSingleConversations(final ArrayList<Message> messages) {
-		//ALF AM-90 added channelid
+		//ALF AM-90, AM-168 added channelid
 		final Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, mXmppConnectionService.getString(R.string.channel_id));
 		if (messages.size() >= 1) {
 			final Conversation conversation = (Conversation) messages.get(0).getConversation();
@@ -747,7 +747,7 @@ public class NotificationService {
 	}
 
 	public Notification createForegroundNotification() {
-		//ALF AM-90 added channelid
+		//ALF AM-90, AM-168 added channelid
 		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, mXmppConnectionService.getString(R.string.channel_id));
 
 		mBuilder.setContentTitle(mXmppConnectionService.getString(R.string.conversations_foreground_service));
@@ -792,7 +792,7 @@ public class NotificationService {
 		if (mXmppConnectionService.keepForegroundService()) {
 			notify(FOREGROUND_NOTIFICATION_ID, createForegroundNotification());
 		}
-		//ALF AM-90 added channelid
+		//ALF AM-90, AM-168 added channelid
 		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, mXmppConnectionService.getString(R.string.channel_id));
 		if (errors.size() == 0) {
 			cancel(ERROR_NOTIFICATION_ID);
@@ -870,7 +870,7 @@ public class NotificationService {
 		}
 	}
 
-	//ALF AM-90
+	//ALF AM-90, AM-168
 	private void createNotificationChannel() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			final Handler handler = new Handler();

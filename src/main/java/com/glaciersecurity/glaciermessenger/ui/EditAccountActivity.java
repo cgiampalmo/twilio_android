@@ -638,7 +638,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						ab.setDisplayShowHomeEnabled(false);
 						ab.setDisplayHomeAsUpEnabled(false);
 					}
-					ab.setTitle(R.string.action_add_account);
+					ab.setTitle(R.string.app_name); //ALF changed from action_add_account, maybe part of AM-173
 				}
 			}
 		}

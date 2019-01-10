@@ -333,7 +333,7 @@
     <string name="pref_export_logs">Export history</string>
     <string name="pref_export_logs_summary">Write chat history logs to SD card</string>
     <string name="notification_export_logs_title">Writing logs to SD card</string>
-    <!-- ALF AM-90 next 3 -->
+    <!-- ALF AM-90, AM-168 next 3 -->
     <string name="channel_name">Messenger</string>
     <string name="channel_description">Messenger</string>
     <string name="channel_id">Messenger</string>
