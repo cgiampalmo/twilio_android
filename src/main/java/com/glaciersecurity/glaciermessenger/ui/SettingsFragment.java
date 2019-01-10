@@ -78,6 +78,7 @@ public class SettingsFragment extends PreferenceFragment {
 
 	/**
 	 * Display Logout confirmation
+	 * //ALF AM-143 //GOOBER
 	 */
 	private void showLogoutConfirmationDialog() {
 		new AlertDialog.Builder(getActivity())

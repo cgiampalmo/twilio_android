@@ -1380,7 +1380,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				closeWaitDialog();
 				showDialogMessage(getString(R.string.signin_fail_title), "Invalid Org ID");
 
-				// log out of cognito
+				//ALF AM-143 log out of cognito
 				logOut();
 			}
 		}
@@ -1834,7 +1834,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		//resetLogin();
 
 		mLoginButton.setText(R.string.login_button_label);
-		//mLogoutButton.setVisibility(View.INVISIBLE);
 	}
 
 	// App methods
@@ -1970,7 +1969,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				closeWaitDialog();
 				showDialogMessage(getString(R.string.signin_fail_title), getString(R.string.login_error_message));
 
-				// log out of cognito
+				//ALF AM-143 log out of cognito
 				logOut();
 			}
 		} catch (AmazonS3Exception ase) {
