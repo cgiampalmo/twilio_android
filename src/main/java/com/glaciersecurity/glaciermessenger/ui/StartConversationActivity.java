@@ -941,7 +941,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 					if (nick != null && !nick.isEmpty()) {
 						gbookmark.setNick(nick);
 					}
-					gbookmark.setBookmarkName("#"+group.getLocal()); //ALF AM-174 test
+					gbookmark.setBookmarkName("#"+group.getLocal()); //ALF AM-174
 
 					this.conferences.add(gbookmark);
 				}
