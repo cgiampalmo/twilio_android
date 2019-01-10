@@ -37,6 +37,60 @@
             android:dialogMessage="@string/pref_display_name_description"
             android:defaultValue="@string/displayname" />
     </PreferenceCategory>
+    <!--HONEYBADGER AM-120 Move the Security settings to the main settings page above Notifications section-->
+    <PreferenceCategory
+        android:key="security_options"
+        android:title="@string/pref_security_settings">
+        <!--HONEYBADGER AM-120 Enable and hide Blind Trust Before Verification-->
+        <!--<CheckBoxPreference-->
+        <!--android:defaultValue="@bool/btbv"-->
+        <!--android:key="btbv"-->
+        <!--android:summary="@string/pref_blind_trust_before_verification_summary"-->
+        <!--android:title="@string/pref_blind_trust_before_verification"/>-->
+        <!-- ALF AM-53 -->
+        <ListPreference
+            android:key="global_message_timer"
+            android:title="@string/pref_global_message_timer"
+            android:summary="@string/pref_global_message_timer_description"
+            android:defaultValue="@integer/message_timer"
+            android:entries="@array/timer_options_descriptions"
+            android:entryValues="@array/timer_options_durations" />
+        <ListPreference
+            android:defaultValue="@integer/automatic_message_deletion"
+            android:key="automatic_message_deletion"
+            android:summary="@string/pref_automatically_delete_messages_description"
+            android:title="@string/pref_automatically_delete_messages"/>
+        <!--HONEYBADGER AM-120 Disable and hide Dont trust CAs-->
+        <!--<CheckBoxPreference-->
+        <!--android:defaultValue="@bool/dont_trust_system_cas"-->
+        <!--android:key="dont_trust_system_cas"-->
+        <!--android:summary="@string/pref_dont_trust_system_cas_summary"-->
+        <!--android:title="@string/pref_dont_trust_system_cas_title"/>-->
+        <!--HONEYBADGER AM-120 Disable and hide Validate hostname with DNSSEC-->
+        <!--<CheckBoxPreference-->
+        <!--android:defaultValue="@bool/validate_hostname"-->
+        <!--android:key="validate_hostname"-->
+        <!--android:summary="@string/pref_validate_hostname_summary"-->
+        <!--android:title="@string/pref_validate_hostname"-->
+        <!--android:visibility="gone"/>-->
+        <CheckBoxPreference
+            android:defaultValue="@bool/allow_message_correction"
+            android:key="allow_message_correction"
+            android:summary="@string/pref_allow_message_correction_summary"
+            android:title="@string/pref_allow_message_correction"/>
+        <Preference
+            android:key="clean_cache"
+            android:summary="@string/pref_clean_cache_summary"
+            android:title="@string/pref_clean_cache"/>
+        <Preference
+            android:key="clean_private_storage"
+            android:summary="@string/pref_clean_private_storage_summary"
+            android:title="@string/pref_clean_private_storage"/>
+        <Preference
+            android:key="delete_omemo_identities"
+            android:summary="@string/pref_delete_glacier_identities_summary"
+            android:title="@string/pref_delete_glacier_identities"/>
+    </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_notification_settings">
         <CheckBoxPreference
             android:defaultValue="@bool/show_notification"
@@ -145,60 +199,6 @@
             <!--android:summary="@string/pref_broadcast_last_activity_summary"-->
             <!--android:title="@string/pref_broadcast_last_activity"/>-->
     <!--</PreferenceCategory>-->
-    <!--HONEYBADGER AM-120 Move the Security settings to the main settings page above Notifications section-->
-    <PreferenceCategory
-        android:key="security_options"
-        android:title="@string/pref_security_settings">
-        <!--HONEYBADGER AM-120 Enable and hide Blind Trust Before Verification-->
-        <!--<CheckBoxPreference-->
-            <!--android:defaultValue="@bool/btbv"-->
-            <!--android:key="btbv"-->
-            <!--android:summary="@string/pref_blind_trust_before_verification_summary"-->
-            <!--android:title="@string/pref_blind_trust_before_verification"/>-->
-        <!-- ALF AM-53 -->
-        <ListPreference
-            android:key="global_message_timer"
-            android:title="@string/pref_global_message_timer"
-            android:summary="@string/pref_global_message_timer_description"
-            android:defaultValue="@integer/message_timer"
-            android:entries="@array/timer_options_descriptions"
-            android:entryValues="@array/timer_options_durations" />
-        <ListPreference
-            android:defaultValue="@integer/automatic_message_deletion"
-            android:key="automatic_message_deletion"
-            android:summary="@string/pref_automatically_delete_messages_description"
-            android:title="@string/pref_automatically_delete_messages"/>
-        <!--HONEYBADGER AM-120 Disable and hide Dont trust CAs-->
-        <!--<CheckBoxPreference-->
-            <!--android:defaultValue="@bool/dont_trust_system_cas"-->
-            <!--android:key="dont_trust_system_cas"-->
-            <!--android:summary="@string/pref_dont_trust_system_cas_summary"-->
-            <!--android:title="@string/pref_dont_trust_system_cas_title"/>-->
-        <!--HONEYBADGER AM-120 Disable and hide Validate hostname with DNSSEC-->
-        <!--<CheckBoxPreference-->
-            <!--android:defaultValue="@bool/validate_hostname"-->
-            <!--android:key="validate_hostname"-->
-            <!--android:summary="@string/pref_validate_hostname_summary"-->
-            <!--android:title="@string/pref_validate_hostname"-->
-            <!--android:visibility="gone"/>-->
-        <CheckBoxPreference
-            android:defaultValue="@bool/allow_message_correction"
-            android:key="allow_message_correction"
-            android:summary="@string/pref_allow_message_correction_summary"
-            android:title="@string/pref_allow_message_correction"/>
-        <Preference
-            android:key="clean_cache"
-            android:summary="@string/pref_clean_cache_summary"
-            android:title="@string/pref_clean_cache"/>
-        <Preference
-            android:key="clean_private_storage"
-            android:summary="@string/pref_clean_private_storage_summary"
-            android:title="@string/pref_clean_private_storage"/>
-        <Preference
-            android:key="delete_omemo_identities"
-            android:summary="@string/pref_delete_glacier_identities_summary"
-            android:title="@string/pref_delete_glacier_identities"/>
-    </PreferenceCategory>
     <PreferenceCategory
         android:key="attachments"
         android:title="@string/pref_attachments">

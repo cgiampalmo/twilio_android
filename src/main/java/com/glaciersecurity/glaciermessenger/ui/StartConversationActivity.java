@@ -941,7 +941,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 					if (nick != null && !nick.isEmpty()) {
 						gbookmark.setNick(nick);
 					}
-					gbookmark.setBookmarkName(group.getLocal());
+					gbookmark.setBookmarkName("#"+group.getLocal()); //ALF AM-174 test
 
 					this.conferences.add(gbookmark);
 				}
@@ -1169,9 +1169,9 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				case R.id.context_join_conference:
 					activity.openConversationForBookmark();
 					break;
-				case R.id.context_share_uri:
-					activity.shareBookmarkUri();
-					break;
+				//case R.id.context_share_uri: //ALF AM-175
+				//	activity.shareBookmarkUri();
+				//	break;
 				case R.id.context_delete_conference:
 					activity.deleteConference();
 			}
