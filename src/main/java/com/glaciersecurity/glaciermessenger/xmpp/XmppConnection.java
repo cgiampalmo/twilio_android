@@ -355,12 +355,23 @@ public class XmppConnection implements Runnable {
 						verifiedHostname = result.isAuthenticated() ? result.getHostname().toString() : null;
 						final InetSocketAddress addr;
 						if (result.getIp() != null) {
-							addr = new InetSocketAddress(result.getIp(), result.getPort());
+							//ALF AM-191 if
+							if (domain.startsWith("glaciersec")) {
+								addr = new InetSocketAddress(result.getIp(), 5222);
+							} else {
+								addr = new InetSocketAddress(result.getIp(), result.getPort());
+							}
 							Log.d(Config.LOGTAG, account.getJid().asBareJid().toString()
 									+ ": using values from dns " + result.getHostname().toString()
 									+ "/" + result.getIp().getHostAddress() + ":" + result.getPort() + " tls: " + features.encryptionEnabled);
 						} else {
-							addr = new InetSocketAddress(IDN.toASCII(result.getHostname().toString()), result.getPort());
+							//ALF AM-191 if
+							if (domain.startsWith("glaciersec")) {
+								addr = new InetSocketAddress(IDN.toASCII(result.getHostname().toString()), 5222);
+							} else {
+								addr = new InetSocketAddress(IDN.toASCII(result.getHostname().toString()), result.getPort());
+							}
+
 							Log.d(Config.LOGTAG, account.getJid().asBareJid().toString()
 									+ ": using values from dns "
 									+ result.getHostname().toString() + ":" + result.getPort() + " tls: " + features.encryptionEnabled);
