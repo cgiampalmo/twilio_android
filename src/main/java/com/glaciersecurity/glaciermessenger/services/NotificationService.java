@@ -1,6 +1,8 @@
 package com.glaciersecurity.glaciermessenger.services;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
@@ -77,6 +80,7 @@ public class NotificationService {
 
 	public NotificationService(final XmppConnectionService service) {
 		this.mXmppConnectionService = service;
+		createNotificationChannel(); //ALF AM-90
 	}
 
 	public boolean notify(final Message message) {
@@ -330,8 +334,9 @@ public class NotificationService {
 	}
 
 	private Builder buildMultipleConversation() {
-		final Builder mBuilder = new NotificationCompat.Builder(
-				mXmppConnectionService);
+		//final Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService);
+		//ALF AM-90 added channelid
+		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, mXmppConnectionService.getString(R.string.channel_id));
 		final NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
 		style.setBigContentTitle(notifications.size()
 				+ " "
@@ -378,7 +383,8 @@ public class NotificationService {
 	}
 
 	private Builder buildSingleConversations(final ArrayList<Message> messages) {
-		final Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService);
+		//ALF AM-90 added channelid
+		final Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, mXmppConnectionService.getString(R.string.channel_id));
 		if (messages.size() >= 1) {
 			final Conversation conversation = (Conversation) messages.get(0).getConversation();
 			final UnreadConversation.Builder mUnreadBuilder = new UnreadConversation.Builder(conversation.getName().toString());
@@ -741,7 +747,8 @@ public class NotificationService {
 	}
 
 	public Notification createForegroundNotification() {
-		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService);
+		//ALF AM-90 added channelid
+		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, mXmppConnectionService.getString(R.string.channel_id));
 
 		mBuilder.setContentTitle(mXmppConnectionService.getString(R.string.conversations_foreground_service));
 		if (Config.SHOW_CONNECTED_ACCOUNTS) {
@@ -785,7 +792,8 @@ public class NotificationService {
 		if (mXmppConnectionService.keepForegroundService()) {
 			notify(FOREGROUND_NOTIFICATION_ID, createForegroundNotification());
 		}
-		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService);
+		//ALF AM-90 added channelid
+		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, mXmppConnectionService.getString(R.string.channel_id));
 		if (errors.size() == 0) {
 			cancel(ERROR_NOTIFICATION_ID);
 			return;
@@ -859,6 +867,28 @@ public class NotificationService {
 			notificationManager.cancel(tag, id);
 		} catch (RuntimeException e) {
 			Log.d(Config.LOGTAG, "unable to cancel notification", e);
+		}
+	}
+
+	//ALF AM-90
+	private void createNotificationChannel() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			final Handler handler = new Handler();
+			handler.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					CharSequence name = mXmppConnectionService.getString(R.string.channel_name);
+					String description = mXmppConnectionService.getString(R.string.channel_name);
+					String CHANNEL_ID = mXmppConnectionService.getString(R.string.channel_name);
+					int importance = NotificationManager.IMPORTANCE_DEFAULT;
+					NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+					channel.setDescription(description);
+					// Register the channel with the system; you can't change the importance
+					// or other notification behaviors after this
+					NotificationManager notificationManager = mXmppConnectionService.getSystemService(NotificationManager.class);
+					notificationManager.createNotificationChannel(channel);
+				}
+			}, 500);
 		}
 	}
 }

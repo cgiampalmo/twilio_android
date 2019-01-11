@@ -388,5 +388,9 @@
             android:key="never_send"
             android:summary="@string/pref_never_send_crash_summary"
             android:title="@string/pref_never_send_crash"/>
+        <!-- ALF AM-143 -->
+        <Preference android:title="@string/logout_button_key"
+            android:key="@string/logout_button_key"
+            android:summary="@string/logout_button_summary"/>
     </PreferenceCategory>
 </PreferenceScreen>
