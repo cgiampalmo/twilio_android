@@ -634,11 +634,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				this.mAvatar.setVisibility(View.GONE);
 				ActionBar ab = getSupportActionBar();
 				if (ab != null) {
-					if (init && Config.MAGIC_CREATE_DOMAIN == null) {
+					// GOOBER - don't show back button when in Cognito login screen
+					//if (init && Config.MAGIC_CREATE_DOMAIN == null) {
 						ab.setDisplayShowHomeEnabled(false);
 						ab.setDisplayHomeAsUpEnabled(false);
-					}
-					ab.setTitle(R.string.action_add_account);
+					//}
+					ab.setTitle(R.string.app_name); //ALF changed from action_add_account, maybe part of AM-173
 				}
 			}
 		}

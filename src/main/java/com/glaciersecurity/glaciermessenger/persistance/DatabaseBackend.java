@@ -61,7 +61,7 @@ import rocks.xmpp.addr.Jid;
 public class DatabaseBackend extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "history";
-	private static final int DATABASE_VERSION = 43; //ALF AM-53 changed 42 to 43
+	private static final int DATABASE_VERSION = 42;
 	private static DatabaseBackend instance = null;
 	private static String CREATE_CONTATCS_STATEMENT = "create table "
 			+ Contact.TABLENAME + "(" + Contact.ACCOUNT + " TEXT, "
@@ -499,7 +499,15 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 			}
 		}
 
+		//ALF AM-53, AM-181
 		if (oldVersion < 37 && newVersion >= 37) {
+			db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.TIMER + " INTEGER DEFAULT 0");
+			db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.ENDTIME + " NUMBER");
+			db.execSQL("ALTER TABLE " + Account.TABLENAME + " ADD COLUMN " + Account.TIMER + " INTEGER DEFAULT 0");
+			db.execSQL("ALTER TABLE " + Conversation.TABLENAME + " ADD COLUMN " + Conversation.TIMER + " INTEGER DEFAULT 0");
+		}
+
+		if (oldVersion < 38 && newVersion >= 38) { //ALF AM-181
 			db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.READ_BY_MARKERS + " TEXT");
 		}
 
@@ -520,14 +528,6 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
 		if (oldVersion < 42 && newVersion >= 42) {
 			db.execSQL("DROP TRIGGER IF EXISTS after_message_delete");
-		}
-
-		//ALF AM-53
-		if (oldVersion < 43 && newVersion >= 43) {
-			db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.TIMER + " INTEGER DEFAULT 0");
-			db.execSQL("ALTER TABLE " + Message.TABLENAME + " ADD COLUMN " + Message.ENDTIME + " NUMBER");
-			db.execSQL("ALTER TABLE " + Account.TABLENAME + " ADD COLUMN " + Account.TIMER + " INTEGER DEFAULT 0");
-			db.execSQL("ALTER TABLE " + Conversation.TABLENAME + " ADD COLUMN " + Conversation.TIMER + " INTEGER DEFAULT 0");
 		}
 	}
 

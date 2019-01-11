@@ -11,7 +11,7 @@
     <string name="action_add_account">Add account</string>
     <string name="action_edit_contact">Edit name</string>
     <string name="action_add_phone_book">Add to phone book</string>
-    <string name="action_delete_contact">Delete from roster</string>
+    <string name="action_delete_contact">Delete Contact</string> <!-- ALF AM-179 changed from Delete From Roster -->
     <string name="action_block_contact">Block contact</string>
     <string name="action_unblock_contact">Unblock contact</string>
     <string name="action_block_domain">Block domain</string>
@@ -41,7 +41,8 @@
     <string name="moderator">Moderator</string>
     <string name="participant">Participant</string>
     <string name="visitor">Visitor</string>
-    <string name="remove_contact_text">Would you like to remove %s from your roster? The chat associated with this contact will not be removed.</string>
+    <!-- ALF AM-179 changed roster to contacts -->
+    <string name="remove_contact_text">Would you like to remove %s from your contacts? The chat associated with this contact will not be removed.</string>
     <string name="block_contact_text">Would you like to block %s from sending you messages?</string>
     <string name="unblock_contact_text">Would you like to unblock %s and allow them to send you messages?</string>
     <string name="block_domain_text">Block all contacts from %s?</string>
@@ -333,7 +334,7 @@
     <string name="pref_export_logs">Export history</string>
     <string name="pref_export_logs_summary">Write chat history logs to SD card</string>
     <string name="notification_export_logs_title">Writing logs to SD card</string>
-    <!-- ALF AM-90 next 3 -->
+    <!-- ALF AM-90, AM-168 next 3 -->
     <string name="channel_name">Messenger</string>
     <string name="channel_description">Messenger</string>
     <string name="channel_id">Messenger</string>
