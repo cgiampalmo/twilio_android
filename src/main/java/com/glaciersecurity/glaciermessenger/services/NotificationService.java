@@ -255,7 +255,7 @@ public class NotificationService {
 	}
 
 	private void setNotificationColor(final Builder mBuilder) {
-		mBuilder.setColor(ContextCompat.getColor(mXmppConnectionService, R.color.green600));
+		mBuilder.setColor(ContextCompat.getColor(mXmppConnectionService, R.color.light_blue_500)); //ALF AM-184 from green_600
 	}
 
 	public void updateNotification(final boolean notify) {
@@ -378,7 +378,7 @@ public class NotificationService {
 		mBuilder.setGroupSummary(true);
 		mBuilder.setGroup(CONVERSATIONS_GROUP);
 		mBuilder.setDeleteIntent(createDeleteIntent(null));
-		mBuilder.setSmallIcon(R.drawable.ic_notification);
+		mBuilder.setSmallIcon(R.drawable.ic_notification); //ALF AM-184 (changed this to a glacier icon)
 		return mBuilder;
 	}
 

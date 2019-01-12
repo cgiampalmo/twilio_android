@@ -115,7 +115,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 		BitmapFactory.Options opts = new BitmapFactory.Options();
 		opts.inSampleSize = 2;
 		Resources resources = mXmppConnectionService.getResources();
-		Bitmap icon = BitmapFactory.decodeResource(resources, R.drawable.ic_launcher, opts);
+		Bitmap icon = BitmapFactory.decodeResource(resources, R.drawable.glacier_launcher, opts); //ALF AM-184 changed from ic_launcher
 		paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER));
 
 		int iconSize = Math.round(canvas.getHeight() / 2.6f);

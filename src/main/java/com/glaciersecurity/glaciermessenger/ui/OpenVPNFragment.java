@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -24,10 +25,12 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.glaciersecurity.glaciercore.api.APIVpnProfile;
 import com.glaciersecurity.glaciercore.api.IOpenVPNAPIService;
 import com.glaciersecurity.glaciercore.api.IOpenVPNStatusCallback;
+import com.glaciersecurity.glaciercore.api.CoreInstallActivity;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 
@@ -154,7 +157,21 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             else
                 mService.startVPN(config);
         } catch (IOException | RemoteException e) {
-            e.printStackTrace();
+            doCoreErrorAction(); //HONEYBADGER AM-76
+        }
+    }
+
+    /**
+     * HONEYBADGER AM-76
+     */
+    private void doCoreErrorAction() {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("glacier_core_https"));
+            startActivity(intent);
+        }
+        catch(Exception e2){
+            e2.printStackTrace();
         }
     }
 
@@ -289,8 +306,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 }
 
             } catch (RemoteException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                doCoreErrorAction(); //HONEYBADGER AM-76
             }
         }
 
@@ -365,7 +381,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             // mHelloWorld.setText(all);
 
         } catch (RemoteException e) {
-            // TODO Auto-generated catch block
+            doCoreErrorAction(); //HONEYBADGER AM-76
             mHelloWorld.setText(e.getMessage());
         }
     }
@@ -423,7 +439,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                             try {
                                 prepareStartProfile(START_PROFILE_BYUUID);
                             } catch (RemoteException e) {
-                                e.printStackTrace();
+                                doCoreErrorAction(); //HONEYBADGER AM-76
                             }
                         }
                     });
@@ -432,7 +448,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                     try {
                         prepareStartProfile(START_PROFILE_BYUUID);
                     } catch (RemoteException e) {
-                        e.printStackTrace();
+                        doCoreErrorAction(); //HONEYBADGER AM-76
                     }
                 }
                 break;
@@ -441,14 +457,17 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 try {
                     mService.disconnect();
                 } catch (RemoteException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    doCoreErrorAction(); //HONEYBADGER AM-76
                 }
                 disconnectClicked = true;
                 mStartVpn.setEnabled(true);
                 break;
             case R.id.addNewProfile:
-                showImportProfileVPNDialogFragment();
+                try { //HONEYBADGER AM-76
+                    showImportProfileVPNDialogFragment();
+                } catch (Exception e){
+                    launchPlayStoreCore();
+                }
             /* case R.id.getMyIP:
                 Log.d("RemoteExample", "DAVID getMyIP");
                 // Socket handling is not allowed on main thread
@@ -491,6 +510,15 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 break;
         }
 
+    }
+
+    /**
+     * HONEYBADGER AM-76
+     */
+    public void launchPlayStoreCore(){
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse("glacier_core_https"));
+        startActivity(intent);
     }
 
     /**

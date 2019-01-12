@@ -531,6 +531,9 @@
     <string name="pref_picture_compression">Compress Pictures</string>
     <string name="pref_picture_compression_summary">Resize and compress pictures</string>
     <string name="always">Always</string>
+    <!--HONEYBADGER AM-76 Glacier core strings-->
+    <string name="glacier_core_https">https://play.google.com/store/apps/details?id=com.glaciersecurity.glaciercore</string>
+    <string name="glacier_core_install">"Glacier Core must be installed for Messenger app to function properly"</string>
     <string name="automatically">Automatically</string>
     <string name="battery_optimizations_enabled">Battery optimizations enabled</string>
     <string name="battery_optimizations_enabled_explained">Your device is doing some heavy battery optimizations on Messenger that might lead to delayed notifications or even message loss.\nIt is recommended to disable those.</string>

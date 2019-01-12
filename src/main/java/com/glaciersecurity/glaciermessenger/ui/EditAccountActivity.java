@@ -2098,10 +2098,24 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				OpenVPNProfileDialog dialog = new OpenVPNProfileDialog(this, list);
 				dialog.show();
 			} else {
-				// GOOBER - DO SOMETHING?
+				doCoreErrorAction(); //HONEYBADGER AM-76
 			}
 		} catch (RemoteException e) {
-			e.printStackTrace();
+			doCoreErrorAction(); //HONEYBADGER AM-76
+		}
+	}
+
+	/**
+	 * HONEYBADGER AM-76
+	 */
+	private void doCoreErrorAction() {
+		try {
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+			intent.setData(Uri.parse("glacier_core_https"));
+			startActivity(intent);
+		}
+		catch(Exception e2){
+			e2.printStackTrace();
 		}
 	}
 
@@ -2288,7 +2302,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		try {
 			mService.disconnect();
 		} catch (RemoteException e) {
-			e.printStackTrace();
+			doCoreErrorAction(); //HONEYBADGER AM-76
 		}
 
 		// try to start up VPN if valid
@@ -2311,7 +2325,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				}
 
 			} catch (RemoteException e) {
-				e.printStackTrace();
+				doCoreErrorAction(); //HONEYBADGER AM-76
 			}
 		} else {
 			// GOOBER COGNITO - Go back to login screen if hit cancel on vpndialog box
@@ -2360,8 +2374,14 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		Intent icsopenvpnService = new Intent(IOpenVPNAPIService.class.getName());
 		icsopenvpnService.setPackage("com.glaciersecurity.glaciercore");
 
-		// GOOBER ERROR - Reports error on occassion but doesn't seem to effect anything
-		bindService(icsopenvpnService, mConnection, Context.BIND_AUTO_CREATE);
+		//HONEYBADGER AM-76  GLACIER CORE CRASH THIS IS WHERE THE ERROR IS!!!!
+		// TODO remove my carpet bomb of try catches
+		try {
+			// GOOBER ERROR - Reports error on occassion but doesn't seem to effect anything
+			bindService(icsopenvpnService, mConnection, Context.BIND_AUTO_CREATE);
+		} catch (RuntimeException e){
+			doCoreErrorAction(); //HONEYBADGER AM-76
+		}
 	}
 
 	//ALF AM-190
@@ -2395,12 +2415,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				try {
 					mService.registerStatusCallback(mCallback);
 				} catch (RemoteException e) {
-					e.printStackTrace();
+					doCoreErrorAction(); //HONEYBADGER AM-76
 				}
 
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				doCoreErrorAction(); //HONEYBADGER AM-76
 			}
 		}
 
