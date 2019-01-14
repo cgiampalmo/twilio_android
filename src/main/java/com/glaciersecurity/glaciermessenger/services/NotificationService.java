@@ -255,7 +255,7 @@ public class NotificationService {
 	}
 
 	private void setNotificationColor(final Builder mBuilder) {
-		mBuilder.setColor(ContextCompat.getColor(mXmppConnectionService, R.color.green600));
+		mBuilder.setColor(ContextCompat.getColor(mXmppConnectionService, R.color.light_blue_500)); //ALF AM-184 from green_600
 	}
 
 	public void updateNotification(final boolean notify) {
@@ -378,7 +378,7 @@ public class NotificationService {
 		mBuilder.setGroupSummary(true);
 		mBuilder.setGroup(CONVERSATIONS_GROUP);
 		mBuilder.setDeleteIntent(createDeleteIntent(null));
-		mBuilder.setSmallIcon(R.drawable.ic_notification);
+		mBuilder.setSmallIcon(R.drawable.ic_notification); //ALF AM-184 (changed this to a glacier icon)
 		return mBuilder;
 	}
 
@@ -391,7 +391,7 @@ public class NotificationService {
 			/* GOOBER - Instead of using publish icon, use default glacier icon
 			mBuilder.setLargeIcon(mXmppConnectionService.getAvatarService()
 					.get(conversation, getPixel(64)));*/
-			mBuilder.setLargeIcon(BitmapFactory.decodeResource(mXmppConnectionService.getResources(), R.drawable.glacier_launcher)); //ALF AM-91 changed from ic_launcher
+			mBuilder.setLargeIcon(BitmapFactory.decodeResource(mXmppConnectionService.getResources(), R.drawable.glacier_notification)); //ALF AM-91 changed from ic_launcher
 			mBuilder.setContentTitle(conversation.getName());
 			if (Config.HIDE_MESSAGE_TEXT_IN_NOTIFICATION) {
 				int count = messages.size();
@@ -770,7 +770,7 @@ public class NotificationService {
 		mBuilder.setContentIntent(createOpenConversationsIntent());
 		mBuilder.setWhen(0);
 		mBuilder.setPriority(Config.SHOW_CONNECTED_ACCOUNTS ? NotificationCompat.PRIORITY_DEFAULT : NotificationCompat.PRIORITY_MIN);
-		mBuilder.setSmallIcon(R.drawable.ic_link_white_24dp);
+		mBuilder.setSmallIcon(R.drawable.ic_notification); //ALF AM-184 (changed this to a glacier icon)
 		return mBuilder.build();
 	}
 

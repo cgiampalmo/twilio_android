@@ -10,23 +10,50 @@ import android.os.Parcelable;
 
 public class APIVpnProfile implements Parcelable, Comparable<APIVpnProfile> {
 
-    public final String mUUID;
-    public final String mName;
-    public final boolean mUserEditable;
+    public String mUUID = "";
+    public String mName = "";
+    public boolean mUserEditable = false;
+    private boolean isValidInput = true;
     //public final String mProfileCreator;
 
     public APIVpnProfile(Parcel in) {
-        mUUID = in.readString();
-        mName = in.readString();
-        mUserEditable = in.readInt() != 0;
-        //mProfileCreator = in.readString();
+        //HONEYBADGER AM-76
+        if (in == null) {
+            isValidInput = false;
+        }
+        try {
+            String tempUUID  = in.readString();
+            if (isValid(tempUUID)){
+                mUUID = tempUUID;
+            }
+            String tempName = in.readString();
+            if(isValid(tempName)) {
+                mName = tempName;
+            }
+            mUserEditable = in.readInt() != 0;
+            //mProfileCreator = in.readString();
+
+        } catch (Exception e) {
+            isValidInput = false;
+        }
     }
 
     public APIVpnProfile(String uuidString, String name, boolean userEditable, String profileCreator) {
-        mUUID = uuidString;
-        mName = name;
-        mUserEditable = userEditable;
         //mProfileCreator = profileCreator;
+        //HONEYBADGER AM-76
+        try {
+            if (isValid(uuidString)){
+                mUUID = uuidString;
+            }
+            if(isValid(name)) {
+                mName = name;
+            }
+            mUserEditable = userEditable;
+            //mProfileCreator = in.readString();
+
+        } catch (Exception e) {
+            isValidInput = false;
+        }
     }
 
     @Override
@@ -36,22 +63,32 @@ public class APIVpnProfile implements Parcelable, Comparable<APIVpnProfile> {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(mUUID);
-        dest.writeString(mName);
-        if (mUserEditable)
-            dest.writeInt(0);
-        else
-            dest.writeInt(1);
-        //dest.writeString(mProfileCreator);
+        try {
+            dest.writeString(mUUID);
+            dest.writeString(mName);
+            if (mUserEditable)
+                dest.writeInt(0);
+            else
+                dest.writeInt(1);
+            //dest.writeString(mProfileCreator);
+        }catch(Exception e){
+            isValidInput = false;
+        }
     }
 
     public static final Creator<APIVpnProfile> CREATOR
             = new Creator<APIVpnProfile>() {
         public APIVpnProfile createFromParcel(Parcel in) {
+            if (in == null) { //HONEYBADGER AM-76
+                return null;
+            }
             return new APIVpnProfile(in);
         }
 
         public APIVpnProfile[] newArray(int size) {
+            if (size > 0){ //HONEYBADGER AM-76
+                return null;
+            }
             return new APIVpnProfile[size];
         }
     };
@@ -76,4 +113,51 @@ public class APIVpnProfile implements Parcelable, Comparable<APIVpnProfile> {
     public String toString(){
         return this.mName;
     }
+
+    //////// Validation  HONEYBADGER AM-76 here to end
+
+
+    public boolean isValid(String str){
+        return ((isValidLength(str) && hasValidCharacters(str)));
+
+
+    }
+    public boolean isValidLength(String str) {
+        if (str != null) {
+            //TODO
+            return str.length() > 1 && str.length() < 100;
+        }
+        return false;
+    }
+
+    public boolean hasValidCharacters(String str) {
+        if (str != null) {
+            //TODO
+            return true;
+        }
+        return false;
+    }
+
+    //////// Getters (no setters)
+
+    public String getmUUID() {
+        return mUUID;
+    }
+
+    public String getmName() {
+        return mName;
+    }
+
+    public boolean ismUserEditable() {
+        return mUserEditable;
+    }
+
+    public boolean isValidInput() {
+        return isValidInput;
+    }
+
+    public void setIsValidInput(Boolean isValidInput){
+        this.isValidInput = isValidInput;
+    }
+
 }

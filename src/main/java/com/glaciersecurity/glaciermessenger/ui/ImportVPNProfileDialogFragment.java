@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -153,9 +154,27 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
         // this.setCanceledOnTouchOutside(false);
 
         // GOOBER - CORE processing/integration
-        bindService();
+        try {
+            bindService();
+        } catch (Exception e){ //HONEYBADGER AM-76
+            doCoreErrorAction();
+        }
 
         return v;
+    }
+
+    /**
+     * HONEYBADGER AM-76
+     */
+    private void doCoreErrorAction() {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("glacier_core_https"));
+            startActivity(intent);
+        }
+        catch(Exception e2){
+            e2.printStackTrace();
+        }
     }
 
 
@@ -635,7 +654,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
                 return true;
             }
         } catch (RemoteException e) {
-            e.printStackTrace();
+            doCoreErrorAction(); //HONEYBADGER AM-76
         }
         return false;
     }
@@ -670,8 +689,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
                     getActivity().startActivityForResult(i, ICS_OPENVPN_PERMISSION);
                 }
             } catch (RemoteException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                doCoreErrorAction(); //HONEYBADGER AM-76
             }
         }
 

@@ -214,6 +214,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	private AlertDialog userDialog = null;
 	private AlertDialog waitDialog = null;
+	//ALF AM-190
+	private String lastWaitMsg = null;
+	private TextView waitTextField = null;
 
 	// keep track of profiles downloaded from AWS
 	private ArrayList<String> keyList = new ArrayList<String>();
@@ -236,6 +239,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		if (mAccount != null
 				&& mAccount.getStatus() != Account.State.ONLINE
 				&& mFetchingAvatar) {
+			closeWaitDialog(); //ALF AM-190
 			startActivity(new Intent(getApplicationContext(),
 					ManageAccountActivity.class));
 			finish();
@@ -255,6 +259,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					if (xmppConnectionService != null && xmppConnectionService.getAccounts().size() == 1) {
 						intent.putExtra("init", true);
 					}
+					closeWaitDialog(); //ALF AM-190
 					startActivity(intent);
 					finish();
 				}
@@ -651,6 +656,14 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		// GOOBER CORE integration
 		mHandler = new Handler(this);
 		bindService();
+	}
+
+	//ALF AM-190
+	@Override
+	public void onStop() {
+		super.onStop();
+		closeWaitDialog();
+		unbindService();
 	}
 
 	@Override
@@ -2023,14 +2036,27 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	public void closeWaitDialog() {
 		if (waitDialog != null) {
 			waitDialog.dismiss();
+			//ALF AM-190
+			waitDialog = null;
+			lastWaitMsg = null;
+			waitTextField = null;
 		}
 	}
 
 	public void showWaitDialog(String message) {
+		//ALF AM-190
+		if (lastWaitMsg != null && message.equalsIgnoreCase(lastWaitMsg)) {
+			return;
+		} else if (waitDialog != null && waitTextField != null) {
+			waitTextField.setText(message);
+			return;
+		}
+
+		lastWaitMsg = message;
 		LayoutInflater inflater = getLayoutInflater();
-		View layout = inflater.inflate(R.layout.dialog_wait,null);
-		TextView textField = layout.findViewById(R.id.status_message);
-		textField.setText(message);
+		View layout = inflater.inflate(R.layout.dialog_wait, null);
+		waitTextField = layout.findViewById(R.id.status_message);
+		waitTextField.setText(message);
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setView(layout);
@@ -2072,10 +2098,24 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				OpenVPNProfileDialog dialog = new OpenVPNProfileDialog(this, list);
 				dialog.show();
 			} else {
-				// GOOBER - DO SOMETHING?
+				doCoreErrorAction(); //HONEYBADGER AM-76
 			}
 		} catch (RemoteException e) {
-			e.printStackTrace();
+			doCoreErrorAction(); //HONEYBADGER AM-76
+		}
+	}
+
+	/**
+	 * HONEYBADGER AM-76
+	 */
+	private void doCoreErrorAction() {
+		try {
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+			intent.setData(Uri.parse("glacier_core_https"));
+			startActivity(intent);
+		}
+		catch(Exception e2){
+			e2.printStackTrace();
 		}
 	}
 
@@ -2230,6 +2270,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		if (mAccount.isEnabled()
 				&& !registerNewAccount
 				&& !mInitMode) {
+			closeWaitDialog(); //ALF AM-190
 			finish();
 		} else {
 			//updateSaveButton();
@@ -2261,7 +2302,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		try {
 			mService.disconnect();
 		} catch (RemoteException e) {
-			e.printStackTrace();
+			doCoreErrorAction(); //HONEYBADGER AM-76
 		}
 
 		// try to start up VPN if valid
@@ -2284,7 +2325,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				}
 
 			} catch (RemoteException e) {
-				e.printStackTrace();
+				doCoreErrorAction(); //HONEYBADGER AM-76
 			}
 		} else {
 			// GOOBER COGNITO - Go back to login screen if hit cancel on vpndialog box
@@ -2333,8 +2374,21 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		Intent icsopenvpnService = new Intent(IOpenVPNAPIService.class.getName());
 		icsopenvpnService.setPackage("com.glaciersecurity.glaciercore");
 
-		// GOOBER ERROR - Reports error on occassion but doesn't seem to effect anything
-		bindService(icsopenvpnService, mConnection, Context.BIND_AUTO_CREATE);
+		//HONEYBADGER AM-76  GLACIER CORE CRASH THIS IS WHERE THE ERROR IS!!!!
+		// TODO remove my carpet bomb of try catches
+		try {
+			// GOOBER ERROR - Reports error on occassion but doesn't seem to effect anything
+			bindService(icsopenvpnService, mConnection, Context.BIND_AUTO_CREATE);
+		} catch (RuntimeException e){
+			doCoreErrorAction(); //HONEYBADGER AM-76
+		}
+	}
+
+	//ALF AM-190
+	private void unbindService() {
+		if (mConnection != null) {
+			unbindService(mConnection);
+		}
 	}
 
 	private ServiceConnection mConnection = new ServiceConnection() {
@@ -2361,12 +2415,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				try {
 					mService.registerStatusCallback(mCallback);
 				} catch (RemoteException e) {
-					e.printStackTrace();
+					doCoreErrorAction(); //HONEYBADGER AM-76
 				}
 
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				doCoreErrorAction(); //HONEYBADGER AM-76
 			}
 		}
 
