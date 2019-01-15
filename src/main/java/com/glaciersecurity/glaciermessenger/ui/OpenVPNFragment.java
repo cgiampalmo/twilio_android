@@ -602,7 +602,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 
                 try {
                     mService.registerStatusCallback(mCallback);
-                } catch (RemoteException e) {
+                } catch (RemoteException | SecurityException e) { //ALF AM-194 added Security
                     e.printStackTrace();
                 }
 

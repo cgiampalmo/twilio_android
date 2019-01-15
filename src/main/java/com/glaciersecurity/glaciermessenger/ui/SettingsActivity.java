@@ -34,6 +34,7 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserPool;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.cognito.AppHelper;
+import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.cognito.Util;
 import com.glaciersecurity.glaciermessenger.crypto.OmemoSetting;
 import com.glaciersecurity.glaciermessenger.entities.Account;
@@ -49,7 +50,7 @@ import com.glaciersecurity.glaciermessenger.utils.TimeframeUtils;
 import rocks.xmpp.addr.Jid;
 
 public class SettingsActivity extends XmppActivity implements
-		OnSharedPreferenceChangeListener, LogoutListener {  //ALF AM-143
+		OnSharedPreferenceChangeListener, LogoutListener {  //ALF AM-143 LogoutListener
 
 	public static final String KEEP_FOREGROUND_SERVICE = "enable_foreground_service";
 	public static final String AWAY_WHEN_SCREEN_IS_OFF = "away_when_screen_off";
@@ -235,6 +236,15 @@ public class SettingsActivity extends XmppActivity implements
 			});
 		}
 
+		//ALF AM-143 // GOOBER
+		final Preference logoutButton = mSettingsFragment.findPreference(getString(R.string.logout_button_key));
+		if (logoutButton != null) {
+			logoutButton.setOnPreferenceClickListener(preference -> {
+				showLogoutConfirmationDialog();
+				return true;
+			});
+		}
+
 		if (Config.ONLY_INTERNAL_STORAGE) {
 			final Preference cleanCachePreference = mSettingsFragment.findPreference("clean_cache");
 			if (cleanCachePreference != null) {
@@ -251,6 +261,51 @@ public class SettingsActivity extends XmppActivity implements
 		if (deleteOmemoPreference != null) {
 			deleteOmemoPreference.setOnPreferenceClickListener(preference -> deleteOmemoIdentities());
 		}
+	}
+
+	/**
+	 * Display Logout confirmation
+	 * //ALF AM-143 //GOOBER
+	 */
+	private void showLogoutConfirmationDialog() {
+		new android.app.AlertDialog.Builder(this)
+				.setTitle("Logout Confirmation")
+				.setMessage(getString(R.string.account_logout_confirmation))
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						doLogout();
+					}})
+				.setNegativeButton(android.R.string.no, null).show();
+	}
+
+	//ALF AM-143
+	private void doLogout() {
+		BackupAccountManager backupAccountManager = new BackupAccountManager(this);
+
+		// delete private configuration file
+		if (backupAccountManager.deleteAccountFile(BackupAccountManager.LOCATION_PRIVATE, BackupAccountManager.APPTYPE_MESSENGER)) {
+			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Private Messenger configuration file successefully deleted.");
+		} else {
+			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Failed to delete private Messenger configuration file.");
+		}
+
+		// delete private configuration file
+		if (backupAccountManager.deleteAccountFile(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER)) {
+			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Private Messenger configuration file successefully deleted.");
+		} else {
+			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Failed to delete private Messenger configuration file.");
+		}
+
+		// delete public configuration file
+		if (backupAccountManager.deleteAccountFile(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_VOICE)) {
+			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Public Voice configuration file successefully deleted.");
+		} else {
+			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Failed to delete public Voice configuration file.");
+		}
+
+		LogoutListener activity = (LogoutListener) this;
+		activity.onLogout();
 	}
 
 	private void changeOmemoSettingSummary() {
