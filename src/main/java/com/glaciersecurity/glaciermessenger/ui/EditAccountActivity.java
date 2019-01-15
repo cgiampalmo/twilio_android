@@ -2414,11 +2414,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				// GOOBER COGNITO - trigger to get status/current running profile from Core
 				try {
 					mService.registerStatusCallback(mCallback);
-				} catch (RemoteException e) {
+				} catch (RemoteException | SecurityException e) { //ALF AM-194 added Security for UVP
 					doCoreErrorAction(); //HONEYBADGER AM-76
 				}
 
-			} catch (RemoteException e) {
+			} catch (RemoteException | SecurityException e) { //ALF AM-194 added Security for UVP
 				doCoreErrorAction(); //HONEYBADGER AM-76
 			}
 		}

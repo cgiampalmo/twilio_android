@@ -26,6 +26,7 @@ import android.os.SystemClock;
 import android.support.v13.view.inputmethod.InputConnectionCompat;
 import android.support.v13.view.inputmethod.InputContentInfoCompat;
 import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -44,6 +45,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.PopupMenu;
@@ -1500,7 +1502,29 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
             intent.putExtra(ChooseContactActivity.EXTRA_GROUP_CHAT_NAME, nameBox.getText().toString().trim());
 			startActivityForResult(intent, REQUEST_INVITE_TO_CONVERSATION);
 		});
-		builder.create().show();
+		//builder.create().show();
+
+		//ALF AM-180
+		android.app.AlertDialog dialog = builder.create();
+		dialog.show();
+		Button chooseButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+		chooseButton.setEnabled(false);
+		nameBox.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void afterTextChanged(Editable arg0) { }
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				if (s.length() > 0) {
+					chooseButton.setEnabled(true);
+				} else {
+					chooseButton.setEnabled(false);
+				}
+			}
+		});
 	}
 
 	/**
