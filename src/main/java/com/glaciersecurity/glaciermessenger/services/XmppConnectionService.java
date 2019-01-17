@@ -2359,6 +2359,11 @@ public class XmppConnectionService extends Service {
 	}
 
 	private boolean hasEnabledAccounts() {
+		//ALF update from Conversations
+		if (this.accounts == null) {
+			return false;
+		}
+
 		for (Account account : this.accounts) {
 			if (account.isEnabled()) {
 				return true;

@@ -391,7 +391,7 @@ public class NotificationService {
 			/* GOOBER - Instead of using publish icon, use default glacier icon
 			mBuilder.setLargeIcon(mXmppConnectionService.getAvatarService()
 					.get(conversation, getPixel(64)));*/
-			mBuilder.setLargeIcon(BitmapFactory.decodeResource(mXmppConnectionService.getResources(), R.drawable.glacier_notification)); //ALF AM-91 changed from ic_launcher
+			//mBuilder.setLargeIcon(BitmapFactory.decodeResource(mXmppConnectionService.getResources(), R.drawable.glacier_notification)); //ALF AM-91 changed from ic_launcher
 			mBuilder.setContentTitle(conversation.getName());
 			if (Config.HIDE_MESSAGE_TEXT_IN_NOTIFICATION) {
 				int count = messages.size();
