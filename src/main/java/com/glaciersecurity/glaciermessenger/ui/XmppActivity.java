@@ -222,7 +222,11 @@ public abstract class XmppActivity extends PinActivity {
 	public void connectToBackend() {
 		Intent intent = new Intent(this, XmppConnectionService.class);
 		intent.setAction("ui");
-		startService(intent);
+		try {
+			startService(intent);
+		}catch (IllegalStateException e) {
+			Log.w(Config.LOGTAG,"unable to start service from "+getClass().getSimpleName());
+		}
 		bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 	}
 

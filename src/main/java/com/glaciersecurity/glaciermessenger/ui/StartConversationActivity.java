@@ -1030,7 +1030,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 
 			//ALF AM-88
 			if (!inviteOnly.isChecked()) {
-				intent.putExtra("publicgroup", true);
+				intent.putExtra(ChooseContactActivity.EXTRA_PUBLIC_GROUP, true); //ALF AM-199
 			}
 			intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toString());
 			intent.putExtra(ChooseContactActivity.EXTRA_TITLE_RES_ID, R.string.choose_participants);
