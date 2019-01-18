@@ -108,6 +108,7 @@ import com.glaciersecurity.glaciermessenger.ui.interfaces.OnAvatarPublication;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnSearchResultsAvailable;
 import com.glaciersecurity.glaciermessenger.utils.ConversationsFileObserver;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
+import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.utils.ExceptionHelper;
 import com.glaciersecurity.glaciermessenger.utils.MimeUtils;
 import com.glaciersecurity.glaciermessenger.utils.OnPhoneContactsLoadedListener;
@@ -953,6 +954,9 @@ public class XmppConnectionService extends Service {
 	@SuppressLint("TrulyRandom")
 	@Override
 	public void onCreate() {
+		if (Compatibility.runsTwentySix()) { //ALF AM-184
+			mNotificationService.initializeChannels();
+		}
 		OmemoSetting.load(this);
 		ExceptionHelper.init(getApplicationContext());
 		PRNGFixes.apply();
