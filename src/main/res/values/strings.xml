@@ -70,7 +70,7 @@
     <string name="crash_report_message">Messenger has crashed!  Please notify Glacier Security immediately if problem persists.</string>
     <string name="send_now">Send now</string>
     <string name="send_never">Never ask again</string>
-    <string name="problem_connecting_to_account">Unable to connect to account</string>
+    <string name="problem_connecting_to_account">Unable to connect to Glacier Messenger</string> <!-- ALF AM-201 -->
     <string name="problem_connecting_to_accounts">Unable to connect to multiple accounts</string>
     <string name="touch_to_fix">Touch here to manage your accounts</string>
     <string name="attach_file">Attach file</string>
@@ -219,8 +219,8 @@
     <string name="search">Search</string>
     <string name="dialog_title_create_contact">Create Contact</string>
     <string name="enter_contact">Enter Contact</string>
-    <string name="join_conference">Join Group</string>
-    <string name="dialog_title_join_conference">Join Chat</string>
+    <string name="join_conference">Create Group</string> <!-- ALF AM-195 -->
+    <string name="dialog_title_join_conference">Join Group</string>
     <string name="delete_contact">Delete Contact</string>
     <string name="view_contact_details">View Contact Details</string>
     <string name="block_contact">Block Contact</string>

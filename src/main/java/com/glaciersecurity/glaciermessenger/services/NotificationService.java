@@ -84,22 +84,21 @@ public class NotificationService {
 
 	public NotificationService(final XmppConnectionService service) {
 		this.mXmppConnectionService = service;
-		//createNotificationChannel(); //ALF AM-90, AM-168
+		//createNotificationChannel(); //ALF AM-90, AM-168, removed in AM-184
 	}
 
 	public boolean notify(final Message message) {
 		final Conversation conversation = (Conversation) message.getConversation();
 		return message.getStatus() == Message.STATUS_RECEIVED
-				&& notificationsEnabled()
 				&& !conversation.isMuted()
 				&& (conversation.alwaysNotify() || wasHighlightedOrPrivate(message))
 				&& (!conversation.isWithStranger() || notificationsFromStrangers())
 				;
 	}
 
-	public boolean notificationsEnabled() {
+	/*public boolean notificationsEnabled() { //ALF AM-187 removed and removed from notify conditions
 		return mXmppConnectionService.getBooleanPreference("show_notification", R.bool.show_notification);
-	}
+	}*/
 
 	private boolean notificationsFromStrangers() {
 		return mXmppConnectionService.getBooleanPreference("notifications_from_strangers", R.bool.notifications_from_strangers);
@@ -812,7 +811,7 @@ public class NotificationService {
 			return;
 		} else if (errors.size() == 1) {
 			mBuilder.setContentTitle(mXmppConnectionService.getString(R.string.problem_connecting_to_account));
-			mBuilder.setContentText(errors.get(0).getJid().asBareJid().toString());
+			//mBuilder.setContentText(errors.get(0).getJid().asBareJid().toString()); //ALF AM-201
 		} else {
 			mBuilder.setContentTitle(mXmppConnectionService.getString(R.string.problem_connecting_to_accounts));
 			mBuilder.setContentText(mXmppConnectionService.getString(R.string.touch_to_fix));
@@ -880,28 +879,6 @@ public class NotificationService {
 			notificationManager.cancel(tag, id);
 		} catch (RuntimeException e) {
 			Log.d(Config.LOGTAG, "unable to cancel notification", e);
-		}
-	}
-
-	//ALF AM-90, AM-168
-	private void createNotificationChannel() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			final Handler handler = new Handler();
-			handler.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					CharSequence name = mXmppConnectionService.getString(R.string.channel_name);
-					String description = mXmppConnectionService.getString(R.string.channel_name);
-					String CHANNEL_ID = mXmppConnectionService.getString(R.string.channel_name);
-					int importance = NotificationManager.IMPORTANCE_DEFAULT;
-					NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-					channel.setDescription(description);
-					// Register the channel with the system; you can't change the importance
-					// or other notification behaviors after this
-					NotificationManager notificationManager = mXmppConnectionService.getSystemService(NotificationManager.class);
-					notificationManager.createNotificationChannel(channel);
-				}
-			}, 500);
 		}
 	}
 
