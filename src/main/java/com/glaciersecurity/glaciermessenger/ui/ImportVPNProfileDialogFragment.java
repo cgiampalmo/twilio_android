@@ -169,7 +169,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
     private void doCoreErrorAction() {
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("glacier_core_https"));
+            intent.setData(Uri.parse(getString(R.string.glacier_core_https)));
             startActivity(intent);
         }
         catch(Exception e2){

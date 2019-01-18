@@ -218,6 +218,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private String lastWaitMsg = null;
 	private TextView waitTextField = null;
 
+	//ALF AM-76
+	private boolean shouldShowOpenVPNDialog = false; //ALF AM-76
+
 	// keep track of profiles downloaded from AWS
 	private ArrayList<String> keyList = new ArrayList<String>();
 
@@ -411,6 +414,18 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				generateSignature(data, template);
 			} else {
 				Log.d(Config.LOGTAG, "pgp result not ok");
+			}
+		}
+		//HONEYBADGER AM-76
+		if (requestCode == ICS_OPENVPN_PERMISSION) {
+			if (resultCode == Activity.RESULT_OK) {
+				try {
+					mService.registerStatusCallback(mCallback);
+				} catch (RemoteException | SecurityException e) { //ALF AM-194 added Security for UVP
+					doCoreErrorAction();
+				}
+			} else {
+				doCoreErrorAction();
 			}
 		}
 	}
@@ -2098,6 +2113,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				OpenVPNProfileDialog dialog = new OpenVPNProfileDialog(this, list);
 				dialog.show();
 			} else {
+				shouldShowOpenVPNDialog = true; //ALF AM-76
 				doCoreErrorAction(); //HONEYBADGER AM-76
 			}
 		} catch (RemoteException e) {
@@ -2111,7 +2127,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private void doCoreErrorAction() {
 		try {
 			Intent intent = new Intent(Intent.ACTION_VIEW);
-			intent.setData(Uri.parse("glacier_core_https"));
+			intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
 			startActivity(intent);
 		}
 		catch(Exception e2){
@@ -2379,6 +2395,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		try {
 			// GOOBER ERROR - Reports error on occassion but doesn't seem to effect anything
 			bindService(icsopenvpnService, mConnection, Context.BIND_AUTO_CREATE);
+
+			//ALF AM-76
+			if (shouldShowOpenVPNDialog) {
+				shouldShowOpenVPNDialog = false;
+				showVPNProfileDialog();
+			}
 		} catch (RuntimeException e){
 			doCoreErrorAction(); //HONEYBADGER AM-76
 		}
@@ -2412,11 +2434,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				}
 
 				// GOOBER COGNITO - trigger to get status/current running profile from Core
-				try {
+				/*try {
 					mService.registerStatusCallback(mCallback);
 				} catch (RemoteException | SecurityException e) { //ALF AM-194 added Security for UVP
 					doCoreErrorAction(); //HONEYBADGER AM-76
-				}
+				}*/
 
 			} catch (RemoteException | SecurityException e) { //ALF AM-194 added Security for UVP
 				doCoreErrorAction(); //HONEYBADGER AM-76

@@ -13,7 +13,7 @@ public class CoreInstallActivity extends Activity {
 
     public void launchPlayStoreCore(){
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("glacier_core_https"));
+        intent.setData(Uri.parse(getString(R.string.glacier_core_https)));
         startActivity(intent);
 
         Toast.makeText(this, "glacier_core_install", Toast.LENGTH_SHORT).show();
