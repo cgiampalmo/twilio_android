@@ -2399,6 +2399,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			//ALF AM-76
 			if (shouldShowOpenVPNDialog) {
 				shouldShowOpenVPNDialog = false;
+				addVPNProfiles();
+				restoreAccountsFromFile();
 				showVPNProfileDialog();
 			}
 		} catch (RuntimeException e){
