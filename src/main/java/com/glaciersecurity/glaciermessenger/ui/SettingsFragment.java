@@ -10,6 +10,7 @@ import android.text.TextUtils;
 
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 
 public class SettingsFragment extends PreferenceFragment {
 
@@ -31,6 +32,8 @@ public class SettingsFragment extends PreferenceFragment {
 				mCategory.removePreference(cleanPrivateStorage);
 			}
 		}
+
+		Compatibility.removeUnusedPreferences(this); //ALF AM-187
 
 		if (!TextUtils.isEmpty(page)) {
 			openPreferenceScreen(page);

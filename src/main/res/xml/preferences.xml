@@ -91,12 +91,27 @@
             android:summary="@string/pref_delete_glacier_identities_summary"
             android:title="@string/pref_delete_glacier_identities"/>
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/pref_notification_settings">
-        <CheckBoxPreference
+    <PreferenceCategory android:title="@string/pref_notification_settings"
+        android:key="notification_category">
+        <!-- ALF AM-187 from Conversations, send to Android settings and remove show notification checkbox -->
+        <PreferenceScreen
+            android:key="more_notification_settings"
+            android:summary="@string/pref_more_notification_settings_summary"
+            android:title="@string/pref_more_notification_settings">
+            <intent android:action="android.settings.CHANNEL_NOTIFICATION_SETTINGS">
+                <extra
+                    android:name="android.provider.extra.APP_PACKAGE"
+                    android:value="@string/applicationId" />
+                <extra
+                    android:name="android.provider.extra.CHANNEL_ID"
+                    android:value="messages" />
+            </intent>
+        </PreferenceScreen>
+        <!-- <CheckBoxPreference
             android:defaultValue="@bool/show_notification"
             android:key="show_notification"
             android:summary="@string/pref_notifications_summary"
-            android:title="@string/pref_notifications"/>
+            android:title="@string/pref_notifications"/> -->
         <!--HONEYBADGER AM-120 Disable and Hide Notifications from strangers-->
         <!--<CheckBoxPreference-->
         <!--android:defaultValue="@bool/notifications_from_strangers"-->
@@ -113,25 +128,21 @@
         <!--android:title="@string/pref_headsup_notifications"/>-->
         <CheckBoxPreference
             android:defaultValue="@bool/vibrate_on_notification"
-            android:dependency="show_notification"
             android:key="vibrate_on_notification"
             android:summary="@string/pref_vibrate_summary"
             android:title="@string/pref_vibrate"/>
         <CheckBoxPreference
             android:defaultValue="@bool/led"
-            android:dependency="show_notification"
             android:key="led"
             android:summary="@string/pref_led_summary"
             android:title="@string/pref_led"/>
         <RingtonePreference
             android:defaultValue="@string/notification_ringtone"
-            android:dependency="show_notification"
             android:key="notification_ringtone"
             android:ringtoneType="notification"
             android:summary="@string/pref_sound_summary"
             android:title="@string/pref_sound"/>
         <PreferenceScreen
-            android:dependency="show_notification"
             android:key="quiet_hours"
             android:summary="@string/pref_quiet_hours_summary"
             android:title="@string/title_pref_quiet_hours">
@@ -163,7 +174,6 @@
         </PreferenceScreen>
         <ListPreference
             android:defaultValue="@integer/grace_period"
-            android:dependency="show_notification"
             android:entries="@array/grace_periods"
             android:entryValues="@array/grace_periods_values"
             android:key="grace_period_length"
