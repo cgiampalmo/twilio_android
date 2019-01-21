@@ -1788,8 +1788,14 @@ public class XmppConnectionService extends Service {
 		}
 	}
 
+	private int deviceKey = -1; //ALF AM-202
+	public int getDeviceKey() {
+		return this.deviceKey;
+	}
+
 	public void createAccount(final Account account) {
 		account.initAccountServices(this);
+		this.deviceKey = account.getAxolotlService().getOwnDeviceId(); //ALF AM-202
 		databaseBackend.createAccount(account);
 		this.accounts.add(account);
 		this.reconnectAccountInBackground(account);
