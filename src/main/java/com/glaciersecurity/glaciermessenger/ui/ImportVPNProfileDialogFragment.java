@@ -402,7 +402,12 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
                     // sort list
                     Collections.sort(listStr);
                     profileSpinner.setVisibility(View.VISIBLE);
-                    messageTextView.setText(getString(R.string.select_vpn_profile_dialog_message));
+                    if (listStr.size() > 0) { //ALF AM-76 added if
+                        messageTextView.setText(getString(R.string.select_vpn_profile_dialog_message));
+                    } else {
+                        messageTextView.setText(getString(R.string.no_vpn_profile_dialog_message));
+                        profileSpinner.setVisibility(View.INVISIBLE);
+                    }
                     // setUpTitleText(R.string.select_vpn_profile_dialog_message);
 
                     closeWaitDialog();
@@ -413,7 +418,9 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
                     profileSpinner.setAdapter(spinnerAdapter);
                     spinnerAdapter.notifyDataSetChanged();
 
-                    okButton.setEnabled(true);
+                    if (listStr.size() > 0) { //ALF AM-76 added if
+                        okButton.setEnabled(true);
+                    }
                 } else {
                     // log out of cognito
                     logOut();
