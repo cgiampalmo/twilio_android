@@ -2,12 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
 	  xmlns:app="http://schemas.android.com/apk/res-auto">
 
-	<item
+	<!-- ALF AM-205 -->
+	<!-- <item
 		android:id="@+id/action_add_account"
 		android:icon="?attr/icon_add_person"
 		app:showAsAction="always"
 		android:orderInCategory="100"
-		android:title="@string/action_add_account"/>
+		android:title="@string/action_add_account"/> -->
 
 	<!--HONEYBADGER AM-120 hide "add account with cert"-->
 	<item
