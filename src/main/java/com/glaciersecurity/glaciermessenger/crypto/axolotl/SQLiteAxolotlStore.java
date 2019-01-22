@@ -78,7 +78,11 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
 	public SQLiteAxolotlStore(Account account, XmppConnectionService service) {
 		this.account = account;
 		this.mXmppConnectionService = service;
-		this.localRegistrationId = loadRegistrationId();
+		if (service.getDeviceKey() > 0) { //ALF AM-202 if
+			this.localRegistrationId = service.getDeviceKey();
+		} else {
+			this.localRegistrationId = loadRegistrationId();
+		}
 		this.currentPreKeyId = loadCurrentPreKeyId();
 	}
 
