@@ -171,7 +171,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.manageaccounts, menu);
 		MenuItem enableAll = menu.findItem(R.id.action_enable_all);
-		MenuItem addAccount = menu.findItem(R.id.action_add_account);
+		//MenuItem addAccount = menu.findItem(R.id.action_add_account); //ALF AM-205
 		MenuItem addAccountWithCertificate = menu.findItem(R.id.action_add_account_with_cert);
 
 		// GOOBER - remove account with certificates and incorporate PIN
@@ -180,7 +180,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
 		menuEnablePIN.setChecked(this.mEnablePIN);
 
 		if (Config.X509_VERIFICATION) {
-			addAccount.setVisible(false);
+			//addAccount.setVisible(false); //ALF AM-205
 			// addAccountWithCertificate.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);  // GOOBER - Remove account with certificates
 		}
 
@@ -223,10 +223,10 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
 			return false;
 		}
 		switch (item.getItemId()) {
-			case R.id.action_add_account:
-				startActivity(new Intent(getApplicationContext(),
-						EditAccountActivity.class));
-				break;
+			//case R.id.action_add_account: //ALF AM-205
+			//	startActivity(new Intent(getApplicationContext(),
+			//			EditAccountActivity.class));
+			//	break;
 			case R.id.action_disable_all:
 				disableAllAccounts();
 				break;
