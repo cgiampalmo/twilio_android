@@ -177,7 +177,7 @@
     <string name="attach_record_voice">Record voice</string>
     <string name="account_settings_jabber_id">Username</string>
     <string name="block_jabber_id">Block Chat ID</string>
-    <string name="account_settings_example_jabber_id">username</string>
+    <string name="account_settings_example_jabber_id">Username</string>
     <string name="password">Password</string>
     <string name="orgid">Org ID</string>
     <string name="invalid_jid">This is not a valid group name</string> <!-- ALF AM-119 -->
@@ -897,7 +897,7 @@
     <string name="action_wipe_all_history">Wipe All History</string>
     <string name="wipe_all_history_msg">\n<b>Warning:</b> This will not influence messages stored on other devices.</string>
     <string name="delete_all_messages_each_chat">Delete all messages in each chat session</string>
-    <string name="end_all_chat">End all chat sessions chat session</string>
+    <string name="end_all_chat">End all chat sessions</string>
     <string name="delete_all_cached_files">Delete all cached files</string>
     <string name="wipe_all_history">Continue</string>
 

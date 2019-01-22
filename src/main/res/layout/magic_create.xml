@@ -79,7 +79,9 @@
                     android:layout_centerHorizontal="true"
                     android:layout_centerVertical="true"
                     android:padding="8dp"
-                    android:src="@drawable/main_logo"/>
+                    android:minHeight="400px"
+                    android:minWidth="400px"
+                    android:src="@drawable/main_logo_2"/>
             </RelativeLayout>
             <TextView
                 android:paddingLeft="8dp"
