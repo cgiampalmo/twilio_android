@@ -2136,14 +2136,22 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * HONEYBADGER AM-76
 	 */
 	private void doCoreErrorAction() {
-		try {
-			Intent intent = new Intent(Intent.ACTION_VIEW);
-			intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
-			startActivity(intent);
-		}
-		catch(Exception e2){
-			e2.printStackTrace();
-		}
+		android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+		builder.setTitle(R.string.core_missing);
+		builder.setMessage(R.string.glacier_core_install);
+		builder.setPositiveButton(R.string.next, (dialog, which) -> {
+			try {
+				Intent intent = new Intent(Intent.ACTION_VIEW);
+				intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
+				startActivity(intent);
+			}
+			catch(Exception e2){
+				e2.printStackTrace();
+			}
+		});
+		final android.support.v7.app.AlertDialog dialog = builder.create();
+		dialog.setCanceledOnTouchOutside(false);
+		dialog.show();
 	}
 
 	/**

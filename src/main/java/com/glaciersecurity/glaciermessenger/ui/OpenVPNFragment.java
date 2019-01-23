@@ -30,7 +30,6 @@ import android.widget.Toast;
 import com.glaciersecurity.glaciercore.api.APIVpnProfile;
 import com.glaciersecurity.glaciercore.api.IOpenVPNAPIService;
 import com.glaciersecurity.glaciercore.api.IOpenVPNStatusCallback;
-import com.glaciersecurity.glaciercore.api.CoreInstallActivity;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 
@@ -165,14 +164,22 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
      * HONEYBADGER AM-76
      */
     private void doCoreErrorAction() {
-        try {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("glacier_core_https"));
-            startActivity(intent);
-        }
-        catch(Exception e2){
-            e2.printStackTrace();
-        }
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this.getContext());
+        builder.setTitle(R.string.core_missing);
+        builder.setMessage(R.string.glacier_core_install);
+        builder.setPositiveButton(R.string.next, (dialog, which) -> {
+            try {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
+                startActivity(intent);
+            }
+            catch(Exception e2){
+                e2.printStackTrace();
+            }
+        });
+        final android.support.v7.app.AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
     }
 
     @Override
