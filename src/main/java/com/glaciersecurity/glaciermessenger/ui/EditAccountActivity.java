@@ -646,12 +646,14 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			this.messageFingerprint = intent.getStringExtra("fingerprint");
 			if (!mInitMode) {
 				this.binding.accountRegisterNew.setVisibility(View.GONE);
+				this.binding.editor.setVisibility(View.GONE); //ALF AM-206
 				//HONEYBADGER AM-120 rm "using account ... "
 //				if (getSupportActionBar() != null) {
 //					getSupportActionBar().setTitle(getString(R.string.account_details));
 //				}
 			} else {
 				this.mAvatar.setVisibility(View.GONE);
+				this.binding.acctdetails.setVisibility(View.GONE); //ALF AM-206
 				ActionBar ab = getSupportActionBar();
 				if (ab != null) {
 					// GOOBER - don't show back button when in Cognito login screen
@@ -960,10 +962,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 
 		if (!mInitMode) {
-			this.mAvatar.setVisibility(VISIBLE);
+			this.binding.editor.setVisibility(View.GONE);
+			this.binding.acctdetails.setVisibility(VISIBLE); //ALF AM-206
 			this.mAvatar.setImageBitmap(avatarService().get(this.mAccount, (int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
 		} else {
-			this.mAvatar.setVisibility(View.GONE);
+			this.binding.acctdetails.setVisibility(View.GONE); //ALF AM-206
 		}
 		this.binding.accountRegisterNew.setChecked(this.mAccount.isOptionSet(Account.OPTION_REGISTER));
 		if (this.mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE)) {
@@ -2061,6 +2064,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	public void showWaitDialog(String message) {
+		//ALF AM-202 extended also check if Activity is finishing
+		if (this.isFinishing()) {
+			return;
+		}
+
 		//ALF AM-190
 		if (lastWaitMsg != null && message.equalsIgnoreCase(lastWaitMsg)) {
 			return;
@@ -2075,7 +2083,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		waitTextField = layout.findViewById(R.id.status_message);
 		waitTextField.setText(message);
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		//AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		AlertDialog.Builder builder = new AlertDialog.Builder(EditAccountActivity.this);
 		builder.setView(layout);
 		builder.setCancelable(false); // if you want user to wait for some process to finish,
 		builder.setTitle(getString(R.string.wait_dialog_title));

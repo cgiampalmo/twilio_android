@@ -57,6 +57,7 @@ import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
 import com.glaciersecurity.glaciermessenger.ui.ConversationsActivity;
 import com.glaciersecurity.glaciermessenger.ui.ManageAccountActivity;
 import com.glaciersecurity.glaciermessenger.ui.TimePreference;
+import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.utils.GeoHelper;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
@@ -758,7 +759,7 @@ public class NotificationService {
 		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, "foreground");
 		//final Notification.Builder mBuilder = new Notification.Builder(mXmppConnectionService);
 
-		mBuilder.setContentTitle(mXmppConnectionService.getString(R.string.conversations_foreground_service));
+		mBuilder.setContentTitle(mXmppConnectionService.getString(R.string.conversations_foreground_service) + " is active");
 		if (Config.SHOW_CONNECTED_ACCOUNTS) {
 			List<Account> accounts = mXmppConnectionService.getAccounts();
 			int enabled = 0;
@@ -773,15 +774,17 @@ public class NotificationService {
 			}
 			mBuilder.setContentText(mXmppConnectionService.getString(R.string.connected_accounts, connected, enabled));
 		} else {
-			mBuilder.setContentText(mXmppConnectionService.getString(R.string.touch_to_open_conversations));
+			//mBuilder.setContentText(mXmppConnectionService.getString(R.string.touch_to_open_conversations));
+			mBuilder.setContentText("");
 		}
 		mBuilder.setContentIntent(createOpenConversationsIntent());
 		mBuilder.setWhen(0);
 
 		//ALF AM-184
-		mBuilder.setPriority(Notification.PRIORITY_MIN);
+		mBuilder.setPriority(NotificationCompat.PRIORITY_MIN);
 		//mBuilder.setPriority(Config.SHOW_CONNECTED_ACCOUNTS ? NotificationCompat.PRIORITY_DEFAULT : NotificationCompat.PRIORITY_MIN);
 		mBuilder.setSmallIcon(R.drawable.ic_notification); //ALF AM-184 (changed this to a glacier icon)
+		mBuilder.setOngoing(true);
 
 		return mBuilder.build();
 	}
@@ -905,7 +908,7 @@ public class NotificationService {
 		notificationManager.createNotificationChannelGroup(new NotificationChannelGroup("chats", c.getString(R.string.notification_group_messages)));
 		final NotificationChannel foregroundServiceChannel = new NotificationChannel("foreground",
 				c.getString(R.string.foreground_service_channel_name),
-				NotificationManager.IMPORTANCE_MIN);
+				NotificationManager.IMPORTANCE_NONE); //ALF AM-184 changed from MIN
 		foregroundServiceChannel.setDescription(c.getString(R.string.foreground_service_channel_description));
 		foregroundServiceChannel.setShowBadge(false);
 		foregroundServiceChannel.setGroup("status");

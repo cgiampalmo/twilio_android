@@ -38,23 +38,13 @@
                         android:layout_height="wrap_content"
                         android:padding="@dimen/card_padding_regular">
 
-                        <!-- GOOBER AVATAR - Removed as it seems to occasionally cause serious delay when logging in -->
-                        <com.makeramen.roundedimageview.RoundedImageView
-                            android:id="@+id/avater"
-                            android:layout_width="@dimen/avatar_on_details_screen_size"
-                            android:layout_height="@dimen/avatar_on_details_screen_size"
-                            android:layout_alignParentTop="true"
-                            android:layout_marginRight="@dimen/avatar_item_distance"
-                            android:contentDescription="@string/account_image_description"
-                            app:riv_corner_radius="40dip" />
-                            <!-- GOOBER - circle/round profile image
-                            app:riv_corner_radius="2dp" /> -->
+                        <!-- ALF AM-206 removed avatar from this part of layout -->
 
                         <LinearLayout
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
-                            android:layout_toRightOf="@+id/avater"
                             android:orientation="vertical">
+                            <!-- AM-206 removed android:layout_toRightOf="@+id/avater" -->
 
                             <ImageView
                                 android:layout_width="match_parent"
@@ -210,6 +200,33 @@
                                 android:text="@string/register_account"
                                 android:visibility="gone"/>
                         </LinearLayout>
+                    </RelativeLayout>
+                </android.support.v7.widget.CardView>
+
+                <!-- ALF AM-206 -->
+                <android.support.v7.widget.CardView
+                    android:id="@+id/acctdetails"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/card_padding_regular">
+
+                        <com.makeramen.roundedimageview.RoundedImageView
+                            android:id="@+id/avater"
+                            android:layout_width="@dimen/avatar_on_details_screen_size"
+                            android:layout_height="@dimen/avatar_on_details_screen_size"
+                            android:layout_alignParentTop="true"
+                            android:layout_centerHorizontal="true"
+                            android:layout_centerVertical="true"
+                            android:contentDescription="@string/account_image_description"
+                            app:riv_corner_radius="40dip" />
                     </RelativeLayout>
                 </android.support.v7.widget.CardView>
 
