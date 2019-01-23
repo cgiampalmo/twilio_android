@@ -2059,6 +2059,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	public void showWaitDialog(String message) {
+		//ALF AM-202 extended also check if Activity is finishing
+		if (this.isFinishing()) {
+			return;
+		}
+
 		//ALF AM-190
 		if (lastWaitMsg != null && message.equalsIgnoreCase(lastWaitMsg)) {
 			return;
@@ -2073,7 +2078,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		waitTextField = layout.findViewById(R.id.status_message);
 		waitTextField.setText(message);
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		//AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		AlertDialog.Builder builder = new AlertDialog.Builder(EditAccountActivity.this);
 		builder.setView(layout);
 		builder.setCancelable(false); // if you want user to wait for some process to finish,
 		builder.setTitle(getString(R.string.wait_dialog_title));
