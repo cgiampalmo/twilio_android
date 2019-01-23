@@ -238,7 +238,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private String currentProfileName = null;
 
 	public void refreshUiReal() {
-		invalidateOptionsMenu();
+		//invalidateOptionsMenu();
 		if (mAccount != null
 				&& mAccount.getStatus() != Account.State.ONLINE
 				&& mFetchingAvatar) {
@@ -575,50 +575,50 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.mSaveButton.setVisibility(View.INVISIBLE);*/
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(final Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		getMenuInflater().inflate(R.menu.editaccount, menu);
-		final MenuItem showBlocklist = menu.findItem(R.id.action_show_block_list);
-		final MenuItem showMoreInfo = menu.findItem(R.id.action_server_info_show_more);
-		final MenuItem changePassword = menu.findItem(R.id.action_change_password_on_server);
-		final MenuItem renewCertificate = menu.findItem(R.id.action_renew_certificate);
-		final MenuItem mamPrefs = menu.findItem(R.id.action_mam_prefs);
-		final MenuItem changePresence = menu.findItem(R.id.action_change_presence);
-		final MenuItem share = menu.findItem(R.id.action_share);
-		renewCertificate.setVisible(mAccount != null && mAccount.getPrivateKeyAlias() != null);
+//	@Override
+//	public boolean onCreateOptionsMenu(final Menu menu) {
+//		super.onCreateOptionsMenu(menu);
+//		getMenuInflater().inflate(R.menu.editaccount, menu);
+//		final MenuItem showBlocklist = menu.findItem(R.id.action_show_block_list);
+//		final MenuItem showMoreInfo = menu.findItem(R.id.action_server_info_show_more);
+//		final MenuItem changePassword = menu.findItem(R.id.action_change_password_on_server);
+//		final MenuItem renewCertificate = menu.findItem(R.id.action_renew_certificate);
+//		//final MenuItem mamPrefs = menu.findItem(R.id.action_mam_prefs);
+//		final MenuItem changePresence = menu.findItem(R.id.action_change_presence);
+//		final MenuItem share = menu.findItem(R.id.action_share);
+//		renewCertificate.setVisible(mAccount != null && mAccount.getPrivateKeyAlias() != null);
+//
+//		share.setVisible(mAccount != null && !mInitMode);
+//
+//		if (mAccount != null && mAccount.isOnlineAndConnected()) {
+//			if (!mAccount.getXmppConnection().getFeatures().blocking()) {
+//				showBlocklist.setVisible(false);
+//			}
+//
+//			if (!mAccount.getXmppConnection().getFeatures().register()) {
+//				changePassword.setVisible(false);
+//			}
+//			//mamPrefs.setVisible(mAccount.getXmppConnection().getFeatures().mam());
+//			changePresence.setVisible(!mInitMode);
+//		} else {
+//			showBlocklist.setVisible(false);
+//			showMoreInfo.setVisible(false);
+//			changePassword.setVisible(false);
+//			//mamPrefs.setVisible(false);
+//			changePresence.setVisible(false);
+//		}
+//
+//		return super.onCreateOptionsMenu(menu);
+//	}
 
-		share.setVisible(mAccount != null && !mInitMode);
-
-		if (mAccount != null && mAccount.isOnlineAndConnected()) {
-			if (!mAccount.getXmppConnection().getFeatures().blocking()) {
-				showBlocklist.setVisible(false);
-			}
-
-			if (!mAccount.getXmppConnection().getFeatures().register()) {
-				changePassword.setVisible(false);
-			}
-			mamPrefs.setVisible(mAccount.getXmppConnection().getFeatures().mam());
-			changePresence.setVisible(!mInitMode);
-		} else {
-			showBlocklist.setVisible(false);
-			showMoreInfo.setVisible(false);
-			changePassword.setVisible(false);
-			mamPrefs.setVisible(false);
-			changePresence.setVisible(false);
-		}
-
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		final MenuItem showMoreInfo = menu.findItem(R.id.action_server_info_show_more);
-		if (showMoreInfo.isVisible()) {
-			showMoreInfo.setChecked(mMoreTable.getVisibility() == VISIBLE);
-		}
-		return super.onPrepareOptionsMenu(menu);
-	}
+//	@Override
+//	public boolean onPrepareOptionsMenu(Menu menu) {
+//		final MenuItem showMoreInfo = menu.findItem(R.id.action_server_info_show_more);
+//		if (showMoreInfo.isVisible()) {
+//			showMoreInfo.setChecked(mMoreTable.getVisibility() == VISIBLE);
+//		}
+//		return super.onPrepareOptionsMenu(menu);
+//	}
 
 	@Override
 	protected void onStart() {
@@ -756,7 +756,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		/* GOOBER COGNITO - removed in favor of button
 		updateSaveButton();*/
 
-		invalidateOptionsMenu();
+		//invalidateOptionsMenu();
 
 		// GOOBER COGNITO - get storage permsissions
 
@@ -773,44 +773,44 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 
 
-	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
-		if (MenuDoubleTabUtil.shouldIgnoreTap()) {
-			return false;
-		}
-		switch (item.getItemId()) {
-			case R.id.action_show_block_list:
-				final Intent showBlocklistIntent = new Intent(this, BlocklistActivity.class);
-				showBlocklistIntent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().toString());
-				startActivity(showBlocklistIntent);
-				break;
-			case R.id.action_server_info_show_more:
-				changeMoreTableVisibility(!item.isChecked());
-				break;
-//			case R.id.action_share_barcode:
-//				shareBarcode();
+//	@Override
+//	public boolean onOptionsItemSelected(final MenuItem item) {
+//		if (MenuDoubleTabUtil.shouldIgnoreTap()) {
+//			return false;
+//		}
+//		switch (item.getItemId()) {
+//			case R.id.action_show_block_list:
+//				final Intent showBlocklistIntent = new Intent(this, BlocklistActivity.class);
+//				showBlocklistIntent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().toString());
+//				startActivity(showBlocklistIntent);
 //				break;
-			case R.id.action_share_http:
-				shareLink(true);
-				break;
-			case R.id.action_share_uri:
-				shareLink(false);
-				break;
-			case R.id.action_change_password_on_server:
-				gotoChangePassword(null);
-				break;
-			case R.id.action_mam_prefs:
-				editMamPrefs();
-				break;
-			case R.id.action_renew_certificate:
-				renewCertificate();
-				break;
-			case R.id.action_change_presence:
-				changePresence();
-				break;
-		}
-		return super.onOptionsItemSelected(item);
-	}
+//			case R.id.action_server_info_show_more:
+//				changeMoreTableVisibility(!item.isChecked());
+//				break;
+////			case R.id.action_share_barcode:
+////				shareBarcode();
+////				break;
+//			case R.id.action_share_http:
+//				shareLink(true);
+//				break;
+//			case R.id.action_share_uri:
+//				shareLink(false);
+//				break;
+//			case R.id.action_change_password_on_server:
+//				gotoChangePassword(null);
+//				break;
+//			case R.id.action_mam_prefs:
+//				editMamPrefs();
+//				break;
+//			case R.id.action_renew_certificate:
+//				renewCertificate();
+//				break;
+//			case R.id.action_change_presence:
+//				changePresence();
+//				break;
+//		}
+//		return super.onOptionsItemSelected(item);
+//	}
 
 //	private void shareBarcode() {
 //		Intent intent = new Intent(Intent.ACTION_SEND);

@@ -347,8 +347,12 @@ public abstract class XmppActivity extends PinActivity {
 				startActivity(new Intent(this, SettingsActivity.class));
 				break;
 			case R.id.action_glaciervpn:
-				startActivity(new Intent(this, OpenVPNActivity.class));
-				break;
+				try {
+					startActivity(new Intent(this, OpenVPNActivity.class));
+					break;
+				}catch(Exception e){
+					doCoreErrorAction();
+				}
 			case R.id.action_accounts:
 				startActivity(new Intent(this, ManageAccountActivity.class));
 				break;
@@ -360,6 +364,20 @@ public abstract class XmppActivity extends PinActivity {
 //				break;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	/**
+	 * HONEYBADGER AM-76
+	 */
+	private void doCoreErrorAction() {
+		try {
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+			intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
+			startActivity(intent);
+		}
+		catch(Exception e2){
+			e2.printStackTrace();
+		}
 	}
 
 	public void selectPresence(final Conversation conversation, final PresenceSelector.OnPresenceSelected listener) {
