@@ -565,7 +565,8 @@ public class XmppConnectionService extends Service {
         final boolean needsForegroundService = intent != null && intent.getBooleanExtra(EventReceiver.EXTRA_NEEDS_FOREGROUND_SERVICE, false);
         if (needsForegroundService) {
             Log.d(Config.LOGTAG,"toggle forced foreground service after receiving event (action="+action+")");
-            toggleForegroundService(true);
+            //toggleForegroundService(true);
+			toggleForegroundService();
         }
 
 		String pushedAccountHash = null;
@@ -1077,7 +1078,7 @@ public class XmppConnectionService extends Service {
 		}
 	}
 
-	/*public void toggleForegroundService() {
+	public void toggleForegroundService() {
 		if (mForceForegroundService.get() || (keepForegroundService() && hasEnabledAccounts())) {
 			startForeground(NotificationService.FOREGROUND_NOTIFICATION_ID, this.mNotificationService.createForegroundNotification());
 			Log.d(Config.LOGTAG, "started foreground service");
@@ -1085,10 +1086,10 @@ public class XmppConnectionService extends Service {
 			stopForeground(true);
 			Log.d(Config.LOGTAG, "stopped foreground service");
 		}
-	}*/
+	}
 
 	//ALF AM-184 next 2 from Conversations
-    public void toggleForegroundService() {
+    /*public void toggleForegroundService() {
         toggleForegroundService(false);
     }
 
@@ -1103,7 +1104,7 @@ public class XmppConnectionService extends Service {
         }
         mNotificationService.dismissForcedForegroundNotification(); //if the channel was changed the previous call might fail
         Log.d(Config.LOGTAG,"ForegroundService: "+(status?"on":"off"));
-    }
+    }*/
 
 	public boolean keepForegroundService() {
 		return getBooleanPreference(SettingsActivity.KEEP_FOREGROUND_SERVICE, R.bool.enable_foreground_service);
