@@ -755,6 +755,22 @@ public class NotificationService {
 	}
 
 	public Notification createForegroundNotification() {
+		if (Compatibility.runsTwentySix()) {
+			final Notification.Builder mBuilder = new Notification.Builder(mXmppConnectionService);
+			mBuilder.setContentTitle(mXmppConnectionService.getString(R.string.conversations_foreground_service) + " is active");
+			mBuilder.setContentText("");
+			mBuilder.setContentIntent(createOpenConversationsIntent());
+			mBuilder.setWhen(0);
+			mBuilder.setPriority(Notification.PRIORITY_MIN);
+			mBuilder.setSmallIcon(R.drawable.ic_notification);
+
+			mBuilder.setChannelId("foreground");
+			return mBuilder.build();
+		}
+
+
+
+
 		//ALF AM-90, AM-168 added channelid
 		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, "foreground");
 		//final Notification.Builder mBuilder = new Notification.Builder(mXmppConnectionService);
@@ -804,7 +820,8 @@ public class NotificationService {
 				errors.add(account);
 			}
 		}
-		if (mXmppConnectionService.keepForegroundService()) {
+		//ALF AM-184 from Conversations replaced keepForegroundService
+		if (mXmppConnectionService.foregroundNotificationNeedsUpdatingWhenErrorStateChanges()) {
 			notify(FOREGROUND_NOTIFICATION_ID, createForegroundNotification());
 		}
 		//ALF AM-90, AM-168 added channelid
@@ -847,6 +864,11 @@ public class NotificationService {
 		Notification notification = mBuilder.build();
 		notify(FOREGROUND_NOTIFICATION_ID, notification);
 		return notification;
+	}
+
+	//ALF AM-184 from Conversations
+	void dismissForcedForegroundNotification() {
+		cancel(FOREGROUND_NOTIFICATION_ID);
 	}
 
 	private void notify(String tag, int id, Notification notification) {
@@ -908,7 +930,7 @@ public class NotificationService {
 		notificationManager.createNotificationChannelGroup(new NotificationChannelGroup("chats", c.getString(R.string.notification_group_messages)));
 		final NotificationChannel foregroundServiceChannel = new NotificationChannel("foreground",
 				c.getString(R.string.foreground_service_channel_name),
-				NotificationManager.IMPORTANCE_NONE); //ALF AM-184 changed from MIN
+				NotificationManager.IMPORTANCE_MIN); //ALF AM-184 changed from MIN
 		foregroundServiceChannel.setDescription(c.getString(R.string.foreground_service_channel_description));
 		foregroundServiceChannel.setShowBadge(false);
 		foregroundServiceChannel.setGroup("status");
