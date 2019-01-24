@@ -18,6 +18,7 @@ import java.util.List;
 
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.ui.ShareWithActivity;
+import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 
 @TargetApi(Build.VERSION_CODES.M)
 public class ContactChooserTargetService extends ChooserTargetService implements ServiceConnection {
@@ -32,7 +33,7 @@ public class ContactChooserTargetService extends ChooserTargetService implements
 	public List<ChooserTarget> onGetChooserTargets(ComponentName targetActivityName, IntentFilter matchedFilter) {
 		Intent intent = new Intent(this, XmppConnectionService.class);
 		intent.setAction("contact_chooser");
-		startService(intent);
+		Compatibility.startService(this, intent);
 		bindService(intent, this, Context.BIND_AUTO_CREATE);
 		ArrayList<ChooserTarget> chooserTargets = new ArrayList<>();
 		try {

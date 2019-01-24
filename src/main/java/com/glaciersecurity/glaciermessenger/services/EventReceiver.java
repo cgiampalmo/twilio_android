@@ -3,16 +3,16 @@ package com.glaciersecurity.glaciermessenger.services;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.glaciersecurity.glaciermessenger.Config;
-import com.glaciersecurity.glaciermessenger.persistance.DatabaseBackend;
+import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 
 public class EventReceiver extends BroadcastReceiver {
 
 	public static final String SETTING_ENABLED_ACCOUNTS = "enabled_accounts";
+	public static final String EXTRA_NEEDS_FOREGROUND_SERVICE = "needs_foreground_service"; //ALF AM-184
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
@@ -25,7 +25,7 @@ public class EventReceiver extends BroadcastReceiver {
 		final String action = intent.getAction();
 		if (action.equals("ui") || hasEnabledAccounts(context)) {
 			try {
-				context.startService(mIntentForService);
+				Compatibility.startService(context, mIntentForService);
 			} catch (RuntimeException e) {
 				Log.d(Config.LOGTAG,"EventReceiver was unable to start service");
 			}

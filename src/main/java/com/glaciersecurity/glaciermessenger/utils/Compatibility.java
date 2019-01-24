@@ -22,7 +22,7 @@ import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.ui.SettingsActivity;
 import com.glaciersecurity.glaciermessenger.ui.SettingsFragment;
 
-//import static com.glaciersecurity.glaciermessenger.services.EventReceiver.EXTRA_NEEDS_FOREGROUND_SERVICE;
+import static com.glaciersecurity.glaciermessenger.services.EventReceiver.EXTRA_NEEDS_FOREGROUND_SERVICE;
 
 public class Compatibility {
 
@@ -100,7 +100,7 @@ public class Compatibility {
         }
     }
 
-    /*public static void startService(Context context, Intent intent) {
+    public static void startService(Context context, Intent intent) {
         try {
             if (Compatibility.runsAndTargetsTwentySix(context)) {
                 intent.putExtra(EXTRA_NEEDS_FOREGROUND_SERVICE, true);
@@ -111,5 +111,5 @@ public class Compatibility {
         } catch (RuntimeException e) {
             Log.d(Config.LOGTAG, context.getClass().getSimpleName()+" was unable to start service");
         }
-    }*/
+    }
 }
