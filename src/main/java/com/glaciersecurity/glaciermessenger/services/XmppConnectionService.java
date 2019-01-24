@@ -6,6 +6,8 @@ import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -207,6 +209,7 @@ public class XmppConnectionService extends Service {
 	private ShortcutService mShortcutService = new ShortcutService(this);
 	private AtomicBoolean mInitialAddressbookSyncCompleted = new AtomicBoolean(false);
 	private AtomicBoolean mForceForegroundService = new AtomicBoolean(false);
+	private AtomicBoolean mForceDuringOnCreate = new AtomicBoolean(false);
 	private OnMessagePacketReceived mMessageParser = new MessageParser(this);
 	private OnPresencePacketReceived mPresenceParser = new PresenceParser(this);
 	private IqParser mIqParser = new IqParser(this);
@@ -263,6 +266,8 @@ public class XmppConnectionService extends Service {
 			return false;
 		}
 	};
+
+	//private boolean destroyed = false;
 
 	private int unreadCount = -1;
 
@@ -395,7 +400,9 @@ public class XmppConnectionService extends Service {
 	private WakeLock wakeLock;
 	private PowerManager pm;
 	private LruCache<String, Bitmap> mBitmapCache;
-	private EventReceiver mEventReceiver = new EventReceiver();
+	//private EventReceiver mEventReceiver = new EventReceiver(); //ALF AM-184 from Conversations an following two
+	private BroadcastReceiver mInternalEventReceiver = new InternalEventReceiver();
+	private BroadcastReceiver mInternalScreenEventReceiver = new InternalEventReceiver();
 
 	private static String generateFetchKey(Account account, final Avatar avatar) {
 		return account.getJid().asBareJid() + "_" + avatar.owner + "_" + avatar.sha1sum;
@@ -660,6 +667,7 @@ public class XmppConnectionService extends Service {
 						updateConversation(c);
 					});
 				case AudioManager.RINGER_MODE_CHANGED_ACTION:
+				case NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED:
 					if (dndOnSilentMode()) {
 						refreshAllPresences();
 					}
@@ -888,16 +896,25 @@ public class XmppConnectionService extends Service {
 	}
 
 	private boolean isPhoneSilenced() {
-		AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+		final boolean notificationDnd;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			final NotificationManager notificationManager = getSystemService(NotificationManager.class);
+			final int filter = notificationManager == null ? NotificationManager.INTERRUPTION_FILTER_UNKNOWN : notificationManager.getCurrentInterruptionFilter();
+			notificationDnd = filter >= NotificationManager.INTERRUPTION_FILTER_PRIORITY;
+		} else {
+			notificationDnd = false;
+		}
+		final AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+		final int ringerMode = audioManager == null ? AudioManager.RINGER_MODE_NORMAL : audioManager.getRingerMode();
 		try {
 			if (treatVibrateAsSilent()) {
-				return audioManager.getRingerMode() != AudioManager.RINGER_MODE_NORMAL;
+				return notificationDnd || ringerMode != AudioManager.RINGER_MODE_NORMAL;
 			} else {
-				return audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT;
+				return notificationDnd || ringerMode == AudioManager.RINGER_MODE_SILENT;
 			}
 		} catch (Throwable throwable) {
 			Log.d(Config.LOGTAG, "platform bug in isPhoneSilenced (" + throwable.getMessage() + ")");
-			return false;
+			return notificationDnd;
 		}
 	}
 
@@ -967,9 +984,12 @@ public class XmppConnectionService extends Service {
 	@SuppressLint("TrulyRandom")
 	@Override
 	public void onCreate() {
-		if (Compatibility.runsTwentySix()) { //ALF AM-184
+		if (Compatibility.runsTwentySix()) { //ALF AM-184 and mForce following
 			mNotificationService.initializeChannels();
 		}
+		mForceDuringOnCreate.set(Compatibility.runsAndTargetsTwentySix(this));
+		toggleForegroundService();
+		//this.destroyed = false;
 		OmemoSetting.load(this);
 		ExceptionHelper.init(getApplicationContext());
 		PRNGFixes.apply();
@@ -1036,10 +1056,15 @@ public class XmppConnectionService extends Service {
 		toggleScreenEventReceiver();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			scheduleNextIdlePing();
+			IntentFilter intentFilter = new IntentFilter();
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+				intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+			}
+			intentFilter.addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED);
+			registerReceiver(this.mInternalEventReceiver, intentFilter);
 		}
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			registerReceiver(this.mEventReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-		}
+		mForceDuringOnCreate.set(false);
+		toggleForegroundService();
 	}
 
 
@@ -1055,7 +1080,7 @@ public class XmppConnectionService extends Service {
 	@Override
 	public void onDestroy() {
 		try {
-			unregisterReceiver(this.mEventReceiver);
+			unregisterReceiver(this.mInternalEventReceiver);
 		} catch (IllegalArgumentException e) {
 			//ignored
 		}
@@ -1072,28 +1097,18 @@ public class XmppConnectionService extends Service {
 		if (awayWhenScreenOff() && !manuallyChangePresence()) {
 			final IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
 			filter.addAction(Intent.ACTION_SCREEN_OFF);
-			registerReceiver(this.mEventReceiver, filter);
+			registerReceiver(this.mInternalScreenEventReceiver, filter);
 		} else {
 			try {
-				unregisterReceiver(this.mEventReceiver);
+				unregisterReceiver(this.mInternalScreenEventReceiver);
 			} catch (IllegalArgumentException e) {
 				//ignored
 			}
 		}
 	}
 
-	public void toggleForegroundService() {
-		if (mForceForegroundService.get() || (keepForegroundService() && hasEnabledAccounts())) {
-			startForeground(NotificationService.FOREGROUND_NOTIFICATION_ID, this.mNotificationService.createForegroundNotification());
-			Log.d(Config.LOGTAG, "started foreground service");
-		} else {
-			stopForeground(true);
-			Log.d(Config.LOGTAG, "stopped foreground service");
-		}
-	}
-
-	//ALF AM-184 next 2 from Conversations
-    /*public void toggleForegroundService() {
+	//ALF AM-184 next 3 from Conversations, removed old one
+    public void toggleForegroundService() {
         toggleForegroundService(false);
     }
 
@@ -1108,16 +1123,16 @@ public class XmppConnectionService extends Service {
         }
         mNotificationService.dismissForcedForegroundNotification(); //if the channel was changed the previous call might fail
         Log.d(Config.LOGTAG,"ForegroundService: "+(status?"on":"off"));
-    }*/
+    }
 
-	public boolean keepForegroundService() {
-		return getBooleanPreference(SettingsActivity.KEEP_FOREGROUND_SERVICE, R.bool.enable_foreground_service);
+	public boolean foregroundNotificationNeedsUpdatingWhenErrorStateChanges() {
+		return !mForceForegroundService.get() && Compatibility.keepForegroundService(this) && hasEnabledAccounts();
 	}
 
 	@Override
 	public void onTaskRemoved(final Intent rootIntent) {
 		super.onTaskRemoved(rootIntent);
-		if (keepForegroundService() || mForceForegroundService.get()) {
+		if ((Compatibility.keepForegroundService(this) && hasEnabledAccounts()) || mForceForegroundService.get()) {
 			Log.d(Config.LOGTAG, "ignoring onTaskRemoved because foreground service is activated");
 		} else {
 			this.logoutAndSave(false);
@@ -1964,6 +1979,7 @@ public class XmppConnectionService extends Service {
 			updateAccountUi();
 			getNotificationService().updateErrorNotification();
 			syncEnabledAccountSetting();
+			toggleForegroundService();
 		}
 	}
 
@@ -4143,6 +4159,15 @@ public class XmppConnectionService extends Service {
 	public class XmppConnectionBinder extends Binder {
 		public XmppConnectionService getService() {
 			return XmppConnectionService.this;
+		}
+	}
+
+	//ALF AM-184 from Conversations
+	private class InternalEventReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			onStartCommand(intent,0,0);
 		}
 	}
 }
