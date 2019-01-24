@@ -378,11 +378,9 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             profileSpinner.setAdapter(spinnerAdapter);
 
             if(list.size()> 0) {
-                mStartVpn.setOnClickListener(this);
-                mStartVpn.setVisibility(View.VISIBLE);
-                mDisconnect.setOnClickListener(this);
-                mDisconnect.setVisibility(View.VISIBLE);
-
+                Button b = mStartVpn;
+                b.setOnClickListener(this);
+                b.setVisibility(View.VISIBLE);
                 // b.setText("Submit");
                 mStartUUID = list.get(0).mUUID;
             }
@@ -419,6 +417,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
         switch (v.getId()) {
             case R.id.startVPN:
                 isConnected_EnableDisconnect();
+                disconnectClicked = false;
                 // GOOBER
                 GlacierProfile glacierProfile = (GlacierProfile) profileSpinner.getSelectedItem();
                 mStartUUID = glacierProfile.getUuid();
@@ -470,6 +469,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                     doCoreErrorAction(); //HONEYBADGER AM-76
                 }
                 isDisconnected_EnableConnect();
+                disconnectClicked = true;
 
                 break;
             case R.id.addNewProfile:
@@ -523,15 +523,11 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     }
 
     public void isConnected_EnableDisconnect(){
-        disconnectClicked = false;
-        connectClicked = true;
         mDisconnect.setEnabled(true);
         mStartVpn.setEnabled(false);
 
     }
     public void isDisconnected_EnableConnect(){
-        disconnectClicked = true;
-        connectClicked = false;
         mDisconnect.setEnabled(false);
         mStartVpn.setEnabled(true);
 
