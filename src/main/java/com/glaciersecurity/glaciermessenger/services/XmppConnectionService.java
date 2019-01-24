@@ -560,6 +560,14 @@ public class XmppConnectionService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		final String action = intent == null ? null : intent.getAction();
+
+		//ALF AM-184 from Conversations
+        final boolean needsForegroundService = intent != null && intent.getBooleanExtra(EventReceiver.EXTRA_NEEDS_FOREGROUND_SERVICE, false);
+        if (needsForegroundService) {
+            Log.d(Config.LOGTAG,"toggle forced foreground service after receiving event (action="+action+")");
+            toggleForegroundService(true);
+        }
+
 		String pushedAccountHash = null;
 		boolean interactive = false;
 		if (action != null) {
@@ -1069,7 +1077,7 @@ public class XmppConnectionService extends Service {
 		}
 	}
 
-	public void toggleForegroundService() {
+	/*public void toggleForegroundService() {
 		if (mForceForegroundService.get() || (keepForegroundService() && hasEnabledAccounts())) {
 			startForeground(NotificationService.FOREGROUND_NOTIFICATION_ID, this.mNotificationService.createForegroundNotification());
 			Log.d(Config.LOGTAG, "started foreground service");
@@ -1077,7 +1085,25 @@ public class XmppConnectionService extends Service {
 			stopForeground(true);
 			Log.d(Config.LOGTAG, "stopped foreground service");
 		}
-	}
+	}*/
+
+	//ALF AM-184 next 2 from Conversations
+    public void toggleForegroundService() {
+        toggleForegroundService(false);
+    }
+
+    private void toggleForegroundService(boolean force) {
+        final boolean status;
+        if (force || mForceDuringOnCreate.get() || mForceForegroundService.get() || (Compatibility.keepForegroundService(this) && hasEnabledAccounts())) {
+            startForeground(NotificationService.FOREGROUND_NOTIFICATION_ID, this.mNotificationService.createForegroundNotification());
+            status = true;
+        } else {
+            stopForeground(true);
+            status = false;
+        }
+        mNotificationService.dismissForcedForegroundNotification(); //if the channel was changed the previous call might fail
+        Log.d(Config.LOGTAG,"ForegroundService: "+(status?"on":"off"));
+    }
 
 	public boolean keepForegroundService() {
 		return getBooleanPreference(SettingsActivity.KEEP_FOREGROUND_SERVICE, R.bool.enable_foreground_service);
