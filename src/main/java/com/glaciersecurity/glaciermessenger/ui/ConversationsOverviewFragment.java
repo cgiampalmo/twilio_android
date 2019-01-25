@@ -63,7 +63,9 @@ import java.util.List;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.databinding.FragmentConversationsOverviewBinding;
+import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
+import com.glaciersecurity.glaciermessenger.entities.Message;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
 import com.glaciersecurity.glaciermessenger.ui.adapter.ConversationAdapter;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnConversationArchived;
@@ -136,6 +138,10 @@ public class ConversationsOverviewFragment extends XmppFragment {
 
 			if (position == 0 && conversationsAdapter.getItemCount() == 0) {
 				final Conversation c = swipedConversation.pop();
+				//ALF AM-51, AM-64
+				if (c.getMode() == Conversation.MODE_MULTI) {
+					sendLeavingGroupMessage(c);
+				}
 				activity.xmppConnectionService.archiveConversation(c);
 				return;
 			}
@@ -182,6 +188,10 @@ public class ConversationsOverviewFragment extends XmppFragment {
 					if (!c.isRead() && c.getMode() == Conversation.MODE_SINGLE) {
 						return;
 					}
+					//ALF AM-51, AM-64
+					if (c.getMode() == Conversation.MODE_MULTI) {
+						sendLeavingGroupMessage(c);
+					}
 					activity.xmppConnectionService.archiveConversation(c);
 				}
 			});
@@ -190,6 +200,21 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			snackbar.show();
 		}
 	};
+
+	/**
+	 * //ALF AM-51
+	 */
+	public void sendLeavingGroupMessage(final Conversation conversation) {
+		final Account account = conversation.getAccount();
+		String dname = account.getDisplayName();
+		if (dname == null) { dname = account.getUsername(); }
+		String bod = dname + " " + getString(R.string.left_group);
+		Message message = new Message(conversation, bod, conversation.getNextEncryption());
+		activity.xmppConnectionService.sendMessage(message);
+		// sleep required so message goes out before conversation thread stopped
+		// maybe show a spinner?
+		try { Thread.sleep(2000); } catch (InterruptedException ie) {}
+	}
 
 	private ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
 
@@ -419,6 +444,10 @@ public class ConversationsOverviewFragment extends XmppFragment {
 
 				// end chat
 				if (endAllChatCheckBox.isChecked()) {
+					//ALF AM-51, AM-64
+					if (conversations.get(i).getMode() == Conversation.MODE_MULTI) {
+						sendLeavingGroupMessage(conversations.get(i));
+					}
 					activity.xmppConnectionService.archiveConversation(conversations.get(i));
 				}
 			}
