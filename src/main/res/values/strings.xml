@@ -241,8 +241,8 @@
     <string name="delete_bookmark">Delete Bookmark</string>
     <string name="bookmark_already_exists">This bookmark already exists</string>
     <!-- ALF AM-51 -->
-    <string name="added_to_group">Added to the Group</string>
-    <string name="left_group">Left the Group</string>
+    <string name="added_to_group">added to the group</string>
+    <string name="left_group">left the group</string>
     <string name="action_edit_subject">Edit group chat subject</string>
     <string name="topic">Topic</string>
     <string name="joining_conference">Joining group chat…</string>

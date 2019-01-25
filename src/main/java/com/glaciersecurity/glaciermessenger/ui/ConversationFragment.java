@@ -1587,6 +1587,10 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		builder.setPositiveButton(getString(R.string.delete_messages), (dialog, which) -> {
 			this.activity.xmppConnectionService.clearConversationHistory(conversation);
 			if (endConversationCheckBox.isChecked()) {
+				//ALF AM-51, AM-64
+				if (conversation.getMode() == Conversation.MODE_MULTI) {
+					sendLeavingGroupMessage(conversation);
+				}
 				this.activity.xmppConnectionService.archiveConversation(conversation);
 				this.activity.onConversationArchived(conversation);
 			} else {
