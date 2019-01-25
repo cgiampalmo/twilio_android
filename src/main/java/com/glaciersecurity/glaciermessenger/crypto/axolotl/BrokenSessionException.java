@@ -27,29 +27,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.glaciersecurity.glaciermessenger.ui.util;
+package com.glaciersecurity.glaciermessenger.crypto.axolotl;
 
-public class PendingItem<T> {
+import org.whispersystems.libsignal.SignalProtocolAddress;
 
-	private T item = null;
+public class BrokenSessionException extends CryptoFailedException {
 
-	public synchronized void push(T item) {
-		this.item = item;
+	private final SignalProtocolAddress signalProtocolAddress;
+
+	public BrokenSessionException(SignalProtocolAddress address, Exception e) {
+		super(e);
+		this.signalProtocolAddress = address;
+
 	}
 
-	public synchronized T pop() {
-		final T item = this.item;
-		this.item = null;
-		return item;
-	}
-
-	public synchronized T peek() {
-		return item;
-	}
-
-	public synchronized boolean clear() {
-		boolean notNull = this.item != null;
-		this.item = null;
-		return notNull;
+	public SignalProtocolAddress getSignalProtocolAddress() {
+		return signalProtocolAddress;
 	}
 }

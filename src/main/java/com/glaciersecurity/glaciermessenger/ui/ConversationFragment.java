@@ -149,6 +149,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	private final List<Message> messageList = new ArrayList<>();
 	private final PendingItem<ActivityResult> postponedActivityResult = new PendingItem<>();
 	private final PendingItem<String> pendingConversationsUuid = new PendingItem<>();
+	//private final PendingItem<ArrayList<Attachment>> pendingMediaPreviews = new PendingItem<>();
 	private final PendingItem<Bundle> pendingExtras = new PendingItem<>();
 	private final PendingItem<Uri> pendingTakePhotoUri = new PendingItem<>();
 	private final PendingItem<ScrollState> pendingScrollState = new PendingItem<>();
@@ -591,8 +592,8 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	}
 
 	private ScrollState getScrollPosition() {
-		final ListView listView = this.binding.messagesView;
-		if (listView.getCount() == 0 || listView.getLastVisiblePosition() == listView.getCount() - 1) {
+		final ListView listView = this.binding == null ? null : this.binding.messagesView;
+		if (listView == null || listView.getCount() == 0 || listView.getLastVisiblePosition() == listView.getCount() - 1) {
 			return null;
 		} else {
 			final int pos = listView.getFirstVisiblePosition();
@@ -1088,7 +1089,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		}
 		if (m.getType() != Message.TYPE_STATUS) {
 
-			if (m.getEncryption() == Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE) {
+			if (m.getEncryption() == Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE || m.getEncryption() == Message.ENCRYPTION_AXOLOTL_FAILED) {
 				return;
 			}
 
@@ -1822,6 +1823,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				final XmppConnection xmppConnection = conversation.getAccount().getXmppConnection();
 				if (!message.hasFileOnRemoteHost()
 						&& xmppConnection != null
+						&& conversation.getMode() == Conversational.MODE_SINGLE
 						&& !xmppConnection.getFeatures().httpUpload(message.getFileParams().size)) {
 					activity.selectPresence(conversation, () -> {
 						message.setCounterpart(conversation.getNextCounterpart());
@@ -2228,25 +2230,28 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 
 	private boolean showBlockSubmenu(View view) {
 		final Jid jid = conversation.getJid();
-		if (jid.getLocal() == null) {
-			BlockContactDialog.show(activity, conversation);
-		} else {
-			PopupMenu popupMenu = new PopupMenu(getActivity(), view);
-			popupMenu.inflate(R.menu.block);
-			popupMenu.setOnMenuItemClickListener(menuItem -> {
-				Blockable blockable;
-				switch (menuItem.getItemId()) {
-					case R.id.block_domain:
-						blockable = conversation.getAccount().getRoster().getContact(Jid.ofDomain(jid.getDomain()));
-						break;
-					default:
-						blockable = conversation;
-				}
-				BlockContactDialog.show(activity, blockable);
-				return true;
-			});
-			popupMenu.show();
-		}
+		final boolean showReject = !conversation.isWithStranger() && conversation.getContact().getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST);
+		PopupMenu popupMenu = new PopupMenu(getActivity(), view);
+		popupMenu.inflate(R.menu.block);
+		popupMenu.getMenu().findItem(R.id.block_contact).setVisible(jid.getLocal() != null);
+		popupMenu.getMenu().findItem(R.id.reject).setVisible(showReject);
+		popupMenu.setOnMenuItemClickListener(menuItem -> {
+			Blockable blockable;
+			switch (menuItem.getItemId()) {
+				case R.id.reject:
+					activity.xmppConnectionService.stopPresenceUpdatesTo(conversation.getContact());
+					updateSnackBar(conversation);
+					return true;
+				case R.id.block_domain:
+					blockable = conversation.getAccount().getRoster().getContact(Jid.ofDomain(jid.getDomain()));
+					break;
+				default:
+					blockable = conversation;
+			}
+			BlockContactDialog.show(activity, blockable);
+			return true;
+		});
+		popupMenu.show();
 		return true;
 	}
 
@@ -2882,13 +2887,21 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	}
 
 	private void clearPending() {
-		if (postponedActivityResult.pop() != null) {
+		if (postponedActivityResult.clear()) {
 			Log.e(Config.LOGTAG, "cleared pending intent with unhandled result left");
 		}
-		pendingScrollState.pop();
-		if (pendingTakePhotoUri.pop() != null) {
+		if (pendingScrollState.clear()) {
+			Log.e(Config.LOGTAG, "cleared scroll state");
+		}
+		if (pendingTakePhotoUri.clear()) {
 			Log.e(Config.LOGTAG, "cleared pending photo uri");
 		}
+		if (pendingConversationsUuid.clear()) {
+			Log.e(Config.LOGTAG,"cleared pending conversations uuid");
+		}
+		//if (pendingMediaPreviews.clear()) {
+		//	Log.e(Config.LOGTAG,"cleared pending media previews");
+		//}
 	}
 
 	public Conversation getConversation() {

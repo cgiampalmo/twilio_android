@@ -410,11 +410,18 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	@Override
 	public void onConversationSelected(Conversation conversation) {
+		clearPendingViewIntent();
 		if (ConversationFragment.getConversation(this) == conversation) {
 			Log.d(Config.LOGTAG, "ignore onConversationSelected() because conversation is already open");
 			return;
 		}
 		openConversation(conversation, null);
+	}
+
+	public void clearPendingViewIntent() {
+		if (pendingViewIntent.clear()) {
+			Log.e(Config.LOGTAG, "cleared pending view intent");
+		}
 	}
 
 	private void openConversation(Conversation conversation, Bundle extras) {
@@ -510,6 +517,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	protected void onNewIntent(final Intent intent) {
 		if (isViewIntent(intent)) {
 			if (xmppConnectionService != null) {
+				clearPendingViewIntent();
 				processViewIntent(intent);
 			} else {
 				pendingViewIntent.push(intent);
