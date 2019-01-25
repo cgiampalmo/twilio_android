@@ -399,6 +399,10 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			Toast.makeText(this, R.string.invalid_jid, Toast.LENGTH_SHORT).show();
 			return;
 		}
+		//ALF AM-174
+		if (bookmark.getBookmarkName().startsWith("#")) {
+			bookmark.setBookmarkName(bookmark.getBookmarkName().substring(1));
+		}
 		Conversation conversation = xmppConnectionService.findOrCreateConversation(bookmark.getAccount(), jid, true, true, true);
 		bookmark.setConversation(conversation);
 		if (!bookmark.autojoin() && getPreferences().getBoolean("autojoin", getResources().getBoolean(R.bool.autojoin))) {
