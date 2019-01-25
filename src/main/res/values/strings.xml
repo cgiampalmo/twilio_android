@@ -819,6 +819,7 @@
     <string name="login_error_message">Unable to validate login information.  Please enter login information again.</string>
     <string name="signin_fail_title">Sign-in failed</string>
     <string name="enter_password">enter password</string>
+    <string name="reject_request">Reject request</string>
     <!-- ALF AM-16 -->
     <string name="support_button_key">Support</string>
     <string name="support_button_summary">Report Issue or Feedback</string>

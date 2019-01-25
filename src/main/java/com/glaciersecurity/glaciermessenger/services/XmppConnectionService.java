@@ -872,15 +872,19 @@ public class XmppConnectionService extends Service {
 	@SuppressLint("NewApi")
 	@SuppressWarnings("deprecation")
 	public boolean isInteractive() {
+        try {
 		final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 
-		final boolean isScreenOn;
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-			isScreenOn = pm.isScreenOn();
-		} else {
-			isScreenOn = pm.isInteractive();
+            final boolean isScreenOn;
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                isScreenOn = pm.isScreenOn();
+            } else {
+                isScreenOn = pm.isInteractive();
+            }
+            return isScreenOn;
+        } catch (RuntimeException e) {
+            return false;
 		}
-		return isScreenOn;
 	}
 
 	private boolean isPhoneSilenced() {
@@ -1802,11 +1806,7 @@ public class XmppConnectionService extends Service {
 				leaveMuc(conversation);
 			} else {
 				if (conversation.getContact().getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST)) {
-					Log.d(Config.LOGTAG, "Canceling presence request from " + conversation.getJid().toString());
-					sendPresencePacket(
-							conversation.getAccount(),
-							mPresenceGenerator.stopPresenceUpdatesTo(conversation.getContact())
-					);
+                    stopPresenceUpdatesTo(conversation.getContact());
 				}
 			}
 			updateConversation(conversation);
@@ -1814,6 +1814,12 @@ public class XmppConnectionService extends Service {
 			updateConversationUi();
 		}
 	}
+
+    public void stopPresenceUpdatesTo(Contact contact) {
+        Log.d(Config.LOGTAG, "Canceling presence request from " + contact.getJid().toString());
+        sendPresencePacket(contact.getAccount(), mPresenceGenerator.stopPresenceUpdatesTo(contact));
+        contact.resetOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST);
+    }
 
 	private int deviceKey = -1; //ALF AM-202
 	public int getDeviceKey() {
