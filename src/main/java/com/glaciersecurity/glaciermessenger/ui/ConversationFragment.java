@@ -149,6 +149,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	private final List<Message> messageList = new ArrayList<>();
 	private final PendingItem<ActivityResult> postponedActivityResult = new PendingItem<>();
 	private final PendingItem<String> pendingConversationsUuid = new PendingItem<>();
+	//private final PendingItem<ArrayList<Attachment>> pendingMediaPreviews = new PendingItem<>();
 	private final PendingItem<Bundle> pendingExtras = new PendingItem<>();
 	private final PendingItem<Uri> pendingTakePhotoUri = new PendingItem<>();
 	private final PendingItem<ScrollState> pendingScrollState = new PendingItem<>();
@@ -591,8 +592,8 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	}
 
 	private ScrollState getScrollPosition() {
-		final ListView listView = this.binding.messagesView;
-		if (listView.getCount() == 0 || listView.getLastVisiblePosition() == listView.getCount() - 1) {
+		final ListView listView = this.binding == null ? null : this.binding.messagesView;
+		if (listView == null || listView.getCount() == 0 || listView.getLastVisiblePosition() == listView.getCount() - 1) {
 			return null;
 		} else {
 			final int pos = listView.getFirstVisiblePosition();
@@ -1088,7 +1089,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		}
 		if (m.getType() != Message.TYPE_STATUS) {
 
-			if (m.getEncryption() == Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE) {
+			if (m.getEncryption() == Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE || m.getEncryption() == Message.ENCRYPTION_AXOLOTL_FAILED) {
 				return;
 			}
 
@@ -2882,13 +2883,21 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	}
 
 	private void clearPending() {
-		if (postponedActivityResult.pop() != null) {
+		if (postponedActivityResult.clear()) {
 			Log.e(Config.LOGTAG, "cleared pending intent with unhandled result left");
 		}
-		pendingScrollState.pop();
-		if (pendingTakePhotoUri.pop() != null) {
+		if (pendingScrollState.clear()) {
+			Log.e(Config.LOGTAG, "cleared scroll state");
+		}
+		if (pendingTakePhotoUri.clear()) {
 			Log.e(Config.LOGTAG, "cleared pending photo uri");
 		}
+		if (pendingConversationsUuid.clear()) {
+			Log.e(Config.LOGTAG,"cleared pending conversations uuid");
+		}
+		//if (pendingMediaPreviews.clear()) {
+		//	Log.e(Config.LOGTAG,"cleared pending media previews");
+		//}
 	}
 
 	public Conversation getConversation() {

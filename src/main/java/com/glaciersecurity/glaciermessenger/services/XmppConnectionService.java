@@ -302,7 +302,7 @@ public class XmppConnectionService extends Service {
 			fetchBookmarks(account);
 			final boolean flexible = account.getXmppConnection().getFeatures().flexibleOfflineMessageRetrieval();
 			final boolean catchup = getMessageArchiveService().inCatchup(account);
-			if (flexible && catchup) {
+			if (flexible && catchup && account.getXmppConnection().isMamPreferenceAlways()) {
 				sendIqPacket(account, mIqGenerator.purgeOfflineMessages(), (acc, packet) -> {
 					if (packet.getType() == IqPacket.TYPE.RESULT) {
 						Log.d(Config.LOGTAG, acc.getJid().asBareJid() + ": successfully purged offline messages");
@@ -1655,8 +1655,8 @@ public class XmppConnectionService extends Service {
 	public List<Conversation> findAllConferencesWith(Contact contact) {
 		ArrayList<Conversation> results = new ArrayList<>();
 		for (final Conversation c : conversations) {
-			if (c.getMode() == Conversation.MODE_MULTI
-					&& (c.getJid().asBareJid().equals(c.getJid().asBareJid()) || c.getMucOptions().isContactInRoom(contact))) {
+			if (c.getMode() == Conversation.MODE_MULTI &&
+					(c.getJid().asBareJid().equals(contact.getJid().asBareJid()) || c.getMucOptions().isContactInRoom(contact))) {
 				results.add(c);
 			}
 		}
