@@ -756,6 +756,22 @@ public class NotificationService {
 	}
 
 	public Notification createForegroundNotification() {
+		if (Compatibility.runsTwentySix()) {
+			final Notification.Builder mBuilder = new Notification.Builder(mXmppConnectionService);
+			mBuilder.setContentTitle(mXmppConnectionService.getString(R.string.conversations_foreground_service) + " is active");
+			mBuilder.setContentText("");
+			mBuilder.setContentIntent(createOpenConversationsIntent());
+			mBuilder.setWhen(0);
+			mBuilder.setPriority(Notification.PRIORITY_MIN);
+			mBuilder.setSmallIcon(R.drawable.ic_notification);
+
+			mBuilder.setChannelId("foreground");
+			return mBuilder.build();
+		}
+
+
+
+
 		//ALF AM-90, AM-168 added channelid
 		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, "foreground");
 		//final Notification.Builder mBuilder = new Notification.Builder(mXmppConnectionService);
