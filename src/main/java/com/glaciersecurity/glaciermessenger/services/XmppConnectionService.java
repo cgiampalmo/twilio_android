@@ -40,6 +40,8 @@ import android.util.Log;
 import android.util.LruCache;
 import android.util.Pair;
 
+import org.conscrypt.Conscrypt;
+
 import org.openintents.openpgp.IOpenPgpService2;
 import org.openintents.openpgp.util.OpenPgpApi;
 import org.openintents.openpgp.util.OpenPgpServiceConnection;
@@ -47,6 +49,7 @@ import org.openintents.openpgp.util.OpenPgpServiceConnection;
 import java.math.BigInteger;
 import java.net.URL;
 import java.security.SecureRandom;
+import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -70,6 +73,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.android.JabberIdContact;
 import com.glaciersecurity.glaciermessenger.crypto.OmemoSetting;
 import com.glaciersecurity.glaciermessenger.crypto.PgpDecryptionService;
 import com.glaciersecurity.glaciermessenger.crypto.PgpEngine;
@@ -162,6 +166,7 @@ public class XmppConnectionService extends Service {
 	public static final String ACTION_FCM_TOKEN_REFRESH = "fcm_token_refresh";
 	public static final String ACTION_FCM_MESSAGE_RECEIVED = "fcm_message_received";
 	private static final String ACTION_MERGE_PHONE_CONTACTS = "merge_phone_contacts";
+	private static final String ACTION_POST_CONNECTIVITY_CHANGE = "com.glaciersecurity.glaciermessenger.POST_CONNECTIVITY_CHANGE";
 
 	private static final String SETTING_LAST_ACTIVITY_TS = "last_activity_timestamp";
 
@@ -179,7 +184,8 @@ public class XmppConnectionService extends Service {
 	private final IBinder mBinder = new XmppConnectionBinder();
 	private final List<Conversation> conversations = new CopyOnWriteArrayList<>();
 	private final IqGenerator mIqGenerator = new IqGenerator(this);
-	private final List<String> mInProgressAvatarFetches = new ArrayList<>();
+	private final Set<String> mInProgressAvatarFetches = new HashSet<>();
+	private final Set<String> mOmittedPepAvatarFetches = new HashSet<>();
 	private final HashSet<Jid> mLowPingTimeoutMode = new HashSet<>();
 	private final OnIqPacketReceived mDefaultIqHandler = (account, packet) -> {
 		if (packet.getType() != IqPacket.TYPE.RESULT) {
@@ -193,16 +199,6 @@ public class XmppConnectionService extends Service {
 	public DatabaseBackend databaseBackend;
 	private ReplacingSerialSingleThreadExecutor mContactMergerExecutor = new ReplacingSerialSingleThreadExecutor(true);
 	private long mLastActivity = 0;
-	private ContentObserver contactObserver = new ContentObserver(null) {
-		@Override
-		public void onChange(boolean selfChange) {
-			super.onChange(selfChange);
-			Intent intent = new Intent(getApplicationContext(),
-					XmppConnectionService.class);
-			intent.setAction(ACTION_MERGE_PHONE_CONTACTS);
-			startService(intent);
-		}
-	};
 	private FileBackend fileBackend = new FileBackend(this);
 	private MemorizingTrustManager mMemorizingTrustManager;
 	private NotificationService mNotificationService = new NotificationService(this);
@@ -240,6 +236,7 @@ public class XmppConnectionService extends Service {
 	private AvatarService mAvatarService = new AvatarService(this);
 	private MessageArchiveService mMessageArchiveService = new MessageArchiveService(this);
 	private PushManagementService mPushManagementService = new PushManagementService(this);
+	private QuickConversationsService mQuickConversationsService = new QuickConversationsService(this);
 	private final ConversationsFileObserver fileObserver = new ConversationsFileObserver(
 			Environment.getExternalStorageDirectory().getAbsolutePath()
 	) {
@@ -426,7 +423,7 @@ public class XmppConnectionService extends Service {
 
 	public void checkNewPermission(){
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED )) {
-			getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, contactObserver);
+            startContactObserver();
 		}
 	}
 
@@ -992,6 +989,11 @@ public class XmppConnectionService extends Service {
 		//this.destroyed = false;
 		OmemoSetting.load(this);
 		ExceptionHelper.init(getApplicationContext());
+        try {
+            Security.insertProviderAt(Conscrypt.newProvider(), 1);
+        } catch (Throwable throwable) {
+            Log.e(Config.LOGTAG,"unable to initialize security provider", throwable);
+        }
 		PRNGFixes.apply();
 		Resolver.init(this);
 		this.mRandom = new SecureRandom();
@@ -1023,7 +1025,7 @@ public class XmppConnectionService extends Service {
 		restoreFromDatabase();
 
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED )) {
-			getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, contactObserver);
+			startContactObserver();
 		}
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 			Log.d(Config.LOGTAG,"starting file observer");
@@ -1065,6 +1067,44 @@ public class XmppConnectionService extends Service {
 		}
 		mForceDuringOnCreate.set(false);
 		toggleForegroundService();
+	}
+
+	/*private void checkForDeletedFiles() {
+		if (destroyed) {
+			Log.d(Config.LOGTAG, "Do not check for deleted files because service has been destroyed");
+			return;
+		}
+		final long start = SystemClock.elapsedRealtime();
+		final List<DatabaseBackend.FilePathInfo> relativeFilePaths = databaseBackend.getFilePathInfo();
+		final List<DatabaseBackend.FilePathInfo> changed = new ArrayList<>();
+		for(final DatabaseBackend.FilePathInfo filePath : relativeFilePaths) {
+			if (destroyed) {
+				Log.d(Config.LOGTAG, "Stop checking for deleted files because service has been destroyed");
+				return;
+			}
+			final File file = fileBackend.getFileForPath(filePath.path);
+			if (filePath.setDeleted(!file.exists())) {
+				changed.add(filePath);
+			}
+		}
+		final long duration = SystemClock.elapsedRealtime() - start;
+		Log.d(Config.LOGTAG,"found "+changed.size()+" changed files on start up. total="+relativeFilePaths.size()+". ("+duration+"ms)");
+		if (changed.size() > 0) {
+			databaseBackend.markFilesAsChanged(changed);
+			markChangedFiles(changed);
+		}
+	}*/
+
+	public void startContactObserver() {
+		getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, new ContentObserver(null) {
+			@Override
+			public void onChange(boolean selfChange) {
+				super.onChange(selfChange);
+				if (restoredFromDatabaseLatch.getCount() == 0) {
+					loadPhoneContacts();
+				}
+			}
+		});
 	}
 
 
@@ -1392,41 +1432,63 @@ public class XmppConnectionService extends Service {
 	public void fetchBookmarks(final Account account) {
 		final IqPacket iqPacket = new IqPacket(IqPacket.TYPE.GET);
 		final Element query = iqPacket.query("jabber:iq:private");
-		query.addChild("storage", "storage:bookmarks");
-		final OnIqPacketReceived callback = new OnIqPacketReceived() {
-
-			@Override
-			public void onIqPacketReceived(final Account account, final IqPacket packet) {
-				if (packet.getType() == IqPacket.TYPE.RESULT) {
-					final Element query = packet.query();
-					final HashMap<Jid, Bookmark> bookmarks = new HashMap<>();
-					final Element storage = query.findChild("storage", "storage:bookmarks");
-					final boolean autojoin = respectAutojoin();
-					if (storage != null) {
-						for (final Element item : storage.getChildren()) {
-							if (item.getName().equals("conference")) {
-								final Bookmark bookmark = Bookmark.parse(item, account);
-								Bookmark old = bookmarks.put(bookmark.getJid(), bookmark);
-								if (old != null && old.getBookmarkName() != null && bookmark.getBookmarkName() == null) {
-									bookmark.setBookmarkName(old.getBookmarkName());
-								}
-								Conversation conversation = find(bookmark);
-								if (conversation != null) {
-									bookmark.setConversation(conversation);
-								} else if (bookmark.autojoin() && bookmark.getJid() != null && autojoin) {
-									conversation = findOrCreateConversation(account, bookmark.getJid(), true, true, false);
-									bookmark.setConversation(conversation);
-								}
-							}
-						}
-					}
-					account.setBookmarks(new CopyOnWriteArrayList<>(bookmarks.values()));
-				} else {
-					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not fetch bookmarks");
-				}
+		query.addChild("storage", Namespace.BOOKMARKS);
+		final OnIqPacketReceived callback = (a, response) -> {
+			if (response.getType() == IqPacket.TYPE.RESULT) {
+				final Element query1 = response.query();
+				final Element storage = query1.findChild("storage", "storage:bookmarks");
+				processBookmarks(a, storage, false);
+			} else {
+				Log.d(Config.LOGTAG, a.getJid().asBareJid() + ": could not fetch bookmarks");
 			}
 		};
 		sendIqPacket(account, iqPacket, callback);
+	}
+
+	public void processBookmarks(Account account, Element storage, final boolean pep) {
+		final Set<Jid> previousBookmarks = account.getBookmarkedJids();
+		final HashMap<Jid, Bookmark> bookmarks = new HashMap<>();
+		final boolean synchronizeWithBookmarks = synchronizeWithBookmarks();
+		if (storage != null) {
+			for (final Element item : storage.getChildren()) {
+				if (item.getName().equals("conference")) {
+					final Bookmark bookmark = Bookmark.parse(item, account);
+					Bookmark old = bookmarks.put(bookmark.getJid(), bookmark);
+					if (old != null && old.getBookmarkName() != null && bookmark.getBookmarkName() == null) {
+						bookmark.setBookmarkName(old.getBookmarkName());
+					}
+					if (bookmark.getJid() == null) {
+						continue;
+					}
+					previousBookmarks.remove(bookmark.getJid().asBareJid());
+					Conversation conversation = find(bookmark);
+					if (conversation != null) {
+						if (conversation.getMode() != Conversation.MODE_MULTI) {
+							continue;
+						}
+						bookmark.setConversation(conversation);
+						if (pep && synchronizeWithBookmarks && !bookmark.autojoin()) {
+							Log.d(Config.LOGTAG,account.getJid().asBareJid()+": archiving conference ("+conversation.getJid()+") after receiving pep");
+							archiveConversation(conversation, false);
+						}
+					} else if (synchronizeWithBookmarks && bookmark.autojoin()) {
+						conversation = findOrCreateConversation(account, bookmark.getFullJid(), true, true, false);
+						bookmark.setConversation(conversation);
+					}
+				}
+			}
+			if (pep && synchronizeWithBookmarks) {
+				Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": " + previousBookmarks.size() + " bookmarks have been removed");
+				for (Jid jid : previousBookmarks) {
+					final Conversation conversation = find(account, jid);
+					if (conversation != null && conversation.getMucOptions().getError() == MucOptions.Error.DESTROYED) {
+						Log.d(Config.LOGTAG,account.getJid().asBareJid()+": archiving destroyed conference ("+conversation.getJid()+") after receiving pep");
+						archiveConversation(conversation, false);
+					}
+				}
+			}
+		}
+		account.setBookmarks(new CopyOnWriteArrayList<>(bookmarks.values()));
 	}
 
 	public void pushBookmarks(Account account) {
@@ -1522,45 +1584,31 @@ public class XmppConnectionService extends Service {
 	}
 
 	public void loadPhoneContacts() {
-		mContactMergerExecutor.execute(() -> PhoneHelper.loadPhoneContacts(XmppConnectionService.this, new OnPhoneContactsLoadedListener() {
-			@Override
-			public void onPhoneContactsLoaded(List<Bundle> phoneContacts) {
-				Log.d(Config.LOGTAG, "start merging phone contacts with roster");
-				for (Account account : accounts) {
-					List<Contact> withSystemAccounts = account.getRoster().getWithSystemAccounts();
-					for (Bundle phoneContact : phoneContacts) {
-						Jid jid;
-						try {
-							jid = Jid.of(phoneContact.getString("jid"));
-						} catch (final IllegalArgumentException e) {
-							continue;
-						}
-						final Contact contact = account.getRoster().getContact(jid);
-						String systemAccount = phoneContact.getInt("phoneid")
-								+ "#"
-								+ phoneContact.getString("lookup");
-						contact.setSystemAccount(systemAccount);
-						boolean needsCacheClean = contact.setPhotoUri(phoneContact.getString("photouri"));
-						needsCacheClean |= contact.setSystemName(phoneContact.getString("displayname"));
-						if (needsCacheClean) {
-							getAvatarService().clear(contact);
-						}
-						withSystemAccounts.remove(contact);
+		mContactMergerExecutor.execute(() -> {
+			Map<Jid, JabberIdContact> contacts = JabberIdContact.load(this);
+			Log.d(Config.LOGTAG, "start merging phone contacts with roster");
+			for (Account account : accounts) {
+				List<Contact> withSystemAccounts = account.getRoster().getWithSystemAccounts(JabberIdContact.class);
+				for (JabberIdContact jidContact : contacts.values()) {
+					final Contact contact = account.getRoster().getContact(jidContact.getJid());
+					boolean needsCacheClean = contact.setPhoneContact(jidContact);
+					if (needsCacheClean) {
+						getAvatarService().clear(contact);
 					}
-					for (Contact contact : withSystemAccounts) {
-						contact.setSystemAccount(null);
-						boolean needsCacheClean = contact.setPhotoUri(null);
-						needsCacheClean |= contact.setSystemName(null);
-						if (needsCacheClean) {
-							getAvatarService().clear(contact);
-						}
+					withSystemAccounts.remove(contact);
+				}
+				for (Contact contact : withSystemAccounts) {
+					boolean needsCacheClean = contact.unsetPhoneContact(JabberIdContact.class);
+					if (needsCacheClean) {
+						getAvatarService().clear(contact);
 					}
 				}
-				Log.d(Config.LOGTAG, "finished merging phone contacts");
-				mShortcutService.refresh(mInitialAddressbookSyncCompleted.compareAndSet(false, true));
-				updateAccountUi();
 			}
-		}));
+			Log.d(Config.LOGTAG, "finished merging phone contacts");
+			mShortcutService.refresh(mInitialAddressbookSyncCompleted.compareAndSet(false, true));
+			updateRosterUi();
+			mQuickConversationsService.considerSync();
+		});
 	}
 
 
@@ -1607,10 +1655,23 @@ public class XmppConnectionService extends Service {
 	}
 
 	public void populateWithOrderedConversations(final List<Conversation> list) {
-		populateWithOrderedConversations(list, true);
+		populateWithOrderedConversations(list, true, true);
 	}
 
-	public void populateWithOrderedConversations(final List<Conversation> list, boolean includeNoFileUpload) {
+	public void populateWithOrderedConversations(final List<Conversation> list, final boolean includeNoFileUpload) {
+		populateWithOrderedConversations(list, includeNoFileUpload, true);
+	}
+
+	public void populateWithOrderedConversations(final List<Conversation> list, final boolean includeNoFileUpload, final boolean sort) {
+		final List<String> orderedUuids;
+		if (sort) {
+			orderedUuids = null;
+		} else {
+			orderedUuids = new ArrayList<>();
+			for(Conversation conversation : list) {
+				orderedUuids.add(conversation.getUuid());
+			}
+		}
 		list.clear();
 		if (includeNoFileUpload) {
 			list.addAll(getConversations());
@@ -1623,7 +1684,18 @@ public class XmppConnectionService extends Service {
 			}
 		}
 		try {
-			Collections.sort(list);
+			if (orderedUuids != null) {
+				Collections.sort(list, (a, b) -> {
+					final int indexA = orderedUuids.indexOf(a.getUuid());
+					final int indexB = orderedUuids.indexOf(b.getUuid());
+					if (indexA == -1 || indexB == -1 || indexA == indexB) {
+						return a.compareTo(b);
+					}
+					return indexA - indexB;
+				});
+			} else {
+				Collections.sort(list);
+			}
 		} catch (IllegalArgumentException e) {
 			//ignore
 		}
@@ -1674,8 +1746,7 @@ public class XmppConnectionService extends Service {
 	public List<Conversation> findAllConferencesWith(Contact contact) {
 		ArrayList<Conversation> results = new ArrayList<>();
 		for (final Conversation c : conversations) {
-			if (c.getMode() == Conversation.MODE_MULTI &&
-					(c.getJid().asBareJid().equals(contact.getJid().asBareJid()) || c.getMucOptions().isContactInRoom(contact))) {
+			if (c.getMode() == Conversation.MODE_MULTI && c.getMucOptions().isContactInRoom(contact)) {
 				results.add(c);
 			}
 		}
@@ -1804,6 +1875,10 @@ public class XmppConnectionService extends Service {
 	}
 
 	public void archiveConversation(Conversation conversation) {
+		archiveConversation(conversation, true);
+	}
+
+	private void archiveConversation(Conversation conversation, final boolean maySyncronizeWithBookmarks) {
 		getNotificationService().clear(conversation);
 		conversation.setStatus(Conversation.STATUS_ARCHIVED);
 		conversation.setNextMessage(null);
@@ -1812,16 +1887,23 @@ public class XmppConnectionService extends Service {
 			if (conversation.getMode() == Conversation.MODE_MULTI) {
 				Bookmark bookmark = conversation.getBookmark(); //ALF AM-78 moved out of if
 				if (conversation.getAccount().getStatus() == Account.State.ONLINE) {
-					if (bookmark != null && bookmark.autojoin() && respectAutojoin()) {
-						bookmark.setAutojoin(false);
-						pushBookmarks(bookmark.getAccount());
+					if (maySyncronizeWithBookmarks && bookmark != null && synchronizeWithBookmarks()) {
+						if (conversation.getMucOptions().getError() == MucOptions.Error.DESTROYED) {
+							Account account = bookmark.getAccount();
+							bookmark.setConversation(null);
+							account.getBookmarks().remove(bookmark);
+							pushBookmarks(account);
+						} else if (bookmark.autojoin()) {
+							bookmark.setAutojoin(false);
+							pushBookmarks(bookmark.getAccount());
+						}
 					}
 				}
 				conversation.getAccount().getBookmarks().remove(bookmark); //ALF AM-78
 				leaveMuc(conversation);
 			} else {
 				if (conversation.getContact().getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST)) {
-                    stopPresenceUpdatesTo(conversation.getContact());
+					stopPresenceUpdatesTo(conversation.getContact());
 				}
 			}
 			updateConversation(conversation);
@@ -2433,6 +2515,7 @@ public class XmppConnectionService extends Service {
 
 	public void persistSelfNick(MucOptions.User self) {
 		final Conversation conversation = self.getConversation();
+		final boolean tookProposedNickFromBookmark = conversation.getMucOptions().isTookProposedNickFromBookmark();
 		Jid full = self.getFullJid();
 		if (!full.equals(conversation.getJid())) {
 			Log.d(Config.LOGTAG, "nick changed. updating");
@@ -2440,8 +2523,10 @@ public class XmppConnectionService extends Service {
 			databaseBackend.updateConversation(conversation);
 		}
 
-		Bookmark bookmark = conversation.getBookmark();
-		if (bookmark != null && !full.getResource().equals(bookmark.getNick())) {
+		final Bookmark bookmark = conversation.getBookmark();
+		final String bookmarkedNick = bookmark == null ? null : bookmark.getNick();
+		if (bookmark != null && (tookProposedNickFromBookmark || TextUtils.isEmpty(bookmarkedNick)) && !full.getResource().equals(bookmarkedNick)) {
+			Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": persist nick '" + full.getResource() + "' into bookmark for " + conversation.getJid().asBareJid());
 			bookmark.setNick(full.getResource());
 			pushBookmarks(bookmark.getAccount());
 		}
@@ -3391,6 +3476,10 @@ public class XmppConnectionService extends Service {
 		return getBooleanPreference("autojoin", R.bool.autojoin);
 	}
 
+	private boolean synchronizeWithBookmarks() {
+		return getBooleanPreference("autojoin", R.bool.autojoin);
+	}
+
 	public boolean indicateReceived() {
 		return getBooleanPreference("indicate_received", R.bool.indicate_received);
 	}
@@ -3751,7 +3840,7 @@ public class XmppConnectionService extends Service {
 		for (Account account : getAccounts()) {
 			if ((account.isEnabled() || accountJid != null)
 					&& (accountJid == null || accountJid.equals(account.getJid().asBareJid().toString()))) {
-				Contact contact = account.getRoster().getContactFromRoster(jid);
+				Contact contact = account.getRoster().getContactFromContactList(jid);
 				if (contact != null) {
 					contacts.add(contact);
 				}

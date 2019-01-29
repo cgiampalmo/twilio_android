@@ -1,3 +1,4 @@
+include ':libs:xmpp-addr'
 rootProject.name = 'glacierMessenger'
 // include ':LolliPin'
 // include ':app', ':lib'

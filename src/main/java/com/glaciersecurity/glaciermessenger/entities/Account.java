@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -22,11 +23,13 @@ import com.glaciersecurity.glaciermessenger.crypto.PgpDecryptionService;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.XmppAxolotlSession;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
+import com.glaciersecurity.glaciermessenger.services.AvatarService;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
+import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 import rocks.xmpp.addr.Jid;
 
-public class Account extends AbstractEntity {
+public class Account extends AbstractEntity implements AvatarService.Avatarable {
 
 	public static final String TABLENAME = "accounts";
 
@@ -131,10 +134,10 @@ public class Account extends AbstractEntity {
 		BIND_FAILURE,
 		HOST_UNKNOWN,
 		STREAM_ERROR,
+		STREAM_OPENING_ERROR,
 		POLICY_VIOLATION,
 		PAYMENT_REQUIRED,
-		MISSING_INTERNET_PERMISSION(false),
-		NETWORK_IS_UNREACHABLE(false);
+		MISSING_INTERNET_PERMISSION(false);
 
 		private final boolean isError;
 		private final boolean attemptReconnect;
@@ -208,12 +211,12 @@ public class Account extends AbstractEntity {
 					return R.string.registration_password_too_weak;
 				case STREAM_ERROR:
 					return R.string.account_status_stream_error;
+				case STREAM_OPENING_ERROR:
+					return R.string.account_status_stream_opening_error;
 				case PAYMENT_REQUIRED:
 					return R.string.payment_required;
 				case MISSING_INTERNET_PERMISSION:
 					return R.string.missing_internet_permission;
-				case NETWORK_IS_UNREACHABLE:
-					return R.string.network_is_unreachable;
 				default:
 					return R.string.account_status_unknown;
 			}
@@ -468,6 +471,11 @@ public class Account extends AbstractEntity {
 		}
 	}
 
+	@Override
+	public int getAvatarBackgroundColor() {
+		return UIHelper.getColorForName(jid.asBareJid().toString());
+	}
+
 	public boolean setPrivateKeyAlias(String alias) {
 		return setKey("private_key_alias", alias);
 	}
@@ -623,6 +631,17 @@ public class Account extends AbstractEntity {
 
 	public void setBookmarks(final CopyOnWriteArrayList<Bookmark> bookmarks) {
 		this.bookmarks = bookmarks;
+	}
+
+	public Set<Jid> getBookmarkedJids() {
+		final Set<Jid> jids = new HashSet<>();
+		for(final Bookmark bookmark : this.bookmarks) {
+			final Jid jid = bookmark.getJid();
+			if (jid != null) {
+				jids.add(jid.asBareJid());
+			}
+		}
+		return jids;
 	}
 
 	public boolean hasBookmarkFor(final Jid conferenceJid) {

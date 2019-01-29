@@ -82,6 +82,11 @@ public class Bookmark extends Element implements ListItem {
 		return this.jid;
 	}
 
+	public Jid getFullJid() {
+		final String nick = getNick();
+		return jid == null || nick == null || nick.trim().isEmpty() ? jid : jid.withResource(nick);
+	}
+
 	@Override
 	public List<Tag> getTags(Context context) {
 		ArrayList<Tag> tags = new ArrayList<>();
@@ -129,8 +134,8 @@ public class Bookmark extends Element implements ListItem {
 		needle = needle.toLowerCase(Locale.US);
 		final Jid jid = getJid();
 		return (jid != null && jid.toString().contains(needle)) ||
-			getDisplayName().toLowerCase(Locale.US).contains(needle) ||
-			matchInTag(context, needle);
+				getDisplayName().toLowerCase(Locale.US).contains(needle) ||
+				matchInTag(context, needle);
 	}
 
 	private boolean matchInTag(Context context, String needle) {
@@ -155,7 +160,12 @@ public class Bookmark extends Element implements ListItem {
 		if (this.conversation != null) {
 			this.conversation.clear();
 		}
-		this.conversation = new WeakReference<>(conversation);
+		if (conversation == null) {
+			this.conversation = null;
+		} else {
+			this.conversation = new WeakReference<>(conversation);
+			conversation.getMucOptions().notifyOfBookmarkNick(getNick());
+		}
 	}
 
 	public String getBookmarkName() {
@@ -170,5 +180,10 @@ public class Bookmark extends Element implements ListItem {
 			this.removeAttribute("name");
 		}
 		return StringUtils.changed(before, name);
+	}
+
+	@Override
+	public int getAvatarBackgroundColor() {
+		return UIHelper.getColorForName(jid != null ? jid.asBareJid().toString() : getDisplayName());
 	}
 }

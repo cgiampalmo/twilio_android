@@ -24,6 +24,7 @@ import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.entities.Account;
+import com.glaciersecurity.glaciermessenger.entities.Bookmark;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.DownloadableFile;
 import com.glaciersecurity.glaciermessenger.services.MessageArchiveService;
@@ -144,6 +145,13 @@ public class IqGenerator extends AbstractGenerator {
 		final Element data = item.addChild("data", "urn:xmpp:avatar:data");
 		data.setContent(avatar.image);
 		return publish("urn:xmpp:avatar:data", item);
+	}
+
+	public IqPacket publishElement(final String namespace,final Element element, final Bundle options) {
+		final Element item = new Element("item");
+		item.setAttribute("id","current");
+		item.addChild(element);
+		return publish(namespace, item, options);
 	}
 
 	public IqPacket publishAvatarMetadata(final Avatar avatar) {

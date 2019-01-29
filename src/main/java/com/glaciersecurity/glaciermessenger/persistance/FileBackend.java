@@ -172,6 +172,14 @@ public class FileBackend {
         return Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + context.getString(R.string.app_name) + "/Media/";
     }
 
+    public static String getBackupDirectory(Context context) {
+        return getBackupDirectory(context.getString(R.string.app_name));
+    }
+
+    public static String getBackupDirectory(String app) {
+        return Environment.getExternalStorageDirectory().getAbsolutePath() + "/"+app+"/Backup/";
+    }
+
     public static String getConversationsLogsDirectory() {
         return Environment.getExternalStorageDirectory().getAbsolutePath() + "/Conversations/";
     }

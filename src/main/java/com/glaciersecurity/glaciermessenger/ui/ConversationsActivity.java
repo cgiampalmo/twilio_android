@@ -69,7 +69,7 @@ import com.glaciersecurity.glaciermessenger.ui.interfaces.OnConversationArchived
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnConversationRead;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnConversationSelected;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnConversationsListItemUpdated;
-import com.glaciersecurity.glaciermessenger.ui.service.EmojiService;
+//import com.glaciersecurity.glaciermessenger.ui.service.EmojiService;
 import com.glaciersecurity.glaciermessenger.ui.util.ActivityResult;
 import com.glaciersecurity.glaciermessenger.ui.util.ConversationMenuConfigurator;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
@@ -91,6 +91,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	public static final String EXTRA_AS_QUOTE = "as_quote";
 	public static final String EXTRA_NICK = "nick";
 	public static final String EXTRA_IS_PRIVATE_MESSAGE = "pm";
+	public static final String EXTRA_DO_NOT_APPEND = "do_not_append";
 
 	public static final int REQUEST_OPEN_MESSAGE = 0x9876;
 	public static final int REQUEST_PLAY_PAUSE = 0x5432;
@@ -369,7 +370,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		super.onCreate(savedInstanceState);
 		ConversationMenuConfigurator.reloadFeatures(this);
 		OmemoSetting.load(this);
-		new EmojiService(this).init();
+		//new EmojiService(this).init();
 		this.binding = DataBindingUtil.setContentView(this, R.layout.activity_conversations);
 		setSupportActionBar((Toolbar) binding.toolbar);
 		configureActionBar(getSupportActionBar());

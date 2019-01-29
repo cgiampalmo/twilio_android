@@ -30,6 +30,7 @@ import com.glaciersecurity.glaciermessenger.http.HttpConnectionManager;
 import com.glaciersecurity.glaciermessenger.http.P1S3UrlStreamHandler;
 import com.glaciersecurity.glaciermessenger.services.MessageArchiveService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
+import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.xml.Namespace;
 import com.glaciersecurity.glaciermessenger.xml.Element;
@@ -219,14 +220,49 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 			AxolotlService axolotlService = account.getAxolotlService();
 			axolotlService.registerDevices(from, deviceIds);
 			mXmppConnectionService.updateAccountUi();
+		} else if (Namespace.BOOKMARKS.equals(node) && account.getJid().asBareJid().equals(from)) {
+			Log.d(Config.LOGTAG,"received bookmarks from "+from);
+			if (account.getJid().asBareJid().equals(from)) {
+				final Element i = items.findChild("item");
+				final Element storage = i == null ? null : i.findChild("storage", Namespace.BOOKMARKS);
+				mXmppConnectionService.processBookmarks(account,storage, true);
+			}
 		}
 	}
+
+    private void parseDeleteEvent(final Element event, final Jid from, final Account account) {
+        final Element delete = event.findChild("delete");
+        if (delete == null) {
+            return;
+        }
+        String node = delete.getAttribute("node");
+        if (Namespace.NICK.equals(node)) {
+            Log.d(Config.LOGTAG, "parsing nick delete event from " + from);
+            setNick(account, from, null);
+        }
+    }
+
+    private void setNick(Account account, Jid user, String nick) {
+        if (user.asBareJid().equals(account.getJid().asBareJid())) {
+            account.setDisplayName(nick);
+            if (QuickConversationsService.isQuicksy()) {
+                mXmppConnectionService.getAvatarService().clear(account);
+            }
+        } else {
+            Contact contact = account.getRoster().getContact(user);
+            if (contact.setPresenceName(nick)) {
+                mXmppConnectionService.getAvatarService().clear(contact);
+            }
+        }
+        mXmppConnectionService.updateConversationUi();
+        mXmppConnectionService.updateAccountUi();
+    }
 
 	private boolean handleErrorMessage(Account account, MessagePacket packet) {
 		if (packet.getType() == MessagePacket.TYPE_ERROR) {
 			Jid from = packet.getFrom();
 			if (from != null) {
-				Message message = mXmppConnectionService.markMessage(account,
+				mXmppConnectionService.markMessage(account,
 						from.asBareJid(),
 						packet.getId(),
 						Message.STATUS_SEND_FAILED,

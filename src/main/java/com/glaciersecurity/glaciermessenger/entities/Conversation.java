@@ -26,8 +26,11 @@ import com.glaciersecurity.glaciermessenger.crypto.OmemoSetting;
 import com.glaciersecurity.glaciermessenger.crypto.PgpDecryptionService;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.FingerprintStatus;
+import com.glaciersecurity.glaciermessenger.services.AvatarService;
+import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.JidHelper;
+import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.chatstate.ChatState;
 import com.glaciersecurity.glaciermessenger.xmpp.mam.MamReference;
 import rocks.xmpp.addr.Jid;
@@ -35,7 +38,7 @@ import rocks.xmpp.addr.Jid;
 import static com.glaciersecurity.glaciermessenger.entities.Bookmark.printableValue;
 
 
-public class Conversation extends AbstractEntity implements Blockable, Comparable<Conversation>, Conversational {
+public class Conversation extends AbstractEntity implements Blockable, Comparable<Conversation>, Conversational, AvatarService.Avatarable {
 	public static final String TABLENAME = "conversations";
 
 	public static final int STATUS_AVAILABLE = 0;
@@ -1055,6 +1058,11 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 			}
 		}
 		return 0;
+	}
+
+	@Override
+	public int getAvatarBackgroundColor() {
+		return UIHelper.getColorForName(getName().toString());
 	}
 
 	public interface OnMessageFound {

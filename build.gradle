@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.2'
+        classpath 'com.android.tools.build:gradle:3.3.0'
     }
 }
 
@@ -34,48 +34,62 @@ allprojects {
 configurations {
     playstoreImplementation
     compatImplementation
-    freeCompatImplementation
+    glaciermessengerFreeCompatImplementation
+    quicksyFreeCompatImplementation
+    quicksyImplementation
 }
 
 ext {
-    supportLibVersion = '27.1.1'
+    supportLibVersion = '28.0.0'
 }
 
 dependencies {
-    playstoreImplementation('com.google.firebase:firebase-messaging:15.0.2') {
+    playstoreImplementation('com.google.firebase:firebase-messaging:17.3.4') {
         exclude group: 'com.google.firebase', module: 'firebase-core'
+        exclude group: 'com.google.firebase', module: 'firebase-analytics'
+        exclude group: 'com.google.firebase', module: 'firebase-measurement-connector'
     }
-    //implementation project('lib')
     implementation 'org.sufficientlysecure:openpgp-api:10.0'
-    implementation 'com.theartofdev.edmodo:android-image-cropper:2.7.0'
+    implementation ('com.theartofdev.edmodo:android-image-cropper:2.7.+') {
+        exclude group: 'com.android.support', module: 'appcompat-v7'
+        exclude group: 'com.android.support', module: 'exifinterface'
+    }
     implementation "com.android.support:support-v13:$supportLibVersion"
     implementation "com.android.support:appcompat-v7:$supportLibVersion"
+    implementation "com.android.support:exifinterface:$supportLibVersion"
     implementation "com.android.support:cardview-v7:$supportLibVersion"
-    compatImplementation "com.android.support:support-emoji-appcompat:$supportLibVersion"
     implementation "com.android.support:support-emoji:$supportLibVersion"
     implementation "com.android.support:design:$supportLibVersion"
-    freeCompatImplementation "com.android.support:support-emoji-bundled:$supportLibVersion"
+    compatImplementation "com.android.support:support-emoji-appcompat:$supportLibVersion"
+    glaciermessengerFreeCompatImplementation "com.android.support:support-emoji-bundled:$supportLibVersion"
+    quicksyFreeCompatImplementation "com.android.support:support-emoji-bundled:$supportLibVersion"
+
     implementation 'org.bouncycastle:bcmail-jdk15on:1.58'
-    implementation 'com.google.zxing:core:3.3.0'
+    implementation 'com.google.zxing:core:3.3.3'
     implementation 'de.measite.minidns:minidns-hla:0.2.4'
-    implementation 'me.leolin:ShortcutBadger:1.1.21@aar'
+    implementation 'me.leolin:ShortcutBadger:1.1.22@aar'
     implementation 'org.whispersystems:signal-protocol-java:2.6.2'
     implementation 'com.makeramen:roundedimageview:2.3.0'
-    implementation 'com.wefika:flowlayout:0.4.1'
-    implementation 'net.ypresto.androidtranscoder:android-transcoder:0.2.0'
-    implementation 'rocks.xmpp:xmpp-addr:0.8.0-SNAPSHOT'
-    implementation 'org.osmdroid:osmdroid-android:6.0.1'
+    implementation "com.wefika:flowlayout:0.4.1"
+    implementation 'net.ypresto.androidtranscoder:android-transcoder:0.3.0'
+    implementation project(':libs:xmpp-addr')
+    implementation 'org.osmdroid:osmdroid-android:6.0.3'
+    implementation 'org.hsluv:hsluv:0.2'
+    implementation 'org.conscrypt:conscrypt-android:1.3.0'
+    implementation 'me.drakeet.support:toastcompat:1.1.0'
+    implementation "com.leinardi.android:speed-dial:2.0.1"
+    quicksyImplementation 'io.michaelrocks:libphonenumber-android:8.10.1'
 
     implementation 'uk.me.lewisdeane.ldialogs:ldialogs:1.2.0@aar'
 
     //RippleView
-    implementation 'com.github.traex.rippleeffect:ripple:1.3.1-OG'
+    //implementation 'com.github.traex.rippleeffect:ripple:1.3.1-OG'
     //TypefaceView
-    implementation 'com.github.omadahealth.typefaceview:typefaceview:1.3.0@aar'
+    //implementation 'com.github.omadahealth.typefaceview:typefaceview:1.3.0@aar'
     //Compat
-    implementation 'com.google.code.gson:gson:2.7'
-    implementation 'com.android.support:support-v4:26.+'
-    implementation 'com.android.support:appcompat-v7:26.+'
+    //implementation 'com.google.code.gson:gson:2.7'
+    //implementation 'com.android.support:support-v4:26.+'
+    //implementation 'com.android.support:appcompat-v7:26.+'
 
     // GOOBER PIN
     //RippleView
@@ -88,10 +102,10 @@ dependencies {
     implementation 'com.amazonaws:aws-android-sdk-s3:2.7.+'
 
     // GOOBER COGNITO - Demo
-    implementation 'com.android.support:appcompat-v7:26.0.0'
-    implementation 'com.android.support:design:26.0.0'
-    implementation 'com.android.support:cardview-v7:26.0.0'
-    implementation 'com.android.support:recyclerview-v7:26.0.0'
+    //implementation 'com.android.support:appcompat-v7:26.0.0'
+    //implementation 'com.android.support:design:26.0.0'
+    //implementation 'com.android.support:cardview-v7:26.0.0'
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.0-beta3'
     implementation 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.6.8'
 
@@ -107,7 +121,7 @@ ext {
 }
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
 
     defaultConfig {
         minSdkVersion 14
@@ -118,6 +132,7 @@ android {
         applicationId "com.glaciersecurity.glaciermessenger"
         resValue "string", "applicationId", "com.glaciersecurity.glaciermessenger"
         resValue "string", "app_name", "Messenger"
+        buildConfigField "String", "LOGTAG", "\"messenger\""
     }
 
     dataBinding {
@@ -135,9 +150,21 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    flavorDimensions("distribution", "emoji")
+    flavorDimensions("mode", "distribution", "emoji")
 
     productFlavors {
+        quicksy {
+            dimension "mode"
+            applicationId = "im.quicksy.client"
+            resValue "string", "app_name", "Quicksy"
+            resValue "string", "applicationId", applicationId
+            buildConfigField "String", "LOGTAG", "\"quicksy\""
+        }
+
+        glaciermessenger {
+            dimension "mode"
+        }
+
         playstore {
             dimension "distribution"
         }
@@ -149,6 +176,47 @@ android {
         }
         compat {
             dimension "emoji"
+        }
+    }
+
+    sourceSets {
+        quicksyFreeCompat {
+            java {
+                srcDirs 'src/freeCompat/java'
+            }
+        }
+        quicksyPlaystoreCompat {
+            java {
+                srcDirs 'src/playstoreCompat/java'
+            }
+            res {
+                srcDir 'src/playstoreCompat/res'
+                srcDir 'src/quicksyPlaystore/res'
+            }
+        }
+        quicksyPlaystoreSystem {
+            res {
+                srcDir 'src/quicksyPlaystore/res'
+            }
+        }
+        glaciermessengerFreeCompat {
+            java {
+                srcDirs 'src/freeCompat/java'
+            }
+        }
+        glaciermessengerPlaystoreCompat {
+            java {
+                srcDirs 'src/playstoreCompat/java'
+            }
+            res {
+                srcDir 'src/playstoreCompat/res'
+                srcDir 'src/glaciermessengerPlaystore/res'
+            }
+        }
+        glaciermessengerPlaystoreSystem {
+            res {
+                srcDir 'src/glaciermessengerPlaystore/res'
+            }
         }
     }
 

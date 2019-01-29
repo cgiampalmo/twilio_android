@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import com.glaciersecurity.glaciermessenger.Config;
@@ -35,13 +36,13 @@ import rocks.xmpp.addr.Jid;
 
 public final class CryptoHelper {
 
+	public static final Pattern UUID_PATTERN = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}");
+	final public static byte[] ONE = new byte[]{0, 0, 0, 1};
+	private static final char[] CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789+-/#$!?".toCharArray();
+	private static final int PW_LENGTH = 10;
 	private static final char[] VOWELS = "aeiou".toCharArray();
 	private static final char[] CONSONANTS = "bcfghjklmnpqrstvwxyz".toCharArray();
-
 	private final static char[] hexArray = "0123456789abcdef".toCharArray();
-
-	public static final Pattern UUID_PATTERN = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}");
-	final public static byte[] ONE = new byte[] { 0, 0, 0, 1 };
 
 	public static String bytesToHex(byte[] bytes) {
 		char[] hexChars = new char[bytes.length * 2];
@@ -53,10 +54,18 @@ public final class CryptoHelper {
 		return new String(hexChars);
 	}
 
+	public static String createPassword(SecureRandom random) {
+		StringBuilder builder = new StringBuilder(PW_LENGTH);
+		for (int i = 0; i < PW_LENGTH; ++i) {
+			builder.append(CHARS[random.nextInt(CHARS.length - 1)]);
+		}
+		return builder.toString();
+	}
+
 	public static String pronounceable(SecureRandom random) {
 		char[] output = new char[random.nextInt(4) * 2 + 5];
 		boolean vowel = random.nextBoolean();
-		for(int i = 0; i < output.length; ++i) {
+		for (int i = 0; i < output.length; ++i) {
 			output[i] = vowel ? VOWELS[random.nextInt(VOWELS.length)] : CONSONANTS[random.nextInt(CONSONANTS.length)];
 			vowel = !vowel;
 		}
@@ -113,17 +122,17 @@ public final class CryptoHelper {
 	public static String random(int length, SecureRandom random) {
 		final byte[] bytes = new byte[length];
 		random.nextBytes(bytes);
-		return Base64.encodeToString(bytes,Base64.NO_PADDING|Base64.NO_WRAP|Base64.URL_SAFE);
+		return Base64.encodeToString(bytes, Base64.NO_PADDING | Base64.NO_WRAP | Base64.URL_SAFE);
 	}
 
 	public static String prettifyFingerprint(String fingerprint) {
-		if (fingerprint==null) {
+		if (fingerprint == null) {
 			return "";
 		} else if (fingerprint.length() < 40) {
 			return fingerprint;
 		}
 		StringBuilder builder = new StringBuilder(fingerprint);
-		for(int i=8;i<builder.length();i+=9) {
+		for (int i = 8; i < builder.length(); i += 9) {
 			builder.insert(i, ' ');
 		}
 		return builder.toString();
@@ -131,8 +140,8 @@ public final class CryptoHelper {
 
 	public static String prettifyFingerprintCert(String fingerprint) {
 		StringBuilder builder = new StringBuilder(fingerprint);
-		for(int i=2;i < builder.length(); i+=3) {
-			builder.insert(i,':');
+		for (int i = 2; i < builder.length(); i += 3) {
+			builder.insert(i, ':');
 		}
 		return builder.toString();
 	}
@@ -161,11 +170,11 @@ public final class CryptoHelper {
 		}
 	}
 
-	public static Pair<Jid,String> extractJidAndName(X509Certificate certificate) throws CertificateEncodingException, IllegalArgumentException, CertificateParsingException {
+	public static Pair<Jid, String> extractJidAndName(X509Certificate certificate) throws CertificateEncodingException, IllegalArgumentException, CertificateParsingException {
 		Collection<List<?>> alternativeNames = certificate.getSubjectAlternativeNames();
 		List<String> emails = new ArrayList<>();
 		if (alternativeNames != null) {
-			for(List<?> san : alternativeNames) {
+			for (List<?> san : alternativeNames) {
 				Integer type = (Integer) san.get(0);
 				if (type == 1) {
 					emails.add((String) san.get(1));
@@ -179,11 +188,11 @@ public final class CryptoHelper {
 		String name = x500name.getRDNs(BCStyle.CN).length > 0 ? IETFUtils.valueToString(x500name.getRDNs(BCStyle.CN)[0].getFirst().getValue()) : null;
 		if (emails.size() >= 1) {
 			return new Pair<>(Jid.of(emails.get(0)), name);
-		} else if (name != null){
+		} else if (name != null) {
 			try {
 				Jid jid = Jid.of(name);
 				if (jid.isBareJid() && jid.getLocal() != null) {
-					return new Pair<>(jid,null);
+					return new Pair<>(jid, null);
 				}
 			} catch (IllegalArgumentException e) {
 				return null;
@@ -203,7 +212,7 @@ public final class CryptoHelper {
 				//ignored
 			}
 			try {
-				information.putString("subject_o",subject.getRDNs(BCStyle.O)[0].getFirst().getValue().toString());
+				information.putString("subject_o", subject.getRDNs(BCStyle.O)[0].getFirst().getValue().toString());
 			} catch (Exception e) {
 				//ignored
 			}
@@ -237,7 +246,7 @@ public final class CryptoHelper {
 	}
 
 	public static String getAccountFingerprint(Account account, String androidId) {
-		return getFingerprint(account.getJid().asBareJid().toEscapedString()+"\00"+androidId);
+		return getFingerprint(account.getJid().asBareJid().toEscapedString() + "\00" + androidId);
 	}
 
 	public static String getFingerprint(String value) {
@@ -269,7 +278,7 @@ public final class CryptoHelper {
 			return url;
 		}
 		try {
-			return new URL(AesGcmURLStreamHandler.PROTOCOL_NAME+url.toString().substring(url.getProtocol().length()));
+			return new URL(AesGcmURLStreamHandler.PROTOCOL_NAME + url.toString().substring(url.getProtocol().length()));
 		} catch (MalformedURLException e) {
 			return url;
 		}
@@ -280,7 +289,7 @@ public final class CryptoHelper {
 			return url;
 		}
 		try {
-			return new URL("https"+url.toString().substring(url.getProtocol().length()));
+			return new URL("https" + url.toString().substring(url.getProtocol().length()));
 		} catch (MalformedURLException e) {
 			return url;
 		}

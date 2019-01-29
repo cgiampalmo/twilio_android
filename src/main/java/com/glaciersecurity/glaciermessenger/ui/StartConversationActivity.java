@@ -70,7 +70,7 @@ import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService.OnRosterUpdate;
 import com.glaciersecurity.glaciermessenger.ui.adapter.ListItemAdapter;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnBackendConnected;
-import com.glaciersecurity.glaciermessenger.ui.service.EmojiService;
+//import com.glaciersecurity.glaciermessenger.ui.service.EmojiService;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils;
@@ -82,6 +82,7 @@ import rocks.xmpp.addr.Jid;
 public class StartConversationActivity extends XmppActivity implements XmppConnectionService.OnConversationUpdate, OnRosterUpdate, OnUpdateBlocklist, OnGroupUpdate, CreateConferenceDialog.CreateConferenceDialogListener, JoinConferenceDialog.JoinConferenceDialogListener {
 
 	public final static String DOMAIN_IP = "172.16.2.240";
+	public static final String EXTRA_INVITE_URI = "com.glaciersecurity.glaciermessenger.invite_uri";
 
 	private final int REQUEST_SYNC_CONTACTS = 0x28cf;
 	private final int REQUEST_CREATE_CONFERENCE = 0x39da;
@@ -238,7 +239,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	}
 
 	private static boolean isViewIntent(final Intent i) {
-		return i != null && (Intent.ACTION_VIEW.equals(i.getAction()) || Intent.ACTION_SENDTO.equals(i.getAction()) || i.hasExtra(WelcomeActivity.EXTRA_INVITE_URI));
+		return i != null && (Intent.ACTION_VIEW.equals(i.getAction()) || Intent.ACTION_SENDTO.equals(i.getAction()) || i.hasExtra(EXTRA_INVITE_URI));
 	}
 
 	protected void hideToast() {
@@ -261,7 +262,6 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		new EmojiService(this).init();
 		this.binding = DataBindingUtil.setContentView(this, R.layout.activity_start_conversation);
 		Toolbar toolbar = (Toolbar) binding.toolbar;
 		setSupportActionBar(toolbar);
@@ -509,7 +509,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				contact.setServerName(invite.getName());
 			}
 			if (contact.isSelf()) {
-				switchToConversation(contact, null);
+				switchToConversation(contact);
 				return true;
 			} else if (contact.showInRoster()) {
 				throw new EnterJidDialog.JidError(getString(R.string.contact_already_exists));
@@ -518,7 +518,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				if (invite != null && invite.hasFingerprints()) {
 					xmppConnectionService.verifyFingerprints(contact, invite.getFingerprints());
 				}
-				switchToConversation(contact, invite == null ? null : invite.getBody());
+				switchToConversationDoNotAppend(contact, invite == null ? null : invite.getBody());
 				return true;
 			}
 		});
@@ -565,11 +565,14 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		return xmppConnectionService.findAccountByJid(jid);
 	}
 
-	protected void switchToConversation(Contact contact, String body) {
-		Conversation conversation = xmppConnectionService
-				.findOrCreateConversation(contact.getAccount(),
-						contact.getJid(), false, true);
-		switchToConversation(conversation, body, false);
+	protected void switchToConversation(Contact contact) {
+		Conversation conversation = xmppConnectionService.findOrCreateConversation(contact.getAccount(), contact.getJid(), false, true);
+		switchToConversation(conversation);
+	}
+
+	protected void switchToConversationDoNotAppend(Contact contact, String body) {
+		Conversation conversation = xmppConnectionService.findOrCreateConversation(contact.getAccount(), contact.getJid(), false, true);
+		switchToConversationDoNotAppend(conversation, body);
 	}
 
 	@Override
@@ -807,7 +810,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	}
 
 	protected boolean processViewIntent(@NonNull Intent intent) {
-		final String inviteUri = intent.getStringExtra(WelcomeActivity.EXTRA_INVITE_URI);
+		final String inviteUri = intent.getStringExtra(EXTRA_INVITE_URI);
 		if (inviteUri != null) {
 			Invite invite = new Invite(inviteUri);
 			if (invite.isJidValid()) {
@@ -838,7 +841,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		if (invite.isAction(XmppUri.ACTION_JOIN)) {
 			Conversation muc = xmppConnectionService.findFirstMuc(invite.getJid());
 			if (muc != null) {
-				switchToConversation(muc, invite.getBody(), false);
+				switchToConversationDoNotAppend(muc, invite.getBody());
 				return true;
 			} else {
 				showJoinConferenceDialog(invite.getJid().asBareJid().toString());
@@ -860,7 +863,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				if (invite.account != null) {
 					xmppConnectionService.getShortcutService().report(contact);
 				}
-				switchToConversation(contact, invite.getBody());
+				switchToConversationDoNotAppend(contact, invite.getBody());
 			}
 			return true;
 		} else {
@@ -894,7 +897,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			if (isTrustedSource.isChecked() && invite.hasFingerprints()) {
 				xmppConnectionService.verifyFingerprints(contact, invite.getFingerprints());
 			}
-			switchToConversation(contact, invite.getBody());
+			switchToConversationDoNotAppend(contact, invite.getBody());
 		});
 		builder.setNegativeButton(R.string.cancel, (dialog, which) -> StartConversationActivity.this.finish());
 		AlertDialog dialog = builder.create();
@@ -1261,6 +1264,12 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				fragments[position] = listFragment;
 			}
 			return fragments[position];
+		}
+	}
+
+	public static void addInviteUri(Intent to, Intent from) {
+		if (from != null && from.hasExtra(EXTRA_INVITE_URI)) {
+			to.putExtra(EXTRA_INVITE_URI, from.getStringExtra(EXTRA_INVITE_URI));
 		}
 	}
 

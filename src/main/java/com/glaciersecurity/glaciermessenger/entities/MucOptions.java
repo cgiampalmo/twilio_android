@@ -2,6 +2,7 @@ package com.glaciersecurity.glaciermessenger.entities;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +14,7 @@ import java.util.Set;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.services.MessageArchiveService;
+import com.glaciersecurity.glaciermessenger.services.AvatarService;
 import com.glaciersecurity.glaciermessenger.utils.JidHelper;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.chatstate.ChatState;
@@ -23,6 +25,7 @@ import rocks.xmpp.addr.Jid;
 
 public class MucOptions {
 
+	private boolean tookProposedNickFromBookmark = false;
 	private boolean mAutoPushConfiguration = true;
 
 	public Account getAccount() {
@@ -66,6 +69,17 @@ public class MucOptions {
 			for (User user : users) {
 				user.chatState = Config.DEFAULT_CHATSTATE;
 			}
+		}
+	}
+
+	public boolean isTookProposedNickFromBookmark() {
+		return tookProposedNickFromBookmark;
+	}
+
+	void notifyOfBookmarkNick(final String nick) {
+		final String normalized = normalize(account.getJid(),nick);
+		if (normalized != null && normalized.equals(getSelf().getFullJid().getResource())) {
+			this.tookProposedNickFromBookmark = true;
 		}
 	}
 
@@ -191,7 +205,7 @@ public class MucOptions {
 
 	}
 
-	public static class User implements Comparable<User> {
+	public static class User implements Comparable<User>, AvatarService.Avatarable {
 		private Role role = Role.NONE;
 		private Affiliation affiliation = Affiliation.NONE;
 		private Jid realJid;
@@ -246,7 +260,7 @@ public class MucOptions {
 
 		public Contact getContact() {
 			if (fullJid != null) {
-				return getAccount().getRoster().getContactFromRoster(realJid);
+				return getAccount().getRoster().getContactFromContactList(realJid);
 			} else if (realJid != null) {
 				return getAccount().getRoster().getContact(realJid);
 			} else {
@@ -349,6 +363,12 @@ public class MucOptions {
 			this.chatState = chatState;
 			return true;
 		}
+
+		@Override
+		public int getAvatarBackgroundColor() {
+			final String seed = realJid != null ? realJid.asBareJid().toString() : null;
+			return UIHelper.getColorForName(seed == null ? getName() : seed);
+		}
 	}
 
 	private Account account;
@@ -399,7 +419,7 @@ public class MucOptions {
 	}
 
 	public String getAvatar() {
-		return account.getRoster().getContact(conversation.getJid()).getAvatar();
+		return account.getRoster().getContact(conversation.getJid()).getAvatarFilename();
 	}
 
 	public boolean hasFeature(String feature) {
@@ -560,6 +580,15 @@ public class MucOptions {
 		return null;
 	}
 
+	public User findOrCreateUserByRealJid(Jid jid, Jid fullJid) {
+		User user = findUserByRealJid(jid);
+		if (user == null) {
+			user = new User(this, fullJid);
+			user.setRealJid(jid);
+		}
+		return user;
+	}
+
 	public User findUser(ReadByMarker readByMarker) {
 		if (readByMarker.getRealJid() != null) {
 			User user = findUserByRealJid(readByMarker.getRealJid().asBareJid());
@@ -649,14 +678,31 @@ public class MucOptions {
 	}
 
 	private String getProposedNick() {
-		if (conversation.getBookmark() != null
-				&& conversation.getBookmark().getNick() != null
-				&& !conversation.getBookmark().getNick().trim().isEmpty()) {
-			return conversation.getBookmark().getNick().trim();
+		final Bookmark bookmark = this.conversation.getBookmark();
+		final String bookmarkedNick = normalize(account.getJid(), bookmark == null ? null : bookmark.getNick());
+		if (bookmarkedNick != null) {
+			this.tookProposedNickFromBookmark = true;
+			return bookmarkedNick;
 		} else if (!conversation.getJid().isBareJid()) {
 			return conversation.getJid().getResource();
 		} else {
-			return JidHelper.localPartOrFallback(account.getJid());
+			final String displayName = normalize(account.getJid(), account.getDisplayName());
+			if (displayName == null) {
+				return JidHelper.localPartOrFallback(account.getJid());
+			} else {
+				return displayName;
+			}
+		}
+	}
+
+	private static String normalize(Jid account, String nick) {
+		if (account == null || TextUtils.isEmpty(nick)) {
+			return null;
+		}
+		try {
+			return account.withResource(nick).getResource();
+		} catch (IllegalArgumentException e) {
+			return null;
 		}
 	}
 

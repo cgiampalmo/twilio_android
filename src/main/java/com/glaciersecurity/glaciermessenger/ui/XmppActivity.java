@@ -495,15 +495,19 @@ public abstract class XmppActivity extends PinActivity {
 	}
 
 	public void switchToConversation(Conversation conversation) {
-		switchToConversation(conversation, null, false);
+		switchToConversation(conversation, null);
 	}
 
 	public void switchToConversationAndQuote(Conversation conversation, String text) {
 		switchToConversation(conversation, text, true, null, false, false);
 	}
 
-	public void switchToConversation(Conversation conversation, String text, boolean newTask) {
-		switchToConversation(conversation, text, false, null, false, newTask);
+	public void switchToConversation(Conversation conversation, String text) {
+		switchToConversation(conversation, text, false, null, false, false);
+	}
+
+	public void switchToConversationDoNotAppend(Conversation conversation, String text) {
+		switchToConversation(conversation, text, false, null, false, true);
 	}
 
 	public void highlightInMuc(Conversation conversation, String nick) {
@@ -514,28 +518,24 @@ public abstract class XmppActivity extends PinActivity {
 		switchToConversation(conversation, null, false, nick, true, false);
 	}
 
-	private void switchToConversation(Conversation conversation, String text, boolean asQuote, String nick, boolean pm, boolean newTask) {
+	private void switchToConversation(Conversation conversation, String text, boolean asQuote, String nick, boolean pm, boolean doNotAppend) {
 		Intent intent = new Intent(this, ConversationsActivity.class);
 		intent.setAction(ConversationsActivity.ACTION_VIEW_CONVERSATION);
 		intent.putExtra(ConversationsActivity.EXTRA_CONVERSATION, conversation.getUuid());
 		if (text != null) {
-			intent.putExtra(ConversationsActivity.EXTRA_TEXT, text);
+			intent.putExtra(Intent.EXTRA_TEXT, text);
 			if (asQuote) {
-				intent.putExtra(ConversationsActivity.EXTRA_AS_QUOTE, asQuote);
+				intent.putExtra(ConversationsActivity.EXTRA_AS_QUOTE, true);
 			}
 		}
 		if (nick != null) {
 			intent.putExtra(ConversationsActivity.EXTRA_NICK, nick);
 			intent.putExtra(ConversationsActivity.EXTRA_IS_PRIVATE_MESSAGE, pm);
 		}
-		if (newTask) {
-			intent.setFlags(intent.getFlags()
-					| Intent.FLAG_ACTIVITY_NEW_TASK
-					| Intent.FLAG_ACTIVITY_SINGLE_TOP);
-		} else {
-			intent.setFlags(intent.getFlags()
-					| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		if (doNotAppend) {
+			intent.putExtra(ConversationsActivity.EXTRA_DO_NOT_APPEND, true);
 		}
+		intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
 		finish();
 	}
@@ -1060,6 +1060,19 @@ public abstract class XmppActivity extends PinActivity {
 		private BitmapWorkerTask getBitmapWorkerTask() {
 			return bitmapWorkerTaskReference.get();
 		}
+	}
+
+	public static XmppActivity find(@NonNull  WeakReference<ImageView> viewWeakReference) {
+		final View view = viewWeakReference.get();
+		return view == null ? null : find(view);
+	}
+
+	public static XmppActivity find(@NonNull final View view) {
+		final Context context = view.getContext();
+		if (context instanceof XmppActivity) {
+			return (XmppActivity) context;
+		}
+		return null;
 	}
 
 	/**

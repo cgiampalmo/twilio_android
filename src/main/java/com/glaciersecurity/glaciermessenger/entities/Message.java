@@ -2,6 +2,7 @@ package com.glaciersecurity.glaciermessenger.entities;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.text.SpannableStringBuilder;
 
 import java.lang.ref.WeakReference;
@@ -17,6 +18,7 @@ import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.FingerprintStatus;
 import com.glaciersecurity.glaciermessenger.http.AesGcmURLStreamHandler;
 import com.glaciersecurity.glaciermessenger.ui.adapter.MessageAdapter;
+import com.glaciersecurity.glaciermessenger.services.AvatarService;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.Emoticons;
 import com.glaciersecurity.glaciermessenger.utils.GeoHelper;
@@ -25,7 +27,7 @@ import com.glaciersecurity.glaciermessenger.utils.MimeUtils;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import rocks.xmpp.addr.Jid;
 
-public class Message extends AbstractEntity {
+public class Message extends AbstractEntity implements AvatarService.Avatarable {
 
 	public static final String TABLENAME = "messages";
 
@@ -322,6 +324,15 @@ public class Message extends AbstractEntity {
 		this.counterpart = counterpart;
 	}
 
+	@Override
+	public int getAvatarBackgroundColor() {
+		if (type == Message.TYPE_STATUS && getCounterparts() != null && getCounterparts().size() > 1) {
+			return Color.TRANSPARENT;
+		} else {
+			return UIHelper.getColorForName(UIHelper.getMessageDisplayName(this));
+		}
+	}
+
 	public Contact getContact() {
 		if (this.conversation.getMode() == Conversation.MODE_SINGLE) {
 			return this.conversation.getContact();
@@ -330,7 +341,7 @@ public class Message extends AbstractEntity {
 				return null;
 			} else {
 				return this.conversation.getAccount().getRoster()
-						.getContactFromRoster(this.trueCounterpart);
+						.getContactFromContactList(this.trueCounterpart);
 			}
 		}
 	}
