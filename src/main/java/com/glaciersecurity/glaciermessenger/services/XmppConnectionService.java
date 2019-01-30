@@ -8,6 +8,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -41,12 +42,11 @@ import android.util.LruCache;
 import android.util.Pair;
 
 import org.conscrypt.Conscrypt;
-
 import org.openintents.openpgp.IOpenPgpService2;
 import org.openintents.openpgp.util.OpenPgpApi;
 import org.openintents.openpgp.util.OpenPgpServiceConnection;
 
-import java.math.BigInteger;
+import java.io.File;
 import java.net.URL;
 import java.security.SecureRandom;
 import java.security.Security;
@@ -264,7 +264,7 @@ public class XmppConnectionService extends Service {
 		}
 	};
 
-	//private boolean destroyed = false;
+	private boolean destroyed = false;
 
 	private int unreadCount = -1;
 
@@ -986,7 +986,7 @@ public class XmppConnectionService extends Service {
 		}
 		mForceDuringOnCreate.set(Compatibility.runsAndTargetsTwentySix(this));
 		toggleForegroundService();
-		//this.destroyed = false;
+		this.destroyed = false;
 		OmemoSetting.load(this);
 		ExceptionHelper.init(getApplicationContext());
         try {
@@ -1027,9 +1027,10 @@ public class XmppConnectionService extends Service {
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED )) {
 			startContactObserver();
 		}
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-			Log.d(Config.LOGTAG,"starting file observer");
-			new Thread(fileObserver::startWatching).start();
+		if (Compatibility.hasStoragePermission(this)) {
+			Log.d(Config.LOGTAG, "starting file observer");
+			mFileAddingExecutor.execute(this.fileObserver::startWatching);
+			mFileAddingExecutor.execute(this::checkForDeletedFiles);
 		}
 		if (Config.supportOpenPgp()) {
 			this.pgpServiceConnection = new OpenPgpServiceConnection(this, "org.sufficientlysecure.keychain", new OpenPgpServiceConnection.OnBound() {
@@ -1069,7 +1070,7 @@ public class XmppConnectionService extends Service {
 		toggleForegroundService();
 	}
 
-	/*private void checkForDeletedFiles() {
+	private void checkForDeletedFiles() {
 		if (destroyed) {
 			Log.d(Config.LOGTAG, "Do not check for deleted files because service has been destroyed");
 			return;
@@ -1093,7 +1094,7 @@ public class XmppConnectionService extends Service {
 			databaseBackend.markFilesAsChanged(changed);
 			markChangedFiles(changed);
 		}
-	}*/
+	}
 
 	public void startContactObserver() {
 		getContentResolver().registerContentObserver(ContactsContract.Contacts.CONTENT_URI, true, new ContentObserver(null) {
@@ -1124,13 +1125,15 @@ public class XmppConnectionService extends Service {
 		} catch (IllegalArgumentException e) {
 			//ignored
 		}
+		destroyed = false;
 		fileObserver.stopWatching();
 		super.onDestroy();
 	}
 
 	public void restartFileObserver() {
 		Log.d(Config.LOGTAG,"restarting file observer");
-		new Thread(fileObserver::restartWatching).start();
+		mFileAddingExecutor.execute(this.fileObserver::restartWatching);
+		mFileAddingExecutor.execute(this::checkForDeletedFiles);
 	}
 
 	public void toggleScreenEventReceiver() {
@@ -1633,24 +1636,30 @@ public class XmppConnectionService extends Service {
 	}
 
 	private void markFileDeleted(final String path) {
-		Log.d(Config.LOGTAG, "deleted file " + path);
+		final File file = new File(path);
+		final boolean isInternalFile = fileBackend.isInternalFile(file);
+		final List<String> uuids = databaseBackend.markFileAsDeleted(file, isInternalFile);
+		Log.d(Config.LOGTAG, "deleted file " + path+" internal="+isInternalFile+", database hits="+uuids.size());
+		markUuidsAsDeletedFiles(uuids);
+	}
+
+	private void markUuidsAsDeletedFiles(List<String> uuids) {
+		boolean deleted = false;
 		for (Conversation conversation : getConversations()) {
-			conversation.findMessagesWithFiles(message -> {
-				DownloadableFile file = fileBackend.getFile(message);
-				if (file.getAbsolutePath().equals(path)) {
-					if (!file.exists()) {
-						message.setTransferable(new TransferablePlaceholder(Transferable.STATUS_DELETED));
-						final int s = message.getStatus();
-						if (s == Message.STATUS_WAITING || s == Message.STATUS_OFFERED || s == Message.STATUS_UNSEND) {
-							markMessage(message, Message.STATUS_SEND_FAILED);
-						} else {
-							updateConversationUi();
-						}
-					} else {
-						Log.d(Config.LOGTAG, "found matching message for file " + path + " but file still exists");
-					}
-				}
-			});
+			deleted |= conversation.markAsDeleted(uuids);
+		}
+		if (deleted) {
+			updateConversationUi();
+		}
+	}
+
+	private void markChangedFiles(List<DatabaseBackend.FilePathInfo> infos) {
+		boolean changed = false;
+		for (Conversation conversation : getConversations()) {
+			changed |= conversation.markAsChanged(infos);
+		}
+		if (changed) {
+			updateConversationUi();
 		}
 	}
 

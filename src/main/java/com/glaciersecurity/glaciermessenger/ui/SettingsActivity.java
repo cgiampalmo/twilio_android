@@ -2,6 +2,7 @@ package com.glaciersecurity.glaciermessenger.ui;
 
 import android.preference.CheckBoxPreference;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
@@ -41,7 +42,7 @@ import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.Message;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
-import com.glaciersecurity.glaciermessenger.services.ExportLogsService;
+import com.glaciersecurity.glaciermessenger.services.ExportBackupService;
 import com.glaciersecurity.glaciermessenger.services.MemorizingTrustManager;
 import com.glaciersecurity.glaciermessenger.ui.util.Color;
 import com.glaciersecurity.glaciermessenger.utils.GeoHelper;
@@ -67,6 +68,7 @@ public class SettingsActivity extends XmppActivity implements
 	public static final String DISPLAYNAME = "displayname"; //ALF AM-48
 
 	public static final int REQUEST_WRITE_LOGS = 0xbf8701;
+	public static final int REQUEST_CREATE_BACKUP = 0xbf8701;
 	private SettingsFragment mSettingsFragment;
 
 	@Override
@@ -226,11 +228,12 @@ public class SettingsActivity extends XmppActivity implements
 			});
 		}
 
-		final Preference exportLogsPreference = mSettingsFragment.findPreference("export_logs");
-		if (exportLogsPreference != null) {
-			exportLogsPreference.setOnPreferenceClickListener(preference -> {
-				if (hasStoragePermission(REQUEST_WRITE_LOGS)) {
-					startExport();
+		final Preference createBackupPreference = mSettingsFragment.findPreference("create_backup");
+		if (createBackupPreference != null) {
+			createBackupPreference.setSummary(getString(R.string.pref_create_backup_summary, FileBackend.getBackupDirectory(this)));
+			createBackupPreference.setOnPreferenceClickListener(preference -> {
+				if (hasStoragePermission(REQUEST_CREATE_BACKUP)) {
+					createBackup();
 				}
 				return true;
 			});
@@ -501,16 +504,16 @@ public class SettingsActivity extends XmppActivity implements
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		if (grantResults.length > 0)
 			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-				if (requestCode == REQUEST_WRITE_LOGS) {
-					startExport();
+				if (requestCode == REQUEST_CREATE_BACKUP) {
+					createBackup();
 				}
 			} else {
 				Toast.makeText(this, R.string.no_storage_permission, Toast.LENGTH_SHORT).show();
 			}
 	}
 
-	private void startExport() {
-		startService(new Intent(getApplicationContext(), ExportLogsService.class));
+	private void createBackup() {
+		ContextCompat.startForegroundService(this, new Intent(this, ExportBackupService.class));
 	}
 
 	private void displayToast(final String msg) {

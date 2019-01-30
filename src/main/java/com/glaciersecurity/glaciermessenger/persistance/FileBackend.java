@@ -43,6 +43,7 @@ import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -54,6 +55,7 @@ import com.glaciersecurity.glaciermessenger.entities.DownloadableFile;
 import com.glaciersecurity.glaciermessenger.entities.Message;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.ui.RecordingActivity;
+import com.glaciersecurity.glaciermessenger.ui.util.Attachment;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.ExifHelper;
 import com.glaciersecurity.glaciermessenger.utils.FileUtils;
@@ -429,6 +431,10 @@ public class FileBackend {
         return getFile(message, true);
     }
 
+    public DownloadableFile getFileForPath(String path) {
+        return getFileForPath(path,MimeUtils.guessMimeTypeFromExtension(MimeUtils.extractRelevantExtension(path)));
+    }
+
     public DownloadableFile getFileForPath(String path, String mime) {
         final DownloadableFile file;
         if (path.startsWith("/")) {
@@ -445,6 +451,11 @@ public class FileBackend {
         return file;
     }
 
+    public boolean isInternalFile(final File file) {
+        final File internalFile = getFileForPath(file.getName());
+        return file.getAbsolutePath().equals(internalFile.getAbsolutePath());
+    }
+
     public DownloadableFile getFile(Message message, boolean decrypted) {
         final boolean encrypted = !decrypted
                 && (message.getEncryption() == Message.ENCRYPTION_PGP
@@ -459,6 +470,16 @@ public class FileBackend {
         } else {
             return file;
         }
+    }
+
+    public List<Attachment> convertToAttachments(List<DatabaseBackend.FilePath> relativeFilePaths) {
+        List<Attachment> attachments = new ArrayList<>();
+        for(DatabaseBackend.FilePath relativeFilePath : relativeFilePaths) {
+            final String mime = MimeUtils.guessMimeTypeFromExtension(MimeUtils.extractRelevantExtension(relativeFilePath.path));
+            final File file = getFileForPath(relativeFilePath.path, mime);
+            attachments.add(Attachment.of(relativeFilePath.uuid, file, mime));
+        }
+        return attachments;
     }
 
     public String getConversationsDirectory(final String type) {

@@ -84,6 +84,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 	public static final String ERROR_MESSAGE = "errorMsg";
 	public static final String READ_BY_MARKERS = "readByMarkers";
 	public static final String MARKABLE = "markable";
+	public static final String DELETED = "deleted";
 	public static final String ME_COMMAND = "/me ";
 
 
@@ -97,6 +98,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 	protected int encryption;
 	protected int status;
 	protected int type;
+	protected boolean deleted = false;
 	protected int timer; //ALF AM-53
 	protected long endTime; //ALF AM-53
 	protected boolean carbon = false;
@@ -152,6 +154,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 				false,
 				null,
 				null,
+				false,
 				false);
 
 		//ALF AM-53 moved from constructor below because was overwriting database
@@ -171,7 +174,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 	                final String remoteMsgId, final String relativeFilePath,
 	                final String serverMsgId, final String fingerprint, final boolean read,
 	                final String edited, final boolean oob, final String errorMessage, final Set<ReadByMarker> readByMarkers,
-	                final boolean markable) {
+	                final boolean markable, final boolean deleted) {
 		this.conversation = conversation;
 		this.uuid = uuid;
 		this.conversationUuid = conversationUUid;
@@ -195,6 +198,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 		this.errorMessage = errorMessage;
 		this.readByMarkers = readByMarkers == null ? new HashSet<ReadByMarker>() : readByMarkers;
 		this.markable = markable;
+		this.deleted = deleted;
 	}
 
 	public static Message fromCursor(Cursor cursor, Conversation conversation) {
@@ -244,7 +248,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 				cursor.getInt(cursor.getColumnIndex(OOB)) > 0,
 				cursor.getString(cursor.getColumnIndex(ERROR_MESSAGE)),
 				ReadByMarker.fromJsonString(cursor.getString(cursor.getColumnIndex(READ_BY_MARKERS))),
-				cursor.getInt(cursor.getColumnIndex(MARKABLE)) > 0);
+				cursor.getInt(cursor.getColumnIndex(MARKABLE)) > 0,
+				cursor.getInt(cursor.getColumnIndex(DELETED)) > 0);
 	}
 
 	public static Message createStatusMessage(Conversation conversation, String body) {
@@ -305,6 +310,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 		values.put(ERROR_MESSAGE, errorMessage);
 		values.put(READ_BY_MARKERS, ReadByMarker.toJson(readByMarkers).toString());
 		values.put(MARKABLE, markable ? 1 : 0);
+		values.put(DELETED, deleted ? 1 : 0);
 		return values;
 	}
 
@@ -428,6 +434,14 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 
 	public boolean isRead() {
 		return this.read;
+	}
+
+	public boolean isDeleted() {
+		return this.deleted;
+	}
+
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
 	}
 
 	public void markRead() {

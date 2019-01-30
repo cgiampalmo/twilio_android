@@ -256,12 +256,13 @@
                   android:theme="@style/Base.Theme.AppCompat"/>
         <activity android:name=".ui.MemorizingActivity"/>
 
-        <service android:name=".services.ExportLogsService"/>
+        <service android:name=".services.ExportBackupService" />
+        <service android:name=".services.ImportBackupService" />
         <service
             android:name=".services.ContactChooserTargetService"
             android:permission="android.permission.BIND_CHOOSER_TARGET_SERVICE">
             <intent-filter>
-                <action android:name="android.service.chooser.ChooserTargetService"/>
+                <action android:name="android.service.chooser.ChooserTargetService" />
             </intent-filter>
         </service>
 

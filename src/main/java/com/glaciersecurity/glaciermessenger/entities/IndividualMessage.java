@@ -44,8 +44,8 @@ public class IndividualMessage extends Message {
 	}
 
 	//ALF AM-53 added timer and endtime
-	private IndividualMessage(Conversational conversation, String uuid, String conversationUUid, Jid counterpart, Jid trueCounterpart, String body, long timeSent, int encryption, int status, int type, int timer, long endtime, boolean carbon, String remoteMsgId, String relativeFilePath, String serverMsgId, String fingerprint, boolean read, String edited, boolean oob, String errorMessage, Set<ReadByMarker> readByMarkers, boolean markable) {
-		super(conversation, uuid, conversationUUid, counterpart, trueCounterpart, body, timeSent, encryption, status, type, timer, endtime, carbon, remoteMsgId, relativeFilePath, serverMsgId, fingerprint, read, edited, oob, errorMessage, readByMarkers, markable);
+	private IndividualMessage(Conversational conversation, String uuid, String conversationUUid, Jid counterpart, Jid trueCounterpart, String body, long timeSent, int encryption, int status, int type, int timer, long endtime, boolean carbon, String remoteMsgId, String relativeFilePath, String serverMsgId, String fingerprint, boolean read, String edited, boolean oob, String errorMessage, Set<ReadByMarker> readByMarkers, boolean markable, boolean deleted) {
+		super(conversation, uuid, conversationUUid, counterpart, trueCounterpart, body, timeSent, encryption, status, type, timer, endtime, carbon, remoteMsgId, relativeFilePath, serverMsgId, fingerprint, read, edited, oob, errorMessage, readByMarkers, markable, deleted);
 	}
 
 	@Override
@@ -119,6 +119,7 @@ public class IndividualMessage extends Message {
 				cursor.getInt(cursor.getColumnIndex(OOB)) > 0,
 				cursor.getString(cursor.getColumnIndex(ERROR_MESSAGE)),
 				ReadByMarker.fromJsonString(cursor.getString(cursor.getColumnIndex(READ_BY_MARKERS))),
-				cursor.getInt(cursor.getColumnIndex(MARKABLE)) > 0);
+				cursor.getInt(cursor.getColumnIndex(MARKABLE)) > 0,
+				cursor.getInt(cursor.getColumnIndex(DELETED)) > 0);
 	}
 }

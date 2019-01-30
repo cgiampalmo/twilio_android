@@ -26,6 +26,7 @@ import com.glaciersecurity.glaciermessenger.crypto.OmemoSetting;
 import com.glaciersecurity.glaciermessenger.crypto.PgpDecryptionService;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.FingerprintStatus;
+import com.glaciersecurity.glaciermessenger.persistance.DatabaseBackend;
 import com.glaciersecurity.glaciermessenger.services.AvatarService;
 import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
@@ -217,6 +218,41 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 			}
 		}
 		return null;
+	}
+
+	public boolean markAsDeleted(final List<String> uuids) {
+		boolean deleted = false;
+		final PgpDecryptionService pgpDecryptionService = account.getPgpDecryptionService();
+		synchronized (this.messages) {
+			for(Message message : this.messages) {
+				if (uuids.contains(message.getUuid())) {
+					message.setDeleted(true);
+					deleted = true;
+					if (message.getEncryption() == Message.ENCRYPTION_PGP && pgpDecryptionService != null) {
+						pgpDecryptionService.discard(message);
+					}
+				}
+			}
+		}
+		return deleted;
+	}
+
+	public boolean markAsChanged(final List<DatabaseBackend.FilePathInfo> files) {
+		boolean changed = false;
+		final PgpDecryptionService pgpDecryptionService = account.getPgpDecryptionService();
+		synchronized (this.messages) {
+			for(Message message : this.messages) {
+				for(final DatabaseBackend.FilePathInfo file : files)
+					if (file.uuid.toString().equals(message.getUuid())) {
+						message.setDeleted(file.deleted);
+						changed = true;
+						if (file.deleted && message.getEncryption() == Message.ENCRYPTION_PGP && pgpDecryptionService != null) {
+							pgpDecryptionService.discard(message);
+						}
+					}
+			}
+		}
+		return changed;
 	}
 
 	public void clearMessages() {
