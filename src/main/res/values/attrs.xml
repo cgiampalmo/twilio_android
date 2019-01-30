@@ -57,6 +57,19 @@
     <attr name="conversations_overview_background" format="reference|color"/>
 
     <attr name="icon_alpha" format="float"/>
+    <attr name="delete_icon_alpha" format="float"/>
+
+    <attr name="media_preview_document" format="reference"/>
+    <attr name="media_preview_recording" format="reference"/>
+    <attr name="media_preview_audio" format="reference"/>
+    <attr name="media_preview_location" format="reference"/>
+    <attr name="media_preview_contact" format="reference"/>
+    <attr name="media_preview_app" format="reference"/>
+    <attr name="media_preview_calendar" format="reference"/>
+    <attr name="media_preview_archive" format="reference" />
+    <attr name="media_preview_ebook" format="reference"/>
+    <attr name="media_preview_unknown" format="reference" />
+
 
     <attr name="icon_add_group" format="reference"/>
     <attr name="icon_add_person" format="reference"/>
@@ -76,11 +89,11 @@
     <attr name="icon_refresh" format="reference"/>
     <attr name="icon_remove" format="reference"/>
     <attr name="icon_search" format="reference"/>
-    <!--<attr name="icon_secure" format="reference"/>-->
+    <attr name="icon_secure" format="reference"/>
     <attr name="icon_settings" format="reference"/>
     <attr name="icon_share" format="reference"/>
     <attr name="icon_import_export" format="reference"/>
-    <!--<attr name="icon_scan_qr_code" format="reference"/>-->
+    <attr name="icon_scan_qr_code" format="reference"/>
     <attr name="icon_enable_undecided_device" format="reference"/>
     <attr name="icon_scroll_down" format="reference"/>
 

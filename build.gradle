@@ -34,7 +34,7 @@ allprojects {
 configurations {
     playstoreImplementation
     compatImplementation
-    glaciermessengerFreeCompatImplementation
+    messengerFreeCompatImplementation
     quicksyFreeCompatImplementation
     quicksyImplementation
 }
@@ -61,7 +61,7 @@ dependencies {
     implementation "com.android.support:support-emoji:$supportLibVersion"
     implementation "com.android.support:design:$supportLibVersion"
     compatImplementation "com.android.support:support-emoji-appcompat:$supportLibVersion"
-    glaciermessengerFreeCompatImplementation "com.android.support:support-emoji-bundled:$supportLibVersion"
+    messengerFreeCompatImplementation "com.android.support:support-emoji-bundled:$supportLibVersion"
     quicksyFreeCompatImplementation "com.android.support:support-emoji-bundled:$supportLibVersion"
 
     implementation 'org.bouncycastle:bcmail-jdk15on:1.58'
@@ -126,11 +126,11 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 293
-        versionName "2.2.9-RC4"
+        versionCode 294
+        versionName "2.2.9-RC5"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
-        resValue "string", "applicationId", "com.glaciersecurity.glaciermessenger"
+        resValue "string", "applicationId", applicationId
         resValue "string", "app_name", "Messenger"
         buildConfigField "String", "LOGTAG", "\"messenger\""
     }
@@ -161,7 +161,7 @@ android {
             buildConfigField "String", "LOGTAG", "\"quicksy\""
         }
 
-        glaciermessenger {
+        messenger {
             dimension "mode"
         }
 
@@ -199,23 +199,23 @@ android {
                 srcDir 'src/quicksyPlaystore/res'
             }
         }
-        glaciermessengerFreeCompat {
+        messengerFreeCompat {
             java {
                 srcDirs 'src/freeCompat/java'
             }
         }
-        glaciermessengerPlaystoreCompat {
+        messengerPlaystoreCompat {
             java {
                 srcDirs 'src/playstoreCompat/java'
             }
             res {
                 srcDir 'src/playstoreCompat/res'
-                srcDir 'src/glaciermessengerPlaystore/res'
+                srcDir 'src/messengerPlaystore/res'
             }
         }
-        glaciermessengerPlaystoreSystem {
+        messengerPlaystoreSystem {
             res {
-                srcDir 'src/glaciermessengerPlaystore/res'
+                srcDir 'src/messengerPlaystore/res'
             }
         }
     }

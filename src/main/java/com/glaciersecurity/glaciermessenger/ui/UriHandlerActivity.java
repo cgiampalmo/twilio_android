@@ -106,7 +106,7 @@ public class UriHandlerActivity extends AppCompatActivity {
 			if (jid != null) {
 				Class clazz;
 				try {
-					clazz = Class.forName("eu.siacs.conversations.ui.ShareViaAccountActivity");
+					clazz = Class.forName("com.glaciersecurity.glaciermessenger.ShareViaAccountActivity");
 				} catch (ClassNotFoundException e) {
 					clazz = null;
 

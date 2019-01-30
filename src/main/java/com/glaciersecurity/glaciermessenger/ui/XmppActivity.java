@@ -24,6 +24,7 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -71,6 +72,7 @@ import com.glaciersecurity.glaciermessenger.services.AvatarService;
 import com.glaciersecurity.glaciermessenger.services.BarcodeProvider;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService.XmppConnectionBinder;
+import com.glaciersecurity.glaciermessenger.ui.service.EmojiService;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.ui.util.PresenceSelector;
 import com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils;
@@ -425,9 +427,10 @@ public abstract class XmppActivity extends PinActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		askForPermissions();
+		setVolumeControlStream(AudioManager.STREAM_NOTIFICATION);
 		metrics = getResources().getDisplayMetrics();
 		ExceptionHelper.init(getApplicationContext());
+		new EmojiService(this).init();
 		this.isCameraFeatureAvailable = getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
 
 		mColorRed = ContextCompat.getColor(this, R.color.red800);
