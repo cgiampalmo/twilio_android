@@ -285,6 +285,11 @@ public class XmppConnectionService extends Service {
 
 		@Override
 		public void onBind(final Account account) {
+			//ALF AM-222
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				//check if already scheduled
+				scheduleNextIdlePing();
+			}
 			synchronized (mInProgressAvatarFetches) {
 				for (Iterator<String> iterator = mInProgressAvatarFetches.iterator(); iterator.hasNext(); ) {
 					final String KEY = iterator.next();

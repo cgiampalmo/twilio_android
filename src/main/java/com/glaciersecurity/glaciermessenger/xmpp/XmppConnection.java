@@ -323,22 +323,28 @@ public class XmppConnection implements Runnable {
 							//ALF AM-191 if...do we need this with updated Resolver?
 							if (domain.startsWith("glaciersec")) {
 								addr = new InetSocketAddress(result.getIp(), 5222);
+								Log.d(Config.LOGTAG, account.getJid().asBareJid().toString()
+										+ ": using values from resolver " + (result.getHostname() == null ? "" : result.getHostname().toString()
+										+ "/") + result.getIp().getHostAddress() + ":5222 tls: " + features.encryptionEnabled);
 							} else {
 								addr = new InetSocketAddress(result.getIp(), result.getPort());
+								Log.d(Config.LOGTAG, account.getJid().asBareJid().toString()
+										+ ": using values from resolver " + (result.getHostname() == null ? "" : result.getHostname().toString()
+										+ "/") + result.getIp().getHostAddress() + ":" + result.getPort() + " tls: " + features.encryptionEnabled);
 							}
-							Log.d(Config.LOGTAG, account.getJid().asBareJid().toString()
-									+ ": using values from resolver " + (result.getHostname() == null ? "" : result.getHostname().toString()
-									+ "/") + result.getIp().getHostAddress() + ":" + result.getPort() + " tls: " + features.encryptionEnabled);
 						} else {
 							//ALF AM-191 if
 							if (domain.startsWith("glaciersec")) {
 								addr = new InetSocketAddress(IDN.toASCII(result.getHostname().toString()), 5222);
+								Log.d(Config.LOGTAG, account.getJid().asBareJid().toString()
+										+ ": using values from resolver "
+										+ result.getHostname().toString() + ":5222 tls: " + features.encryptionEnabled);
 							} else {
 								addr = new InetSocketAddress(IDN.toASCII(result.getHostname().toString()), result.getPort());
+								Log.d(Config.LOGTAG, account.getJid().asBareJid().toString()
+										+ ": using values from resolver "
+										+ result.getHostname().toString() + ":" + result.getPort() + " tls: " + features.encryptionEnabled);
 							}
-							Log.d(Config.LOGTAG, account.getJid().asBareJid().toString()
-									+ ": using values from resolver "
-									+ result.getHostname().toString() + ":" + result.getPort() + " tls: " + features.encryptionEnabled);
 						}
 
 						if (!features.encryptionEnabled) {
@@ -1303,7 +1309,7 @@ public class XmppConnection implements Runnable {
 			return;
 		}
 
-		mPendingServiceDiscoveries.incrementAndGet();
+		//mPendingServiceDiscoveries.incrementAndGet(); //ALF AM-222 long connection times
 		final IqPacket iq = new IqPacket(IqPacket.TYPE.GET);
 		iq.setTo(Jid.of(discoItemConf.getDomain()));
 		iq.query("http://jabber.org/protocol/disco#items");
