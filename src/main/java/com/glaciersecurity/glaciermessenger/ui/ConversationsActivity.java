@@ -74,6 +74,7 @@ import com.glaciersecurity.glaciermessenger.ui.util.ActivityResult;
 import com.glaciersecurity.glaciermessenger.ui.util.ConversationMenuConfigurator;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
+import com.glaciersecurity.glaciermessenger.utils.AccountUtils;
 import com.glaciersecurity.glaciermessenger.utils.EmojiWrapper;
 import com.glaciersecurity.glaciermessenger.utils.ExceptionHelper;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
@@ -393,6 +394,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_conversations, menu);
+		AccountUtils.showHideMenuItems(menu);
 
 //		MenuItem qrCodeScanMenuItem = menu.findItem(R.id.action_scan_qr_code);
 //		if (qrCodeScanMenuItem != null) {

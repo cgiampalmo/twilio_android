@@ -39,7 +39,7 @@ import com.glaciersecurity.glaciermessenger.entities.ListItem;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService.OnAccountUpdate;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService.OnRosterUpdate;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
-import com.glaciersecurity.glaciermessenger.utils.IrregularUnicodeDetector;
+import com.glaciersecurity.glaciermessenger.utils.AccountUtils;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
 import com.glaciersecurity.glaciermessenger.xml.Namespace;
@@ -263,6 +263,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.contact_details, menu);
+        AccountUtils.showHideMenuItems(menu);
         MenuItem block = menu.findItem(R.id.action_block);
         MenuItem unblock = menu.findItem(R.id.action_unblock);
         MenuItem edit = menu.findItem(R.id.action_edit_contact);

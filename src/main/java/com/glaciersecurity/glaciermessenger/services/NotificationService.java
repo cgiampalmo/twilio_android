@@ -55,8 +55,9 @@ import com.glaciersecurity.glaciermessenger.entities.Conversational;
 import com.glaciersecurity.glaciermessenger.entities.Message;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
 import com.glaciersecurity.glaciermessenger.ui.ConversationsActivity;
-import com.glaciersecurity.glaciermessenger.ui.ManageAccountActivity;
+import com.glaciersecurity.glaciermessenger.ui.EditAccountActivity;
 import com.glaciersecurity.glaciermessenger.ui.TimePreference;
+import com.glaciersecurity.glaciermessenger.utils.AccountUtils;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.utils.GeoHelper;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
@@ -831,12 +832,23 @@ public class NotificationService {
 		} else {
 			mBuilder.setSmallIcon(R.drawable.ic_stat_alert_warning);
 		}
-		mBuilder.setLocalOnly(true);
-		mBuilder.setPriority(NotificationCompat.PRIORITY_LOW);
-		mBuilder.setContentIntent(PendingIntent.getActivity(mXmppConnectionService,
-				145,
-				new Intent(mXmppConnectionService, ManageAccountActivity.class),
-				PendingIntent.FLAG_UPDATE_CURRENT));
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+			mBuilder.setLocalOnly(true);
+		}
+		mBuilder.setPriority(Notification.PRIORITY_LOW);
+		final Intent intent;
+		if (AccountUtils.MANAGE_ACCOUNT_ACTIVITY != null) {
+			intent = new Intent(mXmppConnectionService, AccountUtils.MANAGE_ACCOUNT_ACTIVITY);
+		} else {
+			intent = new Intent(mXmppConnectionService, EditAccountActivity.class);
+			intent.putExtra("jid", errors.get(0).getJid().asBareJid().toEscapedString());
+			intent.putExtra(EditAccountActivity.EXTRA_OPENED_FROM_NOTIFICATION, true);
+		}
+		mBuilder.setContentIntent(PendingIntent.getActivity(mXmppConnectionService, 145, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+		if (Compatibility.runsTwentySix()) {
+			mBuilder.setChannelId("error");
+		}
 		notify(ERROR_NOTIFICATION_ID, mBuilder.build());
 	}
 

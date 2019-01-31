@@ -52,6 +52,7 @@ import com.glaciersecurity.glaciermessenger.services.XmppConnectionService.OnMuc
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.ui.util.MyLinkify;
 import com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils;
+import com.glaciersecurity.glaciermessenger.utils.AccountUtils;
 import com.glaciersecurity.glaciermessenger.utils.EmojiWrapper;
 import com.glaciersecurity.glaciermessenger.utils.StringUtils;
 import com.glaciersecurity.glaciermessenger.utils.StylingHelper;
@@ -417,6 +418,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.muc_details, menu);
+        AccountUtils.showHideMenuItems(menu);
         return super.onCreateOptionsMenu(menu);
     }
 

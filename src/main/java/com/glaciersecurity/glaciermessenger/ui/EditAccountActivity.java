@@ -136,6 +136,8 @@ import static android.view.View.VISIBLE;
 public class EditAccountActivity extends OmemoActivity implements OnAccountUpdate, OnUpdateBlocklist,
 		OnKeyStatusUpdated, OnCaptchaRequested, KeyChainAliasCallback, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnMamPreferencesFetched, Handler.Callback, OpenVPNProfileListener {
 
+	public static final String EXTRA_OPENED_FROM_NOTIFICATION = "opened_from_notification";
+
 	private static final int REQUEST_DATA_SAVER = 0x37af244;
 	private static final int MSG_UPDATE_STATE = 0;
 	private static final int ICS_OPENVPN_PERMISSION = 7;
@@ -642,11 +644,13 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				}
 			}
 			boolean init = intent.getBooleanExtra("init", false);
+			boolean openedFromNotification = intent.getBooleanExtra(EXTRA_OPENED_FROM_NOTIFICATION, false);
 			this.mInitMode = init || this.jidToEdit == null;
 			this.messageFingerprint = intent.getStringExtra("fingerprint");
 			if (!mInitMode) {
 				this.binding.accountRegisterNew.setVisibility(View.GONE);
 				this.binding.editor.setVisibility(View.GONE); //ALF AM-206
+				configureActionBar(getSupportActionBar(), !openedFromNotification);
 				//HONEYBADGER AM-120 rm "using account ... "
 //				if (getSupportActionBar() != null) {
 //					getSupportActionBar().setTitle(getString(R.string.account_details));

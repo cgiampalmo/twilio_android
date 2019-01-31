@@ -76,6 +76,7 @@ import com.glaciersecurity.glaciermessenger.ui.service.EmojiService;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.ui.util.PresenceSelector;
 import com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils;
+import com.glaciersecurity.glaciermessenger.utils.AccountUtils;
 import com.glaciersecurity.glaciermessenger.utils.ExceptionHelper;
 import com.glaciersecurity.glaciermessenger.utils.ThemeHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.OnKeyStatusUpdated;
@@ -356,7 +357,10 @@ public abstract class XmppActivity extends PinActivity {
 					doCoreErrorAction();
 				}
 			case R.id.action_accounts:
-				startActivity(new Intent(this, ManageAccountActivity.class));
+				AccountUtils.launchManageAccounts(this);
+				break;
+			case R.id.action_account:
+				AccountUtils.launchManageAccount(this);
 				break;
 			case android.R.id.home:
 				finish();

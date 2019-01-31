@@ -74,6 +74,7 @@ import com.glaciersecurity.glaciermessenger.ui.interfaces.OnBackendConnected;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils;
+import com.glaciersecurity.glaciermessenger.utils.AccountUtils;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
 import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
@@ -601,6 +602,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.start_conversation, menu);
+		AccountUtils.showHideMenuItems(menu);
 		MenuItem menuHideOffline = menu.findItem(R.id.action_hide_offline);
 		MenuItem joinGroupChat = menu.findItem(R.id.action_join_conference);
 		//HONEYBADGER AM-120 Remove the top right barcode scanning feature
