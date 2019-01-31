@@ -13,12 +13,12 @@
 		app:showAsAction="never"
 		android:title="@string/restore_backup"/>
 	<!--HONEYBADGER AM-120 hide "add account with cert"-->
-	<item
+	<!-- <item
 		android:id="@+id/action_add_account_with_cert"
 		app:showAsAction="never"
 		android:icon="?attr/icon_add_person"
 		android:title="@string/action_add_account_with_certificate"
-		android:visible="false"/>
+		android:visible="false"/>  -->
 	<item
 		android:id="@+id/action_enable_all"
 		android:title="@string/enable_all_accounts"/>

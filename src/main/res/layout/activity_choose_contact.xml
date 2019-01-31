@@ -22,7 +22,7 @@
                 android:divider="@android:color/transparent"
                 android:dividerHeight="0dp"/>
 
-            <!-- CMG AM-152 set visible to false -->
+            <!-- CMG AM-152 set visible to false, and person_add to forward -->
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/fab"
                 app:backgroundTint="?colorPrimary"
@@ -31,7 +31,7 @@
                 android:layout_gravity="end|bottom"
                 android:layout_margin="16dp"
                 android:visible="false"
-                android:src="@drawable/ic_person_add_white_24dp"/>
+                android:src="@drawable/ic_forward_white_24dp"/>
         </FrameLayout>
     </LinearLayout>
 </layout>

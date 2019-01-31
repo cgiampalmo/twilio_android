@@ -244,9 +244,10 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
                 invalidateOptionsMenu();
 
                 break;
-            case R.id.action_add_account_with_cert:
-                addAccountFromKey();
-                break;
+            //CMG AM-152
+            //case R.id.action_add_account_with_cert:
+            //    addAccountFromKey();
+            //    break;
             default:
                 break;
         }

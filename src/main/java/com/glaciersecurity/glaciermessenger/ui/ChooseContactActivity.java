@@ -150,9 +150,8 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
     }
 
     private void onFabClicked(View v) {
-        if (selected.size() == 0) {
-            showEnterJidDialog(null);
-        } else {
+        //CMG AM-152
+        if (selected.size() > 0) {
             submitSelection();
         }
     }
@@ -165,8 +164,13 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
     @Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         mode.setTitle(getTitleFromIntent());
-        binding.fab.setImageResource(R.drawable.ic_forward_white_24dp);
-        binding.fab.setVisibility(View.VISIBLE);
+        //CMG AM-152 and added if/else
+        //binding.fab.setImageResource(R.drawable.ic_forward_white_24dp);
+        if (this.showEnterJid) {
+            this.binding.fab.setVisibility(View.VISIBLE);
+        } else {
+            this.binding.fab.setVisibility(View.GONE);
+        }
         final View view = getSearchEditText();
         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (view != null && imm != null) {
@@ -177,7 +181,8 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
 
     @Override
     public void onDestroyActionMode(ActionMode mode) {
-        this.binding.fab.setImageResource(R.drawable.ic_person_add_white_24dp);
+        //CMG AM-152 remove create contact button
+        //this.binding.fab.setImageResource(R.drawable.ic_person_add_white_24dp);
         if (this.showEnterJid) {
             this.binding.fab.setVisibility(View.VISIBLE);
         } else {
@@ -297,7 +302,8 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
         return super.onOptionsItemSelected(item);
     }
 
-    protected void showEnterJidDialog(XmppUri uri) {
+    //CMG AM-152 remove create contact button
+    /*protected void showEnterJidDialog(XmppUri uri) {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
         if (prev != null) {
@@ -328,7 +334,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
         });
 
         dialog.show(ft, "dialog");
-    }
+    }*/
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -342,13 +348,14 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
     }
 
     private void handleActivityResult(ActivityResult activityResult) {
-        if (activityResult.resultCode == RESULT_OK && activityResult.requestCode == ScanActivity.REQUEST_SCAN_QR_CODE) {
+        //CMG AM-152
+        /*if (activityResult.resultCode == RESULT_OK && activityResult.requestCode == ScanActivity.REQUEST_SCAN_QR_CODE) {
             String result = activityResult.data.getStringExtra(ScanActivity.INTENT_EXTRA_RESULT);
             XmppUri uri = new XmppUri(result == null ? "" : result);
             if (uri.isJidValid()) {
                 showEnterJidDialog(uri);
             }
-        }
+        }*/
     }
 
     @Override
