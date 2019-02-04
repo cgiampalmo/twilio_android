@@ -165,7 +165,6 @@ public class XmppConnectionService extends Service {
 	public static final String ACTION_IDLE_PING = "idle_ping";
 	public static final String ACTION_FCM_TOKEN_REFRESH = "fcm_token_refresh";
 	public static final String ACTION_FCM_MESSAGE_RECEIVED = "fcm_message_received";
-	private static final String ACTION_MERGE_PHONE_CONTACTS = "merge_phone_contacts";
 	private static final String ACTION_POST_CONNECTIVITY_CHANGE = "com.glaciersecurity.glaciermessenger.POST_CONNECTIVITY_CHANGE";
 
 	private static final String SETTING_LAST_ACTIVITY_TS = "last_activity_timestamp";
@@ -584,15 +583,15 @@ public class XmppConnectionService extends Service {
 			final String uuid = intent.getStringExtra("uuid");
 			switch (action) {
 				case ConnectivityManager.CONNECTIVITY_ACTION:
-					if (hasInternetConnection() && Config.RESET_ATTEMPT_COUNT_ON_NETWORK_CHANGE) {
-						resetAllAttemptCounts(true, false);
+					if (hasInternetConnection()) {
+						if (Config.POST_CONNECTIVITY_CHANGE_PING_INTERVAL > 0) {
+							schedulePostConnectivityChange();
+						}
+						if (Config.RESET_ATTEMPT_COUNT_ON_NETWORK_CHANGE) {
+							resetAllAttemptCounts(true, false);
+						}
 					}
 					break;
-				case ACTION_MERGE_PHONE_CONTACTS:
-					if (restoredFromDatabaseLatch.getCount() == 0) {
-						loadPhoneContacts();
-					}
-					return START_STICKY;
 				case Intent.ACTION_SHUTDOWN:
 					logoutAndSave(true);
 					return START_NOT_STICKY;
@@ -703,7 +702,7 @@ public class XmppConnectionService extends Service {
 		}
 		synchronized (this) {
 			WakeLockHelper.acquire(wakeLock);
-			boolean pingNow = ConnectivityManager.CONNECTIVITY_ACTION.equals(action);
+			boolean pingNow = ConnectivityManager.CONNECTIVITY_ACTION.equals(action) || (Config.POST_CONNECTIVITY_CHANGE_PING_INTERVAL > 0 && ACTION_POST_CONNECTIVITY_CHANGE.equals(action));
 			HashSet<Account> pingCandidates = new HashSet<>();
 			for (Account account : accounts) {
 				pingNow |= processAccountState(account,
@@ -1201,6 +1200,26 @@ public class XmppConnectionService extends Service {
 		if (stop || activeAccounts == 0) {
 			Log.d(Config.LOGTAG, "good bye");
 			stopSelf();
+		}
+	}
+
+	private void schedulePostConnectivityChange() {
+		final AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+		if (alarmManager == null) {
+			return;
+		}
+		final long triggerAtMillis = SystemClock.elapsedRealtime() + (Config.POST_CONNECTIVITY_CHANGE_PING_INTERVAL * 1000);
+		final Intent intent = new Intent(this, EventReceiver.class);
+		intent.setAction(ACTION_POST_CONNECTIVITY_CHANGE);
+		try {
+			final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtMillis, pendingIntent);
+			} else {
+				alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtMillis, pendingIntent);
+			}
+		} catch (RuntimeException e) {
+			Log.e(Config.LOGTAG, "unable to schedule alarm for post connectivity change", e);
 		}
 	}
 

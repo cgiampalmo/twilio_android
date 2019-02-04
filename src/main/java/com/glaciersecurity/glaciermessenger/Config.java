@@ -67,6 +67,7 @@ public final class Config {
 	public static final int PING_TIMEOUT = 15;
 	public static final int SOCKET_TIMEOUT = 15;
 	public static final int CONNECT_TIMEOUT = 90;
+	public static final int POST_CONNECTIVITY_CHANGE_PING_INTERVAL = 30;
 	public static final int CONNECT_DISCO_TIMEOUT = 20;
 	public static final int MINI_GRACE_PERIOD = 750;
 

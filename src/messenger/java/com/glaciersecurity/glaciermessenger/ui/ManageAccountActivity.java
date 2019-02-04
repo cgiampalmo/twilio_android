@@ -220,11 +220,11 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
             //case R.id.action_add_account: //ALF AM-205
             //    startActivity(new Intent(this, EditAccountActivity.class));
             //    break;
-            case R.id.action_import_backup:
-                if (hasStoragePermission(REQUEST_IMPORT_BACKUP)) {
-                    startActivity(new Intent(this, ImportBackupActivity.class));
-                }
-                break;
+            //case R.id.action_import_backup: //ALF AM-225
+            //    if (hasStoragePermission(REQUEST_IMPORT_BACKUP)) {
+            //        startActivity(new Intent(this, ImportBackupActivity.class));
+            //    }
+            //    break;
             case R.id.action_disable_all:
                 disableAllAccounts();
                 break;

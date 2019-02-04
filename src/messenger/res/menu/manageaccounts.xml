@@ -8,10 +8,11 @@
 		android:icon="?attr/icon_add_person"
 		app:showAsAction="always"
 		android:title="@string/action_add_account"/> -->
+	<!-- ALF AM-225
 	<item
 		android:id="@+id/action_import_backup"
 		app:showAsAction="never"
-		android:title="@string/restore_backup"/>
+		android:title="@string/restore_backup"/> -->
 	<!--HONEYBADGER AM-120 hide "add account with cert"-->
 	<!-- <item
 		android:id="@+id/action_add_account_with_cert"
