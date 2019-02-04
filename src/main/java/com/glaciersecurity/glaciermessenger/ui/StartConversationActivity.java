@@ -267,10 +267,11 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		Toolbar toolbar = (Toolbar) binding.toolbar;
 		setSupportActionBar(toolbar);
 		configureActionBar(getSupportActionBar());
-		//CMG AM-152 rm create chat icon
-		/*this.binding.fab.setOnClickListener((v) -> {
+		//CMG AM-152 rm create chat icon for 1:1, ALF modified for AM-231
+		this.binding.fab.hide();
+		this.binding.fab.setOnClickListener((v) -> {
 			if (binding.startConversationViewPager.getCurrentItem() == 0) {
-				String searchString = mSearchEditText != null ? mSearchEditText.getText().toString() : null;
+				/*String searchString = mSearchEditText != null ? mSearchEditText.getText().toString() : null;
 				if (searchString != null && !searchString.trim().isEmpty()) {
 					try {
 						Jid jid = Jid.of(searchString);
@@ -282,11 +283,11 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 						//ignore and fall through
 					}
 				}
-				showCreateContactDialog(null, null);
+				showCreateContactDialog(null, null);*/
 			} else {
 				showCreateConferenceDialog();
 			}
-		});*/
+		});
 		binding.tabLayout.setupWithViewPager(binding.startConversationViewPager);
 		binding.startConversationViewPager.addOnPageChangeListener(mOnPageChangeListener);
 		mListPagerAdapter = new ListPagerAdapter(getSupportFragmentManager());
@@ -964,14 +965,15 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	}
 
 	private void onTabChanged() {
-		//CMG AM-152 remove create chat icon
-		/*@DrawableRes final int fabDrawable;
-		if (binding.startConversationViewPager.getCurrentItem() == 0) {
-			fabDrawable = R.drawable.ic_person_add_white_24dp;
-		} else {
+		//CMG AM-152 remove 1:1 create chat icon, ALF updated for AM-231
+		@DrawableRes final int fabDrawable;
+		if (binding.startConversationViewPager.getCurrentItem() > 0) {
 			fabDrawable = R.drawable.ic_group_add_white_24dp;
+			binding.fab.setImageResource(fabDrawable);
+			binding.fab.show();
+		} else {
+			binding.fab.hide();
 		}
-		binding.fab.setImageResource(fabDrawable);*/
 		invalidateOptionsMenu();
 	}
 
