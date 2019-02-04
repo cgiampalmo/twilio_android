@@ -108,6 +108,7 @@ import com.glaciersecurity.glaciermessenger.parser.MessageParser;
 import com.glaciersecurity.glaciermessenger.parser.PresenceParser;
 import com.glaciersecurity.glaciermessenger.persistance.DatabaseBackend;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
+import com.glaciersecurity.glaciermessenger.ui.ChooseAccountForProfilePictureActivity;
 import com.glaciersecurity.glaciermessenger.ui.SettingsActivity;
 import com.glaciersecurity.glaciermessenger.ui.UiCallback;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnAvatarPublication;
@@ -118,7 +119,6 @@ import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.utils.ExceptionHelper;
 import com.glaciersecurity.glaciermessenger.utils.MimeUtils;
 import com.glaciersecurity.glaciermessenger.utils.OnPhoneContactsLoadedListener;
-import com.glaciersecurity.glaciermessenger.utils.PRNGFixes;
 import com.glaciersecurity.glaciermessenger.utils.PhoneHelper;
 import com.glaciersecurity.glaciermessenger.utils.QuickLoader;
 import com.glaciersecurity.glaciermessenger.utils.ReplacingSerialSingleThreadExecutor;
@@ -297,15 +297,25 @@ public class XmppConnectionService extends Service {
 					}
 				}
 			}
-			boolean needsUpdating = account.setOption(Account.OPTION_LOGGED_IN_SUCCESSFULLY, true);
-			needsUpdating |= account.setOption(Account.OPTION_HTTP_UPLOAD_AVAILABLE, account.getXmppConnection().getFeatures().httpUpload(0));
-			if (needsUpdating) {
+			boolean loggedInSuccessfully = account.setOption(Account.OPTION_LOGGED_IN_SUCCESSFULLY, true);
+			boolean gainedFeature = account.setOption(Account.OPTION_HTTP_UPLOAD_AVAILABLE, account.getXmppConnection().getFeatures().httpUpload(0));
+			if (loggedInSuccessfully || gainedFeature) {
 				databaseBackend.updateAccount(account);
+			}
+
+			if (loggedInSuccessfully) {
+				if (!TextUtils.isEmpty(account.getDisplayName())) {
+					Log.d(Config.LOGTAG,account.getJid().asBareJid()+": display name wasn't empty on first log in. publishing");
+					publishDisplayName(account);
+				}
 			}
 			account.getRoster().clearPresences();
 			mJingleConnectionManager.cancelInTransmission();
+			mQuickConversationsService.considerSyncBackground(false);
 			fetchRosterFromServer(account);
-			fetchBookmarks(account);
+			if (!account.getXmppConnection().getFeatures().bookmarksConversion()) {
+				fetchBookmarks(account);
+			}
 			final boolean flexible = account.getXmppConnection().getFeatures().flexibleOfflineMessageRetrieval();
 			final boolean catchup = getMessageArchiveService().inCatchup(account);
 			if (flexible && catchup && account.getXmppConnection().isMamPreferenceAlways()) {
@@ -332,6 +342,11 @@ public class XmppConnectionService extends Service {
 		public void onStatusChanged(final Account account) {
 			XmppConnection connection = account.getXmppConnection();
 			updateAccountUi();
+
+			if (account.getStatus() == Account.State.ONLINE || account.getStatus().isError()) {
+				mQuickConversationsService.signalAccountStateChange();
+			}
+
 			if (account.getStatus() == Account.State.ONLINE) {
 				synchronized (mLowPingTimeoutMode) {
 					if (mLowPingTimeoutMode.remove(account.getJid().asBareJid())) {
@@ -425,6 +440,7 @@ public class XmppConnectionService extends Service {
 		toggleForegroundService();
 	}
 
+	//HONEYBADGER maybe?
 	public void checkNewPermission(){
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED )) {
             startContactObserver();
@@ -520,7 +536,8 @@ public class XmppConnectionService extends Service {
 
 		if ("never".equals(compressPictures)
 				|| ("auto".equals(compressPictures) && getFileBackend().useImageAsIs(uri))
-				|| (mimeType != null && mimeType.endsWith("/gif"))) {
+				|| (mimeType != null && mimeType.endsWith("/gif"))
+				|| getFileBackend().unusualBounds(uri)) {
 			Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": not compressing picture. sending as file");
 			attachFileToConversation(conversation, uri, mimeType, callback);
 			return;
@@ -559,6 +576,11 @@ public class XmppConnectionService extends Service {
 
 	public Conversation find(final Account account, final Jid jid) {
 		return find(getConversations(), account, jid);
+	}
+
+	public boolean isMuc(final Account account, final Jid jid) {
+		final Conversation c = find(account, jid);
+		return c != null && c.getMode() == Conversational.MODE_MULTI;
 	}
 
 	public void search(List<String> term, OnSearchResultsAvailable onSearchResultsAvailable) {
@@ -998,7 +1020,6 @@ public class XmppConnectionService extends Service {
         } catch (Throwable throwable) {
             Log.e(Config.LOGTAG,"unable to initialize security provider", throwable);
         }
-		PRNGFixes.apply();
 		Resolver.init(this);
 		this.mRandom = new SecureRandom();
 		updateMemorizingTrustmanager();
@@ -1023,8 +1044,10 @@ public class XmppConnectionService extends Service {
 			editor.putBoolean(SettingsActivity.KEEP_FOREGROUND_SERVICE, true);
 			Log.d(Config.LOGTAG, Build.MANUFACTURER + " is on blacklist. enabling foreground service");
 		}
+		final boolean hasEnabledAccounts = hasEnabledAccounts();
 		editor.putBoolean(EventReceiver.SETTING_ENABLED_ACCOUNTS, hasEnabledAccounts()).apply();
 		editor.apply();
+		toggleSetProfilePictureActivity(hasEnabledAccounts);
 
 		restoreFromDatabase();
 
@@ -1968,7 +1991,19 @@ public class XmppConnectionService extends Service {
 	}
 
 	private void syncEnabledAccountSetting() {
-		getPreferences().edit().putBoolean(EventReceiver.SETTING_ENABLED_ACCOUNTS, hasEnabledAccounts()).apply();
+		final boolean hasEnabledAccounts = hasEnabledAccounts();
+		getPreferences().edit().putBoolean(EventReceiver.SETTING_ENABLED_ACCOUNTS, hasEnabledAccounts).apply();
+		toggleSetProfilePictureActivity(hasEnabledAccounts);
+	}
+
+	private void toggleSetProfilePictureActivity(final boolean enabled) {
+		try {
+			final ComponentName name = new ComponentName(this, ChooseAccountForProfilePictureActivity.class);
+			final int targetState =  enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
+			getPackageManager().setComponentEnabledSetting(name, targetState, PackageManager.DONT_KILL_APP);
+		} catch (IllegalStateException e) {
+			Log.d(Config.LOGTAG,"unable to toggle profile picture actvitiy");
+		}
 	}
 
 	public void createAccountFromKey(final String alias, final OnAccountCreated callback) {

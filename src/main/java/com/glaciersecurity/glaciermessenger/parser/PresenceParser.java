@@ -289,6 +289,11 @@ public class PresenceParser extends AbstractParser implements
 					mXmppConnectionService.fetchAvatar(account, avatar);
 				}
 			}
+
+			if (mXmppConnectionService.isMuc(account, from)) {
+				return;
+			}
+
 			int sizeBefore = contact.getPresences().size();
 
 			final String show = packet.findChildContent("show");

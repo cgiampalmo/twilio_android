@@ -768,6 +768,8 @@
     <string name="providing_a_name_is_optional">Providing a name is optional</string>
     <string name="create_dialog_group_chat_name">Group chat name</string>
     <string name="conference_destroyed">This group chat has been destroyed</string>
+    <string name="set_profile_picture">Messenger profile picture</string>
+    <string name="choose_account">Choose account</string>
     <string name="restore_backup">Restore backup</string>
     <string name="restore">Restore</string>
     <string name="enter_password_to_restore">Enter your password for the account %s to restore the backup.</string>

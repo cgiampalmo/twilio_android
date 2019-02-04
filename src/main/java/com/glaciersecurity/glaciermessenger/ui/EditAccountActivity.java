@@ -288,7 +288,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	public void onBackPressed() {
 		// GOOBER MISC - Do nothing on back press
 		// deleteAccountAndReturnIfNecessary();
-		// super.onBackPressed();
+		//ALF AM-226
+		if (!mInitMode) {
+			super.onBackPressed();
+		}
 	}
 
 	private void deleteAccountAndReturnIfNecessary() {
