@@ -141,6 +141,8 @@ public class ConversationsOverviewFragment extends XmppFragment {
 				//ALF AM-51, AM-64
 				if (c.getMode() == Conversation.MODE_MULTI) {
 					sendLeavingGroupMessage(c);
+					// sleep required so message goes out before conversation thread stopped
+					try { Thread.sleep(3000); } catch (InterruptedException ie) {}
 				}
 				activity.xmppConnectionService.archiveConversation(c);
 				return;
@@ -191,6 +193,8 @@ public class ConversationsOverviewFragment extends XmppFragment {
 					//ALF AM-51, AM-64
 					if (c.getMode() == Conversation.MODE_MULTI) {
 						sendLeavingGroupMessage(c);
+						// sleep required so message goes out before conversation thread stopped
+						try { Thread.sleep(3000); } catch (InterruptedException ie) {}
 					}
 					activity.xmppConnectionService.archiveConversation(c);
 				}
@@ -213,7 +217,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		activity.xmppConnectionService.sendMessage(message);
 		// sleep required so message goes out before conversation thread stopped
 		// maybe show a spinner?
-		try { Thread.sleep(2000); } catch (InterruptedException ie) {}
+		//try { Thread.sleep(2000); } catch (InterruptedException ie) {} //moved to each place
 	}
 
 	private ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
@@ -447,6 +451,8 @@ public class ConversationsOverviewFragment extends XmppFragment {
 					//ALF AM-51, AM-64
 					if (conversations.get(i).getMode() == Conversation.MODE_MULTI) {
 						sendLeavingGroupMessage(conversations.get(i));
+						// sleep required so message goes out before conversation thread stopped
+						try { Thread.sleep(3000); } catch (InterruptedException ie) {}
 					}
 					activity.xmppConnectionService.archiveConversation(conversations.get(i));
 				}
