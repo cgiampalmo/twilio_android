@@ -1132,7 +1132,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		public void onCreateContextMenu(final ContextMenu menu, final View v, final ContextMenuInfo menuInfo) {
 			super.onCreateContextMenu(menu, v, menuInfo);
 			final StartConversationActivity activity = (StartConversationActivity) getActivity();
-			if (activity == null) {
+			if (activity == null || mResContextMenu == R.menu.conference_context) { //ALF AM-229 added ||
 				return;
 			}
 			activity.getMenuInflater().inflate(mResContextMenu, menu);
