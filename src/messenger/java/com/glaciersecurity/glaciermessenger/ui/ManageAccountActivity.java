@@ -200,9 +200,9 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
             case R.id.mgmt_account_enable:
                 enableAccount(selectedAccount);
                 return true;
-            case R.id.mgmt_account_delete:
-                deleteAccount(selectedAccount);
-                return true;
+            //case R.id.mgmt_account_delete: //ALF AM-216
+            //    deleteAccount(selectedAccount);
+            //    return true;
             //case R.id.mgmt_account_announce_pgp: //ALF AM-171
             //    publishOpenPGPPublicKey(selectedAccount);
             //    return true;
