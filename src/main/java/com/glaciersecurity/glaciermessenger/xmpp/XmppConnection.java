@@ -1268,6 +1268,7 @@ public class XmppConnection implements Runnable {
 					//ALF AM-78
 					if (jid.getDomain().startsWith("conference")) {
 						discoItemConf = jid;
+						sendRoomDiscoveries(); //ALF AM-78, AM-10
 					}
 
 					sendServiceDiscoveryInfo(jid);
@@ -1281,9 +1282,6 @@ public class XmppConnection implements Runnable {
 					finalizeBind();
 				}
 			}
-
-			//ALF AM-78, AM-10
-			sendRoomDiscoveries();
 		});
 	}
 

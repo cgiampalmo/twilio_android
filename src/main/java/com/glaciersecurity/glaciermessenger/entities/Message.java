@@ -87,6 +87,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 	public static final String DELETED = "deleted";
 	public static final String ME_COMMAND = "/me ";
 
+	public static final String ERROR_MESSAGE_CANCELLED = "com.glaciersecurity.glaciermessenger.cancelled";
 
 	public boolean markable = false;
 	protected String conversationUuid;

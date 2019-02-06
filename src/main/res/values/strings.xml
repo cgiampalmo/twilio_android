@@ -808,6 +808,7 @@
     <string name="cancelled">cancelled</string>
     <string name="already_drafting_message">You are already drafting a message.</string>
     <string name="feature_not_implemented">Feature not implemented</string>
+    <string name="open_with">Open with…</string>
 
     <!-- GOOBER - Added text for rooms tab -->
     <string name="room_tab_error_title">Account Error</string>

@@ -43,7 +43,7 @@ public class JingleConnectionManager extends AbstractConnectionManager {
 			for (JingleConnection connection : connections) {
 				if (connection.getAccount() == account
 						&& connection.getSessionId().equals(
-								packet.getSessionId())
+						packet.getSessionId())
 						&& connection.getCounterPart().equals(packet.getFrom())) {
 					connection.deliverPacket(packet);
 					return;
@@ -82,7 +82,7 @@ public class JingleConnectionManager extends AbstractConnectionManager {
 	}
 
 	public void getPrimaryCandidate(Account account,
-			final OnPrimaryCandidateFound listener) {
+									final OnPrimaryCandidateFound listener) {
 		if (Config.DISABLE_PROXY_LOOKUP) {
 			listener.onPrimaryCandidateFound(false, null);
 			return;
@@ -167,7 +167,7 @@ public class JingleConnectionManager extends AbstractConnectionManager {
 	public void cancelInTransmission() {
 		for (JingleConnection connection : this.connections) {
 			if (connection.getJingleStatus() == JingleConnection.JINGLE_STATUS_TRANSMITTING) {
-				connection.cancel();
+				connection.abort();
 			}
 		}
 	}

@@ -15,6 +15,7 @@ import java.security.NoSuchAlgorithmException;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.entities.DownloadableFile;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
+import com.glaciersecurity.glaciermessenger.services.AbstractConnectionManager;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.SocksSocketFactory;
 import com.glaciersecurity.glaciermessenger.utils.WakeLockHelper;
@@ -94,11 +95,12 @@ public class JingleSocks5Transport extends JingleTransport {
 					callback.onFileTransferAborted();
 					return;
 				}
+				final InputStream innerInputStream = AbstractConnectionManager.upgrade(file, fileInputStream);
 				long size = file.getExpectedSize();
 				long transmitted = 0;
 				int count;
 				byte[] buffer = new byte[8192];
-				while ((count = fileInputStream.read(buffer)) > 0) {
+				while ((count = innerInputStream.read(buffer)) > 0) {
 					outputStream.write(buffer, 0, count);
 					digest.update(buffer, 0, count);
 					transmitted += count;

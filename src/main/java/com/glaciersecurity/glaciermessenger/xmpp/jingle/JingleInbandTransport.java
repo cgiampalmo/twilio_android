@@ -14,6 +14,7 @@ import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.DownloadableFile;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
+import com.glaciersecurity.glaciermessenger.services.AbstractConnectionManager;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.xml.Element;
 import com.glaciersecurity.glaciermessenger.xmpp.OnIqPacketReceived;
@@ -36,6 +37,7 @@ public class JingleInbandTransport extends JingleTransport {
 	private JingleConnection connection;
 
 	private InputStream fileInputStream = null;
+	private InputStream innerInputStream = null;
 	private OutputStream fileOutputStream = null;
 	private long remainingSize = 0;
 	private long fileSize = 0;
@@ -83,7 +85,7 @@ public class JingleInbandTransport extends JingleTransport {
 
 					@Override
 					public void onIqPacketReceived(Account account,
-							IqPacket packet) {
+												   IqPacket packet) {
 						if (packet.getType() != IqPacket.TYPE.RESULT) {
 							callback.failed();
 						} else {
@@ -94,8 +96,7 @@ public class JingleInbandTransport extends JingleTransport {
 	}
 
 	@Override
-	public void receive(DownloadableFile file,
-			OnFileTransmissionStatusChanged callback) {
+	public void receive(DownloadableFile file, OnFileTransmissionStatusChanged callback) {
 		this.onFileTransmissionStatusChanged = callback;
 		this.file = file;
 		try {
@@ -112,11 +113,10 @@ public class JingleInbandTransport extends JingleTransport {
 			Log.d(Config.LOGTAG,account.getJid().asBareJid()+" "+e.getMessage());
 			callback.onFileTransferAborted();
 		}
-    }
+	}
 
 	@Override
-	public void send(DownloadableFile file,
-			OnFileTransmissionStatusChanged callback) {
+	public void send(DownloadableFile file, OnFileTransmissionStatusChanged callback) {
 		this.onFileTransmissionStatusChanged = callback;
 		this.file = file;
 		try {
@@ -130,10 +130,11 @@ public class JingleInbandTransport extends JingleTransport {
 				callback.onFileTransferAborted();
 				return;
 			}
+			innerInputStream  = AbstractConnectionManager.upgrade(file, fileInputStream);
 			if (this.connected) {
 				this.sendNextBlock();
 			}
-		} catch (NoSuchAlgorithmException e) {
+		} catch (Exception e) {
 			callback.onFileTransferAborted();
 			Log.d(Config.LOGTAG,account.getJid().asBareJid()+": "+e.getMessage());
 		}
@@ -142,26 +143,14 @@ public class JingleInbandTransport extends JingleTransport {
 	@Override
 	public void disconnect() {
 		this.connected = false;
-		if (this.fileOutputStream != null) {
-			try {
-				this.fileOutputStream.close();
-			} catch (IOException e) {
-
-			}
-		}
-		if (this.fileInputStream != null) {
-			try {
-				this.fileInputStream.close();
-			} catch (IOException e) {
-
-			}
-		}
+		FileBackend.close(fileOutputStream);
+		FileBackend.close(fileInputStream);
 	}
 
 	private void sendNextBlock() {
 		byte[] buffer = new byte[this.blockSize];
 		try {
-			int count = fileInputStream.read(buffer);
+			int count = innerInputStream.read(buffer);
 			if (count == -1) {
 				sendClose();
 				file.setSha1Sum(digest.digest());
@@ -169,7 +158,7 @@ public class JingleInbandTransport extends JingleTransport {
 				fileInputStream.close();
 				return;
 			} else if (count != buffer.length) {
-				int rem = fileInputStream.read(buffer,count,buffer.length-count);
+				int rem = innerInputStream.read(buffer,count,buffer.length-count);
 				if (rem > 0) {
 					count += rem;
 				}

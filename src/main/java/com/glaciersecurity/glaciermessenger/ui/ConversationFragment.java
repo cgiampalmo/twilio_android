@@ -100,6 +100,7 @@ import com.glaciersecurity.glaciermessenger.ui.util.ScrollState;
 import com.glaciersecurity.glaciermessenger.ui.util.SendButtonAction;
 import com.glaciersecurity.glaciermessenger.ui.util.SendButtonTool;
 import com.glaciersecurity.glaciermessenger.ui.util.ShareUtil;
+import com.glaciersecurity.glaciermessenger.ui.util.ViewUtil;
 import com.glaciersecurity.glaciermessenger.ui.widget.EditMessage;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.GeoHelper;
@@ -1099,6 +1100,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			final boolean receiving = m.getStatus() == Message.STATUS_RECEIVED && (t instanceof JingleConnection || t instanceof HttpDownloadConnection);
 			activity.getMenuInflater().inflate(R.menu.message_context, menu);
 			menu.setHeaderTitle(R.string.message_options);
+			MenuItem openWith = menu.findItem(R.id.open_with);
 			MenuItem copyMessage = menu.findItem(R.id.copy_message);
 			MenuItem copyLink = menu.findItem(R.id.copy_link);
 			MenuItem quoteMessage = menu.findItem(R.id.quote_message);
@@ -1111,9 +1113,10 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			MenuItem cancelTransmission = menu.findItem(R.id.cancel_transmission);
 			MenuItem deleteFile = menu.findItem(R.id.delete_file);
 			MenuItem showErrorMessage = menu.findItem(R.id.show_error_message);
+			final boolean showError = m.getStatus() == Message.STATUS_SEND_FAILED && m.getErrorMessage() != null && !Message.ERROR_MESSAGE_CANCELLED.equals(m.getErrorMessage());
 			if (!m.isFileOrImage() && !encrypted && !m.isGeoUri() && !m.treatAsDownloadable()) {
 				copyMessage.setVisible(true);
-				quoteMessage.setVisible(MessageUtils.prepareQuote(m).length() > 0);
+				quoteMessage.setVisible(!showError && MessageUtils.prepareQuote(m).length() > 0);
 				String body = m.getMergedBody().toString();
 				if (ShareUtil.containsXmppUri(body)) {
 					copyLink.setTitle(R.string.copy_jabber_id);
@@ -1125,7 +1128,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			if (m.getEncryption() == Message.ENCRYPTION_DECRYPTION_FAILED) {
 				retryDecryption.setVisible(true);
 			}
-			if (relevantForCorrection.getType() == Message.TYPE_TEXT
+			if (!showError
+					&& relevantForCorrection.getType() == Message.TYPE_TEXT
+					&& !m.isGeoUri()
 					&& relevantForCorrection.isLastCorrectableMessage()
 					&& m.getConversation() instanceof Conversation
 					&& (((Conversation) m.getConversation()).getMucOptions().nonanonymous() || m.getConversation().getMode() == Conversation.MODE_SINGLE)) {
@@ -1160,8 +1165,12 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 					deleteFile.setTitle(activity.getString(R.string.delete_x_file, UIHelper.getFileDescriptionString(activity, m)));
 				}
 			}
-			if (m.getStatus() == Message.STATUS_SEND_FAILED && m.getErrorMessage() != null) {
+			if (showError) {
 				showErrorMessage.setVisible(true);
+			}
+			final String mime = m.isFileOrImage() ? m.getMimeType() : null;
+			if ((m.isGeoUri() && GeoHelper.openInOsmAnd(getActivity(),m)) || (mime != null && mime.startsWith("audio/"))) {
+				openWith.setVisible(true);
 			}
 		}
 	}
@@ -1204,6 +1213,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				return true;
 			case R.id.show_error_message:
 				showErrorMessage(selectedMessage);
+				return true;
+			case R.id.open_with:
+				openWith(selectedMessage);
 				return true;
 			default:
 				return super.onContextItemSelected(item);
@@ -1795,6 +1807,15 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		return null;
 	}
 
+	private void openWith(final Message message) {
+		if (message.isGeoUri()) {
+			GeoHelper.view(getActivity(),message);
+		} else {
+			final DownloadableFile file = activity.xmppConnectionService.getFileBackend().getFile(message);
+			ViewUtil.view(activity, file);
+		}
+	}
+
 	private void showErrorMessage(final Message message) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(R.string.error_message);
@@ -1855,7 +1876,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		if (transferable != null) {
 			transferable.cancel();
 		} else if (message.getStatus() != Message.STATUS_RECEIVED) {
-			activity.xmppConnectionService.markMessage(message, Message.STATUS_SEND_FAILED);
+			activity.xmppConnectionService.markMessage(message, Message.STATUS_SEND_FAILED, Message.ERROR_MESSAGE_CANCELLED);
 		}
 	}
 
