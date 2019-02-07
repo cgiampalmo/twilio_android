@@ -408,6 +408,22 @@ public class FileBackend {
         }
     }
 
+    public static Uri getMediaUri(Context context, File file) {
+        final String filePath = file.getAbsolutePath();
+        final Cursor cursor = context.getContentResolver().query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                new String[] { MediaStore.Images.Media._ID },
+                MediaStore.Images.Media.DATA + "=? ",
+                new String[] { filePath }, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            final int id = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
+            cursor.close();
+            return Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(id));
+        } else {
+            return null;
+        }
+    }
+
     public void updateMediaScanner(File file) {
         updateMediaScanner(file, null);
     }
@@ -1129,9 +1145,9 @@ public class FileBackend {
     public void updateFileParams(Message message, URL url) {
         DownloadableFile file = getFile(message);
         final String mime = file.getMimeType();
-        boolean image = message.getType() == Message.TYPE_IMAGE || (mime != null && mime.startsWith("image/"));
-        boolean video = mime != null && mime.startsWith("video/");
-        boolean audio = mime != null && mime.startsWith("audio/");
+        final boolean image = message.getType() == Message.TYPE_IMAGE || (mime != null && mime.startsWith("image/"));
+        final boolean video = mime != null && mime.startsWith("video/");
+        final boolean audio = mime != null && mime.startsWith("audio/");
         final StringBuilder body = new StringBuilder();
         if (url != null) {
             body.append(url.toString());
@@ -1151,6 +1167,8 @@ public class FileBackend {
             body.append("|0|0|").append(getMediaRuntime(file));
         }
         message.setBody(body.toString());
+        message.setDeleted(false);
+        message.setType(image ? Message.TYPE_IMAGE : Message.TYPE_FILE);
     }
 
     public int getMediaRuntime(Uri uri) {

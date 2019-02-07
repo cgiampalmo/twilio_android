@@ -148,6 +148,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.jingle.OnJinglePacketReceived;
 import com.glaciersecurity.glaciermessenger.xmpp.jingle.stanzas.JinglePacket;
 import com.glaciersecurity.glaciermessenger.xmpp.mam.MamReference;
 import com.glaciersecurity.glaciermessenger.xmpp.pep.Avatar;
+import com.glaciersecurity.glaciermessenger.xmpp.pep.PublishOptions;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.IqPacket;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.MessagePacket;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.PresencePacket;
@@ -1328,6 +1329,15 @@ public class XmppConnectionService extends Service {
 		}
 		final Conversation conversation = (Conversation) message.getConversation();
 		account.deactivateGracePeriod();
+
+		if (QuickConversationsService.isQuicksy() && conversation.getMode() == Conversation.MODE_SINGLE) {
+			final Contact contact = conversation.getContact();
+			if (!contact.showInRoster() && contact.getOption(Contact.Options.SYNCED_VIA_OTHER)) {
+				Log.d(Config.LOGTAG,account.getJid().asBareJid()+": adding "+contact.getJid()+" on sending message");
+				createContact(contact, true);
+			}
+		}
+
 		MessagePacket packet = null;
 		final boolean addToConversation = (conversation.getMode() != Conversation.MODE_MULTI
 				|| !Patches.BAD_MUC_REFLECTION.contains(account.getServerIdentity()))
@@ -1542,7 +1552,15 @@ public class XmppConnectionService extends Service {
 	}
 
 	public void pushBookmarks(Account account) {
-		Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": pushing bookmarks");
+		if (account.getXmppConnection().getFeatures().bookmarksConversion()) {
+			pushBookmarksPep(account);
+		} else {
+			pushBookmarksPrivateXml(account);
+		}
+	}
+
+	private void pushBookmarksPrivateXml(Account account) {
+		Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": pushing bookmarks via private xml");
 		IqPacket iqPacket = new IqPacket(IqPacket.TYPE.SET);
 		Element query = iqPacket.query("jabber:iq:private");
 		Element storage = query.addChild("storage", "storage:bookmarks");
@@ -1550,6 +1568,45 @@ public class XmppConnectionService extends Service {
 			storage.addChild(bookmark);
 		}
 		sendIqPacket(account, iqPacket, mDefaultIqHandler);
+	}
+
+	private void pushBookmarksPep(Account account) {
+		Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": pushing bookmarks via pep");
+		Element storage = new Element("storage", "storage:bookmarks");
+		for (Bookmark bookmark : account.getBookmarks()) {
+			storage.addChild(bookmark);
+		}
+		pushNodeAndEnforcePublishOptions(account,Namespace.BOOKMARKS,storage, PublishOptions.persistentWhitelistAccess());
+
+	}
+
+	private void pushNodeAndEnforcePublishOptions(final Account account, final String node, final Element element, final Bundle options) {
+		pushNodeAndEnforcePublishOptions(account, node, element, options, true);
+
+	}
+
+	private void pushNodeAndEnforcePublishOptions(final Account account, final String node, final Element element, final Bundle options, final boolean retry) {
+		final IqPacket packet = mIqGenerator.publishElement(node, element, options);
+		sendIqPacket(account, packet, (a, response) -> {
+			if (response.getType() == IqPacket.TYPE.RESULT) {
+				return;
+			}
+			if (retry && PublishOptions.preconditionNotMet(response)) {
+				pushNodeConfiguration(account, node, options, new OnConfigurationPushed() {
+					@Override
+					public void onPushSucceeded() {
+						pushNodeAndEnforcePublishOptions(account, node, element, options, false);
+					}
+
+					@Override
+					public void onPushFailed() {
+						Log.d(Config.LOGTAG,account.getJid().asBareJid()+": unable to push node configuration ("+node+")");
+					}
+				});
+			} else {
+				Log.d(Config.LOGTAG,account.getJid().asBareJid()+": error publishing bookmarks (retry="+Boolean.toString(retry)+") "+response);
+			}
+		});
 	}
 
 	private void restoreFromDatabase() {
@@ -1628,7 +1685,6 @@ public class XmppConnectionService extends Service {
 
 	private void restoreMessages(Conversation conversation) {
 		conversation.addAll(0, databaseBackend.getMessages(conversation, Config.PAGE_SIZE));
-		checkDeletedFiles(conversation);
 		conversation.findUnsentTextMessages(message -> markMessage(message, Message.STATUS_WAITING));
 		conversation.findUnreadMessages(message -> mNotificationService.pushFromBacklog(message));
 	}
@@ -1668,18 +1724,6 @@ public class XmppConnectionService extends Service {
 
 	public List<Conversation> getConversations() {
 		return this.conversations;
-	}
-
-	private void checkDeletedFiles(Conversation conversation) {
-		conversation.findMessagesWithFiles(message -> {
-			if (!getFileBackend().isFileAvailable(message)) {
-				message.setTransferable(new TransferablePlaceholder(Transferable.STATUS_DELETED));
-				final int s = message.getStatus();
-				if (s == Message.STATUS_WAITING || s == Message.STATUS_OFFERED || s == Message.STATUS_UNSEND) {
-					markMessage(message, Message.STATUS_SEND_FAILED);
-				}
-			}
-		});
 	}
 
 	private void markFileDeleted(final String path) {
@@ -1769,7 +1813,6 @@ public class XmppConnectionService extends Service {
 			List<Message> messages = databaseBackend.getMessages(conversation, 50, timestamp);
 			if (messages.size() > 0) {
 				conversation.addAll(0, messages);
-				checkDeletedFiles(conversation);
 				callback.onMoreMessagesLoaded(messages.size(), conversation);
 			} else if (conversation.hasMessagesLeftOnServer()
 					&& account.isOnlineAndConnected()
@@ -1914,7 +1957,6 @@ public class XmppConnectionService extends Service {
 						}
 					}
 				}
-				checkDeletedFiles(c);
 				if (joinAfterCreate) {
 					joinMuc(c);
 				}
@@ -2775,7 +2817,7 @@ public class XmppConnectionService extends Service {
 	public void sendJoiningGroupMessage(final Conversation conversation, List joiners, boolean includeAccount) {
 		// sleep required so message goes out before conversation thread stopped
 		// maybe show a spinner?
-		try { Thread.sleep(3000); } catch (InterruptedException ie) {}
+		try { Thread.sleep(5000); } catch (InterruptedException ie) {}
 		final Account account = conversation.getAccount();
 		String dname = account.getDisplayName();
 		if (dname == null) { dname = account.getUsername(); }

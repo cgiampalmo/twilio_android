@@ -23,8 +23,10 @@ import android.support.v4.app.NotificationCompat.BigPictureStyle;
 import android.support.v4.app.NotificationCompat.Builder;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.NotificationCompat.CarExtender.UnreadConversation;
+import android.support.v4.app.Person;
 import android.support.v4.app.RemoteInput;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.IconCompat;
 import android.support.annotation.RequiresApi;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
@@ -528,17 +530,52 @@ public class NotificationService {
 		}
 	}
 
+	private Person getPerson(Message message) {
+		final Contact contact = message.getContact();
+		final Person.Builder builder = new Person.Builder();
+		if (contact != null) {
+			builder.setName(contact.getDisplayName());
+			final Uri uri = contact.getSystemAccount();
+			if (uri != null) {
+				builder.setUri(uri.toString());
+			}
+		} else {
+			builder.setName(UIHelper.getMessageDisplayName(message));
+		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+			builder.setIcon(IconCompat.createWithBitmap(mXmppConnectionService.getAvatarService().get(message, AvatarService.getSystemUiAvatarSize(mXmppConnectionService), false)));
+		}
+		return builder.build();
+	}
+
+
 	private void modifyForTextOnly(final Builder builder, final UnreadConversation.Builder uBuilder, final ArrayList<Message> messages) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(mXmppConnectionService.getString(R.string.me));
 			final Conversation conversation = (Conversation) messages.get(0).getConversation();
-			if (conversation.getMode() == Conversation.MODE_MULTI) {
+			final Person.Builder meBuilder = new Person.Builder().setName(mXmppConnectionService.getString(R.string.me));
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+				meBuilder.setIcon(IconCompat.createWithBitmap(mXmppConnectionService.getAvatarService().get(conversation.getAccount(), AvatarService.getSystemUiAvatarSize(mXmppConnectionService))));
+			}
+			final Person me = meBuilder.build();
+			NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(me);
+			final boolean multiple = conversation.getMode() == Conversation.MODE_MULTI;
+			if (multiple) {
 				messagingStyle.setConversationTitle(conversation.getName());
 			}
 			for (Message message : messages) {
-				String sender = message.getStatus() == Message.STATUS_RECEIVED ? UIHelper.getMessageDisplayName(message) : null;
-				messagingStyle.addMessage(UIHelper.getMessagePreview(mXmppConnectionService, message).first, message.getTimeSent(), sender);
+				final Person sender = message.getStatus() == Message.STATUS_RECEIVED ? getPerson(message) : null;
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && isImageMessage(message)) {
+					final Uri dataUri = FileBackend.getMediaUri(mXmppConnectionService,mXmppConnectionService.getFileBackend().getFile(message));
+					NotificationCompat.MessagingStyle.Message imageMessage = new NotificationCompat.MessagingStyle.Message(UIHelper.getMessagePreview(mXmppConnectionService, message).first, message.getTimeSent(), sender);
+					if (dataUri != null) {
+						imageMessage.setData(message.getMimeType(), dataUri);
+					}
+					messagingStyle.addMessage(imageMessage);
+				} else {
+					messagingStyle.addMessage(UIHelper.getMessagePreview(mXmppConnectionService, message).first, message.getTimeSent(), sender);
+				}
 			}
+			messagingStyle.setGroupConversation(multiple);
 			builder.setStyle(messagingStyle);
 		} else {
 			if (messages.get(0).getConversation().getMode() == Conversation.MODE_SINGLE) {
@@ -583,14 +620,19 @@ public class NotificationService {
 			if (message.getStatus() != Message.STATUS_RECEIVED) {
 				return null;
 			}
-			if (message.getType() != Message.TYPE_TEXT
-					&& message.getTransferable() == null
-					&& message.getEncryption() != Message.ENCRYPTION_PGP
-					&& message.getFileParams().height > 0) {
+			if (isImageMessage(message)) {
 				image = message;
 			}
 		}
 		return image;
+	}
+
+	private static boolean isImageMessage(Message message) {
+		return message.getType() != Message.TYPE_TEXT
+				&& message.getTransferable() == null
+				&& !message.isDeleted()
+				&& message.getEncryption() != Message.ENCRYPTION_PGP
+				&& message.getFileParams().height > 0;
 	}
 
 	private Message getFirstDownloadableMessage(final Iterable<Message> messages) {

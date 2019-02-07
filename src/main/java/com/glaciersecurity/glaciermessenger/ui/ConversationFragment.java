@@ -102,6 +102,7 @@ import com.glaciersecurity.glaciermessenger.ui.util.SendButtonTool;
 import com.glaciersecurity.glaciermessenger.ui.util.ShareUtil;
 import com.glaciersecurity.glaciermessenger.ui.util.ViewUtil;
 import com.glaciersecurity.glaciermessenger.ui.widget.EditMessage;
+import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.GeoHelper;
 import com.glaciersecurity.glaciermessenger.utils.MessageUtils;
@@ -1094,7 +1095,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				return;
 			}
 
-			final boolean deleted = t != null && t instanceof TransferablePlaceholder;
+			final boolean deleted = m.isDeleted();
 			final boolean encrypted = m.getEncryption() == Message.ENCRYPTION_DECRYPTION_FAILED
 					|| m.getEncryption() == Message.ENCRYPTION_PGP;
 			final boolean receiving = m.getStatus() == Message.STATUS_RECEIVED && (t instanceof JingleConnection || t instanceof HttpDownloadConnection);
@@ -1820,17 +1821,30 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(R.string.error_message);
 		builder.setMessage(message.getErrorMessage());
+		builder.setNegativeButton(R.string.copy_to_clipboard, (dialog, which) -> {
+			activity.copyTextToClipboard(message.getErrorMessage(),R.string.error_message);
+			Toast.makeText(activity,R.string.error_message_copied_to_clipboard, Toast.LENGTH_SHORT).show();
+		});
 		builder.setPositiveButton(R.string.confirm, null);
 		builder.create().show();
 	}
 
 
-	private void deleteFile(Message message) {
-		if (activity.xmppConnectionService.getFileBackend().deleteFile(message)) {
-			message.setTransferable(new TransferablePlaceholder(Transferable.STATUS_DELETED));
-			activity.onConversationsListItemUpdated();
-			refresh();
-		}
+	private void deleteFile(final Message message) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setNegativeButton(R.string.cancel, null);
+		builder.setTitle(R.string.delete_file_dialog);
+		builder.setMessage(R.string.delete_file_dialog_msg);
+		builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
+			if (activity.xmppConnectionService.getFileBackend().deleteFile(message)) {
+				message.setDeleted(true);
+				activity.xmppConnectionService.updateMessage(message, false);
+				activity.onConversationsListItemUpdated();
+				refresh();
+			}
+		});
+		builder.create().show();
+
 	}
 
 	private void resendMessage(final Message message) {
@@ -1839,8 +1853,8 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				return;
 			}
 			final Conversation conversation = (Conversation) message.getConversation();
-			DownloadableFile file = activity.xmppConnectionService.getFileBackend().getFile(message);
-			if (file.exists()) {
+			final DownloadableFile file = activity.xmppConnectionService.getFileBackend().getFile(message);
+			if ((file.exists() && file.canRead()) || message.hasFileOnRemoteHost()) {
 				final XmppConnection xmppConnection = conversation.getAccount().getXmppConnection();
 				if (!message.hasFileOnRemoteHost()
 						&& xmppConnection != null
@@ -1856,9 +1870,13 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 					});
 					return;
 				}
+			} else if (!Compatibility.hasStoragePermission(getActivity())) {
+				Toast.makeText(activity, R.string.no_storage_permission, Toast.LENGTH_SHORT).show();
+				return;
 			} else {
 				Toast.makeText(activity, R.string.file_deleted, Toast.LENGTH_SHORT).show();
-				message.setTransferable(new TransferablePlaceholder(Transferable.STATUS_DELETED));
+				message.setDeleted(true);
+				activity.xmppConnectionService.updateMessage(message, false);
 				activity.onConversationsListItemUpdated();
 				refresh();
 				return;
