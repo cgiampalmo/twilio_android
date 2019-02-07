@@ -47,6 +47,7 @@ import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -58,6 +59,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 
+import com.glaciersecurity.glaciercore.api.CoreConnectionState;
 import com.glaciersecurity.glaciermessenger.lollipin.lib.PinActivity;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
@@ -341,6 +343,18 @@ public abstract class XmppActivity extends PinActivity {
 		if (this instanceof OnKeyStatusUpdated) {
 			this.xmppConnectionService.removeOnNewKeysAvailableListener((OnKeyStatusUpdated) this);
 		}
+	}
+
+	//CMG AM-76 only show core connections if core is installed
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuItem coreConnectionItem = menu.findItem(R.id.action_glaciervpn);
+		if (CoreConnectionState.getInstance().hasCorePermission()) {
+			coreConnectionItem.setVisible(true);
+		} else {
+			coreConnectionItem.setVisible(false);
+		}
+		return true;
 	}
 
 	@Override
