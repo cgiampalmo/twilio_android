@@ -2161,6 +2161,16 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		dialog.show();
 	}
 
+	protected boolean isAppInstalled(String packageName) {
+		Intent mIntent = getPackageManager().getLaunchIntentForPackage(packageName);
+		if (mIntent != null) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
 	/**
 	 * GOOBER COGNITO - logout of Cognito
 	 * sometimes if it's been too long, I believe pool doesn't

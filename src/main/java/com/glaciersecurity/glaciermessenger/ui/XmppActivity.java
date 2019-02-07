@@ -96,6 +96,7 @@ public abstract class XmppActivity extends PinActivity {
 	protected static final int REQUEST_INVITE_TO_CONVERSATION = 0x0102;
 	protected static final int REQUEST_CHOOSE_PGP_ID = 0x0103;
 	protected static final int REQUEST_BATTERY_OP = 0x49ff;
+	protected static final String CORE_APK_PACKAGE = "com.glaciersecurity.glaciercore";
 	public XmppConnectionService xmppConnectionService;
 	public boolean xmppConnectionServiceBound = false;
 
@@ -349,13 +350,27 @@ public abstract class XmppActivity extends PinActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuItem coreConnectionItem = menu.findItem(R.id.action_glaciervpn);
-		if (CoreConnectionState.getInstance().hasCorePermission()) {
+		boolean isCoreInstalled = isAppInstalled(CORE_APK_PACKAGE);
+		if (isCoreInstalled) {
 			coreConnectionItem.setVisible(true);
+
 		} else {
 			coreConnectionItem.setVisible(false);
 		}
 		return true;
 	}
+
+	protected boolean isAppInstalled(String packageName) {
+		Intent mIntent = getPackageManager().getLaunchIntentForPackage(packageName);
+		if (mIntent != null) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+
 
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {

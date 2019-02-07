@@ -17,10 +17,13 @@ public class CoreConnectionState {
         }
     }
 
+    private boolean isInstalled;
+
     private CoreState coreState;
 
     private CoreConnectionState(){
         coreState = CoreState.UNKNOWN;
+        isInstalled = false;
     }
 
     public static CoreConnectionState getInstance(){
@@ -39,8 +42,11 @@ public class CoreConnectionState {
         this.coreState = coreState;
     }
 
+    public boolean isInstalled() {
+        return isInstalled;
+    }
 
-
-
-
+    public void setInstalled(boolean installed){
+        this.isInstalled = installed;
+    }
 }
