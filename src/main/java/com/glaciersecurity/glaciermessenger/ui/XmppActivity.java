@@ -351,11 +351,13 @@ public abstract class XmppActivity extends PinActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuItem coreConnectionItem = menu.findItem(R.id.action_glaciervpn);
 		boolean isCoreInstalled = isAppInstalled(CORE_APK_PACKAGE);
-		if (isCoreInstalled) {
-			coreConnectionItem.setVisible(true);
+		if (coreConnectionItem != null) {
+			if (isCoreInstalled) {
+				coreConnectionItem.setVisible(true);
 
-		} else {
-			coreConnectionItem.setVisible(false);
+			} else {
+				coreConnectionItem.setVisible(false);
+			}
 		}
 		return true;
 	}
