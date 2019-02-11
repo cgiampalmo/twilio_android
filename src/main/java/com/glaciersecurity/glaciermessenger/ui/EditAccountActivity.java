@@ -55,11 +55,10 @@ import com.glaciersecurity.glaciercore.api.IOpenVPNStatusCallback;
 import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.cognito.Constants;
 import com.glaciersecurity.glaciermessenger.cognito.Util;
+import com.glaciersecurity.glaciermessenger.entities.LoginAccount;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -111,12 +110,10 @@ import com.glaciersecurity.glaciermessenger.databinding.DialogPresenceBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Presence;
 import com.glaciersecurity.glaciermessenger.entities.PresenceTemplate;
-import com.glaciersecurity.glaciermessenger.services.BarcodeProvider;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService.OnAccountUpdate;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService.OnCaptchaRequested;
 import com.glaciersecurity.glaciermessenger.ui.adapter.PresenceTemplateAdapter;
-import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
@@ -198,9 +195,13 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private boolean mFetchingAvatar = false;
 
 	// Cognito Details - remember when retry to login
-	private String username = null;
-	private String password = null;
-	private String organization = null;
+//	private String username = null;
+//	private String password = null;
+//	private String organization = null;
+
+	//CMG AM-172 AM-210
+	private LoginAccount tempVPN = null;
+
 
 	protected IOpenVPNAPIService mService = null;
 
@@ -492,9 +493,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		this.password = null;
-		this.username = null;
-		this.organization = null;
+		tempVPN = LoginAccount.getInstance();
+
 
 		// GOOBER COGNITO
 		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -503,7 +503,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		if (savedInstanceState != null) {
 			this.mSavedInstanceAccount = savedInstanceState.getString("account");
 			this.mSavedInstanceInit = savedInstanceState.getBoolean("initMode", false);
+		} else {
+			tempVPN.wipeLoginAccount();
 		}
+
 		this.binding = DataBindingUtil.setContentView(this, R.layout.activity_edit_account);
 		setSupportActionBar((Toolbar) binding.toolbar);
 		configureActionBar(getSupportActionBar());
@@ -571,6 +574,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		AppHelper.init(getApplicationContext());
 
 		// GOOBER COGNITO - Test
+		//TODO maybe move
 		cognitoCurrentUserSignout();
 
 		// initApp();
@@ -942,12 +946,18 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		if (init) {
 			this.binding.accountJid.getEditableText().clear();
 			if (mUsernameMode) {
-				this.binding.accountJid.getEditableText().append(this.mAccount.getJid().getLocal());
+				//CMG AM-172 Stop using the gui text fields to store the VPN login info
+				tempVPN.setLogUsername(this.mAccount.getJid().getLocal());
+				//this.binding.accountJid.getEditableText().append(this.mAccount.getJid().getLocal());
 			} else {
-				this.binding.accountJid.getEditableText().append(this.mAccount.getJid().asBareJid().toString());
+				//CMG AM-172 Stop using the gui text fields to store the VPN login info
+				tempVPN.setLogUsername(this.mAccount.getJid().asBareJid().toString());
+				//this.binding.accountJid.getEditableText().append(this.mAccount.getJid().asBareJid().toString());
 			}
 			this.mPassword.getEditableText().clear();
-			this.mPassword.getEditableText().append(this.mAccount.getPassword());
+			//CMG AM-172 Stop using the gui text fields to store the VPN login info
+			tempVPN.setLogPassword(this.mAccount.getPassword());
+			//this.mPassword.getEditableText().append(this.mAccount.getPassword());
 			this.mHostname.setText("");
 			this.mHostname.getEditableText().append(this.mAccount.getHostname());
 			this.mPort.setText("");
@@ -1357,20 +1367,20 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	public void logIn(View view) {
 		if ((mLoginButton.getText().toString().compareTo(getString(R.string.login_button_label))) == 0) {
 			// log into Cognito and then messenger
-			username = binding.accountJid.getText().toString();
-			password = mPassword.getText().toString();
-			organization = mOrgID.getText().toString();
+			tempVPN.setLogUsername(binding.accountJid.getText().toString());
+			tempVPN.setLogPassword(mPassword.getText().toString());
+			tempVPN.setLogOrgID(mOrgID.getText().toString());
 
 			// make sure all fields are filled in before logging in
-			if (username.trim().length() == 0) {
+			if (tempVPN.getLogUsername().trim().length() == 0) {
 				// showDialogMessage("Login", "Username cannot be empty.");
 				mAccountJidLayout.setError("Username cannot be blank");
 				mAccountJidLayout.requestFocus();
-			} else if (password.trim().length() == 0) {
+			} else if (tempVPN.getLogPassword().trim().length() == 0) {
 				// showDialogMessage("Login", "Password cannot be empty.");
 				mPassword.setError("Password cannot be blank");
 				mPassword.requestFocus();
-			} else if (organization.trim().length() == 0) {
+			} else if (tempVPN.getLogOrgID().trim().length() == 0) {
 				// showDialogMessage("Login", "Organization cannot be empty.");
 				mOrgID.setError("Org ID cannot be blank");
 				mOrgID.requestFocus();
@@ -1392,8 +1402,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * GOOBER COGNITO - login AWS
 	 */
 	private void signInUser() {
-		AppHelper.setUser(username);
-		AppHelper.getPool().getUser(username).getSessionInBackground(authenticationHandler);
+		AppHelper.setUser(tempVPN.getLogUsername());
+		AppHelper.getPool().getUser(tempVPN.getLogUsername()).getSessionInBackground(authenticationHandler);
 	}
 
 	/**
@@ -1407,8 +1417,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			AppHelper.newDevice(device);
 			// closeWaitDialog();
 
-			// username/password is correct.  Now check if bucket exists
-			if (organization != null) {
+			// usernamepassword is correct.  Now check if bucket exists
+			if (tempVPN.getLogOrgID()!= null) {
 				// GOOBER - Clear list of keys before logging in
 				keyList.clear();
 
@@ -1438,8 +1448,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			if(username != null) {
 				username = username;
 				AppHelper.setUser(username);
+				//cmg maybe TODO??
+//				tempVPN.setLogUsername(username);
+//				AppHelper.setUser(tempVPN.getLogUsername());
 			}
-			AuthenticationDetails authenticationDetails = new AuthenticationDetails(username, password, null);
+			AuthenticationDetails authenticationDetails = new AuthenticationDetails(username, tempVPN.getLogPassword(), null);
 			continuation.setAuthenticationDetails(authenticationDetails);
 			continuation.continueTask();
 		}
@@ -1539,8 +1552,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					if (key.endsWith("glacier") == true) {
 						// save cognito information and account information
 						BackupAccountManager backupAccountManager = new BackupAccountManager(getApplicationContext());
-						backupAccountManager.createAppConfigFile(tmpFile, username, password, organization, BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_VOICE);
-						backupAccountManager.createAppConfigFile(tmpFile, username, password, organization, BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
+						backupAccountManager.createAppConfigFile(tmpFile, tempVPN.getLogUsername(), tempVPN.getLogPassword(), tempVPN.getLogOrgID(), BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_VOICE);
+						backupAccountManager.createAppConfigFile(tmpFile, tempVPN.getLogUsername(), tempVPN.getLogPassword(), tempVPN.getLogOrgID(), BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
 						tmpFile.delete();
 					} else if (key.endsWith("ovpn") == true) {
 						// move file
@@ -1833,6 +1846,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		// sign out current user
 		cognitoCurrentUserSignout();
 
+		this.binding.accountJid.getEditableText().clear();
 		mPassword.setText("");
 		mOrgID.setText("");
 	}
@@ -1900,9 +1914,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			BackupAccountManager.AccountInfo accountInfo = backupAccountManager.getAccountInfo(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
 			if (accountInfo != null) {
 				//HONEYBADGER TODO AM_151 is introduced here... not sure why text field itself ever needs to be set
-				// Auto login with username/password
-				hidePrivateLoginFields();
-
 				// retrieve account information
 				ArrayList<BackupAccountManager.Account> accounts = accountInfo.getAccounts();
 
@@ -1911,9 +1922,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					BackupAccountManager.Account tmpAccount = accounts.get(i);
 
 					String goober = tmpAccount.getAttribute(BackupAccountManager.USERNAME_KEY);
-					binding.accountJid.setText(getFullyQualifiedJid(tmpAccount.getAttribute(BackupAccountManager.USERNAME_KEY))); // + "@" + StartConversationActivity.DOMAIN_IP);
-					mPassword.setText(tmpAccount.getAttribute(BackupAccountManager.PASSWORD_KEY));
-					mOrgID.setText(tmpAccount.getAttribute(BackupAccountManager.EXTERNALNUMBER_KEY));
+					tempVPN.setLogUsername(getFullyQualifiedJid(tmpAccount.getAttribute(BackupAccountManager.USERNAME_KEY))); // + "@" + StartConversationActivity.DOMAIN_IP);
+					tempVPN.setLogPassword(tmpAccount.getAttribute(BackupAccountManager.PASSWORD_KEY));
+					tempVPN.setLogOrgID(tmpAccount.getAttribute(BackupAccountManager.EXTERNALNUMBER_KEY));
 					mConnectionType = tmpAccount.getAttribute(BackupAccountManager.CONNECTION_KEY);
 
 					// GOOBER TEST - Move/Don't move account file.  Used to test auto login feature.
@@ -1956,9 +1967,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		// clear s3bucket client
 		Util.clearS3Client(getApplicationContext());
 
-		username = null;
-		password = null;
-		organization = null;
+		tempVPN.wipeLoginAccount();
 
 		// set content
 		this.binding.accountJid.getEditableText().clear();
@@ -1978,7 +1987,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	private void downloadS3Files() {
-		String bucketName = Constants.BUCKET_NAME.replace(REPLACEMENT_ORG_ID,organization);
+		String bucketName = Constants.BUCKET_NAME.replace(REPLACEMENT_ORG_ID, tempVPN.getLogOrgID());
 		AmazonS3 sS3Client = Util.getS3Client(getApplicationContext());
 		TransferUtility transferUtility = Util.getTransferUtility(getApplicationContext(), bucketName);
 
@@ -1990,7 +1999,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					Log.d("GOOBER", "Keys found in S3 Bucket (" + summary.getBucketName() + "): " + summary.getKey());
 					String tmpString = stripDirectory(summary.getKey().toString());
 
-					if ((summary.getKey().contains("_" + username + ".ovpn") || (tmpString.compareTo(username + ".glacier") == 0))) {
+					if ((summary.getKey().contains("_" + tempVPN.getLogUsername() + ".ovpn") || (tmpString.compareTo(tempVPN.getLogUsername() + ".glacier") == 0))) {
 						Log.d("GOOBER", "File we want to download: " + summary.getKey());
 						String destFilename = summary.getKey().substring(Constants.KEY_PREFIX.length() + 1, summary.getKey().length());
 
