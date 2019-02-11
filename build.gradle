@@ -127,7 +127,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 26
         versionCode 303
-        versionName "2.3.0"
+        versionName "2.3.1-RC3"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
         resValue "string", "applicationId", applicationId

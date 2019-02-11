@@ -458,7 +458,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			return false;
 		}
 		return jidEdited() ||
-				!this.mAccount.getPassword().equals(this.mPassword.getText().toString()) ||
+				!this.mAccount.getPassword().equals(this.tempVPN.getLogPassword()) ||
 				!this.mAccount.getHostname().equals(this.mHostname.getText().toString()) ||
 				!String.valueOf(this.mAccount.getPort()).equals(this.mPort.getText().toString());
 	}
@@ -470,13 +470,13 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		} else {
 			unmodified = this.mAccount.getJid().asBareJid().toString();
 		}
-		return !unmodified.equals(this.binding.accountJid.getText().toString());
+		return !unmodified.equals(this.tempVPN.getLogUsername());
 	}
 
 	protected boolean passwordChangedInMagicCreateMode() {
 		return mAccount != null
 				&& mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE)
-				&& !this.mAccount.getPassword().equals(this.mPassword.getText().toString())
+				&& !this.mAccount.getPassword().equals(this.tempVPN.getLogPassword())
 				&& !this.jidEdited()
 				&& mAccount.isOnlineAndConnected();
 	}
@@ -494,18 +494,18 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		tempVPN = LoginAccount.getInstance();
-
-
 		// GOOBER COGNITO
 		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 		StrictMode.setThreadPolicy(policy);
 
+
 		if (savedInstanceState != null) {
 			this.mSavedInstanceAccount = savedInstanceState.getString("account");
 			this.mSavedInstanceInit = savedInstanceState.getBoolean("initMode", false);
-		} else {
-			tempVPN.wipeLoginAccount();
-		}
+	}
+//	else {
+//			tempVPN.wipeLoginAccount();
+//		}
 
 		this.binding = DataBindingUtil.setContentView(this, R.layout.activity_edit_account);
 		setSupportActionBar((Toolbar) binding.toolbar);
@@ -1148,7 +1148,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 			// GOOBER TEST USERNAME - only display username (without '@xxx.xx.xx.xxx')
 			//HONEYBADGER
-			binding.accountJid.setText(mAccount.getDisplayName());
+			//CMG AM-172
+			this.tempVPN.setLogUsername(mAccount.getDisplayName());
+			//binding.accountJid.setText(mAccount.getDisplayName());
 
 			removeErrorsOnAllBut(errorLayout);
 			this.binding.stats.setVisibility(View.GONE);
@@ -1365,6 +1367,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * @param view
 	 */
 	public void logIn(View view) {
+		tempVPN.setLoginState(LoginAccount.LoginState.FORM_ENTRY);
 		if ((mLoginButton.getText().toString().compareTo(getString(R.string.login_button_label))) == 0) {
 			// log into Cognito and then messenger
 			tempVPN.setLogUsername(binding.accountJid.getText().toString());
@@ -1386,7 +1389,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				mOrgID.requestFocus();
 			} else {
 				showWaitDialog(getString(R.string.wait_dialog_logging_in));
-				signInUser();
+				signInUserState();
 			}
 		} else if ((mLoginButton.getText().toString().compareTo(getString(R.string.continue_button_label))) == 0) {
 			// assume logged into Cognito.  Log into Messenger
@@ -1394,17 +1397,34 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			//autoLoginMessenger();
 		} else if ((mLoginButton.getText().toString().compareTo(getString(R.string.retry_button_label))) == 0) {
 			showWaitDialog(getString(R.string.wait_dialog_logging_in));
-			signInUser();
+			signInUserState();
 		}
 	}
+
+	//CMG state of state machine
+	private void loginAttemptState(){
+		tempVPN.setLoginState(LoginAccount.LoginState.LOGIN_ATTEMPT);
+		showWaitDialog(getString(R.string.wait_dialog_logging_in));
+		signInUserState();
+	}
+
 
 	/**
 	 * GOOBER COGNITO - login AWS
 	 */
-	private void signInUser() {
+	private void signInUserState() {
 		AppHelper.setUser(tempVPN.getLogUsername());
 		AppHelper.getPool().getUser(tempVPN.getLogUsername()).getSessionInBackground(authenticationHandler);
 	}
+
+
+	private void retrieveVpnState(){
+		tempVPN.setLoginState(LoginAccount.LoginState.RETRIEVE_VPN);
+		// assume logged into Cognito.  Log into Messenger
+		showWaitDialog(getString(R.string.wait_dialog_retrieving_account_info));
+		//autoLoginMessenger();
+	}
+
 
 	/**
 	 * Callbacks
@@ -1446,11 +1466,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		private void getUserAuthentication(AuthenticationContinuation continuation, String username) {
 			//closeWaitDialog();
 			if(username != null) {
-				username = username;
-				AppHelper.setUser(username);
-				//cmg maybe TODO??
-//				tempVPN.setLogUsername(username);
-//				AppHelper.setUser(tempVPN.getLogUsername());
+				//CMG AM-172
+				tempVPN.setLogUsername(username);
+				AppHelper.setUser(tempVPN.getLogUsername());
 			}
 			AuthenticationDetails authenticationDetails = new AuthenticationDetails(username, tempVPN.getLogPassword(), null);
 			continuation.setAuthenticationDetails(authenticationDetails);
@@ -1594,7 +1612,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				// s3DownloadInterface.onDownloadSuccess("Success");
 
 				//HONEYBAGER AM-151 values used in restore Accountes from File --> safe to reset fields
-				//TODO resetLogin();
+				clearLoginFields();
 			}
 		}
 	}
@@ -1845,33 +1863,31 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 		// sign out current user
 		cognitoCurrentUserSignout();
-
-		this.binding.accountJid.getEditableText().clear();
-		mPassword.setText("");
-		mOrgID.setText("");
+		resetLogin();
 	}
 
 
 	//HONEYBADGER AM-151  hide password from background
 	private void resetLogin(){
-		showPrivateLoginFields();
+		clearLoginFields();
+		resetEntryErrors();
+		tempVPN.setLoginState(LoginAccount.LoginState.FORM_ENTRY);
+		this.tempVPN.wipeLoginAccount();
+	}
 
-		binding.accountJid.setText("");
+	private void clearLoginFields(){
+		this.binding.accountJid.getEditableText().clear();
 		mPassword.setText("");
 		mOrgID.setText("");
 	}
 
-	private void showPrivateLoginFields(){
-		binding.accountJid.setVisibility(View.VISIBLE);
-		mPassword.setVisibility(View.VISIBLE);
-		mOrgID.setVisibility(View.VISIBLE);
+	private void resetEntryErrors(){
+		mOrgID.setError(null);
+		mAccountPasswordLayout.setError(null);
+		mAccountPasswordLayout.setError(null);
+
 	}
 
-	private void hidePrivateLoginFields(){
-		binding.accountJid.setVisibility(View.INVISIBLE);
-		mPassword.setVisibility(View.INVISIBLE);
-		mOrgID.setVisibility(View.INVISIBLE);
-	}
 
 	// App methods
 	// Logout of Cognito and display logout screen
@@ -1921,6 +1937,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				for (int i = 0; i < accounts.size(); i++) {
 					BackupAccountManager.Account tmpAccount = accounts.get(i);
 
+					//CMG AM-172 AM-210 stop using gui to store user info
+
+					//binding.accountJid.setText(getFullyQualifiedJid(tmpAccount.getAttribute(BackupAccountManager.USERNAME_KEY))); // + "@" + StartConversationActivity.DOMAIN_IP);
+					//mPassword.setText(tmpAccount.getAttribute(BackupAccountManager.PASSWORD_KEY));
+					//mOrgID.setText(tmpAccount.getAttribute(BackupAccountManager.EXTERNALNUMBER_KEY));
+
 					String goober = tmpAccount.getAttribute(BackupAccountManager.USERNAME_KEY);
 					tempVPN.setLogUsername(getFullyQualifiedJid(tmpAccount.getAttribute(BackupAccountManager.USERNAME_KEY))); // + "@" + StartConversationActivity.DOMAIN_IP);
 					tempVPN.setLogPassword(tmpAccount.getAttribute(BackupAccountManager.PASSWORD_KEY));
@@ -1967,20 +1989,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		// clear s3bucket client
 		Util.clearS3Client(getApplicationContext());
 
-		tempVPN.wipeLoginAccount();
+//		tempVPN.wipeLoginAccount();
 
-		// set content
-		this.binding.accountJid.getEditableText().clear();
-		mPassword.setText("");
-		mOrgID.setText("");
-
-		// set visibility
-		mAccountJidLayout.setVisibility(VISIBLE);
-		mAccountJidLayout.setError(null);
-		mAccountPasswordLayout.setVisibility(VISIBLE);
-		mAccountPasswordLayout.setError(null);
-		mOrgID.setVisibility(VISIBLE);
-		mOrgID.setError(null);
+		this.resetLogin();
 
 		mLoginButton.setText(getString(R.string.login_button_label));
 		this.binding.accountJid.requestFocus();
@@ -2202,7 +2213,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	//TODO AM-151 we are relying on the text fields which may or maynot have been altered with a stored account.. I think we should be looking at an VPN object instead
 
 	private void autoLoginMessenger() {
-		final String password = mPassword.getText().toString();
+		final String password = this.tempVPN.getLogPassword();
 		final boolean wasDisabled = mAccount != null && mAccount.getStatus() == Account.State.DISABLED;
 
 		if (!mInitMode && passwordChangedInMagicCreateMode()) {
@@ -2220,7 +2231,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			return;
 		}
 		final boolean registerNewAccount = binding.accountRegisterNew.isChecked() && !Config.DISALLOW_REGISTRATION_IN_UI;
-		if (mUsernameMode && binding.accountJid.getText().toString().contains("@")) {
+		if (mUsernameMode && tempVPN.getLogUsername().contains("@")) {
 			mAccountJidLayout.setError(getString(R.string.invalid_username));
 			removeErrorsOnAllBut(mAccountJidLayout);
 			binding.accountJid.requestFocus();
@@ -2245,9 +2256,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		final Jid jid;
 		try {
 			if (mUsernameMode) {
-				jid = Jid.of(binding.accountJid.getText().toString(), getUserModeDomain(), null);
+				jid = Jid.of(tempVPN.getLogUsername(), getUserModeDomain(), null);
 			} else {
-				jid = Jid.of(binding.accountJid.getText().toString());
+				jid = Jid.of(tempVPN.getLogUsername());
 			}
 		} catch (final NullPointerException | IllegalArgumentException e) {
 			if (mUsernameMode) {
