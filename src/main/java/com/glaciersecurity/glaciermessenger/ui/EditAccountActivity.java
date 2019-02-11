@@ -55,6 +55,7 @@ import com.glaciersecurity.glaciercore.api.IOpenVPNStatusCallback;
 import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.cognito.Constants;
 import com.glaciersecurity.glaciermessenger.cognito.Util;
+import com.glaciersecurity.glaciermessenger.entities.LoginAccount;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import android.view.LayoutInflater;
@@ -2002,6 +2003,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 		//tempVPN.wipeLoginAccount(); //CMG AM-172
 		this.resetLogin();
+		tempVPN.wipeLoginAccount();
 
 		mLoginButton.setText(getString(R.string.login_button_label));
 		this.binding.accountJid.requestFocus();
