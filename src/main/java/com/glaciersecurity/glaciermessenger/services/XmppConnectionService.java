@@ -112,6 +112,7 @@ import com.glaciersecurity.glaciermessenger.ui.ChooseAccountForProfilePictureAct
 import com.glaciersecurity.glaciermessenger.ui.SettingsActivity;
 import com.glaciersecurity.glaciermessenger.ui.UiCallback;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnAvatarPublication;
+import com.glaciersecurity.glaciermessenger.ui.interfaces.OnMediaLoaded;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnSearchResultsAvailable;
 import com.glaciersecurity.glaciermessenger.utils.ConversationsFileObserver;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
@@ -1842,10 +1843,13 @@ public class XmppConnectionService extends Service {
 		return this.accounts;
 	}
 
+	/**
+	 * This will find all conferences with the contact as member and also the conference that is the contact (that 'fake' contact is used to store the avatar)
+	 */
 	public List<Conversation> findAllConferencesWith(Contact contact) {
 		ArrayList<Conversation> results = new ArrayList<>();
 		for (final Conversation c : conversations) {
-			if (c.getMode() == Conversation.MODE_MULTI && c.getMucOptions().isContactInRoom(contact)) {
+			if (c.getMode() == Conversation.MODE_MULTI && (c.getJid().asBareJid().equals(contact.getJid().asBareJid()) || c.getMucOptions().isContactInRoom(contact))) {
 				results.add(c);
 			}
 		}
@@ -2507,11 +2511,19 @@ public class XmppConnectionService extends Service {
 
 				@Override
 				public void onConferenceConfigurationFetched(Conversation conversation) {
+					if (conversation.getStatus() == Conversation.STATUS_ARCHIVED) {
+						Log.d(Config.LOGTAG,account.getJid().asBareJid()+": conversation ("+conversation.getJid()+") got archived before IQ result");
+						return;
+					}
 					join(conversation);
 				}
 
 				@Override
 				public void onFetchFailed(final Conversation conversation, Element error) {
+					if (conversation.getStatus() == Conversation.STATUS_ARCHIVED) {
+						Log.d(Config.LOGTAG,account.getJid().asBareJid()+": conversation ("+conversation.getJid()+") got archived before IQ result");
+						return;
+					}
 					if (error != null && "remote-server-not-found".equals(error.getName())) {
 						conversation.getMucOptions().setError(MucOptions.Error.SERVER_NOT_FOUND);
 						updateConversationUi();
@@ -2599,7 +2611,7 @@ public class XmppConnectionService extends Service {
 		if (conversation.getMode() == Conversation.MODE_MULTI) {
 			conversation.getMucOptions().setPassword(password);
 			if (conversation.getBookmark() != null) {
-				if (respectAutojoin()) {
+				if (synchronizeWithBookmarks()) {
 					conversation.getBookmark().setAutojoin(true);
 				}
 				pushBookmarks(conversation.getAccount());
@@ -2621,6 +2633,19 @@ public class XmppConnectionService extends Service {
 			}
 		}
 		return false;
+	}
+
+	public void getAttachments(final Conversation conversation, int limit, final OnMediaLoaded onMediaLoaded) {
+		getAttachments(conversation.getAccount(), conversation.getJid().asBareJid(), limit, onMediaLoaded);
+	}
+
+	public void getAttachments(final Account account, final Jid jid, final int limit, final OnMediaLoaded onMediaLoaded) {
+		getAttachments(account.getUuid(),jid.asBareJid(),limit, onMediaLoaded);
+	}
+
+
+	public void getAttachments(final String account, final Jid jid, final int limit, final OnMediaLoaded onMediaLoaded) {
+		new Thread(() -> onMediaLoaded.onMediaLoaded(fileBackend.convertToAttachments(databaseBackend.getRelativeFilePaths(account, jid, limit)))).start();
 	}
 
 	public void persistSelfNick(MucOptions.User self) {
@@ -2990,17 +3015,31 @@ public class XmppConnectionService extends Service {
 		sendIqPacket(conference.getAccount(), request, mDefaultIqHandler);
 	}
 
-	public void changeRoleInConference(final Conversation conference, final String nick, MucOptions.Role role, final OnRoleChanged callback) {
+	public void changeRoleInConference(final Conversation conference, final String nick, MucOptions.Role role) {
 		IqPacket request = this.mIqGenerator.changeRole(conference, nick, role.toString());
 		Log.d(Config.LOGTAG, request.toString());
-		sendIqPacket(conference.getAccount(), request, new OnIqPacketReceived() {
+		sendIqPacket(conference.getAccount(), request, (account, packet) -> {
+			if (packet.getType() != IqPacket.TYPE.RESULT) {
+				Log.d(Config.LOGTAG,account.getJid().asBareJid()+" unable to change role of "+nick);
+			}
+		});
+	}
+
+	public void destroyRoom(final Conversation conversation, final OnRoomDestroy callback) {
+		IqPacket request = new IqPacket(IqPacket.TYPE.SET);
+		request.setTo(conversation.getJid().asBareJid());
+		request.query("http://jabber.org/protocol/muc#owner").addChild("destroy");
+		sendIqPacket(conversation.getAccount(), request, new OnIqPacketReceived() {
 			@Override
 			public void onIqPacketReceived(Account account, IqPacket packet) {
-				Log.d(Config.LOGTAG, packet.toString());
 				if (packet.getType() == IqPacket.TYPE.RESULT) {
-					callback.onRoleChangedSuccessful(nick);
-				} else {
-					callback.onRoleChangeFailed(nick, R.string.could_not_change_role);
+					if (callback != null) {
+						callback.onRoomDestroySucceeded();
+					}
+				} else if (packet.getType() == IqPacket.TYPE.ERROR) {
+					if (callback != null) {
+						callback.onRoomDestroyFailed();
+					}
 				}
 			}
 		});
@@ -3580,10 +3619,6 @@ public class XmppConnectionService extends Service {
 
 	public boolean sendChatStates() {
 		return getBooleanPreference("chat_states", R.bool.chat_states);
-	}
-
-	private boolean respectAutojoin() {
-		return getBooleanPreference("autojoin", R.bool.autojoin);
 	}
 
 	private boolean synchronizeWithBookmarks() {
@@ -4301,6 +4336,12 @@ public class XmppConnectionService extends Service {
 		void onPasswordChangeSucceeded();
 
 		void onPasswordChangeFailed();
+	}
+
+	public interface OnRoomDestroy {
+		void onRoomDestroySucceeded();
+
+		void onRoomDestroyFailed();
 	}
 
 	public interface OnAffiliationChanged {

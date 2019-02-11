@@ -199,9 +199,11 @@
             android:name=".ui.ShareViaAccountActivity"
             android:label="@string/title_activity_share_via_account"
             android:launchMode="singleTop"/>
+        <!--CMG AM-214 portrait mode only-->
         <activity
             android:name=".ui.EditAccountActivity"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
         <activity
             android:name=".ui.ConferenceDetailsActivity"
@@ -303,6 +305,9 @@
                 <action android:name="android.intent.action.CREATE_SHORTCUT"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.MucUsersActivity"
+            android:label="@string/group_chat_members" />
     </application>
 
 </manifest>

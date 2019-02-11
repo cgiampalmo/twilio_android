@@ -2,21 +2,11 @@ package com.glaciersecurity.glaciermessenger.ui.adapter;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.support.annotation.ColorInt;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
@@ -28,7 +18,6 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,10 +32,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.List;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,13 +51,15 @@ import com.glaciersecurity.glaciermessenger.http.P1S3UrlStreamHandler;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
 import com.glaciersecurity.glaciermessenger.services.MessageArchiveService;
 import com.glaciersecurity.glaciermessenger.services.NotificationService;
-import com.glaciersecurity.glaciermessenger.ui.ConversationsActivity;
 import com.glaciersecurity.glaciermessenger.ui.ConversationFragment;
+import com.glaciersecurity.glaciermessenger.ui.ConversationsActivity;
 import com.glaciersecurity.glaciermessenger.ui.XmppActivity;
 import com.glaciersecurity.glaciermessenger.ui.service.AudioPlayer;
 import com.glaciersecurity.glaciermessenger.ui.text.DividerSpan;
 import com.glaciersecurity.glaciermessenger.ui.text.QuoteSpan;
+import com.glaciersecurity.glaciermessenger.ui.util.AvatarWorkerTask;
 import com.glaciersecurity.glaciermessenger.ui.util.MyLinkify;
+import com.glaciersecurity.glaciermessenger.ui.util.ViewUtil;
 import com.glaciersecurity.glaciermessenger.ui.widget.ClickableMovementMethod;
 import com.glaciersecurity.glaciermessenger.ui.widget.CopyTextView;
 import com.glaciersecurity.glaciermessenger.ui.widget.ListSelectionManager;
@@ -109,30 +98,6 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 	}
 
 
-	public static boolean cancelPotentialWork(Message message, ImageView imageView) {
-		final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
-
-		if (bitmapWorkerTask != null) {
-			final Message oldMessage = bitmapWorkerTask.message;
-			if (oldMessage == null || message != oldMessage) {
-				bitmapWorkerTask.cancel(true);
-			} else {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
-		if (imageView != null) {
-			final Drawable drawable = imageView.getDrawable();
-			if (drawable instanceof AsyncDrawable) {
-				final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
-				return asyncDrawable.getBitmapWorkerTask();
-			}
-		}
-		return null;
-	}
 
 	private static void resetClickListener(View... views) {
 		for (View view : views) {
@@ -167,8 +132,8 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 
 	@Override
 	public int getViewTypeCount() {
-		return 5;
-	} //ALF AM-51 4 to 5
+		return 5; //ALF AM-51 4 to 5
+	}
 
 	private int getItemViewType(Message message) {
 		if (message.getType() == Message.TYPE_STATUS) {
@@ -204,9 +169,10 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 		String filesize = null;
 		String info = null;
 		boolean error = false;
-//		if (viewHolder.indicatorReceived != null) {
-//			viewHolder.indicatorReceived.setVisibility(View.GONE);
-//		}
+		//CMG I think
+		//if (viewHolder.indicatorReceived != null) {
+		//	viewHolder.indicatorReceived.setVisibility(View.GONE);
+		//}
 
 		if (viewHolder.edit_indicator != null) {
 			if (message.edited()) {
@@ -217,9 +183,10 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 				viewHolder.edit_indicator.setVisibility(View.GONE);
 			}
 		}
+		final Transferable transferable = message.getTransferable();
 		boolean multiReceived = message.getConversation().getMode() == Conversation.MODE_MULTI
 				&& message.getMergedStatus() <= Message.STATUS_RECEIVED;
-		if (message.getType() == Message.TYPE_IMAGE || message.getType() == Message.TYPE_FILE || message.getTransferable() != null) {
+		if (message.isFileOrImage() || transferable != null) {
 			FileParams params = message.getFileParams();
 			if (params.size > (1.5 * 1024 * 1024)) {
 				filesize = Math.round(params.size * 1f / (1024 * 1024)) + " MiB";
@@ -228,7 +195,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 			} else if (params.size > 0) {
 				filesize = params.size + " B";
 			}
-			if (message.getTransferable() != null && message.getTransferable().getStatus() == Transferable.STATUS_FAILED) {
+			if (transferable != null && transferable.getStatus() == Transferable.STATUS_FAILED) {
 				error = true;
 			}
 		}
@@ -237,9 +204,8 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 				info = getContext().getString(R.string.waiting);
 				break;
 			case Message.STATUS_UNSEND:
-				Transferable d = message.getTransferable();
-				if (d != null) {
-					info = getContext().getString(R.string.sending_file, d.getProgress());
+				if (transferable != null) {
+					info = getContext().getString(R.string.sending_file, transferable.getProgress());
 				} else {
 					info = getContext().getString(R.string.sending);
 				}
@@ -249,12 +215,12 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 				break;
 			case Message.STATUS_SEND_RECEIVED:
 				if (mIndicateReceived) {
-					//viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
+					//viewHolder.indicatorReceived.setVisibility(View.VISIBLE); //CMG?
 				}
 				break;
 			case Message.STATUS_SEND_DISPLAYED:
 				if (mIndicateReceived) {
-					//viewHolder.indicatorReceived.setVisibility(View.VISIBLE);
+					//viewHolder.indicatorReceived.setVisibility(View.VISIBLE);  //CMG?
 				}
 				break;
 			case Message.STATUS_SEND_FAILED:
@@ -281,9 +247,8 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 			}
 			viewHolder.time.setTextColor(this.getMessageTextColor(darkBackground, false));
 		}
-
 		if (message.getEncryption() == Message.ENCRYPTION_NONE) {
-			//viewHolder.indicator.setVisibility(View.GONE);
+			//viewHolder.indicator.setVisibility(View.GONE); //CMG?
 		} else {
 			boolean verified = false;
 			if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL) {
@@ -294,17 +259,17 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 					verified = true;
 				}
 			}
-//			if (verified) {
-//				viewHolder.indicator.setImageResource(darkBackground ? R.drawable.ic_verified_user_white_18dp : R.drawable.ic_verified_user_black_18dp);
-//			} else {
-//				viewHolder.indicator.setImageResource(darkBackground ? R.drawable.ic_lock_white_18dp : R.drawable.ic_lock_black_18dp);
-//			}
-//			if (darkBackground) {
-//				viewHolder.indicator.setAlpha(0.7f);
-//			} else {
-//				viewHolder.indicator.setAlpha(0.57f);
-//			}
-//			viewHolder.indicator.setVisibility(View.VISIBLE);
+			/*if (verified) {
+				viewHolder.indicator.setImageResource(darkBackground ? R.drawable.ic_verified_user_white_18dp : R.drawable.ic_verified_user_black_18dp);
+			} else {
+				viewHolder.indicator.setImageResource(darkBackground ? R.drawable.ic_lock_white_18dp : R.drawable.ic_lock_black_18dp);
+			}
+			if (darkBackground) {
+				viewHolder.indicator.setAlpha(0.7f);
+			} else {
+				viewHolder.indicator.setAlpha(0.57f);
+			}
+			viewHolder.indicator.setVisibility(View.VISIBLE); */ //CMG?
 		}
 
 		String formatedTime = UIHelper.readableTimeDifferenceFull(getContext(), message.getMergedTimeSent());
@@ -650,12 +615,12 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 					viewHolder.message_box = view.findViewById(R.id.message_box);
 					viewHolder.contact_picture = view.findViewById(R.id.message_photo);
 					viewHolder.download_button = view.findViewById(R.id.download_button);
-//					viewHolder.indicator = view.findViewById(R.id.security_indicator);
+					//viewHolder.indicator = view.findViewById(R.id.security_indicator);
 					viewHolder.edit_indicator = view.findViewById(R.id.edit_indicator);
 					viewHolder.image = view.findViewById(R.id.message_image);
 					viewHolder.messageBody = view.findViewById(R.id.message_body);
 					viewHolder.time = view.findViewById(R.id.message_time);
-//					viewHolder.indicatorReceived = view.findViewById(R.id.indicator_received);
+					//viewHolder.indicatorReceived = view.findViewById(R.id.indicator_received);
 					viewHolder.audioPlayer = view.findViewById(R.id.audio_player);
 					break;
 				case RECEIVED:
@@ -663,12 +628,12 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 					viewHolder.message_box = view.findViewById(R.id.message_box);
 					viewHolder.contact_picture = view.findViewById(R.id.message_photo);
 					viewHolder.download_button = view.findViewById(R.id.download_button);
-//					viewHolder.indicator = view.findViewById(R.id.security_indicator);
+					//viewHolder.indicator = view.findViewById(R.id.security_indicator);
 					viewHolder.edit_indicator = view.findViewById(R.id.edit_indicator);
 					viewHolder.image = view.findViewById(R.id.message_image);
 					viewHolder.messageBody = view.findViewById(R.id.message_body);
 					viewHolder.time = view.findViewById(R.id.message_time);
-//					viewHolder.indicatorReceived = view.findViewById(R.id.indicator_received);
+					//viewHolder.indicatorReceived = view.findViewById(R.id.indicator_received);
 					viewHolder.encryption = view.findViewById(R.id.message_encryption);
 					viewHolder.audioPlayer = view.findViewById(R.id.audio_player);
 					break;
@@ -727,11 +692,11 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 						showAvatar = false;
 					} else {
 						showAvatar = true;
-						loadAvatar(message, viewHolder.contact_picture, activity.getPixel(32));
+						AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar_on_status_message);
 					}
 				} else if (message.getCounterpart() != null || message.getTrueCounterpart() != null || (message.getCounterparts() != null && message.getCounterparts().size() > 0)) {
 					showAvatar = true;
-					loadAvatar(message, viewHolder.contact_picture, activity.getPixel(32));
+					AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar_on_status_message);
 				} else {
 					showAvatar = false;
 				}
@@ -744,7 +709,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 			}
 			return view;
 		} else {
-			loadAvatar(message, viewHolder.contact_picture, activity.getPixel(48));
+			AvatarWorkerTask.loadAvatar(message, viewHolder.contact_picture, R.dimen.avatar);
 		}
 
 		resetClickListener(viewHolder.message_box, viewHolder.messageBody);
@@ -759,7 +724,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 		viewHolder.contact_picture.setOnLongClickListener(v -> {
 			if (MessageAdapter.this.mOnContactPictureLongClickedListener != null) {
 				MessageAdapter.this.mOnContactPictureLongClickedListener
-						.onContactPictureLongClicked(message);
+						.onContactPictureLongClicked(v, message);
 				return true;
 			} else {
 				return false;
@@ -918,6 +883,10 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 		audioPlayer.stop();
 	}
 
+	public void unregisterListenerInAudioPlayer() {
+		audioPlayer.unregisterListener();
+	}
+
 	public void startStopPending() {
 		audioPlayer.startStopPending();
 	}
@@ -928,39 +897,11 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 			ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, ConversationsActivity.REQUEST_OPEN_MESSAGE);
 			return;
 		}
-		DownloadableFile file = activity.xmppConnectionService.getFileBackend().getFile(message);
-		if (!file.exists()) {
-			Toast.makeText(activity, R.string.file_deleted, Toast.LENGTH_SHORT).show();
-			return;
-		}
-		Intent openIntent = new Intent(Intent.ACTION_VIEW);
-		String mime = file.getMimeType();
-		if (mime == null) {
-			mime = "*/*";
-		}
-		Uri uri;
-		try {
-			uri = FileBackend.getUriForFile(activity, file);
-		} catch (SecurityException e) {
-			Log.d(Config.LOGTAG, "No permission to access " + file.getAbsolutePath(), e);
-			Toast.makeText(activity, activity.getString(R.string.no_permission_to_access_x, file.getAbsolutePath()), Toast.LENGTH_SHORT).show();
-			return;
-		}
-		openIntent.setDataAndType(uri, mime);
-		openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-		PackageManager manager = activity.getPackageManager();
-		List<ResolveInfo> info = manager.queryIntentActivities(openIntent, 0);
-		if (info.size() == 0) {
-			openIntent.setDataAndType(uri, "*/*");
-		}
-		try {
-			getContext().startActivity(openIntent);
-		} catch (ActivityNotFoundException e) {
-			Toast.makeText(activity, R.string.no_application_found_to_open_file, Toast.LENGTH_SHORT).show();
-		}
+		final DownloadableFile file = activity.xmppConnectionService.getFileBackend().getFile(message);
+		ViewUtil.view(activity, file);
 	}
 
-	public void showLocation(Message message) {
+	private void showLocation(Message message) {
 		for (Intent intent : GeoHelper.createGeoIntentsFromMessage(activity, message)) {
 			if (intent.resolveActivity(getContext().getPackageManager()) != null) {
 				getContext().startActivity(intent);
@@ -976,32 +917,6 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 		this.mUseGreenBackground = p.getBoolean("use_green_background", activity.getResources().getBoolean(R.bool.use_green_background));
 	}
 
-	public void loadAvatar(Message message, ImageView imageView, int size) {
-		if (cancelPotentialWork(message, imageView)) {
-			final Bitmap bm = activity.avatarService().get(message, size, true);
-			if (bm != null) {
-				cancelPotentialWork(message, imageView);
-				imageView.setImageBitmap(bm);
-				imageView.setBackgroundColor(Color.TRANSPARENT);
-			} else {
-				@ColorInt int bg;
-				if (message.getType() == Message.TYPE_STATUS && message.getCounterparts() != null && message.getCounterparts().size() > 1) {
-					bg = Color.TRANSPARENT;
-				} else {
-					bg = UIHelper.getColorForName(UIHelper.getMessageDisplayName(message));
-				}
-				imageView.setBackgroundColor(bg);
-				imageView.setImageDrawable(null);
-				final BitmapWorkerTask task = new BitmapWorkerTask(imageView, size);
-				final AsyncDrawable asyncDrawable = new AsyncDrawable(activity.getResources(), null, task);
-				imageView.setImageDrawable(asyncDrawable);
-				try {
-					task.execute(message);
-				} catch (final RejectedExecutionException ignored) {
-				}
-			}
-		}
-	}
 
 	public void setHighlightedTerm(List<String> terms) {
 		this.highlightedTerm = terms == null ? null : StylingHelper.filterHighlightedWords(terms);
@@ -1016,7 +931,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 	}
 
 	public interface OnContactPictureLongClicked {
-		void onContactPictureLongClicked(Message message);
+		void onContactPictureLongClicked(View v, Message message);
 	}
 
 	private static class ViewHolder {
@@ -1036,18 +951,6 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 		protected TextView encryption;
 	}
 
-	static class AsyncDrawable extends BitmapDrawable {
-		private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
-
-		public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask) {
-			super(res, bitmap);
-			bitmapWorkerTaskReference = new WeakReference<>(bitmapWorkerTask);
-		}
-
-		public BitmapWorkerTask getBitmapWorkerTask() {
-			return bitmapWorkerTaskReference.get();
-		}
-	}
 
 	private class MessageBodyActionModeCallback implements ActionMode.Callback {
 
@@ -1092,34 +995,6 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 
 		@Override
 		public void onDestroyActionMode(ActionMode mode) {
-		}
-	}
-
-	class BitmapWorkerTask extends AsyncTask<Message, Void, Bitmap> {
-		private final WeakReference<ImageView> imageViewReference;
-		private final int size;
-		private Message message = null;
-
-		public BitmapWorkerTask(ImageView imageView, int size) {
-			imageViewReference = new WeakReference<>(imageView);
-			this.size = size;
-		}
-
-		@Override
-		protected Bitmap doInBackground(Message... params) {
-			this.message = params[0];
-			return activity.avatarService().get(this.message, size, isCancelled());
-		}
-
-		@Override
-		protected void onPostExecute(Bitmap bitmap) {
-			if (bitmap != null && !isCancelled()) {
-				final ImageView imageView = imageViewReference.get();
-				if (imageView != null) {
-					imageView.setImageBitmap(bitmap);
-					imageView.setBackgroundColor(0x00000000);
-				}
-			}
 		}
 	}
 }

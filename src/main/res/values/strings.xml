@@ -8,6 +8,7 @@
     <string name="action_leave_group">Leave Group</string> <!-- ALF AM-122 -->
     <string name="action_contact_details">Contact Details</string>
     <string name="action_muc_details">Group details</string>
+    <string name="channel_details">Channel details</string>
     <string name="action_secure">Secure chat</string>
     <string name="action_add_account">Add account</string>
     <string name="action_edit_contact">Edit name</string>
@@ -56,6 +57,7 @@
     <string name="share_with">Share with…</string>
     <string name="start_conversation">Start chat</string>
     <string name="invite_contact">Invite contact</string>
+    <string name="invite">Invite</string>
     <string name="contacts">Contacts</string>
     <string name="contact">Contact</string>
     <string name="cancel">Cancel</string>
@@ -243,6 +245,12 @@
     <string name="group_already_exists">This group already exists</string>
     <string name="save_as_bookmark">Save as Bookmark</string>
     <string name="delete_bookmark">Delete Bookmark</string>
+    <string name="destroy_room">Destroy group chat</string>
+    <string name="destroy_channel">Destroy channel</string>
+    <string name="destroy_room_dialog">Are you sure you want to destroy this group chat?\n\n<b>Warning:</b> The group chat will be completely removed on the server.</string>
+    <string name="destroy_channel_dialog">Are you sure you want to destroy this public channel?\n\n<b>Warning:</b> The channel will be completely removed on the server.</string>
+    <string name="could_not_destroy_room">Could not destroy group chat</string>
+    <string name="could_not_destroy_channel">Could not destroy channel</string>
     <string name="bookmark_already_exists">This bookmark already exists</string>
     <!-- ALF AM-51 -->
     <string name="added_to_group">added to the group</string>
@@ -392,15 +400,20 @@
     <string name="remove_membership">Revoke membership</string>
     <string name="grant_admin_privileges">Grant admin privileges</string>
     <string name="remove_admin_privileges">Revoke admin privileges</string>
+    <string name="grant_owner_privileges">Grant owner privileges</string>
+    <string name="remove_owner_privileges">Revoke owner privileges</string>
     <string name="remove_from_room">Remove from group</string>
+    <string name="remove_from_channel">Remove from channel</string>
     <string name="could_not_change_affiliation">Could not change affiliation of %s</string>
     <string name="ban_from_conference">Ban from group chat</string>
+    <string name="ban_from_channel">Ban from channel</string>
     <string name="removing_from_public_conference">You are trying to remove %s from a public group chat. The only way to do that is to ban that user for ever.</string>
     <string name="ban_now">Ban now</string>
     <string name="could_not_change_role">Could not change role of %s</string>
     <string name="public_conference">Open group</string> <!-- AM-88 from Publicly accessible room -->
     <string name="private_conference">Invite Only group</string> <!-- AM-88 from Private, members only room -->
     <string name="conference_options">Group chat options</string>
+    <string name="channel_options">Public channel configuration</string>
     <string name="members_only">Private, members only</string>
     <string name="non_anonymous">Non-anonymous</string>
     <string name="moderated">Moderated</string>
@@ -801,6 +814,8 @@
     <string name="pref_more_notification_settings_summary">Importance, Sound, Vibrate</string>
     <string name="video_compression_channel_name">Video compression</string>
     <string name="view_media">View media</string>
+    <string name="view_users">View participants</string>
+    <string name="group_chat_members">Participants</string>
     <string name="media_browser">Media browser</string>
     <string name="export_channel_name">History export</string>
     <string name="security_violation_not_attaching_file">File omitted due to security violation.</string>
@@ -811,7 +826,34 @@
     <string name="cancelled">cancelled</string>
     <string name="already_drafting_message">You are already drafting a message.</string>
     <string name="feature_not_implemented">Feature not implemented</string>
+    <string name="group_chat_will_make_your_jabber_id_public">This channel will make your Jabber ID public</string>
     <string name="open_with">Open with…</string>
+    <string name="enter_jabber_id">Enter Jabber ID</string>
+    <string name="create_group_chat">Create group chat</string>
+    <string name="join_public_channel">Join public channel</string>
+    <string name="create_private_group_chat">Create private group chat</string>
+    <string name="create_public_channel">Create public channel</string>
+    <string name="create_dialog_channel_name">Channel name</string>
+    <string name="xmpp_address">XMPP address</string>
+    <string name="please_enter_name">Please provide a name for the channel</string>
+    <string name="please_enter_xmpp_address">Please provide an XMPP address</string>
+    <string name="this_is_an_xmpp_address">This is an XMPP address. Please provide a name.</string>
+    <string name="creating_channel">Creating public channel…</string>
+    <string name="channel_already_exists">This channel already exits</string>
+    <string name="joined_an_existing_channel">You’ve joined an existing channel</string>
+    <string name="unable_to_set_channel_configuration">Unable to set channel configuration</string>
+    <string name="allow_participants_to_edit_subject">Allow anyone to edit the topic</string>
+    <string name="allow_participants_to_invite_others">Allow anyone to invite others</string>
+    <string name="anyone_can_edit_subject">Anyone can edit the topic.</string>
+    <string name="owners_can_edit_subject">Owners can edit the topic.</string>
+    <string name="admins_can_edit_subject">Admins can edit the topic.</string>
+    <string name="owners_can_invite_others">Owners can invite others.</string>
+    <string name="anyone_can_invite_others">Anyone can invite others.</string>
+    <string name="jabber_ids_are_visible_to_admins">Jabber IDs are visible to admins.</string>
+    <string name="jabber_ids_are_visible_to_anyone">Jabber IDs are visible to anyone.</string>
+    <string name="no_users_hint_channel">This public channel has no participants. Invite your contacts or use the share button to distribute its XMPP address.</string>
+    <string name="no_users_hint_group_chat">This private group chat has no participants.</string>
+    <string name="manage_permission">Manage privileges</string>
 
     <!-- GOOBER - Added text for rooms tab -->
     <string name="room_tab_error_title">Account Error</string>
@@ -833,8 +875,9 @@
     <string name="profile_list_title">Login</string>
     <string name="cancel_button_text">Cancel</string>
     <string name="ok_button_text">Start</string>
-    <string name="open_vpn_profile_dialog_message">Select VPN you want to start</string>
-    <string name="open_vpn_profile_dialog_title">Select VPN Profile to Start</string>
+    <!--CMG AM-241-->
+    <string name="open_vpn_profile_dialog_message">Select VPN you want to add</string>
+    <string name="open_vpn_profile_dialog_title">Select VPN Profile to Add</string>
 
     <string name="continue_button_label">Continue</string>
     <string name="login_button_label">Login</string>
