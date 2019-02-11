@@ -830,9 +830,9 @@
     <string name="profile_list_title">Login</string>
     <string name="cancel_button_text">Cancel</string>
     <string name="ok_button_text">Start</string>
-    <string name="open_vpn_profile_dialog_message">Select VPN you want to start</string>
-    <string name="open_vpn_profile_dialog_title">Select VPN Profile to Start</string>
-
+    <!--CMG AM-241-->
+    <string name="open_vpn_profile_dialog_message">Select VPN you want to add</string>
+    <string name="open_vpn_profile_dialog_title">Select VPN Profile to Add</string>
     <string name="continue_button_label">Continue</string>
     <string name="login_button_label">Login</string>
     <string name="retry_button_label">Retry</string>

@@ -366,7 +366,7 @@
                     android:summary="@string/pref_treat_vibrate_as_dnd_summary"
                     android:title="@string/pref_treat_vibrate_as_silent"/>
             </PreferenceCategory>
-            <PreferenceCategory android:title="@string/pref_expert_options_other">
+            <!--<PreferenceCategory android:title="@string/pref_expert_options_other">-->
                 <!--HONEYBADGER AM-120 Enable and hide "Automatically join group chats-->
                 <!--<CheckBoxPreference-->
                     <!--android:defaultValue="@bool/autojoin"-->
@@ -386,11 +386,12 @@
                     android:key="enable_foreground_service"
                     android:summary="@string/pref_keep_foreground_service_summary"
                     android:title="@string/pref_keep_foreground_service"/> -->
-                <Preference
-                    android:key="create_backup"
-                    android:summary="@string/pref_create_backup_summary"
-                    android:title="@string/pref_create_backup" />
-            </PreferenceCategory>
+                <!--CMG AM-219-->
+                <!--<Preference-->
+                    <!--android:key="create_backup"-->
+                    <!--android:summary="@string/pref_create_backup_summary"-->
+                    <!--android:title="@string/pref_create_backup" />-->
+            <!--</PreferenceCategory>-->
         </PreferenceScreen>
 
         <CheckBoxPreference
