@@ -503,6 +503,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 		StrictMode.setThreadPolicy(policy);
 
+
 		if (savedInstanceState != null) {
 			this.mSavedInstanceAccount = savedInstanceState.getString("account");
 			this.mSavedInstanceInit = savedInstanceState.getBoolean("initMode", false);
@@ -1897,6 +1898,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		mAccountPasswordLayout.setError(null);
 		mAccountPasswordLayout.setError(null);
 	}
+
 
 	// App methods
 	// Logout of Cognito and display logout screen
