@@ -181,7 +181,7 @@ public class XmppConnection implements Runnable {
 
 	public XmppConnection(final Account account, final XmppConnectionService service) {
 		this.account = account;
-		mXmppConnectionService = service;
+		this.mXmppConnectionService = service;
 	}
 
 	private static void fixResource(Context context, Account account) {
@@ -406,7 +406,7 @@ public class XmppConnection implements Runnable {
 	 *
 	 * @return true if server returns with valid xmpp, false otherwise
 	 */
-	private boolean startXmpp(Socket socket) throws Exception {
+	private synchronized boolean startXmpp(Socket socket) throws Exception {
 		if (Thread.currentThread().isInterrupted()) {
 			throw new InterruptedException();
 		}

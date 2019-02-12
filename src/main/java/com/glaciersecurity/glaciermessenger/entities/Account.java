@@ -670,8 +670,10 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 		return this.avatar;
 	}
 
-	public void activateGracePeriod(long duration) {
-		this.mEndGracePeriod = SystemClock.elapsedRealtime() + duration;
+	public void activateGracePeriod(final long duration) {
+		if (duration > 0) {
+			this.mEndGracePeriod = SystemClock.elapsedRealtime() + duration;
+		}
 	}
 
 	public void deactivateGracePeriod() {

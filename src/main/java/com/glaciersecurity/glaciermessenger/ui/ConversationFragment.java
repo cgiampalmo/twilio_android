@@ -1021,7 +1021,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	@Override
 	public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_conversation, container, false);
-		binding.getRoot().setOnClickListener(null); //TODO why the fuck did we do this?
+		binding.getRoot().setOnClickListener(null); //TODO why the heck did we do this?
 
 		binding.textinput.addTextChangedListener(new StylingHelper.MessageEditorStyler(binding.textinput));
 

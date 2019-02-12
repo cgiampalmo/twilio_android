@@ -7,6 +7,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.text.TextUtils;
+import android.widget.ListView;
 
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
@@ -37,6 +38,16 @@ public class SettingsFragment extends PreferenceFragment {
 
 		if (!TextUtils.isEmpty(page)) {
 			openPreferenceScreen(page);
+		}
+	}
+
+	@Override
+	public void onActivityCreated(Bundle bundle) {
+		super.onActivityCreated(bundle);
+
+		final ListView listView = getActivity().findViewById(android.R.id.list);
+		if (listView != null) {
+			listView.setDivider(null);
 		}
 	}
 
