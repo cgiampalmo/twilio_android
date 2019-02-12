@@ -75,6 +75,7 @@ import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingActionHelper;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.ScrollState;
+import com.glaciersecurity.glaciermessenger.ui.util.StyledAttributes;
 import com.glaciersecurity.glaciermessenger.utils.ThemeHelper;
 
 import static android.support.v7.widget.helper.ItemTouchHelper.LEFT;
@@ -111,7 +112,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
 			if(actionState != ItemTouchHelper.ACTION_STATE_IDLE){
 				Paint paint = new Paint();
-				paint.setColor(Color.get(activity,R.attr.conversations_overview_background));
+				paint.setColor(StyledAttributes.getColor(activity,R.attr.conversations_overview_background));
 				paint.setStyle(Paint.Style.FILL);
 				c.drawRect(viewHolder.itemView.getLeft(),viewHolder.itemView.getTop()
 						,viewHolder.itemView.getRight(),viewHolder.itemView.getBottom(), paint);

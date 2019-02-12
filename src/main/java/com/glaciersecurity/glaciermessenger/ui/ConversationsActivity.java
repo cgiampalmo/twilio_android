@@ -39,11 +39,13 @@ import android.app.FragmentTransaction;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
@@ -54,6 +56,8 @@ import android.widget.Toast;
 
 import org.openintents.openpgp.util.OpenPgpApi;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.glaciersecurity.glaciermessenger.Config;
@@ -82,18 +86,25 @@ import com.glaciersecurity.glaciermessenger.utils.XmppUri;
 import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
 import com.glaciersecurity.glaciermessenger.xmpp.OnKeyStatusUpdated; //ALF AM-60
 
+import rocks.xmpp.addr.Jid;
+
 import static com.glaciersecurity.glaciermessenger.ui.ConversationFragment.REQUEST_DECRYPT_PGP;
 
-public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, OnKeyStatusUpdated {
+public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, OnKeyStatusUpdated {
 
 	public static final String ACTION_VIEW_CONVERSATION = "com.glaciersecurity.glaciermessenger.action.VIEW";
 	public static final String EXTRA_CONVERSATION = "conversationUuid";
 	public static final String EXTRA_DOWNLOAD_UUID = "com.glaciersecurity.glaciermessenger.download_uuid";
-	public static final String EXTRA_TEXT = "text";
 	public static final String EXTRA_AS_QUOTE = "as_quote";
 	public static final String EXTRA_NICK = "nick";
 	public static final String EXTRA_IS_PRIVATE_MESSAGE = "pm";
 	public static final String EXTRA_DO_NOT_APPEND = "do_not_append";
+
+	private static List<String> VIEW_AND_SHARE_ACTIONS = Arrays.asList(
+			ACTION_VIEW_CONVERSATION,
+			Intent.ACTION_SEND,
+			Intent.ACTION_SEND_MULTIPLE
+	);
 
 	public static final int REQUEST_OPEN_MESSAGE = 0x9876;
 	public static final int REQUEST_PLAY_PAUSE = 0x5432;
@@ -110,8 +121,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	private boolean initialConnect = true; //ALF AM-78
 
-	private static boolean isViewIntent(Intent i) {
-		return i != null && ACTION_VIEW_CONVERSATION.equals(i.getAction()) && i.hasExtra(EXTRA_CONVERSATION);
+	private static boolean isViewOrShareIntent(Intent i) {
+		Log.d(Config.LOGTAG, "action: " + (i == null ? null : i.getAction()));
+		return i != null && VIEW_AND_SHARE_ACTIONS.contains(i.getAction()) && i.hasExtra(EXTRA_CONVERSATION);
 	}
 
 	private static Intent createLauncherIntent(Context context) {
@@ -224,6 +236,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	private void openBatteryOptimizationDialogIfNeeded() {
 		if (hasAccountWithoutPush()
 				&& isOptimizingBattery()
+				&& android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M
 				&& getPreferences().getBoolean(getBatteryOptimizationPreferenceKey(), true)) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setTitle(R.string.battery_optimizations_enabled);
@@ -279,6 +292,23 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		return true;
 	}
 
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+		UriHandlerActivity.onRequestPermissionResult(this, requestCode, grantResults);
+		if (grantResults.length > 0) {
+			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+				switch (requestCode) {
+					case REQUEST_OPEN_MESSAGE:
+						refreshUiReal();
+						ConversationFragment.openPendingMessage(this);
+						break;
+					case REQUEST_PLAY_PAUSE:
+						ConversationFragment.startStopPending(this);
+						break;
+				}
+			}
+		}
+	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, final Intent data) {
@@ -344,7 +374,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		super.onCreate(savedInstanceState);
 		ConversationMenuConfigurator.reloadFeatures(this);
 		OmemoSetting.load(this);
-		//new EmojiService(this).init();
 		this.binding = DataBindingUtil.setContentView(this, R.layout.activity_conversations);
 		setSupportActionBar((Toolbar) binding.toolbar);
 		configureActionBar(getSupportActionBar());
@@ -358,7 +387,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		} else {
 			intent = savedInstanceState.getParcelable("intent");
 		}
-		if (isViewIntent(intent)) {
+		if (isViewOrShareIntent(intent)) {
 			pendingViewIntent.push(intent);
 			setIntent(createLauncherIntent(this));
 		}
@@ -398,6 +427,20 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		if (pendingViewIntent.clear()) {
 			Log.e(Config.LOGTAG, "cleared pending view intent");
 		}
+	}
+
+	private void displayToast(final String msg) {
+		runOnUiThread(() -> Toast.makeText(ConversationsActivity.this, msg, Toast.LENGTH_SHORT).show());
+	}
+
+	@Override
+	public void onAffiliationChangedSuccessful(Jid jid) {
+
+	}
+
+	@Override
+	public void onAffiliationChangeFailed(Jid jid, int resId) {
+		displayToast(getString(resId, jid.asBareJid().toString()));
 	}
 
 	private void openConversation(Conversation conversation, Bundle extras) {
@@ -491,7 +534,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	@Override
 	protected void onNewIntent(final Intent intent) {
-		if (isViewIntent(intent)) {
+		if (isViewOrShareIntent(intent)) {
 			if (xmppConnectionService != null) {
 				clearPendingViewIntent();
 				processViewIntent(intent);

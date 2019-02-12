@@ -129,7 +129,9 @@ import rocks.xmpp.addr.Jid;
 import static com.glaciersecurity.glaciermessenger.ui.XmppActivity.EXTRA_ACCOUNT;
 import static com.glaciersecurity.glaciermessenger.ui.XmppActivity.REQUEST_INVITE_TO_CONVERSATION;
 import static com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils.hideSoftKeyboard;
-
+import static com.glaciersecurity.glaciermessenger.utils.PermissionUtils.allGranted;
+import static com.glaciersecurity.glaciermessenger.utils.PermissionUtils.getFirstDenied;
+import static com.glaciersecurity.glaciermessenger.utils.PermissionUtils.writeGranted;
 
 
 public class ConversationFragment extends XmppFragment implements EditMessage.KeyboardListener, MessageAdapter.OnContactPictureLongClicked, MessageAdapter.OnContactPictureClicked {
@@ -207,6 +209,16 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			activity.xmppConnectionService.joinMuc(conversation);
 		}
 	};
+
+	private OnClickListener acceptJoin = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			conversation.setAttribute("accept_non_anonymous",true);
+			activity.xmppConnectionService.updateConversation(conversation);
+			activity.xmppConnectionService.joinMuc(conversation);
+		}
+	};
+
 	private OnClickListener enterPassword = new OnClickListener() {
 
 		@Override
@@ -531,33 +543,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		return getConversation(activity, R.id.main_fragment);
 	}
 
-	private static boolean allGranted(int[] grantResults) {
-		for (int grantResult : grantResults) {
-			if (grantResult != PackageManager.PERMISSION_GRANTED) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private static boolean writeGranted(int[] grantResults, String[] permission) {
-		for(int i = 0; i < grantResults.length; ++i) {
-			if (Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permission[i])) {
-				return grantResults[i] == PackageManager.PERMISSION_GRANTED;
-			}
-		}
-		return false;
-	}
-
-	private static String getFirstDenied(int[] grantResults, String[] permissions) {
-		for (int i = 0; i < grantResults.length; ++i) {
-			if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-				return permissions[i];
-			}
-		}
-		return null;
-	}
-
 	private static boolean scrolledToBottom(AbsListView listView) {
 		final int count = listView.getCount();
 		if (count == 0) {
@@ -583,7 +568,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			hideUnreadMessagesCount();
 		} else {
 			binding.scrollToBottomButton.setEnabled(true);
-			binding.scrollToBottomButton.setVisibility(View.VISIBLE);
+			binding.scrollToBottomButton.show();
 			if (lastMessageUuid == null) {
 				lastMessageUuid = conversation.getLatestMessage().getUuid();
 			}
@@ -749,6 +734,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		if (body.length() == 0 || conversation == null) {
 			return;
 		}
+		if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL && trustKeysIfNeeded(REQUEST_TRUST_KEYS_TEXT)) {
+			return;
+		}
 		final Message message;
 		if (conversation.getCorrectingMessage() == null) {
 			message = new Message(conversation, body, conversation.getNextEncryption());
@@ -763,17 +751,13 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		} else {
 			message = conversation.getCorrectingMessage();
 			message.setBody(body);
-			message.setEdited(message.getUuid());
+			message.putEdited(message.getUuid(), message.getServerMsgId());
+			message.setServerMsgId(null);
 			message.setUuid(UUID.randomUUID().toString());
 		}
 		switch (conversation.getNextEncryption()) {
 			case Message.ENCRYPTION_PGP:
 				sendPgpMessage(message);
-				break;
-			case Message.ENCRYPTION_AXOLOTL:
-				if (!trustKeysIfNeeded(REQUEST_TRUST_KEYS_TEXT)) {
-					sendMessage(message);
-				}
 				break;
 			default:
 				sendMessage(message);
@@ -1162,10 +1146,11 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				downloadFile.setVisible(true);
 				downloadFile.setTitle(activity.getString(R.string.download_x_file, UIHelper.getFileDescriptionString(activity, m)));
 			}
-			boolean waitingOfferedSending = m.getStatus() == Message.STATUS_WAITING
+			final boolean waitingOfferedSending = m.getStatus() == Message.STATUS_WAITING
 					|| m.getStatus() == Message.STATUS_UNSEND
 					|| m.getStatus() == Message.STATUS_OFFERED;
-			if ((t != null && !deleted) || waitingOfferedSending && m.needsUploading()) {
+			final boolean cancelable = (t != null && !deleted) || waitingOfferedSending && m.needsUploading();
+			if (cancelable) {
 				cancelTransmission.setVisible(true);
 			}
 			if (m.isFileOrImage() && !deleted) {
@@ -1441,16 +1426,23 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
 		if (grantResults.length > 0) {
 			if (allGranted(grantResults)) {
-				if (requestCode == REQUEST_START_DOWNLOAD) {
-					if (this.mPendingDownloadableMessage != null) {
-						startDownloadable(this.mPendingDownloadableMessage);
-					}
-				} else if (requestCode == REQUEST_ADD_EDITOR_CONTENT) {
-					if (this.mPendingEditorContent != null) {
-						attachEditorContentToConversation(this.mPendingEditorContent);
-					}
-				} else {
-					attachFile(requestCode);
+				switch (requestCode) {
+					case REQUEST_START_DOWNLOAD:
+						if (this.mPendingDownloadableMessage != null) {
+							startDownloadable(this.mPendingDownloadableMessage);
+						}
+						break;
+					case REQUEST_ADD_EDITOR_CONTENT:
+						if (this.mPendingEditorContent != null) {
+							attachEditorContentToConversation(this.mPendingEditorContent);
+						}
+						break;
+					case REQUEST_COMMIT_ATTACHMENTS:
+						commitAttachments();
+						break;
+					default:
+						attachFile(requestCode);
+						break;
 				}
 			} else {
 				@StringRes int res;
@@ -1469,6 +1461,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			if (activity != null && activity.xmppConnectionService != null) {
 				activity.xmppConnectionService.restartFileObserver();
 			}
+			refresh();
 		}
 	}
 
@@ -1719,7 +1712,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			switch (attachmentChoice) {
 				case ATTACHMENT_CHOICE_CHOOSE_IMAGE:
 					intent.setAction(Intent.ACTION_GET_CONTENT);
-					intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+						intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+					}
 					intent.setType("image/*");
 					chooser = true;
 					break;
@@ -1737,6 +1732,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				case ATTACHMENT_CHOICE_CHOOSE_FILE:
 					chooser = true;
 					intent.setType("*/*");
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+						intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+					}
 					intent.addCategory(Intent.CATEGORY_OPENABLE);
 					intent.setAction(Intent.ACTION_GET_CONTENT);
 					break;
@@ -1962,6 +1960,15 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	}
 
 	@Override
+	public void startActivityForResult(Intent intent, int requestCode) {
+		final Activity activity = getActivity();
+		if (activity instanceof ConversationsActivity) {
+			((ConversationsActivity) activity).clearPendingViewIntent();
+		}
+		super.startActivityForResult(intent, requestCode);
+	}
+
+	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		if (conversation != null) {
@@ -2073,6 +2080,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	public void reInit(Conversation conversation, Bundle extras) {
 		QuickLoader.set(conversation.getUuid());
 		this.saveMessageDraftStopAudioPlayer();
+		this.clearPending();
 		if (this.reInit(conversation, extras != null)) {
 			if (extras != null) {
 				processExtras(extras);
@@ -2230,7 +2238,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			return;
 		}
 		this.binding.scrollToBottomButton.setEnabled(false);
-		this.binding.scrollToBottomButton.setVisibility(View.GONE);
+		this.binding.scrollToBottomButton.hide();
 		this.binding.unreadCountCustomView.setVisibility(View.GONE);
 	}
 
@@ -2373,6 +2381,13 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 						showSnackbar(R.string.remote_server_not_found, R.string.leave, leaveMuc);
 					}
 					break;
+				case REMOTE_SERVER_TIMEOUT:
+					if (conversation.receivedMessagesCount() > 0) {
+						showSnackbar(R.string.remote_server_timeout, R.string.try_again, joinMuc);
+					} else {
+						showSnackbar(R.string.remote_server_timeout, R.string.leave, leaveMuc);
+					}
+					break;
 				case PASSWORD_REQUIRED:
 					showSnackbar(R.string.conference_requires_password, R.string.enter_password, enterPassword);
 					break;
@@ -2399,6 +2414,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 					break;
 				case DESTROYED:
 					showSnackbar(R.string.conference_destroyed, R.string.leave, leaveMuc);
+					break;
+				case NON_ANONYMOUS:
+					showSnackbar(R.string.group_chat_will_make_your_jabber_id_public, R.string.join, acceptJoin);
 					break;
 				default:
 					hideSnackbar();
@@ -3017,9 +3035,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		if (pendingConversationsUuid.clear()) {
 			Log.e(Config.LOGTAG,"cleared pending conversations uuid");
 		}
-		//if (pendingMediaPreviews.clear()) {
-		//	Log.e(Config.LOGTAG,"cleared pending media previews");
-		//}
+		if (pendingMediaPreviews.clear()) {
+			Log.e(Config.LOGTAG,"cleared pending media previews");
+		}
 	}
 
 	public Conversation getConversation() {

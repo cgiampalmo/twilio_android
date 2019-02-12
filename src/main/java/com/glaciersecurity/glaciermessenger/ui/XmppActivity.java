@@ -477,11 +477,6 @@ public abstract class XmppActivity extends PinActivity {
 		this.mUsingEnterKey = usingEnterKey();
 	}
 
-
-
-
-
-
 	protected boolean isCameraFeatureAvailable() {
 		return this.isCameraFeatureAvailable;
 	}
@@ -621,7 +616,11 @@ public abstract class XmppActivity extends PinActivity {
 		intent.setAction(Intent.ACTION_SEND);
 		intent.setData(uri);
 		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-		startService(intent);
+		try {
+			startService(intent);
+		} catch (Exception e) {
+			Log.e(Config.LOGTAG,"unable to delegate uri permission",e);
+		}
 	}
 
 	protected void inviteToConversation(Conversation conversation) {
@@ -677,18 +676,6 @@ public abstract class XmppActivity extends PinActivity {
 				}
 			});
 		}
-	}
-
-	protected boolean noAccountUsesPgp() {
-		if (!hasPgp()) {
-			return true;
-		}
-		for (Account account : xmppConnectionService.getAccounts()) {
-			if (account.getPgpId() != 0) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	@SuppressWarnings("deprecation")
@@ -815,6 +802,7 @@ public abstract class XmppActivity extends PinActivity {
 			SoftKeyboardUtils.hideSoftKeyboard(binding.inputEditText);
 			dialog.dismiss();
 		}));
+		dialog.setCanceledOnTouchOutside(false);
 		dialog.setOnDismissListener(dialog1 -> {
 			SoftKeyboardUtils.hideSoftKeyboard(binding.inputEditText);
         });
@@ -873,10 +861,6 @@ public abstract class XmppActivity extends PinActivity {
 			return true;
 		}
 		return false;
-	}
-
-	protected boolean neverCompressPictures() {
-		return getPreferences().getString("picture_compression", getResources().getString(R.string.picture_compression)).equals("never");
 	}
 
 	protected boolean manuallyChangePresence() {
@@ -987,7 +971,7 @@ public abstract class XmppActivity extends PinActivity {
 			if (cancelPotentialWork(message, imageView)) {
 				imageView.setBackgroundColor(0xff333333);
 				imageView.setImageDrawable(null);
-				final BitmapWorkerTask task = new BitmapWorkerTask(this, imageView);
+				final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
 				final AsyncDrawable asyncDrawable = new AsyncDrawable(
 						getResources(), null, task);
 				imageView.setImageDrawable(asyncDrawable);
@@ -1050,11 +1034,9 @@ public abstract class XmppActivity extends PinActivity {
 
 	static class BitmapWorkerTask extends AsyncTask<Message, Void, Bitmap> {
 		private final WeakReference<ImageView> imageViewReference;
-		private final WeakReference<XmppActivity> activity;
 		private Message message = null;
 
-		private BitmapWorkerTask(XmppActivity activity, ImageView imageView) {
-			this.activity = new WeakReference<>(activity);
+		private BitmapWorkerTask(ImageView imageView) {
 			this.imageViewReference = new WeakReference<>(imageView);
 		}
 
@@ -1065,7 +1047,7 @@ public abstract class XmppActivity extends PinActivity {
 			}
 			message = params[0];
 			try {
-				XmppActivity activity = this.activity.get();
+				final XmppActivity activity = find(imageViewReference);
 				if (activity != null && activity.xmppConnectionService != null) {
 					return activity.xmppConnectionService.getFileBackend().getThumbnail(message, (int) (activity.metrics.density * 288), false);
 				} else {
@@ -1077,12 +1059,12 @@ public abstract class XmppActivity extends PinActivity {
 		}
 
 		@Override
-		protected void onPostExecute(Bitmap bitmap) {
-			if (bitmap != null && !isCancelled()) {
+		protected void onPostExecute(final Bitmap bitmap) {
+			if (!isCancelled()) {
 				final ImageView imageView = imageViewReference.get();
 				if (imageView != null) {
 					imageView.setImageBitmap(bitmap);
-					imageView.setBackgroundColor(0x00000000);
+					imageView.setBackgroundColor(bitmap == null ? 0xff333333 : 0x00000000);
 				}
 			}
 		}

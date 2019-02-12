@@ -176,12 +176,11 @@ public class XmppConnection implements Runnable {
 	private SaslMechanism saslMechanism;
 	private URL redirectionUrl = null;
 	private String verifiedHostname = null;
-	private Thread mThread;
+	private volatile Thread mThread;
 	private CountDownLatch mStreamCountDownLatch;
 
 	public XmppConnection(final Account account, final XmppConnectionService service) {
 		this.account = account;
-		final String tag = account.getJid().asBareJid().toString();
 		mXmppConnectionService = service;
 	}
 
@@ -422,6 +421,12 @@ public class XmppConnection implements Runnable {
 		tagWriter.beginDocument();
 		sendStartStream();
 		final Tag tag = tagReader.readTag();
+		if (Thread.currentThread().isInterrupted()) {
+			throw new InterruptedException();
+		}
+		if (socket instanceof SSLSocket) {
+			SSLSocketHelper.log(account, (SSLSocket) socket);
+		}
 		return tag != null && tag.isStart("stream");
 	}
 
@@ -1796,6 +1801,10 @@ public class XmppConnection implements Runnable {
 
 		public boolean bookmarksConversion() {
 			return hasDiscoFeature(account.getJid().asBareJid(),Namespace.BOOKMARKS_CONVERSION) && pepPublishOptions();
+		}
+
+		public boolean avatarConversion() {
+			return hasDiscoFeature(account.getJid().asBareJid(), Namespace.AVATAR_CONVERSION) && pepPublishOptions();
 		}
 
 		public boolean blocking() {
