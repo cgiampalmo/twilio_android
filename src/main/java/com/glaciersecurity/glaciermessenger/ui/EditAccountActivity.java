@@ -1434,6 +1434,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		//autoLoginMessenger();
 	}
 
+
 	/**
 	 * Callbacks
 	 */
@@ -1898,6 +1899,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		mAccountPasswordLayout.setError(null);
 		mAccountPasswordLayout.setError(null);
 	}
+
 
 
 	// App methods
