@@ -31,9 +31,11 @@ public class SignupUtils {
             if (service.getAccounts().size() == 0) {
                 if (Config.X509_VERIFICATION) {
                     intent = new Intent(activity, ManageAccountActivity.class);
+                }
+                /* GOOBER ACCOUNT- Removed so it only shows login page
                 } else if (Config.MAGIC_CREATE_DOMAIN != null) {
-                    intent = getSignUpIntent(activity);
-                } else {
+                    intent = getSignUpIntent(activity); } */
+                else {
                     intent = new Intent(activity, EditAccountActivity.class);
                 }
             } else {
