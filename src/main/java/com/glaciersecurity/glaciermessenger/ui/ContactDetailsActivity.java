@@ -25,6 +25,8 @@ import android.widget.Toast;
 
 import org.openintents.openpgp.util.OpenPgpUtils;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import com.glaciersecurity.glaciermessenger.Config;
@@ -38,8 +40,16 @@ import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.ListItem;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService.OnAccountUpdate;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService.OnRosterUpdate;
+import com.glaciersecurity.glaciermessenger.ui.adapter.MediaAdapter;
+import com.glaciersecurity.glaciermessenger.ui.interfaces.OnMediaLoaded;
+import com.glaciersecurity.glaciermessenger.ui.util.Attachment;
+import com.glaciersecurity.glaciermessenger.ui.util.AvatarWorkerTask;
+import com.glaciersecurity.glaciermessenger.ui.util.GridManager;
+import com.glaciersecurity.glaciermessenger.ui.util.JidDialog;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.utils.AccountUtils;
+import com.glaciersecurity.glaciermessenger.utils.Compatibility;
+import com.glaciersecurity.glaciermessenger.utils.IrregularUnicodeDetector;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
 import com.glaciersecurity.glaciermessenger.xml.Namespace;
@@ -48,9 +58,12 @@ import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 import rocks.xmpp.addr.Jid;
 
-public class ContactDetailsActivity extends OmemoActivity implements OnAccountUpdate, OnRosterUpdate, OnUpdateBlocklist, OnKeyStatusUpdated {
+public class ContactDetailsActivity extends OmemoActivity implements OnAccountUpdate, OnRosterUpdate, OnUpdateBlocklist, OnKeyStatusUpdated, OnMediaLoaded {
     public static final String ACTION_VIEW_CONTACT = "view_contact";
     ActivityContactDetailsBinding binding;
+
+    private MediaAdapter mMediaAdapter;
+
     private Contact contact;
     private DialogInterface.OnClickListener removeFromRoster = new DialogInterface.OnClickListener() {
 
@@ -119,14 +132,18 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 AlertDialog.Builder builder = new AlertDialog.Builder(
                         ContactDetailsActivity.this);
                 builder.setTitle(getString(R.string.action_add_phone_book));
-                builder.setMessage(getString(R.string.add_phone_book_text, contact.getDisplayName()));
+                builder.setMessage(getString(R.string.add_phone_book_text, contact.getJid().toString()));
                 builder.setNegativeButton(getString(R.string.cancel), null);
                 builder.setPositiveButton(getString(R.string.add), addToPhonebook);
                 builder.create().show();
             } else {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(systemAccount);
-                startActivity(intent);
+                try {
+                    startActivity(intent);
+                } catch (ActivityNotFoundException e) {
+                    Toast.makeText(ContactDetailsActivity.this, R.string.no_application_found_to_view_contact, Toast.LENGTH_SHORT).show();
+                }
             }
         }
     };
@@ -155,7 +172,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
     @Override
     protected String getShareableUri(boolean http) {
         if (http) {
-            return "https://glaciersec.cc/j/" + XmppUri.lameUrlEncode(contact.getJid().asBareJid().toEscapedString());
+            return "https://conversations.im/i/" + XmppUri.lameUrlEncode(contact.getJid().asBareJid().toEscapedString());
         } else {
             return "xmpp:" + contact.getJid().asBareJid().toEscapedString();
         }
@@ -185,6 +202,10 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             populateView();
         });
         binding.addContactButton.setOnClickListener(v -> showAddToRosterDialog(contact));
+
+        mMediaAdapter = new MediaAdapter(this,R.dimen.media_size);
+        this.binding.media.setAdapter(mMediaAdapter);
+        GridManager.setupLayoutManager(this, this.binding.media, R.dimen.media_size);
     }
 
     @Override
@@ -204,6 +225,8 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             this.showDynamicTags = preferences.getBoolean(SettingsActivity.SHOW_DYNAMIC_TAGS, false);
             this.showLastSeen = preferences.getBoolean("last_activity", false);
         }
+        binding.mediaWrapper.setVisibility(Compatibility.hasStoragePermission(this) ? View.VISIBLE : View.GONE);
+        mMediaAdapter.setAttachments(Collections.emptyList());
     }
 
     @Override
@@ -296,11 +319,12 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         invalidateOptionsMenu();
         setTitle(contact.getDisplayName());
         if (contact.showInRoster()) {
-//            binding.detailsSendPresence.setVisibility(View.VISIBLE);
-//            binding.detailsReceivePresence.setVisibility(View.VISIBLE);
+            //HONEYBADGER commented out these and below
+            //binding.detailsSendPresence.setVisibility(View.VISIBLE);
+            //binding.detailsReceivePresence.setVisibility(View.VISIBLE);
             binding.addContactButton.setVisibility(View.GONE);
-//            binding.detailsSendPresence.setOnCheckedChangeListener(null);
-//            binding.detailsReceivePresence.setOnCheckedChangeListener(null);
+            //binding.detailsSendPresence.setOnCheckedChangeListener(null);
+            //binding.detailsReceivePresence.setOnCheckedChangeListener(null);
 
             List<String> statusMessages = contact.getPresences().getStatusMessages();
             if (statusMessages.size() == 0) {
@@ -321,44 +345,44 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 binding.statusMessage.setText(builder);
             }
 
-//            if (contact.getOption(Contact.Options.FROM)) {
-//                binding.detailsSendPresence.setText(R.string.send_presence_updates);
-//                binding.detailsSendPresence.setChecked(true);
-//            } else if (contact.getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST)) {
-//                binding.detailsSendPresence.setChecked(false);
-//                binding.detailsSendPresence.setText(R.string.send_presence_updates);
-//            } else {
-//                binding.detailsSendPresence.setText(R.string.preemptively_grant);
-//                if (contact.getOption(Contact.Options.PREEMPTIVE_GRANT)) {
-//                    binding.detailsSendPresence.setChecked(true);
-//                } else {
-//                    binding.detailsSendPresence.setChecked(false);
-//                }
-//            }
-//            if (contact.getOption(Contact.Options.TO)) {
-//                binding.detailsReceivePresence.setText(R.string.receive_presence_updates);
-//                binding.detailsReceivePresence.setChecked(true);
-//            } else {
-//                binding.detailsReceivePresence.setText(R.string.ask_for_presence_updates);
-//                if (contact.getOption(Contact.Options.ASKING)) {
-//                    binding.detailsReceivePresence.setChecked(true);
-//                } else {
-//                    binding.detailsReceivePresence.setChecked(false);
-//                }
-//            }
-//            if (contact.getAccount().isOnlineAndConnected()) {
-//                binding.detailsReceivePresence.setEnabled(true);
-//                binding.detailsSendPresence.setEnabled(true);
-//            } else {
-//                binding.detailsReceivePresence.setEnabled(false);
-//                binding.detailsSendPresence.setEnabled(false);
-//            }
-//            binding.detailsSendPresence.setOnCheckedChangeListener(this.mOnSendCheckedChange);
-//            binding.detailsReceivePresence.setOnCheckedChangeListener(this.mOnReceiveCheckedChange);
+            /*if (contact.getOption(Contact.Options.FROM)) {
+                binding.detailsSendPresence.setText(R.string.send_presence_updates);
+                binding.detailsSendPresence.setChecked(true);
+            } else if (contact.getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST)) {
+                binding.detailsSendPresence.setChecked(false);
+                binding.detailsSendPresence.setText(R.string.send_presence_updates);
+            } else {
+                binding.detailsSendPresence.setText(R.string.preemptively_grant);
+                if (contact.getOption(Contact.Options.PREEMPTIVE_GRANT)) {
+                    binding.detailsSendPresence.setChecked(true);
+                } else {
+                    binding.detailsSendPresence.setChecked(false);
+                }
+            }
+            if (contact.getOption(Contact.Options.TO)) {
+                binding.detailsReceivePresence.setText(R.string.receive_presence_updates);
+                binding.detailsReceivePresence.setChecked(true);
+            } else {
+                binding.detailsReceivePresence.setText(R.string.ask_for_presence_updates);
+                if (contact.getOption(Contact.Options.ASKING)) {
+                    binding.detailsReceivePresence.setChecked(true);
+                } else {
+                    binding.detailsReceivePresence.setChecked(false);
+                }
+            }
+            if (contact.getAccount().isOnlineAndConnected()) {
+                binding.detailsReceivePresence.setEnabled(true);
+                binding.detailsSendPresence.setEnabled(true);
+            } else {
+                binding.detailsReceivePresence.setEnabled(false);
+                binding.detailsSendPresence.setEnabled(false);
+            }
+            binding.detailsSendPresence.setOnCheckedChangeListener(this.mOnSendCheckedChange);
+            binding.detailsReceivePresence.setOnCheckedChangeListener(this.mOnReceiveCheckedChange);*/
         } else {
             binding.addContactButton.setVisibility(View.VISIBLE);
-//            binding.detailsSendPresence.setVisibility(View.GONE);
-//            binding.detailsReceivePresence.setVisibility(View.GONE);
+            //binding.detailsSendPresence.setVisibility(View.GONE);
+            //binding.detailsReceivePresence.setVisibility(View.GONE);
             binding.statusMessage.setVisibility(View.GONE);
         }
 
@@ -375,22 +399,17 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 binding.detailsLastseen.setVisibility(View.GONE);
             }
         }
-        //HONEYBADGER AM-120 remove jid only show account name
 
+        //HONEYBADGER AM-120 remove jid only show account name
         //binding.detailsContactjid.setText(IrregularUnicodeDetector.style(this, contact.getJid()));
-        binding.detailsContactjid.setText(contact.getDisplayName());
-
         String account;
-        //HONEYBADGER AM-120 remove jid only show account name
-//        if (Config.DOMAIN_LOCK != null) {
-//            account = contact.getAccount().getJid().getLocal();
-//        } else {
-//            account = contact.getAccount().getJid().asBareJid().toString();
-//        }
-        account = contact.getDisplayName();
-
-//        binding.detailsAccount.setText(getString(R.string.using_account, account));
-        binding.detailsContactBadge.setImageBitmap(avatarService().get(contact, (int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
+        if (Config.DOMAIN_LOCK != null) {
+            account = contact.getAccount().getJid().getLocal();
+        } else {
+            account = contact.getAccount().getJid().asBareJid().toString();
+        }
+        //binding.detailsAccount.setText(getString(R.string.using_account, account));
+        AvatarWorkerTask.loadAvatar(contact,binding.detailsContactBadge,R.dimen.avatar_on_details_screen_size);
         binding.detailsContactBadge.setOnClickListener(this.onBadgeClick);
 
         binding.detailsContactKeys.removeAllViews();
@@ -398,12 +417,20 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         final LayoutInflater inflater = getLayoutInflater();
         final AxolotlService axolotlService = contact.getAccount().getAxolotlService();
         if (Config.supportOmemo() && axolotlService != null) {
+            final Collection<XmppAxolotlSession> sessions = axolotlService.findSessionsForContact(contact);
+            boolean anyActive = false;
+            for(XmppAxolotlSession session : sessions) {
+                anyActive = session.getTrust().isActive();
+                if (anyActive) {
+                    break;
+                }
+            }
             boolean skippedInactive = false;
             boolean showsInactive = false;
-            for (final XmppAxolotlSession session : axolotlService.findSessionsForContact(contact)) {
+            for (final XmppAxolotlSession session :sessions) {
                 final FingerprintStatus trust = session.getTrust();
                 hasKeys |= !trust.isCompromised();
-                if (!trust.isActive()) {
+                if (!trust.isActive() && anyActive) {
                     if (showInactiveOmemo) {
                         showsInactive = true;
                     } else {
@@ -426,10 +453,10 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             binding.showInactiveDevices.setVisibility(View.GONE);
         }
         // HONEYBADGER AM-120 Remove the top right barcode scanning feature
-//        binding.scanButton.setVisibility(hasKeys && isCameraFeatureAvailable() ? View.VISIBLE : View.GONE);
-//        if (hasKeys) {
-//            binding.scanButton.setOnClickListener((v) -> ScanActivity.scan(this));
-//        }
+        //binding.scanButton.setVisibility(hasKeys && isCameraFeatureAvailable() ? View.VISIBLE : View.GONE);
+        //if (hasKeys) {
+        //    binding.scanButton.setOnClickListener((v) -> ScanActivity.scan(this));
+        //}
         if (Config.supportOpenPgp() && contact.getPgpKeyId() != 0) {
             hasKeys = true;
             View view = inflater.inflate(R.layout.contact_key, binding.detailsContactKeys, false);
@@ -474,6 +501,12 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 processFingerprintVerification(mPendingFingerprintVerificationUri);
                 mPendingFingerprintVerificationUri = null;
             }
+
+            if (Compatibility.hasStoragePermission(this)) {
+                final int limit = GridManager.getCurrentColumnCount(this.binding.media);
+                xmppConnectionService.getAttachments(account, contact.getJid().asBareJid(), limit, this);
+                this.binding.showMedia.setOnClickListener((v) -> MediaBrowserActivity.launch(this, contact));
+            }
             populateView();
         }
     }
@@ -492,5 +525,15 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         } else {
             Toast.makeText(this, R.string.invalid_barcode, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onMediaLoaded(List<Attachment> attachments) {
+        runOnUiThread(() -> {
+            int limit = GridManager.getCurrentColumnCount(binding.media);
+            mMediaAdapter.setAttachments(attachments.subList(0, Math.min(limit,attachments.size())));
+            binding.mediaWrapper.setVisibility(attachments.size() > 0 ? View.VISIBLE : View.GONE);
+        });
+
     }
 }
