@@ -17,35 +17,46 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
-import com.glaciersecurity.glaciermessenger.ui.ShareWithActivity;
+import com.glaciersecurity.glaciermessenger.ui.ConversationsActivity;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 
 @TargetApi(Build.VERSION_CODES.M)
 public class ContactChooserTargetService extends ChooserTargetService implements ServiceConnection {
 
 	private final Object lock = new Object();
-
+	private final int MAX_TARGETS = 5;
 	private XmppConnectionService mXmppConnectionService;
 
-	private final int MAX_TARGETS = 5;
+	private static boolean textOnly(IntentFilter filter) {
+		for (int i = 0; i < filter.countDataTypes(); ++i) {
+			if (!"text/plain".equals(filter.getDataType(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	@Override
 	public List<ChooserTarget> onGetChooserTargets(ComponentName targetActivityName, IntentFilter matchedFilter) {
-		Intent intent = new Intent(this, XmppConnectionService.class);
+		final ArrayList<ChooserTarget> chooserTargets = new ArrayList<>();
+		if (!EventReceiver.hasEnabledAccounts(this)) {
+			return chooserTargets;
+		}
+		final Intent intent = new Intent(this, XmppConnectionService.class);
 		intent.setAction("contact_chooser");
 		Compatibility.startService(this, intent);
 		bindService(intent, this, Context.BIND_AUTO_CREATE);
-		ArrayList<ChooserTarget> chooserTargets = new ArrayList<>();
 		try {
 			waitForService();
 			final ArrayList<Conversation> conversations = new ArrayList<>();
 			if (!mXmppConnectionService.areMessagesInitialized()) {
 				return chooserTargets;
 			}
-			mXmppConnectionService.populateWithOrderedConversations(conversations, false);
-			final ComponentName componentName = new ComponentName(this, ShareWithActivity.class);
-			final int pixel = (int) (48 * getResources().getDisplayMetrics().density);
-			for(Conversation conversation : conversations) {
+
+			mXmppConnectionService.populateWithOrderedConversations(conversations, textOnly(matchedFilter));
+			final ComponentName componentName = new ComponentName(this, ConversationsActivity.class);
+			final int pixel = AvatarService.getSystemUiAvatarSize(this);
+			for (Conversation conversation : conversations) {
 				if (conversation.sentMessagesCount() == 0) {
 					continue;
 				}
@@ -53,7 +64,7 @@ public class ContactChooserTargetService extends ChooserTargetService implements
 				final Icon icon = Icon.createWithBitmap(mXmppConnectionService.getAvatarService().get(conversation, pixel));
 				final float score = 1 - (1.0f / MAX_TARGETS) * chooserTargets.size();
 				final Bundle extras = new Bundle();
-				extras.putString("uuid", conversation.getUuid());
+				extras.putString(ConversationsActivity.EXTRA_CONVERSATION, conversation.getUuid());
 				chooserTargets.add(new ChooserTarget(name, icon, score, componentName, extras));
 				if (chooserTargets.size() >= MAX_TARGETS) {
 					break;

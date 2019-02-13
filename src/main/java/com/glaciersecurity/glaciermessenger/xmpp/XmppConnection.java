@@ -406,7 +406,7 @@ public class XmppConnection implements Runnable {
 	 *
 	 * @return true if server returns with valid xmpp, false otherwise
 	 */
-	private synchronized boolean startXmpp(Socket socket) throws Exception {
+	private boolean startXmpp(Socket socket) throws Exception {
 		if (Thread.currentThread().isInterrupted()) {
 			throw new InterruptedException();
 		}

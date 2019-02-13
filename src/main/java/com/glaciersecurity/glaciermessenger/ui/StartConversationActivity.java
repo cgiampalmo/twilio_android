@@ -1,5 +1,6 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.PendingIntent;
@@ -10,6 +11,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
@@ -20,6 +22,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
@@ -66,6 +69,7 @@ import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.ListItem;
 import com.glaciersecurity.glaciermessenger.entities.Presence;
+import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService.OnRosterUpdate;
 import com.glaciersecurity.glaciermessenger.ui.adapter.ListItemAdapter;
@@ -74,13 +78,14 @@ import com.glaciersecurity.glaciermessenger.ui.interfaces.OnBackendConnected;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils;
+import com.glaciersecurity.glaciermessenger.ui.widget.SwipeRefreshListFragment;
 import com.glaciersecurity.glaciermessenger.utils.AccountUtils;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
 import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 import rocks.xmpp.addr.Jid;
 
-public class StartConversationActivity extends XmppActivity implements XmppConnectionService.OnConversationUpdate, OnRosterUpdate, OnUpdateBlocklist, OnGroupUpdate, CreateConferenceDialog.CreateConferenceDialogListener, JoinConferenceDialog.JoinConferenceDialogListener {
+public class StartConversationActivity extends XmppActivity implements XmppConnectionService.OnConversationUpdate, OnRosterUpdate, OnUpdateBlocklist, OnGroupUpdate, CreateConferenceDialog.CreateConferenceDialogListener, JoinConferenceDialog.JoinConferenceDialogListener, SwipeRefreshLayout.OnRefreshListener {
 
 	public final static String DOMAIN_IP = "172.16.2.240";
 	public static final String EXTRA_INVITE_URI = "com.glaciersecurity.glaciermessenger.invite_uri";
@@ -718,20 +723,25 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 					if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS)) {
 						AlertDialog.Builder builder = new AlertDialog.Builder(this);
 						builder.setTitle(R.string.sync_with_contacts);
-						builder.setMessage(R.string.sync_with_contacts_long);
-						builder.setPositiveButton(R.string.next, (dialog, which) -> {
-							if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-								requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_SYNC_CONTACTS);
+						if (QuickConversationsService.isQuicksy()) {
+							builder.setMessage(Html.fromHtml(getString(R.string.sync_with_contacts_quicksy)));
+                        } else {
+                            builder.setMessage(R.string.sync_with_contacts_long);
+                        }
+						builder.setPositiveButton(R.string.next, (dialog, which) -> requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_SYNC_CONTACTS));
+						builder.setOnDismissListener(dialog -> requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_SYNC_CONTACTS));
+						builder.setCancelable(false);
+						AlertDialog dialog = builder.create();
+						dialog.setCanceledOnTouchOutside(false);
+						dialog.setOnShowListener(dialogInterface -> {
+							final TextView tv =  dialog.findViewById(android.R.id.message);
+							if (tv != null) {
+								tv.setMovementMethod(LinkMovementMethod.getInstance());
 							}
 						});
-						builder.setOnDismissListener(dialog -> {
-							if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-								requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_SYNC_CONTACTS);
-							}
-						});
-						builder.create().show();
+						dialog.show();
 					} else {
-						requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 0);
+						requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_SYNC_CONTACTS);
 					}
 				}
 			}
@@ -744,7 +754,11 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 				ScanActivity.onRequestPermissionResult(this, requestCode, grantResults);
 				if (requestCode == REQUEST_SYNC_CONTACTS && xmppConnectionServiceBound) {
+					if (QuickConversationsService.isQuicksy()) {
+						setRefreshing(true);
+					}
 					xmppConnectionService.loadPhoneContacts();
+					xmppConnectionService.startContactObserver();
 				}
 			}
 	}
@@ -762,6 +776,9 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 
 	@Override
 	protected void onBackendConnected() {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+			xmppConnectionService.getQuickConversationsService().considerSyncBackground(false);
+		}
 		if (mPostponedActivityResult != null) {
 			onActivityResult(mPostponedActivityResult.first, RESULT_OK, mPostponedActivityResult.second);
 			this.mPostponedActivityResult = null;
@@ -796,9 +813,12 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			}
 		}
 		Fragment fragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_DIALOG);
-		if (fragment != null && fragment instanceof OnBackendConnected) {
+		if (fragment instanceof OnBackendConnected) {
 			Log.d(Config.LOGTAG, "calling on backend connected on dialog");
 			((OnBackendConnected) fragment).onBackendConnected();
+		}
+		if (QuickConversationsService.isQuicksy()) {
+			setRefreshing(xmppConnectionService.getQuickConversationsService().isSynchronizing());
 		}
 	}
 
@@ -988,6 +1008,9 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			filter(mSearchEditText.getText().toString());
 		}
 		configureHomeButton();
+		if (QuickConversationsService.isQuicksy()) {
+			setRefreshing(xmppConnectionService.getQuickConversationsService().isSynchronizing());
+		}
 	}
 
 	@Override
@@ -1100,7 +1123,53 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		refreshUi();
 	}
 
-	public static class MyListFragment extends ListFragment {
+	@Override
+	public void onRefresh() {
+		Log.d(Config.LOGTAG,"user requested to refresh");
+		if (QuickConversationsService.isQuicksy() && xmppConnectionService != null) {
+			xmppConnectionService.getQuickConversationsService().considerSyncBackground(true);
+		}
+	}
+
+
+	private void setRefreshing(boolean refreshing) {
+		MyListFragment fragment = (MyListFragment) mListPagerAdapter.getItem(0);
+		if (fragment != null) {
+			fragment.setRefreshing(refreshing);
+		}
+	}
+
+	/*
+	@Override
+	public void onCreatePublicChannel(Account account, String name, Jid address) {
+		mToast = Toast.makeText(this, R.string.creating_channel, Toast.LENGTH_LONG);
+		mToast.show();
+		xmppConnectionService.createPublicChannel(account, name, address, new UiCallback<Conversation>() {
+			@Override
+			public void success(Conversation conversation) {
+				runOnUiThread(() -> {
+					hideToast();
+					switchToConversation(conversation);
+				});
+
+			}
+
+			@Override
+			public void error(int errorCode, Conversation conversation) {
+				runOnUiThread(() -> {
+					replaceToast(getString(errorCode));
+					switchToConversation(conversation);
+				});
+			}
+
+			@Override
+			public void userInputRequried(PendingIntent pi, Conversation object) {
+
+			}
+		});
+	}*/
+
+	public static class MyListFragment extends SwipeRefreshListFragment {
 		private AdapterView.OnItemClickListener mOnItemClickListener;
 		private int mResContextMenu;
 
@@ -1144,9 +1213,11 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				final Contact contact = (Contact) activity.contacts.get(acmi.position);
 				final MenuItem blockUnblockItem = menu.findItem(R.id.context_contact_block_unblock);
 				final MenuItem showContactDetailsItem = menu.findItem(R.id.context_contact_details);
+				final MenuItem deleteContactMenuItem = menu.findItem(R.id.context_delete_contact);
 				if (contact.isSelf()) {
 					showContactDetailsItem.setVisible(false);
 				}
+				//deleteContactMenuItem.setVisible(contact.showInRoster() && !contact.getOption(Contact.Options.SYNCED_VIA_OTHER));
 				XmppConnection xmpp = contact.getAccount().getXmppConnection();
 				if (xmpp != null && xmpp.getFeatures().blocking() && !contact.isSelf()) {
 					if (contact.isBlocked()) {

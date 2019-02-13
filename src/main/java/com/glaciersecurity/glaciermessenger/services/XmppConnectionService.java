@@ -119,7 +119,6 @@ import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.utils.ExceptionHelper;
 import com.glaciersecurity.glaciermessenger.utils.MimeUtils;
-import com.glaciersecurity.glaciermessenger.utils.OnPhoneContactsLoadedListener;
 import com.glaciersecurity.glaciermessenger.utils.PhoneHelper;
 import com.glaciersecurity.glaciermessenger.utils.QuickLoader;
 import com.glaciersecurity.glaciermessenger.utils.ReplacingSerialSingleThreadExecutor;
@@ -2751,6 +2750,31 @@ public class XmppConnectionService extends Service {
 			}
 		}
 		return null;
+	}
+
+	public void createPublicChannel(final Account account, final String name, final Jid address, final UiCallback<Conversation> callback) {
+		joinMuc(findOrCreateConversation(account, address, true, false, true), conversation -> {
+			final Bundle configuration = IqGenerator.defaultPublicRoomConfiguration();
+			if (!TextUtils.isEmpty(name)) {
+				configuration.putString("muc#roomconfig_roomname", name);
+			}
+			pushConferenceConfiguration(conversation, configuration, new OnConfigurationPushed() {
+				@Override
+				public void onPushSucceeded() {
+					saveConversationAsBookmark(conversation, name);
+					callback.success(conversation);
+				}
+
+				@Override
+				public void onPushFailed() {
+					if (conversation.getMucOptions().getSelf().getAffiliation().ranks(MucOptions.Affiliation.OWNER)) {
+						callback.error(R.string.unable_to_set_channel_configuration, conversation);
+					} else {
+						callback.error(R.string.joined_an_existing_channel, conversation);
+					}
+				}
+			});
+		});
 	}
 
 	public boolean createAdhocConference(final Account account,
