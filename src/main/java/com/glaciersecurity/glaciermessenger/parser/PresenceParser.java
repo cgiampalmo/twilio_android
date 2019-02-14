@@ -248,7 +248,7 @@ public class PresenceParser extends AbstractParser implements
 		return codes;
 	}
 
-	public void parseContactPresence(final PresencePacket packet, final Account account) {
+	private void parseContactPresence(final PresencePacket packet, final Account account) {
 		final PresenceGenerator mPresenceGenerator = mXmppConnectionService.getPresenceGenerator();
 		final Jid from = packet.getFrom();
 		if (from == null || from.equals(account.getJid())) {
@@ -327,7 +327,9 @@ public class PresenceParser extends AbstractParser implements
 			if (pgp != null && x != null) {
 				Element status = packet.findChild("status");
 				String msg = status != null ? status.getContent() : "";
-				contact.setPgpKeyId(pgp.fetchKeyId(account, msg, x.getContent()));
+				if (contact.setPgpKeyId(pgp.fetchKeyId(account, msg, x.getContent()))) {
+					mXmppConnectionService.syncRoster(account);
+				}
 			}
 			boolean online = sizeBefore < contact.getPresences().size();
 			mXmppConnectionService.onContactStatusChanged.onContactStatusChanged(contact, online);

@@ -39,6 +39,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -68,6 +69,8 @@ import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 public class NotificationService {
 
 	public static final Object CATCHUP_LOCK = new Object();
+
+	private static final int LED_COLOR = 0xff00ff00;
 
 	private static final String CONVERSATIONS_GROUP = "com.glaciersecurity.glaciermessenger";
 	private final XmppConnectionService mXmppConnectionService;
@@ -99,10 +102,6 @@ public class NotificationService {
 				&& (!conversation.isWithStranger() || notificationsFromStrangers())
 				;
 	}
-
-	/*public boolean notificationsEnabled() { //ALF AM-187 removed and removed from notify conditions
-		return mXmppConnectionService.getBooleanPreference("show_notification", R.bool.show_notification);
-	}*/
 
 	private boolean notificationsFromStrangers() {
 		return mXmppConnectionService.getBooleanPreference("notifications_from_strangers", R.bool.notifications_from_strangers);
@@ -155,20 +154,34 @@ public class NotificationService {
 			if (account == null || !notify) {
 				updateNotification(notify);
 			} else {
-				updateNotification(getBacklogMessageCount(account) > 0);
+				final int count;
+				final List<String> conversations;
+				synchronized (this.mBacklogMessageCounter) {
+					conversations = getBacklogConversations(account);
+					count = getBacklogMessageCount(account);
+				}
+				updateNotification(count > 0, conversations);
 			}
 		}
 	}
 
+	private List<String> getBacklogConversations(Account account) {
+		final List<String> conversations = new ArrayList<>();
+		for (Map.Entry<Conversation, AtomicInteger> entry : mBacklogMessageCounter.entrySet()) {
+			if (entry.getKey().getAccount() == account) {
+				conversations.add(entry.getKey().getUuid());
+			}
+		}
+		return conversations;
+	}
+
 	private int getBacklogMessageCount(Account account) {
 		int count = 0;
-		synchronized (this.mBacklogMessageCounter) {
-			for (Iterator<Map.Entry<Conversation, AtomicInteger>> it = mBacklogMessageCounter.entrySet().iterator(); it.hasNext(); ) {
-				Map.Entry<Conversation, AtomicInteger> entry = it.next();
-				if (entry.getKey().getAccount() == account) {
-					count += entry.getValue().get();
-					it.remove();
-				}
+		for (Iterator<Map.Entry<Conversation, AtomicInteger>> it = mBacklogMessageCounter.entrySet().iterator(); it.hasNext(); ) {
+			Map.Entry<Conversation, AtomicInteger> entry = it.next();
+			if (entry.getKey().getAccount() == account) {
+				count += entry.getValue().get();
+				it.remove();
 			}
 		}
 		Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": backlog message count=" + count);
@@ -215,11 +228,12 @@ public class NotificationService {
 		}
 		synchronized (notifications) {
 			pushToStack(message);
-			final Account account = message.getConversation().getAccount();
+			final Conversational conversation = message.getConversation();
+			final Account account = conversation.getAccount();
 			final boolean doNotify = (!(this.mIsInForeground && this.mOpenConversation == null) || !isScreenOn)
 					&& !account.inGracePeriod()
 					&& !this.inMiniGracePeriod(account);
-			updateNotification(doNotify);
+			updateNotification(doNotify, Collections.singletonList(conversation.getUuid()));
 		}
 	}
 
@@ -241,7 +255,7 @@ public class NotificationService {
 			markAsReadIfHasDirectReply(conversation);
 			if (notifications.remove(conversation.getUuid()) != null) {
 				cancel(conversation.getUuid(), NOTIFICATION_ID);
-				updateNotification(false, true);
+				updateNotification(false, null, true);
 			}
 		}
 	}
@@ -265,14 +279,27 @@ public class NotificationService {
 		mBuilder.setColor(ContextCompat.getColor(mXmppConnectionService, R.color.light_blue_500)); //ALF AM-184 from green_600
 	}
 
-	public void updateNotification(final boolean notify) {
-		updateNotification(notify, false);
+	public void updateNotification() {
+		synchronized (notifications) {
+			updateNotification(false);
+		}
 	}
 
-	public void updateNotification(final boolean notify, boolean summaryOnly) {
+	private void updateNotification(final boolean notify) {
+		updateNotification(notify, null, false);
+	}
+
+	private void updateNotification(final boolean notify, final List<String> conversations) {
+		updateNotification(notify, conversations, false);
+	}
+
+	private void updateNotification(final boolean notify, final List<String> conversations, final boolean summaryOnly) {
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mXmppConnectionService);
 
-		final boolean quietHours = isQuietHours();
+		final boolean quiteHours = isQuietHours();
+
+		final boolean notifyOnlyOneChild = notify && conversations != null && conversations.size() == 1; //if this check is changed to > 0 catchup messages will create one notification per conversation
+
 
 		if (notifications.size() == 0) {
 			cancel(NOTIFICATION_ID);
@@ -282,15 +309,24 @@ public class NotificationService {
 			}
 			final Builder mBuilder;
 			if (notifications.size() == 1 && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-				mBuilder = buildSingleConversations(notifications.values().iterator().next(), notify, quietHours);
-				modifyForSoundVibrationAndLight(mBuilder, notify, preferences);
+				mBuilder = buildSingleConversations(notifications.values().iterator().next(), notify, quiteHours);
+				modifyForSoundVibrationAndLight(mBuilder, notify, quiteHours, preferences);
 				notify(NOTIFICATION_ID, mBuilder.build());
 			} else {
-				mBuilder = buildMultipleConversation(notify, quietHours);
-				modifyForSoundVibrationAndLight(mBuilder, notify, preferences);
+				mBuilder = buildMultipleConversation(notify, quiteHours);
+				if (notifyOnlyOneChild) {
+					mBuilder.setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN);
+				}
+				modifyForSoundVibrationAndLight(mBuilder, notify, quiteHours, preferences);
 				if (!summaryOnly) {
 					for (Map.Entry<String, ArrayList<Message>> entry : notifications.entrySet()) {
-						Builder singleBuilder = buildSingleConversations(entry.getValue(), notify, quietHours);
+						String uuid = entry.getKey();
+						final boolean notifyThis = notifyOnlyOneChild ? conversations.contains(uuid) : notify;
+						Builder singleBuilder = buildSingleConversations(entry.getValue(), notifyThis, quiteHours);
+						if (!notifyOnlyOneChild) {
+							singleBuilder.setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY);
+						}
+						modifyForSoundVibrationAndLight(singleBuilder, notifyThis, quiteHours, preferences);
 						singleBuilder.setGroup(CONVERSATIONS_GROUP);
 						setNotificationColor(singleBuilder);
 						notify(entry.getKey(), NOTIFICATION_ID, singleBuilder.build());
@@ -302,13 +338,13 @@ public class NotificationService {
 	}
 
 
-	private void modifyForSoundVibrationAndLight(Builder mBuilder, boolean notify, SharedPreferences preferences) {
+	private void modifyForSoundVibrationAndLight(Builder mBuilder, boolean notify, boolean quietHours, SharedPreferences preferences) {
 		final Resources resources = mXmppConnectionService.getResources();
 		final String ringtone = preferences.getString("notification_ringtone", resources.getString(R.string.notification_ringtone));
 		final boolean vibrate = preferences.getBoolean("vibrate_on_notification", resources.getBoolean(R.bool.vibrate_on_notification));
 		final boolean led = preferences.getBoolean("led", resources.getBoolean(R.bool.led));
 		final boolean headsup = preferences.getBoolean("notification_headsup", resources.getBoolean(R.bool.headsup_notifications));
-		if (notify && !isQuietHours()) {
+		if (notify && !quietHours) {
 			if (vibrate) {
 				final int dat = 70;
 				final long[] pattern = {0, 3 * dat, dat, dat};
@@ -330,7 +366,7 @@ public class NotificationService {
 		setNotificationColor(mBuilder);
 		mBuilder.setDefaults(0);
 		if (led) {
-			mBuilder.setLights(0xff00FF00, 2000, 3000);
+			mBuilder.setLights(LED_COLOR, 2000, 3000);
 		}
 	}
 
@@ -894,18 +930,20 @@ public class NotificationService {
 		notify(ERROR_NOTIFICATION_ID, mBuilder.build());
 	}
 
-	public Notification updateFileAddingNotification(int current, Message message) {
+	void updateFileAddingNotification(int current, Message message) {
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService);
 		mBuilder.setContentTitle(mXmppConnectionService.getString(R.string.transcoding_video));
 		mBuilder.setProgress(100, current, false);
 		mBuilder.setSmallIcon(R.drawable.ic_hourglass_empty_white_24dp);
 		mBuilder.setContentIntent(createContentIntent(message.getConversation()));
+		mBuilder.setOngoing(true);
+		if (Compatibility.runsTwentySix()) {
+			mBuilder.setChannelId("compression");
+		}
 		Notification notification = mBuilder.build();
 		notify(FOREGROUND_NOTIFICATION_ID, notification);
-		return notification;
 	}
 
-	//ALF AM-184 from Conversations
 	void dismissForcedForegroundNotification() {
 		cancel(FOREGROUND_NOTIFICATION_ID);
 	}

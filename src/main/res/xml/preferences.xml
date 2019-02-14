@@ -107,11 +107,6 @@
                     android:value="messages" />
             </intent>
         </PreferenceScreen>
-        <!-- <CheckBoxPreference
-            android:defaultValue="@bool/show_notification"
-            android:key="show_notification"
-            android:summary="@string/pref_notifications_summary"
-            android:title="@string/pref_notifications"/> -->
         <!--HONEYBADGER AM-120 Disable and Hide Notifications from strangers-->
         <!--<CheckBoxPreference-->
         <!--android:defaultValue="@bool/notifications_from_strangers"-->
