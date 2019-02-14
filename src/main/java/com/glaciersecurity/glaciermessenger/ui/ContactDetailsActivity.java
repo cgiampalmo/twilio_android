@@ -248,7 +248,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 break;
             case R.id.action_delete_contact:
                 builder.setTitle(getString(R.string.action_delete_contact))
-                        .setMessage(getString(R.string.remove_contact_text, contact.getJid().getLocal()))
+                        .setMessage(JidDialog.style(this, R.string.remove_contact_text, contact.getJid().getLocal()))
                         .setPositiveButton(getString(R.string.delete),
                                 removeFromRoster).create().show();  //ALF AM-179 changed .getJid().toString to getLocal
                 break;

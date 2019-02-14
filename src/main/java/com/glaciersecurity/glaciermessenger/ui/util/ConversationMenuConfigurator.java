@@ -87,7 +87,11 @@ public class ConversationMenuConfigurator {
 //		if (OmemoSetting.isAlways()) {
 //			visible = false;
 //		} else if (conversation.getMode() == Conversation.MODE_MULTI) {
-//			visible = (Config.supportOpenPgp() || Config.supportOmemo()) && Config.multipleEncryptionChoices();
+//			if (next == Message.ENCRYPTION_NONE && !conversation.isPrivateAndNonAnonymous() && !conversation.getBooleanAttribute(Conversation.ATTRIBUTE_FORMERLY_PRIVATE_NON_ANONYMOUS, false)) {
+//				visible = false;
+//			} else {
+//				visible = (Config.supportOpenPgp() || Config.supportOmemo()) && Config.multipleEncryptionChoices();
+//			}
 //		} else {
 //			visible = Config.multipleEncryptionChoices();
 //		}

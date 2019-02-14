@@ -7,7 +7,7 @@ public class FingerprintStatus implements Comparable<FingerprintStatus> {
 
     private static final long DO_NOT_OVERWRITE = -1;
 
-    private Trust trust = Trust.TRUSTED;
+    private Trust trust = Trust.UNTRUSTED;
     private boolean active = false;
     private long lastActivation = DO_NOT_OVERWRITE;
 
@@ -76,6 +76,10 @@ public class FingerprintStatus implements Comparable<FingerprintStatus> {
         status.trust = x509 ? Trust.VERIFIED_X509 : Trust.VERIFIED;
         status.active = true;
         return status;
+    }
+
+    public static FingerprintStatus createActive(Boolean trusted) {
+        return createActive(trusted != null && trusted);
     }
 
     public static FingerprintStatus createActive(boolean trusted) {

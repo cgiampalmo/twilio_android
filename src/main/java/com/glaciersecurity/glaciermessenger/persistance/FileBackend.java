@@ -1113,6 +1113,7 @@ public class FileBackend {
                 return cropCenterSquare(input, size);
             }
         } catch (FileNotFoundException | SecurityException e) {
+            Log.d(Config.LOGTAG,"unable to open file "+image.toString(), e);
             return null;
         } finally {
             close(is);

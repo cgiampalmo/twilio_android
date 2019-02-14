@@ -687,7 +687,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getReadableDatabase();
 		String where = Resolver.Result.DOMAIN + "=?";
 		String[] whereArgs = {domain};
-		Cursor cursor = db.query(RESOLVER_RESULTS_TABLENAME, null, where, whereArgs, null, null, null);
+		final Cursor cursor = db.query(RESOLVER_RESULTS_TABLENAME, null, where, whereArgs, null, null, null);
 		Resolver.Result result = null;
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -1301,10 +1301,10 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 		db.insert(SQLiteAxolotlStore.PREKEY_TABLENAME, null, values);
 	}
 
-	public void deletePreKey(Account account, int preKeyId) {
+	public int deletePreKey(Account account, int preKeyId) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		String[] args = {account.getUuid(), Integer.toString(preKeyId)};
-		db.delete(SQLiteAxolotlStore.PREKEY_TABLENAME,
+		return db.delete(SQLiteAxolotlStore.PREKEY_TABLENAME,
 				SQLiteAxolotlStore.ACCOUNT + "=? AND "
 						+ SQLiteAxolotlStore.ID + "=?",
 				args);

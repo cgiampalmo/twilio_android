@@ -196,6 +196,8 @@ public class PresenceParser extends AbstractParser implements
 					mXmppConnectionService.updateConversationUi();
 				} else if (error.hasChild("resource-constraint")) {
 					mucOptions.setError(MucOptions.Error.RESOURCE_CONSTRAINT);
+				} else if (error.hasChild("remote-server-timeout")) {
+					mucOptions.setError(MucOptions.Error.REMOTE_SERVER_TIMEOUT);
 				} else if (error.hasChild("gone")) {
 					final String gone = error.findChildContent("gone");
 					final Jid alternate;

@@ -66,6 +66,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 	public static final String ATTRIBUTE_MEMBERS_ONLY = "members_only";
 	public static final String ATTRIBUTE_MODERATED = "moderated";
 	public static final String ATTRIBUTE_NON_ANONYMOUS = "non_anonymous";
+	public static final String ATTRIBUTE_FORMERLY_PRIVATE_NON_ANONYMOUS = "formerly_private_non_anonymous";
 	protected final ArrayList<Message> messages = new ArrayList<>();
 	public AtomicBoolean messagesLoaded = new AtomicBoolean(true);
 	protected Account account = null;
@@ -756,8 +757,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 		if (Config.OMEMO_EXCEPTIONS.CONTACT_DOMAINS.contains(contact) || Config.OMEMO_EXCEPTIONS.ACCOUNT_DOMAINS.contains(account)) {
 			return false;
 		}
-		final AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
-		return axolotlService != null && axolotlService.isConversationAxolotlCapable(conversation);
+		return conversation.isSingleOrPrivateAndNonAnonymous() || conversation.getBooleanAttribute(ATTRIBUTE_FORMERLY_PRIVATE_NON_ANONYMOUS, false);
 	}
 
 	public void setNextEncryption(int encryption) {
