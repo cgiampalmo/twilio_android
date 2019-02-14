@@ -204,9 +204,9 @@
             <!--android:summary="@string/pref_broadcast_last_activity_summary"-->
             <!--android:title="@string/pref_broadcast_last_activity"/>-->
     <!--</PreferenceCategory>-->
-    <PreferenceCategory
+    <!-- <PreferenceCategory
         android:key="attachments"
-        android:title="@string/pref_attachments">
+        android:title="@string/pref_attachments"> -->
         <!-- HONEYBADGER AM-120 Set Accept Files to 10MiB-->
         <!--<ListPreference-->
             <!--android:defaultValue="@integer/auto_accept_filesize"-->
@@ -223,18 +223,20 @@
             <!--android:key="picture_compression"-->
             <!--android:summary="@string/pref_picture_compression_summary"-->
             <!--android:title="@string/pref_picture_compression"/>-->
-        <CheckBoxPreference
-            android:defaultValue="@bool/return_to_previous"
-            android:key="return_to_previous"
-            android:summary="@string/pref_return_to_previous_summary"
-            android:title="@string/pref_return_to_previous"/>
+        <!-- <ListPreference
+            android:defaultValue="@string/video_compression"
+            android:entries="@array/video_compression_entries"
+            android:entryValues="@array/video_compression_values"
+            android:key="video_compression"
+            android:summary="@string/pref_video_compression_summary"
+            android:title="@string/pref_video_compression" /> -->
         <!-- HONEYBADGER AM-120 Disable and hide "Share Location Plugin-->
         <!--<CheckBoxPreference-->
             <!--android:defaultValue="@bool/use_share_location_plugin"-->
             <!--android:key="use_share_location_plugin"-->
             <!--android:summary="@string/pref_use_share_location_plugin_summary"-->
             <!--android:title="@string/pref_use_share_location_plugin"/>-->
-    </PreferenceCategory>
+    <!-- </PreferenceCategory> -->
     <PreferenceCategory android:title="@string/pref_ui_options">
         <ListPreference
             android:defaultValue="@string/theme"

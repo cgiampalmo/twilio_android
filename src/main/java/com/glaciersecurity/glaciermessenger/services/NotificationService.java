@@ -993,6 +993,8 @@ public class NotificationService {
 			return;
 		}
 
+		notificationManager.deleteNotificationChannel("export");
+
 		final Resources resources = mXmppConnectionService.getResources();
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mXmppConnectionService);
 		final String ringtone = preferences.getString("notification_ringtone", resources.getString(R.string.notification_ringtone));
@@ -1027,8 +1029,8 @@ public class NotificationService {
 		videoCompressionChannel.setGroup("status");
 		notificationManager.createNotificationChannel(videoCompressionChannel);
 
-		final NotificationChannel exportChannel = new NotificationChannel("export",
-				c.getString(R.string.export_channel_name),
+		final NotificationChannel exportChannel = new NotificationChannel("backup",
+				c.getString(R.string.backup_channel_name),
 				NotificationManager.IMPORTANCE_LOW);
 		exportChannel.setShowBadge(false);
 		exportChannel.setGroup("status");

@@ -22,31 +22,19 @@ import com.glaciersecurity.glaciermessenger.xml.TagWriter;
 abstract class ScramMechanism extends SaslMechanism {
 	// TODO: When channel binding (SCRAM-SHA1-PLUS) is supported in future, generalize this to indicate support and/or usage.
 	private final static String GS2_HEADER = "n,,";
-	private String clientFirstMessageBare;
-	private final String clientNonce;
-	private byte[] serverSignature = null;
-	static HMac HMAC;
-	static Digest DIGEST;
 	private static final byte[] CLIENT_KEY_BYTES = "Client Key".getBytes();
 	private static final byte[] SERVER_KEY_BYTES = "Server Key".getBytes();
-
-	private static class KeyPair {
-		final byte[] clientKey;
-		final byte[] serverKey;
-
-		KeyPair(final byte[] clientKey, final byte[] serverKey) {
-			this.clientKey = clientKey;
-			this.serverKey = serverKey;
-		}
-	}
+	private static final LruCache<String, KeyPair> CACHE;
+	static HMac HMAC;
+	static Digest DIGEST;
 
 	static {
 		CACHE = new LruCache<String, KeyPair>(10) {
 			protected KeyPair create(final String k) {
-				// Map keys are "bytesToHex(JID),bytesToHex(password),bytesToHex(salt),iterations".
+				// Map keys are "bytesToHex(JID),bytesToHex(password),bytesToHex(salt),iterations,SASL-Mechanism".
 				// Changing any of these values forces a cache miss. `CryptoHelper.bytesToHex()'
 				// is applied to prevent commas in the strings breaking things.
-				final String[] kparts = k.split(",", 4);
+				final String[] kparts = k.split(",", 5);
 				try {
 					final byte[] saltedPassword, serverKey, clientKey;
 					saltedPassword = hi(CryptoHelper.hexToString(kparts[1]).getBytes(),
@@ -62,23 +50,59 @@ abstract class ScramMechanism extends SaslMechanism {
 		};
 	}
 
-	private static final LruCache<String, KeyPair> CACHE;
-
+	private final String clientNonce;
 	protected State state = State.INITIAL;
+	private String clientFirstMessageBare;
+	private byte[] serverSignature = null;
 
 	ScramMechanism(final TagWriter tagWriter, final Account account, final SecureRandom rng) {
 		super(tagWriter, account, rng);
 
 		// This nonce should be different for each authentication attempt.
-		clientNonce = CryptoHelper.random(100,rng);
+		clientNonce = CryptoHelper.random(100, rng);
 		clientFirstMessageBare = "";
+	}
+
+	private static synchronized byte[] hmac(final byte[] key, final byte[] input)
+			throws InvalidKeyException {
+		HMAC.init(new KeyParameter(key));
+		HMAC.update(input, 0, input.length);
+		final byte[] out = new byte[HMAC.getMacSize()];
+		HMAC.doFinal(out, 0);
+		return out;
+	}
+
+	public static synchronized byte[] digest(byte[] bytes) {
+		DIGEST.reset();
+		DIGEST.update(bytes, 0, bytes.length);
+		final byte[] out = new byte[DIGEST.getDigestSize()];
+		DIGEST.doFinal(out, 0);
+		return out;
+	}
+
+	/*
+	 * Hi() is, essentially, PBKDF2 [RFC2898] with HMAC() as the
+	 * pseudorandom function (PRF) and with dkLen == output length of
+	 * HMAC() == output length of H().
+	 */
+	private static synchronized byte[] hi(final byte[] key, final byte[] salt, final int iterations)
+			throws InvalidKeyException {
+		byte[] u = hmac(key, CryptoHelper.concatenateByteArrays(salt, CryptoHelper.ONE));
+		byte[] out = u.clone();
+		for (int i = 1; i < iterations; i++) {
+			u = hmac(key, u);
+			for (int j = 0; j < u.length; j++) {
+				out[j] ^= u[j];
+			}
+		}
+		return out;
 	}
 
 	@Override
 	public String getClientFirstMessage() {
 		if (clientFirstMessageBare.isEmpty() && state == State.INITIAL) {
 			clientFirstMessageBare = "n=" + CryptoHelper.saslEscape(CryptoHelper.saslPrep(account.getUsername())) +
-				",r=" + this.clientNonce;
+					",r=" + this.clientNonce;
 			state = State.AUTH_TEXT_SENT;
 		}
 		return Base64.encodeToString(
@@ -97,7 +121,7 @@ abstract class ScramMechanism extends SaslMechanism {
 				try {
 					serverFirstMessage = Base64.decode(challenge, Base64.DEFAULT);
 				} catch (IllegalArgumentException e) {
-					throw new AuthenticationException("Unable to decode server challenge",e);
+					throw new AuthenticationException("Unable to decode server challenge", e);
 				}
 				final Tokenizer tokenizer = new Tokenizer(serverFirstMessage);
 				String nonce = "";
@@ -147,13 +171,14 @@ abstract class ScramMechanism extends SaslMechanism {
 				final byte[] authMessage = (clientFirstMessageBare + ',' + new String(serverFirstMessage) + ','
 						+ clientFinalMessageWithoutProof).getBytes();
 
-				// Map keys are "bytesToHex(JID),bytesToHex(password),bytesToHex(salt),iterations".
+				// Map keys are "bytesToHex(JID),bytesToHex(password),bytesToHex(salt),iterations,SASL-Mechanism".
 				final KeyPair keys = CACHE.get(
 						CryptoHelper.bytesToHex(account.getJid().asBareJid().toString().getBytes()) + ","
-						+ CryptoHelper.bytesToHex(account.getPassword().getBytes()) + ","
-						+ CryptoHelper.bytesToHex(salt.getBytes()) + ","
-						+ String.valueOf(iterationCount)
-						);
+								+ CryptoHelper.bytesToHex(account.getPassword().getBytes()) + ","
+								+ CryptoHelper.bytesToHex(salt.getBytes()) + ","
+								+ String.valueOf(iterationCount) + ","
+								+ getMechanism()
+				);
 				if (keys == null) {
 					throw new AuthenticationException("Invalid keys generated");
 				}
@@ -176,19 +201,19 @@ abstract class ScramMechanism extends SaslMechanism {
 
 
 				final String clientFinalMessage = clientFinalMessageWithoutProof + ",p=" +
-					Base64.encodeToString(clientProof, Base64.NO_WRAP);
+						Base64.encodeToString(clientProof, Base64.NO_WRAP);
 				state = State.RESPONSE_SENT;
 				return Base64.encodeToString(clientFinalMessage.getBytes(), Base64.NO_WRAP);
 			case RESPONSE_SENT:
 				try {
 					final String clientCalculatedServerFinalMessage = "v=" +
-						Base64.encodeToString(serverSignature, Base64.NO_WRAP);
+							Base64.encodeToString(serverSignature, Base64.NO_WRAP);
 					if (!clientCalculatedServerFinalMessage.equals(new String(Base64.decode(challenge, Base64.DEFAULT)))) {
 						throw new Exception();
 					}
 					state = State.VALID_SERVER_RESPONSE;
 					return "";
-				} catch(Exception e) {
+				} catch (Exception e) {
 					throw new AuthenticationException("Server final message does not match calculated final message");
 				}
 			default:
@@ -196,38 +221,13 @@ abstract class ScramMechanism extends SaslMechanism {
 		}
 	}
 
-	private static synchronized byte[] hmac(final byte[] key, final byte[] input)
-		throws InvalidKeyException {
-		HMAC.init(new KeyParameter(key));
-		HMAC.update(input, 0, input.length);
-		final byte[] out = new byte[HMAC.getMacSize()];
-		HMAC.doFinal(out, 0);
-		return out;
-	}
+	private static class KeyPair {
+		final byte[] clientKey;
+		final byte[] serverKey;
 
-	public static synchronized byte[] digest(byte[] bytes) {
-		DIGEST.reset();
-		DIGEST.update(bytes, 0, bytes.length);
-		final byte[] out = new byte[DIGEST.getDigestSize()];
-		DIGEST.doFinal(out, 0);
-		return out;
-	}
-
-	/*
-	 * Hi() is, essentially, PBKDF2 [RFC2898] with HMAC() as the
-	 * pseudorandom function (PRF) and with dkLen == output length of
-	 * HMAC() == output length of H().
-	 */
-	private static synchronized byte[] hi(final byte[] key, final byte[] salt, final int iterations)
-		throws InvalidKeyException {
-		byte[] u = hmac(key, CryptoHelper.concatenateByteArrays(salt, CryptoHelper.ONE));
-		byte[] out = u.clone();
-		for (int i = 1; i < iterations; i++) {
-			u = hmac(key, u);
-			for (int j = 0; j < u.length; j++) {
-				out[j] ^= u[j];
-			}
+		KeyPair(final byte[] clientKey, final byte[] serverKey) {
+			this.clientKey = clientKey;
+			this.serverKey = serverKey;
 		}
-		return out;
 	}
 }

@@ -137,6 +137,7 @@ public class XmppAxolotlSession implements Comparable<XmppAxolotlSession> {
 			}
 			if (!status.isActive()) {
 				setTrust(status.toActive());
+				//TODO: also (re)add to device list?
 			}
 		} else {
 			throw new CryptoFailedException("not encrypting omemo message from fingerprint "+getFingerprint()+" because it was marked as compromised");

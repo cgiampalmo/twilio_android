@@ -65,6 +65,7 @@ import com.glaciersecurity.glaciermessenger.ui.util.Drawable;
 import com.glaciersecurity.glaciermessenger.ui.util.ListViewUtils;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.ShareUtil;
+import com.glaciersecurity.glaciermessenger.ui.util.StyledAttributes;
 import com.glaciersecurity.glaciermessenger.utils.FtsUtils;
 import com.glaciersecurity.glaciermessenger.utils.MessageUtils;
 
@@ -217,12 +218,12 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 	private void changeBackground(boolean hasSearch, boolean hasResults) {
 		if (hasSearch) {
 			if (hasResults) {
-				binding.searchResults.setBackgroundColor(Color.get(this, R.attr.color_background_secondary));
+				binding.searchResults.setBackgroundColor(StyledAttributes.getColor(this, R.attr.color_background_secondary));
 			} else {
-				binding.searchResults.setBackground(Drawable.get(this, R.attr.activity_background_no_results));
+				binding.searchResults.setBackground(StyledAttributes.getDrawable(this, R.attr.activity_background_no_results));
 			}
 		} else {
-			binding.searchResults.setBackground(Drawable.get(this, R.attr.activity_background_search));
+			binding.searchResults.setBackground(StyledAttributes.getDrawable(this, R.attr.activity_background_search));
 		}
 	}
 

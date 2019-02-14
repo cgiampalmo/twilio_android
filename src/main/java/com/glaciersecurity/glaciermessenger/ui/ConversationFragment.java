@@ -765,10 +765,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	}
 
 	protected boolean trustKeysIfNeeded(int requestCode) {
-		return trustKeysIfNeeded(requestCode, ATTACHMENT_CHOICE_INVALID);
-	}
-
-	protected boolean trustKeysIfNeeded(int requestCode, int attachmentChoice) {
 		AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
 		final List<Jid> targets = axolotlService.getCryptoTargets(conversation);
 		boolean hasUnaccepted = !conversation.getAcceptedCryptoTargets().containsAll(targets);
@@ -786,7 +782,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			}
 			intent.putExtra("contacts", contacts);
 			intent.putExtra(EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toString());
-			intent.putExtra("choice", attachmentChoice);
 			intent.putExtra("conversation", conversation.getUuid());
 
 			//ALF AM-60 ...if
@@ -800,6 +795,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			} else {
 				startActivityForResult(intent, requestCode);
 			}
+
 			return true;
 		} else {
 			return false;

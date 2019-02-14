@@ -7,43 +7,50 @@ import android.widget.Filter;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
 import java.util.Locale;
+import java.util.regex.Pattern;
+
+import com.glaciersecurity.glaciermessenger.Config;
 
 public class KnownHostsAdapter extends ArrayAdapter<String> {
+
+	private static Pattern E164_PATTERN = Pattern.compile("^\\+?[1-9]\\d{1,14}$");
+
 	private ArrayList<String> domains;
 	private Filter domainFilter = new Filter() {
 
 		@Override
 		protected FilterResults performFiltering(CharSequence constraint) {
-			if (constraint != null) {
-				ArrayList<String> suggestions = new ArrayList<>();
-				final String[] split = constraint.toString().split("@");
-				if (split.length == 1) {
-					for (String domain : domains) {
-						suggestions.add(split[0].toLowerCase(Locale
-								.getDefault()) + "@" + domain);
-					}
-				} else if (split.length == 2) {
-					for (String domain : domains) {
-						if (domain.contentEquals(split[1])) {
-							suggestions.clear();
-							break;
-						} else if (domain.contains(split[1])) {
-							suggestions.add(split[0].toLowerCase(Locale
-									.getDefault()) + "@" + domain);
-						}
-					}
+			final ArrayList<String> suggestions = new ArrayList<>();
+			final String[] split = constraint == null ? new String[0] : constraint.toString().split("@");
+			if (split.length == 1) {
+				final String local = split[0].toLowerCase(Locale.ENGLISH);
+				if (Config.QUICKSY_DOMAIN != null && E164_PATTERN.matcher(local).matches()) {
+					suggestions.add(local + '@' + Config.QUICKSY_DOMAIN);
 				} else {
+					for (String domain : domains) {
+						suggestions.add(local + '@' + domain);
+					}
+				}
+			} else if (split.length == 2) {
+				final String localPart = split[0].toLowerCase(Locale.ENGLISH);
+				final String domainPart = split[1].toLowerCase(Locale.ENGLISH);
+				if (domains.contains(domainPart)) {
 					return new FilterResults();
 				}
-				FilterResults filterResults = new FilterResults();
-				filterResults.values = suggestions;
-				filterResults.count = suggestions.size();
-				return filterResults;
+				for (String domain : domains) {
+					if (domain.contains(domainPart)) {
+						suggestions.add(localPart + "@" + domain);
+					}
+				}
 			} else {
 				return new FilterResults();
 			}
+			FilterResults filterResults = new FilterResults();
+			filterResults.values = suggestions;
+			filterResults.count = suggestions.size();
+			return filterResults;
 		}
 
 		@Override
@@ -51,9 +58,7 @@ public class KnownHostsAdapter extends ArrayAdapter<String> {
 			ArrayList filteredList = (ArrayList) results.values;
 			if (results.count > 0) {
 				clear();
-				for (Object c : filteredList) {
-					add((String) c);
-				}
+				addAll(filteredList);
 				notifyDataSetChanged();
 			}
 		}
@@ -62,6 +67,7 @@ public class KnownHostsAdapter extends ArrayAdapter<String> {
 	public KnownHostsAdapter(Context context, int viewResourceId, Collection<String> mKnownHosts) {
 		super(context, viewResourceId, new ArrayList<>());
 		domains = new ArrayList<>(mKnownHosts);
+		Collections.sort(domains);
 	}
 
 	public KnownHostsAdapter(Context context, int viewResourceId) {
@@ -71,6 +77,7 @@ public class KnownHostsAdapter extends ArrayAdapter<String> {
 
 	public void refresh(Collection<String> knownHosts) {
 		domains = new ArrayList<>(knownHosts);
+		Collections.sort(domains);
 		notifyDataSetChanged();
 	}
 

@@ -115,8 +115,6 @@
     <string name="pref_accept_files">Accept files</string>
     <string name="pref_accept_files_summary">Automatically accept files smaller than 10MiB</string>
     <string name="pref_attachments">Attachments</string>
-    <string name="pref_return_to_previous">Quick Sharing</string>
-    <string name="pref_return_to_previous_summary">Immediately return to previous activity instead of opening the chat session after sharing something</string>
     <string name="pref_notification_settings">Notifications</string>
     <string name="pref_notifications">Notifications</string>
     <string name="pref_notifications_summary">Notify when a new message arrives</string>
