@@ -826,7 +826,7 @@ public class FileBackend {
                         thumbnail = withGifOverlay;
                     }
                 }
-                this.mXmppConnectionService.getBitmapCache().put(uuid, thumbnail);
+                cache.put(uuid, thumbnail);
             }
         }
         return thumbnail;

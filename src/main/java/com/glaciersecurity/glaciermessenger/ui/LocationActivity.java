@@ -36,6 +36,7 @@ import com.glaciersecurity.glaciermessenger.BuildConfig;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.http.HttpConnectionManager;
+import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
 import com.glaciersecurity.glaciermessenger.ui.util.LocationHelper;
 import com.glaciersecurity.glaciermessenger.ui.widget.Marker;
 import com.glaciersecurity.glaciermessenger.ui.widget.MyLocation;
@@ -103,7 +104,7 @@ public abstract class LocationActivity extends ActionBarActivity implements Loca
 		final IConfigurationProvider config = Configuration.getInstance();
 		config.load(ctx, getPreferences());
 		config.setUserAgentValue(BuildConfig.APPLICATION_ID + "_" + BuildConfig.VERSION_CODE);
-		if (Config.FORCE_ORBOT || getBooleanPreference("use_tor", R.bool.use_tor)) {
+		if (QuickConversationsService.isConversations() && getBooleanPreference("use_tor", R.bool.use_tor)) {
 			try {
 				config.setHttpProxy(HttpConnectionManager.getProxy());
 			} catch (IOException e) {

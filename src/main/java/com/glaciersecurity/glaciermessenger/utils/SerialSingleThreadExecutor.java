@@ -13,19 +13,13 @@ import com.glaciersecurity.glaciermessenger.services.AttachFileToConversationRun
 
 public class SerialSingleThreadExecutor implements Executor {
 
-	private final Executor executor = Executors.newSingleThreadExecutor();
 	final ArrayDeque<Runnable> tasks = new ArrayDeque<>();
-	protected Runnable active;
+	private final Executor executor = Executors.newSingleThreadExecutor();
 	private final String name;
+	protected Runnable active;
+
 
 	public SerialSingleThreadExecutor(String name) {
-		this(name, false);
-	}
-
-	SerialSingleThreadExecutor(String name, boolean prepareLooper) {
-		if (prepareLooper) {
-			execute(Looper::prepare);
-		}
 		this.name = name;
 	}
 
@@ -41,7 +35,7 @@ public class SerialSingleThreadExecutor implements Executor {
 			executor.execute(active);
 			int remaining = tasks.size();
 			if (remaining > 0) {
-				Log.d(Config.LOGTAG,remaining+" remaining tasks on executor '"+name+"'");
+				Log.d(Config.LOGTAG, remaining + " remaining tasks on executor '" + name + "'");
 			}
 		}
 	}

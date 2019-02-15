@@ -58,6 +58,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 	public static final int OPTION_REQUIRES_ACCESS_MODE_CHANGE = 5;
 	public static final int OPTION_LOGGED_IN_SUCCESSFULLY = 6;
 	public static final int OPTION_HTTP_UPLOAD_AVAILABLE = 7;
+	public static final int OPTION_UNVERIFIED = 8;
 	public final HashSet<Pair<String, String>> inProgressDiscoFetches = new HashSet<>();
 
 	public boolean httpUploadAvailable(long filesize) {
@@ -234,6 +235,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 	protected int options = 0;
 	private String rosterVersion;
 	protected State status = State.OFFLINE;
+	private State lastErrorStatus = State.OFFLINE;
 	protected final JSONObject keys;
 	protected String resource;
 	protected String avatar;
@@ -399,8 +401,15 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 		return this.status;
 	}
 
+	public State getLastErrorStatus() {
+		return this.lastErrorStatus;
+	}
+
 	public void setStatus(final State status) {
 		this.status = status;
+		if (status.isError) {
+			this.lastErrorStatus = status;
+		}
 	}
 
 	public boolean errorStatus() {

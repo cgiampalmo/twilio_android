@@ -44,6 +44,7 @@ import com.glaciersecurity.glaciermessenger.entities.Message;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
 import com.glaciersecurity.glaciermessenger.services.ExportBackupService;
 import com.glaciersecurity.glaciermessenger.services.MemorizingTrustManager;
+import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
 import com.glaciersecurity.glaciermessenger.ui.util.Color;
 import com.glaciersecurity.glaciermessenger.utils.GeoHelper;
 import com.glaciersecurity.glaciermessenger.utils.LogoutListener;
@@ -101,7 +102,7 @@ public class SettingsActivity extends XmppActivity implements
 
 		changeOmemoSettingSummary();
 
-		if (Config.FORCE_ORBOT) {
+		if (QuickConversationsService.isQuicksy()) {
 			PreferenceCategory connectionOptions = (PreferenceCategory) mSettingsFragment.findPreference("connection_options");
 			PreferenceScreen expert = (PreferenceScreen) mSettingsFragment.findPreference("expert");
 			if (connectionOptions != null) {

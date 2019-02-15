@@ -197,7 +197,7 @@ public class XmppConnectionService extends Service {
 		}
 	};
 	public DatabaseBackend databaseBackend;
-	private ReplacingSerialSingleThreadExecutor mContactMergerExecutor = new ReplacingSerialSingleThreadExecutor(true);
+	private ReplacingSerialSingleThreadExecutor mContactMergerExecutor = new ReplacingSerialSingleThreadExecutor("ContactMerger");
 	private long mLastActivity = 0;
 	private FileBackend fileBackend = new FileBackend(this);
 	private MemorizingTrustManager mMemorizingTrustManager;

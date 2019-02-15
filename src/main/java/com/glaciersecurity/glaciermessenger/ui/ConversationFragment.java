@@ -470,11 +470,11 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 
 	private static ConversationFragment findConversationFragment(Activity activity) {
 		Fragment fragment = activity.getFragmentManager().findFragmentById(R.id.main_fragment);
-		if (fragment != null && fragment instanceof ConversationFragment) {
+		if (fragment instanceof ConversationFragment) {
 			return (ConversationFragment) fragment;
 		}
 		fragment = activity.getFragmentManager().findFragmentById(R.id.secondary_fragment);
-		if (fragment != null && fragment instanceof ConversationFragment) {
+		if (fragment instanceof ConversationFragment) {
 			return (ConversationFragment) fragment;
 		}
 		return null;
@@ -517,7 +517,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 
 	private static Conversation getConversation(Activity activity, @IdRes int res) {
 		final Fragment fragment = activity.getFragmentManager().findFragmentById(res);
-		if (fragment != null && fragment instanceof ConversationFragment) {
+		if (fragment instanceof ConversationFragment) {
 			return ((ConversationFragment) fragment).getConversation();
 		} else {
 			return null;
@@ -527,11 +527,11 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	public static ConversationFragment get(Activity activity) {
 		FragmentManager fragmentManager = activity.getFragmentManager();
 		Fragment fragment = fragmentManager.findFragmentById(R.id.main_fragment);
-		if (fragment != null && fragment instanceof ConversationFragment) {
+		if (fragment instanceof ConversationFragment) {
 			return (ConversationFragment) fragment;
 		} else {
 			fragment = fragmentManager.findFragmentById(R.id.secondary_fragment);
-			return fragment != null && fragment instanceof ConversationFragment ? (ConversationFragment) fragment : null;
+			return fragment instanceof ConversationFragment ? (ConversationFragment) fragment : null;
 		}
 	}
 
@@ -2830,7 +2830,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 					public void error(final int error, Message message) {
 						getActivity().runOnUiThread(() -> {
 							doneSendingPgpMessage();
-							Toast.makeText(getActivity(), R.string.unable_to_connect_to_keychain, Toast.LENGTH_SHORT).show();
+							Toast.makeText(getActivity(), error == 0 ? R.string.unable_to_connect_to_keychain : error, Toast.LENGTH_SHORT).show();
 						});
 
 					}

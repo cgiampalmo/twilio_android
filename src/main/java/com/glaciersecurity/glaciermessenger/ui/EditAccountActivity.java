@@ -56,6 +56,7 @@ import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.cognito.Constants;
 import com.glaciersecurity.glaciermessenger.cognito.Util;
 import com.glaciersecurity.glaciermessenger.entities.LoginAccount;
+import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import android.view.LayoutInflater;
@@ -682,8 +683,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			}
 		}
 		SharedPreferences preferences = getPreferences();
-		mUseTor = Config.FORCE_ORBOT || preferences.getBoolean("use_tor", false);
-		this.mShowOptions = mUseTor || preferences.getBoolean("show_connection_options", false);
+		mUseTor = QuickConversationsService.isConversations() && preferences.getBoolean("use_tor", getResources().getBoolean(R.bool.use_tor));
+		this.mShowOptions = mUseTor || (QuickConversationsService.isConversations() && preferences.getBoolean("show_connection_options", getResources().getBoolean(R.bool.show_connection_options)));
 		this.mNamePort.setVisibility(mShowOptions ? VISIBLE : View.GONE);
 
 		// GOOBER CORE integration
@@ -971,11 +972,14 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 		}
 
-		final boolean editable = !mAccount.isOptionSet(Account.OPTION_LOGGED_IN_SUCCESSFULLY);
-		this.binding.accountJid.setEnabled(editable);
-		this.binding.accountJid.setFocusable(editable);
-		this.binding.accountJid.setFocusableInTouchMode(editable);
+        final boolean editable = !mAccount.isOptionSet(Account.OPTION_LOGGED_IN_SUCCESSFULLY) && QuickConversationsService.isConversations();
+        this.binding.accountJid.setEnabled(editable);
+        this.binding.accountJid.setFocusable(editable);
+        this.binding.accountJid.setFocusableInTouchMode(editable);
+        this.binding.accountJid.setCursorVisible(editable);
 
+        //final String displayName = mAccount.getDisplayName();
+        //updateDisplayName(displayName);
 
 		if (mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE) || !mAccount.isOptionSet(Account.OPTION_LOGGED_IN_SUCCESSFULLY)) {
 			this.binding.accountPasswordLayout.setPasswordVisibilityToggleEnabled(true);
