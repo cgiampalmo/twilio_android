@@ -27,6 +27,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.ActionBar;
@@ -42,6 +43,7 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUser;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserPool;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.NewPasswordContinuation;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
@@ -91,6 +93,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -140,6 +143,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private static final int REQUEST_DATA_SAVER = 0x37af244;
 	private static final int MSG_UPDATE_STATE = 0;
 	private static final int ICS_OPENVPN_PERMISSION = 7;
+	private static final int NEW_PASSWORD = 0x0106;
 
 	private final String REPLACEMENT_ORG_ID = "<org_id>";
 	private final int VPN_STATE_UNKNOWN     = 0;
@@ -163,6 +167,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private TextInputLayout mAccountOrgIDLayout;
 	private Button mLoginButton;
 	private String mConnectionType = null;
+
+	//ALF AM-220
+	private NewPasswordContinuation newPasswordContinuation;
 
 	private Button mDisableOsOptimizationsButton;
 	private TextView getmDisableOsOptimizationsBody;
@@ -422,9 +429,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			} else {
 				Log.d(Config.LOGTAG, "pgp result not ok");
 			}
-		}
-		//HONEYBADGER AM-76
-		if (requestCode == ICS_OPENVPN_PERMISSION) {
+		} else if (requestCode == ICS_OPENVPN_PERMISSION) { //HONEYBADGER AM-76
 			if (resultCode == Activity.RESULT_OK) {
 				try {
 					mService.registerStatusCallback(mCallback);
@@ -433,6 +438,18 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				}
 			} else {
 				doCoreErrorAction();
+			}
+		} else if (requestCode == NEW_PASSWORD) { //ALF AM-220
+			//New password
+			closeWaitDialog();
+			boolean continueSignIn = false;
+			if (resultCode == RESULT_OK) {
+				continueSignIn = data.getBooleanExtra("continueSignIn", false);
+			}
+			if (continueSignIn && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				continueWithFirstTimeSignIn();
+			} else {
+				handleLoginFailure();
 			}
 		}
 	}
@@ -1498,26 +1515,59 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		@Override
 		public void onFailure(Exception e) {
 			Log.d("GOOBER", "FAILED TO LOGIN!!!");
-			// GOOBER COGNITO - close waitdialog
-			closeWaitDialog();
-
-			//ALF AM-74
-			//showDialogMessage(getString(R.string.signin_fail_title), AppHelper.formatException(e));
-			showDialogMessage(getString(R.string.error_connecting), getString(R.string.unknown_login_error));
-
-			// Go back to login screen
-			setLoginContentView();
-
+			handleLoginFailure(); //ALF AM-220
 		}
 
 		@Override
 		public void authenticationChallenge(ChallengeContinuation continuation) {
-			/**
-			 * For Custom authentication challenge, implement your logic to present challenge to the
-			 * user and pass the user's responses to the continuation.
-			 */
+			//ALF AM-220
+			if ("NEW_PASSWORD_REQUIRED".equals(continuation.getChallengeName())) {
+				// This is the first sign-in attempt for an admin created user
+				newPasswordContinuation = (NewPasswordContinuation) continuation;
+				AppHelper.setUserAttributeForDisplayFirstLogIn(newPasswordContinuation.getCurrentUserAttributes(),
+						newPasswordContinuation.getRequiredAttributes());
+				closeWaitDialog();
+				firstTimeSignIn();
+			}
 		}
 	};
+
+	//ALF AM-220
+	private void handleLoginFailure() {
+		// GOOBER COGNITO - close waitdialog
+		closeWaitDialog();
+
+		//ALF AM-74
+		//showDialogMessage(getString(R.string.signin_fail_title), AppHelper.formatException(e));
+		showDialogMessage(getString(R.string.error_connecting), getString(R.string.unknown_login_error));
+
+		// Go back to login screen
+		setLoginContentView();
+	}
+
+	//ALF AM-220
+	private void firstTimeSignIn() {
+		Intent newPasswordActivity = new Intent(this, NewPasswordActivity.class);
+		startActivityForResult(newPasswordActivity, NEW_PASSWORD);
+	}
+
+	//ALF AM-220
+	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+	private void continueWithFirstTimeSignIn() {
+		newPasswordContinuation.setPassword(AppHelper.getPasswordForFirstTimeLogin());
+		Map<String, String> newAttributes = AppHelper.getUserAttributesForFirstTimeLogin();
+		if (newAttributes != null) {
+			for(Map.Entry<String, String> attr: newAttributes.entrySet()) {
+				Log.d(Config.LOGTAG, String.format(" -- Adding attribute: %s, %s", attr.getKey(), attr.getValue()));
+				newPasswordContinuation.setUserAttribute(attr.getKey(), attr.getValue());
+			}
+		}
+		try {
+			newPasswordContinuation.continueTask();
+		} catch (Exception e) {
+			handleLoginFailure();
+		}
+	}
 
 	private IOpenVPNStatusCallback mCallback = new IOpenVPNStatusCallback.Stub() {
 		/**

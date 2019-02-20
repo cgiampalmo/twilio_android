@@ -53,6 +53,7 @@
         android:required="false"/>
 
     <!-- ALF AM-91 changed ic_launcher to mipmap/glacier_launcher, added round -->
+    <!-- ALF AM-146?? changed allowBackup to false, didn't add android:fullBackupContent="false" -->
     <application
         android:allowBackup="true"
         android:appCategory="social"
@@ -205,6 +206,13 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
+        <!-- ALF AM-220 -->
+        <activity
+            android:name=".ui.NewPasswordActivity"
+            android:label="@string/title_activity_new_password"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+        <!-- android:theme="@style/AppTheme.NoActionBar" -->
         <activity
             android:name=".ui.ConferenceDetailsActivity"
             android:label="@string/action_muc_details"

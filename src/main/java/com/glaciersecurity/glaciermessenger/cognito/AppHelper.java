@@ -18,6 +18,7 @@
 package com.glaciersecurity.glaciermessenger.cognito;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 
 import com.amazonaws.ClientConfiguration;
@@ -46,6 +47,14 @@ public class AppHelper {
     private static CognitoUserPool userPool;
     private static String user;
     private static CognitoDevice newDevice;
+
+    //ALF AM-220
+    private static List<ItemToDisplay> firstTimeLogInDetails;
+    private static Map<String, String> firstTimeLogInUserAttributes;
+    private static List<String> firstTimeLogInRequiredAttributes;
+    private static int firstTimeLogInItemsCount;
+    private static Map<String, String> firstTimeLogInUpDatedAttributes;
+    private static String firstTimeLoginNewPassword;
 
     private static  int itemCount;
     /**
@@ -202,6 +211,70 @@ public class AppHelper {
                 // Adding items to display list in the required sequence
                 currUserAttributes.add(det);
                 itemCount++;
+            }
+        }
+    }
+
+    //ALF AM-220 here to end
+    public static int getFirstTimeLogInItemsCount() {
+        return  firstTimeLogInItemsCount;
+    }
+
+    public static ItemToDisplay getUserAttributeForFirstLogInCheck(int position) {
+        return firstTimeLogInDetails.get(position);
+    }
+
+    public static void setUserAttributeForDisplayFirstLogIn(Map<String, String> currAttributes, List<String> requiredAttributes) {
+        firstTimeLogInUserAttributes = currAttributes;
+        firstTimeLogInRequiredAttributes = requiredAttributes;
+        firstTimeLogInUpDatedAttributes = new HashMap<String, String>();
+        refreshDisplayItemsForFirstTimeLogin();
+    }
+
+    public static void setUserAttributeForFirstTimeLogin(String attributeName, String attributeValue) {
+        if (firstTimeLogInUserAttributes ==  null) {
+            firstTimeLogInUserAttributes = new HashMap<String, String>();
+        }
+        firstTimeLogInUserAttributes.put(attributeName, attributeValue);
+        firstTimeLogInUpDatedAttributes.put(attributeName, attributeValue);
+        refreshDisplayItemsForFirstTimeLogin();
+    }
+
+    public static Map<String, String> getUserAttributesForFirstTimeLogin() {
+        return firstTimeLogInUpDatedAttributes;
+    }
+
+    public static void setPasswordForFirstTimeLogin(String password) {
+        firstTimeLoginNewPassword = password;
+    }
+
+    public static String getPasswordForFirstTimeLogin() {
+        return firstTimeLoginNewPassword;
+    }
+
+    private static void refreshDisplayItemsForFirstTimeLogin() {
+        firstTimeLogInItemsCount = 0;
+        firstTimeLogInDetails = new ArrayList<ItemToDisplay>();
+
+        for(Map.Entry<String, String> attr: firstTimeLogInUserAttributes.entrySet()) {
+            if ("phone_number_verified".equals(attr.getKey()) || "email_verified".equals(attr.getKey())) {
+                continue;
+            }
+            String message = "";
+            if ((firstTimeLogInRequiredAttributes != null) && (firstTimeLogInRequiredAttributes.contains(attr.getKey()))) {
+                message = "Required";
+            }
+            ItemToDisplay item = new ItemToDisplay(attr.getKey(), attr.getValue(), message, Color.BLACK, Color.DKGRAY, Color.parseColor("#329AD6"), 0, null);
+            firstTimeLogInDetails.add(item);
+            firstTimeLogInRequiredAttributes.size();
+            firstTimeLogInItemsCount++;
+        }
+
+        for (String attr: firstTimeLogInRequiredAttributes) {
+            if (!firstTimeLogInUserAttributes.containsKey(attr)) {
+                ItemToDisplay item = new ItemToDisplay(attr, "", "Required", Color.BLACK, Color.DKGRAY, Color.parseColor("#329AD6"), 0, null);
+                firstTimeLogInDetails.add(item);
+                firstTimeLogInItemsCount++;
             }
         }
     }

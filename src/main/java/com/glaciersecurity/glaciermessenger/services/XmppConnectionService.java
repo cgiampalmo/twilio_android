@@ -12,6 +12,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
@@ -27,6 +28,7 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.os.RemoteException;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
@@ -71,6 +73,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 
+import com.glaciersecurity.glaciercore.api.IOpenVPNAPIService;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.android.JabberIdContact;
@@ -155,7 +158,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.stanzas.PresencePacket;
 import me.leolin.shortcutbadger.ShortcutBadger;
 import rocks.xmpp.addr.Jid;
 
-public class XmppConnectionService extends Service {
+public class XmppConnectionService extends Service { //}, ServiceConnection {  //ALF AM-57 placeholder
 
 	public static final String ACTION_REPLY_TO_CONVERSATION = "reply_to_conversations";
 	public static final String ACTION_MARK_AS_READ = "mark_as_read";
@@ -235,6 +238,7 @@ public class XmppConnectionService extends Service {
 			this);
 	private AvatarService mAvatarService = new AvatarService(this);
 	private MessageArchiveService mMessageArchiveService = new MessageArchiveService(this);
+	//private VPNConnectionService mVPNConnectionService = new VPNConnectionService(); //ALF AM-57 placeholder
 	private PushManagementService mPushManagementService = new PushManagementService(this);
 	private QuickConversationsService mQuickConversationsService = new QuickConversationsService(this);
 	private final ConversationsFileObserver fileObserver = new ConversationsFileObserver(
@@ -588,6 +592,17 @@ public class XmppConnectionService extends Service {
 		MessageSearchTask.search(this, term, onSearchResultsAvailable);
 	}
 
+	//ALF AM-57 placeholder
+	/*@Override
+	public void onServiceConnected(ComponentName name, IBinder service) {
+		//
+	}
+
+	@Override
+	public void onServiceDisconnected(ComponentName className) {
+		mVPNConnectionService = null;
+	}*/
+
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		final String action = intent == null ? null : intent.getAction();
@@ -599,6 +614,9 @@ public class XmppConnectionService extends Service {
             //toggleForegroundService(true);
 			toggleForegroundService();
         }
+
+        //ALF AM-57 placeholder?
+		//bindService(new Intent(this, VPNConnectionService.class), this, Context.BIND_AUTO_CREATE);
 
 		String pushedAccountHash = null;
 		boolean interactive = false;
@@ -753,6 +771,13 @@ public class XmppConnectionService extends Service {
 	private boolean processAccountState(Account account, boolean interactive, boolean isUiAction, boolean isAccountPushed, HashSet<Account> pingCandidates) {
 		boolean pingNow = false;
 		if (account.getStatus().isAttemptReconnect()) {
+			//ALF AM-57 placeholder
+			/*if (!mVPNConnectionService.hasVpnConnection()) {
+				account.setStatus(Account.State.NO_INTERNET);
+				if (statusListener != null) {
+					statusListener.onStatusChanged(account);
+				}
+			}*/
 			if (!hasInternetConnection()) {
 				account.setStatus(Account.State.NO_INTERNET);
 				if (statusListener != null) {
