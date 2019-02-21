@@ -32,11 +32,16 @@ import android.widget.EditText;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.cognito.AppHelper;
+import com.google.zxing.client.result.TextParsedResult;
+
+import java.util.regex.Pattern;
 
 public class NewPasswordActivity extends AppCompatActivity {
     private String TAG = "NewPassword";
     private EditText newPassword;
     private TextInputLayout newPasswordLayout;
+    private EditText reNewPassword;
+    private TextInputLayout reNewPasswordLayout;
 
     private Button continueSignIn;
     private AlertDialog userDialog;
@@ -91,19 +96,30 @@ public class NewPasswordActivity extends AppCompatActivity {
         this.newPasswordLayout = (TextInputLayout) findViewById(R.id.new_password_layout);
         this.newPasswordLayout.setError(null);
 
+        this.reNewPassword = (EditText) findViewById(R.id.reEditTextNewPassPass);
+
+        this.reNewPasswordLayout = (TextInputLayout) findViewById(R.id.re_new_password_layout);
+        this.reNewPasswordLayout.setError(null);
+
         continueSignIn = (Button) findViewById(R.id.buttonNewPass);
         continueSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String newUserPassword = newPassword.getText().toString();
+                removeAllErrors();
+                final String newUserPassword = newPassword.getText().toString();
+                final String reNewUserPassword = reNewPassword.getText().toString();
                 if (newUserPassword != null) {
-                    AppHelper.setPasswordForFirstTimeLogin(newUserPassword);
-                    if (checkAttributes()) {
-                        newPasswordLayout.setError(null);
-                        exit(true);
+                    if (newUserPassword.isEmpty()) {
+                        newPassword.requestFocus();
+                        newPassword.setError(getString(R.string.password_should_not_be_empty));
+                    } else if (!isValid(newUserPassword)) {
+                        newPassword.requestFocus();
+                        newPassword.setError(getString(R.string.password_not_valid));
+                    } else if (!newUserPassword.equals(reNewUserPassword)) {
+                        reNewPassword.requestFocus();
+                        reNewPassword.setError(getString(R.string.passwords_do_not_match));
                     } else {
-                        newPasswordLayout.setError("Error");
-                        showDialogMessage("Error", "Enter all required attributed", false);
+                        setPasswordForFirsTimeLogin(newUserPassword);
                     }
                 } else {
                     showDialogMessage("Error", "Enter all required attributed", false);
@@ -112,10 +128,53 @@ public class NewPasswordActivity extends AppCompatActivity {
         });
     }
 
+    private void setPasswordForFirsTimeLogin(String newUserPassword){
+        AppHelper.setPasswordForFirstTimeLogin(newUserPassword);
+        if (checkAttributes()) {
+            newPasswordLayout.setError(null);
+            removeAllErrors();
+            exit(true);
+        } else {
+            newPasswordLayout.setError("Error");
+            showDialogMessage("Error", "Enter all required attributed", false);
+        }
+    }
+
     private boolean checkAttributes() {
         // Check if all required attributes have values
         return true;
     }
+
+    public static boolean isValid(String passwordhere) {
+        Pattern specailCharPatten = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
+        Pattern UpperCasePatten = Pattern.compile("[A-Z ]");
+        Pattern lowerCasePatten = Pattern.compile("[a-z ]");
+        Pattern digitCasePatten = Pattern.compile("[0-9 ]");
+        //errorList.clear();
+
+        boolean flag = true;
+        if (passwordhere.length() < 8) {
+            flag = false;
+        }
+        if (!specailCharPatten.matcher(passwordhere).find()) {
+            //errorList.add("Password must have at least one special character !!");
+            flag = false;
+        }
+        if (!UpperCasePatten.matcher(passwordhere).find()) {
+            //errorList.add("Password must have at least one uppercase character !!");
+            flag = false;
+        }
+        if (!lowerCasePatten.matcher(passwordhere).find()) {
+            //errorList.add("Password must have at least one lowercase character !!");
+            flag = false;
+        }
+        if (!digitCasePatten.matcher(passwordhere).find()) {
+            //errorList.add("Password must have at least one digit character !!");
+            flag = false;
+        }
+        return flag;
+    }
+
 
     private void showDialogMessage(String title, String body, final boolean exit) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -142,4 +201,25 @@ public class NewPasswordActivity extends AppCompatActivity {
         setResult(RESULT_OK, intent);
         finish();
     }
+
+    private void removeErrorsOnAllBut(TextInputLayout exception) {
+        if (this.newPasswordLayout != exception) {
+            this.newPasswordLayout.setErrorEnabled(false);
+            this.newPasswordLayout.setError(null);
+        }
+
+        if (this.reNewPasswordLayout != exception) {
+            this.reNewPasswordLayout.setErrorEnabled(false);
+            this.reNewPasswordLayout.setError(null);
+        }
+    }
+    private void removeAllErrors() {
+            this.newPasswordLayout.setErrorEnabled(false);
+            this.newPasswordLayout.setError(null);
+            this.reNewPasswordLayout.setErrorEnabled(false);
+            this.reNewPasswordLayout.setError(null);
+            this.newPassword.setError(null);
+            this.reNewPassword.setError(null);
+    }
+
 }

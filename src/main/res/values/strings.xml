@@ -387,6 +387,10 @@
     <string name="change_password">Change password</string>
     <string name="current_password">Current password</string>
     <string name="new_password">New password</string>
+    <string name="password_requirement_description">Glacier passwords are set to require at least 8 characters, and include numbers, uppercase and lowercase letters.</string>
+    <string name="passwords_do_not_match">New passwords do not match</string>
+    <string name="password_not_valid">New password does not meet requirements</string>
+    <string name="re_new_password">Repeat new password</string>
     <string name="password_should_not_be_empty">Password should not be empty</string>
     <string name="enable_all_accounts">Enable all accounts</string>
     <string name="disable_all_accounts">Disable all accounts</string>
