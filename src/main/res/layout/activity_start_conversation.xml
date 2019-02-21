@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            app:backgroundTint="?colorPrimary"
+            app:backgroundTint="#27a1cb"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
             android:src="?attr/icon_add_group"
