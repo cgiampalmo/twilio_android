@@ -386,9 +386,14 @@ public class PresenceParser extends AbstractParser implements
 			this.parseConferencePresence(packet, account);
 		} else if (packet.hasChild("x", "http://jabber.org/protocol/muc")) {
 			this.parseConferencePresence(packet, account);
+			//CMG AM-248 group chat creation error
 		} else if ("error".equals(packet.getAttribute("type")) && mXmppConnectionService.isMuc(account, packet.getFrom())) {
-			this.parseConferencePresence(packet, account);
-		} else {
+            Element err = packet.findChild("error");
+            if (err != null && err.hasChild("item-not-found", "urn:ietf:params:xml:ns:xmpp-stanzas")) {
+                return;
+            }
+            this.parseConferencePresence(packet, account);
+        } else {
 			this.parseContactPresence(packet, account);
 		}
 	}
