@@ -153,11 +153,7 @@ public class NewPasswordActivity extends AppCompatActivity {
         //errorList.clear();
 
         boolean flag = true;
-        if (passwordhere.length() < 8) {
-            flag = false;
-        }
-        if (!specailCharPatten.matcher(passwordhere).find()) {
-            //errorList.add("Password must have at least one special character !!");
+        if (passwordhere.length() < 7) {
             flag = false;
         }
         if (!UpperCasePatten.matcher(passwordhere).find()) {
