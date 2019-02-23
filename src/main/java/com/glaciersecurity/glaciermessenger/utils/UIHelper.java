@@ -257,7 +257,17 @@ public class UIHelper {
 			0xFF795548, 0xFF607d8b};
 		*/
 
-		int colors[] = {0xFFBBDEFB, 0xFF90CAF9, 0xFF64B5F6, 0xFF42A5F5, 0xFF2196F3, 0xFF1E88E5, 0xFF1976D2, 0xFF1565C0, 0xFF0D47A1};
+		//int colors[] = {0xFFBBDEFB, 0xFF90CAF9, 0xFF64B5F6, 0xFF42A5F5, 0xFF2196F3, 0xFF1E88E5, 0xFF1976D2, 0xFF1565C0, 0xFF0D47A1};
+		int colors[] = {
+				0xFF6FFFE9, //teal
+				0xFFF694C1, //pink
+				0xFF9678D3, //light purple
+				0xFFFFAF92, //orange
+				0xFFFDAA63, //orange
+				0xFFA4343A, //rutabaga
+				0xFFBBDEFB, 0xFF90CAF9, 0xFF64B5F6, 0xFF42A5F5, 0xFF2196F3, 0xFF1E88E5, 0xFF1976D2, 0xFF1565C0, 0xFF0D47A1 //blues
+		};
+		// 0xFFFFB3BA, 0xFFBAE1FF
 		return colors[(int) ((name.hashCode() & 0xffffffffl) % colors.length)];
 
 		// return getColorForName(name, false);
