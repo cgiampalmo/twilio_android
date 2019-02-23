@@ -965,7 +965,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	private void updateAccountInformation(boolean init) {
 		if (init) {
-			this.binding.accountJid.getEditableText().clear();
 			if (mUsernameMode) {
 				//CMG AM-172 Stop using the gui text fields to store the VPN login info
 				tempVPN.setLogUsername(this.mAccount.getJid().getLocal());
@@ -975,7 +974,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				tempVPN.setLogUsername(this.mAccount.getJid().asBareJid().toString());
 				//this.binding.accountJid.getEditableText().append(this.mAccount.getJid().asBareJid().toString());
 			}
-			this.mPassword.getEditableText().clear();
 
 			//CMG AM-172 Stop using the gui text fields to store the VPN login info
 			tempVPN.setLogPassword(this.mAccount.getPassword());
@@ -1521,13 +1519,15 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		@Override
 		public void authenticationChallenge(ChallengeContinuation continuation) {
 			//ALF AM-220
-			if ("NEW_PASSWORD_REQUIRED".equals(continuation.getChallengeName())) {
-				// This is the first sign-in attempt for an admin created user
-				newPasswordContinuation = (NewPasswordContinuation) continuation;
-				AppHelper.setUserAttributeForDisplayFirstLogIn(newPasswordContinuation.getCurrentUserAttributes(),
-						newPasswordContinuation.getRequiredAttributes());
-				closeWaitDialog();
-				firstTimeSignIn();
+			if (continuation != null) {
+				if ("NEW_PASSWORD_REQUIRED".equals(continuation.getChallengeName())) {
+					// This is the first sign-in attempt for an admin created user
+					newPasswordContinuation = (NewPasswordContinuation) continuation;
+					AppHelper.setUserAttributeForDisplayFirstLogIn(newPasswordContinuation.getCurrentUserAttributes(),
+							newPasswordContinuation.getRequiredAttributes());
+					closeWaitDialog();
+					firstTimeSignIn();
+				}
 			}
 		}
 	};
@@ -1677,8 +1677,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				}
 				// s3DownloadInterface.onDownloadSuccess("Success");
 
-				//HONEYBAGER AM-151 values used in restore Accountes from File --> safe to reset fields
-				clearLoginFields();
 			}
 		}
 	}
@@ -1929,24 +1927,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 		// sign out current user
 		cognitoCurrentUserSignout();
-
-		resetLogin(); //CMG AM-172
 	}
 
-
-	//HONEYBADGER AM-151  hide password from background
-	private void resetLogin(){
-		clearLoginFields();
-		resetEntryErrors();
-		tempVPN.setLoginState(LoginAccount.LoginState.FORM_ENTRY);
-		this.tempVPN.wipeLoginAccount();
-	}
-
-	private void clearLoginFields(){ //CMG AM-172
-		this.binding.accountJid.getEditableText().clear();
-		mPassword.setText("");
-		mOrgID.setText("");
-	}
 
 	private void resetEntryErrors(){ //CMG AM-172
 		mOrgID.setError(null);
@@ -1996,10 +1978,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			// retreive account information
 			BackupAccountManager.AccountInfo accountInfo = backupAccountManager.getAccountInfo(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
 			if (accountInfo != null) {
-				//HONEYBADGER TODO AM_151 is introduced here... not sure why text field itself ever needs to be set
-				// Auto login with username/password
-				//hidePrivateLoginFields(); //CMG AM-172 commented out
-
 				// retrieve account information
 				ArrayList<BackupAccountManager.Account> accounts = accountInfo.getAccounts();
 
@@ -2058,10 +2036,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		// reset
 		// clear s3bucket client
 		Util.clearS3Client(getApplicationContext());
-
-		//tempVPN.wipeLoginAccount(); //CMG AM-172
-		this.resetLogin();
-		tempVPN.wipeLoginAccount();
 
 		mLoginButton.setText(getString(R.string.login_button_label));
 		this.binding.accountJid.requestFocus();
