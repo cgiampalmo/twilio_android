@@ -243,9 +243,10 @@ public class UIHelper {
 	}
 
 	public static int getColorForName(String name) {
-		if (Config.XEP_0392) {
-			return XEP0392Helper.rgbFromNick(name);
-		}
+		//CMG AM-??? Change colors to blue
+//		if (Config.XEP_0392) {
+//			return XEP0392Helper.rgbFromNick(name);
+//		}
 		if (name == null || name.isEmpty()) {
 			return 0xFF202020;
 		}
@@ -255,8 +256,8 @@ public class UIHelper {
 			0xFF5677fc, 0xFF03a9f4, 0xFF00bcd4, 0xFF009688, 0xFFff5722,
 			0xFF795548, 0xFF607d8b};
 		*/
-		int colors[] = {0xFFBBDEFB, 0xFF90CAF9, 0xFF64B5F6, 0xFF42A5F5, 0xFF2196F3, 0xFF1E88E5, 0xFF1976D2, 0xFF1565C0, 0xFF0D47A1};
 
+		int colors[] = {0xFFBBDEFB, 0xFF90CAF9, 0xFF64B5F6, 0xFF42A5F5, 0xFF2196F3, 0xFF1E88E5, 0xFF1976D2, 0xFF1565C0, 0xFF0D47A1};
 		return colors[(int) ((name.hashCode() & 0xffffffffl) % colors.length)];
 
 		// return getColorForName(name, false);
