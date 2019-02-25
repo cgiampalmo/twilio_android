@@ -78,16 +78,17 @@ public class MucConfiguration {
     public static String describe(final Context context, final MucOptions mucOptions) {
         final StringBuilder builder = new StringBuilder();
         if (mucOptions.isPrivateAndNonAnonymous()) {
-            if (mucOptions.participantsCanChangeSubject()) {
-                builder.append(context.getString(R.string.anyone_can_edit_subject));
-            } else {
-                builder.append(context.getString(R.string.owners_can_edit_subject));
-            }
-            builder.append(' ');
+            //CMG AM-249 group detail page
             if (mucOptions.allowInvites()) {
                 builder.append(context.getString(R.string.anyone_can_invite_others));
             } else {
                 builder.append(context.getString(R.string.owners_can_invite_others));
+            }
+            builder.append(' ');
+            if (mucOptions.participantsCanChangeSubject()) {
+                builder.append(context.getString(R.string.anyone_can_edit_subject));
+            } else {
+                builder.append(context.getString(R.string.owners_can_edit_subject));
             }
         } else {
             if (mucOptions.nonanonymous()) {

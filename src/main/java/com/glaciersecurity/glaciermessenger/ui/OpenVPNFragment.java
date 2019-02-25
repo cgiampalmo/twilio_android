@@ -158,7 +158,9 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             else
                 mService.startVPN(config);
         } catch (IOException | RemoteException e) {
-            doCoreErrorAction(); //HONEYBADGER AM-76
+            //CMG AM-240
+            Log.d("RemoteException", "at mService.startVpn");
+            e.printStackTrace();
         }
     }
 
@@ -448,7 +450,9 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                             try {
                                 prepareStartProfile(START_PROFILE_BYUUID);
                             } catch (RemoteException e) {
-                                doCoreErrorAction(); //HONEYBADGER AM-76
+                                //CMG AM-240
+                                Log.d("RemoteException", "at prepareStartProfile");
+                                e.printStackTrace();
                             }
                         }
                     });
@@ -457,7 +461,9 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                     try {
                         prepareStartProfile(START_PROFILE_BYUUID);
                     } catch (RemoteException e) {
-                        doCoreErrorAction(); //HONEYBADGER AM-76
+                        //CMG AM-240
+                        Log.d("RemoteException", "at prepareStartProfile");
+                        e.printStackTrace();
                     }
                 }
                 break;
@@ -466,7 +472,9 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 try {
                     mService.disconnect();
                 } catch (RemoteException e) {
-                    doCoreErrorAction(); //HONEYBADGER AM-76
+                    //CMG AM-240
+                    Log.d("RemoteException", "at mService.disconnect");
+                    e.printStackTrace();
                 }
                 isDisconnected_EnableConnect();
                 disconnectClicked = true;

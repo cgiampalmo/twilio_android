@@ -8,7 +8,7 @@
     <string name="action_leave_group">Leave Group</string> <!-- ALF AM-122 -->
     <string name="action_contact_details">Contact Details</string>
     <string name="action_muc_details">Group details</string>
-    <string name="channel_details">Channel details</string>
+    <string name="channel_details">Group details</string>
     <string name="action_secure">Secure chat</string>
     <string name="action_add_account">Add account</string>
     <string name="action_edit_contact">Edit name</string>
@@ -832,7 +832,7 @@
     <string name="cancelled">cancelled</string>
     <string name="already_drafting_message">You are already drafting a message.</string>
     <string name="feature_not_implemented">Feature not implemented</string>
-    <string name="group_chat_will_make_your_jabber_id_public">This channel will make your Jabber ID public</string>
+    <string name="group_chat_will_make_your_jabber_id_public">Open group: Users are visible to anyone.</string>
     <string name="open_with">Open with…</string>
     <string name="enter_jabber_id">Enter Jabber ID</string>
     <string name="create_group_chat">Create group chat</string>
@@ -854,9 +854,9 @@
     <string name="owners_can_edit_subject">Owners can edit the topic.</string>
     <string name="admins_can_edit_subject">Admins can edit the topic.</string>
     <string name="owners_can_invite_others">Owners can invite others.</string>
-    <string name="anyone_can_invite_others">Anyone can invite others.</string>
-    <string name="jabber_ids_are_visible_to_admins">Jabber IDs are visible to admins.</string>
-    <string name="jabber_ids_are_visible_to_anyone">Jabber IDs are visible to anyone.</string>
+    <string name="anyone_can_invite_others">Invite-only group: Anyone can invite others.</string>
+    <string name="jabber_ids_are_visible_to_admins">Users are visible to admins.</string>
+    <string name="jabber_ids_are_visible_to_anyone">Open group: Users are visible to anyone.</string>
     <string name="no_users_hint_channel">This public channel has no participants. Invite your contacts or use the share button to distribute its XMPP address.</string>
     <string name="no_users_hint_group_chat">This private group chat has no participants.</string>
     <string name="manage_permission">Manage privileges</string>
