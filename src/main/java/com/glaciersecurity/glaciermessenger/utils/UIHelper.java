@@ -9,11 +9,15 @@ import android.util.Pair;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
@@ -121,6 +125,10 @@ public class UIHelper {
 			"dónde estás", //es
 			"donde estas" //es
 	);
+
+	//CMG
+	private static final List<Integer> AVATAR_COLORS = Arrays.asList(0xFFEE675C, 0xFFAF5CF7, 0xFFFA903E, 0xFF5BB974, 0xFFAF5CF7, 0xFF5BB974, 0xFFAF5CF7, 0xFF5BB974, 0xFF4ECDE6, 0xFFE76459, 0xFF4ECDE6,0xFF5BB974,0xFFFA903E, 0xFFFCC934, 0xFFAF5CF7);
+	private static List<Integer> rand_colors;
 
 	private static final List<Character> PUNCTIONATION = Arrays.asList('.', ',', '?', '!', ';', ':');
 
@@ -258,6 +266,7 @@ public class UIHelper {
 		*/
 
 		//int colors[] = {0xFFBBDEFB, 0xFF90CAF9, 0xFF64B5F6, 0xFF42A5F5, 0xFF2196F3, 0xFF1E88E5, 0xFF1976D2, 0xFF1565C0, 0xFF0D47A1};
+
 		/*
 		int colors[] = {0xFF5BC0BE, //teal
 				0xFF6FFFE9, //light teal
@@ -269,9 +278,18 @@ public class UIHelper {
 				0xFFBBDEFB, 0xFF90CAF9, 0xFF64B5F6, 0xFF42A5F5, 0xFF2196F3, 0xFF1E88E5, 0xFF1976D2, 0xFF1565C0, 0xFF0D47A1 //blues
 		};
 		*/
+
+		if (rand_colors == null || rand_colors.isEmpty()){
+			rand_colors = new ArrayList<>();
+			rand_colors.addAll(AVATAR_COLORS);
+			Collections.shuffle(rand_colors);
+		}
+		int index = ThreadLocalRandom.current().nextInt(0,rand_colors.size());
+		int av_color = rand_colors.get(index);
+		rand_colors.remove(index);
 		//CMG AM-255
-		int colors[] ={0xFFEF9A9A, 0xFFF48FB1, 0xFFFFC4FF, 0xFFB39DDB, 0xFF9FA8DA, 0xFF90CAF9, 0xFF81D4FA, 0xFF80DEEA, 0xFF80CBC4, 0xFFA5D6A7, 0xFFC5E1A5, 0xFFE6EE9C, 0xFFFFCC80, 0xFFBCAAA4, 0xFFB0BEC5};
-		return colors[(int) ((name.hashCode() & 0xffffffffl) % colors.length)];
+		//int colors[] ={0xFFEE675C, 0xFFAF5CF7, 0xFFFA903E, 0xFF5BB974, 0xFFAF5CF7, 0xFF5BB974, 0xFFAF5CF7, 0xFF5BB974, 0xFF4ECDE6, 0xFFE76459, 0xFF4ECDE6,0xFF5BB974,0xFFFA903E, 0xFFFCC934, 0xFFAF5CF7};
+		return av_color;
 
 		// return getColorForName(name, false);
 	}

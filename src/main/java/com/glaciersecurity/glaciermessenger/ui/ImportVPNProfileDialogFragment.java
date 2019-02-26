@@ -157,7 +157,9 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
         try {
             bindService();
         } catch (Exception e){ //HONEYBADGER AM-76
-            doCoreErrorAction();
+            //CMG AM-240
+            Log.d("Exception", "at bindService");
+            e.printStackTrace();
         }
 
         return v;
