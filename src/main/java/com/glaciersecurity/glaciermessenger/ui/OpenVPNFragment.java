@@ -395,8 +395,8 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             // mHelloWorld.setText(all);
 
         } catch (RemoteException e) {
-            doCoreErrorAction(); //HONEYBADGER AM-76
-            mHelloWorld.setText(e.getMessage());
+            Log.d("RemoteException", "at listVpns");
+            e.printStackTrace();
         }
     }
 
@@ -411,9 +411,10 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     }
 
     private boolean isEmergencyProfile(String name) {
-        if (name.toLowerCase().contains(EMERGENCY_PROFILE_TAG))
-            return true;
-        else
+        if (name != null) {
+            if (name.toLowerCase().contains(EMERGENCY_PROFILE_TAG))
+                return true;
+        }
             return false;
     }
 
@@ -611,8 +612,11 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 startEmbeddedProfile(false);
             if(requestCode==START_PROFILE_BYUUID)
                 try {
-                    mService.startProfile(mStartUUID);
+                    if (mStartUUID!= null ||mStartUUID.isEmpty()) {
+                        mService.startProfile(mStartUUID);
+                    }
                 } catch (RemoteException e) {
+                    Log.d("RemoteException", "at start profile byuuid");
                     e.printStackTrace();
                 }
             if (requestCode == ICS_OPENVPN_PERMISSION) {
@@ -631,6 +635,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 try {
                     mService.registerStatusCallback(mCallback);
                 } catch (RemoteException | SecurityException e) { //ALF AM-194 added Security
+                    Log.d("RemoteException or Security Exception", "register status callback");
                     e.printStackTrace();
                 }
 
