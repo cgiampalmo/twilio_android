@@ -262,9 +262,12 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             tmpProfile = (GlacierProfile) profileSpinner.getItemAtPosition(i);
             tmpUuid = tmpProfile.getUuid();
 
-            // compare lower cases
-            if (uuid.toLowerCase().compareTo(tmpUuid.toLowerCase()) == 0) {
-                break;
+            //CMG AM-240 add null check
+            if (tmpUuid != null){
+                // compare lower cases
+                if (uuid.toLowerCase().compareTo(tmpUuid.toLowerCase()) == 0) {
+                    break;
+                }
             }
         }
 
