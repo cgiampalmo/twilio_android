@@ -415,6 +415,7 @@ public abstract class XmppActivity extends PinActivity {
 				Intent intent = new Intent(Intent.ACTION_VIEW);
 				intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
 				startActivity(intent);
+				dialog.dismiss();
 			}
 			catch(Exception e2){
 				e2.printStackTrace();
