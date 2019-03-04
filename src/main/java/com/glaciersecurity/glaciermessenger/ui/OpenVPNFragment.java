@@ -486,7 +486,12 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 break;
             case R.id.addNewProfile:
                 // CMG AM-240
-                showImportProfileVPNDialogFragment();
+                try {
+                    showImportProfileVPNDialogFragment();
+                } catch (Exception e){
+                    Log.d("Exception", "at showImportProfileVPNDialogFragment");
+                    e.printStackTrace();
+                }
             /* case R.id.getMyIP:
                 Log.d("RemoteExample", "DAVID getMyIP");
                 // Socket handling is not allowed on main thread

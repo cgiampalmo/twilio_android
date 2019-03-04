@@ -304,14 +304,16 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	private void deleteAccountAndReturnIfNecessary() {
-		if (mInitMode && mAccount != null && !mAccount.isOptionSet(Account.OPTION_LOGGED_IN_SUCCESSFULLY)) {
-			xmppConnectionService.deleteAccount(mAccount);
-		}
+		if(xmppConnectionService != null) {
+			if (mInitMode && mAccount != null && !mAccount.isOptionSet(Account.OPTION_LOGGED_IN_SUCCESSFULLY)) {
+				xmppConnectionService.deleteAccount(mAccount);
+			}
 
-		if (xmppConnectionService.getAccounts().size() == 0 && Config.MAGIC_CREATE_DOMAIN != null) {
-			Intent intent = new Intent(EditAccountActivity.this, WelcomeActivity.class);
-			StartConversationActivity.addInviteUri(intent, getIntent());
-			startActivity(intent);
+			if (xmppConnectionService.getAccounts().size() == 0 && Config.MAGIC_CREATE_DOMAIN != null) {
+				Intent intent = new Intent(EditAccountActivity.this, WelcomeActivity.class);
+				StartConversationActivity.addInviteUri(intent, getIntent());
+				startActivity(intent);
+			}
 		}
 	}
 
@@ -1390,6 +1392,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * @param view
 	 */
 	public void logIn(View view) {
+		//CMG AM-200
+		disconnectExistingProfiles();
 		tempVPN.setLoginState(LoginAccount.LoginState.FORM_ENTRY); //CMG AM-172
 		if ((mLoginButton.getText().toString().compareTo(getString(R.string.login_button_label))) == 0) {
 			// log into Cognito and then messenger
@@ -1655,6 +1659,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						// not being replaced.
 						// deleteExistingProfiles();
 
+						//CMG AM-200
+						disconnectExistingProfiles();
+
 						// replace existing profiles for Core and add
 						// those that aren't in Core
 						addVPNProfiles();
@@ -1749,6 +1756,19 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				for (APIVpnProfile prof : list) {
 					mService.removeProfile(prof.mUUID);
 				}
+			}
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	//CMG AM-200
+	private void disconnectExistingProfiles() {
+		try {
+			if (mService != null) {
+				// disconnect VPN first
+				mService.disconnect();
+
 			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
