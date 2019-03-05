@@ -1392,8 +1392,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * @param view
 	 */
 	public void logIn(View view) {
-		//CMG AM-200
-		disconnectExistingProfiles();
 		tempVPN.setLoginState(LoginAccount.LoginState.FORM_ENTRY); //CMG AM-172
 		if ((mLoginButton.getText().toString().compareTo(getString(R.string.login_button_label))) == 0) {
 			// log into Cognito and then messenger
@@ -1657,10 +1655,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						// GOOBER COGNITO - remove all profiles for fresh start
 						// commented out b/c we want to keep any existing profiles
 						// not being replaced.
-						// deleteExistingProfiles();
-
 						//CMG AM-200
-						disconnectExistingProfiles();
+						deleteExistingProfiles();
 
 						// replace existing profiles for Core and add
 						// those that aren't in Core
@@ -1756,19 +1752,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				for (APIVpnProfile prof : list) {
 					mService.removeProfile(prof.mUUID);
 				}
-			}
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
-
-	//CMG AM-200
-	private void disconnectExistingProfiles() {
-		try {
-			if (mService != null) {
-				// disconnect VPN first
-				mService.disconnect();
-
 			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
