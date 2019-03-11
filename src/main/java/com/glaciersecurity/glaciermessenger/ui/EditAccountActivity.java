@@ -14,6 +14,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -58,10 +60,14 @@ import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.cognito.Constants;
 import com.glaciersecurity.glaciermessenger.cognito.Util;
 import com.glaciersecurity.glaciermessenger.entities.LoginAccount;
+import com.glaciersecurity.glaciermessenger.entities.NetworkConnectivityStatus;
 import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
+import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -607,50 +613,46 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.mSaveButton.setVisibility(View.INVISIBLE);*/
 	}
 
-//	@Override
-//	public boolean onCreateOptionsMenu(final Menu menu) {
-//		super.onCreateOptionsMenu(menu);
-//		getMenuInflater().inflate(R.menu.editaccount, menu);
-//		final MenuItem showBlocklist = menu.findItem(R.id.action_show_block_list);
-//		final MenuItem showMoreInfo = menu.findItem(R.id.action_server_info_show_more);
-//		final MenuItem changePassword = menu.findItem(R.id.action_change_password_on_server);
-//		final MenuItem renewCertificate = menu.findItem(R.id.action_renew_certificate);
-//		//final MenuItem mamPrefs = menu.findItem(R.id.action_mam_prefs);
-//		final MenuItem changePresence = menu.findItem(R.id.action_change_presence);
-//		final MenuItem share = menu.findItem(R.id.action_share);
-//		renewCertificate.setVisible(mAccount != null && mAccount.getPrivateKeyAlias() != null);
-//
-//		share.setVisible(mAccount != null && !mInitMode);
-//
-//		if (mAccount != null && mAccount.isOnlineAndConnected()) {
-//			if (!mAccount.getXmppConnection().getFeatures().blocking()) {
-//				showBlocklist.setVisible(false);
-//			}
-//
-//			if (!mAccount.getXmppConnection().getFeatures().register()) {
-//				changePassword.setVisible(false);
-//			}
-//			//mamPrefs.setVisible(mAccount.getXmppConnection().getFeatures().mam());
-//			changePresence.setVisible(!mInitMode);
-//		} else {
-//			showBlocklist.setVisible(false);
-//			showMoreInfo.setVisible(false);
-//			changePassword.setVisible(false);
-//			//mamPrefs.setVisible(false);
-//			changePresence.setVisible(false);
-//		}
-//
-//		return super.onCreateOptionsMenu(menu);
-//	}
+	@Override
+	public boolean onCreateOptionsMenu(final Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		//CMG AM-117
+		getMenuInflater().inflate(R.menu.login_support, menu);
+		final MenuItem supportMenuItem = menu.findItem(R.id.support_menu_item);
 
-//	@Override
-//	public boolean onPrepareOptionsMenu(Menu menu) {
-//		final MenuItem showMoreInfo = menu.findItem(R.id.action_server_info_show_more);
-//		if (showMoreInfo.isVisible()) {
-//			showMoreInfo.setChecked(mMoreTable.getVisibility() == VISIBLE);
-//		}
-//		return super.onPrepareOptionsMenu(menu);
-//	}
+		/*
+		final MenuItem showBlocklist = menu.findItem(R.id.action_show_block_list);
+		final MenuItem showMoreInfo = menu.findItem(R.id.action_server_info_show_more);
+		final MenuItem changePassword = menu.findItem(R.id.action_change_password_on_server);
+		final MenuItem renewCertificate = menu.findItem(R.id.action_renew_certificate);
+		//final MenuItem mamPrefs = menu.findItem(R.id.action_mam_prefs);
+		final MenuItem changePresence = menu.findItem(R.id.action_change_presence);
+		final MenuItem share = menu.findItem(R.id.action_share);
+		renewCertificate.setVisible(mAccount != null && mAccount.getPrivateKeyAlias() != null);
+
+		share.setVisible(mAccount != null && !mInitMode);
+
+		if (mAccount != null && mAccount.isOnlineAndConnected()) {
+			if (!mAccount.getXmppConnection().getFeatures().blocking()) {
+				showBlocklist.setVisible(false);
+			}
+
+			if (!mAccount.getXmppConnection().getFeatures().register()) {
+				changePassword.setVisible(false);
+			}
+			//mamPrefs.setVisible(mAccount.getXmppConnection().getFeatures().mam());
+			changePresence.setVisible(!mInitMode);
+		} else {
+			showBlocklist.setVisible(false);
+			showMoreInfo.setVisible(false);
+			changePassword.setVisible(false);
+			//mamPrefs.setVisible(false);
+			changePresence.setVisible(false);
+		}
+
+		*/
+		return super.onCreateOptionsMenu(menu);
+	}
 
 	@Override
 	protected void onStart() {
@@ -807,12 +809,16 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 
 
-//	@Override
-//	public boolean onOptionsItemSelected(final MenuItem item) {
-//		if (MenuDoubleTabUtil.shouldIgnoreTap()) {
-//			return false;
-//		}
-//		switch (item.getItemId()) {
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		if (MenuDoubleTabUtil.shouldIgnoreTap()) {
+			return false;
+		}
+		switch (item.getItemId()) {
+			//CMG AM-117
+			case R.id.support_menu_item:
+				gotoSupportPage();
+				break;
 //			case R.id.action_show_block_list:
 //				final Intent showBlocklistIntent = new Intent(this, BlocklistActivity.class);
 //				showBlocklistIntent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().toString());
@@ -842,9 +848,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 //			case R.id.action_change_presence:
 //				changePresence();
 //				break;
-//		}
-//		return super.onOptionsItemSelected(item);
-//	}
+		}
+		return super.onOptionsItemSelected(item);
+	}
 
 //	private void shareBarcode() {
 //		Intent intent = new Intent(Intent.ACTION_SEND);
@@ -856,6 +862,13 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	private void changeMoreTableVisibility(boolean visible) {
 		mMoreTable.setVisibility(visible ? VISIBLE : View.GONE);
+	}
+
+	//CMG AM-117
+	private void gotoSupportPage(){
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		intent.setData(Uri.parse("https://glaciersecurity.zendesk.com"));
+		startActivity(intent);
 	}
 
 	private void gotoChangePassword(String newPassword) {
@@ -1479,8 +1492,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				launchUser();
 			} else {
 				closeWaitDialog();
-				showDialogMessage(getString(R.string.signin_fail_title), "Invalid Org ID");
-
+				//CMG AM-192
+				//showDialogMessage(getString(R.string.signin_fail_title), "Invalid Org ID");
+				showDialogMessage(getString(R.string.invalid_connecting), getString(R.string.invalid_login_error));
 				//ALF AM-143 log out of cognito
 				logOut();
 			}
@@ -1539,9 +1553,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		// GOOBER COGNITO - close waitdialog
 		closeWaitDialog();
 
+		//CMG AM-192
+		showDialogMessage(getString(R.string.invalid_connecting), getString(R.string.invalid_login_error));
+
+		//showDialogMessage(getString(R.string.error_connecting), getString(R.string.unknown_login_error));
 		//ALF AM-74
 		//showDialogMessage(getString(R.string.signin_fail_title), AppHelper.formatException(e));
-		showDialogMessage(getString(R.string.error_connecting), getString(R.string.unknown_login_error));
 
 		// Go back to login screen
 		setLoginContentView();
@@ -2489,13 +2506,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 		return true;
 	}
-
 	private void bindService() {
 		Intent icsopenvpnService = new Intent(IOpenVPNAPIService.class.getName());
 		icsopenvpnService.setPackage("com.glaciersecurity.glaciercore");
 
-		//HONEYBADGER AM-76  GLACIER CORE CRASH THIS IS WHERE THE ERROR IS!!!!
-		// TODO remove my carpet bomb of try catches
 		try {
 			// GOOBER ERROR - Reports error on occassion but doesn't seem to effect anything
 			bindService(icsopenvpnService, mConnection, Context.BIND_AUTO_CREATE);
