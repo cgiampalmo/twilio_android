@@ -919,7 +919,7 @@
     <string name="no_vpn_profile_dialog_message">No VPN profile to add</string> <!-- ALF AM-76 -->
     <string name="load_vpn_profile_dialog_message">Loading VPN list....</string>
     <string name="add_button_text">Add</string>
-    <string name="core_connection_import_profile">Add VPN Profile</string>
+    <string name="core_connection_import_profile">Import Core Profiles</string>
 
     <string name="activity_dialog_title">Forgot your Pincode?</string>
     <string name="activity_dialog_accept">OK</string>

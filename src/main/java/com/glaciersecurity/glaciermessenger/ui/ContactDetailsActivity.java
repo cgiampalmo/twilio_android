@@ -291,6 +291,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         MenuItem unblock = menu.findItem(R.id.action_unblock);
         MenuItem edit = menu.findItem(R.id.action_edit_contact);
         MenuItem delete = menu.findItem(R.id.action_delete_contact);
+
         if (contact == null) {
             return true;
         }
@@ -400,8 +401,9 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             }
         }
 
-        //HONEYBADGER AM-120 remove jid only show account name
-        //binding.detailsContactjid.setText(IrregularUnicodeDetector.style(this, contact.getJid()));
+
+        //CMG AM-260
+        binding.detailsContactjid.setText(contact.getDisplayName());
         String account;
         if (Config.DOMAIN_LOCK != null) {
             account = contact.getAccount().getJid().getLocal();
