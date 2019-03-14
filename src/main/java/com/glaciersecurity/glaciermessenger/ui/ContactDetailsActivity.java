@@ -291,7 +291,6 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         MenuItem unblock = menu.findItem(R.id.action_unblock);
         MenuItem edit = menu.findItem(R.id.action_edit_contact);
         MenuItem delete = menu.findItem(R.id.action_delete_contact);
-
         if (contact == null) {
             return true;
         }

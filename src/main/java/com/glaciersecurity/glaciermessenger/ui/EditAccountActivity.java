@@ -1405,6 +1405,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * @param view
 	 */
 	public void logIn(View view) {
+		//CMG AM-200
+		disconnectExistingProfiles();
+
 		tempVPN.setLoginState(LoginAccount.LoginState.FORM_ENTRY); //CMG AM-172
 		if ((mLoginButton.getText().toString().compareTo(getString(R.string.login_button_label))) == 0) {
 			// log into Cognito and then messenger
@@ -1554,6 +1557,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		closeWaitDialog();
 
 		//CMG AM-192
+		clearPasswordField();
+
+		//CMG AM-192
 		showDialogMessage(getString(R.string.invalid_connecting), getString(R.string.invalid_login_error));
 
 		//showDialogMessage(getString(R.string.error_connecting), getString(R.string.unknown_login_error));
@@ -1562,6 +1568,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 		// Go back to login screen
 		setLoginContentView();
+	}
+
+	//CMG AM-192
+	private void clearPasswordField(){
+		mPassword.setText("");
+		tempVPN.setLogPassword("");
 	}
 
 	//ALF AM-220
@@ -1672,8 +1684,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						// GOOBER COGNITO - remove all profiles for fresh start
 						// commented out b/c we want to keep any existing profiles
 						// not being replaced.
-						//CMG AM-200
 						deleteExistingProfiles();
+
+						//CMG AM-200
+						//disconnectExistingProfiles();
 
 						// replace existing profiles for Core and add
 						// those that aren't in Core
@@ -1769,6 +1783,19 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				for (APIVpnProfile prof : list) {
 					mService.removeProfile(prof.mUUID);
 				}
+			}
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	//CMG AM-200
+	private void disconnectExistingProfiles() {
+		try {
+			if (mService != null) {
+				// disconnect VPN first
+				mService.disconnect();
+
 			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
@@ -2506,6 +2533,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 		return true;
 	}
+
 	private void bindService() {
 		Intent icsopenvpnService = new Intent(IOpenVPNAPIService.class.getName());
 		icsopenvpnService.setPackage("com.glaciersecurity.glaciercore");
