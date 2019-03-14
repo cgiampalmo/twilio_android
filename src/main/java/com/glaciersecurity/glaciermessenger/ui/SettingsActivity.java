@@ -461,7 +461,12 @@ public class SettingsActivity extends XmppActivity implements
 		} else if (name.equals(AUTOMATIC_MESSAGE_DELETION)) {
 			xmppConnectionService.expireOldMessages(true);
 		} else if (name.equals(DISPLAYNAME)) { //ALF AM-48
-			String newname = preferences.getString(name, null);
+			//CMG AM-223
+			String defname = null;
+			if (xmppConnectionService.getAccounts() != null){
+				defname = xmppConnectionService.getAccounts().get(0).getAvatar();
+			}
+			String newname = preferences.getString(name, defname);
 			changeDisplayName(newname);
 		} else if (name.equals(GLOBAL_MESSAGE_TIMER)) { //ALF AM-53
 			int timer = Message.TIMER_NONE;

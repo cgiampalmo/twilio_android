@@ -411,7 +411,8 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         }
         //binding.detailsAccount.setText(getString(R.string.using_account, account));
         AvatarWorkerTask.loadAvatar(contact,binding.detailsContactBadge,R.dimen.avatar_on_details_screen_size);
-        binding.detailsContactBadge.setOnClickListener(this.onBadgeClick);
+        //CMG AM-263
+        //binding.detailsContactBadge.setOnClickListener(this.onBadgeClick);
 
         binding.detailsContactKeys.removeAllViews();
         boolean hasKeys = false;
