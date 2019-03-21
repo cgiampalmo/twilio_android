@@ -1406,7 +1406,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 */
 	public void logIn(View view) {
 		//CMG AM-200
-		disconnectExistingProfiles();
+		deleteExistingProfiles();
 
 		tempVPN.setLoginState(LoginAccount.LoginState.FORM_ENTRY); //CMG AM-172
 		if ((mLoginButton.getText().toString().compareTo(getString(R.string.login_button_label))) == 0) {
@@ -1684,10 +1684,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						// GOOBER COGNITO - remove all profiles for fresh start
 						// commented out b/c we want to keep any existing profiles
 						// not being replaced.
-						//deleteExistingProfiles();
+						deleteExistingProfiles();
 
 						//CMG AM-200
-						disconnectExistingProfiles();
+						//disconnectExistingProfiles();
 
 						// replace existing profiles for Core and add
 						// those that aren't in Core
