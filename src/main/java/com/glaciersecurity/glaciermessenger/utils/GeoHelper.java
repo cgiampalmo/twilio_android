@@ -98,13 +98,15 @@ public class GeoHelper {
 				}
 			}
 			intents.add(locationPluginIntent);
-		} else {
+		}
+		// AM-268
+		/*else {
 			Intent intent = new Intent(context, ShowLocationActivity.class);
 			intent.setAction(SHOW_LOCATION_PACKAGE_NAME);
 			intent.putExtra("latitude", geoPoint.getLatitude());
 			intent.putExtra("longitude", geoPoint.getLongitude());
 			intents.add(intent);
-		}
+		}*/
 
 		intents.add(geoIntent(geoPoint, label));
 
