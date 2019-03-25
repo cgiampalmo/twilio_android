@@ -202,16 +202,11 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 					mXmppConnectionService.fetchAvatar(account, avatar);
 				}
 			}
-		} else if ("http://jabber.org/protocol/nick".equals(node)) {
+		} else if (Namespace.NICK.equals(node)) {
 			final Element i = items.findChild("item");
 			final String nick = i == null ? null : i.findChildContent("nick", Namespace.NICK);
 			if (nick != null) {
-				Contact contact = account.getRoster().getContact(from);
-				if (contact.setPresenceName(nick)) {
-					mXmppConnectionService.getAvatarService().clear(contact);
-				}
-				mXmppConnectionService.updateConversationUi();
-				mXmppConnectionService.updateAccountUi();
+				setNick(account, from, nick);
 			}
 		} else if (AxolotlService.PEP_DEVICE_LIST.equals(node)) {
 			Element item = items.findChild("item");

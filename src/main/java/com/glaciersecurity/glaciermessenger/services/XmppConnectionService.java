@@ -1445,7 +1445,9 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 						if (message.edited()) {
 							message.setBody(decryptedBody);
 							message.setEncryption(Message.ENCRYPTION_DECRYPTED);
-							databaseBackend.updateMessage(message, message.getEditedId());
+							if (!databaseBackend.updateMessage(message, message.getEditedId())) {
+								Log.e(Config.LOGTAG,"error updated message in DB after edit");
+							}
 							updateConversationUi();
 							return;
 						} else {
@@ -1483,7 +1485,9 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 			if (saveInDb) {
 				databaseBackend.createMessage(message);
 			} else if (message.edited()) {
-				databaseBackend.updateMessage(message, message.getEditedId());
+				if (!databaseBackend.updateMessage(message, message.getEditedId())) {
+					Log.e(Config.LOGTAG,"error updated message in DB after edit");
+				}
 			}
 			updateConversationUi();
 		}
@@ -3134,7 +3138,9 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 	}
 
 	public void updateMessage(Message message, String uuid) {
-		databaseBackend.updateMessage(message, uuid);
+		if (!databaseBackend.updateMessage(message, uuid)) {
+			Log.e(Config.LOGTAG,"error updated message in DB after edit");
+		}
 		updateConversationUi();
 	}
 
@@ -4255,16 +4261,22 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 
 	public void publishDisplayName(Account account) {
 		String displayName = account.getDisplayName();
-		if (displayName != null && !displayName.isEmpty()) {
-			IqPacket publish = mIqGenerator.publishNick(displayName);
-			mAvatarService.clear(account);
-			sendIqPacket(account, publish, (account1, packet) -> {
-				if (packet.getType() == IqPacket.TYPE.ERROR) {
-					Log.d(Config.LOGTAG, account1.getJid().asBareJid() + ": could not publish nick");
-				}
-			});
+		final IqPacket request;
+		if (TextUtils.isEmpty(displayName)) {
+			request = mIqGenerator.deleteNode(Namespace.NICK);
+		} else {
+			request = mIqGenerator.publishNick(displayName);
+		}
+		mAvatarService.clear(account);
+		sendIqPacket(account, request, (account1, packet) -> {
+			if (packet.getType() == IqPacket.TYPE.ERROR) {
+				Log.d(Config.LOGTAG, account1.getJid().asBareJid() + ": unable to modify nick name "+packet.toString());
+			}
+		});
 
-			//ALF AM-48
+		//ALF AM-48, 03/19 might need to rethink this
+		if (displayName != null && !displayName.isEmpty()) {
+
 			IqPacket publishv = mIqGenerator.publishVcardWithNick(displayName);
 			sendIqPacket(account, publishv, (account2, packet2) -> {
 				if (packet2.getType() == IqPacket.TYPE.ERROR) {

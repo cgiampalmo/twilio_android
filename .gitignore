@@ -3,6 +3,8 @@
 .settings
 
 src/playstore/res/values/push.xml
+src/conversationsPlaystore/res/values/push.xml
+src/quicksyPlaystore/res/values/push.xml
 
 # https://github.com/github/gitignore/blob/master/Gradle.gitignore
 .gradle/

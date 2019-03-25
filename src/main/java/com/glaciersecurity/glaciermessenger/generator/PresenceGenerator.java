@@ -1,11 +1,14 @@
 package com.glaciersecurity.glaciermessenger.generator;
 
+import android.text.TextUtils;
+
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.MucOptions;
 import com.glaciersecurity.glaciermessenger.entities.Presence;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.xml.Element;
+import com.glaciersecurity.glaciermessenger.xml.Namespace;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.PresencePacket;
 
 public class PresenceGenerator extends AbstractGenerator {
@@ -23,7 +26,12 @@ public class PresenceGenerator extends AbstractGenerator {
 	}
 
 	public PresencePacket requestPresenceUpdatesFrom(Contact contact) {
-		return subscription("subscribe", contact);
+		PresencePacket packet = subscription("subscribe", contact);
+		String displayName = contact.getAccount().getDisplayName();
+		if (!TextUtils.isEmpty(displayName)) {
+			packet.addChild("nick", Namespace.NICK).setContent(displayName);
+		}
+		return packet;
 	}
 
 	public PresencePacket stopPresenceUpdatesFrom(Contact contact) {

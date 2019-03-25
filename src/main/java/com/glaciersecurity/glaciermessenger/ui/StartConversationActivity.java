@@ -19,7 +19,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -27,10 +26,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextWatcher;
-import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -45,7 +41,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -54,7 +49,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -434,7 +428,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	}
 
 	protected void openConversationsForBookmark(Bookmark bookmark) {
-		Jid jid = bookmark.getJid();
+		final Jid jid = bookmark.getFullJid();
 		if (jid == null) {
 			Toast.makeText(this, R.string.invalid_jid, Toast.LENGTH_SHORT).show();
 			return;
@@ -1361,6 +1355,10 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 					listFragment.setListAdapter(mContactsAdapter);
 					listFragment.setContextMenu(R.menu.contact_context);
 					listFragment.setOnListItemClickListener((arg0, arg1, p, arg3) -> openConversationForContact(p));
+
+					if (QuickConversationsService.isQuicksy()) {
+						listFragment.setOnRefreshListener(StartConversationActivity.this);
+					}
 				}
 				fragments[position] = listFragment;
 			}

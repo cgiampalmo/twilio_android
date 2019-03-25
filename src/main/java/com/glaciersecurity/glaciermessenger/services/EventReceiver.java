@@ -3,6 +3,7 @@ package com.glaciersecurity.glaciermessenger.services;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -15,22 +16,22 @@ public class EventReceiver extends BroadcastReceiver {
 	public static final String EXTRA_NEEDS_FOREGROUND_SERVICE = "needs_foreground_service"; //ALF AM-184
 
 	@Override
-	public void onReceive(Context context, Intent intent) {
-		Intent mIntentForService = new Intent(context, XmppConnectionService.class);
-		if (intent.getAction() != null) {
-			mIntentForService.setAction(intent.getAction());
-		} else {
-			mIntentForService.setAction("other");
-		}
-		final String action = intent.getAction();
-		if (action.equals("ui") || hasEnabledAccounts(context)) {
-			try {
-				Compatibility.startService(context, mIntentForService);
-			} catch (RuntimeException e) {
-				Log.d(Config.LOGTAG,"EventReceiver was unable to start service");
+	public void onReceive(final Context context, final Intent originalIntent) {
+		final Intent intentForService = new Intent(context, XmppConnectionService.class);
+		if (originalIntent.getAction() != null) {
+			intentForService.setAction(originalIntent.getAction());
+			final Bundle extras = originalIntent.getExtras();
+			if (extras != null) {
+				intentForService.putExtras(extras);
 			}
 		} else {
-			Log.d(Config.LOGTAG,"EventReceiver ignored action "+mIntentForService.getAction());
+			intentForService.setAction("other");
+		}
+		final String action = originalIntent.getAction();
+		if (action.equals("ui") || hasEnabledAccounts(context)) {
+			Compatibility.startService(context, intentForService);
+		} else {
+			Log.d(Config.LOGTAG, "EventReceiver ignored action " + intentForService.getAction());
 		}
 	}
 
