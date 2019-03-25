@@ -14,8 +14,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -118,7 +116,6 @@ import com.glaciersecurity.glaciermessenger.crypto.axolotl.XmppAxolotlSession;
 import com.glaciersecurity.glaciermessenger.databinding.ActivityEditAccountBinding;
 import com.glaciersecurity.glaciermessenger.databinding.DialogPresenceBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
-import com.glaciersecurity.glaciermessenger.entities.LoginAccount;
 import com.glaciersecurity.glaciermessenger.entities.Presence;
 import com.glaciersecurity.glaciermessenger.entities.PresenceTemplate;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
@@ -128,6 +125,7 @@ import com.glaciersecurity.glaciermessenger.ui.adapter.PresenceTemplateAdapter;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
+import com.glaciersecurity.glaciermessenger.utils.Resolver;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
 import com.glaciersecurity.glaciermessenger.xml.Element;
@@ -499,14 +497,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		return !unmodified.equals(this.tempVPN.getLogUsername()); //CMG AM-172
 	}
 
-	protected boolean passwordChangedInMagicCreateMode() {
-		return mAccount != null
-				&& mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE)
-				&& !this.mAccount.getPassword().equals(this.tempVPN.getLogPassword()) //CMG AM-172
-				&& !this.jidEdited()
-				&& mAccount.isOnlineAndConnected();
-	}
-
 	@Override
 	protected String getShareableUri(boolean http) {
 		if (mAccount != null) {
@@ -574,7 +564,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.mClearDevicesButton = (Button) findViewById(R.id.clear_devices);
 		this.mClearDevicesButton.setOnClickListener(v -> showWipePepDialog());
 		this.mPort = (EditText) findViewById(R.id.port);
-		this.mPort.setText("5222");
+		this.mPort.setText(String.valueOf(Resolver.DEFAULT_PORT_XMPP));
 		this.mPort.addTextChangedListener(mTextWatcher);
 		this.mPortLayout = (TextInputLayout) findViewById(R.id.port_layout);
 		/* GOOBER COGNITO - Removed in favor of buttons
@@ -611,6 +601,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		// GOOBER COGNITO - removed in favor of buttons
 		/* this.mCancelButton.setVisibility(View.INVISIBLE);
 		this.mSaveButton.setVisibility(View.INVISIBLE);*/
+	}
+
+	private void refreshAvatar() {
+		binding.avater.setImageBitmap(avatarService().get(mAccount, (int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
 	}
 
 	@Override
@@ -2308,10 +2302,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		final String password = this.tempVPN.getLogPassword(); //CMG AM-172
 		final boolean wasDisabled = mAccount != null && mAccount.getStatus() == Account.State.DISABLED;
 
-		if (!mInitMode && passwordChangedInMagicCreateMode()) {
-			gotoChangePassword(password);
-			return;
-		}
 		if (mInitMode && mAccount != null) {
 			mAccount.setOption(Account.OPTION_DISABLED, false);
 		}

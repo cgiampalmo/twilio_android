@@ -407,7 +407,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 
 	public void setStatus(final State status) {
 		this.status = status;
-		if (status.isError) {
+		if (status.isError || status == State.ONLINE) {
 			this.lastErrorStatus = status;
 		}
 	}

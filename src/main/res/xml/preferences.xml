@@ -16,9 +16,7 @@
                 android:targetClass="com.huawei.systemmanager.optimize.process.ProtectActivity"
                 android:targetPackage="com.huawei.systemmanager"/>
         </PreferenceScreen>
-        <com.glaciersecurity.glaciermessenger.ui.AboutPreference
-            android:title="@string/title_activity_about"
-            android:summary="@string/pref_use_larger_font_summary"/>
+        <com.glaciersecurity.glaciermessenger.ui.AboutPreference/>
         <!-- AM-16 -->
         <Preference android:title="@string/support_button_key"
             android:key="@string/support_button_key"

@@ -137,8 +137,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 313
-        versionName "2.3.2-RC4"
+        versionCode 315
+        versionName "2.3.2-RC6"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
         resValue "string", "applicationId", applicationId
@@ -251,7 +251,7 @@ android {
         buildTypes.release.signingConfig = signingConfigs.release
     }
     lintOptions {
-        disable 'MissingTranslation', 'InvalidPackage', 'MissingQuantity', 'AppCompatResource'
+        disable 'ExtraTranslation', 'MissingTranslation', 'InvalidPackage', 'MissingQuantity', 'AppCompatResource'
         // checkReleaseBuilds false
         // Or, if you prefer, you can continue to check for errors in release builds,
         // but continue the build even when errors are found:

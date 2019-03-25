@@ -80,7 +80,7 @@ public class NotificationService {
 	private static final int NOTIFICATION_ID_MULTIPLIER = 1024 * 1024;
 
 	public static final int NOTIFICATION_ID = 2 * NOTIFICATION_ID_MULTIPLIER;
-	public static final int FOREGROUND_NOTIFICATION_ID = NOTIFICATION_ID_MULTIPLIER * 4;
+	static final int FOREGROUND_NOTIFICATION_ID = NOTIFICATION_ID_MULTIPLIER * 4;
 	public static final int ERROR_NOTIFICATION_ID = NOTIFICATION_ID_MULTIPLIER * 6;
 
 	private Conversation mOpenConversation;
@@ -112,9 +112,9 @@ public class NotificationService {
 			return false;
 		}
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mXmppConnectionService);
-		final long startTime = preferences.getLong("quiet_hours_start", TimePreference.DEFAULT_VALUE) % Config.MILLISECONDS_IN_DAY;
-		final long endTime = preferences.getLong("quiet_hours_end", TimePreference.DEFAULT_VALUE) % Config.MILLISECONDS_IN_DAY;
-		final long nowTime = Calendar.getInstance().getTimeInMillis() % Config.MILLISECONDS_IN_DAY;
+		final long startTime = TimePreference.minutesToTimestamp(preferences.getLong("quiet_hours_start", TimePreference.DEFAULT_VALUE));
+		final long endTime = TimePreference.minutesToTimestamp(preferences.getLong("quiet_hours_end", TimePreference.DEFAULT_VALUE));
+		final long nowTime = Calendar.getInstance().getTimeInMillis();
 
 		if (endTime < startTime) {
 			return nowTime > startTime || nowTime < endTime;
@@ -141,7 +141,7 @@ public class NotificationService {
 		}
 	}
 
-	public void pushFromDirectReply(final Message message) {
+	void pushFromDirectReply(final Message message) {
 		synchronized (notifications) {
 			pushToStack(message);
 			updateNotification(false);
@@ -188,7 +188,7 @@ public class NotificationService {
 		return count;
 	}
 
-	public void finishBacklog(boolean notify) {
+	void finishBacklog(boolean notify) {
 		finishBacklog(notify, null);
 	}
 
@@ -839,11 +839,12 @@ public class NotificationService {
 		final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, "foreground");
 		//final Notification.Builder mBuilder = new Notification.Builder(mXmppConnectionService);
 
-		mBuilder.setContentTitle(mXmppConnectionService.getString(R.string.conversations_foreground_service) + " is active");
-		if (Config.SHOW_CONNECTED_ACCOUNTS) {
-			List<Account> accounts = mXmppConnectionService.getAccounts();
-			int enabled = 0;
-			int connected = 0;
+		mBuilder.setContentTitle(mXmppConnectionService.getString(R.string.app_name));
+
+		final List<Account> accounts = mXmppConnectionService.getAccounts();
+		int enabled = 0;
+		int connected = 0;
+		if (accounts != null) {
 			for (Account account : accounts) {
 				if (account.isOnlineAndConnected()) {
 					connected++;
@@ -852,17 +853,18 @@ public class NotificationService {
 					enabled++;
 				}
 			}
-			mBuilder.setContentText(mXmppConnectionService.getString(R.string.connected_accounts, connected, enabled));
-		} else {
-			//mBuilder.setContentText(mXmppConnectionService.getString(R.string.touch_to_open_conversations));
-			mBuilder.setContentText("");
 		}
+		mBuilder.setContentText(mXmppConnectionService.getString(R.string.connected_accounts, connected, enabled));
+		//mBuilder.setContentText(""); ???
 		mBuilder.setContentIntent(createOpenConversationsIntent());
 		mBuilder.setWhen(0);
 
+		if (Compatibility.runsTwentySix()) {
+			mBuilder.setChannelId("foreground");
+		}
+
 		//ALF AM-184
 		mBuilder.setPriority(NotificationCompat.PRIORITY_MIN);
-		//mBuilder.setPriority(Config.SHOW_CONNECTED_ACCOUNTS ? NotificationCompat.PRIORITY_DEFAULT : NotificationCompat.PRIORITY_MIN);
 		mBuilder.setSmallIcon(R.drawable.ic_notification); //ALF AM-184 (changed this to a glacier icon)
 		mBuilder.setOngoing(true);
 
@@ -873,7 +875,7 @@ public class NotificationService {
 		return PendingIntent.getActivity(mXmppConnectionService, 0, new Intent(mXmppConnectionService, ConversationsActivity.class), 0);
 	}
 
-	public void updateErrorNotification() {
+	void updateErrorNotification() {
 		if (Config.SUPPRESS_ERROR_NOTIFICATION) {
 			cancel(ERROR_NOTIFICATION_ID);
 			return;

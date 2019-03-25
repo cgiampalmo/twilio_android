@@ -3,6 +3,7 @@ package com.glaciersecurity.glaciermessenger.ui;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
@@ -10,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.view.ActionMode;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +19,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +41,7 @@ import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
 import rocks.xmpp.addr.Jid;
 
-public class ChooseContactActivity extends AbstractSearchableListItemActivity implements MultiChoiceModeListener {
+public class ChooseContactActivity extends AbstractSearchableListItemActivity implements MultiChoiceModeListener, AdapterView.OnItemClickListener {
     public static final String EXTRA_TITLE_RES_ID = "extra_title_res_id";
     public static final String EXTRA_GROUP_CHAT_NAME = "extra_group_chat_name";
     public static final String EXTRA_PUBLIC_GROUP = "extra_public_group"; //ALF AM-88
@@ -51,6 +54,8 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
     private Set<String> filterContacts;
 
     private boolean showEnterJid = false;
+    private boolean startSearching = false;
+    private boolean multiple = false;
 
     private PendingItem<ActivityResult> postponedActivityResult = new PendingItem<>();
 
@@ -111,42 +116,24 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
 
         Intent intent = getIntent();
 
-        final boolean multiple = intent.getBooleanExtra(EXTRA_SELECT_MULTIPLE, false);
+        multiple = intent.getBooleanExtra(EXTRA_SELECT_MULTIPLE, false);
         if (multiple) {
             getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
             getListView().setMultiChoiceModeListener(this);
         }
 
-        getListView().setOnItemClickListener((parent, view, position, id) -> {
-            if (multiple) {
-                startActionMode(this);
-                getListView().setItemChecked(position, true);
-                return;
-            }
-            final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(getSearchEditText().getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
-            final Intent request = getIntent();
-            final Intent data = new Intent();
-            final ListItem mListItem = getListItems().get(position);
-            data.putExtra("contact", mListItem.getJid().toString());
-            String account = request.getStringExtra(EXTRA_ACCOUNT);
-            if (account == null && mListItem instanceof Contact) {
-                account = ((Contact) mListItem).getAccount().getJid().asBareJid().toString();
-            }
-            data.putExtra(EXTRA_ACCOUNT, account);
-            data.putExtra(EXTRA_SELECT_MULTIPLE, false);
-            copy(request, data);
-            setResult(RESULT_OK, data);
-            finish();
-        });
-        final Intent i = getIntent();
-        this.showEnterJid = i != null && i.getBooleanExtra(EXTRA_SHOW_ENTER_JID, false);
+        getListView().setOnItemClickListener(this);
+        this.showEnterJid = intent.getBooleanExtra(EXTRA_SHOW_ENTER_JID, false);
         this.binding.fab.setOnClickListener(this::onFabClicked);
         if (this.showEnterJid) {
-            this.binding.fab.setVisibility(View.VISIBLE);
+            this.binding.fab.show();
         } else {
-            this.binding.fab.setVisibility(View.GONE);
+            binding.fab.setImageResource(R.drawable.ic_forward_white_24dp);
         }
+
+        final SharedPreferences preferences = getPreferences();
+        this.startSearching = intent.getBooleanExtra("direct_search", false) && preferences.getBoolean("start_searching", getResources().getBoolean(R.bool.start_searching));
+
     }
 
     private void onFabClicked(View v) {
@@ -167,9 +154,9 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
         //CMG AM-152 and added if/else
         //binding.fab.setImageResource(R.drawable.ic_forward_white_24dp);
         if (this.showEnterJid) {
-            this.binding.fab.setVisibility(View.VISIBLE);
+            this.binding.fab.show();
         } else {
-            this.binding.fab.setVisibility(View.GONE);
+            this.binding.fab.hide();
         }
         final View view = getSearchEditText();
         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -184,9 +171,9 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
         //CMG AM-152 remove create contact button
         //this.binding.fab.setImageResource(R.drawable.ic_person_add_white_24dp);
         if (this.showEnterJid) {
-            this.binding.fab.setVisibility(View.VISIBLE);
+            this.binding.fab.show();
         } else {
-            this.binding.fab.setVisibility(View.GONE);
+            this.binding.fab.hide();
         }
         selected.clear();
     }
@@ -253,6 +240,10 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
         final Intent i = getIntent();
         boolean showEnterJid = i != null && i.getBooleanExtra(EXTRA_SHOW_ENTER_JID, false);
         //menu.findItem(R.id.action_scan_qr_code).setVisible(isCameraFeatureAvailable() && showEnterJid);
+        MenuItem mMenuSearchView = menu.findItem(R.id.action_search);
+        if (startSearching) {
+            mMenuSearchView.expandActionView();
+        }
         return true;
     }
 
@@ -260,6 +251,20 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putStringArray("selected_contacts", getSelectedContactJids());
         super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (multiple) {
+            return false;
+        } else {
+            List<ListItem> items = getListItems();
+            if (items.size() == 1) {
+                onListItemClicked(items.get(0));
+                return true;
+            }
+            return false;
+        }
     }
 
     protected void filterContacts(final String needle) {
@@ -284,7 +289,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
     }
 
     private String[] getSelectedContactJids() {
-        return selected.toArray(new String[selected.size()]);
+        return selected.toArray(new String[0]);
     }
 
     public void refreshUiReal() {
@@ -293,11 +298,11 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        //HONEYBADGER AM-120 Remove the top right barcode scanning feature
         switch (item.getItemId()) {
-//            case R.id.action_scan_qr_code:
-//                ScanActivity.scan(this);
-//                return true;
+            //HONEYBADGER AM-120 Remove the top right barcode scanning feature
+            //case R.id.action_scan_qr_code:
+            //    ScanActivity.scan(this);
+            //    return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -375,7 +380,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
         if (activityResult != null) {
             handleActivityResult(activityResult);
         }
-        Fragment fragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_DIALOG);
+        final Fragment fragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_DIALOG);
         if (fragment instanceof OnBackendConnected) {
             ((OnBackendConnected) fragment).onBackendConnected();
         }
@@ -384,5 +389,33 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity im
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         ScanActivity.onRequestPermissionResult(this, requestCode, grantResults);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if (multiple) {
+            startActionMode(this);
+            getListView().setItemChecked(position, true);
+            return;
+        }
+        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getSearchEditText().getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
+        final ListItem mListItem = getListItems().get(position);
+        onListItemClicked(mListItem);
+    }
+
+    private void onListItemClicked(ListItem item) {
+        final Intent request = getIntent();
+        final Intent data = new Intent();
+        data.putExtra("contact", item.getJid().toString());
+        String account = request.getStringExtra(EXTRA_ACCOUNT);
+        if (account == null && item instanceof Contact) {
+            account = ((Contact) item).getAccount().getJid().asBareJid().toString();
+        }
+        data.putExtra(EXTRA_ACCOUNT, account);
+        data.putExtra(EXTRA_SELECT_MULTIPLE, false);
+        copy(request, data);
+        setResult(RESULT_OK, data);
+        finish();
     }
 }

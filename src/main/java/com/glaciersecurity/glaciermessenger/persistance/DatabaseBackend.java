@@ -683,17 +683,23 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 		db.insert(RESOLVER_RESULTS_TABLENAME, null, contentValues);
 	}
 
-	public Resolver.Result findResolverResult(String domain) {
+	public synchronized Resolver.Result findResolverResult(String domain) {
 		SQLiteDatabase db = this.getReadableDatabase();
 		String where = Resolver.Result.DOMAIN + "=?";
 		String[] whereArgs = {domain};
 		final Cursor cursor = db.query(RESOLVER_RESULTS_TABLENAME, null, where, whereArgs, null, null, null);
 		Resolver.Result result = null;
 		if (cursor != null) {
-			if (cursor.moveToFirst()) {
-				result = Resolver.Result.fromCursor(cursor);
+			try {
+				if (cursor.moveToFirst()) {
+					result = Resolver.Result.fromCursor(cursor);
+				}
+			} catch (Exception e ) {
+				Log.d(Config.LOGTAG,"unable to find cached resolver result in database "+e.getMessage());
+				return null;
+			} finally {
+				cursor.close();
 			}
-			cursor.close();
 		}
 		return result;
 	}
@@ -1007,11 +1013,10 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 		return db.update(Message.TABLENAME, message.getContentValues(), Message.UUID + "=?", args) == 1;
 	}
 
-	public void updateMessage(Message message, String uuid) {
+	public boolean updateMessage(Message message, String uuid) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		String[] args = {uuid};
-		db.update(Message.TABLENAME, message.getContentValues(), Message.UUID
-				+ "=?", args);
+		return db.update(Message.TABLENAME, message.getContentValues(), Message.UUID + "=?", args) == 1;
 	}
 
 	public void readRoster(Roster roster) {

@@ -18,8 +18,6 @@ import java.util.Set;
 
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.FingerprintStatus;
-import com.glaciersecurity.glaciermessenger.http.AesGcmURLStreamHandler;
-import com.glaciersecurity.glaciermessenger.ui.adapter.MessageAdapter;
 import com.glaciersecurity.glaciermessenger.services.AvatarService;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.Emoticons;
