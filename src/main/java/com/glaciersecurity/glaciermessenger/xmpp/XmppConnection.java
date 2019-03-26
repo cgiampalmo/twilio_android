@@ -47,7 +47,6 @@ import java.util.regex.Matcher;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509KeyManager;
@@ -76,7 +75,6 @@ import com.glaciersecurity.glaciermessenger.services.MessageArchiveService;
 import com.glaciersecurity.glaciermessenger.services.NotificationService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
-import com.glaciersecurity.glaciermessenger.utils.IP;
 import com.glaciersecurity.glaciermessenger.utils.Patterns;
 import com.glaciersecurity.glaciermessenger.utils.Resolver;
 import com.glaciersecurity.glaciermessenger.utils.SSLSocketHelper;
@@ -1365,6 +1363,10 @@ public class XmppConnection implements Runnable {
 		} else if (streamError.hasChild("host-unknown")) {
 			throw new StateChangingException(Account.State.HOST_UNKNOWN);
 		} else if (streamError.hasChild("policy-violation")) {
+            final String text = streamError.findChildContent("text");
+            if (text != null) {
+                Log.d(Config.LOGTAG,account.getJid().asBareJid()+": policy violation. "+text);
+            }
 			throw new StateChangingException(Account.State.POLICY_VIOLATION);
 		} else {
 			Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": stream error " + streamError.toString());
