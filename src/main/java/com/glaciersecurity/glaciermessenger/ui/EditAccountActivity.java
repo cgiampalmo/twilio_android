@@ -846,6 +846,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		return super.onOptionsItemSelected(item);
 	}
 
+    private boolean inNeedOfSaslAccept() {
+        return mAccount != null && mAccount.getLastErrorStatus() == Account.State.DOWNGRADE_ATTACK && mAccount.getKeyAsInt(Account.PINNED_MECHANISM_KEY, -1) >= 0 && !accountInfoEdited();
+    }
+
 //	private void shareBarcode() {
 //		Intent intent = new Intent(Intent.ACTION_SEND);
 //		intent.putExtra(Intent.EXTRA_STREAM, BarcodeProvider.getUriForAccount(this, mAccount));

@@ -867,8 +867,6 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 			getPgpEngine().encrypt(message, new UiCallback<Message>() {
 				@Override
 				public void success(Message message) {
-					message.setEncryption(Message.ENCRYPTION_DECRYPTED);
-					sendMessage(message);
 					if (dismissAfterReply) {
 						markRead((Conversation) message.getConversation(), true);
 					} else {
@@ -2506,6 +2504,16 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 				private void join(Conversation conversation) {
 					Account account = conversation.getAccount();
 					final MucOptions mucOptions = conversation.getMucOptions();
+
+					if (mucOptions.nonanonymous() && !mucOptions.membersOnly() && !conversation.getBooleanAttribute("accept_non_anonymous", false)) {
+						mucOptions.setError(MucOptions.Error.NON_ANONYMOUS);
+						updateConversationUi();
+						if (onConferenceJoined != null) {
+							onConferenceJoined.onConferenceJoined(conversation);
+						}
+						return;
+					}
+
 					final Jid joinJid = mucOptions.getSelf().getFullJid();
 					Log.d(Config.LOGTAG, account.getJid().asBareJid().toString() + ": joining conversation " + joinJid.toString());
 					PresencePacket packet = mPresenceGenerator.selfPresence(account, Presence.Status.ONLINE, mucOptions.nonanonymous() || onConferenceJoined != null);

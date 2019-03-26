@@ -30,11 +30,12 @@ import com.glaciersecurity.glaciermessenger.ui.util.LocationHelper;
 import com.glaciersecurity.glaciermessenger.ui.util.UriHelper;
 import com.glaciersecurity.glaciermessenger.ui.widget.Marker;
 import com.glaciersecurity.glaciermessenger.ui.widget.MyLocation;
+import com.glaciersecurity.glaciermessenger.utils.LocationProvider;
 
 
 public class ShowLocationActivity extends LocationActivity implements LocationListener {
 
-	private GeoPoint loc = Config.Map.INITIAL_POS;
+	private GeoPoint loc = LocationProvider.FALLBACK;
 	private ActivityShowLocationBinding binding;
 
 

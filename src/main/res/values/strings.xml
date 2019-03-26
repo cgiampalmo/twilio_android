@@ -311,7 +311,7 @@
     <string name="pref_use_send_button_to_indicate_status_summary">Colorize send button to indicate contact status</string>
     <string name="pref_expert_options_other">Other</string>
     <string name="pref_autojoin">Automatically join group chats</string>
-    <string name="pref_autojoin_summary">Respect the autojoin flag in group chat bookmarks</string>
+    <string name="pref_autojoin_summary">Join and leave group chats according to auto-join flag in your bookmarks.</string>
     <string name="toast_message_glacier_id">Glacier ID copied to clipboard!</string>
     <string name="conference_banned">You are banned from this group chat</string>
     <string name="conference_members_only">This group chat is members only</string>
@@ -774,7 +774,7 @@
     <string name="gif">GIF</string>
     <string name="view_conversation">View chat session</string>
     <string name="pref_use_share_location_plugin">Share Location Plugin</string>
-    <string name="pref_use_share_location_plugin_summary">Use the Share Location Plugin instead of the build in map</string>
+    <string name="pref_use_share_location_plugin_summary">Use the Share Location Plugin instead of the built in map</string>
     <string name="copy_link">Copy web address</string>
     <string name="copy_jabber_id">Copy Jabber ID</string>
     <string name="p1_s3_filetransfer">HTTP File Sharing for S3</string>
@@ -833,6 +833,7 @@
     <string name="already_drafting_message">You are already drafting a message.</string>
     <string name="feature_not_implemented">Feature not implemented</string>
     <string name="group_chat_will_make_your_jabber_id_public">Open group: Users are visible to anyone.</string>
+    <string name="ebook">e-book</string>
     <string name="open_with">Open with…</string>
     <string name="enter_jabber_id">Enter Jabber ID</string>
     <string name="create_group_chat">Create group chat</string>
