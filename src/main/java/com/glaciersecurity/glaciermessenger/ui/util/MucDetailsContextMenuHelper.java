@@ -92,8 +92,7 @@ public final class MucDetailsContextMenuHelper {
                         banFromConference.setVisible(true);
                     }
                 } else {
-                    if (!Config.DISABLE_BAN || conversation.getMucOptions().membersOnly()) {
-                        managePermissionsVisible = true;
+                    if (!Config.DISABLE_BAN || conversation.getMucOptions().membersOnly())  {
                         removeFromRoom.setVisible(true);
                     }
                 }
