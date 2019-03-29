@@ -290,7 +290,12 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			}
 		});
 		binding.tabLayout.setupWithViewPager(binding.startConversationViewPager);
-		binding.startConversationViewPager.addOnPageChangeListener(mOnPageChangeListener);
+		binding.startConversationViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+			@Override
+			public void onPageSelected(int position) {
+				updateSearchViewHint();
+			}
+		});
 		mListPagerAdapter = new ListPagerAdapter(getSupportFragmentManager());
 		binding.startConversationViewPager.setAdapter(mListPagerAdapter);
 

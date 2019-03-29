@@ -331,7 +331,7 @@
     <string name="send_again">Send again</string>
     <string name="file_url">File URL</string>
     <string name="url_copied_to_clipboard">Copied URL to clipboard</string>
-    <string name="jabber_id_copied_to_clipboard">Copied Jabberd ID to clipboard</string>
+    <string name="jabber_id_copied_to_clipboard">Copied user ID to clipboard</string>
     <string name="error_message_copied_to_clipboard">Copied error message to clipboard</string>
     <string name="web_address">web address</string>
     <string name="scan_qr_code">Scan 2D Barcode</string>
@@ -415,7 +415,7 @@
     <string name="conference_options">Group chat options</string>
     <string name="channel_options">Public channel configuration</string>
     <string name="members_only">Private, members only</string>
-    <string name="non_anonymous">Non-anonymous</string>
+    <string name="non_anonymous">Make user addresses visible to anyone</string>
     <string name="moderated">Moderated</string>
     <string name="you_are_not_participating">You are not participating</string>
     <string name="modified_conference_options">Modified group chat options!</string>
@@ -710,7 +710,7 @@
     <string name="yesterday">Yesterday</string>
     <string name="pref_validate_hostname">Validate hostname with DNSSEC</string>
     <string name="pref_validate_hostname_summary">Server certificates that contain the validated hostname are considered verified</string>
-    <string name="certificate_does_not_contain_jid">Certificate does not contain a Jabber ID</string>
+    <string name="certificate_does_not_contain_jid">Certificate does not contain a XMPP address</string>
     <string name="server_info_partial">partial</string>
     <string name="attach_record_video">Record video</string>
     <string name="copy_to_clipboard">Copy to clipboard</string>
@@ -773,7 +773,7 @@
     <string name="pref_use_share_location_plugin">Share Location Plugin</string>
     <string name="pref_use_share_location_plugin_summary">Use the Share Location Plugin instead of the built in map</string>
     <string name="copy_link">Copy web address</string>
-    <string name="copy_jabber_id">Copy Jabber ID</string>
+    <string name="copy_jabber_id">Copy user ID</string>
     <string name="p1_s3_filetransfer">HTTP File Sharing for S3</string>
     <string name="pref_start_search">Direct Search</string>
     <string name="pref_start_search_summary">At ‘Start Conversation’ screen open keyboard and place cursor in search field</string>
@@ -799,8 +799,10 @@
 
     <!-- ALF AM-184 from Conversations -->
     <string name="pref_create_backup">Create backup</string>
-    <string name="pref_create_backup_summary">Write backup files to %s</string>
+    <string name="pref_create_backup_summary">Backup files will be stored in %s</string>
     <string name="notification_create_backup_title">Creating backup files</string>
+    <string name="notification_backup_created_title">Your backup has been created</string>
+    <string name="notification_backup_created_subtitle">The backup files have been stored in %s</string>
     <string name="restoring_backup">Restoring backup</string>
     <string name="notification_restored_backup_title">Your backup has been restored</string>
     <string name="notification_restored_backup_subtitle">Do not forget to enable the account.</string>
@@ -831,7 +833,7 @@
     <string name="group_chat_will_make_your_jabber_id_public">Open group: Users are visible to anyone.</string>
     <string name="ebook">e-book</string>
     <string name="open_with">Open with…</string>
-    <string name="enter_jabber_id">Enter Jabber ID</string>
+    <string name="enter_jabber_id">Enter user ID</string>
     <string name="create_group_chat">Create group chat</string>
     <string name="join_public_channel">Join public channel</string>
     <string name="create_private_group_chat">Create private group chat</string>
@@ -842,7 +844,7 @@
     <string name="please_enter_xmpp_address">Please provide an XMPP address</string>
     <string name="this_is_an_xmpp_address">This is an XMPP address. Please provide a name.</string>
     <string name="creating_channel">Creating public channel…</string>
-    <string name="channel_already_exists">This channel already exits</string>
+    <string name="channel_already_exists">This channel already exists</string>
     <string name="joined_an_existing_channel">You’ve joined an existing channel</string>
     <string name="unable_to_set_channel_configuration">Unable to set channel configuration</string>
     <string name="allow_participants_to_edit_subject">Allow anyone to edit the topic</string>
@@ -857,6 +859,9 @@
     <string name="no_users_hint_channel">This public channel has no participants. Invite your contacts or use the share button to distribute its XMPP address.</string>
     <string name="no_users_hint_group_chat">This private group chat has no participants.</string>
     <string name="manage_permission">Manage privileges</string>
+    <string name="search_participants">Search participants</string>
+    <string name="file_too_large">File too large</string>
+    <string name="attach">Attach</string>
     <string name="video_original">Original (uncompressed)</string>
 
     <!-- GOOBER - Added text for rooms tab -->
