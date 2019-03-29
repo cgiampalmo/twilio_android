@@ -60,6 +60,7 @@ import com.glaciersecurity.glaciermessenger.cognito.Util;
 import com.glaciersecurity.glaciermessenger.entities.LoginAccount;
 import com.glaciersecurity.glaciermessenger.entities.NetworkConnectivityStatus;
 import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
+import com.glaciersecurity.glaciermessenger.ui.util.AvatarWorkerTask;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 
@@ -604,7 +605,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	private void refreshAvatar() {
-		binding.avater.setImageBitmap(avatarService().get(mAccount, (int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
+		AvatarWorkerTask.loadAvatar(mAccount, binding.avater, R.dimen.avatar_on_details_screen_size);
 	}
 
 	@Override
@@ -845,6 +846,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 		return super.onOptionsItemSelected(item);
 	}
+
+    private boolean inNeedOfSaslAccept() {
+        return mAccount != null && mAccount.getLastErrorStatus() == Account.State.DOWNGRADE_ATTACK && mAccount.getKeyAsInt(Account.PINNED_MECHANISM_KEY, -1) >= 0 && !accountInfoEdited();
+    }
 
 //	private void shareBarcode() {
 //		Intent intent = new Intent(Intent.ACTION_SEND);

@@ -867,8 +867,6 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 			getPgpEngine().encrypt(message, new UiCallback<Message>() {
 				@Override
 				public void success(Message message) {
-					message.setEncryption(Message.ENCRYPTION_DECRYPTED);
-					sendMessage(message);
 					if (dismissAfterReply) {
 						markRead((Conversation) message.getConversation(), true);
 					} else {
@@ -2506,6 +2504,16 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 				private void join(Conversation conversation) {
 					Account account = conversation.getAccount();
 					final MucOptions mucOptions = conversation.getMucOptions();
+
+					if (mucOptions.nonanonymous() && !mucOptions.membersOnly() && !conversation.getBooleanAttribute("accept_non_anonymous", false)) {
+						mucOptions.setError(MucOptions.Error.NON_ANONYMOUS);
+						updateConversationUi();
+						if (onConferenceJoined != null) {
+							onConferenceJoined.onConferenceJoined(conversation);
+						}
+						return;
+					}
+
 					final Jid joinJid = mucOptions.getSelf().getFullJid();
 					Log.d(Config.LOGTAG, account.getJid().asBareJid().toString() + ": joining conversation " + joinJid.toString());
 					PresencePacket packet = mPresenceGenerator.selfPresence(account, Presence.Status.ONLINE, mucOptions.nonanonymous() || onConferenceJoined != null);
@@ -2656,7 +2664,6 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 	}
 
 	private boolean hasEnabledAccounts() {
-		//ALF update from Conversations
 		if (this.accounts == null) {
 			return false;
 		}
@@ -2789,7 +2796,7 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 
 	public void createPublicChannel(final Account account, final String name, final Jid address, final UiCallback<Conversation> callback) {
 		joinMuc(findOrCreateConversation(account, address, true, false, true), conversation -> {
-			final Bundle configuration = IqGenerator.defaultPublicRoomConfiguration();
+			final Bundle configuration = IqGenerator.defaultChannelConfiguration();
 			if (!TextUtils.isEmpty(name)) {
 				configuration.putString("muc#roomconfig_roomname", name);
 			}
@@ -2843,9 +2850,9 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 						//ALF AM-88
 						final Bundle configuration;
 						if (publicgroup) {
-							configuration = IqGenerator.defaultPublicRoomConfiguration();
+							configuration = IqGenerator.defaultChannelConfiguration();
 						} else {
-							configuration = IqGenerator.defaultRoomConfiguration();
+							configuration = IqGenerator.defaultGroupChatConfiguration();
 						}
 
 						if (!TextUtils.isEmpty(name)) {
@@ -3008,6 +3015,10 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 	}
 
 	public void pushConferenceConfiguration(final Conversation conversation, final Bundle options, final OnConfigurationPushed callback) {
+		if (options.getString("muc#roomconfig_whois","moderators").equals("anyone")) {
+			conversation.setAttribute("accept_non_anonymous",true);
+			updateConversation(conversation);
+		}
 		IqPacket request = new IqPacket(IqPacket.TYPE.GET);
 		request.setTo(conversation.getJid().asBareJid());
 		request.query("http://jabber.org/protocol/muc#owner");
@@ -3017,6 +3028,7 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 				if (packet.getType() == IqPacket.TYPE.RESULT) {
 					Data data = Data.parse(packet.query().findChild("x", Namespace.DATA));
 					data.submit(options);
+					Log.d(Config.LOGTAG,data.toString());
 					IqPacket set = new IqPacket(IqPacket.TYPE.SET);
 					set.setTo(conversation.getJid().asBareJid());
 					set.query("http://jabber.org/protocol/muc#owner").addChild(data);

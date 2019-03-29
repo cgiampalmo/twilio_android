@@ -63,9 +63,9 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 	private static final String ATTRIBUTE_NEXT_MESSAGE_TIMESTAMP = "next_message_timestamp";
 	private static final String ATTRIBUTE_CRYPTO_TARGETS = "crypto_targets";
 	private static final String ATTRIBUTE_NEXT_ENCRYPTION = "next_encryption";
-	public static final String ATTRIBUTE_MEMBERS_ONLY = "members_only";
-	public static final String ATTRIBUTE_MODERATED = "moderated";
-	public static final String ATTRIBUTE_NON_ANONYMOUS = "non_anonymous";
+	static final String ATTRIBUTE_MEMBERS_ONLY = "members_only";
+	static final String ATTRIBUTE_MODERATED = "moderated";
+	static final String ATTRIBUTE_NON_ANONYMOUS = "non_anonymous";
 	public static final String ATTRIBUTE_FORMERLY_PRIVATE_NON_ANONYMOUS = "formerly_private_non_anonymous";
 	protected final ArrayList<Message> messages = new ArrayList<>();
 	public AtomicBoolean messagesLoaded = new AtomicBoolean(true);
@@ -79,7 +79,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 	private long created;
 	private int mode;
 	private int timer; //ALF AM-53
-	private JSONObject attributes = new JSONObject();
+	private JSONObject attributes;
 	private Jid nextCounterpart;
 	private transient MucOptions mucOptions = null;
 	private boolean messagesLeftOnServer = true;
@@ -186,20 +186,6 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 			for (Message message : this.messages) {
 				if (!message.isRead()) {
 					results.add(message);
-				}
-			}
-		}
-		for(Message result : results) {
-			onMessageFound.onMessageFound(result);
-		}
-	}
-
-	public void findMessagesWithFiles(final OnMessageFound onMessageFound) {
-		final ArrayList<Message> results = new ArrayList<>();
-		synchronized (this.messages) {
-			for (final Message m : this.messages) {
-				if (m.isFileOrImage() && m.getEncryption() != Message.ENCRYPTION_PGP) {
-					results.add(m);
 				}
 			}
 		}
@@ -760,8 +746,8 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 		return conversation.isSingleOrPrivateAndNonAnonymous() || conversation.getBooleanAttribute(ATTRIBUTE_FORMERLY_PRIVATE_NON_ANONYMOUS, false);
 	}
 
-	public void setNextEncryption(int encryption) {
-		this.setAttribute(ATTRIBUTE_NEXT_ENCRYPTION, String.valueOf(encryption));
+	public boolean setNextEncryption(int encryption) {
+		return this.setAttribute(ATTRIBUTE_NEXT_ENCRYPTION, encryption);
 	}
 
 	public String getNextMessage() {
@@ -875,13 +861,15 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 	}
 
 	public boolean setAttribute(String key, boolean value) {
-		boolean prev = getBooleanAttribute(key,false);
-		setAttribute(key,Boolean.toString(value));
-		return prev != value;
+		return setAttribute(key, String.valueOf(value));
 	}
 
 	private boolean setAttribute(String key, long value) {
 		return setAttribute(key, Long.toString(value));
+	}
+
+	private boolean setAttribute(String key, int value) {
+		return setAttribute(key, String.valueOf(value));
 	}
 
 	public boolean setAttribute(String key, String value) {

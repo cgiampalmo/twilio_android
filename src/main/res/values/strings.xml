@@ -311,7 +311,7 @@
     <string name="pref_use_send_button_to_indicate_status_summary">Colorize send button to indicate contact status</string>
     <string name="pref_expert_options_other">Other</string>
     <string name="pref_autojoin">Automatically join group chats</string>
-    <string name="pref_autojoin_summary">Respect the autojoin flag in group chat bookmarks</string>
+    <string name="pref_autojoin_summary">Join and leave group chats according to auto-join flag in your bookmarks.</string>
     <string name="toast_message_glacier_id">Glacier ID copied to clipboard!</string>
     <string name="conference_banned">You are banned from this group chat</string>
     <string name="conference_members_only">This group chat is members only</string>
@@ -343,9 +343,6 @@
     <string name="conversations_foreground_service">Messenger</string>
     <string name="pref_keep_foreground_service">Keep service in foreground</string>
     <string name="pref_keep_foreground_service_summary">Prevents the operating system from killing your connection</string>
-    <string name="pref_export_logs">Export history</string>
-    <string name="pref_export_logs_summary">Write chat history logs to SD card</string>
-    <string name="notification_export_logs_title">Writing logs to SD card</string>
     <!-- ALF AM-90, AM-168 next 3 -->
     <string name="channel_name">Messenger</string>
     <string name="channel_description">Messenger</string>
@@ -449,7 +446,6 @@
     <string name="pdf_document">PDF document</string>
     <string name="apk">Android App</string>
     <string name="vcard">Contact</string>
-    <string name="touch_to_open_conversations">Touch to open Messenger</string>
     <string name="avatar_has_been_published">Avatar has been published!</string>
     <string name="sending_x_file">Sending %s</string>
     <string name="offering_x_file">Offering %s</string>
@@ -465,7 +461,8 @@
     <string name="no_application_found_to_display_location">No application found to display location</string>
     <string name="location">Location</string>
     <string name="title_undo_swipe_out_conversation">Conversation closed</string>
-    <string name="title_undo_swipe_out_muc">Left group chat</string>
+    <string name="title_undo_swipe_out_group_chat">Left private group chat</string>
+    <string name="title_undo_swipe_out_channel">Left public group chat</string>
     <string name="pref_dont_trust_system_cas_title">Don’t trust system CAs</string>
     <string name="pref_dont_trust_system_cas_summary">All certificates must be manually approved</string>
     <string name="pref_remove_trusted_certificates_title">Remove certificates</string>
@@ -774,7 +771,7 @@
     <string name="gif">GIF</string>
     <string name="view_conversation">View chat session</string>
     <string name="pref_use_share_location_plugin">Share Location Plugin</string>
-    <string name="pref_use_share_location_plugin_summary">Use the Share Location Plugin instead of the build in map</string>
+    <string name="pref_use_share_location_plugin_summary">Use the Share Location Plugin instead of the built in map</string>
     <string name="copy_link">Copy web address</string>
     <string name="copy_jabber_id">Copy Jabber ID</string>
     <string name="p1_s3_filetransfer">HTTP File Sharing for S3</string>
@@ -823,7 +820,6 @@
     <string name="view_users">View participants</string>
     <string name="group_chat_members">Participants</string>
     <string name="media_browser">Media browser</string>
-    <string name="export_channel_name">History export</string>
     <string name="security_violation_not_attaching_file">File omitted due to security violation.</string>
     <string name="pref_video_compression">Video Quality</string>
     <string name="pref_video_compression_summary">Lower quality means smaller files</string>
@@ -833,6 +829,7 @@
     <string name="already_drafting_message">You are already drafting a message.</string>
     <string name="feature_not_implemented">Feature not implemented</string>
     <string name="group_chat_will_make_your_jabber_id_public">Open group: Users are visible to anyone.</string>
+    <string name="ebook">e-book</string>
     <string name="open_with">Open with…</string>
     <string name="enter_jabber_id">Enter Jabber ID</string>
     <string name="create_group_chat">Create group chat</string>

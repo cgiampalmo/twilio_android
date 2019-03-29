@@ -374,7 +374,7 @@ public class UIHelper {
 			return new Pair<>(context.getString(R.string.not_encrypted_for_this_device), true);
 		} else if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL_FAILED) {
 			return new Pair<>(context.getString(R.string.omemo_decryption_failed), true);
-		} else if (message.getType() == Message.TYPE_FILE || message.getType() == Message.TYPE_IMAGE) {
+		} else if (message.isFileOrImage()) {
 			return new Pair<>(getFileDescriptionString(context, message), true);
 		} else {
 			final String body = MessageUtils.filterLtrRtl(message.getBody());
@@ -394,6 +394,9 @@ public class UIHelper {
 				SpannableStringBuilder builder = new SpannableStringBuilder();
 				for (CharSequence l : CharSequenceUtils.split(styledBody, '\n')) {
 					if (l.length() > 0) {
+						if (l.toString().equals("```")) {
+							continue;
+						}
 						char first = l.charAt(0);
 						if ((first != '>' || !isPositionFollowedByQuoteableCharacter(l, 0)) && first != '\u00bb') {
 							CharSequence line = CharSequenceUtils.trim(l);
@@ -562,6 +565,8 @@ public class UIHelper {
 			return context.getString(R.string.apk);
 		} else if (mime.contains("vcard")) {
 			return context.getString(R.string.vcard);
+		} else if (mime.equals("application/epub+zip") || mime.equals("application/vnd.amazon.mobi8-ebook")) {
+			return context.getString(R.string.ebook);
 		} else {
 			return mime;
 		}

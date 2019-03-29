@@ -22,6 +22,7 @@ import com.glaciersecurity.glaciermessenger.databinding.ActivityShareLocationBin
 import com.glaciersecurity.glaciermessenger.ui.util.LocationHelper;
 import com.glaciersecurity.glaciermessenger.ui.widget.Marker;
 import com.glaciersecurity.glaciermessenger.ui.widget.MyLocation;
+import com.glaciersecurity.glaciermessenger.utils.LocationProvider;
 import com.glaciersecurity.glaciermessenger.utils.ThemeHelper;
 
 public class ShareLocationActivity extends LocationActivity implements LocationListener {
@@ -55,7 +56,7 @@ public class ShareLocationActivity extends LocationActivity implements LocationL
 		this.binding = DataBindingUtil.setContentView(this,R.layout.activity_share_location);
 		setSupportActionBar((Toolbar) binding.toolbar);
 		configureActionBar(getSupportActionBar());
-		setupMapView(binding.map, Config.Map.INITIAL_POS);
+		setupMapView(binding.map, LocationProvider.getGeoPoint(this));
 
 		this.binding.cancelButton.setOnClickListener(view -> {
 			setResult(RESULT_CANCELED);

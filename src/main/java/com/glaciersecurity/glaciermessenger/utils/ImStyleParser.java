@@ -39,6 +39,7 @@ public class ImStyleParser {
 	private final static List<Character> NO_SUB_PARSING_KEYWORDS = Arrays.asList('`');
 	private final static List<Character> BLOCK_KEYWORDS = Arrays.asList('`');
 	private final static boolean ALLOW_EMPTY = false;
+	private final static boolean PARSE_HIGHER_ORDER_END = true;
 
 	public static List<Style> parse(CharSequence text) {
 		return parse(text, 0, text.length() - 1);
@@ -72,7 +73,7 @@ public class ImStyleParser {
 	}
 
 	private static boolean isCharRepeatedTwoTimes(CharSequence text, char c, int index, int end) {
-		return index + 1 <= end && text.charAt(index) == c && text.charAt(index+1) == c;
+		return index + 1 <= end && text.charAt(index) == c && text.charAt(index + 1) == c;
 	}
 
 	private static boolean precededByWhiteSpace(CharSequence text, int index, int start) {
@@ -87,6 +88,28 @@ public class ImStyleParser {
 		for (int i = start; i <= end; ++i) {
 			char c = text.charAt(i);
 			if (c == needle && !Character.isWhitespace(text.charAt(i - 1))) {
+				if (!PARSE_HIGHER_ORDER_END || followedByWhitespace(text, i, end)) {
+					return i;
+				} else {
+					int higherOrder = seekHigherOrderEndWithoutNewBeginning(text, needle, i + 1, end);
+					if (higherOrder != -1) {
+						return higherOrder;
+					}
+					return i;
+				}
+			} else if (c == '\n') {
+				return -1;
+			}
+		}
+		return -1;
+	}
+
+	private static int seekHigherOrderEndWithoutNewBeginning(CharSequence text, char needle, int start, int end) {
+		for (int i = start; i <= end; ++i) {
+			char c = text.charAt(i);
+			if (c == needle && precededByWhiteSpace(text, i, start) && !followedByWhitespace(text, i, end)) {
+				return -1; // new beginning
+			} else if (c == needle && !Character.isWhitespace(text.charAt(i - 1)) && followedByWhitespace(text, i, end)) {
 				return i;
 			} else if (c == '\n') {
 				return -1;
