@@ -445,7 +445,7 @@ public class NotificationService {
 				mBuilder.setContentText(mXmppConnectionService.getResources().getQuantityString(R.plurals.x_messages, count, count));
 			} else {
 				Message message;
-				if ((message = getImage(messages)) != null) {
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P && (message = getImage(messages)) != null) {
 					modifyForImage(mBuilder, mUnreadBuilder, message, messages);
 				} else {
 					modifyForTextOnly(mBuilder, mUnreadBuilder, messages);

@@ -159,8 +159,9 @@ public class MucOptions {
 	}
 
 	public boolean allowInvites() {
-		final Field field = getRoomInfoForm().getFieldByName("muc#roomconfig_allowinvites");
-		return field != null && "1".equals(field.getValue());
+		return true; //ALF AM-50
+		//final Field field = getRoomInfoForm().getFieldByName("muc#roomconfig_allowinvites");
+		//return field != null && "1".equals(field.getValue());
 	}
 
 	public boolean canChangeSubject() {

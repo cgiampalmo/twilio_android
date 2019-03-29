@@ -464,12 +464,13 @@ public class IqGenerator extends AbstractGenerator {
 		return packet;
 	}
 
-	public static Bundle defaultRoomConfiguration() {
+	public static Bundle defaultGroupChatConfiguration() {
 		Bundle options = new Bundle();
 		options.putString("muc#roomconfig_persistentroom", "1");
 		options.putString("muc#roomconfig_membersonly", "1");
 		options.putString("muc#roomconfig_publicroom", "0");
 		options.putString("muc#roomconfig_whois", "anyone");
+		options.putString("muc#roomconfig_allowinvites", "1");
 		//ALF commented out for AM-88 with 228 upgrade
 		//options.putString("muc#roomconfig_enablearchiving", "1"); //prosody
 		//options.putString("mam", "1"); //ejabberd community
@@ -479,13 +480,17 @@ public class IqGenerator extends AbstractGenerator {
 		return options;
 	}
 
-	//ALF AM-88
-	public static Bundle defaultPublicRoomConfiguration() {
+	//ALF AM-88 modified with Conversations updates
+	public static Bundle defaultChannelConfiguration() {
 		Bundle options = new Bundle();
 		options.putString("muc#roomconfig_persistentroom", "1");
 		options.putString("muc#roomconfig_membersonly", "0");
 		options.putString("muc#roomconfig_publicroom", "1");
 		options.putString("muc#roomconfig_whois", "anyone");
+		options.putString("muc#roomconfig_allowinvites", "1");
+		//options.putString("muc#roomconfig_enablearchiving", "1"); //prosody
+		//options.putString("mam", "1"); //ejabberd community
+		//options.putString("muc#roomconfig_mam","1"); //ejabberd saas
 		options.putString("muc#roomconfig_allow_subscription", "1"); //ALF AM-92
 		return options;
 	}

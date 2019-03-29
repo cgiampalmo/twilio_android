@@ -994,6 +994,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				menuConversationTimer.setVisible(false); //ALF AM-53
 				menuLeaveGroup.setVisible(true); //ALF AM-122 (and next line)
 				menuEndConversation.setVisible(false);
+                menuMucDetails.setTitle(conversation.getMucOptions().isPrivateAndNonAnonymous() ? R.string.action_muc_details : R.string.channel_details);
 			} else {
 				menuContactDetails.setVisible(!this.conversation.withSelf());
 				menuMucDetails.setVisible(false);
@@ -1115,15 +1116,14 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 					copyLink.setVisible(true);
 				}
 			}
-			if (m.getEncryption() == Message.ENCRYPTION_DECRYPTION_FAILED) {
+			if (m.getEncryption() == Message.ENCRYPTION_DECRYPTION_FAILED && !deleted) {
 				retryDecryption.setVisible(true);
 			}
 			if (!showError
 					&& relevantForCorrection.getType() == Message.TYPE_TEXT
 					&& !m.isGeoUri()
 					&& relevantForCorrection.isLastCorrectableMessage()
-					&& m.getConversation() instanceof Conversation
-					&& (((Conversation) m.getConversation()).getMucOptions().nonanonymous() || m.getConversation().getMode() == Conversation.MODE_SINGLE)) {
+					&& m.getConversation() instanceof Conversation) {
 				correctMessage.setVisible(true);
 			}
 			if ((m.isFileOrImage() && !deleted && !receiving) || (m.getType() == Message.TYPE_TEXT && !m.treatAsDownloadable())) {
@@ -1476,7 +1476,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				Log.d(Config.LOGTAG, "type: " + transferable.getClass().getName());
 				Toast.makeText(getActivity(), R.string.not_connected_try_again, Toast.LENGTH_SHORT).show();
 			}
-		} else if (message.treatAsDownloadable()) {
+		} else if (message.treatAsDownloadable() || message.hasFileOnRemoteHost()) {
 			createNewConnection(message);
 		}
 	}

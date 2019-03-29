@@ -1231,16 +1231,6 @@ public class FileBackend {
         message.setType(image ? Message.TYPE_IMAGE : Message.TYPE_FILE);
     }
 
-    public int getMediaRuntime(Uri uri) {
-        try {
-            MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
-            mediaMetadataRetriever.setDataSource(mXmppConnectionService, uri);
-            return Integer.parseInt(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-        } catch (RuntimeException e) {
-            return 0;
-        }
-    }
-
     private int getMediaRuntime(File file) {
         try {
             MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();

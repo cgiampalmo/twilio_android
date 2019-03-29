@@ -79,6 +79,7 @@ import com.glaciersecurity.glaciermessenger.utils.Patterns;
 import com.glaciersecurity.glaciermessenger.utils.Resolver;
 import com.glaciersecurity.glaciermessenger.utils.SSLSocketHelper;
 import com.glaciersecurity.glaciermessenger.utils.SocksSocketFactory;
+import com.glaciersecurity.glaciermessenger.utils.XmlHelper;
 import com.glaciersecurity.glaciermessenger.xml.Element;
 import com.glaciersecurity.glaciermessenger.xml.Tag;
 import com.glaciersecurity.glaciermessenger.xml.TagWriter;
@@ -848,6 +849,7 @@ public class XmppConnection implements Runnable {
 			if (isSecure) {
 				sendRegistryRequest();
 			} else {
+				Log.d(Config.LOGTAG,account.getJid().asBareJid()+": unable to find STARTTLS for registration process "+ XmlHelper.printElementNames(this.streamFeatures));
 				throw new StateChangingException(Account.State.INCOMPATIBLE_SERVER);
 			}
 		} else if (!this.streamFeatures.hasChild("register") && account.isOptionSet(Account.OPTION_REGISTER)) {
@@ -866,6 +868,7 @@ public class XmppConnection implements Runnable {
 			if (this.streamFeatures.hasChild("bind") && isSecure) {
 				sendBindRequest();
 			} else {
+				Log.d(Config.LOGTAG,account.getJid().asBareJid()+": unable to find bind feature "+ XmlHelper.printElementNames(this.streamFeatures));
 				throw new StateChangingException(Account.State.INCOMPATIBLE_SERVER);
 			}
 		}
@@ -904,6 +907,7 @@ public class XmppConnection implements Runnable {
 			}
 			tagWriter.writeElement(auth);
 		} else {
+			Log.d(Config.LOGTAG,account.getJid().asBareJid()+": unable to find SASL mechanism "+ saslMechanism.toString());
 			throw new StateChangingException(Account.State.INCOMPATIBLE_SERVER);
 		}
 	}

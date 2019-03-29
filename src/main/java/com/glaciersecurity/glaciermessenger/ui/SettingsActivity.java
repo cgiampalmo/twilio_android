@@ -68,7 +68,6 @@ public class SettingsActivity extends XmppActivity implements
 	public static final String OMEMO_SETTING = "omemo";
 	public static final String DISPLAYNAME = "displayname"; //ALF AM-48
 
-	public static final int REQUEST_WRITE_LOGS = 0xbf8701;
 	public static final int REQUEST_CREATE_BACKUP = 0xbf8701;
 	private SettingsFragment mSettingsFragment;
 
