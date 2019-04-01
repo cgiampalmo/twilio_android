@@ -690,8 +690,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	@Override
 	public void onAccountUpdate() {
-		this.invalidateActionBarTitle(); //AM-139
 		this.refreshUi();
+		runOnUiThread(() -> { //ALF AM-139
+			this.invalidateActionBarTitle();
+		});
 	}
 
 	@Override
