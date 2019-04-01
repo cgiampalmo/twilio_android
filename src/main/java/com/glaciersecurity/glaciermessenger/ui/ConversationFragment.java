@@ -2559,16 +2559,19 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	//ALF AM-51
 	protected void updateGroupChanged() {
 		lastGroupRemoved = null;
+		boolean onlyStatus = true;
 		synchronized (this.messageList) {
 			for(int i = this.messageList.size() - 1; i >= 0; --i) {
 				final Message current = this.messageList.get(i);
 				if (current.getBody().endsWith(getString(R.string.added_to_group)) ||
 						current.getBody().endsWith(getString(R.string.left_group))) {
-					if (lastGroupRemoved == null && i == this.messageList.size() - 1) {
+					if (lastGroupRemoved == null && onlyStatus) { //i == this.messageList.size() - 1) {
 						lastGroupRemoved = current.getUuid();
 					}
 					this.messageList.add(i+1,Message.createGroupChangedSeparator(current));
 					this.messageList.remove(i);
+				} else if (current.getType() != Message.TYPE_STATUS) {
+					onlyStatus = false;
 				}
 			}
 		}
