@@ -295,6 +295,8 @@ public class PresenceParser extends AbstractParser implements
 				} else if (mXmppConnectionService.isDataSaverDisabled()){
 					mXmppConnectionService.fetchAvatar(account, avatar);
 				}
+			} else if (displayname != null) { //ALF AM-139 or setNick
+				mXmppConnectionService.updateAccountUi();
 			}
 
 			if (mXmppConnectionService.isMuc(account, from)) {
