@@ -1,6 +1,7 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -91,7 +92,18 @@ public class SettingsActivity extends XmppActivity implements
 
 	@Override
 	void onBackendConnected() {
-
+		//CMG AM-223
+		final EditTextPreference displayNamePreference = (EditTextPreference)mSettingsFragment.findPreference("displayname");
+		if (displayNamePreference != null && xmppConnectionService != null) {
+			String disname = null;
+			if (xmppConnectionService.getAccounts() != null){
+				disname = xmppConnectionService.getAccounts().get(0).getDisplayName();
+				if (disname == null) {
+					disname = xmppConnectionService.getAccounts().get(0).getUsername();
+				}
+				displayNamePreference.setText(disname);
+			}
+		}
 	}
 
 	@Override
@@ -460,12 +472,7 @@ public class SettingsActivity extends XmppActivity implements
 		} else if (name.equals(AUTOMATIC_MESSAGE_DELETION)) {
 			xmppConnectionService.expireOldMessages(true);
 		} else if (name.equals(DISPLAYNAME)) { //ALF AM-48
-			//CMG AM-223
-			String defname = null;
-			if (xmppConnectionService.getAccounts() != null){
-				defname = xmppConnectionService.getAccounts().get(0).getAvatar();
-			}
-			String newname = preferences.getString(name, defname);
+			String newname = preferences.getString(name, null);
 			changeDisplayName(newname);
 		} else if (name.equals(GLOBAL_MESSAGE_TIMER)) { //ALF AM-53
 			int timer = Message.TIMER_NONE;
