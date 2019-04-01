@@ -1821,9 +1821,17 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	private void showErrorMessage(final Message message) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(R.string.error_message);
-		builder.setMessage(message.getErrorMessage());
+		final String errorMessage = message.getErrorMessage();
+		final String[] errorMessageParts = errorMessage == null ? new String[0] : errorMessage.split("\\u001f");
+		final String displayError;
+		if (errorMessageParts.length == 2) {
+			displayError = errorMessageParts[1];
+		} else {
+			displayError = errorMessage;
+		}
+		builder.setMessage(displayError);
 		builder.setNegativeButton(R.string.copy_to_clipboard, (dialog, which) -> {
-			activity.copyTextToClipboard(message.getErrorMessage(),R.string.error_message);
+			activity.copyTextToClipboard(displayError,R.string.error_message);
 			Toast.makeText(activity,R.string.error_message_copied_to_clipboard, Toast.LENGTH_SHORT).show();
 		});
 		builder.setPositiveButton(R.string.confirm, null);
@@ -2551,16 +2559,19 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	//ALF AM-51
 	protected void updateGroupChanged() {
 		lastGroupRemoved = null;
+		boolean onlyStatus = true;
 		synchronized (this.messageList) {
 			for(int i = this.messageList.size() - 1; i >= 0; --i) {
 				final Message current = this.messageList.get(i);
 				if (current.getBody().endsWith(getString(R.string.added_to_group)) ||
 						current.getBody().endsWith(getString(R.string.left_group))) {
-					if (lastGroupRemoved == null && i == this.messageList.size() - 1) {
+					if (lastGroupRemoved == null && onlyStatus) { //i == this.messageList.size() - 1) {
 						lastGroupRemoved = current.getUuid();
 					}
 					this.messageList.add(i+1,Message.createGroupChangedSeparator(current));
 					this.messageList.remove(i);
+				} else if (current.getType() != Message.TYPE_STATUS) {
+					onlyStatus = false;
 				}
 			}
 		}

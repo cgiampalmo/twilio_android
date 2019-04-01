@@ -638,6 +638,16 @@ public class UIHelper {
 		return LOCATION_QUESTIONS.contains(body);
 	}
 
+	public static String filesizeToString(long size) {
+		if (size > (1.5 * 1024 * 1024)) {
+			return Math.round(size * 1f / (1024 * 1024)) + " MiB";
+		} else if (size >= 1024) {
+			return Math.round(size * 1f / 1024) + " KiB";
+		} else {
+			return size + " B";
+		}
+	}
+
 	public static ListItem.Tag getTagForStatus(Context context, Presence.Status status) {
 		switch (status) {
 			case CHAT:
