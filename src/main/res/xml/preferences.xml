@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- ALF AM-223 added app namespace -->
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="?attr/color_background_secondary"
     android:key="main_screen">
 
@@ -33,7 +35,9 @@
             android:persistent="true"
             android:dialogTitle="@string/pref_display_name"
             android:dialogMessage="@string/pref_display_name_description"
-            android:defaultValue="@string/displayname" />
+            android:hint="@string/displayname"
+            app:hintTextAppearance="@style/TextAppearance.Conversations.Design.Hint" />
+            <!-- ALF AM-223 android:defaultValue="" /> -->
     </PreferenceCategory>
     <!--HONEYBADGER AM-120 Move the Security settings to the main settings page above Notifications section-->
     <PreferenceCategory
