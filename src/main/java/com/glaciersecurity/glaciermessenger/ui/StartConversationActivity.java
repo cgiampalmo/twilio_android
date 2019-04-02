@@ -205,12 +205,6 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			return true;
 		}
 	};
-	private ViewPager.SimpleOnPageChangeListener mOnPageChangeListener = new ViewPager.SimpleOnPageChangeListener() {
-		@Override
-		public void onPageSelected(int position) {
-			onTabChanged();
-		}
-	};
 
 	public static void populateAccountSpinner(Context context, List<String> accounts, Spinner spinner) {
 		if (accounts.size() > 0) {
@@ -294,6 +288,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			@Override
 			public void onPageSelected(int position) {
 				updateSearchViewHint();
+				onTabChanged(); //ALF AM-274 needed due to Conversations updates
 			}
 		});
 		mListPagerAdapter = new ListPagerAdapter(getSupportFragmentManager());

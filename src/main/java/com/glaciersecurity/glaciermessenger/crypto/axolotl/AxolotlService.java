@@ -316,6 +316,11 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 		return CryptoHelper.bytesToHex(axolotlStore.getIdentityKeyPair().getPublicKey().serialize());
 	}
 
+	//ALF AM-223
+	public IdentityKeyPair getOwnKeyPair() {
+		return axolotlStore.getIdentityKeyPair();
+	}
+
 	public Set<IdentityKey> getKeysWithTrust(FingerprintStatus status) {
 		return axolotlStore.getContactKeysWithTrust(account.getJid().asBareJid().toString(), status);
 	}
