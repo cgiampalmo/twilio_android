@@ -316,7 +316,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 		return CryptoHelper.bytesToHex(axolotlStore.getIdentityKeyPair().getPublicKey().serialize());
 	}
 
-	//ALF AM-223
+	//ALF AM-228
 	public IdentityKeyPair getOwnKeyPair() {
 		return axolotlStore.getIdentityKeyPair();
 	}
