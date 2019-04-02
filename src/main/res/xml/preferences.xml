@@ -24,7 +24,8 @@
             android:key="@string/support_button_key"
             android:summary="@string/support_button_summary">
             <intent android:action="android.intent.action.VIEW"
-                android:data="https://0z0g1.typeform.com/to/GA6wp3" />
+                android:data="https://glaciersecurity.zendesk.com" />
+            <!-- ALF AM-272 zendesk -->
         </Preference>
 
         <!-- ALF AM-48 -->

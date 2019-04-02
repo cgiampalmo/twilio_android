@@ -81,11 +81,7 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
 	public SQLiteAxolotlStore(Account account, XmppConnectionService service) {
 		this.account = account;
 		this.mXmppConnectionService = service;
-		if (service.getDeviceKey() > 0) { //ALF AM-202 if
-			this.localRegistrationId = service.getDeviceKey();
-		} else {
-			this.localRegistrationId = loadRegistrationId();
-		}
+		this.localRegistrationId = loadRegistrationId();
 		this.currentPreKeyId = loadCurrentPreKeyId();
 	}
 
@@ -105,7 +101,11 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
 				return ownKey;
 			} else {
 				Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Could not retrieve own IdentityKeyPair");
-				ownKey = generateIdentityKeyPair();
+				if (this.mXmppConnectionService.getExistingIdentityKeyPair(account) != null) { //ALF AM-228 if
+					ownKey = this.mXmppConnectionService.getExistingIdentityKeyPair(account);
+				} else {
+					ownKey = generateIdentityKeyPair();
+				}
 				mXmppConnectionService.databaseBackend.storeOwnIdentityKeyPair(account, ownKey);
 			}
 			return ownKey;
@@ -123,7 +123,11 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
 			reg_id = Integer.valueOf(regIdString);
 		} else {
 			Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Could not retrieve axolotl registration id for account " + account.getJid());
-			reg_id = generateRegistrationId();
+			if (mXmppConnectionService.getDeviceKey() > 0) { //ALF AM-202 if
+				reg_id = mXmppConnectionService.getDeviceKey();
+			} else {
+				reg_id = generateRegistrationId();
+			}
 			boolean success = this.account.setKey(JSONKEY_REGISTRATION_ID, Integer.toString(reg_id));
 			if (success) {
 				mXmppConnectionService.databaseBackend.updateAccount(account);

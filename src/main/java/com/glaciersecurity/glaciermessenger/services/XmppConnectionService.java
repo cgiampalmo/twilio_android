@@ -48,6 +48,7 @@ import org.conscrypt.Conscrypt;
 import org.openintents.openpgp.IOpenPgpService2;
 import org.openintents.openpgp.util.OpenPgpApi;
 import org.openintents.openpgp.util.OpenPgpServiceConnection;
+import org.whispersystems.libsignal.IdentityKeyPair;
 
 import java.io.File;
 import java.net.URL;
@@ -2064,9 +2065,21 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 		return this.deviceKey;
 	}
 
+	//ALF AM-228
+	private IdentityKeyPair keyPair = null;
+	private String acctForKeyPair = null;
+	public IdentityKeyPair getExistingIdentityKeyPair(final Account account) {
+		if (acctForKeyPair != null && account.getJid().toEscapedString().equalsIgnoreCase(acctForKeyPair)) {
+			return this.keyPair;
+		}
+		return null;
+	}
+
 	public void createAccount(final Account account) {
 		account.initAccountServices(this);
 		this.deviceKey = account.getAxolotlService().getOwnDeviceId(); //ALF AM-202
+		this.keyPair = account.getAxolotlService().getOwnKeyPair(); //ALF AM-228 and next
+		this.acctForKeyPair = account.getJid().toEscapedString();
 		databaseBackend.createAccount(account);
 		this.accounts.add(account);
 		this.reconnectAccountInBackground(account);
