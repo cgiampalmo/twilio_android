@@ -2525,14 +2525,14 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 					Account account = conversation.getAccount();
 					final MucOptions mucOptions = conversation.getMucOptions();
 
-					if (mucOptions.nonanonymous() && !mucOptions.membersOnly() && !conversation.getBooleanAttribute("accept_non_anonymous", false)) {
+					/*if (mucOptions.nonanonymous() && !mucOptions.membersOnly() && !conversation.getBooleanAttribute("accept_non_anonymous", false)) {
 						mucOptions.setError(MucOptions.Error.NON_ANONYMOUS);
 						updateConversationUi();
 						if (onConferenceJoined != null) {
 							onConferenceJoined.onConferenceJoined(conversation);
 						}
 						return;
-					}
+					}*/ //ALF AM-270 Conversations update caused this, we don't want it
 
 					final Jid joinJid = mucOptions.getSelf().getFullJid();
 					Log.d(Config.LOGTAG, account.getJid().asBareJid().toString() + ": joining conversation " + joinJid.toString());
