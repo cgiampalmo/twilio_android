@@ -388,7 +388,8 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 				}
 				account.pendingConferenceJoins.clear();
 				scheduleWakeUpCall(Config.PING_MAX_INTERVAL, account.getUuid().hashCode());
-			} else if (account.getStatus() == Account.State.OFFLINE || account.getStatus() == Account.State.DISABLED) {
+			} else if (account.getStatus() == Account.State.OFFLINE || account.getStatus() == Account.State.DISABLED ||
+					account.getStatus() == Account.State.TLS_ERROR) { //ALF AM-275
 				resetSendingToWaiting(account);
 				if (account.isEnabled() && isInLowPingTimeoutMode(account)) {
 					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": went into offline state during low ping mode. reconnecting now");
@@ -2070,7 +2071,7 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 	private String acctForKeyPair = null;
 	public IdentityKeyPair getExistingIdentityKeyPair(final Account account) {
 		if (acctForKeyPair != null && account.getJid().toEscapedString().equalsIgnoreCase(acctForKeyPair)) {
-			return this.keyPair;
+			return this.keyPair; //commented out for 2.3.2 release
 		}
 		return null;
 	}
