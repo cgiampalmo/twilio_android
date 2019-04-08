@@ -347,7 +347,7 @@ public class XmppConnection implements Runnable {
 							localSocket.connect(addr, Config.SOCKET_TIMEOUT * 1000);
 
 							if (!tlsFactoryVerifier.verifier.verify(account.getServer(), verifiedHostname, ((SSLSocket) localSocket).getSession())) {
-								Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": TLS certificate verification failed");
+								Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": TLS certificate verification failed - connect");
 								FileBackend.close(localSocket);
 								throw new StateChangingException(Account.State.TLS_ERROR);
 							}
@@ -509,6 +509,8 @@ public class XmppConnection implements Runnable {
 					}
 					throw new StateChangingException(Account.State.UNAUTHORIZED);
 				} else if (Namespace.TLS.equals(failure.getNamespace())) {
+					//ALF added log AM-275
+					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": TLS certificate verification failed - processStream");
 					throw new StateChangingException(Account.State.TLS_ERROR);
 				} else {
 					throw new StateChangingException(Account.State.INCOMPATIBLE_SERVER);
@@ -817,7 +819,7 @@ public class XmppConnection implements Runnable {
 			SSLSocketHelper.setApplicationProtocol(sslSocket, "xmpp-client");
 
 			if (!tlsFactoryVerifier.verifier.verify(account.getServer(), this.verifiedHostname, sslSocket.getSession())) {
-				Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": TLS certificate verification failed");
+				Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": TLS certificate verification failed - switchOverToTls");
 				throw new StateChangingException(Account.State.TLS_ERROR);
 			}
 			tagReader.setInputStream(sslSocket.getInputStream());
@@ -834,7 +836,7 @@ public class XmppConnection implements Runnable {
 			}
 			sslSocket.close();
 		} catch (final NoSuchAlgorithmException | KeyManagementException e1) {
-			Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": TLS certificate verification failed");
+			Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": TLS certificate verification failed - switchOverToTls 2");
 			throw new StateChangingException(Account.State.TLS_ERROR);
 		}
 	}
