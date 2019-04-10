@@ -37,7 +37,7 @@ import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 
 public class Resolver {
 
-	public static final int DEFAULT_PORT_XMPP = 5222;
+	public static final int DEFAULT_PORT_XMPP = 80; //5222; //ALF AM-102 derivative
 
 	private static final String DIRECT_TLS_SERVICE = "_xmpps-client";
 	private static final String STARTTLS_SERICE = "_xmpp-client";

@@ -17,7 +17,9 @@ import org.whispersystems.libsignal.util.KeyHelper;
 
 import java.security.cert.X509Certificate;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.glaciersecurity.glaciermessenger.Config;

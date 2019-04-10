@@ -49,6 +49,7 @@ import org.openintents.openpgp.IOpenPgpService2;
 import org.openintents.openpgp.util.OpenPgpApi;
 import org.openintents.openpgp.util.OpenPgpServiceConnection;
 import org.whispersystems.libsignal.IdentityKeyPair;
+import org.whispersystems.libsignal.state.PreKeyRecord;
 
 import java.io.File;
 import java.net.URL;
@@ -2066,7 +2067,7 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 		return this.deviceKey;
 	}
 
-	//ALF AM-228
+	//ALF AM-228 here to createAccount
 	private IdentityKeyPair keyPair = null;
 	private String acctForKeyPair = null;
 	public IdentityKeyPair getExistingIdentityKeyPair(final Account account) {
@@ -2076,11 +2077,46 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 		return null;
 	}
 
+	Map<String, Set<PreKeyRecord>> preKeyRecordSet = new Hashtable<>();
+	public void setExistingPreKeyRecords(Account account, Set<PreKeyRecord> records) {
+		preKeyRecordSet.clear();
+		preKeyRecordSet.put(account.getJid().toEscapedString(), records);
+	}
+
+	public Set<PreKeyRecord> getExistingPreKeyRecords(final Account account) {
+		if (preKeyRecordSet.containsKey(account.getJid().toEscapedString())) {
+			return preKeyRecordSet.get(account.getJid().toEscapedString());
+		}
+		return null;
+	}
+
+	String existingResource = null;
+	public String getExistingAccountResource(Account account) {
+		if (acctForKeyPair != null && account.getJid().toEscapedString().equalsIgnoreCase(acctForKeyPair)) {
+			return existingResource;
+		}
+		return null;
+	}
+
+	public void setExistingAccountResource(String jidstring, String resource) {
+		if (acctForKeyPair != null && jidstring.equalsIgnoreCase(acctForKeyPair)) {
+			existingResource = resource;
+		} else if (acctForKeyPair == null) {
+			this.acctForKeyPair = jidstring;
+			existingResource = resource;
+		}
+	}
+
 	public void createAccount(final Account account) {
 		account.initAccountServices(this);
 		this.deviceKey = account.getAxolotlService().getOwnDeviceId(); //ALF AM-202
-		this.keyPair = account.getAxolotlService().getOwnKeyPair(); //ALF AM-228 and next
+
+		//ALF AM-228
+		this.keyPair = account.getAxolotlService().getOwnKeyPair();
+		//this.preKeyRecords = account.getAxolotlService().getOwnPreKeyRecords();
+		//of getExistingPreKeyRecords(account) and set from elsewhere?
 		this.acctForKeyPair = account.getJid().toEscapedString();
+
 		databaseBackend.createAccount(account);
 		this.accounts.add(account);
 		this.reconnectAccountInBackground(account);
@@ -2661,6 +2697,12 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 					getAvatarService().clear(conversation);
 					updateMucRosterUi();
 					updateConversationUi();
+
+					//ALF AM-228
+					AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
+					axolotlService.createSessionsIfNeeded(conversation);
+					conversation.reloadFingerprints(axolotlService.getCryptoTargets(conversation));
+					conversation.commitTrusts();
 				}
 			}
 		};
@@ -3150,9 +3192,12 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 						}
 					}
 				}
-				sendOfflinePresence(account);
+				//sendOfflinePresence(account);
 			}
-			connection.disconnect(force);
+			//ALF AM-258 (and commented out above)
+			sendOfflinePresence(account);
+			connection.disconnect(false);
+			//connection.disconnect(force);
 		}
 	}
 

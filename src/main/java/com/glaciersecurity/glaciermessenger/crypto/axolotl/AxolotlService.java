@@ -724,6 +724,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 					// Validate signedPreKeyRecord + ID
 					SignedPreKeyRecord signedPreKeyRecord;
 					int numSignedPreKeys = axolotlStore.getSignedPreKeysCount();
+
 					try {
 						signedPreKeyRecord = axolotlStore.loadSignedPreKey(bundle.getSignedPreKeyId());
 						if (flush
@@ -741,6 +742,15 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 						changed = true;
 					}
 
+					//AM-228
+					Set<PreKeyRecord> preKeyExistingRecords = mXmppConnectionService.getExistingPreKeyRecords(account);
+					Map<Integer, PreKeyRecord> preKeyExistingMap = new HashMap<>();
+					if (preKeyExistingRecords != null) {
+						for (PreKeyRecord prerec : preKeyExistingRecords) {
+							preKeyExistingMap.put(new Integer(prerec.getId()), prerec);
+						}
+					}
+
 					// Validate PreKeys
 					Set<PreKeyRecord> preKeyRecords = new HashSet<>();
 					if (keys != null) {
@@ -751,6 +761,15 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 									preKeyRecords.add(preKeyRecord);
 								}
 							} catch (InvalidKeyIdException ignored) {
+								//ALF AM-228
+								if (preKeyExistingRecords != null){
+									PreKeyRecord preKeyRecord = preKeyExistingMap.get(id);
+									if (preKeyRecord != null &&
+											preKeyRecord.getKeyPair().getPublicKey().equals(keys.get(id))) {
+										axolotlStore.storePreKey(preKeyRecord.getId(), preKeyRecord);
+										preKeyRecords.add(preKeyRecord);
+									}
+								}
 							}
 						}
 					}
@@ -765,7 +784,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 						changed = true;
 						Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Adding " + newKeys + " new preKeys to PEP.");
 					}
-
+					mXmppConnectionService.setExistingPreKeyRecords(account, preKeyRecords); //ALF AM-228
 
 					if (changed || changeAccessMode.get()) {
 						if (account.getPrivateKeyAlias() != null && Config.X509_VERIFICATION) {
@@ -1435,6 +1454,20 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 		}
 
 		return plaintextMessage;
+	}
+
+	//ALF AM-228 iOS publishes device id / bundle so others can encrypt for it
+	private boolean verifyingSessions = false;
+	private Set<String> conversationsSet = new HashSet<>();
+	public void verifySessions(Conversation conversation) {
+		/*if (!conversationsSet.contains(conversation.getJid().toEscapedString()))
+		if (!verifyingSessions) {
+			if (!conversationsSet.contains(conversation.getJid().toEscapedString()))
+			verifyingSessions = true;
+			this.createSessionsIfNeeded(conversation);
+			conversation.reloadFingerprints(this.getCryptoTargets(conversation));
+			conversation.commitTrusts();
+		}*/
 	}
 
 	public void reportBrokenSessionException(BrokenSessionException e, boolean postpone) {

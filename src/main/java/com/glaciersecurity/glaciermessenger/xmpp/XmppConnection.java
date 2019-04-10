@@ -1033,9 +1033,18 @@ public class XmppConnection implements Runnable {
 		}
 		clearIqCallbacks();
 		if (account.getJid().isBareJid()) {
-			account.setResource(this.createNewResource());
+			//ALF AM-228
+			String acctresource = mXmppConnectionService.getExistingAccountResource(account);
+			if (acctresource == null){
+				acctresource = this.createNewResource();
+				mXmppConnectionService.setExistingAccountResource(account.getJid().toEscapedString(), acctresource);
+			}
+			account.setResource(acctresource);
+			//account.setResource(this.createNewResource());
 		} else {
 			fixResource(mXmppConnectionService, account);
+			//ALF AM-228
+			mXmppConnectionService.setExistingAccountResource(account.getJid().asBareJid().toEscapedString(), account.getResource());
 		}
 		final IqPacket iq = new IqPacket(IqPacket.TYPE.SET);
 		final String resource = Config.USE_RANDOM_RESOURCE_ON_EVERY_BIND ? nextRandomId() : account.getResource();
@@ -1558,6 +1567,7 @@ public class XmppConnection implements Runnable {
 					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": io exception during disconnect (" + e.getMessage() + ")");
 				} finally {
 					FileBackend.close(currentSocket);
+					forceCloseSocket(); //ALF AM-258
 				}
 			} else {
 				forceCloseSocket();
