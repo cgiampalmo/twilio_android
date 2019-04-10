@@ -1456,19 +1456,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 		return plaintextMessage;
 	}
 
-	//ALF AM-228 iOS publishes device id / bundle so others can encrypt for it
-	private boolean verifyingSessions = false;
-	private Set<String> conversationsSet = new HashSet<>();
-	public void verifySessions(Conversation conversation) {
-		/*if (!conversationsSet.contains(conversation.getJid().toEscapedString()))
-		if (!verifyingSessions) {
-			if (!conversationsSet.contains(conversation.getJid().toEscapedString()))
-			verifyingSessions = true;
-			this.createSessionsIfNeeded(conversation);
-			conversation.reloadFingerprints(this.getCryptoTargets(conversation));
-			conversation.commitTrusts();
-		}*/
-	}
+	//ALF AM-228 verifySessions? publish device id / bundle so others can encrypt for it?
 
 	public void reportBrokenSessionException(BrokenSessionException e, boolean postpone) {
 		Log.e(Config.LOGTAG,account.getJid().asBareJid()+": broken session with "+e.getSignalProtocolAddress().toString()+" detected", e);
