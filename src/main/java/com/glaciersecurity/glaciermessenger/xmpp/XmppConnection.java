@@ -295,15 +295,17 @@ public class XmppConnection implements Runnable {
 					Log.e(Config.LOGTAG,account.getJid().asBareJid()+": Resolver results were empty");
 					return;
 				}
-				final Resolver.Result storedBackupResult;
+				Resolver.Result storedBackupResult;
 				if (hardcoded) {
 					storedBackupResult = null;
 				} else {
-					storedBackupResult = mXmppConnectionService.databaseBackend.findResolverResult(domain);
-					if (storedBackupResult != null && !results.contains(storedBackupResult)) {
-						results.add(storedBackupResult);
-						Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": loaded backup resolver result from db: " + storedBackupResult);
-					}
+					try {
+						storedBackupResult = mXmppConnectionService.databaseBackend.findResolverResult(domain);
+						if (storedBackupResult != null && !results.contains(storedBackupResult)) {
+							results.add(storedBackupResult);
+							Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": loaded backup resolver result from db: " + storedBackupResult);
+						}
+					} catch (Exception ex) {storedBackupResult = null;} //ALF
 				}
 				for (Iterator<Resolver.Result> iterator = results.iterator(); iterator.hasNext(); ) {
 					final Resolver.Result result = iterator.next();
@@ -1033,18 +1035,9 @@ public class XmppConnection implements Runnable {
 		}
 		clearIqCallbacks();
 		if (account.getJid().isBareJid()) {
-			//ALF AM-228
-			String acctresource = mXmppConnectionService.getExistingAccountResource(account);
-			if (acctresource == null){
-				acctresource = this.createNewResource();
-				mXmppConnectionService.setExistingAccountResource(account.getJid().toEscapedString(), acctresource);
-			}
-			account.setResource(acctresource);
-			//account.setResource(this.createNewResource());
+			account.setResource(this.createNewResource());
 		} else {
 			fixResource(mXmppConnectionService, account);
-			//ALF AM-228
-			mXmppConnectionService.setExistingAccountResource(account.getJid().asBareJid().toEscapedString(), account.getResource());
 		}
 		final IqPacket iq = new IqPacket(IqPacket.TYPE.SET);
 		final String resource = Config.USE_RANDOM_RESOURCE_ON_EVERY_BIND ? nextRandomId() : account.getResource();

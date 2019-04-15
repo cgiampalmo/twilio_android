@@ -2062,21 +2062,7 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
         contact.resetOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST);
     }
 
-	private int deviceKey = -1; //ALF AM-202
-	public int getDeviceKey() {
-		return this.deviceKey;
-	}
-
 	//ALF AM-228 here to createAccount
-	private IdentityKeyPair keyPair = null;
-	private String acctForKeyPair = null;
-	public IdentityKeyPair getExistingIdentityKeyPair(final Account account) {
-		if (acctForKeyPair != null && account.getJid().toEscapedString().equalsIgnoreCase(acctForKeyPair)) {
-			return this.keyPair; //commented out for 2.3.2 release
-		}
-		return null;
-	}
-
 	Map<String, Set<PreKeyRecord>> preKeyRecordSet = new Hashtable<>();
 	public void setExistingPreKeyRecords(Account account, Set<PreKeyRecord> records) {
 		preKeyRecordSet.clear();
@@ -2090,34 +2076,33 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 		return null;
 	}
 
-	String existingResource = null;
-	public String getExistingAccountResource(Account account) {
-		if (acctForKeyPair != null && account.getJid().toEscapedString().equalsIgnoreCase(acctForKeyPair)) {
-			return existingResource;
+	/*Account existingAccount = null;
+	public void setExistingAccount(Account existingAcct) {
+		existingAccount = existingAcct;
+	}
+
+	public Account getExistingAccount(String barJidStr) {
+		if (existingAccount != null &&
+				barJidStr.equalsIgnoreCase(existingAccount.getJid().asBareJid().toEscapedString())) {
+			return existingAccount;
 		}
 		return null;
-	}
+	}*/
 
-	public void setExistingAccountResource(String jidstring, String resource) {
-		if (acctForKeyPair != null && jidstring.equalsIgnoreCase(acctForKeyPair)) {
-			existingResource = resource;
-		} else if (acctForKeyPair == null) {
-			this.acctForKeyPair = jidstring;
-			existingResource = resource;
-		}
-	}
-
-	public void createAccount(final Account account) {
-		account.initAccountServices(this);
-		this.deviceKey = account.getAxolotlService().getOwnDeviceId(); //ALF AM-202
-
-		//ALF AM-228
-		this.keyPair = account.getAxolotlService().getOwnKeyPair();
-		//this.preKeyRecords = account.getAxolotlService().getOwnPreKeyRecords();
-		//of getExistingPreKeyRecords(account) and set from elsewhere?
-		this.acctForKeyPair = account.getJid().toEscapedString();
+	public void createAccount(final Account account, boolean newAccount) {
+		//ALF AM-228 (if...also added newAccount above)
+		//if (newAccount) {
+			account.initAccountServices(this);
+		//}
+		//existingAccount = null;
 
 		databaseBackend.createAccount(account);
+
+		//ALF AM-228
+		//if (!newAccount && account.getAxolotlService().getExistingKeyPair() != null) {
+		//	databaseBackend.storeOwnIdentityKeyPair(account, account.getAxolotlService().getExistingKeyPair());
+		//}
+
 		this.accounts.add(account);
 		this.reconnectAccountInBackground(account);
 		updateAccountUi();
@@ -2160,7 +2145,7 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 					account.setPrivateKeyAlias(alias);
 					account.setOption(Account.OPTION_DISABLED, true);
 					account.setDisplayName(info.second);
-					createAccount(account);
+					createAccount(account, true);
 					callback.onAccountCreated(account);
 					if (Config.X509_VERIFICATION) {
 						try {

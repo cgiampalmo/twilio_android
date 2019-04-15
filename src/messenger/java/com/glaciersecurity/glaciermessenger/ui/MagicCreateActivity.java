@@ -70,7 +70,7 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher {
 						account.setOption(Account.OPTION_REGISTER, true);
 						account.setOption(Account.OPTION_DISABLED, true);
 						account.setOption(Account.OPTION_MAGIC_CREATE, true);
-						xmppConnectionService.createAccount(account);
+						xmppConnectionService.createAccount(account, true);
 					}
 					Intent intent = new Intent(MagicCreateActivity.this, EditAccountActivity.class);
 					intent.putExtra("jid", account.getJid().asBareJid().toString());

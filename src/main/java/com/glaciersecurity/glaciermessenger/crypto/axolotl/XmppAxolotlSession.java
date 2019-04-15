@@ -154,6 +154,8 @@ public class XmppAxolotlSession implements Comparable<XmppAxolotlSession> {
 				return new AxolotlKey(getRemoteAddress().getDeviceId(), ciphertextMessage.serialize(),ciphertextMessage.getType() == CiphertextMessage.PREKEY_TYPE);
 			} catch (UntrustedIdentityException e) {
 				return null;
+			} catch (IllegalArgumentException iae) { //ALF AM-228 exchange keys?
+				return null;
 			}
 		} else {
 			return null;
