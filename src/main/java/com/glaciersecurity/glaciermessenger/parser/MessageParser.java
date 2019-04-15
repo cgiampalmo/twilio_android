@@ -126,11 +126,14 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 					service.reportBrokenSessionException(e, postpone);
 					return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_FAILED, status);
 				} else {
-					Log.d(Config.LOGTAG,"ignoring broken session exception because checkForDuplicase failed");
+					//ALF AM-228
+					Log.d(Config.LOGTAG,"ignoring broken session exception because checkedForDuplicates failed");
 					return null;
+					//service.handleBrokenSession(e);
+					//return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_FAILED, status);
 				}
 			} catch (NotEncryptedForThisDeviceException e) {
-				//service.verifySessions(conversation); //ALF AM-228
+				//service.handleNotEncryptedForDevice(); //ALF AM-228
 				return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE, status);
 			}
 			if (plaintextMessage != null) {
@@ -139,7 +142,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 				Log.d(Config.LOGTAG, AxolotlService.getLogprefix(finishedMessage.getConversation().getAccount()) + " Received Message with session fingerprint: " + plaintextMessage.getFingerprint());
 				return finishedMessage;
 			} else { //ALF AM-228
-				//service.verifySessions(conversation);
+				//service.verifySessions(conversation, from);
 				return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE, status);
 			}
 		} else {

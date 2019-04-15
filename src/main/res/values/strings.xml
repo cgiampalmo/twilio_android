@@ -917,7 +917,7 @@
     <string name="wait_dialog_title">Glacier Login</string>
     <string name="wait_dialog_retrieving_account_info">Attempting to retrieve account info....</string>
     <string name="wait_dialog_connecting_vpn">Connecting VPN....</string>
-    <string name="account_logout_confirmation">Do you really want to logout of Messenger?</string>
+    <string name="account_logout_confirmation">Do you really want to logout of Messenger?\n\nAll conversation and media history will be unrecoverable.</string> <!-- ALF AM-228 modified -->
 
     <string name="select_vpn_profile_dialog_message">Select VPN you want to add</string>
     <string name="no_vpn_profile_dialog_message">No VPN profile to add</string> <!-- ALF AM-76 -->

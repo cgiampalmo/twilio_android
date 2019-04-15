@@ -261,7 +261,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			closeWaitDialog(); //ALF AM-190
 			startActivity(new Intent(getApplicationContext(),
 					ManageAccountActivity.class));
-			finish();
+			finish(); //ALF AM-228 commented out, want to wait till account online
 		} else if (mInitMode && mAccount != null && mAccount.getStatus() == Account.State.ONLINE) {
 			if (!mFetchingAvatar) {
 				mFetchingAvatar = true;
@@ -2416,13 +2416,20 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				binding.accountJid.requestFocus();
 				return;
 			}
-			mAccount = new Account(jid.asBareJid(), password);
-			mAccount.setPort(numericPort);
-			mAccount.setHostname(hostname);
-			mAccount.setOption(Account.OPTION_USETLS, true);
-			mAccount.setOption(Account.OPTION_USECOMPRESSION, true);
-			mAccount.setOption(Account.OPTION_REGISTER, registerNewAccount);
-			xmppConnectionService.createAccount(mAccount);
+
+			//ALF AM-228 this and new account and if
+			//mAccount = xmppConnectionService.getExistingAccount(jid.asBareJid().toEscapedString());
+			//boolean newAccount = false;
+			//if (mAccount == null) {
+				mAccount = new Account(jid.asBareJid(), password);
+				mAccount.setPort(numericPort);
+				mAccount.setHostname(hostname);
+				mAccount.setOption(Account.OPTION_USETLS, true);
+				mAccount.setOption(Account.OPTION_USECOMPRESSION, true);
+				mAccount.setOption(Account.OPTION_REGISTER, registerNewAccount);
+				//newAccount = true;
+			//}
+			xmppConnectionService.createAccount(mAccount, true);
 		}
 		mHostnameLayout.setError(null);
 		mPortLayout.setError(null);
@@ -2603,7 +2610,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 		//String[] request = {Manifest.permission.READ_CONTACTS, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			Log.d("GOOBER", "StartConversationActivity::askForPermissions-1");
+			Log.d("GOOBER", "EditAccountActivity::askForPermissions-1");
 			List<String> permissionsNeeded = new ArrayList<String>();
 
 			final List<String> permissionsList = new ArrayList<String>();

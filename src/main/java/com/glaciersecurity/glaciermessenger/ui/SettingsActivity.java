@@ -1,5 +1,6 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.content.Context;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.support.annotation.NonNull;
@@ -280,14 +281,14 @@ public class SettingsActivity extends XmppActivity implements
 
 	/**
 	 * Display Logout confirmation
-	 * //ALF AM-143 //GOOBER
+	 * //ALF AM-143, AM-228 changed button title //GOOBER
 	 */
 	private void showLogoutConfirmationDialog() {
 		new android.app.AlertDialog.Builder(this)
 				.setTitle("Logout Confirmation")
 				.setMessage(getString(R.string.account_logout_confirmation))
 				.setIcon(android.R.drawable.ic_dialog_alert)
-				.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+				.setPositiveButton(R.string.logout_button_key, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						doLogout();
 					}})
@@ -548,6 +549,12 @@ public class SettingsActivity extends XmppActivity implements
 	@Override
 	public void onLogout() {
 
+		//ALF AM-228, AM-202 store account in memory in case using same account
+		//Account curAccount = xmppConnectionService.getAccounts().get(0);
+		//if (curAccount != null) {
+		//	xmppConnectionService.setExistingAccount(curAccount);
+		//}
+
 		// clear all conversations
 		List<Conversation> conversations = xmppConnectionService.getConversations();
 
@@ -603,6 +610,34 @@ public class SettingsActivity extends XmppActivity implements
 
 		// clear internal storage
 		clearExternalStorage();
+
+		//ALF AM-146
+		clearAppCache();
+	}
+
+	//ALF AM-146 (and next method)
+	private void clearAppCache() {
+		try {
+			File dir = getApplicationContext().getCacheDir();
+			deleteDir(dir);
+		} catch (Exception e) { e.printStackTrace();}
+	}
+
+	public static boolean deleteDir(File dir) {
+		if (dir != null && dir.isDirectory()) {
+			String[] children = dir.list();
+			for (int i = 0; i < children.length; i++) {
+				boolean success = deleteDir(new File(dir, children[i]));
+				if (!success) {
+					return false;
+				}
+			}
+			return dir.delete();
+		} else if(dir!= null && dir.isFile()) {
+			return dir.delete();
+		} else {
+			return false;
+		}
 	}
 
 	/**

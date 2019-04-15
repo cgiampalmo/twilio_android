@@ -316,11 +316,6 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 		return CryptoHelper.bytesToHex(axolotlStore.getIdentityKeyPair().getPublicKey().serialize());
 	}
 
-	//ALF AM-228
-	public IdentityKeyPair getOwnKeyPair() {
-		return axolotlStore.getIdentityKeyPair();
-	}
-
 	public Set<IdentityKey> getKeysWithTrust(FingerprintStatus status) {
 		return axolotlStore.getContactKeysWithTrust(account.getJid().asBareJid().toString(), status);
 	}
@@ -564,6 +559,31 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 		return devices;
 	}
 
+	//ALF AM-228
+	/*long lastReportedBrokenSession = 0;
+	Set<String> brokenSessions = new HashSet<>();
+	public void handleBrokenSession(BrokenSessionException e) {
+		long now = System.currentTimeMillis();
+		if (now - lastReportedBrokenSession > 30000) {
+			lastReportedBrokenSession = now;
+			brokenSessions.clear();
+		}
+		if (!brokenSessions.contains(e.getSignalProtocolAddress().toString())) {
+			brokenSessions.add(e.getSignalProtocolAddress().toString());
+			reportBrokenSessionException(e, false);
+		}
+	}*/
+
+	//ALF AM-228
+	/*long lastDevicePublish = 0;
+	public void handleNotEncryptedForDevice() {
+		long now = System.currentTimeMillis();
+		if (now - lastDevicePublish > 30000) {
+			lastDevicePublish = now;
+			publishOwnDeviceId(getOwnDeviceIds());
+		}
+	}*/
+
 	private void publishOwnDeviceId(Set<Integer> deviceIds) {
 		Set<Integer> deviceIdsCopy = new HashSet<>(deviceIds);
 		Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "publishing own device ids");
@@ -768,6 +788,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 											preKeyRecord.getKeyPair().getPublicKey().equals(keys.get(id))) {
 										axolotlStore.storePreKey(preKeyRecord.getId(), preKeyRecord);
 										preKeyRecords.add(preKeyRecord);
+										//changed = true;
 									}
 								}
 							}
@@ -808,6 +829,11 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 			}
 		});
 	}
+
+	//ALF AM-228
+	//public IdentityKeyPair getExistingKeyPair() {
+	//	return axolotlStore.getExistingIdentityKeyPair();
+	//}
 
 	private void publishDeviceBundle(SignedPreKeyRecord signedPreKeyRecord,
 									 Set<PreKeyRecord> preKeyRecords,
@@ -1307,10 +1333,18 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 			return false;
 		}
 		for (XmppAxolotlSession session : remoteSessions) {
-			axolotlMessage.addDevice(session);
+			//try {
+				axolotlMessage.addDevice(session);
+			//} catch (IllegalArgumentException iae) { //ALF AM-228 (and try)
+			//	handleBrokenSession(new BrokenSessionException(session.getRemoteAddress(), iae));
+			//}
 		}
 		for (XmppAxolotlSession session : ownSessions) {
-			axolotlMessage.addDevice(session);
+			//try {
+				axolotlMessage.addDevice(session);
+			//} catch (IllegalArgumentException iae) { //ALF AM-228 test
+			//	handleBrokenSession(new BrokenSessionException(session.getRemoteAddress(), iae));
+			//}
 		}
 
 		return true;
@@ -1350,10 +1384,15 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 		}
 
 		final boolean success;
-		if (message.getType() == Message.TYPE_PRIVATE) {
-			success = buildHeader(axolotlMessage, message.getTrueCounterpart());
-		} else {
-			success = buildHeader(axolotlMessage, (Conversation) message.getConversation());
+		try {
+			if (message.getType() == Message.TYPE_PRIVATE) {
+				success = buildHeader(axolotlMessage, message.getTrueCounterpart());
+			} else {
+				success = buildHeader(axolotlMessage, (Conversation) message.getConversation());
+			}
+		} catch (Exception iae) { //ALF AM-228
+			Log.w(Config.LOGTAG, getLogprefix(account) + "Failed to build header for encrypted message: " + iae.getMessage());
+			return null;
 		}
 		return success ? axolotlMessage : null;
 	}
@@ -1455,8 +1494,6 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 
 		return plaintextMessage;
 	}
-
-	//ALF AM-228 verifySessions? publish device id / bundle so others can encrypt for it?
 
 	public void reportBrokenSessionException(BrokenSessionException e, boolean postpone) {
 		Log.e(Config.LOGTAG,account.getJid().asBareJid()+": broken session with "+e.getSignalProtocolAddress().toString()+" detected", e);
