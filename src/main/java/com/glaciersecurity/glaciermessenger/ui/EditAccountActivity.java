@@ -48,6 +48,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
@@ -56,6 +57,7 @@ import com.glaciersecurity.glaciercore.api.IOpenVPNAPIService;
 import com.glaciersecurity.glaciercore.api.IOpenVPNStatusCallback;
 import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.cognito.Constants;
+import com.glaciersecurity.glaciermessenger.cognito.PropertyLoader;
 import com.glaciersecurity.glaciermessenger.cognito.Util;
 import com.glaciersecurity.glaciermessenger.entities.LoginAccount;
 import com.glaciersecurity.glaciermessenger.entities.NetworkConnectivityStatus;
@@ -99,6 +101,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -514,6 +517,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		//this.password = null;
 		//this.username = null;
 		//this.organization = null;
+        if (!Constants.hasProperties()) {
+            loadPropertiesFile();
+        }
 		tempVPN = LoginAccount.getInstance();
 
 		// GOOBER COGNITO
@@ -648,6 +654,19 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		*/
 		return super.onCreateOptionsMenu(menu);
 	}
+
+	private void loadPropertiesFile(){
+        PropertyLoader propertyLoader = new PropertyLoader(getApplicationContext());
+        Properties properties = propertyLoader.getProperties(Constants.CONFIG_PROPERTIES_FILE);
+
+        Constants.setCognitoIdentityPoolId(properties.getProperty("COGNITO_IDENTITY_POOL_ID"));
+        Constants.setCognitoUserPoolId(properties.getProperty("COGNITO_USER_POOL_ID"));
+        Constants.setCognitoIdentityPoolId(properties.getProperty("COGNITO_IDENTITY_POOL_ID"));
+        Constants.setBucketName(properties.getProperty("BUCKET_NAME"));
+        Constants.setKeyPrefix(properties.getProperty("KEY_PREFIX"));
+        Constants.setCognitoClientSecret(properties.getProperty("COGNITO_CLIENT_SECRET"));
+        Constants.setCognitoClientId(properties.getProperty("COGNITO_CLIENT_ID"));
+    }
 
 	@Override
 	protected void onStart() {

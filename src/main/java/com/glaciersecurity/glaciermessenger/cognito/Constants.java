@@ -19,12 +19,14 @@ import com.amazonaws.regions.Regions;
 
 public class Constants {
 
+    public static final String CONFIG_PROPERTIES_FILE = "config.properties";
+
     /*
      * You should replace these values with your own. See the README for details
      * on what to fill in.
      */
-    public static final String COGNITO_IDENTITY_POOL_ID = "us-east-1:81149e88-648e-4a66-a912-e062ce781cec";
-    public static final String COGNITO_USER_POOL_ID = "us-east-1_NMNvpxGY3";
+    public static String COGNITO_IDENTITY_POOL_ID;
+    public static String COGNITO_USER_POOL_ID;
 
     /*
      * Region of your Cognito identity pool ID.
@@ -36,8 +38,64 @@ public class Constants {
      * the sample (https://console.aws.amazon.com/s3/). After creating a bucket,
      * put it's name in the field below.
      */
-    public static final String BUCKET_NAME = "glaciersec-profile-<org_id>";
-    public static final String KEY_PREFIX = "users";
-    public static final String COGNITO_CLIENT_SECRET = "lcnfu7tah3dnak62cg2bt15qmep29a494oskirhce6475e3u1fu";
-    public static final String COGNITO_CLIENT_ID = "62jacjom72oe19kpjg5u6nrlm7";
+    public static String BUCKET_NAME;
+    public static String KEY_PREFIX;
+    public static String COGNITO_CLIENT_SECRET;
+    public static String COGNITO_CLIENT_ID;
+
+    public static String getCognitoIdentityPoolId() {
+        return COGNITO_IDENTITY_POOL_ID;
+    }
+
+    public static void setCognitoIdentityPoolId(String cognitoIdentityPoolId) {
+        COGNITO_IDENTITY_POOL_ID = cognitoIdentityPoolId;
+    }
+
+    public static String getCognitoUserPoolId() {
+        return COGNITO_USER_POOL_ID;
+    }
+
+    public static void setCognitoUserPoolId(String cognitoUserPoolId) {
+        COGNITO_USER_POOL_ID = cognitoUserPoolId;
+    }
+
+    public static String getBucketName() {
+        return BUCKET_NAME;
+    }
+
+    public static void setBucketName(String bucketName) {
+        BUCKET_NAME = bucketName;
+    }
+
+    public static String getKeyPrefix() {
+        return KEY_PREFIX;
+    }
+
+    public static void setKeyPrefix(String keyPrefix) {
+        KEY_PREFIX = keyPrefix;
+    }
+
+    public static String getCognitoClientSecret() {
+        return COGNITO_CLIENT_SECRET;
+    }
+
+    public static void setCognitoClientSecret(String cognitoClientSecret) {
+        COGNITO_CLIENT_SECRET = cognitoClientSecret;
+    }
+
+    public static String getCognitoClientId() {
+        return COGNITO_CLIENT_ID;
+    }
+
+    public static void setCognitoClientId(String cognitoClientId) {
+        COGNITO_CLIENT_ID = cognitoClientId;
+    }
+
+
+//CMG have these values been populated from config file
+
+    public static boolean hasProperties() {
+        return COGNITO_IDENTITY_POOL_ID != null && COGNITO_USER_POOL_ID != null && BUCKET_NAME != null && KEY_PREFIX != null
+                && COGNITO_CLIENT_SECRET != null && COGNITO_CLIENT_ID != null;
+    }
 }
