@@ -1503,7 +1503,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 			final Jid jid;
 			try {
-				jid = Jid.of(binding.accountJid.getText().toString());
+				jid = Jid.of(tempVPN.getLogUsername());
 			} catch (final NullPointerException | IllegalArgumentException e) {
 				if (mUsernameMode) {
 					binding.accountJidLayout.setError(getString(R.string.invalid_username));
