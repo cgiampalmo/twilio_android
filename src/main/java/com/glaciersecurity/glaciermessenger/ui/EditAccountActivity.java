@@ -141,6 +141,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.forms.Data;
 import com.glaciersecurity.glaciermessenger.xmpp.pep.Avatar;
 import rocks.xmpp.addr.Jid;
 
+import static android.os.Build.HOST;
 import static android.view.View.VISIBLE;
 
 public class EditAccountActivity extends OmemoActivity implements OnAccountUpdate, OnUpdateBlocklist,
@@ -1454,6 +1455,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				mOrgID.setError("Org ID cannot be blank");
 				mOrgID.requestFocus();
 			} else {
+
 				showWaitDialog(getString(R.string.wait_dialog_logging_in));
 				signInUserState(); //CMG AM-172
 			}
@@ -1478,8 +1480,13 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * GOOBER COGNITO - login AWS
 	 */
 	private void signInUserState() {
-		AppHelper.setUser(tempVPN.getLogUsername()); //CMG AM-172 changed
-		AppHelper.getPool().getUser(tempVPN.getLogUsername()).getSessionInBackground(authenticationHandler);
+		//CMG for test bypass of cognito
+		if (tempVPN.getLogOrgID().equals(Config.TESTER_ORG)){
+			bypassCognitoLogin();
+		} else {
+			AppHelper.setUser(tempVPN.getLogUsername()); //CMG AM-172 changed
+			AppHelper.getPool().getUser(tempVPN.getLogUsername()).getSessionInBackground(authenticationHandler);
+		}
 	}
 
 	private void retrieveVpnState(){
@@ -1487,6 +1494,101 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		// assume logged into Cognito.  Log into Messenger
 		showWaitDialog(getString(R.string.wait_dialog_retrieving_account_info));
 		//autoLoginMessenger();
+	}
+
+	//CMG login process without Cognito
+	private void bypassCognitoLogin(){
+		{
+			XmppConnection connection = mAccount == null ? null : mAccount.getXmppConnection();
+
+			final Jid jid;
+			try {
+				jid = Jid.of(binding.accountJid.getText().toString());
+			} catch (final NullPointerException | IllegalArgumentException e) {
+				if (mUsernameMode) {
+					binding.accountJidLayout.setError(getString(R.string.invalid_username));
+				} else {
+					binding.accountJidLayout.setError(getString(R.string.invalid_jid));
+				}
+				binding.accountJid.requestFocus();
+				removeErrorsOnAllBut(binding.accountJidLayout);
+				return;
+			}
+			String hostname = null;
+			int numericPort = 5222;
+			if (mShowOptions) {
+				hostname = binding.hostname.getText().toString().replaceAll("\\s", "");
+				final String port = binding.port.getText().toString().replaceAll("\\s", "");
+				if (hostname.contains(" ")) {
+					binding.hostnameLayout.setError(getString(R.string.not_valid_hostname));
+					binding.hostname.requestFocus();
+					removeErrorsOnAllBut(binding.hostnameLayout);
+					return;
+				}
+				try {
+					numericPort = Integer.parseInt(port);
+					if (numericPort < 0 || numericPort > 65535) {
+						binding.portLayout.setError(getString(R.string.not_a_valid_port));
+						removeErrorsOnAllBut(binding.portLayout);
+						binding.port.requestFocus();
+						return;
+					}
+
+				} catch (NumberFormatException e) {
+					binding.portLayout.setError(getString(R.string.not_a_valid_port));
+					removeErrorsOnAllBut(binding.portLayout);
+					binding.port.requestFocus();
+					return;
+				}
+			}
+
+			if (jid.getLocal() == null) {
+				if (mUsernameMode) {
+					binding.accountJidLayout.setError(getString(R.string.invalid_username));
+				} else {
+					binding.accountJidLayout.setError(getString(R.string.invalid_jid));
+				}
+				removeErrorsOnAllBut(binding.accountJidLayout);
+				binding.accountJid.requestFocus();
+				return;
+			}
+			if (mAccount != null) {
+				if (mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE)) {
+					mAccount.setOption(Account.OPTION_MAGIC_CREATE, mAccount.getPassword().contains(tempVPN.getLogPassword()));
+				}
+				mAccount.setJid(jid);
+				mAccount.setPort(numericPort);
+				mAccount.setHostname(hostname);
+				binding.accountJidLayout.setError(null);
+				mAccount.setPassword(tempVPN.getLogPassword());
+				if (!xmppConnectionService.updateAccount(mAccount)) {
+					Toast.makeText(EditAccountActivity.this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
+					return;
+				}
+			} else {
+				if (xmppConnectionService.findAccountByJid(jid) != null) {
+					binding.accountJidLayout.setError(getString(R.string.account_already_exists));
+					removeErrorsOnAllBut(binding.accountJidLayout);
+					binding.accountJid.requestFocus();
+					return;
+				}
+				mAccount = new Account(jid.asBareJid(), tempVPN.getLogPassword());
+				mAccount.setPort(numericPort);
+				mAccount.setHostname(hostname);
+				mAccount.setOption(Account.OPTION_USETLS, true);
+				mAccount.setOption(Account.OPTION_USECOMPRESSION, true);
+				xmppConnectionService.createAccount(mAccount, true);
+			}
+			binding.hostnameLayout.setError(null);
+			binding.portLayout.setError(null);
+			if (mAccount.isEnabled()
+					&& !mInitMode) {
+				finish();
+			} else {
+				updateAccountInformation(true);
+			}
+
+		}
 	}
 
 
@@ -1801,19 +1903,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				for (APIVpnProfile prof : list) {
 					mService.removeProfile(prof.mUUID);
 				}
-			}
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
-
-	//CMG AM-200
-	private void disconnectExistingProfiles() {
-		try {
-			if (mService != null) {
-				// disconnect VPN first
-				mService.disconnect();
-
 			}
 		} catch (RemoteException e) {
 			e.printStackTrace();

@@ -37,6 +37,8 @@ public final class Config {
 
 	public static final Jid BUG_REPORTS = Jid.of("bugs@glaciersecurity.com"); //ALF AM-161
 
+	//CMG cognito bypass org
+	public static final String TESTER_ORG = "test";
 
 	public static final String DOMAIN_LOCK = null; //only allow account creation for this domain
 	public static final String MAGIC_CREATE_DOMAIN = "glacierMessenger.im";

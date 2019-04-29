@@ -19,6 +19,7 @@ import com.amazonaws.regions.Regions;
 
 public class Constants {
 
+    //CMG reworked to pull from config file
     public static final String CONFIG_PROPERTIES_FILE = "config.properties";
 
     /*
