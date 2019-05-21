@@ -672,7 +672,7 @@ public class FileBackend {
         copyFileToPrivateStorage(mXmppConnectionService.getFileBackend().getFile(message), uri);
     }
 
-    private String getExtensionFromUri(Uri uri) {
+    public String getExtensionFromUri(Uri uri) { //ALF AM-277 made public
         String[] projection = {MediaStore.MediaColumns.DATA};
         String filename = null;
         Cursor cursor;

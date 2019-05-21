@@ -39,4 +39,10 @@
         android:orderInCategory="85"
         android:showAsAction="never"
         android:title="@string/action_wipe_all_history"/>
+    <!-- ALF AM-277 -->
+    <item
+        android:id="@+id/action_filesafe"
+        android:orderInCategory="87"
+        android:showAsAction="never"
+        android:title="@string/action_filesafe"/>
 </menu>

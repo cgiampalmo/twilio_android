@@ -105,6 +105,7 @@ public class Attachment implements Parcelable {
         if (intent == null) {
             return uris;
         }
+
         final String contentType = intent.getType();
         final Uri data = intent.getData();
         if (data == null) {
@@ -122,6 +123,32 @@ public class Attachment implements Parcelable {
             final String mime = MimeUtils.guessMimeTypeFromUriAndMime(context, data, contentType);
             uris.add(new Attachment(data, type, mime));
         }
+        return uris;
+    }
+
+    //ALF AM-277
+    public static List<Attachment> extractFileSafeAttachments(final Context context, final Intent intent, Type type) {
+        List<Attachment> uris = new ArrayList<>();
+        if (intent == null) {
+            return uris;
+        }
+
+        final ClipData clipData = intent.getClipData();
+        final String contentType = intent.getType();
+        if (clipData != null) {
+            for (int i = 0; i < clipData.getItemCount(); ++i) {
+                final Uri uri = clipData.getItemAt(i).getUri();
+                Log.d(Config.LOGTAG,"uri="+uri+" contentType="+contentType);
+                final String mime = MimeUtils.guessMimeTypeFromUriAndMime(context, uri, contentType);
+                Log.d(Config.LOGTAG,"mime="+mime);
+                uris.add(new Attachment(uri, type, mime));
+            }
+        } else {
+            final Uri data = intent.getData();
+            final String mime = MimeUtils.guessMimeTypeFromUriAndMime(context, data, contentType);
+            uris.add(new Attachment(data, type, mime));
+        }
+
         return uris;
     }
 

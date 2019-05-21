@@ -991,6 +991,9 @@
     <string name="delete_all_cached_files">Delete all cached files</string>
     <string name="wipe_all_history">Continue</string>
 
+    <string name="action_filesafe">FileSafe</string> <!-- ALF AM-277 -->
+    <string name="upload_filesafe_dialog_message">Uploading to FileSafe....</string>
+
     <string name="glaciersecurity_webtitle">Web Address</string>
     <string name="glaciersecurity_contacttitle">Contact Information</string>
     <string name="glaciersecurity_problems">If you are experiencing problems or are in need of additional assistance, please contact us at:</string>

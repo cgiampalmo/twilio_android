@@ -99,4 +99,5 @@ public class Constants {
         return COGNITO_IDENTITY_POOL_ID != null && COGNITO_USER_POOL_ID != null && BUCKET_NAME != null && KEY_PREFIX != null
                 && COGNITO_CLIENT_SECRET != null && COGNITO_CLIENT_ID != null;
     }
+    public static final String FILESAFE_PREFIX = "uploads"; //ALF AM-277
 }
