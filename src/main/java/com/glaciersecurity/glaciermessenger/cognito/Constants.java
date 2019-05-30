@@ -92,12 +92,21 @@ public class Constants {
         COGNITO_CLIENT_ID = cognitoClientId;
     }
 
+    //ALF AM-277
+    public static String FILESAFE_PREFIX;
+    public static String getFilesafePrefix() {
+        return FILESAFE_PREFIX;
+    }
+
+    public static void setFilesafePrefix(String filesafePrefix) {
+        FILESAFE_PREFIX = filesafePrefix;
+    }
+
 
 //CMG have these values been populated from config file
 
     public static boolean hasProperties() {
         return COGNITO_IDENTITY_POOL_ID != null && COGNITO_USER_POOL_ID != null && BUCKET_NAME != null && KEY_PREFIX != null
-                && COGNITO_CLIENT_SECRET != null && COGNITO_CLIENT_ID != null;
+                && COGNITO_CLIENT_SECRET != null && COGNITO_CLIENT_ID != null  && FILESAFE_PREFIX != null;
     }
-    public static final String FILESAFE_PREFIX = "uploads"; //ALF AM-277
 }

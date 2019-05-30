@@ -29,6 +29,12 @@
         android:orderInCategory="85"
         android:title="@string/hide_offline"
         app:showAsAction="never"/>
+    <!-- ALF AM-277 -->
+    <item
+        android:id="@+id/action_filesafe"
+        android:orderInCategory="89"
+        android:title="@string/action_filesafe"
+        app:showAsAction="never"/>
     <item
         android:id="@+id/action_accounts"
         android:orderInCategory="90"

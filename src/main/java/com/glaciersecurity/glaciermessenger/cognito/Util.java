@@ -76,6 +76,11 @@ public class Util {
     }
 
     public static void clearS3Client(Context context) {
+        // DJF - AM-146 - Added per Dave's instructions
+        if (sCredProvider != null) {
+            sCredProvider.clear();
+        }
+
         sCredProvider = null;
         sS3Client = null;
         sTransferUtility = null;
