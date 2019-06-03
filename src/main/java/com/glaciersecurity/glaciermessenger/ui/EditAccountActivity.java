@@ -667,6 +667,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         Constants.setKeyPrefix(properties.getProperty("KEY_PREFIX"));
         Constants.setCognitoClientSecret(properties.getProperty("COGNITO_CLIENT_SECRET"));
         Constants.setCognitoClientId(properties.getProperty("COGNITO_CLIENT_ID"));
+		Constants.setFilesafePrefix(properties.getProperty("FILESAFE_PREFIX")); //ALF AM-277
     }
 
 	@Override

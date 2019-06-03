@@ -212,7 +212,11 @@
             android:label="@string/title_activity_new_password"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustResize" />
-        <!-- android:theme="@style/AppTheme.NoActionBar" -->
+        <!-- ALF AM-277 -->
+        <activity
+            android:name=".ui.FileSafeActivity"
+            android:label="@string/upload_filesafe_title"
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".ui.ConferenceDetailsActivity"
             android:label="@string/action_muc_details"

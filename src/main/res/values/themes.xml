@@ -41,6 +41,8 @@
 
         <item name="divider">@color/black12</item>
 
+        <item type="reference" name="filesafe_upload">@drawable/filesafe_black_48dp</item> <!-- ALF AM-277 -->
+
         <item type="reference" name="ic_send_cancel_offline">@drawable/ic_send_cancel_offline</item>
         <item type="reference" name="ic_send_location_offline">@drawable/ic_send_location_offline</item>
         <item type="reference" name="ic_send_photo_offline">@drawable/ic_send_photo_offline</item>
@@ -164,6 +166,8 @@
         <item name="IconSize">18sp</item>
 
         <item name="divider">@color/white12</item>
+
+        <item type="reference" name="filesafe_upload">@drawable/filesafe_white_48dp</item> <!-- ALF AM-277 -->
 
         <item type="reference" name="ic_send_cancel_offline">@drawable/ic_send_cancel_offline_white</item>
         <item type="reference" name="ic_send_location_offline">@drawable/ic_send_location_offline_white</item>

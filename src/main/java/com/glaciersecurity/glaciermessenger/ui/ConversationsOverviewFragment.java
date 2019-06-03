@@ -33,7 +33,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.graphics.Canvas;
@@ -71,7 +70,6 @@ import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
 import com.glaciersecurity.glaciermessenger.ui.adapter.ConversationAdapter;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnConversationArchived;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnConversationSelected;
-import com.glaciersecurity.glaciermessenger.ui.util.Color;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingActionHelper;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
@@ -413,14 +411,6 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			layoutManager.scrollToPositionWithOffset(scrollPosition.position, scrollPosition.offset);
 		}
 	}
-
-
-
-
-
-
-
-
 
 	/**  GOOBER WIPE ALL  HISTORY  **/
 	/**

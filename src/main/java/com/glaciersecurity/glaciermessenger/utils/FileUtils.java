@@ -57,6 +57,7 @@ public class FileUtils {
 				try {
 					final Uri contentUri = ContentUris.withAppendedId(PUBLIC_DOWNLOADS, Long.valueOf(id));
 					return getDataColumn(context, contentUri, null, null);
+
 				} catch (NumberFormatException e) {
 					return null;
 				}
@@ -104,6 +105,34 @@ public class FileUtils {
 		// File
 		else if ("file".equalsIgnoreCase(uri.getScheme())) {
 			return uri.getPath();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get the value of the data column for this Uri. This is useful for
+	 * MediaStore Uris, and other file-based ContentProviders.
+	 *
+	 * @param context       The context.
+	 * @param uri           The Uri to query.
+	 * @return The value of the _data column, which is typically a file path.
+	 * //ALF AM-277
+	 */
+	public static String getDisplayName(Context context, Uri uri) {
+
+		Cursor cursor = null;
+		if ("content".equalsIgnoreCase(uri.getScheme())) {
+			try {
+				cursor = context.getContentResolver().query(uri, null, null, null, null);
+				if (cursor != null && cursor.moveToFirst()) {
+					return cursor.getString(cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME));
+				}
+			} catch (Exception e) {
+				return null;
+			} finally {
+				cursor.close();
+			}
 		}
 
 		return null;

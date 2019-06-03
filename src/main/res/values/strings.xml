@@ -991,6 +991,20 @@
     <string name="delete_all_cached_files">Delete all cached files</string>
     <string name="wipe_all_history">Continue</string>
 
+    <!-- ALF AM-277 -->
+    <string name="action_filesafe">FileSafe</string>
+    <string name="upload_filesafe_dialog_message">Uploading to FileSafe....</string>
+    <string name="uploading_filesafe_button_message">Uploading...</string>
+    <string name="upload_filesafe_message">Touch to select files to upload</string>
+    <string name="upload_filesafe_files_selected_message">Selected files:</string>
+    <string name="upload_filesafe_files_uploaded_message">Uploaded files:</string>
+    <string name="upload_filesafe_title">FileSafe upload</string>
+    <string name="upload">Upload</string>
+    <string name="upload_filesafe_error_message">Something went wrong while uploading your file.</string>
+    <string name="upload_filesafe_error_offline">You need to be connected to upload your file.</string>
+    <string name="upload_filesafe_success_message_plural">Files have been successfully uploaded.</string>
+    <string name="upload_filesafe_success_message">File has been successfully uploaded.</string>
+
     <string name="glaciersecurity_webtitle">Web Address</string>
     <string name="glaciersecurity_contacttitle">Contact Information</string>
     <string name="glaciersecurity_problems">If you are experiencing problems or are in need of additional assistance, please contact us at:</string>

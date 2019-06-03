@@ -388,6 +388,9 @@ public abstract class XmppActivity extends PinActivity {
 				}catch(Exception e){
 					doCoreErrorAction();
 				}
+			case R.id.action_filesafe: //ALF AM-277
+				startActivity(new Intent(this, FileSafeActivity.class));
+				break;
 			case R.id.action_accounts:
 				AccountUtils.launchManageAccounts(this);
 				break;
