@@ -73,6 +73,7 @@ public class FileSafeActivity extends XmppActivity {
     private Button uploadButton;
     //private Account account;
     private boolean uploading = false;
+    private boolean retried = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -86,6 +87,7 @@ public class FileSafeActivity extends XmppActivity {
         this.hintOrWarning = findViewById(R.id.hint_or_warning);
         this.uploadFilesList = findViewById(R.id.upload_filesafe_files);
         this.uploadButton.setOnClickListener(v -> {
+            retried = false;
             tryFileSafeUpload();
         });
         this.cancelButton.setOnClickListener(v -> {
@@ -203,11 +205,8 @@ public class FileSafeActivity extends XmppActivity {
         runOnUiThread(() -> {
             uploading = false;
             toggleUploadButton(false, R.string.upload);
-            //this.cancelButton.setEnabled(false);
             this.cancelButton.setText("CLOSE");
         });
-        //try { Thread.sleep(3000); } catch (InterruptedException ie) {}
-        //logOut();
     }
 
     private void setSelectedFiles(List<Attachment> fileUris) {
@@ -338,6 +337,7 @@ public class FileSafeActivity extends XmppActivity {
         StringBuilder failedsb = new StringBuilder();
         StringBuilder successb = new StringBuilder();
         boolean invalidfile = false;
+
         int ctr = -1;
         for (Attachment attachment : fileSafeUris) {
             ctr++;
@@ -454,7 +454,7 @@ public class FileSafeActivity extends XmppActivity {
                         float percentDonef = ((float) bytesCurrent / (float) bytesTotal) * 100;
                         int percentDone = (int)percentDonef;
 
-                        Log.d("YourActivity", "ID:" + id + " bytesCurrent: " + bytesCurrent
+                        Log.d("FileSafeActivity", "ID:" + id + " bytesCurrent: " + bytesCurrent
                                 + " bytesTotal: " + bytesTotal + " " + percentDone + "%");
 
                         int totalDone = 0;
@@ -485,7 +485,22 @@ public class FileSafeActivity extends XmppActivity {
 
                     @Override
                     public void onError(int id, Exception ex) {
-                        Log.e("YourActivity", "Error in upload of id" + id);
+                        /*if (!retried) {
+                            retried = true;
+                            tryFileSafeUpload();
+                            int toastmsg = R.string.upload_filesafe_retry_error_message;
+                            Toast.makeText(FileSafeActivity.this,
+                                toastmsg,
+                                Toast.LENGTH_SHORT).show();
+                            return;
+                        } else {*/
+                            int toastmsg = R.string.upload_filesafe_error_message;
+                            Toast.makeText(FileSafeActivity.this,
+                                toastmsg,
+                                Toast.LENGTH_SHORT).show();
+                        //}*/
+
+                        Log.e("FileSafeActivity", "Error in upload of id" + id);
                         for (int i=0; i<transferIds.length; i++) {
                             if (id == transferIds[i]) {
                                 processed[i] = true;

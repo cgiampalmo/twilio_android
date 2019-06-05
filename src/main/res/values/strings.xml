@@ -1000,7 +1000,8 @@
     <string name="upload_filesafe_files_uploaded_message">Uploaded files:</string>
     <string name="upload_filesafe_title">FileSafe upload</string>
     <string name="upload">Upload</string>
-    <string name="upload_filesafe_error_message">Something went wrong while uploading your file.</string>
+    <string name="upload_filesafe_retry_error_message">Something went wrong while uploading. Retrying upload.</string>
+    <string name="upload_filesafe_error_message">Something went wrong while uploading. Check your network connection and try again.</string>
     <string name="upload_filesafe_error_offline">You need to be connected to upload your file.</string>
     <string name="upload_filesafe_success_message_plural">Files have been successfully uploaded.</string>
     <string name="upload_filesafe_success_message">File has been successfully uploaded.</string>
