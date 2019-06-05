@@ -169,6 +169,12 @@ public class FileSafeActivity extends XmppActivity {
         configureActionBar(getSupportActionBar(), true);
     }
 
+    @Override
+    protected void onStop () {
+        logOut();
+        super.onStop();
+    }
+
     protected void toggleUploadButton(boolean enabled, @StringRes int res) {
         final boolean status = enabled && !uploading;
         this.uploadButton.setText(uploading ? R.string.uploading_filesafe_button_message : res);
@@ -200,7 +206,8 @@ public class FileSafeActivity extends XmppActivity {
             //this.cancelButton.setEnabled(false);
             this.cancelButton.setText("CLOSE");
         });
-        logOut();
+        //try { Thread.sleep(3000); } catch (InterruptedException ie) {}
+        //logOut();
     }
 
     private void setSelectedFiles(List<Attachment> fileUris) {
@@ -385,7 +392,7 @@ public class FileSafeActivity extends XmppActivity {
                 }
 
                 // FILESAFE_PREFIX / cognito user
-                TransferObserver uploadObserver = transferUtility.upload(Constants.getFilesafePrefix() + "/" + username + "/" + uploadfile.getName(), uploadfile);
+                TransferObserver uploadObserver = transferUtility.upload(Constants.getFilesafePrefix() + "/glacierUpload-" + username + "/" + uploadfile.getName(), uploadfile);
 
                 transferIds[ctr] = uploadObserver.getId();
                 completion[ctr] = 0;
