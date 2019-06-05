@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:background="?attr/color_background_secondary">
 
         <include android:id="@+id/toolbar" layout="@layout/toolbar"/>
@@ -13,10 +12,10 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/toolbar"
+            android:layout_above="@id/button_bar"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="@dimen/activity_vertical_margin">
+            android:layout_marginRight="@dimen/activity_horizontal_margin">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -29,14 +28,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:layout_marginTop="@dimen/publish_avatar_top_margin">
+                    android:layout_marginTop="@dimen/publish_filesafe_top_margin">
 
                     <com.makeramen.roundedimageview.RoundedImageView
                         android:id="@+id/filesafe_image"
-                        android:layout_width="@dimen/publish_avatar_size"
-                        android:layout_height="@dimen/publish_avatar_size"
-                        android:src="@drawable/filesafe_white_48dp"
-                        app:riv_corner_radius="100dip" />
+                        android:layout_width="@dimen/publish_filesafe_size"
+                        android:layout_height="@dimen/publish_filesafe_size"
+                        android:src="?attr/filesafe_upload"/>
                 </FrameLayout>
 
                 <TextView
@@ -53,11 +51,21 @@
                     android:layout_marginTop="8dp"
                     android:background="?attr/divider"/>
 
-                <TextView
-                    android:id="@+id/upload_filesafe_files"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.Conversations.Body1"/>
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scrollbars="vertical"
+                    android:paddingRight="5dp">
+
+                    <TextView
+                        android:id="@+id/upload_filesafe_files"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:paddingRight="15dp"
+                        android:textAppearance="@style/TextAppearance.Conversations.Body1"/>
+
+                </ScrollView>
 
                 <TextView
                     android:id="@+id/hint_or_warning"

@@ -16,6 +16,9 @@
 	<dimen name="browser_media_size">96dp</dimen>
 	<dimen name="toolbar_elevation">4dp</dimen>
 
+	<dimen name="publish_filesafe_size">48dp</dimen>
+	<dimen name="publish_filesafe_top_margin">4dp</dimen>
+
 	<dimen name="publish_avatar_top_margin">8dp</dimen>
 	<dimen name="publish_avatar_size">96dp</dimen>
 	<dimen name="avatar_on_status_message">32dp</dimen>
