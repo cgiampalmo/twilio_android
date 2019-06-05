@@ -137,7 +137,7 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 336
+        versionCode 337
         versionName "2.3.5"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
