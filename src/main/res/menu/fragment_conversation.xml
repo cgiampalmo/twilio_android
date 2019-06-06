@@ -99,7 +99,7 @@
         android:id="@+id/action_end_conversation"
         android:orderInCategory="60"
         app:showAsAction="never"
-        android:title="@string/action_end_conversation"/> -->
+        android:title="@string/action_end_conversation"/>
     <!-- ALF AM-122 -->
     <item
         android:id="@+id/action_leave_group"
@@ -107,11 +107,6 @@
         android:showAsAction="never"
         android:title="@string/action_leave_group"/>
     <!-- GOOBER - Added wipe all history -->
-    <item
-        android:id="@+id/action_wipe_all_history"
-        android:orderInCategory="62"
-        android:showAsAction="never"
-        android:title="@string/action_wipe_all_history"/>
     <item
         android:id="@+id/action_mute"
         android:orderInCategory="70"

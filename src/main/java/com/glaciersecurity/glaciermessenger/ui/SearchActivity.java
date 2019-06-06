@@ -134,13 +134,14 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 		getMenuInflater().inflate(R.menu.search_result_context, menu);
 		MenuItem copy = menu.findItem(R.id.copy_message);
 		MenuItem quote = menu.findItem(R.id.quote_message);
-		MenuItem copyUrl = menu.findItem(R.id.copy_url);
+// DJF		MenuItem copyUrl = menu.findItem(R.id.copy_url);
 		if (message.isGeoUri()) {
 			copy.setVisible(false);
 			quote.setVisible(false);
-		} else {
-			copyUrl.setVisible(false);
 		}
+// DJF		else {
+// DJF			copyUrl.setVisible(false);
+// DJF		}
 		super.onCreateContextMenu(menu, v, menuInfo);
 	}
 
@@ -166,9 +167,9 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 				case R.id.copy_message:
 					ShareUtil.copyToClipboard(this, message);
 					break;
-				case R.id.copy_url:
-					ShareUtil.copyUrlToClipboard(this, message);
-					break;
+// DJF				case R.id.copy_url:
+// DJF					ShareUtil.copyUrlToClipboard(this, message);
+// DJF					break;
 				case R.id.quote_message:
 					quote(message);
 					break;
