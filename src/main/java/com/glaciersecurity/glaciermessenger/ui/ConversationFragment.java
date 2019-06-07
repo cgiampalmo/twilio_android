@@ -1099,7 +1099,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			MenuItem correctMessage = menu.findItem(R.id.correct_message);
 			MenuItem shareWith = menu.findItem(R.id.share_with);
 			MenuItem sendAgain = menu.findItem(R.id.send_again);
-			MenuItem copyUrl = menu.findItem(R.id.copy_url);
+// DJF			MenuItem copyUrl = menu.findItem(R.id.copy_url);
 			MenuItem downloadFile = menu.findItem(R.id.download_file);
 			MenuItem cancelTransmission = menu.findItem(R.id.cancel_transmission);
 			MenuItem deleteFile = menu.findItem(R.id.delete_file);
@@ -1136,7 +1136,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 					|| m.isGeoUri()
 					|| m.treatAsDownloadable()
 					|| (t != null && t instanceof HttpDownloadConnection)) {
-				copyUrl.setVisible(true);
+// DJF				copyUrl.setVisible(true);
 			}
 			if (m.isFileOrImage() && deleted && m.hasFileOnRemoteHost()) {
 				downloadFile.setVisible(true);
@@ -1187,9 +1187,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			case R.id.send_again:
 				resendMessage(selectedMessage);
 				return true;
-			case R.id.copy_url:
-				ShareUtil.copyUrlToClipboard(activity, selectedMessage);
-				return true;
+// DJF			case R.id.copy_url:
+// DJF				ShareUtil.copyUrlToClipboard(activity, selectedMessage);
+// DJF				return true;
 			case R.id.download_file:
 				startDownloadable(selectedMessage);
 				return true;
