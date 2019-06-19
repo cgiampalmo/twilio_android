@@ -45,18 +45,44 @@
 	<dimen name="activity_dialog_negative_button_size">6sp</dimen>
 
 	<!-- GOOBER PIN -->
-    	<dimen name="keyboard_button_text_size">30sp</dimen>
-    	<dimen name="keyboard_button_padding">15dp</dimen>
-    	<dimen name="keyboard_button_ripple_padding">30dp</dimen>
-    	<dimen name="pin_code_round_size">25dp</dimen>
-    	<dimen name="pin_code_round_margin">10dp</dimen>
-    	<dimen name="light_gray_bar_margin_top">20dp</dimen>
-    	<dimen name="light_gray_bar_margin_bottom">5dp</dimen>
-    	<dimen name="light_gray_bar_margin_sides">50dp</dimen>
-    	<dimen name="pin_code_forgot_text_size">16sp</dimen>
-    	<dimen name="pin_code_step_text_size">20sp</dimen>
-    	<dimen name="pin_code_elements_margin">20dp</dimen>
-    	<dimen name="activity_pin_code_padding">20dp</dimen>
-    	<dimen name="pin_code_logo_margin">30dp</dimen>
-    	<dimen name="pin_code_round_top_margin">10dp</dimen>
+	<dimen name="keyboard_button_text_size">30sp</dimen>
+	<dimen name="keyboard_button_padding">15dp</dimen>
+	<dimen name="keyboard_button_ripple_padding">30dp</dimen>
+	<dimen name="pin_code_round_size">25dp</dimen>
+	<dimen name="pin_code_round_margin">10dp</dimen>
+	<dimen name="light_gray_bar_margin_top">20dp</dimen>
+	<dimen name="light_gray_bar_margin_bottom">5dp</dimen>
+	<dimen name="light_gray_bar_margin_sides">50dp</dimen>
+	<dimen name="pin_code_forgot_text_size">16sp</dimen>
+	<dimen name="pin_code_step_text_size">20sp</dimen>
+	<dimen name="pin_code_elements_margin">20dp</dimen>
+	<dimen name="activity_pin_code_padding">20dp</dimen>
+	<dimen name="pin_code_logo_margin">30dp</dimen>
+	<dimen name="pin_code_round_top_margin">10dp</dimen>
+
+	<!--CMG AM-254 MATERIAL X-->
+	<!-- Default screen margins, per the Android Design guidelines. -->
+	<dimen name="actionBarSize">56dp</dimen>
+	<dimen name="nav_header_vertical_spacing">16dp</dimen>
+	<dimen name="nav_header_height">200dp</dimen>
+	<dimen name="fab_margin">16dp</dimen>
+	<dimen name="viewpager_margin_overlap">-60dp</dimen>
+	<dimen name="viewpager_margin_overlap_payment">-30dp</dimen>
+
+	<!--genaral spacing-->
+	<dimen name="spacing_xsmall">2dp</dimen>
+	<dimen name="spacing_small">3dp</dimen>
+	<dimen name="spacing_medium">5dp</dimen>
+	<dimen name="spacing_xmedium">7dp</dimen>
+	<dimen name="spacing_middle">10dp</dimen>
+	<dimen name="spacing_large">15dp</dimen>
+	<dimen name="spacing_smlarge">18dp</dimen>
+	<dimen name="spacing_mlarge">20dp</dimen>
+	<dimen name="spacing_mxlarge">25dp</dimen>
+	<dimen name="spacing_xlarge">35dp</dimen>
+	<dimen name="spacing_xmlarge">40dp</dimen>
+	<dimen name="spacing_xxlarge">50dp</dimen>
+	<dimen name="spacing_xxxlarge">55dp</dimen>
+	<dimen name="appbar_padding_top">8dp</dimen>
+
 </resources>

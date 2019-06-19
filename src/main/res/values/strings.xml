@@ -584,8 +584,14 @@
     <string name="presence_chat">Free for Chat</string>
     <string name="presence_online">Online</string>
     <string name="presence_away">Away</string>
-    <string name="presence_xa">Not Available</string>
-    <string name="presence_dnd">Busy</string>
+    <string name="presence_xa">Offline</string>
+    <string name="presence_dnd">DND</string>
+    <string name="clear_status">Clear</string>
+    <string name="in_meeting">In a meeting \t &#128197;</string>
+    <string name="on_travel">On travel \t &#128747;</string>
+    <string name="out_sick">Out sick \t &#129298;</string>
+    <string name="vacation">Vacation \t &#127796;</string>
+    <string name="set_a_status_message">Set a status</string>
     <string name="secure_password_generated">A secure password has been generated</string>
     <string name="device_does_not_support_battery_op">Your device does not support opting out of battery optimization</string>
     <string name="registration_please_wait">Registration failed: Try again later</string>
@@ -1016,4 +1022,8 @@
     <string name="glaciersecurity_property">Messenger is a property of Glacier Security</string>
     <string name="glaciersecurity_help">Please visit us at glaciersecurity.com</string>
     <string name="version_info">%1$s %2$s</string>
+
+    <!--CMG AM-254 material_x nav bar-->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 </resources>

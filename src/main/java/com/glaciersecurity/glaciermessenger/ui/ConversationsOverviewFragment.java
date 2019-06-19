@@ -93,7 +93,8 @@ public class ConversationsOverviewFragment extends XmppFragment {
 	private float mSwipeEscapeVelocity = 0f;
 	private PendingActionHelper pendingActionHelper = new PendingActionHelper();
 
-	private ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0,LEFT|RIGHT) {
+	// CMG AM-254 remove left swipe
+	private ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0,RIGHT) {
 		@Override
 		public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
 			//todo maybe we can manually changing the position of the conversation

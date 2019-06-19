@@ -125,6 +125,18 @@ dependencies {
     // implementation ('com.amazonaws:aws-android-sdk-mobile-client:2.6.7@aar') { transitive = true; }
 
     // implementation 'com.amazonaws:aws-android-sdk-s3:2.6.+'
+
+    // CMG AM-254 materialx third party dependencies
+    implementation 'com.balysv:material-ripple:1.0.2'                  // ripple effect
+    implementation 'com.github.bumptech.glide:glide:3.7.0'             // image loader
+    implementation 'com.mikhaellopez:circularimageview:3.2.0'          // circle image view
+
+
+    // google maps library ------------------------------------------------------------------------
+    implementation 'com.google.android.gms:play-services-maps:15.0.1'
+    implementation 'com.google.android.gms:play-services-places:15.0.1'
+    implementation "com.android.support:support-emoji:28.0.0"
+
 }
 
 ext {
@@ -144,6 +156,8 @@ android {
         resValue "string", "applicationId", applicationId
         resValue "string", "app_name", "Messenger"
         buildConfigField "String", "LOGTAG", "\"messenger\""
+
+        vectorDrawables.useSupportLibrary = true
     }
     dataBinding {
         enabled true
