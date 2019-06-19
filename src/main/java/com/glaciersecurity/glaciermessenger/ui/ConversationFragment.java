@@ -7,6 +7,7 @@ import android.app.FragmentManager;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -14,6 +15,7 @@ import android.provider.MediaStore;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.app.Fragment;
 import android.app.PendingIntent;
@@ -49,8 +51,10 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.widget.EditText; //ALF AM-75
@@ -86,6 +90,7 @@ import com.glaciersecurity.glaciermessenger.entities.Transferable;
 import com.glaciersecurity.glaciermessenger.entities.TransferablePlaceholder;
 import com.glaciersecurity.glaciermessenger.http.HttpDownloadConnection;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
+import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 import com.glaciersecurity.glaciermessenger.services.MessageArchiveService;
 import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
@@ -134,7 +139,7 @@ import static com.glaciersecurity.glaciermessenger.utils.PermissionUtils.getFirs
 import static com.glaciersecurity.glaciermessenger.utils.PermissionUtils.writeGranted;
 
 
-public class ConversationFragment extends XmppFragment implements EditMessage.KeyboardListener, MessageAdapter.OnContactPictureLongClicked, MessageAdapter.OnContactPictureClicked {
+public class ConversationFragment extends XmppFragment implements EditMessage.KeyboardListener, MessageAdapter.OnContactPictureLongClicked, MessageAdapter.OnContactPictureClicked{
 
 	public static final int REQUEST_SEND_MESSAGE = 0x0201;
 	public static final int REQUEST_DECRYPT_PGP = 0x0202;
@@ -181,6 +186,49 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	//ALF AM-53
 	private Handler disappearingHandler;
 	private Runnable disRunnable;
+
+	//CMG AM-41
+	private LinearLayout offlineLayout;
+	private TextView networkStatus;
+
+	private OnClickListener mRefreshNetworkClickListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			networkStatus.setCompoundDrawables(null, null, null, null);
+			networkStatus.setText(getActivity().getResources().getString(R.string.refreshing));
+			if (ConnectivityReceiver.isConnected(getActivity())){
+				final Handler handler = new Handler();
+				handler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						reconfigureOfflineText();
+						offlineLayout.setVisibility(View.GONE);
+					}
+				}, 1000);
+			}else{
+				final Handler handler = new Handler();
+				handler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						reconfigureOfflineText();
+						offlineLayout.setVisibility(View.VISIBLE);
+					}
+				}, 1000);
+			}
+		}
+	};
+
+	private void reconfigureOfflineText() {
+		networkStatus.setText(getActivity().getResources().getString(R.string.offline));
+		Drawable refreshIcon =
+				ContextCompat.getDrawable(getActivity(), R.drawable.ic_refresh_black_24dp);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){
+			networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
+		} else{
+			refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
+			networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
+		}
+	}
 
 	//ALF AM-51
 	private String lastGroupRemoved = null;
@@ -1038,6 +1086,13 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		messageListAdapter.setOnQuoteListener(this::quoteText);
 		binding.messagesView.setAdapter(messageListAdapter);
 
+		//CMG AM-41
+		offlineLayout = (LinearLayout) binding.getRoot().findViewById(R.id.offline_layout);
+		networkStatus = (TextView) binding.getRoot().findViewById(R.id.network_status);
+		offlineLayout.setOnClickListener(mRefreshNetworkClickListener);
+		checkNetworkStatus();
+
+
 		registerForContextMenu(binding.messagesView);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -1045,6 +1100,22 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		}
 
 		return binding.getRoot();
+	}
+
+	// CMG AM-41
+	private void checkNetworkStatus() {
+		if (ConnectivityReceiver.isConnected(getActivity())){
+			onConnected();
+		}else{
+			onDisconnected();
+		}
+	}
+	public void onConnected(){
+		offlineLayout.setVisibility(View.GONE);
+	}
+
+	public void onDisconnected(){
+		offlineLayout.setVisibility(View.VISIBLE);
 	}
 
 	private void quoteText(String text) {

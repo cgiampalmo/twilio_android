@@ -39,8 +39,10 @@ import android.app.FragmentTransaction;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -67,6 +69,7 @@ import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.databinding.ActivityConversationsBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
+import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnBackendConnected;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnConversationArchived;
@@ -90,7 +93,7 @@ import rocks.xmpp.addr.Jid;
 
 import static com.glaciersecurity.glaciermessenger.ui.ConversationFragment.REQUEST_DECRYPT_PGP;
 
-public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, OnKeyStatusUpdated {
+public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, OnKeyStatusUpdated, ConnectivityReceiver.ConnectivityReceiverListener {
 
 	public static final String ACTION_VIEW_CONVERSATION = "com.glaciersecurity.glaciermessenger.action.VIEW";
 	public static final String EXTRA_CONVERSATION = "conversationUuid";
@@ -99,6 +102,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	public static final String EXTRA_NICK = "nick";
 	public static final String EXTRA_IS_PRIVATE_MESSAGE = "pm";
 	public static final String EXTRA_DO_NOT_APPEND = "do_not_append";
+
+	private ConversationFragment conversationFragment;
 
 	private static List<String> VIEW_AND_SHARE_ACTIONS = Arrays.asList(
 			ACTION_VIEW_CONVERSATION,
@@ -120,7 +125,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	private AtomicBoolean mRedirectInProcess = new AtomicBoolean(false);
 
 	private boolean initialConnect = true; //ALF AM-78
-
+	private ConnectivityReceiver connectivityReceiver; //CMG AM-41
 	private static boolean isViewOrShareIntent(Intent i) {
 		Log.d(Config.LOGTAG, "action: " + (i == null ? null : i.getAction()));
 		return i != null && VIEW_AND_SHARE_ACTIONS.contains(i.getAction()) && i.hasExtra(EXTRA_CONVERSATION);
@@ -391,6 +396,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			pendingViewIntent.push(intent);
 			setIntent(createLauncherIntent(this));
 		}
+		connectivityReceiver = new ConnectivityReceiver(this);
+
 	}
 
 	@Override
@@ -444,7 +451,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	}
 
 	private void openConversation(Conversation conversation, Bundle extras) {
-		ConversationFragment conversationFragment = (ConversationFragment) getFragmentManager().findFragmentById(R.id.secondary_fragment);
+		conversationFragment = (ConversationFragment) getFragmentManager().findFragmentById(R.id.secondary_fragment);
 		final boolean mainNeedsRefresh;
 		if (conversationFragment == null) {
 			mainNeedsRefresh = false;
@@ -529,7 +536,26 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			this.mSkipBackgroundBinding = false;
 		}
 		mRedirectInProcess.set(false);
+		registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		super.onStart();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		unregisterReceiver(connectivityReceiver);
+	}
+
+	//CMG AM-41
+	@Override
+	public void onNetworkConnectionChanged(boolean isConnected) {
+		if (conversationFragment != null){
+			if (isConnected) {
+				conversationFragment.onConnected();
+			} else {
+				conversationFragment.onDisconnected();
+			}
+		}
 	}
 
 	@Override

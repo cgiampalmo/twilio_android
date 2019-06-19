@@ -29,6 +29,8 @@
     <string name="title_activity_choose_contacts">Choose contacts</string>
     <string name="title_activity_share_via_account">Share via account</string>
     <string name="title_activity_block_list">Block list</string>
+    <string name="offline">Offline</string>
+    <string name="refreshing">Refreshing…</string>
     <string name="just_now">just now</string>
     <string name="minute_ago">1 min ago</string>
     <string name="minutes_ago">%d mins ago</string>
@@ -161,7 +163,7 @@
     <string name="account_status_regis_conflict">Username already in use</string>
     <string name="account_status_regis_success">Registration completed</string>
     <string name="account_status_regis_not_sup">Server does not support registration</string>
-    <string name="account_status_tls_error">TLS negotiation failed</string>
+    <string name="account_status_tls_error">Unable to connect. Tap to retry</string>
     <string name="account_status_policy_violation">Policy violation</string>
     <string name="account_status_incompatible_server">Incompatible server</string>
     <string name="account_status_stream_error">Stream error</string>
