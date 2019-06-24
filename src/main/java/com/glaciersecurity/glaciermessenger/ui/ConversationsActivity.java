@@ -48,12 +48,16 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import org.openintents.openpgp.util.OpenPgpApi;
@@ -374,6 +378,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		}
 	}
 
+	ActionBar actionBar;
+	Toolbar toolbar;
+	DrawerLayout drawer;
+
+
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -398,6 +407,86 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		}
 		connectivityReceiver = new ConnectivityReceiver(this);
 
+		setContentView(R.layout.activity_menu_drawer_conversations);
+
+		initToolbar();
+		initNavigationMenu();
+	}
+
+	private void initToolbar() {
+
+		toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+		setSupportActionBar(toolbar);
+
+		actionBar = getSupportActionBar();
+
+		actionBar.setDisplayHomeAsUpEnabled(true);
+
+		actionBar.setHomeButtonEnabled(true);
+
+	}
+
+
+	private void initNavigationMenu() {
+		final NavigationView nav_view = (NavigationView) findViewById(R.id.nav_view);
+		drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+			public void onDrawerOpened(View drawerView) {
+				super.onDrawerOpened(drawerView);
+			}
+		};
+		drawer.setDrawerListener(toggle);
+		toggle.syncState();
+		nav_view.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+			@Override
+			public boolean onNavigationItemSelected(final MenuItem item) {
+				onItemNavigationClicked(item);
+				return true;
+			}
+		});
+	}
+
+	private void onItemNavigationClicked(MenuItem item) {
+
+		switch (item.getItemId()) {
+
+			case R.id.Core: {
+				Intent coreActivity = new Intent(getApplicationContext(), OpenVPNActivity.class);
+				startActivity(coreActivity);
+				break;
+			}
+			case R.id.Chats: {
+				Intent chatsActivity = new Intent(getApplicationContext(), ConversationsActivity.class);
+				startActivity(chatsActivity);
+				break;
+			}
+			case R.id.Contacts: {
+				Intent contactsActivity = new Intent(getApplicationContext(), StartConversationActivity.class);
+				startActivity(contactsActivity);
+				break;
+			}
+			case R.id.Search: {
+				Intent coreActivity = new Intent(getApplicationContext(), SearchActivity.class);
+				startActivity(coreActivity);
+				break;
+			}
+			case R.id.Settings: {
+				Intent settingsActivity = new Intent(getApplicationContext(), SettingsActivity.class);
+				startActivity(settingsActivity);
+				break;
+			}
+			case R.id.Support: {
+				Intent aboutActivity = new Intent(getApplicationContext(), AboutActivity.class);
+				startActivity(aboutActivity);
+				break;
+			}
+			default:
+				Toast.makeText(getApplicationContext(), item.getTitle(), Toast.LENGTH_SHORT).show();
+				break;
+		}
+		drawer.closeDrawers();
 	}
 
 	@Override
@@ -661,7 +750,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				}
 			}
 			actionBar.setTitle(R.string.app_name);
-			actionBar.setDisplayHomeAsUpEnabled(false);
+			//actionBar.setDisplayHomeAsUpEnabled(false);
 		}
 	}
 

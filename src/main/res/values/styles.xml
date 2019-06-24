@@ -51,6 +51,10 @@
         <item name="android:textSize">?TextSizeBody1</item>
     </style>
 
+    <style name="Widget.Conversations.RadioButton" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="android:textSize">?TextSizeBody1</item>
+    </style>
+
     <style name="Widget.Conversations.Button.Borderless" parent="@style/Widget.AppCompat.Button.Borderless">
         <item name="android:textSize">?TextSizeBody2</item>
     </style>
@@ -133,31 +137,5 @@
 
     <style name="TextAppearance.Conversations.Body1.Secondary.OnDark" parent="TextAppearance.Conversations.Body1">
         <item name="android:textColor">@color/white70</item>
-    </style>
-
-    <!--CMG AM-254 material_x-->
-    <!--style for ripple library-->
-    <style name="RippleStyleWhite">
-        <item name="mrl_rippleOverlay">true</item>
-        <item name="mrl_rippleColor">#80FFFFFF</item>
-        <item name="mrl_rippleHover">true</item>
-        <item name="mrl_rippleAlpha">0.2</item>
-    </style>
-
-    <style name="RippleStyleBlack" parent="RippleStyleWhite">
-        <item name="mrl_rippleColor">#8096989A</item>
-    </style>
-
-    <style name="RippleStyleDark" parent="RippleStyleWhite">
-        <item name="mrl_rippleColor">#80000000</item>
-    </style>
-
-    <style name="font5" parent="@android:style/TextAppearance.Medium">
-        <item name="android:textColor">@color/colorC</item>
-        <item name="android:textSize">30sp</item>
-    </style>
-
-    <style name="Widget.Conversations.RadioButton" parent="Widget.AppCompat.CompoundButton.RadioButton">
-        <item name="android:textSize">?TextSizeBody1</item>
     </style>
 </resources>

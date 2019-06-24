@@ -34,7 +34,7 @@
                         android:id="@+id/filesafe_image"
                         android:layout_width="@dimen/publish_filesafe_size"
                         android:layout_height="@dimen/publish_filesafe_size"
-                        android:src="?attr/filesafe_upload"/>
+                        android:src="@drawable/filesafe_black_48dp"/>
                 </FrameLayout>
 
                 <TextView
