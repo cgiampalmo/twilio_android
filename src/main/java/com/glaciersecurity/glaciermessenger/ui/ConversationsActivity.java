@@ -36,10 +36,13 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.net.ConnectivityManager;
@@ -49,6 +52,7 @@ import android.provider.Settings;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -58,6 +62,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.openintents.openpgp.util.OpenPgpApi;
@@ -68,13 +76,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.crypto.OmemoSetting;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.databinding.ActivityConversationsBinding;
+import com.glaciersecurity.glaciermessenger.databinding.DialogPresenceBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
+import com.glaciersecurity.glaciermessenger.entities.Presence;
+import com.glaciersecurity.glaciermessenger.entities.PresenceTemplate;
 import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
+import com.glaciersecurity.glaciermessenger.ui.adapter.PresenceTemplateAdapter;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnBackendConnected;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnConversationArchived;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnConversationRead;
@@ -85,13 +98,16 @@ import com.glaciersecurity.glaciermessenger.ui.util.ActivityResult;
 import com.glaciersecurity.glaciermessenger.ui.util.ConversationMenuConfigurator;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
+import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.utils.AccountUtils;
 import com.glaciersecurity.glaciermessenger.utils.EmojiWrapper;
 import com.glaciersecurity.glaciermessenger.utils.ExceptionHelper;
+import com.glaciersecurity.glaciermessenger.utils.LogoutListener;
 import com.glaciersecurity.glaciermessenger.utils.SignupUtils;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
 import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
 import com.glaciersecurity.glaciermessenger.xmpp.OnKeyStatusUpdated; //ALF AM-60
+import com.mikhaellopez.circularimageview.CircularImageView;
 
 import rocks.xmpp.addr.Jid;
 
@@ -117,6 +133,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	public static final int REQUEST_OPEN_MESSAGE = 0x9876;
 	public static final int REQUEST_PLAY_PAUSE = 0x5432;
+	private static final int REQUEST_CHANGE_STATUS = 0xee11;
+
+	//CMG AM-285
+	private ImageView mAvatar;
+	private Account mAccount;
+	private final PendingItem<PresenceTemplate> mPendingPresenceTemplate = new PendingItem<>();
+
 
 
 	//secondary fragment (when holding the conversation, must be initialized before refreshing the overview fragment
@@ -130,6 +153,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	private boolean initialConnect = true; //ALF AM-78
 	private ConnectivityReceiver connectivityReceiver; //CMG AM-41
+
+	public ConversationsActivity() {
+	}
+
 	private static boolean isViewOrShareIntent(Intent i) {
 		Log.d(Config.LOGTAG, "action: " + (i == null ? null : i.getAction()));
 		return i != null && VIEW_AND_SHARE_ACTIONS.contains(i.getAction()) && i.hasExtra(EXTRA_CONVERSATION);
@@ -350,6 +377,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			case REQUEST_BATTERY_OP:
 				setNeverAskForBatteryOptimizationsAgain();
 				break;
+			case REQUEST_CHANGE_STATUS: {
+				com.glaciersecurity.glaciermessenger.utils.Log.d(Config.LOGTAG, "pgp result not ok");
+				break;
+			}
+
 		}
 	}
 
@@ -375,13 +407,19 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			case REQUEST_ANNOUNCE_PGP:
 				announcePgp(conversation.getAccount(), conversation, data, onOpenPGPKeyPublished);
 				break;
+			case REQUEST_CHANGE_STATUS: {
+				PresenceTemplate template = mPendingPresenceTemplate.pop();
+				if (template != null) {
+					generateSignature(data, template);
+				}
+				break;
+			}
 		}
 	}
 
 	ActionBar actionBar;
 	Toolbar toolbar;
 	DrawerLayout drawer;
-
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -408,21 +446,15 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		connectivityReceiver = new ConnectivityReceiver(this);
 
 		setContentView(R.layout.activity_menu_drawer_conversations);
-
 		initToolbar();
 		initNavigationMenu();
 	}
 
 	private void initToolbar() {
-
 		toolbar = (Toolbar) findViewById(R.id.toolbar);
-
 		setSupportActionBar(toolbar);
-
 		actionBar = getSupportActionBar();
-
 		actionBar.setDisplayHomeAsUpEnabled(true);
-
 		actionBar.setHomeButtonEnabled(true);
 
 	}
@@ -431,11 +463,50 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	private void initNavigationMenu() {
 		final NavigationView nav_view = (NavigationView) findViewById(R.id.nav_view);
 		drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-
 		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
+				mAccount = xmppConnectionService.getAccounts().get(0);
+				ImageView avatar = (ImageView) findViewById(R.id.nav_avatar);
+				avatar.setOnClickListener(mAvatarClickListener);
+
+				avatar.setImageBitmap(avatarService().get(mAccount, (int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
+				TextView name = findViewById(R.id.nav_name);
+				name.setText(mAccount.getUsername());
+
+				Button status_text = (Button) findViewById(R.id.nav_status_text);
+				ImageView status_icon = (ImageView) findViewById(R.id.nav_status_icon);
+				status_text.setOnClickListener(mPresenceClickListener);
+				status_text.setText(mAccount.getPresenceStatus().toDisplayString());
+				status_icon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
+				TextView status_message = (TextView) findViewById(R.id.nav_status_message);
+				String presenceStatusMessage = mAccount.getPresenceStatusMessage();
+				if(presenceStatusMessage != null) {
+					status_message.setText(presenceStatusMessage);
+				}
 			}
+
+			private final View.OnClickListener mAvatarClickListener = new View.OnClickListener() {
+				@Override
+				public void onClick(final View view) {
+					if (mAccount != null) {
+						final Intent intent = new Intent(getApplicationContext(), PublishProfilePictureActivity.class);
+						intent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().asBareJid().toString());
+						startActivity(intent);
+					}
+					drawer.closeDrawers();
+
+				}
+			};
+			private final View.OnClickListener mPresenceClickListener = new View.OnClickListener() {
+				@Override
+				public void onClick(final View view) {
+					if (mAccount != null) {
+						changePresence();
+					}
+					drawer.closeDrawers();
+				}
+			};
 		};
 		drawer.setDrawerListener(toggle);
 		toggle.syncState();
@@ -447,11 +518,129 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			}
 		});
 	}
+	private void changePresence() {
+		android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+		final DialogPresenceBinding binding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.dialog_presence, null, false);
+		String current = mAccount.getPresenceStatusMessage();
+		if (current != null && !current.trim().isEmpty()) {
+			binding.statusMessage.append(current);
+		}
+		setAvailabilityRadioButton(mAccount.getPresenceStatus(), binding);
+		List<PresenceTemplate> templates = xmppConnectionService.getPresenceTemplates(mAccount);
+		PresenceTemplateAdapter presenceTemplateAdapter = new PresenceTemplateAdapter(this, R.layout.simple_list_item, templates);
+		binding.statusMessage.setAdapter(presenceTemplateAdapter);
+		binding.statusMessage.setOnItemClickListener((parent, view, position, id) -> {
+			PresenceTemplate template = (PresenceTemplate) parent.getItemAtPosition(position);
+			setAvailabilityRadioButton(template.getStatus(), binding);
+		});
+
+		binding.clearPrefs.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				binding.statusMessage.setText("");
+				binding.statuses.clearCheck();
+			}
+		});
+		binding.statuses.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
+			public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+				switch(checkedId){
+					case R.id.in_meeting:
+						binding.statusMessage.setText(Presence.StatusMessage.IN_MEETING.toShowString());
+						break;
+					case R.id.on_travel:
+						binding.statusMessage.setText(Presence.StatusMessage.ON_TRAVEL.toShowString());
+						break;
+					case R.id.out_sick:
+						binding.statusMessage.setText(Presence.StatusMessage.OUT_SICK.toShowString());
+						break;
+					case R.id.vacation:
+						binding.statusMessage.setText(Presence.StatusMessage.VACATION.toShowString());
+						break;
+					default:
+						break;
+				}
+			}
+		});
+		binding.statusMessage.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				binding.statusMessage.setText("");
+				binding.statuses.clearCheck();
+			}
+		});
+		builder.setTitle(R.string.edit_status_message_title);
+		builder.setView(binding.getRoot());
+		builder.setNegativeButton(R.string.cancel, null);
+		builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
+			PresenceTemplate template = new PresenceTemplate(getAvailabilityRadioButton(binding), binding.statusMessage.getText().toString().trim());
+			if (mAccount.getPgpId() != 0 && hasPgp()) {
+				generateSignature(null, template);
+			} else {
+				xmppConnectionService.changeStatus(mAccount, template, null);
+			}
+		});
+		builder.create().show();
+	}
+
+
+	private void generateSignature(Intent intent, PresenceTemplate template) {
+		xmppConnectionService.getPgpEngine().generateSignature(intent, mAccount, template.getStatusMessage(), new UiCallback<String>() {
+			@Override
+			public void success(String signature) {
+				xmppConnectionService.changeStatus(mAccount, template, signature);
+			}
+
+			@Override
+			public void error(int errorCode, String object) {
+
+			}
+
+			@Override
+			public void userInputRequried(PendingIntent pi, String object) {
+				mPendingPresenceTemplate.push(template);
+				try {
+					startIntentSenderForResult(pi.getIntentSender(), REQUEST_CHANGE_STATUS, null, 0, 0, 0);
+				} catch (final IntentSender.SendIntentException ignored) {
+				}
+			}
+		});
+	}
+
+	private static void setAvailabilityRadioButton(Presence.Status status, DialogPresenceBinding binding) {
+		if (status == null) {
+			binding.online.setChecked(true);
+			return;
+		}
+		switch (status) {
+			case DND:
+				binding.dnd.setChecked(true);
+				break;
+			case XA:
+				binding.xa.setChecked(true);
+				break;
+			case AWAY:
+				binding.away.setChecked(true);
+				break;
+			default:
+				binding.online.setChecked(true);
+		}
+	}
+
+	private static Presence.Status getAvailabilityRadioButton(DialogPresenceBinding binding) {
+		if (binding.dnd.isChecked()) {
+			return Presence.Status.DND;
+		} else if (binding.xa.isChecked()) {
+			return Presence.Status.XA;
+		} else if (binding.away.isChecked()) {
+			return Presence.Status.AWAY;
+		} else {
+			return Presence.Status.ONLINE;
+		}
+	}
+
 
 	private void onItemNavigationClicked(MenuItem item) {
-
 		switch (item.getItemId()) {
-
 			case R.id.Core: {
 				Intent coreActivity = new Intent(getApplicationContext(), OpenVPNActivity.class);
 				startActivity(coreActivity);
@@ -467,6 +656,16 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				startActivity(contactsActivity);
 				break;
 			}
+
+//			case R.id.Dial: {
+//				Intent contactsActivity = new Intent(getApplicationContext(), DialPadActivity.class);
+//				startActivity(contactsActivity);
+//				break;
+//			}
+			case R.id.File_safe: {
+				startActivity(new Intent(this, FileSafeActivity.class));
+				break;
+			}
 			case R.id.Search: {
 				Intent coreActivity = new Intent(getApplicationContext(), SearchActivity.class);
 				startActivity(coreActivity);
@@ -478,8 +677,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				break;
 			}
 			case R.id.Support: {
-				Intent aboutActivity = new Intent(getApplicationContext(), AboutActivity.class);
-				startActivity(aboutActivity);
+				Intent intent = new Intent(Intent.ACTION_VIEW);
+				intent.setData(Uri.parse("https://glaciersecurity.zendesk.com"));
+				startActivity(intent);
+				break;
+			}
+			case R.id.Logout: {
+				showLogoutConfirmationDialog();
 				break;
 			}
 			default:
@@ -487,6 +691,52 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				break;
 		}
 		drawer.closeDrawers();
+	}
+
+	/**
+	 * Display Logout confirmation
+	 * //ALF AM-143, AM-228 changed button title //GOOBER
+	 */
+	private void showLogoutConfirmationDialog() {
+		new android.app.AlertDialog.Builder(this)
+				.setTitle("Logout Confirmation")
+				.setMessage(getString(R.string.account_logout_confirmation))
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setPositiveButton(R.string.logout_button_key, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						doLogout();
+					}})
+				.setNegativeButton(android.R.string.no, null).show();
+	}
+
+
+	//ALF AM-143
+	private void doLogout() {
+		BackupAccountManager backupAccountManager = new BackupAccountManager(this);
+
+		// delete private configuration file
+		if (backupAccountManager.deleteAccountFile(BackupAccountManager.LOCATION_PRIVATE, BackupAccountManager.APPTYPE_MESSENGER)) {
+			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Private Messenger configuration file successefully deleted.");
+		} else {
+			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Failed to delete private Messenger configuration file.");
+		}
+
+		// delete private configuration file
+		if (backupAccountManager.deleteAccountFile(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER)) {
+			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Private Messenger configuration file successefully deleted.");
+		} else {
+			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Failed to delete private Messenger configuration file.");
+		}
+
+		// delete public configuration file
+		if (backupAccountManager.deleteAccountFile(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_VOICE)) {
+			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Public Voice configuration file successefully deleted.");
+		} else {
+			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Failed to delete public Voice configuration file.");
+		}
+
+		LogoutListener activity = (LogoutListener) this;
+		activity.onLogout();
 	}
 
 	@Override
@@ -750,7 +1000,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				}
 			}
 			actionBar.setTitle(R.string.app_name);
-			//actionBar.setDisplayHomeAsUpEnabled(false);
+			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
 	}
 

@@ -1035,8 +1035,12 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		final MenuItem menuLeaveGroup = menu.findItem(R.id.action_leave_group);
 		final MenuItem menuEndConversation = menu.findItem(R.id.action_end_conversation);
 
+//		//CMG AM-284
+//		final MenuItem menuPhoneCall = menu.findItem(R.id.action_call);
+
 		if (conversation != null) {
 			if (conversation.getMode() == Conversation.MODE_MULTI) {
+				//menuPhoneCall.setVisible(false);
 				menuContactDetails.setVisible(false);
 				menuInviteContact.setVisible(conversation.getMucOptions().canInvite());
 				menuConversationTimer.setVisible(false); //ALF AM-53
@@ -1044,6 +1048,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				menuEndConversation.setVisible(false);
                 menuMucDetails.setTitle(conversation.getMucOptions().isPrivateAndNonAnonymous() ? R.string.action_muc_details : R.string.channel_details);
 			} else {
+				//menuPhoneCall.setVisible(true);
 				menuContactDetails.setVisible(!this.conversation.withSelf());
 				menuMucDetails.setVisible(false);
 				final XmppConnectionService service = activity.xmppConnectionService;

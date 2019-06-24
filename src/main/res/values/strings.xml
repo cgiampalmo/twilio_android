@@ -24,7 +24,12 @@
     <string name="title_activity_conference_details">Group Details</string> <!-- ALF AM-78 room to group -->
     <string name="title_activity_contact_details">Contact Details</string>
     <string name="title_activity_sharewith">Share with Messenger</string>
-    <string name="title_activity_start_conversation">Start Chat Session</string>
+    <string name="title_activity_start_conversation">Contacts</string>
+    <string name="content_description_add_contact">Add to contacts</string>
+    <string name="content_description_call">Call</string>
+    <string name="content_description_backspace">Backspace</string>
+    <string name="address_bar_hint"></string>
+    <string name="dial_pad">Dial Pad</string>
     <string name="title_activity_choose_contact">Choose contact</string>
     <string name="title_activity_choose_contacts">Choose contacts</string>
     <string name="title_activity_share_via_account">Share via account</string>
@@ -738,7 +743,7 @@
     <string name="qr_code_scanner_needs_access_to_camera">The QR code scanner needs access to the camera</string>
     <string name="pref_scroll_to_bottom">Scroll to bottom</string>
     <string name="pref_scroll_to_bottom_summary">Scroll down after sending a message</string>
-    <string name="edit_status_message_title">Edit Status Message</string>
+    <string name="edit_status_message_title">My Status</string>
     <string name="edit_status_message">Edit status message</string>
     <string name="disable_encryption">Disable encryption</string>
     <string name="error_trustkey_general">Messenger is unable to send encrypted messages to %1$s. This may be due to your contact using an outdated server or client that can not handle Glacier encryption.</string>
@@ -993,11 +998,13 @@
     <string name="end_conversation_msg">Do you want to end this chat session?\n</string> <!-- ALF AM-8 removed Note -->
     <string name="also_clear_history">Delete all messages in this chat session</string>
     <string name="action_wipe_all_history">Wipe All History</string>
+    <string name="wipe_all_history_desc">This will not influence messages stored on other devices.</string>
     <string name="wipe_all_history_msg">\n<b>Warning:</b> This will not influence messages stored on other devices.</string>
     <string name="delete_all_messages_each_chat">Delete all messages in each chat session</string>
     <string name="end_all_chat">End all chat sessions</string>
     <string name="delete_all_cached_files">Delete all cached files</string>
     <string name="wipe_all_history">Continue</string>
+    <string name="wipe_history">Continue</string>
 
     <!-- ALF AM-277 -->
     <string name="action_filesafe">FileSafe</string>

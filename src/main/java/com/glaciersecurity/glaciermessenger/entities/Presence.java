@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import java.lang.Comparable;
 import java.util.Locale;
 
+import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.xml.Element;
 
 public class Presence implements Comparable {
@@ -20,6 +21,39 @@ public class Presence implements Comparable {
 				case DND:  return "dnd";
 			}
 			return null;
+		}
+
+		public String toDisplayString() {
+			switch(this) {
+				case ONLINE: return "Online";
+				case AWAY: return "Away";
+				case DND:  return "Dnd";
+				case XA:   return "Offline";
+				case OFFLINE: return "Offline";
+				case CHAT: return "Online";
+			}
+			return null;
+		}
+
+
+		public int getStatusIcon() {
+			switch (this) {
+				case ONLINE:
+					return R.drawable.led_connected;
+				case CHAT:
+					return R.drawable.led_connected;
+				case AWAY:
+					return R.drawable.led_inprogress;
+				case OFFLINE:
+					return R.drawable.led_disconnected;
+				case XA:
+					return R.drawable.led_disconnected;
+				case DND:
+					return R.drawable.led_error;
+				default:
+					return R.drawable.led_connected;
+			}
+
 		}
 
 		public static Status fromShowString(String show) {
@@ -39,6 +73,30 @@ public class Presence implements Comparable {
 						return ONLINE;
 				}
 			}
+		}
+	}
+
+	public static String getEmojiByUnicode(int unicode){
+		return new String(Character.toChars(unicode));
+	}
+
+	//CMG AM-218
+	public enum StatusMessage {
+		IN_MEETING, ON_TRAVEL, OUT_SICK, VACATION, CUSTOM;
+
+		public final static int meetingIcon = 0x1F4C5;
+		public final static int travelIcon = 0x1F6EB;
+		public final static int sickIcon = 0x1F912;
+		public final static int vacationIcon = 0x1F334;
+
+		public String toShowString() {
+			switch(this) {
+				case IN_MEETING: return "In a meeting \t\t" + getEmojiByUnicode(meetingIcon);
+				case ON_TRAVEL: return "On travel \t\t" + getEmojiByUnicode(travelIcon);
+				case OUT_SICK:   return "Out sick \t\t" + getEmojiByUnicode(sickIcon);
+				case VACATION:  return "Vacation \t\t"+ getEmojiByUnicode(vacationIcon);
+			}
+			return "";
 		}
 	}
 

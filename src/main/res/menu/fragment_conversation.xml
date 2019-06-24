@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <!--HONEYBADGER remove encryption setting-->
+
+    <item
+        android:id="@+id/contact_status_icon"
+        android:orderInCategory="20"
+        android:title="@string/status_message"
+        android:icon="@drawable/led_connected"
+        android:visible="true"
+        app:showAsAction="always"></item>
     <item
         android:id="@+id/action_security"
         android:icon="?attr/icon_not_secure"
@@ -23,6 +31,20 @@
             </group>
         </menu>
     </item>
+    <!--<item-->
+        <!--android:id="@+id/action_call"-->
+        <!--android:icon="@drawable/ic_phone"-->
+        <!--android:orderInCategory="20"-->
+        <!--android:visible="true"-->
+        <!--app:showAsAction="always"-->
+        <!--android:title="@string/content_description_call"></item>-->
+    <item
+        android:id="@+id/action_disapear_messages"
+        android:icon="@drawable/ic_baseline_timer_24px"
+        android:orderInCategory="20"
+        android:visible="true"
+        app:showAsAction="always"
+        android:title="@string/conversation_message_timer"></item>
     <item
         android:id="@+id/action_attach_file"
         android:icon="?attr/icon_new_attachment"
@@ -99,7 +121,7 @@
         android:id="@+id/action_end_conversation"
         android:orderInCategory="60"
         app:showAsAction="never"
-        android:title="@string/action_end_conversation"/>
+        android:title="@string/action_end_conversation"/> -->
     <!-- ALF AM-122 -->
     <item
         android:id="@+id/action_leave_group"
@@ -107,6 +129,11 @@
         android:showAsAction="never"
         android:title="@string/action_leave_group"/>
     <!-- GOOBER - Added wipe all history -->
+    <!--<item-->
+    <!--android:id="@+id/action_wipe_all_history"-->
+    <!--android:orderInCategory="62"-->
+    <!--android:showAsAction="never"-->
+    <!--android:title="@string/action_wipe_all_history"/>-->
     <item
         android:id="@+id/action_mute"
         android:orderInCategory="70"
