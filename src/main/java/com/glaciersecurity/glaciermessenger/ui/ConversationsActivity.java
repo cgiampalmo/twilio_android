@@ -473,23 +473,26 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
-				mAccount = xmppConnectionService.getAccounts().get(0);
-				ImageView avatar = (ImageView) findViewById(R.id.nav_avatar);
-				avatar.setOnClickListener(mAvatarClickListener);
+				List<Account> accounts = xmppConnectionService.getAccounts();
+				if (!accounts.isEmpty()) {
+					mAccount = accounts.get(0);
+					ImageView avatar = (ImageView) findViewById(R.id.nav_avatar);
+					avatar.setOnClickListener(mAvatarClickListener);
 
-				avatar.setImageBitmap(avatarService().get(mAccount, (int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
-				TextView name = findViewById(R.id.nav_name);
-				name.setText(mAccount.getUsername());
+					avatar.setImageBitmap(avatarService().get(mAccount, (int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
+					TextView name = findViewById(R.id.nav_name);
+					name.setText(mAccount.getUsername());
 
-				Button status_text = (Button) findViewById(R.id.nav_status_text);
-				ImageView status_icon = (ImageView) findViewById(R.id.nav_status_icon);
-				status_text.setOnClickListener(mPresenceClickListener);
-				status_text.setText(mAccount.getPresenceStatus().toDisplayString());
-				status_icon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
-				TextView status_message = (TextView) findViewById(R.id.nav_status_message);
-				String presenceStatusMessage = mAccount.getPresenceStatusMessage();
-				if(presenceStatusMessage != null) {
-					status_message.setText(presenceStatusMessage);
+					Button status_text = (Button) findViewById(R.id.nav_status_text);
+					ImageView status_icon = (ImageView) findViewById(R.id.nav_status_icon);
+					status_text.setOnClickListener(mPresenceClickListener);
+					status_text.setText(mAccount.getPresenceStatus().toDisplayString());
+					status_icon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
+					TextView status_message = (TextView) findViewById(R.id.nav_status_message);
+					String presenceStatusMessage = mAccount.getPresenceStatusMessage();
+					if (presenceStatusMessage != null) {
+						status_message.setText(presenceStatusMessage);
+					}
 				}
 			}
 
@@ -1013,7 +1016,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_conversations, menu);
-		AccountUtils.showHideMenuItems(menu);
+		//AccountUtils.showHideMenuItems(menu);
 
 //		MenuItem qrCodeScanMenuItem = menu.findItem(R.id.action_scan_qr_code);
 //		if (qrCodeScanMenuItem != null) {

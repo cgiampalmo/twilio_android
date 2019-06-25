@@ -73,10 +73,10 @@ public class AccountUtils {
         }
     }
 
-    public static void showHideMenuItems(final Menu menu) {
-        final MenuItem manageAccounts = menu.findItem(R.id.action_accounts);
-        final MenuItem manageAccount = menu.findItem(R.id.action_account);
-        manageAccount.setVisible(MANAGE_ACCOUNT_ACTIVITY == null);
-        manageAccounts.setVisible(MANAGE_ACCOUNT_ACTIVITY != null);
-    }
+//    public static void showHideMenuItems(final Menu menu) {
+//        final MenuItem manageAccounts = menu.findItem(R.id.action_accounts);
+//        final MenuItem manageAccount = menu.findItem(R.id.action_account);
+//        manageAccount.setVisible(MANAGE_ACCOUNT_ACTIVITY == null);
+//        manageAccounts.setVisible(MANAGE_ACCOUNT_ACTIVITY != null);
+//    }
 }

@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -246,12 +247,12 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             case R.id.action_share_uri:
                 shareLink(false);
                 break;
-            case R.id.action_delete_contact:
-                builder.setTitle(getString(R.string.action_delete_contact))
-                        .setMessage(JidDialog.style(this, R.string.remove_contact_text, contact.getJid().getLocal()))
-                        .setPositiveButton(getString(R.string.delete),
-                                removeFromRoster).create().show();  //ALF AM-179 changed .getJid().toString to getLocal
-                break;
+//            case R.id.action_delete_contact:
+//                builder.setTitle(getString(R.string.action_delete_contact))
+//                        .setMessage(JidDialog.style(this, R.string.remove_contact_text, contact.getJid().getLocal()))
+//                        .setPositiveButton(getString(R.string.delete),
+//                                removeFromRoster).create().show();  //ALF AM-179 changed .getJid().toString to getLocal
+//                break;
             case R.id.action_edit_contact:
                 Uri systemAccount = contact.getSystemAccount();
                 if (systemAccount == null) {
@@ -286,11 +287,11 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.contact_details, menu);
-        AccountUtils.showHideMenuItems(menu);
+        //AccountUtils.showHideMenuItems(menu);
         MenuItem block = menu.findItem(R.id.action_block);
         MenuItem unblock = menu.findItem(R.id.action_unblock);
         MenuItem edit = menu.findItem(R.id.action_edit_contact);
-        MenuItem delete = menu.findItem(R.id.action_delete_contact);
+//        MenuItem delete = menu.findItem(R.id.action_delete_contact);
         if (contact == null) {
             return true;
         }
@@ -307,9 +308,50 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         }
         if (!contact.showInRoster()) {
             edit.setVisible(false);
-            delete.setVisible(false);
+//            delete.setVisible(false);
         }
         return super.onCreateOptionsMenu(menu);
+    }
+    //CMG AM-218
+
+    private void setStatusIconandText(Contact contact) {
+        ImageView statusIcon = (ImageView) findViewById(R.id.details_contactpresence_icon);
+        TextView statusText = (TextView) findViewById(R.id.details_contactpresence_string);
+//        TextView statusMessageText = (TextView) findViewById(R.id.details_contactpresencestatus_message);
+//        List<String> statusMessage = contact.getPresences().getStatusMessages();
+//        if (!statusMessage.isEmpty()){
+//            statusMessageText.setText(statusMessage.get(0));
+//        }else {
+//            statusMessageText.setText("----");
+//
+//        }
+        switch (contact.getShownStatus()) {
+            case CHAT:
+                statusIcon.setImageResource(R.drawable.led_connected);
+                statusText.setText(R.string.presence_online);
+                break;
+            case AWAY:
+                statusIcon.setImageResource(R.drawable.led_inprogress);
+                statusText.setText(R.string.presence_away);
+                break;
+            case XA:
+                statusIcon.setImageResource(R.drawable.led_inprogress);
+                statusText.setText(R.string.presence_xa);
+                break;
+            case OFFLINE:
+                statusIcon.setImageResource(R.drawable.led_disconnected);
+                statusText.setText(R.string.presence_xa);
+                break;
+            case DND:
+                statusIcon.setImageResource(R.drawable.led_error);
+                statusText.setText(R.string.presence_dnd);
+                break;
+            default:
+                statusIcon.setImageResource(R.drawable.led_connected);
+                statusText.setText(R.string.presence_online);
+                break;
+
+        }
     }
 
     private void populateView() {
@@ -318,6 +360,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         }
         invalidateOptionsMenu();
         setTitle(contact.getDisplayName());
+        setStatusIconandText(contact);
         if (contact.showInRoster()) {
             //HONEYBADGER commented out these and below
             //binding.detailsSendPresence.setVisibility(View.VISIBLE);

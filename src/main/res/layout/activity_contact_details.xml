@@ -58,6 +58,38 @@
                                 android:text="@string/account_settings_example_jabber_id"
                                 android:textAppearance="@style/TextAppearance.Conversations.Title" />
 
+                            <LinearLayout
+                                android:id="@+id/details_contactpresence"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:id="@+id/details_contactpresence_string"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:text="@string/presence_online"
+                                    android:textAppearance="@style/TextAppearance.Conversations.Body2" />
+
+                                <ImageView
+                                    android:id="@+id/details_contactpresence_icon"
+                                    android:layout_width="30dp"
+                                    android:layout_height="30dp"
+                                    android:layout_gravity="center"
+                                    android:paddingLeft="@dimen/card_padding_regular"
+                                    android:adjustViewBounds="true"
+                                    android:src="@drawable/led_connected" />
+                            </LinearLayout>
+
+                            <!--<TextView-->
+                                <!--android:id="@+id/details_contactpresencestatus_message"-->
+                                <!--android:layout_width="wrap_content"-->
+                                <!--android:layout_height="wrap_content"-->
+                                <!--android:layout_marginBottom="@dimen/spacing_medium"-->
+                                <!--android:text=""-->
+                                <!--android:textAppearance="@style/TextAppearance.Conversations.Body2" />-->
+
                             <com.wefika.flowlayout.FlowLayout
                                 android:id="@+id/tags"
                                 android:layout_width="wrap_content"
@@ -90,32 +122,32 @@
                                 android:text="@string/add_contact"/>
 
                             <!--<CheckBox-->
-                                <!--android:id="@+id/details_send_presence"-->
-                                <!--style="@style/Widget.Conversations.CheckBox"-->
-                                <!--android:layout_width="wrap_content"-->
-                                <!--android:layout_height="wrap_content"-->
-                                <!--android:layout_marginTop="8dp"-->
-                                <!--android:text="@string/send_presence_updates"-->
-                                <!--android:textAppearance="@style/TextAppearance.Conversations.Body1"/>-->
+                            <!--android:id="@+id/details_send_presence"-->
+                            <!--style="@style/Widget.Conversations.CheckBox"-->
+                            <!--android:layout_width="wrap_content"-->
+                            <!--android:layout_height="wrap_content"-->
+                            <!--android:layout_marginTop="8dp"-->
+                            <!--android:text="@string/send_presence_updates"-->
+                            <!--android:textAppearance="@style/TextAppearance.Conversations.Body1"/>-->
 
                             <!--<CheckBox-->
-                                <!--android:id="@+id/details_receive_presence"-->
-                                <!--style="@style/Widget.Conversations.CheckBox"-->
-                                <!--android:layout_width="wrap_content"-->
-                                <!--android:layout_height="wrap_content"-->
-                                <!--android:text="@string/receive_presence_updates"-->
-                                <!--android:textAppearance="@style/TextAppearance.Conversations.Body1"/>-->
+                            <!--android:id="@+id/details_receive_presence"-->
+                            <!--style="@style/Widget.Conversations.CheckBox"-->
+                            <!--android:layout_width="wrap_content"-->
+                            <!--android:layout_height="wrap_content"-->
+                            <!--android:text="@string/receive_presence_updates"-->
+                            <!--android:textAppearance="@style/TextAppearance.Conversations.Body1"/>-->
                         </LinearLayout>
                         <!--HONEYBADGER AM-120 rm using account-->
                         <!--<TextView-->
-                            <!--android:id="@+id/details_account"-->
-                            <!--android:layout_width="wrap_content"-->
-                            <!--android:layout_height="wrap_content"-->
-                            <!--android:layout_alignParentRight="true"-->
-                            <!--android:layout_below="@+id/details_jidbox"-->
-                            <!--android:layout_marginTop="32dp"-->
-                            <!--android:text="@string/using_account"-->
-                            <!--android:textAppearance="@style/TextAppearance.Conversations.Caption"/>-->
+                        <!--android:id="@+id/details_account"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_alignParentRight="true"-->
+                        <!--android:layout_below="@+id/details_jidbox"-->
+                        <!--android:layout_marginTop="32dp"-->
+                        <!--android:text="@string/using_account"-->
+                        <!--android:textAppearance="@style/TextAppearance.Conversations.Caption"/>-->
                     </RelativeLayout>
                 </android.support.v7.widget.CardView>
 
@@ -197,18 +229,18 @@
 
 
                             <!--HONEYBADGER AM-120 Remove the top right barcode scanning feature-->
-                                <!--android:id="@+id/scan_button"-->
-                                <!--style="@style/Widget.Conversations.Button.Borderless"-->
-                                <!--android:layout_width="wrap_content"-->
-                                <!--android:layout_height="wrap_content"-->
-                                <!--android:minWidth="0dp"-->
-                                <!--android:paddingLeft="16dp"-->
-                                <!--android:paddingRight="16dp"-->
-                                <!--android:text="@string/scan_qr_code"-->
-                                <!--android:textColor="?attr/colorAccent"/>-->
+                            <!--android:id="@+id/scan_button"-->
+                            <!--style="@style/Widget.Conversations.Button.Borderless"-->
+                            <!--android:layout_width="wrap_content"-->
+                            <!--android:layout_height="wrap_content"-->
+                            <!--android:minWidth="0dp"-->
+                            <!--android:paddingLeft="16dp"-->
+                            <!--android:paddingRight="16dp"-->
+                            <!--android:text="@string/scan_qr_code"-->
+                            <!--android:textColor="?attr/colorAccent"/>-->
 
                             <!--HONEYBADGER AM-120 changed layout to compensate for missing ui-->
-                                <!--android:layout_width="wrap_content"-->
+                            <!--android:layout_width="wrap_content"-->
                             <Button
                                 android:id="@+id/show_inactive_devices"
                                 style="@style/Widget.Conversations.Button.Borderless"

@@ -634,7 +634,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.start_conversation, menu);
-		AccountUtils.showHideMenuItems(menu);
+		//AccountUtils.showHideMenuItems(menu);
 		MenuItem menuHideOffline = menu.findItem(R.id.action_hide_offline);
 		MenuItem joinGroupChat = menu.findItem(R.id.action_join_conference);
 		//HONEYBADGER AM-120 Remove the top right barcode scanning feature
@@ -1232,7 +1232,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				final Contact contact = (Contact) activity.contacts.get(acmi.position);
 				final MenuItem blockUnblockItem = menu.findItem(R.id.context_contact_block_unblock);
 				final MenuItem showContactDetailsItem = menu.findItem(R.id.context_contact_details);
-				final MenuItem deleteContactMenuItem = menu.findItem(R.id.context_delete_contact);
+//				final MenuItem deleteContactMenuItem = menu.findItem(R.id.context_delete_contact);
 				if (contact.isSelf()) {
 					showContactDetailsItem.setVisible(false);
 				}
@@ -1267,9 +1267,9 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				case R.id.context_contact_block_unblock:
 					activity.toggleContactBlock();
 					break;
-				case R.id.context_delete_contact:
-					activity.deleteContact();
-					break;
+//				case R.id.context_delete_contact:
+//					activity.deleteContact();
+//					break;
 				case R.id.context_join_conference:
 					activity.openConversationForBookmark();
 					break;

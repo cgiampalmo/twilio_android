@@ -382,7 +382,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         share.setVisible(!groupChat);
         final MenuItem destroy = menu.findItem(R.id.action_destroy_room);
         destroy.setTitle(groupChat ? R.string.destroy_room : R.string.destroy_channel);
-        AccountUtils.showHideMenuItems(menu);
+        //AccountUtils.showHideMenuItems(menu);
         return super.onCreateOptionsMenu(menu);
     }
 
