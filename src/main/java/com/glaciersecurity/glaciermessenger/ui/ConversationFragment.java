@@ -1027,33 +1027,47 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		final MenuItem menuInviteContact = menu.findItem(R.id.action_invite);
 		final MenuItem menuMute = menu.findItem(R.id.action_mute);
 		final MenuItem menuUnmute = menu.findItem(R.id.action_unmute);
+		final MenuItem statusIcon = menu.findItem(R.id.contact_status_icon);
 
-		//ALF AM-53
-		final MenuItem menuConversationTimer = menu.findItem(R.id.action_conversation_timer);
+//		//ALF AM-53
+//		final MenuItem menuConversationTimer = menu.findItem(R.id.action_conversation_timer);
 
 		//ALF AM-122
 		final MenuItem menuLeaveGroup = menu.findItem(R.id.action_leave_group);
 		final MenuItem menuEndConversation = menu.findItem(R.id.action_end_conversation);
 
-//		//CMG AM-284
-//		final MenuItem menuPhoneCall = menu.findItem(R.id.action_call);
+		//CMG AM-284
+		//final MenuItem menuPhoneCall = menu.findItem(R.id.action_call);
+		final MenuItem disappearingMessages = menu.findItem(R.id.action_disapear_messages);
+		disappearingMessages.setOnMenuItemClickListener(menuItem -> { if (conversation == null){
+			return false;
+		}
+			this.conversationMessageTimerDialog(conversation);   return true;});
+
 
 		if (conversation != null) {
 			if (conversation.getMode() == Conversation.MODE_MULTI) {
 				//menuPhoneCall.setVisible(false);
+				disappearingMessages.setVisible(false);
 				menuContactDetails.setVisible(false);
 				menuInviteContact.setVisible(conversation.getMucOptions().canInvite());
-				menuConversationTimer.setVisible(false); //ALF AM-53
+				//CMG AM-218
+				statusIcon.setVisible(false);
+				//menuConversationTimer.setVisible(false); //ALF AM-53
 				menuLeaveGroup.setVisible(true); //ALF AM-122 (and next line)
 				menuEndConversation.setVisible(false);
-                menuMucDetails.setTitle(conversation.getMucOptions().isPrivateAndNonAnonymous() ? R.string.action_muc_details : R.string.channel_details);
+				menuMucDetails.setTitle(conversation.getMucOptions().isPrivateAndNonAnonymous() ? R.string.action_muc_details : R.string.channel_details);
 			} else {
 				//menuPhoneCall.setVisible(true);
+				disappearingMessages.setVisible(true);
 				menuContactDetails.setVisible(!this.conversation.withSelf());
 				menuMucDetails.setVisible(false);
 				final XmppConnectionService service = activity.xmppConnectionService;
 				menuInviteContact.setVisible(service != null && service.findConferenceServer(conversation.getAccount()) != null);
-				menuConversationTimer.setVisible(true); //ALF AM-53
+				//CMG AM-218
+				statusIcon.setVisible(true);
+				setStatusIcon(statusIcon);
+				//menuConversationTimer.setVisible(true); //ALF AM-53
 				menuLeaveGroup.setVisible(false); //ALF AM-122 (and next line)
 				menuEndConversation.setVisible(true);
 			}
@@ -1065,8 +1079,17 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			ConversationMenuConfigurator.configureAttachmentMenu(conversation, menu);
 			ConversationMenuConfigurator.configureEncryptionMenu(conversation, menu);
 		}
+
 		super.onCreateOptionsMenu(menu, menuInflater);
 	}
+
+	//CMG AM-218
+	private void setStatusIcon(MenuItem statusIcon) {
+		Contact c =conversation.getContact();
+		Presence.Status s =c.getShownStatus();
+		statusIcon.setIcon(s.getStatusIcon());
+	}
+
 
 	@Override
 	public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -1175,7 +1198,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			MenuItem correctMessage = menu.findItem(R.id.correct_message);
 			MenuItem shareWith = menu.findItem(R.id.share_with);
 			MenuItem sendAgain = menu.findItem(R.id.send_again);
-// DJF			MenuItem copyUrl = menu.findItem(R.id.copy_url);
+			MenuItem copyUrl = menu.findItem(R.id.copy_url);
 			MenuItem downloadFile = menu.findItem(R.id.download_file);
 			MenuItem cancelTransmission = menu.findItem(R.id.cancel_transmission);
 			MenuItem deleteFile = menu.findItem(R.id.delete_file);
@@ -1314,9 +1337,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			case R.id.action_archive:
 				activity.xmppConnectionService.archiveConversation(conversation);
 				break;*/
-			case R.id.action_conversation_timer: //ALF AM-53
-				this.conversationMessageTimerDialog(conversation);
-				break;
+//			case R.id.action_conversation_timer: //ALF AM-53
+//				this.conversationMessageTimerDialog(conversation);
+//				break;
 			// GOOBER - add end conversation capability
 			//case R.id.action_end_conversation:
 			//	this.endConversationDialog(conversation);

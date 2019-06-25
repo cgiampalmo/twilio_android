@@ -1,6 +1,9 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.media.MediaScannerConnection;
+import android.os.Environment;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.support.annotation.NonNull;
@@ -23,6 +26,8 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.View;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 import java.io.File;
@@ -53,8 +58,8 @@ import com.glaciersecurity.glaciermessenger.utils.LogoutListener;
 import com.glaciersecurity.glaciermessenger.utils.TimeframeUtils;
 import rocks.xmpp.addr.Jid;
 
-public class SettingsActivity extends XmppActivity implements
-		OnSharedPreferenceChangeListener, LogoutListener {  //ALF AM-143 LogoutListener
+public class SettingsActivity extends XmppActivity implements OnSharedPreferenceChangeListener{
+	//OnSharedPreferenceChangeListener, LogoutListener {  //ALF AM-143 LogoutListener
 
 	public static final String KEEP_FOREGROUND_SERVICE = "enable_foreground_service";
 	public static final String AWAY_WHEN_SCREEN_IS_OFF = "away_when_screen_off";
@@ -252,6 +257,15 @@ public class SettingsActivity extends XmppActivity implements
 			});
 		}
 
+		//CMG AM-254
+		final Preference wipeAllHistoryPreference = mSettingsFragment.findPreference("wipe_all_history");
+		if (wipeAllHistoryPreference != null){
+			wipeAllHistoryPreference.setOnPreferenceClickListener(preference -> {
+				wipeAllHistoryDialog();
+				return true;
+			});
+		}
+/*
 		//ALF AM-143 // GOOBER
 		final Preference logoutButton = mSettingsFragment.findPreference(getString(R.string.logout_button_key));
 		if (logoutButton != null) {
@@ -260,7 +274,7 @@ public class SettingsActivity extends XmppActivity implements
 				return true;
 			});
 		}
-
+*/
 		if (Config.ONLY_INTERNAL_STORAGE) {
 			final Preference cleanCachePreference = mSettingsFragment.findPreference("clean_cache");
 			if (cleanCachePreference != null) {
@@ -278,11 +292,11 @@ public class SettingsActivity extends XmppActivity implements
 			deleteOmemoPreference.setOnPreferenceClickListener(preference -> deleteOmemoIdentities());
 		}
 	}
-
+/*
 	/**
 	 * Display Logout confirmation
 	 * //ALF AM-143, AM-228 changed button title //GOOBER
-	 */
+	 *
 	private void showLogoutConfirmationDialog() {
 		new android.app.AlertDialog.Builder(this)
 				.setTitle("Logout Confirmation")
@@ -323,7 +337,79 @@ public class SettingsActivity extends XmppActivity implements
 		LogoutListener activity = (LogoutListener) this;
 		activity.onLogout();
 	}
+*/
 
+
+
+
+	/**  GOOBER WIPE ALL  HISTORY  **/
+	/**
+	 * GOOBER - end ALL existing conversations
+	 */
+	@SuppressLint("InflateParams")
+	protected void wipeAllHistoryDialog() {
+		android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+		builder.setTitle(getString(R.string.action_wipe_all_history));
+		View dialogView = this.getLayoutInflater().inflate(
+				R.layout.dialog_wipe_all_history, null);
+		final CheckBox deleteAllMessagesEachChatCheckBox = (CheckBox) dialogView
+				.findViewById(R.id.delete_all_messages_each_chat_checkbox);
+		final CheckBox endAllChatCheckBox = (CheckBox) dialogView
+				.findViewById(R.id.end_all_chat_checkbox);
+		final CheckBox deleteAllCachedFilesCheckBox = (CheckBox) dialogView
+				.findViewById(R.id.delete_all_cached_files_checkbox);
+		// default to true
+		deleteAllMessagesEachChatCheckBox.setChecked(true);
+		endAllChatCheckBox.setChecked(true);
+		deleteAllCachedFilesCheckBox.setChecked(true);
+
+		builder.setView(dialogView);
+		builder.setNegativeButton(getString(R.string.cancel), null);
+		builder.setPositiveButton(getString(R.string.wipe_all_history), (dialog, which) -> {
+			// go through each conversation and either delete or end each chat depending
+			// on what was checked.
+			List<Conversation> conversations = xmppConnectionService.getConversations();
+
+			for (int i = (conversations.size() - 1); i >= 0; i--) {
+
+				// delete messages
+				if (deleteAllMessagesEachChatCheckBox.isChecked()) {
+					this.xmppConnectionService.clearConversationHistory(conversations.get(i));
+				}
+
+				// end chat
+				if (endAllChatCheckBox.isChecked()) {
+					//ALF AM-51, AM-64
+					if (conversations.get(i).getMode() == Conversation.MODE_MULTI) {
+						sendLeavingGroupMessage(conversations.get(i));
+						// sleep required so message goes out before conversation thread stopped
+						try { Thread.sleep(3000); } catch (InterruptedException ie) {}
+					}
+					this.xmppConnectionService.archiveConversation(conversations.get(i));
+				}
+			}
+
+			// delete everything in cache
+			if (deleteAllCachedFilesCheckBox.isChecked()) {
+				clearCachedFiles();
+			}
+		});
+		builder.create().show();
+	}
+	/**
+	 * //ALF AM-51
+	 */
+	public void sendLeavingGroupMessage(final Conversation conversation) {
+		final Account account = conversation.getAccount();
+		String dname = account.getDisplayName();
+		if (dname == null) { dname = account.getUsername(); }
+		String bod = dname + " " + getString(R.string.left_group);
+		Message message = new Message(conversation, bod, conversation.getNextEncryption());
+		this.xmppConnectionService.sendMessage(message);
+		// sleep required so message goes out before conversation thread stopped
+		// maybe show a spinner?
+		//try { Thread.sleep(2000); } catch (InterruptedException ie) {} //moved to each place
+	}
 	private void changeOmemoSettingSummary() {
 		ListPreference omemoPreference = (ListPreference) mSettingsFragment.findPreference(OMEMO_SETTING);
 		if (omemoPreference != null) {
@@ -545,52 +631,52 @@ public class SettingsActivity extends XmppActivity implements
 		//nothing to do. This Activity doesn't implement any listeners
 	}
 
-	//ALF AM-143 here to end
-	@Override
-	public void onLogout() {
-
-		//ALF AM-228, AM-202 store account in memory in case using same account
-		//Account curAccount = xmppConnectionService.getAccounts().get(0);
-		//if (curAccount != null) {
-		//	xmppConnectionService.setExistingAccount(curAccount);
-		//}
-
-		// clear all conversations
-		List<Conversation> conversations = xmppConnectionService.getConversations();
-
-		for (int i = (conversations.size() - 1); i >= 0; i--) {
-			xmppConnectionService.clearConversationHistory(conversations.get(i));
-			// endConversation(conversations.get(i), false, true);
-		}
-
-		// wipe all accounts
-		List<Account> accounts = xmppConnectionService.getAccounts();
-
-		for (Account account : accounts) {
-			xmppConnectionService.deleteAccount(account);
-		}
-
-		// logout of Cognito
-		// sometimes if it's been too long, I believe pool doesn't
-		// exists and user is no longer logged in
-		CognitoUserPool userPool = AppHelper.getPool();
-		if (userPool != null) {
-			CognitoUser user = userPool.getCurrentUser();
-			if (user != null) {
-				user.signOut();
-			}
-		}
-
-		// clear s3bucket client
-		Util.clearS3Client(getApplicationContext());
-
-		// clear all stored content
-		clearCachedFiles();
-
-		// login screen
-		Intent editAccount = new Intent(this, ConversationActivity.class);
-		startActivity(editAccount);
-	}
+//	//ALF AM-143 here to end
+//	@Override
+//	public void onLogout() {
+//
+//		//ALF AM-228, AM-202 store account in memory in case using same account
+//		//Account curAccount = xmppConnectionService.getAccounts().get(0);
+//		//if (curAccount != null) {
+//		//	xmppConnectionService.setExistingAccount(curAccount);
+//		//}
+//
+//		// clear all conversations
+//		List<Conversation> conversations = xmppConnectionService.getConversations();
+//
+//		for (int i = (conversations.size() - 1); i >= 0; i--) {
+//			xmppConnectionService.clearConversationHistory(conversations.get(i));
+//			// endConversation(conversations.get(i), false, true);
+//		}
+//
+//		// wipe all accounts
+//		List<Account> accounts = xmppConnectionService.getAccounts();
+//
+//		for (Account account : accounts) {
+//			xmppConnectionService.deleteAccount(account);
+//		}
+//
+//		// logout of Cognito
+//		// sometimes if it's been too long, I believe pool doesn't
+//		// exists and user is no longer logged in
+//		CognitoUserPool userPool = AppHelper.getPool();
+//		if (userPool != null) {
+//			CognitoUser user = userPool.getCurrentUser();
+//			if (user != null) {
+//				user.signOut();
+//			}
+//		}
+//
+//		// clear s3bucket client
+//		Util.clearS3Client(getApplicationContext());
+//
+//		// clear all stored content
+//		clearCachedFiles();
+//
+//		// login screen
+//		Intent editAccount = new Intent(this, ConversationActivity.class);
+//		startActivity(editAccount);
+//	}
 
 	/**
 	 * Clear images, files from directory

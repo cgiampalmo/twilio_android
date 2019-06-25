@@ -70,13 +70,19 @@ import android.widget.Toast;
 
 import org.openintents.openpgp.util.OpenPgpApi;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUser;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserPool;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.cognito.AppHelper;
 import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
+import com.glaciersecurity.glaciermessenger.cognito.Util;
 import com.glaciersecurity.glaciermessenger.crypto.OmemoSetting;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.databinding.ActivityConversationsBinding;
@@ -85,6 +91,7 @@ import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.Presence;
 import com.glaciersecurity.glaciermessenger.entities.PresenceTemplate;
+import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
 import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.ui.adapter.PresenceTemplateAdapter;
@@ -113,7 +120,7 @@ import rocks.xmpp.addr.Jid;
 
 import static com.glaciersecurity.glaciermessenger.ui.ConversationFragment.REQUEST_DECRYPT_PGP;
 
-public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, OnKeyStatusUpdated, ConnectivityReceiver.ConnectivityReceiverListener {
+public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, OnKeyStatusUpdated, LogoutListener, ConnectivityReceiver.ConnectivityReceiverListener {
 
 	public static final String ACTION_VIEW_CONVERSATION = "com.glaciersecurity.glaciermessenger.action.VIEW";
 	public static final String EXTRA_CONVERSATION = "conversationUuid";
@@ -737,6 +744,270 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 		LogoutListener activity = (LogoutListener) this;
 		activity.onLogout();
+	}
+
+	//ALF AM-143 here to end
+	@Override
+	public void onLogout() {
+
+		//ALF AM-228, AM-202 store account in memory in case using same account
+		//Account curAccount = xmppConnectionService.getAccounts().get(0);
+		//if (curAccount != null) {
+		//	xmppConnectionService.setExistingAccount(curAccount);
+		//}
+
+		// clear all conversations
+		List<Conversation> conversations = xmppConnectionService.getConversations();
+
+		for (int i = (conversations.size() - 1); i >= 0; i--) {
+			xmppConnectionService.clearConversationHistory(conversations.get(i));
+			// endConversation(conversations.get(i), false, true);
+		}
+
+		// wipe all accounts
+		List<Account> accounts = xmppConnectionService.getAccounts();
+
+		for (Account account : accounts) {
+			xmppConnectionService.deleteAccount(account);
+		}
+
+		// logout of Cognito
+		// sometimes if it's been too long, I believe pool doesn't
+		// exists and user is no longer logged in
+		CognitoUserPool userPool = AppHelper.getPool();
+		if (userPool != null) {
+			CognitoUser user = userPool.getCurrentUser();
+			if (user != null) {
+				user.signOut();
+			}
+		}
+
+		// clear s3bucket client
+		Util.clearS3Client(getApplicationContext());
+
+		// clear all stored content
+		clearCachedFiles();
+
+		// login screen
+		Intent editAccount = new Intent(this, EditAccountActivity.class);
+		startActivity(editAccount);
+	}
+
+	/**
+	 * Clear images, files from directory
+	 */
+	private void clearCachedFiles() {
+		// clear images, etc
+		clearLocalFiles();
+
+		// clear images, etc
+		clearPictures();
+
+		// clear voice recordings from plugin
+		clearVoiceRecordings();
+
+		// clear shared location
+		clearSharedLocations();
+
+		// clear internal storage
+		clearExternalStorage();
+
+		//ALF AM-146
+		clearAppCache();
+	}
+
+	//ALF AM-146 (and next method)
+	private void clearAppCache() {
+		try {
+			File dir = getApplicationContext().getCacheDir();
+			deleteDir(dir);
+		} catch (Exception e) { e.printStackTrace();}
+	}
+
+	public static boolean deleteDir(File dir) {
+		if (dir != null && dir.isDirectory()) {
+			String[] children = dir.list();
+			for (int i = 0; i < children.length; i++) {
+				boolean success = deleteDir(new File(dir, children[i]));
+				if (!success) {
+					return false;
+				}
+			}
+			return dir.delete();
+		} else if(dir!= null && dir.isFile()) {
+			return dir.delete();
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * GOOBER - Clear local files for Messenger
+	 */
+	private void clearLocalFiles() {
+		// GOOBER - Retrieve directory
+		String extStore = System.getenv("EXTERNAL_STORAGE") + "/Messenger";
+		File f_exts = new File(extStore);
+
+		// check if directory exists
+		if (f_exts.exists()) {
+			File[] fileDir = f_exts.listFiles();
+			String[] deletedFiles = new String[fileDir.length];
+			int deletedFilesIndex = 0;
+
+			// GOOBER - delete file
+			for (int i = 0; i < fileDir.length; i++) {
+				// do not delete lollipin db
+				if (!(fileDir[i].getName().startsWith("LollipinDB") || (fileDir[i].getName().startsWith("AppLockImpl"))) && (fileDir[i].delete())) {
+					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
+					deletedFilesIndex++;
+					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Successfully deleted " + fileDir[i]);
+				} else {
+					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Did not delete " + fileDir[i]);
+				}
+			}
+
+			// GOOBER - Need to do something to update after deleting
+			// String[] delFile = {fileDir[fileDir.length-1].toString()};
+			// callBroadcast(deletedFiles);
+		}
+	}
+
+	/**
+	 * GOOBER - Clear voice recordings
+	 */
+	private void clearVoiceRecordings() {
+		// GOOBER - Retrieve directory
+		String extStore = System.getenv("EXTERNAL_STORAGE") + "/Voice Recorder";
+		File f_exts = new File(extStore);
+
+		// check if directory exists
+		if (f_exts.exists()) {
+			File[] fileDir = f_exts.listFiles();
+			String[] deletedFiles = new String[fileDir.length];
+			int deletedFilesIndex = 0;
+
+			// GOOBER - delete file
+			for (int i = 0; i < fileDir.length; i++) {
+				if (fileDir[i].delete()) {
+					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
+					deletedFilesIndex++;
+					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Successfully deleted " + fileDir[i]);
+				} else {
+					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Did not delete " + fileDir[i]);
+				}
+			}
+
+			// GOOBER - Need to do something to update after deleting
+			// String[] delFile = {fileDir[fileDir.length-1].toString()};
+			// callBroadcast(deletedFiles);
+		}
+	}
+
+	/**
+	 * GOOBER - Clear shared locations
+	 */
+	private void clearSharedLocations() {
+		// GOOBER - Retrieve directory
+		//String extStore = System.getenv("EXTERNAL_STORAGE") + "/Android/data/com.glaciersecurity.glaciermessenger.sharelocation/cache";
+		ArrayList<String> deletedFiles = new ArrayList<String>();
+		String extStore = System.getenv("EXTERNAL_STORAGE") + "/Android/data/com.glaciersecurity.glaciermessenger.sharelocation";
+		File f_exts = new File(extStore);
+
+		// check if directory exists
+		if (f_exts.exists()) {
+
+			String extStore2 = extStore + "/cache";
+			File f_exts2 = new File(extStore2);
+
+			if (f_exts2.exists()) {
+				File[] fileDir = f_exts2.listFiles();
+
+				// GOOBER - delete file
+				for (int i = 0; i < fileDir.length; i++) {
+					if (fileDir[i].delete()) {
+						deletedFiles.add(fileDir[i].toString());
+						com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Successfully deleted " + fileDir[i]);
+					} else {
+						com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Did not delete " + fileDir[i]);
+					}
+				}
+				if (f_exts2.delete()) {
+					deletedFiles.add(f_exts2.toString());
+				}
+			}
+
+			if (f_exts.delete()) {
+				deletedFiles.add(f_exts.toString());
+			}
+
+			// GOOBER - Need to do something to update after deleting
+			// String[] delFile = {fileDir[fileDir.length-1].toString()};
+			String[] stringArray = deletedFiles.toArray(new String[0]);
+			// callBroadcast(deletedFiles.toArray(new String[0]));
+		}
+	}
+
+	private void clearExternalStorage() {
+		FileBackend.removeStorageDirectory();
+	}
+
+	/**
+	 * GOOBER - Clear pictures in Pictures/Messenger directory
+	 */
+	private void clearPictures() {
+		// GOOBER - Retrieve directory
+		String extStore = System.getenv("EXTERNAL_STORAGE") + "/Pictures/Messenger";
+		File f_exts = new File(extStore);
+
+		// check if directory exists
+		if (f_exts.exists()) {
+			File[] fileDir = f_exts.listFiles();
+			String[] deletedFiles = new String[fileDir.length];
+			int deletedFilesIndex = 0;
+
+			// GOOBER - delete file
+			for (int i = 0; i < fileDir.length; i++) {
+				if (fileDir[i].delete()) {
+					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
+					deletedFilesIndex++;
+					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Successfully deleted " + fileDir[i]);
+				} else {
+					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Did not delete " + fileDir[i]);
+				}
+			}
+
+			// GOOBER - Need to do something to update after deleting
+			// String[] delFile = {fileDir[fileDir.length-1].toString()};
+			// callBroadcast(deletedFiles);
+		}
+
+		// GOOBER - Remove higher level files
+		extStore = System.getenv("EXTERNAL_STORAGE") + "/Pictures";
+		f_exts = new File(extStore);
+
+		// check if directory exists
+		if (f_exts.exists()) {
+			File[] fileDir = f_exts.listFiles();
+			String[] deletedFiles = new String[fileDir.length];
+			int deletedFilesIndex = 0;
+
+			// GOOBER - delete file
+			for (int i = 0; i < fileDir.length; i++) {
+				// GOOBER - do not remove directory
+				if ((!fileDir[i].isDirectory()) && (fileDir[i].delete())) {
+					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
+					deletedFilesIndex++;
+					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Successfully deleted " + fileDir[i]);
+				} else {
+					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Did not delete " + fileDir[i]);
+				}
+			}
+
+			// GOOBER - Need to do something to update after deleting
+			// String[] delFile = {fileDir[fileDir.length-1].toString()};
+			// callBroadcast(deletedFiles);
+		}
 	}
 
 	@Override
