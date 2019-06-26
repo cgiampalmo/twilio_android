@@ -1678,7 +1678,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		String dname = account.getDisplayName();
 		if (dname == null) { dname = account.getUsername(); }
 		String bod = dname + " " + getString(R.string.left_group);
-		Message message = new Message(conversation, bod, conversation.getNextEncryption());
+		Message message = new Message(conversation, bod, Message.ENCRYPTION_NONE); // DJF - changed from conversation.getNextEncryption()
 		activity.xmppConnectionService.sendMessage(message);
 		// sleep required so message goes out before conversation thread stopped
 		// maybe show a spinner?
