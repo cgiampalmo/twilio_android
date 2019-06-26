@@ -347,21 +347,21 @@ public abstract class XmppActivity extends PinActivity {
 		}
 	}
 
-	//CMG AM-76 only show core connections if core is installed
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuItem coreConnectionItem = menu.findItem(R.id.action_glaciervpn);
-		boolean isCoreInstalled = isAppInstalled(CORE_APK_PACKAGE);
-		if (coreConnectionItem != null) {
-			if (isCoreInstalled) {
-				coreConnectionItem.setVisible(true);
-
-			} else {
-				coreConnectionItem.setVisible(false);
-			}
-		}
-		return true;
-	}
+//	//CMG AM-76 only show core connections if core is installed
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//		MenuItem coreConnectionItem = menu.findItem(R.id.action_glaciervpn);
+//		boolean isCoreInstalled = isAppInstalled(CORE_APK_PACKAGE);
+//		if (coreConnectionItem != null) {
+//			if (isCoreInstalled) {
+//				coreConnectionItem.setVisible(true);
+//
+//			} else {
+//				coreConnectionItem.setVisible(false);
+//			}
+//		}
+//		return true;
+//	}
 
 	protected boolean isAppInstalled(String packageName) {
 		Intent mIntent = getPackageManager().getLaunchIntentForPackage(packageName);
@@ -381,16 +381,16 @@ public abstract class XmppActivity extends PinActivity {
 			case R.id.action_settings:
 				startActivity(new Intent(this, SettingsActivity.class));
 				break;
-			case R.id.action_glaciervpn:
-				try {
-					startActivity(new Intent(this, OpenVPNActivity.class));
-					break;
-				}catch(Exception e){
-					doCoreErrorAction();
-				}
-			case R.id.action_filesafe: //ALF AM-277
-				startActivity(new Intent(this, FileSafeActivity.class));
-				break;
+//			case R.id.action_glaciervpn:
+//				try {
+//					startActivity(new Intent(this, OpenVPNActivity.class));
+//					break;
+//				}catch(Exception e){
+//					doCoreErrorAction();
+//				}
+//			case R.id.action_filesafe: //ALF AM-277
+//				startActivity(new Intent(this, FileSafeActivity.class));
+//				break;
 			case R.id.action_accounts:
 				AccountUtils.launchManageAccounts(this);
 				break;
