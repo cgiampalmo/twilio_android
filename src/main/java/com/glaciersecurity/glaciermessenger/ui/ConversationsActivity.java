@@ -427,6 +427,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	ActionBar actionBar;
 	Toolbar toolbar;
 	DrawerLayout drawer;
+	NavigationView nav_view;
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -468,7 +469,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 
 	private void initNavigationMenu() {
-		final NavigationView nav_view = (NavigationView) findViewById(R.id.nav_view);
+		nav_view = (NavigationView) findViewById(R.id.nav_view);
 		drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
 			public void onDrawerOpened(View drawerView) {
@@ -504,7 +505,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 						intent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().asBareJid().toString());
 						startActivity(intent);
 					}
-					drawer.closeDrawers();
+					drawer.closeDrawer(GravityCompat.START);
 
 				}
 			};
@@ -514,7 +515,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					if (mAccount != null) {
 						changePresence();
 					}
-					drawer.closeDrawers();
+					drawer.closeDrawer(GravityCompat.START);
 				}
 			};
 		};
@@ -528,6 +529,16 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			}
 		});
 	}
+
+	@Override
+	public void onBackPressed() {
+		if (this.drawer.isDrawerOpen(GravityCompat.START)) {
+			this.drawer.closeDrawer(GravityCompat.START);
+		} else {
+			super.onBackPressed();
+		}
+	}
+
 	private void changePresence() {
 		android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
 		final DialogPresenceBinding binding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.dialog_presence, null, false);
@@ -1217,6 +1228,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	public void onResume() {
 		super.onResume();
 		this.mActivityPaused = false;
+		for (int i = 0; i < nav_view.getMenu().size(); i++) {
+			nav_view.getMenu().getItem(i).setChecked(false);
+		}
 	}
 
 	private void initializeFragments() {

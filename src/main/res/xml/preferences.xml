@@ -19,14 +19,14 @@
                 android:targetPackage="com.huawei.systemmanager"/>
         </PreferenceScreen>
         <com.glaciersecurity.glaciermessenger.ui.AboutPreference/>
-        <!-- AM-16 -->
-        <Preference android:title="@string/support_button_key"
-            android:key="@string/support_button_key"
-            android:summary="@string/support_button_summary">
-            <intent android:action="android.intent.action.VIEW"
-                android:data="https://glaciersecurity.zendesk.com" />
-            <!-- ALF AM-272 zendesk -->
-        </Preference>
+        <!--&lt;!&ndash; AM-16 &ndash;&gt;-->
+        <!--<Preference android:title="@string/support_button_key"-->
+        <!--android:key="@string/support_button_key"-->
+        <!--android:summary="@string/support_button_summary">-->
+        <!--<intent android:action="android.intent.action.VIEW"-->
+        <!--android:data="https://glaciersecurity.zendesk.com" />-->
+        <!--&lt;!&ndash; ALF AM-272 zendesk &ndash;&gt;-->
+        <!--</Preference>-->
 
         <!-- ALF AM-48 -->
         <EditTextPreference
@@ -38,7 +38,7 @@
             android:dialogMessage="@string/pref_display_name_description"
             android:hint="@string/displayname"
             app:hintTextAppearance="@style/TextAppearance.Conversations.Design.Hint" />
-            <!-- ALF AM-223 added hint, removed default. android:defaultValue="" /> -->
+        <!-- ALF AM-223 added hint, removed default. android:defaultValue="" /> -->
     </PreferenceCategory>
     <!--HONEYBADGER AM-120 Move the Security settings to the main settings page above Notifications section-->
     <PreferenceCategory
@@ -93,6 +93,10 @@
             android:key="delete_omemo_identities"
             android:summary="@string/pref_delete_glacier_identities_summary"
             android:title="@string/pref_delete_glacier_identities"/>
+        <Preference
+            android:key="wipe_all_history"
+            android:summary="@string/wipe_all_history_desc"
+            android:title="@string/action_wipe_all_history"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_notification_settings"
         android:key="notification_category">
@@ -181,64 +185,64 @@
     </PreferenceCategory>
     <!--HB AM-176-->
     <!--<PreferenceCategory android:title="@string/pref_privacy">-->
-        <!--HONEYBADGER AM-120 OMEMO encryption set to Always (unless in a public group chat) and then hide this setting-->
-        <!--<ListPreference-->
-            <!--android:defaultValue="@string/omemo_setting_default"-->
-            <!--android:entries="@array/omemo_setting_entries"-->
-            <!--android:entryValues="@array/omemo_setting_entry_values"-->
-            <!--android:key="omemo"-->
-            <!--android:summary="@string/pref_omemo_setting_summary_default_on"-->
-            <!--android:title="@string/pref_omemo_setting"-->
-            <!--/>-->
-        <!--<CheckBoxPreference-->
-            <!--android:defaultValue="@bool/confirm_messages"-->
-            <!--android:key="confirm_messages"-->
-            <!--android:summary="@string/pref_confirm_messages_summary"-->
-            <!--android:title="@string/pref_confirm_messages"/>-->
-        <!--HONEYBADGER AM-120 Enable and Hide Typing notifications-->
-        <!--<CheckBoxPreference-->
-            <!--android:defaultValue="@bool/chat_states"-->
-            <!--android:key="chat_states"-->
-            <!--android:summary="@string/pref_chat_states_summary"-->
-            <!--android:title="@string/pref_chat_states"/>-->
-        <!--<CheckBoxPreference-->
-            <!--android:defaultValue="@bool/last_activity"-->
-            <!--android:key="last_activity"-->
-            <!--android:summary="@string/pref_broadcast_last_activity_summary"-->
-            <!--android:title="@string/pref_broadcast_last_activity"/>-->
+    <!--HONEYBADGER AM-120 OMEMO encryption set to Always (unless in a public group chat) and then hide this setting-->
+    <!--<ListPreference-->
+    <!--android:defaultValue="@string/omemo_setting_default"-->
+    <!--android:entries="@array/omemo_setting_entries"-->
+    <!--android:entryValues="@array/omemo_setting_entry_values"-->
+    <!--android:key="omemo"-->
+    <!--android:summary="@string/pref_omemo_setting_summary_default_on"-->
+    <!--android:title="@string/pref_omemo_setting"-->
+    <!--/>-->
+    <!--<CheckBoxPreference-->
+    <!--android:defaultValue="@bool/confirm_messages"-->
+    <!--android:key="confirm_messages"-->
+    <!--android:summary="@string/pref_confirm_messages_summary"-->
+    <!--android:title="@string/pref_confirm_messages"/>-->
+    <!--HONEYBADGER AM-120 Enable and Hide Typing notifications-->
+    <!--<CheckBoxPreference-->
+    <!--android:defaultValue="@bool/chat_states"-->
+    <!--android:key="chat_states"-->
+    <!--android:summary="@string/pref_chat_states_summary"-->
+    <!--android:title="@string/pref_chat_states"/>-->
+    <!--<CheckBoxPreference-->
+    <!--android:defaultValue="@bool/last_activity"-->
+    <!--android:key="last_activity"-->
+    <!--android:summary="@string/pref_broadcast_last_activity_summary"-->
+    <!--android:title="@string/pref_broadcast_last_activity"/>-->
     <!--</PreferenceCategory>-->
     <!-- <PreferenceCategory
         android:key="attachments"
         android:title="@string/pref_attachments"> -->
-        <!-- HONEYBADGER AM-120 Set Accept Files to 10MiB-->
-        <!--<ListPreference-->
-            <!--android:defaultValue="@integer/auto_accept_filesize"-->
-            <!--android:entries="@array/filesizes"-->
-            <!--android:entryValues="@array/filesizes_values"-->
-            <!--android:key="auto_accept_file_size"-->
-            <!--android:summary="@string/pref_accept_files_summary"-->
-            <!--android:title="@string/pref_accept_files"/>-->
-        <!-- HONEYBADGER AM-120 Compress pictures set to always and hide-->
-        <!--<ListPreference-->
-            <!--android:defaultValue="@string/picture_compression"-->
-            <!--android:entries="@array/picture_compression_entries"-->
-            <!--android:entryValues="@array/picture_compression_values"-->
-            <!--android:key="picture_compression"-->
-            <!--android:summary="@string/pref_picture_compression_summary"-->
-            <!--android:title="@string/pref_picture_compression"/>-->
-        <!-- <ListPreference
-            android:defaultValue="@string/video_compression"
-            android:entries="@array/video_compression_entries"
-            android:entryValues="@array/video_compression_values"
-            android:key="video_compression"
-            android:summary="@string/pref_video_compression_summary"
-            android:title="@string/pref_video_compression" /> -->
-        <!-- HONEYBADGER AM-120 Disable and hide "Share Location Plugin-->
-        <!--<CheckBoxPreference-->
-            <!--android:defaultValue="@bool/use_share_location_plugin"-->
-            <!--android:key="use_share_location_plugin"-->
-            <!--android:summary="@string/pref_use_share_location_plugin_summary"-->
-            <!--android:title="@string/pref_use_share_location_plugin"/>-->
+    <!-- HONEYBADGER AM-120 Set Accept Files to 10MiB-->
+    <!--<ListPreference-->
+    <!--android:defaultValue="@integer/auto_accept_filesize"-->
+    <!--android:entries="@array/filesizes"-->
+    <!--android:entryValues="@array/filesizes_values"-->
+    <!--android:key="auto_accept_file_size"-->
+    <!--android:summary="@string/pref_accept_files_summary"-->
+    <!--android:title="@string/pref_accept_files"/>-->
+    <!-- HONEYBADGER AM-120 Compress pictures set to always and hide-->
+    <!--<ListPreference-->
+    <!--android:defaultValue="@string/picture_compression"-->
+    <!--android:entries="@array/picture_compression_entries"-->
+    <!--android:entryValues="@array/picture_compression_values"-->
+    <!--android:key="picture_compression"-->
+    <!--android:summary="@string/pref_picture_compression_summary"-->
+    <!--android:title="@string/pref_picture_compression"/>-->
+    <!-- <ListPreference
+        android:defaultValue="@string/video_compression"
+        android:entries="@array/video_compression_entries"
+        android:entryValues="@array/video_compression_values"
+        android:key="video_compression"
+        android:summary="@string/pref_video_compression_summary"
+        android:title="@string/pref_video_compression" /> -->
+    <!-- HONEYBADGER AM-120 Disable and hide "Share Location Plugin-->
+    <!--<CheckBoxPreference-->
+    <!--android:defaultValue="@bool/use_share_location_plugin"-->
+    <!--android:key="use_share_location_plugin"-->
+    <!--android:summary="@string/pref_use_share_location_plugin_summary"-->
+    <!--android:title="@string/pref_use_share_location_plugin"/>-->
     <!-- </PreferenceCategory> -->
     <PreferenceCategory android:title="@string/pref_ui_options">
         <ListPreference
@@ -250,10 +254,10 @@
             android:title="@string/pref_theme_options"/>
         <!--HONEYBADGER AM-120 Disable and hide Green Background-->
         <!--<CheckBoxPreference-->
-            <!--android:defaultValue="@bool/use_green_background"-->
-            <!--android:key="use_green_background"-->
-            <!--android:summary="@string/pref_use_green_background_summary"-->
-            <!--android:title="@string/pref_use_green_background"/>-->
+        <!--android:defaultValue="@bool/use_green_background"-->
+        <!--android:key="use_green_background"-->
+        <!--android:summary="@string/pref_use_green_background_summary"-->
+        <!--android:title="@string/pref_use_green_background"/>-->
         <ListPreference
             android:defaultValue="@string/default_font_size"
             android:entries="@array/font_size_entries"
@@ -263,10 +267,10 @@
             android:title="@string/pref_font_size"/>
         <!-- HONEYBADGER AM-120 Enable and hide "Send button indicates status"-->
         <!--<CheckBoxPreference-->
-            <!--android:defaultValue="@bool/send_button_status"-->
-            <!--android:key="send_button_status"-->
-            <!--android:summary="@string/pref_use_send_button_to_indicate_status_summary"-->
-            <!--android:title="@string/pref_use_send_button_to_indicate_status"/>-->
+        <!--android:defaultValue="@bool/send_button_status"-->
+        <!--android:key="send_button_status"-->
+        <!--android:summary="@string/pref_use_send_button_to_indicate_status_summary"-->
+        <!--android:title="@string/pref_use_send_button_to_indicate_status"/>-->
         <ListPreference
             android:defaultValue="@string/quick_action"
             android:dialogTitle="@string/choose_quick_action"
@@ -307,16 +311,16 @@
                     android:title="@string/pref_remove_trusted_certificates_title"/>
                 <!-- HONEYBADGER AM-120 Disable and hide Connect via Tor-->
                 <!--<CheckBoxPreference-->
-                    <!--android:defaultValue="@bool/use_tor"-->
-                    <!--android:key="use_tor"-->
-                    <!--android:summary="@string/pref_use_tor_summary"-->
-                    <!--android:title="@string/pref_use_tor"/>-->
+                <!--android:defaultValue="@bool/use_tor"-->
+                <!--android:key="use_tor"-->
+                <!--android:summary="@string/pref_use_tor_summary"-->
+                <!--android:title="@string/pref_use_tor"/>-->
                 <!-- HONEYBADGER AM-120 Disable and hide Extended connection settings-->
                 <!--<CheckBoxPreference-->
-                    <!--android:defaultValue="@bool/show_connection_options"-->
-                    <!--android:key="show_connection_options"-->
-                    <!--android:summary="@string/pref_show_connection_options_summary"-->
-                    <!--android:title="@string/pref_show_connection_options"/>-->
+                <!--android:defaultValue="@bool/show_connection_options"-->
+                <!--android:key="show_connection_options"-->
+                <!--android:summary="@string/pref_show_connection_options_summary"-->
+                <!--android:title="@string/pref_show_connection_options"/>-->
             </PreferenceCategory>
             <PreferenceCategory android:title="@string/pref_input_options">
                 <CheckBoxPreference
@@ -368,31 +372,31 @@
             </PreferenceCategory>
             <!-- CMG AM-219
             <PreferenceCategory android:title="@string/pref_expert_options_other"> -->
-                <!--HONEYBADGER AM-120 Enable and hide "Automatically join group chats-->
-                <!--<CheckBoxPreference-->
-                    <!--android:defaultValue="@bool/autojoin"-->
-                    <!--android:key="autojoin"-->
-                    <!--android:summary="@string/pref_autojoin_summary"-->
-                    <!--android:title="@string/pref_autojoin"-->
-                    <!--/>-->
-                <!--HONEYBADGER AM-120 Enable and hide "Request message receipts"-->
-                <!--<CheckBoxPreference-->
-                    <!--android:defaultValue="@bool/indicate_received"-->
-                    <!--android:key="indicate_received"-->
-                    <!--android:summary="@string/pref_use_indicate_received_summary"-->
-                    <!--android:title="@string/pref_use_indicate_received"/>-->
-                <!-- ALF AM-164 -->
-                <!-- <CheckBoxPreference
-                    android:defaultValue="@bool/enable_foreground_service"
-                    android:key="enable_foreground_service"
-                    android:summary="@string/pref_keep_foreground_service_summary"
-                    android:title="@string/pref_keep_foreground_service"/> -->
-                <!--CMG AM-219
-                <Preference
-                    android:key="create_backup"
-                    android:summary="@string/pref_create_backup_summary"
-                    android:title="@string/pref_create_backup" />
-            </PreferenceCategory> -->
+            <!--HONEYBADGER AM-120 Enable and hide "Automatically join group chats-->
+            <!--<CheckBoxPreference-->
+            <!--android:defaultValue="@bool/autojoin"-->
+            <!--android:key="autojoin"-->
+            <!--android:summary="@string/pref_autojoin_summary"-->
+            <!--android:title="@string/pref_autojoin"-->
+            <!--/>-->
+            <!--HONEYBADGER AM-120 Enable and hide "Request message receipts"-->
+            <!--<CheckBoxPreference-->
+            <!--android:defaultValue="@bool/indicate_received"-->
+            <!--android:key="indicate_received"-->
+            <!--android:summary="@string/pref_use_indicate_received_summary"-->
+            <!--android:title="@string/pref_use_indicate_received"/>-->
+            <!-- ALF AM-164 -->
+            <!-- <CheckBoxPreference
+                android:defaultValue="@bool/enable_foreground_service"
+                android:key="enable_foreground_service"
+                android:summary="@string/pref_keep_foreground_service_summary"
+                android:title="@string/pref_keep_foreground_service"/> -->
+            <!--CMG AM-219
+            <Preference
+                android:key="create_backup"
+                android:summary="@string/pref_create_backup_summary"
+                android:title="@string/pref_create_backup" />
+        </PreferenceCategory> -->
         </PreferenceScreen>
 
         <CheckBoxPreference
@@ -400,9 +404,9 @@
             android:key="never_send"
             android:summary="@string/pref_never_send_crash_summary"
             android:title="@string/pref_never_send_crash"/>
-        <!-- ALF AM-143 -->
-        <Preference android:title="@string/logout_button_key"
-            android:key="@string/logout_button_key"
-            android:summary="@string/logout_button_summary"/>
+        <!-- CMG AM-254 moved to drawer menu -->
+        <!--<Preference android:title="@string/logout_button_key"-->
+        <!--android:key="@string/logout_button_key"-->
+        <!--android:summary="@string/logout_button_summary"/>-->
     </PreferenceCategory>
 </PreferenceScreen>
