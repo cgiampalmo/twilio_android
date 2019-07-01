@@ -636,10 +636,10 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		getMenuInflater().inflate(R.menu.start_conversation, menu);
 		//AccountUtils.showHideMenuItems(menu);
 		MenuItem menuHideOffline = menu.findItem(R.id.action_hide_offline);
-		MenuItem joinGroupChat = menu.findItem(R.id.action_join_conference);
+//		MenuItem joinGroupChat = menu.findItem(R.id.action_join_conference);
 		//HONEYBADGER AM-120 Remove the top right barcode scanning feature
 		//MenuItem qrCodeScanMenuItem = menu.findItem(R.id.action_scan_qr_code);
-		joinGroupChat.setVisible(binding.startConversationViewPager.getCurrentItem() == 1);
+//		joinGroupChat.setVisible(binding.startConversationViewPager.getCurrentItem() == 1);
 		//qrCodeScanMenuItem.setVisible(isCameraFeatureAvailable());
 		menuHideOffline.setChecked(this.mHideOfflineContacts);
 		mMenuSearchView = menu.findItem(R.id.action_search);
@@ -667,10 +667,10 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			case android.R.id.home:
 				navigateBack();
 				return true;
-			case R.id.action_join_conference:
-				showCreateConferenceDialog(); //AM-78
-				//showJoinConferenceDialog(null);
-				return true;
+//			case R.id.action_join_conference:
+//				showCreateConferenceDialog(); //AM-78
+//				//showJoinConferenceDialog(null);
+//				return true;
 			//HONEYBADGER AM-120 Remove the top right barcode scanning feature
 //			case R.id.action_scan_qr_code:
 //				UriHandlerActivity.scan(this);

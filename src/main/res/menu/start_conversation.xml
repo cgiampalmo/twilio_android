@@ -2,18 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!--<item-->
-        <!--android:id="@+id/action_search"-->
-        <!--android:icon="?attr/icon_search"-->
-        <!--android:title="@string/search"-->
-        <!--app:actionLayout="@layout/actionview_search"-->
-        <!--android:orderInCategory="75"-->
-        <!--app:showAsAction="collapseActionView|always"/>-->
     <item
-        android:id="@+id/action_join_conference"
-        android:title="@string/join_conference"
-        android:orderInCategory="80"
-        app:showAsAction="never"/>
+        android:id="@+id/action_search"
+        android:icon="?attr/icon_search"
+        android:title="@string/search"
+        app:actionLayout="@layout/actionview_search"
+        android:orderInCategory="75"
+        app:showAsAction="collapseActionView|always"/>
+    <!--<item-->
+        <!--android:id="@+id/action_join_conference"-->
+        <!--android:title="@string/join_conference"-->
+        <!--android:orderInCategory="80"-->
+        <!--app:showAsAction="never"/>-->
 
     //HONEYBADGER AM-120 Remove the top right barcode scanning feature
     <!--<item-->
@@ -35,16 +35,16 @@
         <!--android:orderInCategory="89"-->
         <!--android:title="@string/action_filesafe"-->
         <!--app:showAsAction="never"/>-->
-    <item
-        android:id="@+id/action_accounts"
-        android:orderInCategory="90"
-        android:title="@string/action_accounts"
-        app:showAsAction="never"/>
-    <item
-        android:id="@+id/action_account"
-        android:orderInCategory="90"
-        android:title="@string/action_account"
-        app:showAsAction="never"/>
+    <!--<item-->
+        <!--android:id="@+id/action_accounts"-->
+        <!--android:orderInCategory="90"-->
+        <!--android:title="@string/action_accounts"-->
+        <!--app:showAsAction="never"/>-->
+    <!--<item-->
+        <!--android:id="@+id/action_account"-->
+        <!--android:orderInCategory="90"-->
+        <!--android:title="@string/action_account"-->
+        <!--app:showAsAction="never"/>-->
     <!--<item-->
         <!--android:id="@+id/action_settings"-->
         <!--android:orderInCategory="100"-->

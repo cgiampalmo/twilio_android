@@ -391,12 +391,12 @@ public abstract class XmppActivity extends PinActivity {
 //			case R.id.action_filesafe: //ALF AM-277
 //				startActivity(new Intent(this, FileSafeActivity.class));
 //				break;
-			case R.id.action_accounts:
-				AccountUtils.launchManageAccounts(this);
-				break;
-			case R.id.action_account:
-				AccountUtils.launchManageAccount(this);
-				break;
+//			case R.id.action_accounts:
+//				AccountUtils.launchManageAccounts(this);
+//				break;
+//			case R.id.action_account:
+//				AccountUtils.launchManageAccount(this);
+//				break;
 			case android.R.id.home:
 				finish();
 				break;

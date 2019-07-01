@@ -2,6 +2,7 @@ package com.glaciersecurity.glaciermessenger.ui;
 
 
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 
 import com.glaciersecurity.glaciermessenger.R;
@@ -12,11 +13,15 @@ public class OpenVPNActivity extends XmppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.openvpn_activity);
+        Toolbar tb = findViewById(R.id.toolbar);
+        setSupportActionBar(tb);
+        configureActionBar(getSupportActionBar());
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
                     .add(R.id.container, new OpenVPNFragment())
                     .commit();
         }
+
     }
 
     @Override

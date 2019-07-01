@@ -374,12 +374,12 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			return false;
 		}
 		switch (item.getItemId()) {
-			case R.id.action_search:
-				startActivity(new Intent(getActivity(), SearchActivity.class));
-				return true;
-			case R.id.action_wipe_all_history:
-				wipeAllHistoryDialog();
-				break;
+//			case R.id.action_search:
+//				startActivity(new Intent(getActivity(), SearchActivity.class));
+//				return true;
+//			case R.id.action_wipe_all_history:
+//				wipeAllHistoryDialog();
+//				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
