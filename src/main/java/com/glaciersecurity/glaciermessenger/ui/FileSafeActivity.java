@@ -6,15 +6,21 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.support.annotation.StringRes;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +51,7 @@ import com.glaciersecurity.glaciermessenger.cognito.PropertyLoader;
 import com.glaciersecurity.glaciermessenger.cognito.Util;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
+import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.ui.util.ActivityResult;
 import com.glaciersecurity.glaciermessenger.ui.util.Attachment;
@@ -64,7 +71,7 @@ import java.util.Locale;
 import java.util.Properties;
 
 //ALF AM-277
-public class FileSafeActivity extends XmppActivity {
+public class FileSafeActivity extends XmppActivity implements ConnectivityReceiver.ConnectivityReceiverListener{
 
     private ImageView filesafeImage;
     private TextView hintOrWarning;
@@ -74,6 +81,8 @@ public class FileSafeActivity extends XmppActivity {
     //private Account account;
     private boolean uploading = false;
     private boolean retried = false;
+    private ConnectivityReceiver connectivityReceiver; //CMG AM-41
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -82,9 +91,12 @@ public class FileSafeActivity extends XmppActivity {
         setSupportActionBar(findViewById(R.id.toolbar));
 
         this.filesafeImage = findViewById(R.id.filesafe_image);
+        this.offlineLayout = findViewById(R.id.offline_layout);
+        this.networkStatus = findViewById(R.id.network_status);
         this.cancelButton = findViewById(R.id.cancel_button);
         this.uploadButton = findViewById(R.id.upload_button);
         this.hintOrWarning = findViewById(R.id.hint_or_warning);
+        this.offlineLayout.setOnClickListener(mRefreshNetworkClickListener);
         this.uploadFilesList = findViewById(R.id.upload_filesafe_files);
         this.uploadButton.setOnClickListener(v -> {
             retried = false;
@@ -95,6 +107,9 @@ public class FileSafeActivity extends XmppActivity {
         });
         this.filesafeImage.setOnClickListener(v -> fileSafeChooserDialog());
         loadPropertiesFile();
+
+        connectivityReceiver = new ConnectivityReceiver(this);
+        checkNetworkStatus();
     }
 
     private void loadPropertiesFile(){
@@ -169,14 +184,86 @@ public class FileSafeActivity extends XmppActivity {
     protected void onStart() {
         super.onStart();
         configureActionBar(getSupportActionBar(), true);
+        registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     @Override
     protected void onStop () {
+        unregisterReceiver(connectivityReceiver);
         logOut();
         super.onStop();
     }
 
+    @Override
+    public void onNetworkConnectionChanged(boolean isConnected) {
+            if (isConnected) {
+                onConnected();
+            } else {
+                onDisconnected();
+            }
+
+    }
+    // CMG AM-41
+    private void checkNetworkStatus() {
+        if (ConnectivityReceiver.isConnected(this)){
+            onConnected();
+        }else{
+            onDisconnected();
+        }
+    }
+
+
+
+    //CMG AM-41
+    private LinearLayout offlineLayout;
+    private TextView networkStatus;
+
+    private View.OnClickListener mRefreshNetworkClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            networkStatus.setCompoundDrawables(null, null, null, null);
+            networkStatus.setText(getApplicationContext().getResources().getString(R.string.refreshing));
+            if (ConnectivityReceiver.isConnected(getApplicationContext())){
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        reconfigureOfflineText();
+                        offlineLayout.setVisibility(View.GONE);
+                    }
+                }, 1000);
+            }else{
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        reconfigureOfflineText();
+                        offlineLayout.setVisibility(View.VISIBLE);
+                    }
+                }, 1000);
+            }
+        }
+    };
+
+    private void reconfigureOfflineText() {
+        networkStatus.setText(this.getResources().getString(R.string.offline));
+        Drawable refreshIcon =
+                ContextCompat.getDrawable(this, R.drawable.ic_refresh_black_24dp);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){
+            networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
+        } else{
+            refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
+            networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
+        }
+    }
+
+    public void onConnected(){
+        offlineLayout.setVisibility(View.GONE);
+    }
+
+    public void onDisconnected(){
+        offlineLayout.setVisibility(View.VISIBLE);
+    }
     protected void toggleUploadButton(boolean enabled, @StringRes int res) {
         final boolean status = enabled && !uploading;
         this.uploadButton.setText(uploading ? R.string.uploading_filesafe_button_message : res);

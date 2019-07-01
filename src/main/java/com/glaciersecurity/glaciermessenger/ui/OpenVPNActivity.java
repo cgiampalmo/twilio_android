@@ -1,13 +1,20 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 
-public class OpenVPNActivity extends XmppActivity {
+public class OpenVPNActivity extends XmppActivity implements ConnectivityReceiver.ConnectivityReceiverListener {
+
+    private ConnectivityReceiver connectivityReceiver; //CMG AM-41
+    private OpenVPNFragment openVPNFragment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,10 +25,14 @@ public class OpenVPNActivity extends XmppActivity {
         setSupportActionBar(tb);
         configureActionBar(getSupportActionBar());
         if (savedInstanceState == null) {
+            openVPNFragment = new OpenVPNFragment();
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new OpenVPNFragment())
+                    .add(R.id.container, openVPNFragment)
                     .commit();
+
+
         }
+        connectivityReceiver = new ConnectivityReceiver(this);
 
     }
 
@@ -32,7 +43,29 @@ public class OpenVPNActivity extends XmppActivity {
 //        getMenuInflater().inflate(R.menu.vpn_connection, menu);
 //        return true;
 //    }
+@Override
+protected void onStart() {
+    super.onStart();
+    registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+}
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(connectivityReceiver);
+    }
+
+    //CMG AM-41
+    @Override
+    public void onNetworkConnectionChanged(boolean isConnected) {
+        if (openVPNFragment != null){
+            if (isConnected) {
+                openVPNFragment.onConnected();
+            } else {
+                openVPNFragment.onDisconnected();
+            }
+        }
+    }
     @Override
     void onBackendConnected() {
         // nothing to do

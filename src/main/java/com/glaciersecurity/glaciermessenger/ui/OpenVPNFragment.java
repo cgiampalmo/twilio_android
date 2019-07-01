@@ -10,12 +10,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +26,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +35,7 @@ import com.glaciersecurity.glaciercore.api.APIVpnProfile;
 import com.glaciersecurity.glaciercore.api.IOpenVPNAPIService;
 import com.glaciersecurity.glaciercore.api.IOpenVPNStatusCallback;
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.io.BufferedReader;
@@ -45,11 +50,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class OpenVPNFragment extends Fragment implements View.OnClickListener, Handler.Callback {
+public class OpenVPNFragment extends Fragment implements View.OnClickListener, Handler.Callback{
 
     final static String EMERGENCY_PROFILE_TAG = "emerg";
     static final int PROFILE_DIALOG_REQUEST_CODE = 8;
     static final String PROFILE_SELECTED = "PROFILE_SELECTED";
+
+    private ConnectivityReceiver connectivityReceiver; //CMG AM-41
 
     private TextView mHelloWorld;
     private Button mStartVpn;
@@ -105,8 +112,13 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
         mStatus = (TextView) v.findViewById(R.id.status);
         mProfile = (TextView) v.findViewById(R.id.currentProfile);
         // mMyIp = (TextView) v.findViewById(R.id.MyIpText);
-
         addItemsOnProfileSpinner(v);
+
+        //CMG AM-41
+        offlineLayout = (LinearLayout) v.findViewById(R.id.offline_layout);
+        networkStatus = (TextView) v.findViewById(R.id.network_status);
+        offlineLayout.setOnClickListener(mRefreshNetworkClickListener);
+        checkNetworkStatus();
 
         return v;
 
@@ -119,6 +131,66 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     private static final int ICS_OPENVPN_PERMISSION = 7;
     private static final int PROFILE_ADD_NEW = 8;
 
+
+    //CMG AM-41
+    private LinearLayout offlineLayout;
+    private TextView networkStatus;
+
+    private View.OnClickListener mRefreshNetworkClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            networkStatus.setCompoundDrawables(null, null, null, null);
+            networkStatus.setText(getActivity().getResources().getString(R.string.refreshing));
+            if (ConnectivityReceiver.isConnected(getActivity())){
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        reconfigureOfflineText();
+                        offlineLayout.setVisibility(View.GONE);
+                    }
+                }, 1000);
+            }else{
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        reconfigureOfflineText();
+                        offlineLayout.setVisibility(View.VISIBLE);
+                    }
+                }, 1000);
+            }
+        }
+    };
+
+    // CMG AM-41
+    private void checkNetworkStatus() {
+        if (ConnectivityReceiver.isConnected(getActivity())){
+            onConnected();
+        }else{
+            onDisconnected();
+        }
+    }
+
+    public void onConnected(){
+        offlineLayout.setVisibility(View.GONE);
+    }
+
+    public void onDisconnected(){
+        offlineLayout.setVisibility(View.VISIBLE);
+    }
+
+    private void reconfigureOfflineText() {
+        networkStatus.setText(getActivity().getResources().getString(R.string.offline));
+        Drawable refreshIcon =
+                ContextCompat.getDrawable(getActivity(), R.drawable.ic_refresh_black_24dp);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){
+            networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
+        } else{
+            refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
+            networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
+        }
+    }
 
     protected IOpenVPNAPIService mService=null;
     private Handler mHandler;
@@ -736,6 +808,8 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
         }
         return true;
     }
+
+
 
     /**
      * track glacier profile name and uuid pair
