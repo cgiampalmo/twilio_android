@@ -175,6 +175,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private EditText mOrgID;
 	private TextInputLayout mAccountOrgIDLayout;
 	private Button mLoginButton;
+	private Button mSupportButton;
 	private String mConnectionType = null;
 
 	//ALF AM-220
@@ -549,6 +550,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.mOrgID = (EditText) findViewById(R.id.account_orgid);
 		this.mAccountOrgIDLayout = (TextInputLayout) findViewById(R.id.account_orgid_layout);
 		this.mLoginButton = (Button) findViewById(R.id.account_login);
+		this.mSupportButton = (Button) findViewById(R.id.account_support);
+
 
 		this.mAvatar = (ImageView) findViewById(R.id.avater);
 		this.mAvatar.setOnClickListener(this.mAvatarClickListener);
@@ -615,12 +618,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		AvatarWorkerTask.loadAvatar(mAccount, binding.avater, R.dimen.avatar_on_details_screen_size);
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(final Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		//CMG AM-117
-		getMenuInflater().inflate(R.menu.login_support, menu);
-		final MenuItem supportMenuItem = menu.findItem(R.id.support_menu_item);
+//	@Override
+//	public boolean onCreateOptionsMenu(final Menu menu) {
+//		super.onCreateOptionsMenu(menu);
+//		//CMG AM-117
+//		getMenuInflater().inflate(R.menu.login_support, menu);
+//		final MenuItem supportMenuItem = menu.findItem(R.id.support_menu_item);
 
 		/*
 		final MenuItem showBlocklist = menu.findItem(R.id.action_show_block_list);
@@ -653,8 +656,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 
 		*/
-		return super.onCreateOptionsMenu(menu);
-	}
+//		return super.onCreateOptionsMenu(menu);
+//	}
 
 	private void loadPropertiesFile(){
         PropertyLoader propertyLoader = new PropertyLoader(getApplicationContext());
@@ -832,9 +835,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 		switch (item.getItemId()) {
 			//CMG AM-117
-			case R.id.support_menu_item:
-				gotoSupportPage();
-				break;
+//			case R.id.support_menu_item:
+//				gotoSupportPage();
+//				break;
 //			case R.id.action_show_block_list:
 //				final Intent showBlocklistIntent = new Intent(this, BlocklistActivity.class);
 //				showBlocklistIntent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().toString());
@@ -885,7 +888,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	//CMG AM-117
-	private void gotoSupportPage(){
+	public void gotoSupportPage(View view){
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setData(Uri.parse("https://glaciersecurity.zendesk.com"));
 		startActivity(intent);

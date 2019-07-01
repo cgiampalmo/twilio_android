@@ -14,6 +14,7 @@ public class OpenVPNActivity extends XmppActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.openvpn_activity);
         Toolbar tb = findViewById(R.id.toolbar);
+        //tb.setTitle(R.string.action_glaciervpn);
         setSupportActionBar(tb);
         configureActionBar(getSupportActionBar());
         if (savedInstanceState == null) {
@@ -24,13 +25,13 @@ public class OpenVPNActivity extends XmppActivity {
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.vpn_connection, menu);
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        super.onCreateOptionsMenu(menu);
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.vpn_connection, menu);
+//        return true;
+//    }
 
     @Override
     void onBackendConnected() {

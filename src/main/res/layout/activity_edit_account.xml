@@ -48,11 +48,11 @@
                             <!-- CMG AM-209 -->
                             <ImageView
                                 android:layout_width="match_parent"
-                                android:layout_height="300dp"
+                                android:layout_height="259dp"
                                 android:layout_centerHorizontal="true"
                                 android:layout_centerVertical="true"
                                 android:adjustViewBounds="true"
-                                android:padding="70dp"
+                                android:padding="50dp"
                                 android:src="@drawable/ic_updated_glacier_icon" />
 
                             <android.support.design.widget.TextInputLayout
@@ -127,13 +127,21 @@
                                     android:id="@+id/account_login"
                                     android:layout_width="150dp"
                                     android:layout_height="wrap_content"
-                                    android:layout_centerHorizontal="true"
-                                    android:layout_centerVertical="true"
+                                    android:layout_centerInParent="true"
                                     android:baselineAligned="false"
                                     android:onClick="logIn"
                                     android:paddingTop="20dp"
                                     android:text="Login" />
                             </RelativeLayout>
+
+                            <Button
+                                android:id="@+id/account_support"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="@color/transparent"
+                                android:baselineAligned="true"
+                                android:onClick="gotoSupportPage"
+                                android:text="@string/support" />
 
                             <LinearLayout
                                 android:id="@+id/name_port"

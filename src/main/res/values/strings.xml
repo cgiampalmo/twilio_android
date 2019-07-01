@@ -994,6 +994,7 @@
     <string name="support">Support</string>
 
 
+
     <string name="end_conversation">End</string>
     <string name="end_conversation_msg">Do you want to end this chat session?\n</string> <!-- ALF AM-8 removed Note -->
     <string name="also_clear_history">Delete all messages in this chat session</string>
