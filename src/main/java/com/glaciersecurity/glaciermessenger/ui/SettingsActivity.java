@@ -73,7 +73,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 	public static final String THEME = "theme";
 	public static final String SHOW_DYNAMIC_TAGS = "show_dynamic_tags";
 	public static final String OMEMO_SETTING = "omemo";
-	public static final String DISPLAYNAME = "displayname"; //ALF AM-48
+//	public static final String DISPLAYNAME = "displayname"; //ALF AM-48
 
 	public static final int REQUEST_CREATE_BACKUP = 0xbf8701;
 	private SettingsFragment mSettingsFragment;
@@ -99,17 +99,17 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 	@Override
 	void onBackendConnected() {
 		//CMG AM-223
-		final EditTextPreference displayNamePreference = (EditTextPreference)mSettingsFragment.findPreference("displayname");
-		if (displayNamePreference != null && xmppConnectionService != null) {
-			String disname = null;
-			if (xmppConnectionService.getAccounts() != null){
-				disname = xmppConnectionService.getAccounts().get(0).getDisplayName();
-				if (disname == null) {
-					disname = xmppConnectionService.getAccounts().get(0).getUsername();
-				}
-				displayNamePreference.setText(disname);
-			}
-		}
+//		final EditTextPreference displayNamePreference = (EditTextPreference)mSettingsFragment.findPreference("displayname");
+//		if (displayNamePreference != null && xmppConnectionService != null) {
+//			String disname = null;
+//			if (xmppConnectionService.getAccounts() != null){
+//				disname = xmppConnectionService.getAccounts().get(0).getDisplayName();
+//				if (disname == null) {
+//					disname = xmppConnectionService.getAccounts().get(0).getUsername();
+//				}
+//				displayNamePreference.setText(disname);
+//			}
+//		}
 	}
 
 	@Override
@@ -558,9 +558,9 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 			reconnectAccounts();
 		} else if (name.equals(AUTOMATIC_MESSAGE_DELETION)) {
 			xmppConnectionService.expireOldMessages(true);
-		} else if (name.equals(DISPLAYNAME)) { //ALF AM-48
-			String newname = preferences.getString(name, null);
-			changeDisplayName(newname);
+//		} else if (name.equals(DISPLAYNAME)) { //ALF AM-48
+//			String newname = preferences.getString(name, null);
+//			changeDisplayName(newname);
 		} else if (name.equals(GLOBAL_MESSAGE_TIMER)) { //ALF AM-53
 			int timer = Message.TIMER_NONE;
 			String timerStr = preferences.getString(name, null);

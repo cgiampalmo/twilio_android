@@ -41,6 +41,7 @@ public class UserPreviewAdapter extends ListAdapter<MucOptions.User, UserPreview
         viewHolder.binding.getRoot().setOnClickListener(v -> {
             final XmppActivity activity = XmppActivity.find(v);
             if (activity != null) {
+                //CMG AM-302
                 activity.switchToContactDetails(user.getContact(), null);
             }
         });

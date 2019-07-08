@@ -29,15 +29,15 @@
         <!--</Preference>-->
 
         <!-- ALF AM-48 -->
-        <EditTextPreference
-            android:key="displayname"
-            android:summary="@string/pref_display_name_description"
-            android:title="@string/pref_display_name"
-            android:persistent="true"
-            android:dialogTitle="@string/pref_display_name"
-            android:dialogMessage="@string/pref_display_name_description"
-            android:hint="@string/displayname"
-            app:hintTextAppearance="@style/TextAppearance.Conversations.Design.Hint" />
+        <!--<EditTextPreference-->
+            <!--android:key="displayname"-->
+            <!--android:summary="@string/pref_display_name_description"-->
+            <!--android:title="@string/pref_display_name"-->
+            <!--android:persistent="true"-->
+            <!--android:dialogTitle="@string/pref_display_name"-->
+            <!--android:dialogMessage="@string/pref_display_name_description"-->
+            <!--android:hint="@string/displayname"-->
+            <!--app:hintTextAppearance="@style/TextAppearance.Conversations.Design.Hint" />-->
         <!-- ALF AM-223 added hint, removed default. android:defaultValue="" /> -->
     </PreferenceCategory>
     <!--HONEYBADGER AM-120 Move the Security settings to the main settings page above Notifications section-->
