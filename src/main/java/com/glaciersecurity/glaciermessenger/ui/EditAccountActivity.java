@@ -583,11 +583,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.mEditDisplayNameButton = (ImageButton) findViewById(R.id.edit_displayname_name_button);
 		this.mDisplayName = (TextView) findViewById(R.id.displayname_text);
 		this.mDisplayName.addTextChangedListener(mTextWatcher);
+		//CMG AM-318
 		this.mEditDisplayNameButton.setOnClickListener(v -> quickEdit(this.getDisplayName(),
-				R.string.displayname,
+				R.string.pref_display_name,
 				value -> {
 					if (changeDisplayName(value)) {
-						return value;
+						return null;
 					} else {
 						return getString(R.string.invalid_muc_nick);
 					}
