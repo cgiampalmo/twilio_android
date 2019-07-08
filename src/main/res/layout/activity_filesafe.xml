@@ -22,7 +22,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:orientation="vertical">
-                
+
                 <LinearLayout
                     android:id="@+id/offline_layout"
                     android:layout_width="match_parent"

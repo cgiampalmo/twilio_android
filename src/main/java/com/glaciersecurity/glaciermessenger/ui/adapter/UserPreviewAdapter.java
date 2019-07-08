@@ -1,5 +1,6 @@
 package com.glaciersecurity.glaciermessenger.ui.adapter;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.v7.recyclerview.extensions.ListAdapter;
@@ -12,9 +13,12 @@ import android.view.ViewGroup;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.databinding.UserPreviewBinding;
 import com.glaciersecurity.glaciermessenger.entities.MucOptions;
+import com.glaciersecurity.glaciermessenger.ui.ContactDetailsActivity;
 import com.glaciersecurity.glaciermessenger.ui.XmppActivity;
 import com.glaciersecurity.glaciermessenger.ui.util.AvatarWorkerTask;
 import com.glaciersecurity.glaciermessenger.ui.util.MucDetailsContextMenuHelper;
+
+import static com.glaciersecurity.glaciermessenger.ui.XmppActivity.EXTRA_ACCOUNT;
 
 public class UserPreviewAdapter extends ListAdapter<MucOptions.User, UserPreviewAdapter.ViewHolder> implements View.OnCreateContextMenuListener {
 
@@ -37,7 +41,7 @@ public class UserPreviewAdapter extends ListAdapter<MucOptions.User, UserPreview
         viewHolder.binding.getRoot().setOnClickListener(v -> {
             final XmppActivity activity = XmppActivity.find(v);
             if (activity != null) {
-                activity.highlightInMuc(user.getConversation(), user.getName());
+                activity.switchToContactDetails(user.getContact(), null);
             }
         });
         viewHolder.binding.getRoot().setOnCreateContextMenuListener(this);

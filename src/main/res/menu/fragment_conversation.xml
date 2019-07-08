@@ -84,17 +84,17 @@
                 android:icon="?attr/ic_attach_location"/>
         </menu>
     </item>
-    <item
-        android:id="@+id/action_contact_details"
-        android:orderInCategory="40"
-        app:showAsAction="never"
-        android:title="@string/action_contact_details"/>
-    <item
-        android:id="@+id/action_muc_details"
-        android:icon="?attr/icon_group"
-        android:orderInCategory="40"
-        app:showAsAction="never"
-        android:title="@string/action_muc_details"/>
+    <!--<item-->
+        <!--android:id="@+id/action_contact_details"-->
+        <!--android:orderInCategory="40"-->
+        <!--app:showAsAction="never"-->
+        <!--android:title="@string/action_contact_details"/>-->
+    <!--<item-->
+        <!--android:id="@+id/action_muc_details"-->
+        <!--android:icon="?attr/icon_group"-->
+        <!--android:orderInCategory="40"-->
+        <!--app:showAsAction="never"-->
+        <!--android:title="@string/action_muc_details"/>-->
     <item
         android:id="@+id/action_invite"
         android:orderInCategory="45"

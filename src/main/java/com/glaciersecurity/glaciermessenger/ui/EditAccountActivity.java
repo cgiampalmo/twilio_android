@@ -1,6 +1,7 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
@@ -28,6 +29,7 @@ import android.provider.Settings;
 import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.StringRes;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.ActionBar;
@@ -37,6 +39,7 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 
 import com.amazonaws.AmazonClientException;
@@ -59,6 +62,7 @@ import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.cognito.Constants;
 import com.glaciersecurity.glaciermessenger.cognito.PropertyLoader;
 import com.glaciersecurity.glaciermessenger.cognito.Util;
+import com.glaciersecurity.glaciermessenger.databinding.DialogQuickeditBinding;
 import com.glaciersecurity.glaciermessenger.entities.LoginAccount;
 import com.glaciersecurity.glaciermessenger.entities.NetworkConnectivityStatus;
 import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
@@ -250,6 +254,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private boolean mSavedInstanceInit = false;
 	private Button mClearDevicesButton;
 	private XmppUri pendingUri = null;
+	private ImageButton mEditDisplayNameButton;
+	private TextView mDisplayName;
 	private boolean mUseTor;
 	private ActivityEditAccountBinding binding;
 
@@ -519,9 +525,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		//this.password = null;
 		//this.username = null;
 		//this.organization = null;
-        if (!Constants.hasProperties()) {
-            loadPropertiesFile();
-        }
+		if (!Constants.hasProperties()) {
+			loadPropertiesFile();
+		}
 		tempVPN = LoginAccount.getInstance();
 
 		// GOOBER COGNITO
@@ -573,6 +579,19 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.mHostname.setOnFocusChangeListener(mEditTextFocusListener);
 		this.mHostnameLayout = (TextInputLayout) findViewById(R.id.hostname_layout);
 		this.mClearDevicesButton = (Button) findViewById(R.id.clear_devices);
+		//CMG AM-
+		this.mEditDisplayNameButton = (ImageButton) findViewById(R.id.edit_displayname_name_button);
+		this.mDisplayName = (TextView) findViewById(R.id.displayname_text);
+		this.mDisplayName.addTextChangedListener(mTextWatcher);
+		this.mEditDisplayNameButton.setOnClickListener(v -> quickEdit(this.getDisplayName(),
+				R.string.displayname,
+				value -> {
+					if (changeDisplayName(value)) {
+						return value;
+					} else {
+						return getString(R.string.invalid_muc_nick);
+					}
+				},false));
 		this.mClearDevicesButton.setOnClickListener(v -> showWipePepDialog());
 		this.mPort = (EditText) findViewById(R.id.port);
 		this.mPort.setText(String.valueOf(Resolver.DEFAULT_PORT_XMPP));
@@ -612,6 +631,67 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		// GOOBER COGNITO - removed in favor of buttons
 		/* this.mCancelButton.setVisibility(View.INVISIBLE);
 		this.mSaveButton.setVisibility(View.INVISIBLE);*/
+	}
+
+	private boolean changeDisplayName(String displayname){
+
+		if (!displayname.isEmpty()){
+			for (Account account : xmppConnectionService.getAccounts()) {
+				account.setDisplayName(displayname);
+				xmppConnectionService.databaseBackend.updateAccount(account);
+				xmppConnectionService.publishDisplayName(account);
+
+			}
+			return true;
+		}
+		return false;
+	}
+
+	@SuppressLint("InflateParams")
+	private void quickEdit(final String previousValue,
+						   final OnValueEdited callback,
+						   final @StringRes int hint,
+						   boolean password,
+						   boolean permitEmpty) {
+		android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+		DialogQuickeditBinding binding = DataBindingUtil.inflate(getLayoutInflater(),R.layout.dialog_quickedit, null, false);
+		if (password) {
+			binding.inputEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+		}
+		builder.setPositiveButton(R.string.accept, null);
+		if (hint != 0) {
+			binding.inputLayout.setHint(getString(hint));
+		}
+		binding.inputEditText.requestFocus();
+		if (previousValue != null) {
+			binding.inputEditText.getText().append(previousValue);
+		}
+		builder.setView(binding.getRoot());
+		builder.setNegativeButton(R.string.cancel, null);
+		final android.support.v7.app.AlertDialog dialog = builder.create();
+		dialog.setOnShowListener(d -> SoftKeyboardUtils.showKeyboard(binding.inputEditText));
+		dialog.show();
+		View.OnClickListener clickListener = v -> {
+			String value = binding.inputEditText.getText().toString();
+			if (!value.equals(previousValue) && (!value.trim().isEmpty() || permitEmpty)) {
+				String error = callback.onValueEdited(value);
+				if (error != null) {
+					binding.inputLayout.setError(error);
+					return;
+				}
+			}
+			SoftKeyboardUtils.hideSoftKeyboard(binding.inputEditText);
+			dialog.dismiss();
+		};
+		dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(clickListener);
+		dialog.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener((v -> {
+			SoftKeyboardUtils.hideSoftKeyboard(binding.inputEditText);
+			dialog.dismiss();
+		}));
+		dialog.setCanceledOnTouchOutside(false);
+		dialog.setOnDismissListener(dialog1 -> {
+			SoftKeyboardUtils.hideSoftKeyboard(binding.inputEditText);
+		});
 	}
 
 	private void refreshAvatar() {
@@ -660,18 +740,18 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 //	}
 
 	private void loadPropertiesFile(){
-        PropertyLoader propertyLoader = new PropertyLoader(getApplicationContext());
-        Properties properties = propertyLoader.getProperties(Constants.CONFIG_PROPERTIES_FILE);
+		PropertyLoader propertyLoader = new PropertyLoader(getApplicationContext());
+		Properties properties = propertyLoader.getProperties(Constants.CONFIG_PROPERTIES_FILE);
 
-        Constants.setCognitoIdentityPoolId(properties.getProperty("COGNITO_IDENTITY_POOL_ID"));
-        Constants.setCognitoUserPoolId(properties.getProperty("COGNITO_USER_POOL_ID"));
-        Constants.setCognitoIdentityPoolId(properties.getProperty("COGNITO_IDENTITY_POOL_ID"));
-        Constants.setBucketName(properties.getProperty("BUCKET_NAME"));
-        Constants.setKeyPrefix(properties.getProperty("KEY_PREFIX"));
-        Constants.setCognitoClientSecret(properties.getProperty("COGNITO_CLIENT_SECRET"));
-        Constants.setCognitoClientId(properties.getProperty("COGNITO_CLIENT_ID"));
+		Constants.setCognitoIdentityPoolId(properties.getProperty("COGNITO_IDENTITY_POOL_ID"));
+		Constants.setCognitoUserPoolId(properties.getProperty("COGNITO_USER_POOL_ID"));
+		Constants.setCognitoIdentityPoolId(properties.getProperty("COGNITO_IDENTITY_POOL_ID"));
+		Constants.setBucketName(properties.getProperty("BUCKET_NAME"));
+		Constants.setKeyPrefix(properties.getProperty("KEY_PREFIX"));
+		Constants.setCognitoClientSecret(properties.getProperty("COGNITO_CLIENT_SECRET"));
+		Constants.setCognitoClientId(properties.getProperty("COGNITO_CLIENT_ID"));
 		Constants.setFilesafePrefix(properties.getProperty("FILESAFE_PREFIX")); //ALF AM-277
-    }
+	}
 
 	@Override
 	protected void onStart() {
@@ -701,11 +781,21 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			if (!mInitMode) {
 				this.binding.accountRegisterNew.setVisibility(View.GONE);
 				this.binding.editor.setVisibility(View.GONE); //ALF AM-206
-				configureActionBar(getSupportActionBar(), !openedFromNotification);
+				ActionBar ab = getSupportActionBar();
+				configureActionBar(ab, !openedFromNotification);
 				//HONEYBADGER AM-120 rm "using account ... "
 //				if (getSupportActionBar() != null) {
 //					getSupportActionBar().setTitle(getString(R.string.account_details));
 //				}
+				if (ab != null) {
+					ab.setTitle(R.string.my_profile);
+				}
+				if (this.mDisplayName != null){
+					mDisplayName.setText(getDisplayName());
+
+
+
+				}
 			} else {
 				this.mAvatar.setVisibility(View.GONE);
 				this.binding.acctdetails.setVisibility(View.GONE); //ALF AM-206
@@ -713,8 +803,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				if (ab != null) {
 					// GOOBER - don't show back button when in Cognito login screen
 					//if (init && Config.MAGIC_CREATE_DOMAIN == null) {
-						ab.setDisplayShowHomeEnabled(false);
-						ab.setDisplayHomeAsUpEnabled(false);
+					ab.setDisplayShowHomeEnabled(false);
+					ab.setDisplayHomeAsUpEnabled(false);
 					//}
 
 					//HONEYBADGER AM-125 remove "Messenger" Title bar
@@ -752,6 +842,24 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 	}
 
+
+
+	private String getDisplayName(){
+		if(mAccount != null){
+			String disname = null;
+			disname = mAccount.getDisplayName();
+			if (disname == null) {
+				disname = mAccount.getUsername();
+			}
+			return disname;
+
+		}
+
+		return "displayname";
+
+	}
+
+
 	@Override
 	public void onSaveInstanceState(final Bundle savedInstanceState) {
 		if (mAccount != null) {
@@ -778,6 +886,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 
 		if (mAccount != null) {
+
 			this.mInitMode |= this.mAccount.isOptionSet(Account.OPTION_REGISTER);
 			this.mUsernameMode |= mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE) && mAccount.isOptionSet(Account.OPTION_REGISTER);
 			if (this.mAccount.getPrivateKeyAlias() != null) {
@@ -871,9 +980,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		return super.onOptionsItemSelected(item);
 	}
 
-    private boolean inNeedOfSaslAccept() {
-        return mAccount != null && mAccount.getLastErrorStatus() == Account.State.DOWNGRADE_ATTACK && mAccount.getKeyAsInt(Account.PINNED_MECHANISM_KEY, -1) >= 0 && !accountInfoEdited();
-    }
+	private boolean inNeedOfSaslAccept() {
+		return mAccount != null && mAccount.getLastErrorStatus() == Account.State.DOWNGRADE_ATTACK && mAccount.getKeyAsInt(Account.PINNED_MECHANISM_KEY, -1) >= 0 && !accountInfoEdited();
+	}
 
 //	private void shareBarcode() {
 //		Intent intent = new Intent(Intent.ACTION_SEND);
@@ -1025,14 +1134,14 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 		}
 
-        final boolean editable = !mAccount.isOptionSet(Account.OPTION_LOGGED_IN_SUCCESSFULLY) && QuickConversationsService.isConversations();
-        this.binding.accountJid.setEnabled(editable);
-        this.binding.accountJid.setFocusable(editable);
-        this.binding.accountJid.setFocusableInTouchMode(editable);
-        this.binding.accountJid.setCursorVisible(editable);
+		final boolean editable = !mAccount.isOptionSet(Account.OPTION_LOGGED_IN_SUCCESSFULLY) && QuickConversationsService.isConversations();
+		this.binding.accountJid.setEnabled(editable);
+		this.binding.accountJid.setFocusable(editable);
+		this.binding.accountJid.setFocusableInTouchMode(editable);
+		this.binding.accountJid.setCursorVisible(editable);
 
-        //final String displayName = mAccount.getDisplayName();
-        //updateDisplayName(displayName);
+		//final String displayName = mAccount.getDisplayName();
+		//updateDisplayName(displayName);
 
 		if (mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE) || !mAccount.isOptionSet(Account.OPTION_LOGGED_IN_SUCCESSFULLY)) {
 			this.binding.accountPasswordLayout.setPasswordVisibilityToggleEnabled(true);
@@ -1044,6 +1153,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			this.binding.editor.setVisibility(View.GONE);
 			this.binding.acctdetails.setVisibility(VISIBLE); //ALF AM-206
 			this.mAvatar.setImageBitmap(avatarService().get(this.mAccount, (int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
+			this.mDisplayName.setText(getDisplayName());
+
 		} else {
 			this.binding.acctdetails.setVisibility(View.GONE); //ALF AM-206
 		}
@@ -1421,7 +1532,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	/**
 	 * *********** GOOBER COGNITO MODIFICATIONS **************
- 	 */
+	 */
 	/**
 	 * GOOBER COGNITO - gather login info and report any errors
 	 *
@@ -1448,12 +1559,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				// showDialogMessage("Login", "Username cannot be empty.");
 				mAccountJidLayout.setError("Username cannot be blank");
 				mAccountJidLayout.requestFocus();
-			//} else if (password.trim().length() == 0) {
+				//} else if (password.trim().length() == 0) {
 			} else if (tempVPN.getLogPassword().trim().length() == 0) {
 				// showDialogMessage("Login", "Password cannot be empty.");
 				mPassword.setError("Password cannot be blank");
 				mPassword.requestFocus();
-			//} else if (organization.trim().length() == 0) {
+				//} else if (organization.trim().length() == 0) {
 			} else if (tempVPN.getLogOrgID().trim().length() == 0) {
 				// showDialogMessage("Login", "Organization cannot be empty.");
 				mOrgID.setError("Org ID cannot be blank");
@@ -2533,13 +2644,13 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			//mAccount = xmppConnectionService.getExistingAccount(jid.asBareJid().toEscapedString());
 			//boolean newAccount = false;
 			//if (mAccount == null) {
-				mAccount = new Account(jid.asBareJid(), password);
-				mAccount.setPort(numericPort);
-				mAccount.setHostname(hostname);
-				mAccount.setOption(Account.OPTION_USETLS, true);
-				mAccount.setOption(Account.OPTION_USECOMPRESSION, true);
-				mAccount.setOption(Account.OPTION_REGISTER, registerNewAccount);
-				//newAccount = true;
+			mAccount = new Account(jid.asBareJid(), password);
+			mAccount.setPort(numericPort);
+			mAccount.setHostname(hostname);
+			mAccount.setOption(Account.OPTION_USETLS, true);
+			mAccount.setOption(Account.OPTION_USECOMPRESSION, true);
+			mAccount.setOption(Account.OPTION_REGISTER, registerNewAccount);
+			//newAccount = true;
 			//}
 			xmppConnectionService.createAccount(mAccount, true);
 		}
@@ -2558,7 +2669,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	/**
 	 * *********** GOOBER CORE MODIFICATIONS **************
- 	 */
+	 */
 
 	/**
 	 * GOOBER COGNITO - Return profile from OpenVPNProfileDialog where the user selects the profile

@@ -58,6 +58,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.widget.EditText; //ALF AM-75
+import android.widget.Toolbar;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -232,6 +233,21 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 
 	//ALF AM-51
 	private String lastGroupRemoved = null;
+
+	private OnClickListener clickToContactDetails = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+            if (conversation.getMode() == Conversation.MODE_MULTI) {
+                Intent intent = new Intent(getActivity(), ConferenceDetailsActivity.class);
+                intent.setAction(ConferenceDetailsActivity.ACTION_VIEW_MUC);
+                intent.putExtra("uuid", conversation.getUuid());
+                startActivity(intent);
+            } else {
+                activity.switchToContactDetails(conversation.getContact());
+            }
+		}
+	};
 
 	private OnClickListener clickToMuc = new OnClickListener() {
 
@@ -1016,14 +1032,15 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		getActivity().findViewById(R.id.toolbar).setOnClickListener(clickToContactDetails);
 		setHasOptionsMenu(true);
 	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
 		menuInflater.inflate(R.menu.fragment_conversation, menu);
-		final MenuItem menuMucDetails = menu.findItem(R.id.action_muc_details);
-		final MenuItem menuContactDetails = menu.findItem(R.id.action_contact_details);
+//		final MenuItem menuMucDetails = menu.findItem(R.id.action_muc_details);
+//		final MenuItem menuContactDetails = menu.findItem(R.id.action_contact_details);
 		final MenuItem menuInviteContact = menu.findItem(R.id.action_invite);
 		final MenuItem menuMute = menu.findItem(R.id.action_mute);
 		final MenuItem menuUnmute = menu.findItem(R.id.action_unmute);
@@ -1049,19 +1066,19 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			if (conversation.getMode() == Conversation.MODE_MULTI) {
 				//menuPhoneCall.setVisible(false);
 				disappearingMessages.setVisible(false);
-				menuContactDetails.setVisible(false);
+				//menuContactDetails.setVisible(false);
 				menuInviteContact.setVisible(conversation.getMucOptions().canInvite());
 				//CMG AM-218
 				statusIcon.setVisible(false);
 				//menuConversationTimer.setVisible(false); //ALF AM-53
 				menuLeaveGroup.setVisible(true); //ALF AM-122 (and next line)
 				menuEndConversation.setVisible(false);
-				menuMucDetails.setTitle(conversation.getMucOptions().isPrivateAndNonAnonymous() ? R.string.action_muc_details : R.string.channel_details);
+				//menuMucDetails.setTitle(conversation.getMucOptions().isPrivateAndNonAnonymous() ? R.string.action_muc_details : R.string.channel_details);
 			} else {
 				//menuPhoneCall.setVisible(true);
 				disappearingMessages.setVisible(true);
-				menuContactDetails.setVisible(!this.conversation.withSelf());
-				menuMucDetails.setVisible(false);
+//				menuContactDetails.setVisible(!this.conversation.withSelf());
+//				menuMucDetails.setVisible(false);
 				final XmppConnectionService service = activity.xmppConnectionService;
 				menuInviteContact.setVisible(service != null && service.findConferenceServer(conversation.getAccount()) != null);
 				//CMG AM-218
@@ -1347,15 +1364,15 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			case R.id.action_leave_group:  //ALF AM-122
 				this.endConversationDialog(conversation);
 				break;
-			case R.id.action_contact_details:
-				activity.switchToContactDetails(conversation.getContact());
-				break;
-			case R.id.action_muc_details:
-				Intent intent = new Intent(getActivity(), ConferenceDetailsActivity.class);
-				intent.setAction(ConferenceDetailsActivity.ACTION_VIEW_MUC);
-				intent.putExtra("uuid", conversation.getUuid());
-				startActivity(intent);
-				break;
+//			case R.id.action_contact_details:
+//				activity.switchToContactDetails(conversation.getContact());
+//				break;
+//			case R.id.action_muc_details:
+//				Intent intent = new Intent(getActivity(), ConferenceDetailsActivity.class);
+//				intent.setAction(ConferenceDetailsActivity.ACTION_VIEW_MUC);
+//				intent.putExtra("uuid", conversation.getUuid());
+//				startActivity(intent);
+//				break;
 			case R.id.action_invite:
 				//ALF AM-75 added if for 1:1
 				if (conversation.getMode() == Conversation.MODE_SINGLE) {

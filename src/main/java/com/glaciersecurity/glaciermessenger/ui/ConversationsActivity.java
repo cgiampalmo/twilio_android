@@ -501,8 +501,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				@Override
 				public void onClick(final View view) {
 					if (mAccount != null) {
-						final Intent intent = new Intent(getApplicationContext(), PublishProfilePictureActivity.class);
-						intent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().asBareJid().toString());
+						Intent intent = new Intent(getApplicationContext(), EditAccountActivity.class);
+						intent.putExtra("jid", mAccount.getJid().asBareJid().toString());
 						startActivity(intent);
 					}
 					drawer.closeDrawer(GravityCompat.START);
