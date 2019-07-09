@@ -79,7 +79,7 @@
                                     android:layout_gravity="center"
                                     android:paddingLeft="@dimen/card_padding_regular"
                                     android:adjustViewBounds="true"
-                                    android:src="@drawable/led_connected" />
+                                    app:srcCompat="@drawable/ic_green" />
                             </LinearLayout>
 
                             <!--<TextView-->

@@ -7,7 +7,7 @@
         android:id="@+id/contact_status_icon"
         android:orderInCategory="20"
         android:title="@string/status_message"
-        android:icon="@drawable/led_connected"
+        app:srcCompat="@drawable/ic_green"
         android:visible="true"
         app:showAsAction="always"></item>
     <item

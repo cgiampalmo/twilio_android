@@ -327,27 +327,27 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
 //        }
         switch (contact.getShownStatus()) {
             case CHAT:
-                statusIcon.setImageResource(R.drawable.led_connected);
+                statusIcon.setImageResource(R.drawable.ic_green);
                 statusText.setText(R.string.presence_online);
                 break;
             case AWAY:
-                statusIcon.setImageResource(R.drawable.led_inprogress);
+                statusIcon.setImageResource(R.drawable.ic_orange);
                 statusText.setText(R.string.presence_away);
                 break;
             case XA:
-                statusIcon.setImageResource(R.drawable.led_inprogress);
+                statusIcon.setImageResource(R.drawable.ic_orange);
                 statusText.setText(R.string.presence_xa);
                 break;
             case OFFLINE:
-                statusIcon.setImageResource(R.drawable.led_disconnected);
+                statusIcon.setImageResource(R.drawable.ic_grey);
                 statusText.setText(R.string.presence_xa);
                 break;
             case DND:
-                statusIcon.setImageResource(R.drawable.led_error);
+                statusIcon.setImageResource(R.drawable.ic_red);
                 statusText.setText(R.string.presence_dnd);
                 break;
             default:
-                statusIcon.setImageResource(R.drawable.led_connected);
+                statusIcon.setImageResource(R.drawable.ic_green);
                 statusText.setText(R.string.presence_online);
                 break;
 

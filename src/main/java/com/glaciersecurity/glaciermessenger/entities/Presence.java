@@ -27,7 +27,7 @@ public class Presence implements Comparable {
 			switch(this) {
 				case ONLINE: return "Online";
 				case AWAY: return "Away";
-				case DND:  return "Dnd";
+				case DND:  return "Do Not Disturb";
 				case XA:   return "Offline";
 				case OFFLINE: return "Offline";
 				case CHAT: return "Online";
@@ -39,19 +39,19 @@ public class Presence implements Comparable {
 		public int getStatusIcon() {
 			switch (this) {
 				case ONLINE:
-					return R.drawable.led_connected;
+					return R.drawable.ic_green;
 				case CHAT:
-					return R.drawable.led_connected;
+					return R.drawable.ic_green;
 				case AWAY:
-					return R.drawable.led_inprogress;
+					return R.drawable.ic_orange;
 				case OFFLINE:
-					return R.drawable.led_disconnected;
+					return R.drawable.ic_grey;
 				case XA:
-					return R.drawable.led_disconnected;
+					return R.drawable.ic_grey;
 				case DND:
-					return R.drawable.led_error;
+					return R.drawable.ic_red;
 				default:
-					return R.drawable.led_connected;
+					return R.drawable.ic_green;
 			}
 
 		}
@@ -91,10 +91,10 @@ public class Presence implements Comparable {
 
 		public String toShowString() {
 			switch(this) {
-				case IN_MEETING: return "In a meeting \t\t" + getEmojiByUnicode(meetingIcon);
-				case ON_TRAVEL: return "On travel \t\t" + getEmojiByUnicode(travelIcon);
-				case OUT_SICK:   return "Out sick \t\t" + getEmojiByUnicode(sickIcon);
-				case VACATION:  return "Vacation \t\t"+ getEmojiByUnicode(vacationIcon);
+				case IN_MEETING: return getEmojiByUnicode(meetingIcon)+"\tIn a meeting";
+				case ON_TRAVEL: return getEmojiByUnicode(travelIcon)+"\tOn travel";
+				case OUT_SICK:   return  getEmojiByUnicode(sickIcon)+"\tOut sick";
+				case VACATION:  return getEmojiByUnicode(vacationIcon)+ "\tVacation" ;
 			}
 			return "";
 		}

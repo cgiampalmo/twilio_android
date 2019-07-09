@@ -592,12 +592,12 @@
     <string name="presence_online">Available</string>
     <string name="presence_away">Away</string>
     <string name="presence_xa">Offline</string>
-    <string name="presence_dnd">DND</string>
+    <string name="presence_dnd">Do Not Disturb</string>
     <string name="clear_status">Clear</string>
-    <string name="in_meeting">In a meeting \t &#128197;</string>
-    <string name="on_travel">On travel \t &#128747;</string>
-    <string name="out_sick">Out sick \t &#129298;</string>
-    <string name="vacation">Vacation \t &#127796;</string>
+    <string name="in_meeting">&#128197;\tIn a meeting</string>
+    <string name="on_travel">&#128747;\tOn travel</string>
+    <string name="out_sick">&#129298;\tOut sick</string>
+    <string name="vacation">&#127796;\tVacation</string>
     <string name="set_a_status_message">Set a status</string>
     <string name="secure_password_generated">A secure password has been generated</string>
     <string name="device_does_not_support_battery_op">Your device does not support opting out of battery optimization</string>

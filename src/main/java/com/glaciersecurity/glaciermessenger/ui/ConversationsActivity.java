@@ -481,7 +481,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					avatar.setOnClickListener(mAvatarClickListener);
 
 					avatar.setImageBitmap(avatarService().get(mAccount, (int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
-					TextView name = findViewById(R.id.nav_name);
+					Button name = findViewById(R.id.nav_name);
+					name.setOnClickListener(mAvatarClickListener);
 					name.setText(mAccount.getUsername());
 
 					Button status_text = (Button) findViewById(R.id.nav_status_text);
@@ -489,7 +490,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					status_text.setOnClickListener(mPresenceClickListener);
 					status_text.setText(mAccount.getPresenceStatus().toDisplayString());
 					status_icon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
-					TextView status_message = (TextView) findViewById(R.id.nav_status_message);
+					Button status_message = (Button) findViewById(R.id.nav_status_message);
+					status_message.setOnClickListener(mPresenceClickListener);
 					String presenceStatusMessage = mAccount.getPresenceStatusMessage();
 					if (presenceStatusMessage != null) {
 						status_message.setText(presenceStatusMessage);
