@@ -325,6 +325,15 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		if (fragment instanceof XmppFragment) {
 			((XmppFragment) fragment).refresh();
 		}
+		//CMG AM-296
+		if (fragment instanceof ConversationFragment) {
+			final Conversation conversation = ((ConversationFragment) fragment).getConversation();
+			if (conversation != null) {
+				if (conversation.getMode() != Conversation.MODE_MULTI) {
+					show1v1ChatToolbar(conversation);
+				}
+			}
+		}
 	}
 
 	private boolean processViewIntent(Intent intent) {
@@ -394,6 +403,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 		}
 	}
+
 
 	private void handlePositiveActivityResult(int requestCode, final Intent data) {
 		Conversation conversation = ConversationFragment.getConversationReliable(this);
@@ -1412,6 +1422,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	public void onRosterUpdate() {
 		this.refreshUi();
 	}
+
 
 	@Override
 	public void OnUpdateBlocklist(OnUpdateBlocklist.Status status) {
