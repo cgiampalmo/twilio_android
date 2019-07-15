@@ -56,6 +56,26 @@ public class Presence implements Comparable {
 
 		}
 
+		public int getStatusIconMenu() {
+			switch (this) {
+				case ONLINE:
+					return R.drawable.ic_green_small;
+				case CHAT:
+					return R.drawable.ic_green_small;
+				case AWAY:
+					return R.drawable.ic_orange_small;
+				case OFFLINE:
+					return R.drawable.ic_grey_small;
+				case XA:
+					return R.drawable.ic_grey_small;
+				case DND:
+					return R.drawable.ic_red_small;
+				default:
+					return R.drawable.ic_green_small;
+			}
+
+		}
+
 		public static Status fromShowString(String show) {
 			if (show == null) {
 				return ONLINE;

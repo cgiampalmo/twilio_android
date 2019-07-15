@@ -16,7 +16,7 @@
         android:layout_gravity="left|center_vertical"
         android:adjustViewBounds="true"
         android:layout_marginRight="@dimen/input_label_vertical_spacing"
-        app:srcCompat="@drawable/ic_green" />
+        app:srcCompat="@drawable/ic_green_small" />
 
 
     <ImageButton

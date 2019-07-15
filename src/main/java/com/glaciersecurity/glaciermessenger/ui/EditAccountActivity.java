@@ -587,6 +587,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.mEditDisplayNameButton.setOnClickListener(v -> quickEdit(this.getDisplayName(),
 				R.string.pref_display_name,
 				value -> {
+					mDisplayName.setSelectAllOnFocus(true);
+					mDisplayName.requestFocus();
 					if (changeDisplayName(value)) {
 						return null;
 					} else {
@@ -791,6 +793,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				if (ab != null) {
 					ab.setTitle(R.string.my_profile);
 				}
+				this.binding.displayname.setVisibility(VISIBLE); //CMG AM-323
+
 				if (this.mDisplayName != null){
 					mDisplayName.setText(getDisplayName());
 
@@ -798,6 +802,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 				}
 			} else {
+				this.binding.displayname.setVisibility(View.GONE); //CMG AM-323
 				this.mAvatar.setVisibility(View.GONE);
 				this.binding.acctdetails.setVisibility(View.GONE); //ALF AM-206
 				ActionBar ab = getSupportActionBar();

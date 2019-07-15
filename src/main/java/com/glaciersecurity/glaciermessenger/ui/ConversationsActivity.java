@@ -684,7 +684,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	//CMG AM-286
 	protected void show1v1ChatToolbar(Conversation conversation){
 		Presence.Status s =conversation.getContact().getShownStatus();
-		statusIcon.setImageResource(s.getStatusIcon());
+		statusIcon.setImageResource(s.getStatusIconMenu());
 		statusIcon.setVisibility(View.VISIBLE);
 		downArrow.setVisibility(View.VISIBLE);
 	}
