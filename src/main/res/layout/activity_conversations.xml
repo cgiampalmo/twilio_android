@@ -34,8 +34,8 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <include android:id="@+id/toolbar"
-            layout="@layout/toolbar" />
+        <include android:id="@+id/toolbar_with_icon_status"
+            layout="@layout/toolbar_with_icon_status" />
 
         <FrameLayout
             android:id="@+id/main_fragment"

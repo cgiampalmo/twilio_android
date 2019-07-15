@@ -51,6 +51,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
@@ -1032,7 +1033,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		getActivity().findViewById(R.id.toolbar).setOnClickListener(clickToContactDetails);
+		getActivity().findViewById(R.id.toolbar_with_icon_status).setOnClickListener(clickToContactDetails);
 		setHasOptionsMenu(true);
 	}
 
@@ -1044,7 +1045,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		final MenuItem menuInviteContact = menu.findItem(R.id.action_invite);
 		final MenuItem menuMute = menu.findItem(R.id.action_mute);
 		final MenuItem menuUnmute = menu.findItem(R.id.action_unmute);
-		final MenuItem statusIcon = menu.findItem(R.id.contact_status_icon);
 
 //		//ALF AM-53
 //		final MenuItem menuConversationTimer = menu.findItem(R.id.action_conversation_timer);
@@ -1068,8 +1068,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				disappearingMessages.setVisible(false);
 				//menuContactDetails.setVisible(false);
 				menuInviteContact.setVisible(conversation.getMucOptions().canInvite());
-				//CMG AM-218
-				statusIcon.setVisible(false);
 				//menuConversationTimer.setVisible(false); //ALF AM-53
 				menuLeaveGroup.setVisible(true); //ALF AM-122 (and next line)
 				menuEndConversation.setVisible(false);
@@ -1081,9 +1079,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 //				menuMucDetails.setVisible(false);
 				final XmppConnectionService service = activity.xmppConnectionService;
 				menuInviteContact.setVisible(service != null && service.findConferenceServer(conversation.getAccount()) != null);
-				//CMG AM-218
-				statusIcon.setVisible(true);
-				setStatusIcon(statusIcon);
 				//menuConversationTimer.setVisible(true); //ALF AM-53
 				menuLeaveGroup.setVisible(false); //ALF AM-122 (and next line)
 				menuEndConversation.setVisible(true);
@@ -1100,12 +1095,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		super.onCreateOptionsMenu(menu, menuInflater);
 	}
 
-	//CMG AM-218
-	private void setStatusIcon(MenuItem statusIcon) {
-		Contact c =conversation.getContact();
-		Presence.Status s =c.getShownStatus();
-		statusIcon.setIcon(s.getStatusIcon());
-	}
 
 
 	@Override
@@ -1187,6 +1176,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			populateContextMenu(menu);
 		}
 	}
+
 
 	private void populateContextMenu(ContextMenu menu) {
 		final Message m = this.selectedMessage;
@@ -3121,6 +3111,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			handleActivityResult(activityResult);
 		}
 		clearPending();
+
 	}
 
 	private boolean findAndReInitByUuidOrArchive(@NonNull final String uuid) {

@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-            <include layout="@layout/toolbar" />
+            <include layout="@layout/toolbar_with_icon_status" />
 
         </android.support.design.widget.AppBarLayout>
 

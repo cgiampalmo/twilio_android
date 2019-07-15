@@ -48,6 +48,7 @@ import android.databinding.DataBindingUtil;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -63,6 +64,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -88,6 +90,7 @@ import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.databinding.ActivityConversationsBinding;
 import com.glaciersecurity.glaciermessenger.databinding.DialogPresenceBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
+import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.Presence;
 import com.glaciersecurity.glaciermessenger.entities.PresenceTemplate;
@@ -426,6 +429,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	ActionBar actionBar;
 	Toolbar toolbar;
+	ImageButton statusIcon;
+	ImageButton downArrow;
 	DrawerLayout drawer;
 	NavigationView nav_view;
 
@@ -435,7 +440,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		ConversationMenuConfigurator.reloadFeatures(this);
 		OmemoSetting.load(this);
 		this.binding = DataBindingUtil.setContentView(this, R.layout.activity_conversations);
-		setSupportActionBar((Toolbar) binding.toolbar);
+		setSupportActionBar((Toolbar) binding.toolbarWithIconStatus);
 		configureActionBar(getSupportActionBar());
 		this.getFragmentManager().addOnBackStackChangedListener(this::invalidateActionBarTitle);
 		this.getFragmentManager().addOnBackStackChangedListener(this::showDialogsIfMainIsOverview);
@@ -459,8 +464,12 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	}
 
 	private void initToolbar() {
-		toolbar = (Toolbar) findViewById(R.id.toolbar);
+		toolbar = (Toolbar) findViewById(R.id.toolbar_with_icon_status);
 		setSupportActionBar(toolbar);
+		statusIcon = (ImageButton) findViewById(R.id.contact_status_icon);
+		downArrow = (ImageButton) findViewById(R.id.down_arrow);
+		statusIcon.setVisibility(View.GONE);
+		downArrow.setVisibility(View.GONE);
 		actionBar = getSupportActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setHomeButtonEnabled(true);
@@ -662,6 +671,30 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	}
 
 
+	//CMG AM-286
+	protected void show1v1ChatToolbar(Conversation conversation){
+		Presence.Status s =conversation.getContact().getShownStatus();
+		statusIcon.setImageResource(s.getStatusIcon());
+		statusIcon.setVisibility(View.VISIBLE);
+		downArrow.setVisibility(View.VISIBLE);
+	}
+
+	//CMG AM-286
+	protected void showGroupToolbar(){
+		statusIcon.setVisibility(View.GONE);
+		downArrow.setVisibility(View.VISIBLE);
+	}
+
+	//CMG AM-286
+	protected void hideStatusToolbar(){
+		if(statusIcon != null) {
+			statusIcon.setVisibility(View.GONE);
+		}
+		if (downArrow != null) {
+			downArrow.setVisibility(View.GONE);
+		}
+	}
+
 	private void onItemNavigationClicked(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.Core: {
@@ -670,6 +703,14 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				break;
 			}
 			case R.id.Chats: {
+				FragmentManager fm = getFragmentManager();
+				if (fm.getBackStackEntryCount() > 0) {
+					try {
+						fm.popBackStack();
+					} catch (IllegalStateException e) {
+						Log.w(Config.LOGTAG,"Unable to pop back stack after pressing home button");
+					}
+				}
 				Intent chatsActivity = new Intent(getApplicationContext(), ConversationsActivity.class);
 				startActivity(chatsActivity);
 				break;
@@ -1284,6 +1325,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					//HONEYBADGER AM-120 leading # if group
 					if (conversation.getMode() == Conversation.MODE_MULTI) {
 						actionBar.setTitle(EmojiWrapper.transform("#"+conversation.getName()));
+						//CMG AM-286
+						showGroupToolbar();
+					} else {
+						//CMG AM-286
+						show1v1ChatToolbar(conversation);
 					}
 					actionBar.setDisplayHomeAsUpEnabled(true);
 					return;
@@ -1291,6 +1337,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			}
 			actionBar.setTitle(R.string.app_name);
 			actionBar.setDisplayHomeAsUpEnabled(true);
+			//CMG AM-286
+			hideStatusToolbar();
 		}
 	}
 
@@ -1325,6 +1373,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		Fragment fragment = getFragmentManager().findFragmentById(R.id.main_fragment);
 		if (fragment instanceof ConversationsOverviewFragment) {
 			((ConversationsOverviewFragment) fragment).refresh();
+
 		}
 	}
 

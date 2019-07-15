@@ -36,5 +36,5 @@
         android:icon="?attr/icon_search"
         android:title="@string/search"
         app:actionLayout="@layout/actionview_search"
-        app:showAsAction="never"/>
+        app:showAsAction="always"/>
 </menu>

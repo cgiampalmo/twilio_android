@@ -207,6 +207,11 @@ public abstract class XmppActivity extends PinActivity {
 			mRefreshUiHandler.removeCallbacks(mRefreshUiRunnable);
 			mRefreshUiHandler.postDelayed(mRefreshUiRunnable, next);
 		}
+		try{
+			invalidateOptionsMenu();
+		}catch(Exception e){
+
+		}
 	}
 
 	abstract protected void refreshUiReal();
