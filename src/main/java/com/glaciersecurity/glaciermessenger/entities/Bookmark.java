@@ -186,4 +186,15 @@ public class Bookmark extends Element implements ListItem {
 	public int getAvatarBackgroundColor() {
 		return UIHelper.getColorForName(jid != null ? jid.asBareJid().toString() : getDisplayName());
 	}
+
+	@Override
+	public Presence.Status getShownStatus(){
+		return null;
+	}
+
+	@Override
+	public String getShownStatusMessage(){
+		return "";
+	}
+
 }

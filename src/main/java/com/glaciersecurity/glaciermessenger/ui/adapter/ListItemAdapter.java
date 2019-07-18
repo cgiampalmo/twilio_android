@@ -13,9 +13,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.glaciersecurity.glaciermessenger.entities.Bookmark;
+import com.glaciersecurity.glaciermessenger.entities.Contact;
+import com.glaciersecurity.glaciermessenger.entities.Presence;
 import com.glaciersecurity.glaciermessenger.ui.util.AvatarWorkerTask;
 import com.glaciersecurity.glaciermessenger.ui.util.StyledAttributes;
 import com.wefika.flowlayout.FlowLayout;
@@ -97,6 +102,11 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 //			viewHolder.jid.setVisibility(View.GONE);
 		}
 		viewHolder.name.setText(EmojiWrapper.transform(item.getDisplayName()));
+		if (item instanceof Contact) {
+			//CMG AM-301
+			viewHolder.status.setImageResource(item.getShownStatus().getStatusIconMenu());
+			viewHolder.statusMessage.setText(item.getShownStatusMessage());
+		}
 		AvatarWorkerTask.loadAvatar(item, viewHolder.avatar, R.dimen.avatar);
 		return view;
 	}
@@ -113,6 +123,8 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		private TextView name;
 		//private TextView jid;
 		private ImageView avatar;
+		private ImageButton status;
+		private TextView statusMessage;
 		private FlowLayout tags;
 
 		private ViewHolder() {
@@ -122,6 +134,8 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		public static ViewHolder get(ContactBinding binding) {
 			ViewHolder viewHolder = new ViewHolder();
 			viewHolder.name = binding.contactDisplayName;
+			viewHolder.status = binding.contactStatusIcon;
+			viewHolder.statusMessage = binding.contactStatusMessage;
 //			viewHolder.jid = binding.contactJid;
 			viewHolder.avatar = binding.contactPhoto;
 			viewHolder.tags = binding.tags;

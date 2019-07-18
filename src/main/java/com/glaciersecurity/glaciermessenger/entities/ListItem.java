@@ -33,5 +33,9 @@ public interface ListItem extends Comparable<ListItem>, AvatarService.Avatarable
 		}
 	}
 
+	Presence.Status getShownStatus();
+
+	String getShownStatusMessage();
+
 	boolean match(Context context, final String needle);
 }

@@ -108,6 +108,7 @@ public class Presence implements Comparable {
 		public final static int travelIcon = 0x1F6EB;
 		public final static int sickIcon = 0x1F912;
 		public final static int vacationIcon = 0x1F334;
+		public final static int customIcon = 0x1F4AC;
 
 		public String toShowString() {
 			switch(this) {
@@ -115,6 +116,17 @@ public class Presence implements Comparable {
 				case ON_TRAVEL: return getEmojiByUnicode(travelIcon)+"\tOn travel";
 				case OUT_SICK:   return  getEmojiByUnicode(sickIcon)+"\tOut sick";
 				case VACATION:  return getEmojiByUnicode(vacationIcon)+ "\tVacation" ;
+			}
+			return "";
+		}
+
+		public String toShowIcon() {
+			switch(this) {
+				case IN_MEETING: return getEmojiByUnicode(meetingIcon);
+				case ON_TRAVEL: return getEmojiByUnicode(travelIcon);
+				case OUT_SICK:   return  getEmojiByUnicode(sickIcon);
+				case VACATION:  return getEmojiByUnicode(vacationIcon);
+				case CUSTOM: return getEmojiByUnicode(customIcon);
 			}
 			return "";
 		}
