@@ -102,7 +102,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
     };
     private Jid accountJid;
     private Jid contactJid;
-    private boolean showDynamicTags = true;
+    private boolean showDynamicTags = false;
     private boolean showLastSeen = false;
     private boolean showInactiveOmemo = false;
     private String messageFingerprint;

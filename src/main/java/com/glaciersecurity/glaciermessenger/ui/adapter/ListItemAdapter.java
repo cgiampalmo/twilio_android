@@ -45,7 +45,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 	private boolean showDynamicTags = false;
 	private OnTagClickedListener mOnTagClickedListener = null;
 	private View.OnClickListener onTagTvClick = view -> {
-		if (view instanceof TextView && mOnTagClickedListener != null) {
+		if (view instanceof TextView && mOnTagClickedListener != null){
 			TextView tv = (TextView) view;
 			final String tag = tv.getText().toString();
 			mOnTagClickedListener.onTagClicked(tag);
@@ -123,6 +123,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		private TextView name;
 		//private TextView jid;
 		private ImageView avatar;
+		//CMG AM-301
 		private ImageButton status;
 		private TextView statusMessage;
 		private FlowLayout tags;
@@ -134,6 +135,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		public static ViewHolder get(ContactBinding binding) {
 			ViewHolder viewHolder = new ViewHolder();
 			viewHolder.name = binding.contactDisplayName;
+			//CMG AM-301
 			viewHolder.status = binding.contactStatusIcon;
 			viewHolder.statusMessage = binding.contactStatusMessage;
 //			viewHolder.jid = binding.contactJid;
