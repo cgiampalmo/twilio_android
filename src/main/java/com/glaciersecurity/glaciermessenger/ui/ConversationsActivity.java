@@ -507,6 +507,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					Button status_text = (Button) findViewById(R.id.nav_status_text);
 					ImageView status_icon = (ImageView) findViewById(R.id.nav_status_icon);
 					status_text.setOnClickListener(mPresenceClickListener);
+					if (ConnectivityReceiver.isConnected(getApplicationContext())) {
+						status_text.setText(mAccount.getPresenceStatus().toDisplayString());
+						status_icon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
+					} else {
+						status_text.setText(Presence.Status.OFFLINE.toDisplayString());
+						status_icon.setImageResource(Presence.Status.OFFLINE.getStatusIcon());
+					}
 					status_text.setText(mAccount.getPresenceStatus().toDisplayString());
 					status_icon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
 					Button status_message = (Button) findViewById(R.id.nav_status_message);
@@ -1226,9 +1233,12 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	//CMG AM-41
 	@Override
 	public void onNetworkConnectionChanged(boolean isConnected) {
+		updateStatusIcon(isConnected);
 		if (conversationFragment != null){
 			if (isConnected) {
 				conversationFragment.onConnected();
+
+
 			} else {
 				conversationFragment.onDisconnected();
 			}
@@ -1286,6 +1296,20 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		}
 	}
 
+
+	private void updateStatusIcon(boolean isConnected){
+		if (this.drawer.isDrawerOpen(GravityCompat.START)){
+			Button status_text = (Button) findViewById(R.id.nav_status_text);
+			ImageView status_icon = (ImageView) findViewById(R.id.nav_status_icon);
+			if (ConnectivityReceiver.isConnected(getApplicationContext())) {
+				status_text.setText(mAccount.getPresenceStatus().toDisplayString());
+				status_icon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
+			} else {
+				status_text.setText(Presence.Status.OFFLINE.toDisplayString());
+				status_icon.setImageResource(Presence.Status.OFFLINE.getStatusIcon());
+			}
+		}
+	}
 	private void initializeFragments() {
 		FragmentTransaction transaction = getFragmentManager().beginTransaction();
 		Fragment mainFragment = getFragmentManager().findFragmentById(R.id.main_fragment);

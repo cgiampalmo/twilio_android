@@ -21,7 +21,7 @@
     <string name="picture_compression">always</string>
     <string name="theme">dark</string>
     <bool name="use_green_background">false</bool>
-    <bool name="send_button_status">true</bool>
+    <bool name="send_button_status">false</bool>
     <string name="quick_action">recent</string>
     <bool name="show_dynamic_tags">false</bool>
     <bool name="btbv">true</bool>
@@ -31,7 +31,7 @@
     <bool name="use_tor">false</bool>
     <bool name="show_connection_options">false</bool>
     <bool name="display_enter_key">false</bool>
-    <bool name="manually_change_presence">false</bool>
+    <bool name="manually_change_presence">true</bool> <!-- CMG AM-218 -->
     <bool name="away_when_screen_off">false</bool>
     <bool name="autojoin">true</bool>
     <bool name="indicate_received">true</bool>
