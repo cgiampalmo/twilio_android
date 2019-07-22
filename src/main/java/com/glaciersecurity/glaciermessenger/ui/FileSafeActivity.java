@@ -109,6 +109,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
         loadPropertiesFile();
 
         connectivityReceiver = new ConnectivityReceiver(this);
+        updateOfflineStatusBar();
         checkNetworkStatus();
     }
 
@@ -205,11 +206,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
     }
     // CMG AM-41
     private void checkNetworkStatus() {
-        if (ConnectivityReceiver.isConnected(this)){
-            onConnected();
-        }else{
-            onDisconnected();
-        }
+        updateOfflineStatusBar();
     }
 
 
@@ -222,31 +219,51 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
         @Override
         public void onClick(View v) {
             networkStatus.setCompoundDrawables(null, null, null, null);
-            networkStatus.setText(getApplicationContext().getResources().getString(R.string.refreshing));
-            if (ConnectivityReceiver.isConnected(getApplicationContext())){
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        reconfigureOfflineText();
-                        offlineLayout.setVisibility(View.GONE);
-                    }
-                }, 1000);
-            }else{
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        reconfigureOfflineText();
-                        offlineLayout.setVisibility(View.VISIBLE);
-                    }
-                }, 1000);
+            networkStatus.setText(getResources().getString(R.string.refreshing));
+            if (xmppConnectionService != null){
+            final Account account = xmppConnectionService.getAccounts().get(0);
+            if (account != null) {
+                account.setOption(Account.OPTION_DISABLED, false);
+                xmppConnectionService.updateAccount(account);
             }
+            updateOfflineStatusBar();}
         }
     };
 
-    private void reconfigureOfflineText() {
-        networkStatus.setText(this.getResources().getString(R.string.offline));
+    private void updateOfflineStatusBar(){
+        if (ConnectivityReceiver.isConnected(this)) {
+            if (xmppConnectionService != null){
+            final Account account = xmppConnectionService.getAccounts().get(0);
+            if (account != null) {
+                Account.State status = account.getStatus();
+                if (status == Account.State.ONLINE || status == Account.State.CONNECTING) {
+                    runStatus("Online", false);
+                } else {
+                    runStatus(getResources().getString(status.getReadableId()) + ": tap to retry", true);
+                }
+            }
+            }
+        } else {
+            runStatus("Disconnected: tap to connect", true);
+        }
+    }
+
+    private void runStatus(String str, boolean isVisible){
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                reconfigureOfflineText(str);
+                if(isVisible){
+                    offlineLayout.setVisibility(View.VISIBLE);
+                } else {
+                    offlineLayout.setVisibility(View.GONE);
+                }
+            }
+        }, 1000);
+    }
+    private void reconfigureOfflineText(String str) {
+        networkStatus.setText(str);
         Drawable refreshIcon =
                 ContextCompat.getDrawable(this, R.drawable.ic_refresh_black_24dp);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){
@@ -256,7 +273,6 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
             networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
         }
     }
-
     public void onConnected(){
         offlineLayout.setVisibility(View.GONE);
     }
@@ -271,7 +287,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
     }
 
     public void refreshUiReal() {
-        //
+        updateOfflineStatusBar();
     }
 
     /*private void handleUploadFailed(int res) {

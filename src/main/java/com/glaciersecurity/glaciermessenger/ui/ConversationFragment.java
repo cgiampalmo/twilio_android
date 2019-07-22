@@ -216,7 +216,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				if (status == Account.State.ONLINE || status == Account.State.CONNECTING) {
 					runStatus("Online", false);
 				} else {
-					runStatus("Offline " +getActivity().getResources().getString(status.getReadableId()) + ": tap to retry",true);
+					runStatus(getActivity().getResources().getString(status.getReadableId()) + ": tap to retry",true);
 				}
 			}
 		} else {
