@@ -38,21 +38,6 @@
                     android:singleLine="true"
                     android:textAppearance="@style/TextAppearance.Conversations.Subhead" />
 
-                <ImageButton
-                    android:id="@+id/contact_status_icon"
-                    android:layout_width="7dp"
-                    android:layout_height="7dp"
-                    android:layout_gravity="left|center_vertical"
-                    android:layout_marginLeft="@dimen/input_label_vertical_spacing"
-                    android:adjustViewBounds="true" />
-
-                <TextView
-                android:id="@+id/contact_status_message"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/input_label_vertical_spacing"
-                android:singleLine="true" />
-
             </LinearLayout>
             <TextView
                 android:id="@+id/contact_jid"
@@ -67,6 +52,21 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="-2dp"
                 android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/contact_status_icon"
+                    android:layout_width="7dp"
+                    android:layout_height="7dp"
+                    android:layout_gravity="left|center_vertical"
+                    android:layout_marginLeft="@dimen/input_label_vertical_spacing"
+                    android:adjustViewBounds="true" />
+
+                <TextView
+                    android:id="@+id/contact_status_message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/input_label_vertical_spacing"
+                    android:singleLine="true" />
 
             </com.wefika.flowlayout.FlowLayout>
 

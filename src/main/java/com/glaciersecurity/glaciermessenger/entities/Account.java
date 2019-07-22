@@ -164,6 +164,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 			this(true, true);
 		}
 
+
 		public int getReadableId() {
 			switch (this) {
 				case DISABLED:

@@ -193,35 +193,53 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	private LinearLayout offlineLayout;
 	private TextView networkStatus;
 
+
 	private OnClickListener mRefreshNetworkClickListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
 			networkStatus.setCompoundDrawables(null, null, null, null);
 			networkStatus.setText(getActivity().getResources().getString(R.string.refreshing));
-			if (ConnectivityReceiver.isConnected(getActivity())){
-				final Handler handler = new Handler();
-				handler.postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						reconfigureOfflineText();
-						offlineLayout.setVisibility(View.GONE);
-					}
-				}, 1000);
-			}else{
-				final Handler handler = new Handler();
-				handler.postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						reconfigureOfflineText();
-						offlineLayout.setVisibility(View.VISIBLE);
-					}
-				}, 1000);
+			final Account account = conversation == null ? null : conversation.getAccount();
+			if (account != null) {
+				account.setOption(Account.OPTION_DISABLED, false);
+				activity.xmppConnectionService.updateAccount(account);
 			}
+			updateOfflineStatusBar();
 		}
 	};
 
-	private void reconfigureOfflineText() {
-		networkStatus.setText(getActivity().getResources().getString(R.string.offline));
+	private void updateOfflineStatusBar(){
+		if (ConnectivityReceiver.isConnected(getActivity())) {
+			final Account account = conversation == null ? null : conversation.getAccount();
+			if (account != null) {
+				Account.State status = account.getStatus();
+				if (status == Account.State.ONLINE || status == Account.State.CONNECTING) {
+					runStatus("Online", false);
+				} else {
+					runStatus("Offline " +getActivity().getResources().getString(status.getReadableId()) + ": tap to retry",true);
+				}
+			}
+		} else {
+			runStatus("Disconnected: tap to connect", true);
+		}
+	}
+
+	private void runStatus(String str, boolean isVisible){
+		final Handler handler = new Handler();
+		handler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				reconfigureOfflineText(str);
+				if(isVisible){
+					offlineLayout.setVisibility(View.VISIBLE);
+				} else {
+					offlineLayout.setVisibility(View.GONE);
+				}
+			}
+		}, 1000);
+	}
+	private void reconfigureOfflineText(String str) {
+		networkStatus.setText(str);
 		Drawable refreshIcon =
 				ContextCompat.getDrawable(getActivity(), R.drawable.ic_refresh_black_24dp);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){
@@ -2561,10 +2579,13 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	}
 
 	private void refresh(boolean notifyConversationRead) {
+
 		synchronized (this.messageList) {
 			if (this.conversation != null) {
 				conversation.populateWithMessages(this.messageList);
 				updateSnackBar(conversation);
+				//CMG AM-41
+				updateOfflineStatusBar();
 				updateStatusMessages();
 				if (conversation.getMode() == Conversation.MODE_MULTI) { //ALF AM-51
 					updateGroupChanged();
