@@ -325,33 +325,37 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
 //            statusMessageText.setText("----");
 //
 //        }
-        switch (contact.getShownStatus()) {
-            case CHAT:
-                statusIcon.setImageResource(R.drawable.ic_green);
-                statusText.setText(R.string.presence_online);
-                break;
-            case AWAY:
-                statusIcon.setImageResource(R.drawable.ic_orange);
-                statusText.setText(R.string.presence_away);
-                break;
-            case XA:
-                statusIcon.setImageResource(R.drawable.ic_orange);
-                statusText.setText(R.string.presence_xa);
-                break;
-            case OFFLINE:
-                statusIcon.setImageResource(R.drawable.ic_grey);
-                statusText.setText(R.string.presence_xa);
-                break;
-            case DND:
-                statusIcon.setImageResource(R.drawable.ic_red);
-                statusText.setText(R.string.presence_dnd);
-                break;
-            default:
-                statusIcon.setImageResource(R.drawable.ic_green);
-                statusText.setText(R.string.presence_online);
-                break;
-
-        }
+        //CMG AM-218 orange circle to grey
+        statusIcon.setImageResource(contact.getShownStatus().getStatusIcon());
+        statusText.setText(contact.getShownStatus().toDisplayString());
+//        switch (contact.getShownStatus()) {
+//
+//            case CHAT:
+//                statusIcon.setImageResource(R.drawable.ic_green);
+//                statusText.setText(R.string.presence_online);
+//                break;
+//            case AWAY:
+//                statusIcon.setImageResource(R.drawable.ic_orange);
+//                statusText.setText(R.string.presence_away);
+//                break;
+//            case XA:
+//                statusIcon.setImageResource(R.drawable.ic_grey);
+//                statusText.setText(R.string.presence_xa);
+//                break;
+//            case OFFLINE:
+//                statusIcon.setImageResource(R.drawable.ic_grey);
+//                statusText.setText(R.string.presence_xa);
+//                break;
+//            case DND:
+//                statusIcon.setImageResource(R.drawable.ic_red);
+//                statusText.setText(R.string.presence_dnd);
+//                break;
+//            default:
+//                statusIcon.setImageResource(R.drawable.ic_green);
+//                statusText.setText(R.string.presence_online);
+//                break;
+//
+//        }
     }
 
     private void populateView() {

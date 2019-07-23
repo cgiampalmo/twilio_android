@@ -230,7 +230,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
         }
     };
 
-    private void updateOfflineStatusBar(){
+    protected void updateOfflineStatusBar(){
         if (ConnectivityReceiver.isConnected(this)) {
             if (xmppConnectionService != null){
             final Account account = xmppConnectionService.getAccounts().get(0);
@@ -287,7 +287,6 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
     }
 
     public void refreshUiReal() {
-        updateOfflineStatusBar();
     }
 
     /*private void handleUploadFailed(int res) {

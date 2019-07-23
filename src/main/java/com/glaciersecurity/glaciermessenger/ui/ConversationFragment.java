@@ -198,13 +198,27 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		@Override
 		public void onClick(View v) {
 			networkStatus.setCompoundDrawables(null, null, null, null);
-			networkStatus.setText(getActivity().getResources().getString(R.string.refreshing));
+			String previousNetworkState = networkStatus.getText().toString();
+			if (previousNetworkState != null) {
+				if (previousNetworkState.contains(getActivity().getResources().getString(R.string.status_tap_to_available))) {
+					networkStatus.setText(getActivity().getResources().getString(R.string.refreshing_status));
+
+				}
+				else if (previousNetworkState.contains(getActivity().getResources().getString(R.string.disconnect_tap_to_connect)) ){
+					networkStatus.setText(getActivity().getResources().getString(R.string.refreshing_connection));
+				}
+			} else {
+				networkStatus.setText(getActivity().getResources().getString(R.string.refreshing));
+			}
+
 			final Account account = conversation == null ? null : conversation.getAccount();
 			if (account != null) {
 				Account.State accountStatus = account.getStatus();
 				Presence.Status presenceStatus = account.getPresenceStatus();
 				if (!presenceStatus.equals(Presence.Status.ONLINE)){
 					account.setPresenceStatus(Presence.Status.ONLINE);
+					activity.xmppConnectionService.updateAccount(account);
+
 				} else {
 					if (accountStatus == Account.State.ONLINE || accountStatus == Account.State.CONNECTING) {
 					} else {
@@ -226,6 +240,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				Presence.Status presenceStatus = account.getPresenceStatus();
 				if (!presenceStatus.equals(Presence.Status.ONLINE)){
 					runStatus( presenceStatus.toDisplayString()+ getActivity().getResources().getString(R.string.status_tap_to_available) ,true);
+					Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + presenceStatus.toDisplayString()+ getActivity().getResources().getString(R.string.status_tap_to_available));
 				} else {
 					if (accountStatus == Account.State.ONLINE || accountStatus == Account.State.CONNECTING) {
 						runStatus("Online", false);
@@ -248,8 +263,8 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		handler.postDelayed(new Runnable() {
 			@Override
 			public void run() {
-				reconfigureOfflineText(str);
 				if(isVisible){
+					reconfigureOfflineText(str);
 					offlineLayout.setVisibility(View.VISIBLE);
 				} else {
 					offlineLayout.setVisibility(View.GONE);
@@ -258,14 +273,21 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		}, 1000);
 	}
 	private void reconfigureOfflineText(String str) {
-		networkStatus.setText(str);
-		Drawable refreshIcon =
-				ContextCompat.getDrawable(getActivity(), R.drawable.ic_refresh_black_24dp);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){
-			networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
-		} else{
-			refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
-			networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
+		try {
+			if (networkStatus != null  && getActivity() != null) {
+				networkStatus.setText(str);
+				Drawable refreshIcon =
+						ContextCompat.getDrawable(getActivity(), R.drawable.ic_refresh_black_24dp);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+					networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
+				} else {
+					refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
+					networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
+				}
+			}
+		}
+		catch(Exception e){
+
 		}
 	}
 
@@ -347,8 +369,10 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 
 		@Override
 		public void onScroll(final AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
 			toggleScrollDownButton(view);
 			synchronized (ConversationFragment.this.messageList) {
+				updateOfflineStatusBar();
 				if (firstVisibleItem < 5 && conversation != null && conversation.messagesLoaded.compareAndSet(true, false) && messageList.size() > 0) {
 					long timestamp;
 					if (messageList.get(0).getType() == Message.TYPE_STATUS && messageList.size() >= 2) {
@@ -1906,6 +1930,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	public void onResume() {
 		super.onResume();
 		binding.messagesView.post(this::fireReadEvent);
+
 	}
 
 	private void fireReadEvent() {
@@ -2196,7 +2221,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			updateChatState(this.conversation, msg);
 			this.activity.xmppConnectionService.getNotificationService().setOpenConversation(null);
 		}
-
+		offlineLayout.setVisibility(View.GONE);
 		this.endDisappearingMessagesHandler(); //ALF AM-53
 
 		this.reInitRequiredOnStart = true;
@@ -2604,7 +2629,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				conversation.populateWithMessages(this.messageList);
 				updateSnackBar(conversation);
 				//CMG AM-41
-				updateOfflineStatusBar();
 				updateStatusMessages();
 				if (conversation.getMode() == Conversation.MODE_MULTI) { //ALF AM-51
 					updateGroupChanged();
@@ -3050,6 +3074,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			service.sendChatState(conversation);
 		}
 		updateSendButton();
+
 	}
 
 	@Override

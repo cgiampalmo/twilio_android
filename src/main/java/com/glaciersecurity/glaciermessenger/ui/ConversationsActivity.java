@@ -507,6 +507,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					Button status_text = (Button) findViewById(R.id.nav_status_text);
 					ImageView status_icon = (ImageView) findViewById(R.id.nav_status_icon);
 					status_text.setOnClickListener(mPresenceClickListener);
+					//CMG AM-218
 					if (ConnectivityReceiver.isConnected(getApplicationContext())) {
 						status_text.setText(mAccount.getPresenceStatus().toDisplayString());
 						status_icon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
@@ -514,8 +515,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 						status_text.setText(Presence.Status.OFFLINE.toDisplayString());
 						status_icon.setImageResource(Presence.Status.OFFLINE.getStatusIcon());
 					}
-					status_text.setText(mAccount.getPresenceStatus().toDisplayString());
-					status_icon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
 					Button status_message = (Button) findViewById(R.id.nav_status_message);
 					status_message.setOnClickListener(mPresenceClickListener);
 					String presenceStatusMessage = mAccount.getPresenceStatusMessage();
@@ -627,6 +626,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			} else {
 				xmppConnectionService.changeStatus(mAccount, template, null);
 			}
+
 		});
 		builder.create().show();
 	}
@@ -1142,6 +1142,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			Fragment mainFragment = getFragmentManager().findFragmentById(R.id.main_fragment);
 			if (mainFragment instanceof ConversationFragment) {
 				conversationFragment = (ConversationFragment) mainFragment;
+
 			} else {
 				conversationFragment = new ConversationFragment();
 				FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
@@ -1296,7 +1297,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		}
 	}
 
-
+	//CMG AM-218
 	private void updateStatusIcon(boolean isConnected){
 		if (this.drawer.isDrawerOpen(GravityCompat.START)){
 			Button status_text = (Button) findViewById(R.id.nav_status_text);
