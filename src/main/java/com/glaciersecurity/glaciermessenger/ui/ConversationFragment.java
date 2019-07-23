@@ -201,8 +201,18 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			networkStatus.setText(getActivity().getResources().getString(R.string.refreshing));
 			final Account account = conversation == null ? null : conversation.getAccount();
 			if (account != null) {
-				account.setOption(Account.OPTION_DISABLED, false);
-				activity.xmppConnectionService.updateAccount(account);
+				Account.State accountStatus = account.getStatus();
+				Presence.Status presenceStatus = account.getPresenceStatus();
+				if (!presenceStatus.equals(Presence.Status.ONLINE)){
+					account.setPresenceStatus(Presence.Status.ONLINE);
+				} else {
+					if (accountStatus == Account.State.ONLINE || accountStatus == Account.State.CONNECTING) {
+					} else {
+						account.setOption(Account.OPTION_DISABLED, false);
+						activity.xmppConnectionService.updateAccount(account);
+					}
+				}
+
 			}
 			updateOfflineStatusBar();
 		}
@@ -212,15 +222,24 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		if (ConnectivityReceiver.isConnected(getActivity())) {
 			final Account account = conversation == null ? null : conversation.getAccount();
 			if (account != null) {
-				Account.State status = account.getStatus();
-				if (status == Account.State.ONLINE || status == Account.State.CONNECTING) {
-					runStatus("Online", false);
+				Account.State accountStatus = account.getStatus();
+				Presence.Status presenceStatus = account.getPresenceStatus();
+				if (!presenceStatus.equals(Presence.Status.ONLINE)){
+					runStatus( presenceStatus.toDisplayString()+ getActivity().getResources().getString(R.string.status_tap_to_available) ,true);
 				} else {
-					runStatus(getActivity().getResources().getString(status.getReadableId()) + ": tap to retry",true);
+					if (accountStatus == Account.State.ONLINE || accountStatus == Account.State.CONNECTING) {
+						runStatus("Online", false);
+					} else {
+						runStatus(getActivity().getResources().getString(R.string.disconnect_tap_to_connect),true);
+						Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + accountStatus.getReadableId());
+					}
 				}
+
 			}
 		} else {
-			runStatus("Disconnected: tap to connect", true);
+			runStatus(getActivity().getResources().getString(R.string.disconnect_tap_to_connect), true);
+			Log.w(Config.LOGTAG ,"updateOfflineStatusBar disconnected from network");
+
 		}
 	}
 

@@ -990,6 +990,9 @@
     <string name="no_profile_yet">No Profile yet</string>
     <string name="profileSelectionTitle">Profile Selection</string>
     <string name="disconnect">Disconnect</string>
+    <string name="disconnect_tap_to_connect">Disconnected: tap to connect</string>
+    <string name="status_tap_to_available">: tap to set to Available</string>
+
     <string name="disconnected">Disconnected"</string>
     <string name="enable_emergconnect">Enable emergency profile selection</string>
     <string name="action_glaciervpn">Core Connection</string>
