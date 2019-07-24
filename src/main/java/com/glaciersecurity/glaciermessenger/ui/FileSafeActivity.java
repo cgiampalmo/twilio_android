@@ -50,6 +50,7 @@ import com.glaciersecurity.glaciermessenger.cognito.Constants;
 import com.glaciersecurity.glaciermessenger.cognito.PropertyLoader;
 import com.glaciersecurity.glaciermessenger.cognito.Util;
 import com.glaciersecurity.glaciermessenger.entities.Account;
+import com.glaciersecurity.glaciermessenger.entities.Presence;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
 import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
@@ -179,6 +180,8 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
     @Override
     protected void onBackendConnected() {
         //this.account = extractAccount(getIntent());
+        //CMG AM-41
+        updateOfflineStatusBar();
     }
 
     @Override
@@ -219,35 +222,63 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
         @Override
         public void onClick(View v) {
             networkStatus.setCompoundDrawables(null, null, null, null);
-            networkStatus.setText(getResources().getString(R.string.refreshing));
-            if (xmppConnectionService != null){
+            String previousNetworkState = networkStatus.getText().toString();
+            if (previousNetworkState != null) {
+                if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_available))) {
+                    networkStatus.setText(getResources().getString(R.string.refreshing_status));
+                }
+                else if (previousNetworkState.contains(getResources().getString(R.string.disconnect_tap_to_connect)) ){
+                    networkStatus.setText(getResources().getString(R.string.refreshing_connection));
+                }
+            } else {
+                networkStatus.setText(getResources().getString(R.string.refreshing));
+            }
+
             final Account account = xmppConnectionService.getAccounts().get(0);
             if (account != null) {
-                account.setOption(Account.OPTION_DISABLED, false);
-                xmppConnectionService.updateAccount(account);
+                Account.State accountStatus = account.getStatus();
+                Presence.Status presenceStatus = account.getPresenceStatus();
+                if (!presenceStatus.equals(Presence.Status.ONLINE)){
+                    account.setPresenceStatus(Presence.Status.ONLINE);
+                    xmppConnectionService.updateAccount(account);
+
+                } else {
+                    if (accountStatus == Account.State.ONLINE || accountStatus == Account.State.CONNECTING) {
+                    } else {
+                        account.setOption(Account.OPTION_DISABLED, false);
+                        xmppConnectionService.updateAccount(account);
+                    }
+                }
+
             }
-            updateOfflineStatusBar();}
+            updateOfflineStatusBar();
         }
     };
 
-    protected void updateOfflineStatusBar(){
+    private void updateOfflineStatusBar(){
         if (ConnectivityReceiver.isConnected(this)) {
-            if (xmppConnectionService != null){
-            final Account account = xmppConnectionService.getAccounts().get(0);
-            if (account != null) {
-                Account.State status = account.getStatus();
-                if (status == Account.State.ONLINE || status == Account.State.CONNECTING) {
-                    runStatus("Online", false);
+        if (xmppConnectionService != null){
+        final Account account = xmppConnectionService.getAccounts().get(0);
+                Account.State accountStatus = account.getStatus();
+                Presence.Status presenceStatus = account.getPresenceStatus();
+                if (!presenceStatus.equals(Presence.Status.ONLINE)){
+                    runStatus( presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_available) ,true);
+                    Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_available));
                 } else {
-                    runStatus(getResources().getString(status.getReadableId()) + ": tap to retry", true);
+                    if (accountStatus == Account.State.ONLINE || accountStatus == Account.State.CONNECTING) {
+                        runStatus("Online", false);
+                    } else {
+                        runStatus(getResources().getString(R.string.disconnect_tap_to_connect),true);
+                        Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + accountStatus.getReadableId());
+                    }
                 }
             }
-            }
         } else {
-            runStatus("Disconnected: tap to connect", true);
+            runStatus(getResources().getString(R.string.disconnect_tap_to_connect), true);
+            Log.w(Config.LOGTAG ,"updateOfflineStatusBar disconnected from network");
+
         }
     }
-
     private void runStatus(String str, boolean isVisible){
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {

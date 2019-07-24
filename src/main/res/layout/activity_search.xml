@@ -40,6 +40,29 @@
             layout="@layout/toolbar"/>
 
 
+        <LinearLayout
+            android:id="@+id/offline_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="4dp"
+            android:background="#27a1cb"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/network_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:drawableLeft="@drawable/ic_refresh_black_24dp"
+                android:drawableStart="@drawable/ic_refresh_black_24dp"
+                android:drawablePadding="8dp"
+                android:textSize="16sp"
+                android:text="@string/offline_statusBar"/>
+        </LinearLayout>
+
+
         <ListView
             android:id="@+id/search_results"
             android:layout_width="match_parent"

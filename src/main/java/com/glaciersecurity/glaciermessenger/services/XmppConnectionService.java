@@ -43,6 +43,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
 import android.util.Pair;
+import android.widget.Toast;
 
 import org.conscrypt.Conscrypt;
 import org.openintents.openpgp.IOpenPgpService2;
@@ -4129,6 +4130,7 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 			packet.addChild("idle", Namespace.IDLE).setAttribute("since", AbstractGenerator.getTimestamp(since));
 		}
 		sendPresencePacket(account, packet);
+
 	}
 
 	private void deactivateGracePeriod() {

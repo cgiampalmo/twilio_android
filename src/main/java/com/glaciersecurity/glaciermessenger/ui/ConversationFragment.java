@@ -189,107 +189,107 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	private Handler disappearingHandler;
 	private Runnable disRunnable;
 
-	//CMG AM-41
-	private LinearLayout offlineLayout;
-	private TextView networkStatus;
-
-
-	private OnClickListener mRefreshNetworkClickListener = new OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			networkStatus.setCompoundDrawables(null, null, null, null);
-			String previousNetworkState = networkStatus.getText().toString();
-			if (previousNetworkState != null) {
-				if (previousNetworkState.contains(getActivity().getResources().getString(R.string.status_tap_to_available))) {
-					networkStatus.setText(getActivity().getResources().getString(R.string.refreshing_status));
-
-				}
-				else if (previousNetworkState.contains(getActivity().getResources().getString(R.string.disconnect_tap_to_connect)) ){
-					networkStatus.setText(getActivity().getResources().getString(R.string.refreshing_connection));
-				}
-			} else {
-				networkStatus.setText(getActivity().getResources().getString(R.string.refreshing));
-			}
-
-			final Account account = conversation == null ? null : conversation.getAccount();
-			if (account != null) {
-				Account.State accountStatus = account.getStatus();
-				Presence.Status presenceStatus = account.getPresenceStatus();
-				if (!presenceStatus.equals(Presence.Status.ONLINE)){
-					account.setPresenceStatus(Presence.Status.ONLINE);
-					activity.xmppConnectionService.updateAccount(account);
-
-				} else {
-					if (accountStatus == Account.State.ONLINE || accountStatus == Account.State.CONNECTING) {
-					} else {
-						account.setOption(Account.OPTION_DISABLED, false);
-						activity.xmppConnectionService.updateAccount(account);
-					}
-				}
-
-			}
-			updateOfflineStatusBar();
-		}
-	};
-
-	private void updateOfflineStatusBar(){
-		if (ConnectivityReceiver.isConnected(getActivity())) {
-			final Account account = conversation == null ? null : conversation.getAccount();
-			if (account != null) {
-				Account.State accountStatus = account.getStatus();
-				Presence.Status presenceStatus = account.getPresenceStatus();
-				if (!presenceStatus.equals(Presence.Status.ONLINE)){
-					runStatus( presenceStatus.toDisplayString()+ getActivity().getResources().getString(R.string.status_tap_to_available) ,true);
-					Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + presenceStatus.toDisplayString()+ getActivity().getResources().getString(R.string.status_tap_to_available));
-				} else {
-					if (accountStatus == Account.State.ONLINE || accountStatus == Account.State.CONNECTING) {
-						runStatus("Online", false);
-					} else {
-						runStatus(getActivity().getResources().getString(R.string.disconnect_tap_to_connect),true);
-						Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + accountStatus.getReadableId());
-					}
-				}
-
-			}
-		} else {
-			runStatus(getActivity().getResources().getString(R.string.disconnect_tap_to_connect), true);
-			Log.w(Config.LOGTAG ,"updateOfflineStatusBar disconnected from network");
-
-		}
-	}
-
-	private void runStatus(String str, boolean isVisible){
-		final Handler handler = new Handler();
-		handler.postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				if(isVisible){
-					reconfigureOfflineText(str);
-					offlineLayout.setVisibility(View.VISIBLE);
-				} else {
-					offlineLayout.setVisibility(View.GONE);
-				}
-			}
-		}, 1000);
-	}
-	private void reconfigureOfflineText(String str) {
-		try {
-			if (networkStatus != null  && getActivity() != null) {
-				networkStatus.setText(str);
-				Drawable refreshIcon =
-						ContextCompat.getDrawable(getActivity(), R.drawable.ic_refresh_black_24dp);
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-					networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
-				} else {
-					refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
-					networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
-				}
-			}
-		}
-		catch(Exception e){
-
-		}
-	}
+//	//CMG AM-41
+//	private LinearLayout offlineLayout;
+//	private TextView networkStatus;
+//
+//
+//	private OnClickListener mRefreshNetworkClickListener = new OnClickListener() {
+//		@Override
+//		public void onClick(View v) {
+//			networkStatus.setCompoundDrawables(null, null, null, null);
+//			String previousNetworkState = networkStatus.getText().toString();
+//			if (previousNetworkState != null) {
+//				if (previousNetworkState.contains(getActivity().getResources().getString(R.string.status_tap_to_available))) {
+//					networkStatus.setText(getActivity().getResources().getString(R.string.refreshing_status));
+//
+//				}
+//				else if (previousNetworkState.contains(getActivity().getResources().getString(R.string.disconnect_tap_to_connect)) ){
+//					networkStatus.setText(getActivity().getResources().getString(R.string.refreshing_connection));
+//				}
+//			} else {
+//				networkStatus.setText(getActivity().getResources().getString(R.string.refreshing));
+//			}
+//
+//			final Account account = conversation == null ? null : conversation.getAccount();
+//			if (account != null) {
+//				Account.State accountStatus = account.getStatus();
+//				Presence.Status presenceStatus = account.getPresenceStatus();
+//				if (!presenceStatus.equals(Presence.Status.ONLINE)){
+//					account.setPresenceStatus(Presence.Status.ONLINE);
+//					activity.xmppConnectionService.updateAccount(account);
+//
+//				} else {
+//					if (accountStatus == Account.State.ONLINE || accountStatus == Account.State.CONNECTING) {
+//					} else {
+//						account.setOption(Account.OPTION_DISABLED, false);
+//						activity.xmppConnectionService.updateAccount(account);
+//					}
+//				}
+//
+//			}
+//			updateOfflineStatusBar();
+//		}
+//	};
+//
+//	private void updateOfflineStatusBar(){
+//		if (ConnectivityReceiver.isConnected(getActivity())) {
+//			final Account account = conversation == null ? null : conversation.getAccount();
+//			if (account != null) {
+//				Account.State accountStatus = account.getStatus();
+//				Presence.Status presenceStatus = account.getPresenceStatus();
+//				if (!presenceStatus.equals(Presence.Status.ONLINE)){
+//					runStatus( presenceStatus.toDisplayString()+ getActivity().getResources().getString(R.string.status_tap_to_available) ,true);
+//					Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + presenceStatus.toDisplayString()+ getActivity().getResources().getString(R.string.status_tap_to_available));
+//				} else {
+//					if (accountStatus == Account.State.ONLINE || accountStatus == Account.State.CONNECTING) {
+//						runStatus("Online", false);
+//					} else {
+//						runStatus(getActivity().getResources().getString(R.string.disconnect_tap_to_connect),true);
+//						Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + accountStatus.getReadableId());
+//					}
+//				}
+//
+//			}
+//		} else {
+//			runStatus(getActivity().getResources().getString(R.string.disconnect_tap_to_connect), true);
+//			Log.w(Config.LOGTAG ,"updateOfflineStatusBar disconnected from network");
+//
+//		}
+//	}
+//
+//	private void runStatus(String str, boolean isVisible){
+//		final Handler handler = new Handler();
+//		handler.postDelayed(new Runnable() {
+//			@Override
+//			public void run() {
+//				if(isVisible){
+//					reconfigureOfflineText(str);
+//					offlineLayout.setVisibility(View.VISIBLE);
+//				} else {
+//					offlineLayout.setVisibility(View.GONE);
+//				}
+//			}
+//		}, 1000);
+//	}
+//	private void reconfigureOfflineText(String str) {
+//		try {
+//			if (networkStatus != null  && getActivity() != null) {
+//				networkStatus.setText(str);
+//				Drawable refreshIcon =
+//						ContextCompat.getDrawable(getActivity(), R.drawable.ic_refresh_black_24dp);
+//				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+//					networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
+//				} else {
+//					refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
+//					networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
+//				}
+//			}
+//		}
+//		catch(Exception e){
+//
+//		}
+//	}
 
 	//ALF AM-51
 	private String lastGroupRemoved = null;
@@ -372,7 +372,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 
 			toggleScrollDownButton(view);
 			synchronized (ConversationFragment.this.messageList) {
-				updateOfflineStatusBar();
+//				updateOfflineStatusBar();
 				if (firstVisibleItem < 5 && conversation != null && conversation.messagesLoaded.compareAndSet(true, false) && messageList.size() > 0) {
 					long timestamp;
 					if (messageList.get(0).getType() == Message.TYPE_STATUS && messageList.size() >= 2) {
@@ -1181,11 +1181,11 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		messageListAdapter.setOnQuoteListener(this::quoteText);
 		binding.messagesView.setAdapter(messageListAdapter);
 
-		//CMG AM-41
-		offlineLayout = (LinearLayout) binding.getRoot().findViewById(R.id.offline_layout);
-		networkStatus = (TextView) binding.getRoot().findViewById(R.id.network_status);
-		offlineLayout.setOnClickListener(mRefreshNetworkClickListener);
-		checkNetworkStatus();
+//		//CMG AM-41
+//		offlineLayout = (LinearLayout) binding.getRoot().findViewById(R.id.offline_layout);
+//		networkStatus = (TextView) binding.getRoot().findViewById(R.id.network_status);
+//		offlineLayout.setOnClickListener(mRefreshNetworkClickListener);
+//		checkNetworkStatus();
 
 
 		registerForContextMenu(binding.messagesView);
@@ -1197,21 +1197,21 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		return binding.getRoot();
 	}
 
-	// CMG AM-41
-	private void checkNetworkStatus() {
-		if (ConnectivityReceiver.isConnected(getActivity())){
-			onConnected();
-		}else{
-			onDisconnected();
-		}
-	}
-	public void onConnected(){
-		offlineLayout.setVisibility(View.GONE);
-	}
-
-	public void onDisconnected(){
-		offlineLayout.setVisibility(View.VISIBLE);
-	}
+//	// CMG AM-41
+//	private void checkNetworkStatus() {
+//		if (ConnectivityReceiver.isConnected(getActivity())){
+//			onConnected();
+//		}else{
+//			onDisconnected();
+//		}
+//	}
+//	public void onConnected(){
+//		offlineLayout.setVisibility(View.GONE);
+//	}
+//
+//	public void onDisconnected(){
+//		offlineLayout.setVisibility(View.VISIBLE);
+//	}
 
 	private void quoteText(String text) {
 		if (binding.textinput.isEnabled()) {
@@ -2221,7 +2221,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			updateChatState(this.conversation, msg);
 			this.activity.xmppConnectionService.getNotificationService().setOpenConversation(null);
 		}
-		offlineLayout.setVisibility(View.GONE);
+		//offlineLayout.setVisibility(View.GONE);
 		this.endDisappearingMessagesHandler(); //ALF AM-53
 
 		this.reInitRequiredOnStart = true;
@@ -2723,7 +2723,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			status = Presence.Status.OFFLINE;
 		}
 		this.binding.textSendButton.setTag(action);
-		this.binding.textSendButton.setImageResource(SendButtonTool.getSendButtonImageResource(getActivity(), action, status));
+		//this.binding.textSendButton.setImageResource(SendButtonTool.getSendButtonImageResource(getActivity(), action, status));
 	}
 
 	//ALF AM-51
@@ -3176,6 +3176,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			handleActivityResult(activityResult);
 		}
 		clearPending();
+
+		//CMG AM-41
+		//updateOfflineStatusBar();
 
 	}
 

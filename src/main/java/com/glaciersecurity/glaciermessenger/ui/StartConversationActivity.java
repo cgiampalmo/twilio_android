@@ -7,18 +7,23 @@ import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
+import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -43,6 +48,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -63,6 +69,7 @@ import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.ListItem;
 import com.glaciersecurity.glaciermessenger.entities.Presence;
+import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService.OnRosterUpdate;
@@ -80,7 +87,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 import rocks.xmpp.addr.Jid;
 
-public class StartConversationActivity extends XmppActivity implements XmppConnectionService.OnConversationUpdate, OnRosterUpdate, OnUpdateBlocklist, OnGroupUpdate, CreateConferenceDialog.CreateConferenceDialogListener, JoinConferenceDialog.JoinConferenceDialogListener, SwipeRefreshLayout.OnRefreshListener {
+public class StartConversationActivity extends XmppActivity implements XmppConnectionService.OnConversationUpdate, OnRosterUpdate, OnUpdateBlocklist, OnGroupUpdate, CreateConferenceDialog.CreateConferenceDialogListener, JoinConferenceDialog.JoinConferenceDialogListener, SwipeRefreshLayout.OnRefreshListener, ConnectivityReceiver.ConnectivityReceiverListener {
 
 	public final static String DOMAIN_IP = "172.16.2.240";
 	public static final String EXTRA_INVITE_URI = "com.glaciersecurity.glaciermessenger.invite_uri";
@@ -103,6 +110,11 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	private boolean mHideOfflineContacts = false;
 	private boolean createdByViewIntent = false;
 	private Account curAccount = null; //ALF AM-78
+
+	private ConnectivityReceiver connectivityReceiver; //CMG AM-41
+	private LinearLayout offlineLayout;
+	private TextView networkStatus;
+
 	private MenuItem.OnActionExpandListener mOnActionExpandListener = new MenuItem.OnActionExpandListener() {
 
 		@Override
@@ -262,6 +274,15 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		Toolbar toolbar = (Toolbar) binding.toolbar;
 		setSupportActionBar(toolbar);
 		configureActionBar(getSupportActionBar());
+
+		//CMG AM-41
+		this.offlineLayout = findViewById(R.id.offline_layout);
+		this.networkStatus = findViewById(R.id.network_status);
+		this.offlineLayout.setOnClickListener(mRefreshNetworkClickListener);
+		connectivityReceiver = new ConnectivityReceiver(this);
+		updateOfflineStatusBar();
+		checkNetworkStatus();
+
 		//CMG AM-152 rm create chat icon for 1:1, ALF modified for AM-231
 		this.binding.fab.hide();
 		this.binding.fab.setOnClickListener((v) -> {
@@ -364,8 +385,16 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	}
 
 	@Override
+	protected void onStop () {
+		unregisterReceiver(connectivityReceiver);
+		super.onStop();
+	}
+
+	@Override
 	public void onStart() {
 		super.onStart();
+		registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
 		final int theme = findTheme();
 		if (this.mTheme != theme) {
 			recreate();
@@ -809,6 +838,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			this.mPostponedActivityResult = null;
 		}
 		this.mActivatedAccounts.clear();
+		//CMG AM-41
+		updateOfflineStatusBar();
 		this.curAccount = null; //ALF AM-78
 		for (Account account : xmppConnectionService.getAccounts()) {
 			if (account.getStatus() != Account.State.DISABLED) {
@@ -846,6 +877,116 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			setRefreshing(xmppConnectionService.getQuickConversationsService().isSynchronizing());
 		}
 	}
+
+
+	@Override
+	public void onNetworkConnectionChanged(boolean isConnected) {
+		if (isConnected) {
+			onConnected();
+		} else {
+			onDisconnected();
+		}
+
+	}
+	// CMG AM-41
+	private void checkNetworkStatus() {
+		updateOfflineStatusBar();
+	}
+
+	private View.OnClickListener mRefreshNetworkClickListener = new View.OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			networkStatus.setCompoundDrawables(null, null, null, null);
+			String previousNetworkState = networkStatus.getText().toString();
+			if (previousNetworkState != null) {
+				if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_available))) {
+					networkStatus.setText(getResources().getString(R.string.refreshing_status));
+				}
+				else if (previousNetworkState.contains(getResources().getString(R.string.disconnect_tap_to_connect)) ){
+					networkStatus.setText(getResources().getString(R.string.refreshing_connection));
+				}
+			} else {
+				networkStatus.setText(getResources().getString(R.string.refreshing));
+			}
+
+			final Account account = xmppConnectionService.getAccounts().get(0);
+			if (account != null) {
+				Account.State accountStatus = account.getStatus();
+				Presence.Status presenceStatus = account.getPresenceStatus();
+				if (!presenceStatus.equals(Presence.Status.ONLINE)){
+					account.setPresenceStatus(Presence.Status.ONLINE);
+					xmppConnectionService.updateAccount(account);
+
+				} else {
+					if (accountStatus == Account.State.ONLINE || accountStatus == Account.State.CONNECTING) {
+					} else {
+						account.setOption(Account.OPTION_DISABLED, false);
+						xmppConnectionService.updateAccount(account);
+					}
+				}
+
+			}
+			updateOfflineStatusBar();
+		}
+	};
+
+	private void updateOfflineStatusBar(){
+		if (ConnectivityReceiver.isConnected(this)) {
+			if (xmppConnectionService != null){
+				final Account account = xmppConnectionService.getAccounts().get(0);
+				Account.State accountStatus = account.getStatus();
+				Presence.Status presenceStatus = account.getPresenceStatus();
+				if (!presenceStatus.equals(Presence.Status.ONLINE)){
+					runStatus( presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_available) ,true);
+					Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_available));
+				} else {
+					if (accountStatus == Account.State.ONLINE || accountStatus == Account.State.CONNECTING) {
+						runStatus("Online", false);
+					} else {
+						runStatus(getResources().getString(R.string.disconnect_tap_to_connect),true);
+						Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + accountStatus.getReadableId());
+					}
+				}
+			}
+		} else {
+			runStatus(getResources().getString(R.string.disconnect_tap_to_connect), true);
+			Log.w(Config.LOGTAG ,"updateOfflineStatusBar disconnected from network");
+
+		}
+	}
+	private void runStatus(String str, boolean isVisible){
+		final Handler handler = new Handler();
+		handler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				reconfigureOfflineText(str);
+				if(isVisible){
+					offlineLayout.setVisibility(View.VISIBLE);
+				} else {
+					offlineLayout.setVisibility(View.GONE);
+				}
+			}
+		}, 1000);
+	}
+	private void reconfigureOfflineText(String str) {
+		networkStatus.setText(str);
+		Drawable refreshIcon =
+				ContextCompat.getDrawable(this, R.drawable.ic_refresh_black_24dp);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){
+			networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
+		} else{
+			refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
+			networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
+		}
+	}
+	public void onConnected(){
+		offlineLayout.setVisibility(View.GONE);
+	}
+
+	public void onDisconnected(){
+		offlineLayout.setVisibility(View.VISIBLE);
+	}
+
 
 	//ALF AM-84
 	@Override

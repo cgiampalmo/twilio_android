@@ -29,8 +29,14 @@
 
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.content.IntentFilter;
 import android.databinding.DataBindingUtil;
+import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
@@ -42,6 +48,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -50,18 +58,20 @@ import java.util.List;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.databinding.ActivitySearchBinding;
+import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.Conversational;
 import com.glaciersecurity.glaciermessenger.entities.Message;
+import com.glaciersecurity.glaciermessenger.entities.Presence;
 import com.glaciersecurity.glaciermessenger.entities.StubConversation;
+import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 import com.glaciersecurity.glaciermessenger.services.MessageSearchTask;
 import com.glaciersecurity.glaciermessenger.ui.adapter.MessageAdapter;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnSearchResultsAvailable;
 import com.glaciersecurity.glaciermessenger.ui.util.ChangeWatcher;
 import com.glaciersecurity.glaciermessenger.ui.util.Color;
 import com.glaciersecurity.glaciermessenger.ui.util.DateSeparator;
-import com.glaciersecurity.glaciermessenger.ui.util.Drawable;
 import com.glaciersecurity.glaciermessenger.ui.util.ListViewUtils;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.ShareUtil;
@@ -72,7 +82,7 @@ import com.glaciersecurity.glaciermessenger.utils.MessageUtils;
 import static com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils.hideSoftKeyboard;
 import static com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils.showKeyboard;
 
-public class SearchActivity extends XmppActivity implements TextWatcher, OnSearchResultsAvailable, MessageAdapter.OnContactPictureClicked {
+public class SearchActivity extends XmppActivity implements TextWatcher, OnSearchResultsAvailable, MessageAdapter.OnContactPictureClicked, ConnectivityReceiver.ConnectivityReceiverListener {
 
 	private static final String EXTRA_SEARCH_TERM = "search-term";
 
@@ -83,6 +93,11 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 	private final ChangeWatcher<List<String>> currentSearch = new ChangeWatcher<>();
 	private final PendingItem<String> pendingSearchTerm = new PendingItem<>();
 	private final PendingItem<List<String>> pendingSearch = new PendingItem<>();
+
+	private ConnectivityReceiver connectivityReceiver; //CMG AM-41
+	private LinearLayout offlineLayout;
+	private TextView networkStatus;
+
 
 	@Override
 	public void onCreate(final Bundle bundle) {
@@ -98,6 +113,14 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 		this.messageListAdapter.setOnContactPictureClicked(this);
 		this.binding.searchResults.setAdapter(messageListAdapter);
 		registerForContextMenu(this.binding.searchResults);
+
+		//CMG AM-41
+        this.offlineLayout = findViewById(R.id.offline_layout);
+        this.networkStatus = findViewById(R.id.network_status);
+        this.offlineLayout.setOnClickListener(mRefreshNetworkClickListener);
+        connectivityReceiver = new ConnectivityReceiver(this);
+		updateOfflineStatusBar();
+		checkNetworkStatus();
 	}
 
 	@Override
@@ -204,6 +227,18 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 	}
 
 	@Override
+	protected void onStart() {
+		super.onStart();
+		registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+	}
+
+	@Override
+	protected void onStop () {
+		unregisterReceiver(connectivityReceiver);
+		super.onStop();
+	}
+
+	@Override
 	protected void refreshUiReal() {
 
 	}
@@ -214,6 +249,117 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 		if (searchTerm != null && currentSearch.watch(searchTerm)) {
 			xmppConnectionService.search(searchTerm, this);
 		}
+		//CMG AM-41
+		updateOfflineStatusBar();
+	}
+
+
+	@Override
+	public void onNetworkConnectionChanged(boolean isConnected) {
+		if (isConnected) {
+			onConnected();
+		} else {
+			onDisconnected();
+		}
+
+	}
+	// CMG AM-41
+	private void checkNetworkStatus() {
+		updateOfflineStatusBar();
+	}
+
+	private View.OnClickListener mRefreshNetworkClickListener = new View.OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			networkStatus.setCompoundDrawables(null, null, null, null);
+			String previousNetworkState = networkStatus.getText().toString();
+			if (previousNetworkState != null) {
+				if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_available))) {
+					networkStatus.setText(getResources().getString(R.string.refreshing_status));
+				}
+				else if (previousNetworkState.contains(getResources().getString(R.string.disconnect_tap_to_connect)) ){
+					networkStatus.setText(getResources().getString(R.string.refreshing_connection));
+				}
+			} else {
+				networkStatus.setText(getResources().getString(R.string.refreshing));
+			}
+
+			final Account account = xmppConnectionService.getAccounts().get(0);
+			if (account != null) {
+				Account.State accountStatus = account.getStatus();
+				Presence.Status presenceStatus = account.getPresenceStatus();
+				if (!presenceStatus.equals(Presence.Status.ONLINE)){
+					account.setPresenceStatus(Presence.Status.ONLINE);
+					xmppConnectionService.updateAccount(account);
+
+				} else {
+					if (accountStatus == Account.State.ONLINE || accountStatus == Account.State.CONNECTING) {
+					} else {
+						account.setOption(Account.OPTION_DISABLED, false);
+						xmppConnectionService.updateAccount(account);
+					}
+				}
+
+			}
+			updateOfflineStatusBar();
+		}
+	};
+
+	private void updateOfflineStatusBar(){
+		if (ConnectivityReceiver.isConnected(this)) {
+			if (xmppConnectionService != null){
+				final Account account = xmppConnectionService.getAccounts().get(0);
+				Account.State accountStatus = account.getStatus();
+				Presence.Status presenceStatus = account.getPresenceStatus();
+				if (!presenceStatus.equals(Presence.Status.ONLINE)){
+					runStatus( presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_available) ,true);
+					Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_available));
+				} else {
+					if (accountStatus == Account.State.ONLINE || accountStatus == Account.State.CONNECTING) {
+						runStatus("Online", false);
+					} else {
+						runStatus(getResources().getString(R.string.disconnect_tap_to_connect),true);
+						Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + accountStatus.getReadableId());
+					}
+				}
+			}
+		} else {
+			runStatus(getResources().getString(R.string.disconnect_tap_to_connect), true);
+			Log.w(Config.LOGTAG ,"updateOfflineStatusBar disconnected from network");
+
+		}
+	}
+	private void runStatus(String str, boolean isVisible){
+		final Handler handler = new Handler();
+		handler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				reconfigureOfflineText(str);
+				if(isVisible){
+					offlineLayout.setVisibility(View.VISIBLE);
+				} else {
+					offlineLayout.setVisibility(View.GONE);
+				}
+			}
+		}, 1000);
+	}
+	private void reconfigureOfflineText(String str) {
+		networkStatus.setText(str);
+		Drawable refreshIcon =
+				ContextCompat.getDrawable(this, R.drawable.ic_refresh_black_24dp);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){
+			networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
+		} else{
+			refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
+			networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
+		}
+	}
+	public void onConnected(){
+		offlineLayout.setVisibility(View.GONE);
+	}
+
+	public void onDisconnected(){
+		offlineLayout.setVisibility(View.VISIBLE);
 	}
 
 	private void changeBackground(boolean hasSearch, boolean hasResults) {
