@@ -169,8 +169,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	private boolean initialConnect = true; //ALF AM-78
 	private ConnectivityReceiver connectivityReceiver; //CMG AM-41
-	private LinearLayout offlineLayout;
-	private TextView networkStatus;
+	protected LinearLayout offlineLayout;
+	protected TextView networkStatus;
 
 	public ConversationsActivity() {
 	}
@@ -643,7 +643,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
 			PresenceTemplate template = new PresenceTemplate(getAvailabilityRadioButton(binding), binding.statusMessage.getText().toString().trim());
-
+			//CMG AM-218
 			if (mAccount.getPgpId() != 0 && hasPgp()) {
 				generateSignature(null, template);
 			} else {
@@ -651,6 +651,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			}
 			if (template.getStatus().equals(Presence.Status.OFFLINE)){
 				disableAccount(mAccount);
+			} else {
+				mAccount.setOption(Account.OPTION_DISABLED, false);
+				xmppConnectionService.updateAccount(mAccount);
 			}
 
 		});
@@ -695,6 +698,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		switch (status) {
 			case DND:
 				binding.dnd.setChecked(true);
+				break;
+			case OFFLINE:
+				binding.xa.setChecked(true);
 				break;
 			case XA:
 				binding.xa.setChecked(true);
@@ -1318,6 +1324,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 						account.setOption(Account.OPTION_DISABLED, false);
 						xmppConnectionService.updateAccount(account);
 					}
+
 					account.setPresenceStatus(Presence.Status.ONLINE);
 					xmppConnectionService.updateAccount(account);
 
@@ -1335,7 +1342,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		}
 	};
 
-	private void updateOfflineStatusBar(){
+	protected void updateOfflineStatusBar(){
 		if (ConnectivityReceiver.isConnected(this)) {
 			if (xmppConnectionService != null){
 				final Account account = xmppConnectionService.getAccounts().get(0);
@@ -1364,8 +1371,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		handler.postDelayed(new Runnable() {
 			@Override
 			public void run() {
+				reconfigureOfflineText(str);
 				if(isVisible){
-					reconfigureOfflineText(str);
 					offlineLayout.setVisibility(View.VISIBLE);
 				} else {
 					offlineLayout.setVisibility(View.GONE);

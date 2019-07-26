@@ -35,7 +35,7 @@
     <string name="title_activity_share_via_account">Share via account</string>
     <string name="title_activity_block_list">Block list</string>
     <string name="offline">Offline</string>
-    <string name="offline_statusBar">Offline - Tap to Connect</string>
+    <string name="offline_statusBar">Disconnected: tap to connect</string>
     <string name="refreshing_status">Changing status to Available</string>
     <string name="refreshing_connection">Attempting to Connect</string>
     <string name="refreshing">Attempting to refresh</string>

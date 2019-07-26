@@ -25,29 +25,6 @@
             android:layout_alignParentLeft="true">
         </ListView>
 
-        <LinearLayout
-            android:id="@+id/offline_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="4dp"
-            android:background="#27a1cb"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/network_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:drawableLeft="@drawable/ic_refresh_black_24dp"
-                android:drawableStart="@drawable/ic_refresh_black_24dp"
-                android:drawablePadding="8dp"
-                android:textSize="16sp"
-                android:text="@string/offline_statusBar"/>
-        </LinearLayout>
-
-
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/scroll_to_bottom_button"
@@ -136,8 +113,7 @@
                 android:layout_centerVertical="true"
                 android:background="?attr/color_background_primary"
                 android:contentDescription="@string/send_message"
-                android:src="@drawable/ic_send_text_offline_dark"
-                android:tint="#27a1cb"
+                android:src="@drawable/ic_send_text_blue2"
                 android:layout_alignParentRight="true" />
         </RelativeLayout>
 
