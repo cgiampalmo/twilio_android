@@ -1088,21 +1088,21 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		return binding.getRoot();
 	}
 
-	// CMG AM-41
-	private void checkNetworkStatus() {
-		if (ConnectivityReceiver.isConnected(getActivity())){
-			onConnected();
-		}else{
-			onDisconnected();
-		}
-	}
-	public void onConnected(){
-		activity.offlineLayout.setVisibility(View.GONE);
-	}
-
-	public void onDisconnected(){
-		activity.offlineLayout.setVisibility(View.VISIBLE);
-	}
+//	// CMG AM-41
+//	private void checkNetworkStatus() {
+//		if (ConnectivityReceiver.isConnected(getActivity())){
+//			onConnected();
+//		}else{
+//			onDisconnected();
+//		}
+//	}
+//	public void onConnected(){
+//		activity.offlineLayout.setVisibility(View.GONE);
+//	}
+//
+//	public void onDisconnected(){
+//		activity.offlineLayout.setVisibility(View.VISIBLE);
+//	}
 
 	private void quoteText(String text) {
 		if (binding.textinput.isEnabled()) {
@@ -2418,9 +2418,11 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		if (conversation.getStatus() == Conversation.STATUS_ARCHIVED) {
 			return;
 		}
-		if (account.getStatus() == Account.State.DISABLED) {
-			showSnackbar(R.string.this_account_is_disabled, R.string.enable, this.mEnableAccountListener);
-		} else if (conversation.isBlocked()) {
+		// CMG AM-218
+//		if (account.getStatus() == Account.State.DISABLED) {
+//			showSnackbar(R.string.this_account_is_disabled, R.string.enable, this.mEnableAccountListener);
+//		} else
+			if (conversation.isBlocked()) {
 			showSnackbar(R.string.contact_blocked, R.string.unblock, this.mUnblockClickListener);
 		} else if (contact != null && !contact.showInRoster() && contact.getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST)) {
 			showSnackbar(R.string.contact_added_you, R.string.add_back, this.mAddBackClickListener, this.mLongPressBlockListener);

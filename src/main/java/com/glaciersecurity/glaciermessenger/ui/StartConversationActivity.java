@@ -905,8 +905,11 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				else if (previousNetworkState.contains(getResources().getString(R.string.disconnect_tap_to_connect)) ){
 					networkStatus.setText(getResources().getString(R.string.refreshing_connection));
 				}
+				else if (previousNetworkState.contains(getResources().getString(R.string.status_no_network)) ){
+					networkStatus.setText(getResources().getString(R.string.refreshing_network));
+				}
 			} else {
-				networkStatus.setText(getResources().getString(R.string.refreshing));
+				networkStatus.setText(getResources().getString(R.string.disconnect_tap_to_connect));
 			}
 
 			final Account account = xmppConnectionService.getAccounts().get(0);
@@ -949,7 +952,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				}
 			}
 		} else {
-			runStatus(getResources().getString(R.string.disconnect_tap_to_connect), true);
+			runStatus(getResources().getString(R.string.status_no_network), true);
 			Log.w(Config.LOGTAG ,"updateOfflineStatusBar disconnected from network");
 
 		}
