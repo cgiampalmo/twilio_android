@@ -1269,29 +1269,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		unregisterReceiver(connectivityReceiver);
 	}
 
-	//CMG AM-41
-//	@Override
-//	public void onNetworkConnectionChanged(boolean isConnected) {
-//		updateStatusIcon(isConnected);
-//		if (conversationFragment != null){
-//			if (isConnected) {
-//				conversationFragment.onConnected();
-//
-//
-//			} else {
-//				conversationFragment.onDisconnected();
-//			}
-//		}
-//	}
-
 	@Override
 	public void onNetworkConnectionChanged(boolean isConnected) {
 		updateStatusIcon(isConnected);
-		if (isConnected) {
-			onConnected();
-		} else {
-			onDisconnected();
-		}
+
 
 	}
 	// CMG AM-41
@@ -1304,42 +1285,26 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		public void onClick(View v) {
 			networkStatus.setCompoundDrawables(null, null, null, null);
 			String previousNetworkState = networkStatus.getText().toString();
-			if (previousNetworkState != null) {
-				if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_available))) {
-					networkStatus.setText(getResources().getString(R.string.refreshing_status));
-				}
-				else if (previousNetworkState.contains(getResources().getString(R.string.disconnect_tap_to_connect)) ){
-					networkStatus.setText(getResources().getString(R.string.refreshing_connection));
-				}
-				else if (previousNetworkState.contains(getResources().getString(R.string.status_no_network)) ){
-					networkStatus.setText(getResources().getString(R.string.refreshing_network));
-				}
-			} else {
-				networkStatus.setText(getResources().getString(R.string.disconnect_tap_to_connect));
-			}
-
 			final Account account = xmppConnectionService.getAccounts().get(0);
 			if (account != null) {
-				Account.State accountStatus = account.getStatus();
-				Presence.Status presenceStatus = account.getPresenceStatus();
-				if (!presenceStatus.equals(Presence.Status.ONLINE)){
-					if (presenceStatus.equals(Presence.Status.OFFLINE)){
+				if (previousNetworkState != null) {
+					Account.State accountStatus = account.getStatus();
+					Presence.Status presenceStatus = account.getPresenceStatus();
+					if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_available))) {
+						networkStatus.setText(getResources().getString(R.string.refreshing_status));
+						account.setOption(Account.OPTION_DISABLED, false);
+						account.setPresenceStatus(Presence.Status.ONLINE);
+						xmppConnectionService.updateAccount(account);
+					} else if (previousNetworkState.contains(getResources().getString(R.string.disconnect_tap_to_connect))) {
+						networkStatus.setText(getResources().getString(R.string.refreshing_connection));
 						account.setOption(Account.OPTION_DISABLED, false);
 						xmppConnectionService.updateAccount(account);
+					} else if (previousNetworkState.contains(getResources().getString(R.string.status_no_network))) {
+						networkStatus.setText(getResources().getString(R.string.refreshing_network));
 					}
-
-					account.setPresenceStatus(Presence.Status.ONLINE);
-					xmppConnectionService.updateAccount(account);
-
-
 				} else {
-					if (accountStatus == Account.State.ONLINE || accountStatus == Account.State.CONNECTING) {
-					} else {
-						account.setOption(Account.OPTION_DISABLED, false);
-						xmppConnectionService.updateAccount(account);
-					}
+					networkStatus.setText(getResources().getString(R.string.disconnect_tap_to_connect));
 				}
-
 			}
 			updateOfflineStatusBar();
 		}
@@ -1352,29 +1317,32 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				Account.State accountStatus = account.getStatus();
 				Presence.Status presenceStatus = account.getPresenceStatus();
 				if (!presenceStatus.equals(Presence.Status.ONLINE)){
-					runStatus( presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_available) ,true);
+					runStatus( presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_available) ,true, true);
 					Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_available));
 				} else {
-					if (accountStatus == Account.State.ONLINE || accountStatus == Account.State.CONNECTING) {
-						runStatus("Online", false);
+					if (accountStatus == Account.State.ONLINE ) {
+						runStatus("", false, false);
+					} else if (accountStatus == Account.State.CONNECTING) {
+						runStatus(getResources().getString(R.string.connecting),true, false);
+						Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + getResources().getString(accountStatus.getReadableId()));
 					} else {
-						runStatus(getResources().getString(R.string.disconnect_tap_to_connect),true);
-						Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + accountStatus.getReadableId());
+						runStatus(getResources().getString(R.string.disconnect_tap_to_connect),true, true);
+						Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + getResources().getString(accountStatus.getReadableId()));
 					}
 				}
 			}
 		} else {
-			runStatus(getResources().getString(R.string.status_no_network), true);
+			runStatus(getResources().getString(R.string.status_no_network), true, true);
 			Log.w(Config.LOGTAG ,"updateOfflineStatusBar disconnected from network");
 
 		}
 	}
-	private void runStatus(String str, boolean isVisible){
+	private void runStatus(String str, boolean isVisible, boolean withRefresh){
 		final Handler handler = new Handler();
 		handler.postDelayed(new Runnable() {
 			@Override
 			public void run() {
-				reconfigureOfflineText(str);
+				reconfigureOfflineText(str, withRefresh);
 				if(isVisible){
 					offlineLayout.setVisibility(View.VISIBLE);
 				} else {
@@ -1383,24 +1351,22 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			}
 		}, 1000);
 	}
-	private void reconfigureOfflineText(String str) {
+	private void reconfigureOfflineText(String str, boolean withRefresh) {
 		networkStatus.setText(str);
-		Drawable refreshIcon =
-				ContextCompat.getDrawable(this, R.drawable.ic_refresh_black_24dp);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1){
-			networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
-		} else{
-			refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
-			networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
+		if (withRefresh) {
+			Drawable refreshIcon =
+					ContextCompat.getDrawable(this, R.drawable.ic_refresh_black_24dp);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+				networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
+			} else {
+				refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
+				networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
+			}
+		} else {
+			networkStatus.setCompoundDrawables(null, null, null, null);
 		}
 	}
-	public void onConnected(){
-		offlineLayout.setVisibility(View.GONE);
-	}
 
-	public void onDisconnected(){
-		offlineLayout.setVisibility(View.VISIBLE);
-	}
 	@Override
 	protected void onNewIntent(final Intent intent) {
 		if (isViewOrShareIntent(intent)) {

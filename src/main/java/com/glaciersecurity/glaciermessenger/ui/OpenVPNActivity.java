@@ -10,7 +10,7 @@ import android.view.Menu;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 
-public class OpenVPNActivity extends XmppActivity implements ConnectivityReceiver.ConnectivityReceiverListener {
+public class OpenVPNActivity extends XmppActivity {
 
     private ConnectivityReceiver connectivityReceiver; //CMG AM-41
     private OpenVPNFragment openVPNFragment;
@@ -32,7 +32,7 @@ public class OpenVPNActivity extends XmppActivity implements ConnectivityReceive
 
 
         }
-        connectivityReceiver = new ConnectivityReceiver(this);
+       // connectivityReceiver = new ConnectivityReceiver(this);
 
     }
 
@@ -46,26 +46,26 @@ public class OpenVPNActivity extends XmppActivity implements ConnectivityReceive
 @Override
 protected void onStart() {
     super.onStart();
-    registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+    //registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 }
 
     @Override
     protected void onStop() {
         super.onStop();
-        unregisterReceiver(connectivityReceiver);
+       //unregisterReceiver(connectivityReceiver);
     }
 
-    //CMG AM-41
-    @Override
-    public void onNetworkConnectionChanged(boolean isConnected) {
-        if (openVPNFragment != null){
-            if (isConnected) {
-                openVPNFragment.onConnected();
-            } else {
-                openVPNFragment.onDisconnected();
-            }
-        }
-    }
+//    //CMG AM-41
+//    @Override
+//    public void onNetworkConnectionChanged(boolean isConnected) {
+//        if (openVPNFragment != null){
+//            if (isConnected) {
+//                openVPNFragment.onConnected();
+//            } else {
+//                openVPNFragment.onDisconnected();
+//            }
+//        }
+//    }
     @Override
     void onBackendConnected() {
         // nothing to do
