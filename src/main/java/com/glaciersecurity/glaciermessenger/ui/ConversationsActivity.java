@@ -151,6 +151,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	public static final int REQUEST_PLAY_PAUSE = 0x5432;
 	private static final int REQUEST_CHANGE_STATUS = 0xee11;
 
+	private String mSavedInstanceAccount;
+
+
 	//CMG AM-285
 	private ImageView mAvatar;
 	private Account mAccount;
@@ -199,6 +202,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	void onBackendConnected() {
 		if (performRedirectIfNecessary(true)) {
 			return;
+		}
+		if (mSavedInstanceAccount != null) {
+			try {
+				this.mAccount = xmppConnectionService.findAccountByJid(Jid.of(mSavedInstanceAccount));
+			} catch (IllegalArgumentException e) {
+				this.mAccount = null;
+			}
 		}
 		//CMG AM-41
 		updateOfflineStatusBar();
@@ -474,6 +484,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			intent = getIntent();
 		} else {
 			intent = savedInstanceState.getParcelable("intent");
+			this.mSavedInstanceAccount = savedInstanceState.getString("account");
+
 		}
 		if (isViewOrShareIntent(intent)) {
 			pendingViewIntent.push(intent);
@@ -1246,6 +1258,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	public void onSaveInstanceState(Bundle savedInstanceState) {
 		Intent pendingIntent = pendingViewIntent.peek();
 		savedInstanceState.putParcelable("intent", pendingIntent != null ? pendingIntent : getIntent());
+		if (mAccount != null) {
+			savedInstanceState.putString("account", mAccount.getJid().asBareJid().toString());
+		}
 		super.onSaveInstanceState(savedInstanceState);
 	}
 
@@ -1271,7 +1286,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	@Override
 	public void onNetworkConnectionChanged(boolean isConnected) {
-		updateStatusIcon(isConnected);
+		updateStatusIcon();
 
 
 	}
@@ -1416,20 +1431,22 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		for (int i = 0; i < nav_view.getMenu().size(); i++) {
 			nav_view.getMenu().getItem(i).setChecked(false);
 		}
+		updateStatusIcon();
 	}
 
 	//CMG AM-218
-	private void updateStatusIcon(boolean isConnected){
+	private void updateStatusIcon(){
 		if (this.drawer.isDrawerOpen(GravityCompat.START)){
 			Button status_text = (Button) findViewById(R.id.nav_status_text);
 			ImageView status_icon = (ImageView) findViewById(R.id.nav_status_icon);
-			if (ConnectivityReceiver.isConnected(getApplicationContext())) {
-				status_text.setText(mAccount.getPresenceStatus().toDisplayString());
-				status_icon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
-			} else {
-				status_text.setText(Presence.Status.OFFLINE.toDisplayString());
-				status_icon.setImageResource(Presence.Status.OFFLINE.getStatusIcon());
-			}
+				if (ConnectivityReceiver.isConnected(getApplicationContext())) {
+					status_text.setText(mAccount.getPresenceStatus().toDisplayString());
+					status_icon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
+				} else {
+					status_text.setText(Presence.Status.OFFLINE.toDisplayString());
+					status_icon.setImageResource(Presence.Status.OFFLINE.getStatusIcon());
+				}
+
 		}
 	}
 	private void initializeFragments() {
