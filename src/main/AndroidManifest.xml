@@ -96,6 +96,7 @@
             android:label="@string/title_activity_show_location"/>
         <activity
             android:name=".ui.ConversationActivity"
+            android:configChanges="orientation|screenSize"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -109,6 +110,7 @@
             android:launchMode="singleTask"
             android:minHeight="300dp"
             android:minWidth="300dp"
+            android:configChanges="orientation|screenSize"
             android:windowSoftInputMode="stateHidden"/>
         <activity
             android:name=".ui.ScanActivity"
