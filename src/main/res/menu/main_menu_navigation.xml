@@ -4,10 +4,7 @@
     <group
         android:id="@+id/grp_1"
         android:checkableBehavior="single">
-        <item
-            android:id="@+id/Core"
-            android:icon="@drawable/ic_wifi"
-            android:title="Core" />
+
         <item
             android:id="@+id/Chats"
             android:icon="@drawable/ic_chat_white_24dp"
@@ -16,6 +13,10 @@
             android:id="@+id/Contacts"
             android:icon="@drawable/ic_contacts"
             android:title="Contacts" />
+        <item
+            android:id="@+id/Search"
+            android:icon="@drawable/ic_search_white_24dp"
+            android:title="Search" />
         <!--<item-->
             <!--android:id="@+id/Dial"-->
             <!--android:icon="@drawable/dialer_back"-->
@@ -25,10 +26,9 @@
             android:icon="@drawable/ic_lock_white_18dp"
             android:title="FileSafe" />
         <item
-            android:id="@+id/Search"
-            android:icon="@drawable/ic_search_white_24dp"
-            android:title="Search" />
-
+            android:id="@+id/Core"
+            android:icon="@drawable/ic_wifi"
+            android:title="Core" />
         <item
             android:id="@+id/Settings"
             android:icon="@drawable/ic_settings"

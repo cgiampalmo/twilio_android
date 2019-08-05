@@ -922,7 +922,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 
 	protected void updateOfflineStatusBar(){
 		if (ConnectivityReceiver.isConnected(this)) {
-			if (xmppConnectionService != null){
+			if (xmppConnectionService != null  && !xmppConnectionService.getAccounts().isEmpty()){){
 				final Account account = xmppConnectionService.getAccounts().get(0);
 				Account.State accountStatus = account.getStatus();
 				Presence.Status presenceStatus = account.getPresenceStatus();

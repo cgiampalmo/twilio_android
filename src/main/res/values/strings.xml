@@ -997,7 +997,7 @@
     <string name="connecting">Connecting...</string>
     <string name="disconnect_tap_to_connect">Disconnected: tap to connect</string>
     <string name="status_tap_to_available">: tap to set to Available</string>
-    <string name="status_no_network">No network: check device signal</string>
+    <string name="status_no_network">No internet connection</string>
 
     <string name="disconnected">Disconnected"</string>
     <string name="enable_emergconnect">Enable emergency profile selection</string>
