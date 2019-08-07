@@ -196,14 +196,16 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 
 		@Override
 		public void onClick(View v) {
-            if (conversation.getMode() == Conversation.MODE_MULTI) {
-                Intent intent = new Intent(getActivity(), ConferenceDetailsActivity.class);
-                intent.setAction(ConferenceDetailsActivity.ACTION_VIEW_MUC);
-                intent.putExtra("uuid", conversation.getUuid());
-                startActivity(intent);
-            } else {
-                activity.switchToContactDetails(conversation.getContact());
-            }
+			if(conversation != null) {
+				if (conversation.getMode() == Conversation.MODE_MULTI) {
+					Intent intent = new Intent(getActivity(), ConferenceDetailsActivity.class);
+					intent.setAction(ConferenceDetailsActivity.ACTION_VIEW_MUC);
+					intent.putExtra("uuid", conversation.getUuid());
+					startActivity(intent);
+				} else {
+					activity.switchToContactDetails(conversation.getContact());
+				}
+			}
 		}
 	};
 
@@ -978,6 +980,8 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		Log.d(Config.LOGTAG, "ConversationFragment.onAttach()");
 		if (activity instanceof ConversationsActivity) {
 			this.activity = (ConversationsActivity) activity;
+			//CMG AM-330
+			getActivity().findViewById(R.id.toolbar_with_icon_status).setOnClickListener(clickToContactDetails);
 		} else {
 			throw new IllegalStateException("Trying to attach fragment to activity that is not the ConversationsActivity");
 		}
@@ -992,7 +996,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		getActivity().findViewById(R.id.toolbar_with_icon_status).setOnClickListener(clickToContactDetails);
 		setHasOptionsMenu(true);
 	}
 

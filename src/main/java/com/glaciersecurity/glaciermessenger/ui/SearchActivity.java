@@ -65,6 +65,7 @@ import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.Conversational;
 import com.glaciersecurity.glaciermessenger.entities.Message;
 import com.glaciersecurity.glaciermessenger.entities.Presence;
+import com.glaciersecurity.glaciermessenger.entities.PresenceTemplate;
 import com.glaciersecurity.glaciermessenger.entities.StubConversation;
 import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 import com.glaciersecurity.glaciermessenger.services.MessageSearchTask;
@@ -98,7 +99,6 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 
 	private ConnectivityReceiver connectivityReceiver; //CMG AM-41
 	private LinearLayout offlineLayout;
-	private TextView networkStatus;
 
 
 	@Override
@@ -118,7 +118,6 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 
 		//CMG AM-41
         this.offlineLayout = findViewById(R.id.offline_layout);
-        this.networkStatus = findViewById(R.id.network_status);
         this.offlineLayout.setOnClickListener(mRefreshNetworkClickListener);
         connectivityReceiver = new ConnectivityReceiver(this);
 		updateOfflineStatusBar();
@@ -268,23 +267,54 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 	private View.OnClickListener mRefreshNetworkClickListener = new View.OnClickListener() {
 		@Override
 		public void onClick(View v) {
+			TextView networkStatus = findViewById(R.id.network_status);
 			networkStatus.setCompoundDrawables(null, null, null, null);
 			String previousNetworkState = networkStatus.getText().toString();
 			final Account account = xmppConnectionService.getAccounts().get(0);
 			if (account != null) {
+				// previousNetworkState: ie what string is displayed currently in the offline status bar
 				if (previousNetworkState != null) {
+
+				    /*
+				     Case 1. PRESENCE) "_____: tap to set to Available"
+				     -> refresh to "Changing status to Available"
+				     -> if was offline need to reenable account
+				     -> change presence to online
+				      */
 					if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_available))) {
 						networkStatus.setText(getResources().getString(R.string.refreshing_status));
-						account.setPresenceStatus(Presence.Status.ONLINE);
+						if (account.getPresenceStatus().equals(Presence.Status.OFFLINE)){
+							enableAccount(account);
+						}
+						PresenceTemplate template = new PresenceTemplate(Presence.Status.ONLINE, account.getPresenceStatusMessage());
+
+						xmppConnectionService.changeStatus(account, template, null);
+
+
+                     /*
+				     Case 2. ACCOUNT) "Disconnected: tap to connect"
+				     -> refresh to "Attempting to Connect"
+				     -> toggle account connection(ie what used to be manage accounts toggle)
+				      */
 					} else if (previousNetworkState.contains(getResources().getString(R.string.disconnect_tap_to_connect))) {
 						networkStatus.setText(getResources().getString(R.string.refreshing_connection));
+						if (!(account.getStatus().equals(Account.State.CONNECTING) || account.getStatus().equals(Account.State.ONLINE))){
+							enableAccount(account);
+						}
+                     /*
+				     Case 2. NETWORK) "No internet connection"
+				     -> refresh to "Checking for signal"
+				     -> ???
+				      */
 					} else if (previousNetworkState.contains(getResources().getString(R.string.status_no_network))) {
 						networkStatus.setText(getResources().getString(R.string.refreshing_network));
+						enableAccount(account);
 					}
 				} else {
+					// should not reach here... Offline status message state should be defined in one of the above cases
 					networkStatus.setText(getResources().getString(R.string.refreshing_connection));
 				}
-				enableAccount(account);
+
 				updateOfflineStatusBar();
 			}
 
@@ -352,18 +382,23 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 		}, 1000);
 	}
 	private void reconfigureOfflineText(String str, boolean withRefresh) {
-		networkStatus.setText(str);
-		if (withRefresh) {
-			Drawable refreshIcon =
-					ContextCompat.getDrawable(this, R.drawable.ic_refresh_black_24dp);
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-				networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
-			} else {
-				refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
-				networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
+		if (offlineLayout.isShown()) {
+			TextView networkStatus = findViewById(R.id.network_status);
+			if (networkStatus != null) {
+				networkStatus.setText(str);
+				if (withRefresh) {
+					Drawable refreshIcon =
+							ContextCompat.getDrawable(this, R.drawable.ic_refresh_black_24dp);
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+						networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
+					} else {
+						refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
+						networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
+					}
+				} else {
+					networkStatus.setCompoundDrawables(null, null, null, null);
+				}
 			}
-		} else {
-			networkStatus.setCompoundDrawables(null, null, null, null);
 		}
 	}
 
