@@ -155,7 +155,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 
 	//CMG AM-285
-	private ImageView mAvatar;
+	private ImageView avatar;
 	private Account mAccount;
 	private final PendingItem<PresenceTemplate> mPendingPresenceTemplate = new PendingItem<>();
 
@@ -530,7 +530,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				List<Account> accounts = xmppConnectionService.getAccounts();
 				if (!accounts.isEmpty()) {
 					mAccount = accounts.get(0);
-					ImageView avatar = (ImageView) findViewById(R.id.nav_avatar);
+					avatar = (ImageView) findViewById(R.id.nav_avatar);
 					avatar.setOnClickListener(mAvatarClickListener);
 
 					avatar.setImageBitmap(avatarService().get(mAccount, (int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
@@ -561,13 +561,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			private final View.OnClickListener mAvatarClickListener = new View.OnClickListener() {
 				@Override
 				public void onClick(final View view) {
-					if (mAccount != null) {
+					if (mAccount != null && mAccount.getStatus() == Account.State.ONLINE) {
 						Intent intent = new Intent(getApplicationContext(), EditAccountActivity.class);
 						intent.putExtra("jid", mAccount.getJid().asBareJid().toString());
 						startActivity(intent);
-					}
-					drawer.closeDrawer(GravityCompat.START);
 
+						drawer.closeDrawer(GravityCompat.START);
+					}
 				}
 			};
 			private final View.OnClickListener mPresenceClickListener = new View.OnClickListener() {
@@ -646,8 +646,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		binding.statusMessage.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				binding.statusMessage.setText("");
-				binding.statuses.clearCheck();
+//				binding.statusMessage.setText("");
+//				binding.statuses.clearCheck();
 			}
 		});
 		builder.setTitle(R.string.edit_status_message_title);
@@ -664,20 +664,15 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			if (template.getStatus().equals(Presence.Status.OFFLINE)){
 				disableAccount(mAccount);
 			} else {
-				mAccount.setOption(Account.OPTION_DISABLED, false);
-				xmppConnectionService.updateAccount(mAccount);
+				if (!template.getStatus().equals(Presence.Status.OFFLINE) && mAccount.getStatus().equals(Account.State.DISABLED)){
+					enableAccount(mAccount);
+				}
 			}
 
 		});
 		builder.create().show();
 	}
 
-	private void disableAccount(Account account) {
-		account.setOption(Account.OPTION_DISABLED, true);
-		if (!xmppConnectionService.updateAccount(account)) {
-			Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
-		}
-	}
 
 	private void generateSignature(Intent intent, PresenceTemplate template) {
 		xmppConnectionService.getPgpEngine().generateSignature(intent, mAccount, template.getStatusMessage(), new UiCallback<String>() {
@@ -1303,25 +1298,21 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			final Account account = xmppConnectionService.getAccounts().get(0);
 			if (account != null) {
 				if (previousNetworkState != null) {
-					Account.State accountStatus = account.getStatus();
-					Presence.Status presenceStatus = account.getPresenceStatus();
 					if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_available))) {
 						networkStatus.setText(getResources().getString(R.string.refreshing_status));
-						account.setOption(Account.OPTION_DISABLED, false);
 						account.setPresenceStatus(Presence.Status.ONLINE);
-						xmppConnectionService.updateAccount(account);
 					} else if (previousNetworkState.contains(getResources().getString(R.string.disconnect_tap_to_connect))) {
 						networkStatus.setText(getResources().getString(R.string.refreshing_connection));
-						account.setOption(Account.OPTION_DISABLED, false);
-						xmppConnectionService.updateAccount(account);
 					} else if (previousNetworkState.contains(getResources().getString(R.string.status_no_network))) {
 						networkStatus.setText(getResources().getString(R.string.refreshing_network));
 					}
 				} else {
-					networkStatus.setText(getResources().getString(R.string.disconnect_tap_to_connect));
+					networkStatus.setText(getResources().getString(R.string.refreshing_connection));
 				}
+				enableAccount(account);
+				updateOfflineStatusBar();
 			}
-			updateOfflineStatusBar();
+
 		}
 	};
 
@@ -1352,6 +1343,25 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 		}
 	}
+
+	private void disableAccount(Account account) {
+		account.setOption(Account.OPTION_DISABLED, true);
+		if (!xmppConnectionService.updateAccount(account)) {
+			Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	private void enableAccount(Account account) {
+		account.setOption(Account.OPTION_DISABLED, false);
+		final XmppConnection connection = account.getXmppConnection();
+		if (connection != null) {
+			connection.resetEverything();
+		}
+		if (!xmppConnectionService.updateAccount(account)) {
+			Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
+		}
+	}
+
 	private void runStatus(String str, boolean isVisible, boolean withRefresh){
 		final Handler handler = new Handler();
 		handler.postDelayed(new Runnable() {

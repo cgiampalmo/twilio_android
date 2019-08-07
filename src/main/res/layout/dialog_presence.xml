@@ -111,8 +111,7 @@
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:errorTextAppearance="@style/TextAppearance.Conversations.Design.Error"
-            app:hintTextAppearance="@style/TextAppearance.Conversations.Design.Hint">
+            app:errorTextAppearance="@style/TextAppearance.Conversations.Design.Error">
 
             <com.glaciersecurity.glaciermessenger.ui.widget.ImmediateAutoCompleteTextView
                 android:id="@+id/status_message"

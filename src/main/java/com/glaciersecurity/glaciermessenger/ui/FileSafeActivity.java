@@ -59,6 +59,7 @@ import com.glaciersecurity.glaciermessenger.ui.util.Attachment;
 import com.glaciersecurity.glaciermessenger.ui.util.PresenceSelector;
 import com.glaciersecurity.glaciermessenger.utils.FileUtils;
 import com.glaciersecurity.glaciermessenger.utils.MimeUtils;
+import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -203,16 +204,16 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
             updateOfflineStatusBar();
     }
 
-    // CMG AM-41
-    private void checkNetworkStatus() {
-        updateOfflineStatusBar();
-    }
 
 
 
     //CMG AM-41
     private LinearLayout offlineLayout;
     private TextView networkStatus;
+    // CMG AM-41
+    private void checkNetworkStatus() {
+        updateOfflineStatusBar();
+    }
 
     private View.OnClickListener mRefreshNetworkClickListener = new View.OnClickListener() {
         @Override
@@ -222,28 +223,23 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
             final Account account = xmppConnectionService.getAccounts().get(0);
             if (account != null) {
                 if (previousNetworkState != null) {
-                    Account.State accountStatus = account.getStatus();
-                    Presence.Status presenceStatus = account.getPresenceStatus();
                     if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_available))) {
                         networkStatus.setText(getResources().getString(R.string.refreshing_status));
-                        account.setOption(Account.OPTION_DISABLED, false);
                         account.setPresenceStatus(Presence.Status.ONLINE);
-                        xmppConnectionService.updateAccount(account);
                     } else if (previousNetworkState.contains(getResources().getString(R.string.disconnect_tap_to_connect))) {
                         networkStatus.setText(getResources().getString(R.string.refreshing_connection));
-                        account.setOption(Account.OPTION_DISABLED, false);
-                        xmppConnectionService.updateAccount(account);
                     } else if (previousNetworkState.contains(getResources().getString(R.string.status_no_network))) {
                         networkStatus.setText(getResources().getString(R.string.refreshing_network));
                     }
                 } else {
-                    networkStatus.setText(getResources().getString(R.string.disconnect_tap_to_connect));
+                    networkStatus.setText(getResources().getString(R.string.refreshing_connection));
                 }
+                enableAccount(account);
+                updateOfflineStatusBar();
             }
-            updateOfflineStatusBar();
+
         }
     };
-
 
     protected void updateOfflineStatusBar(){
         if (ConnectivityReceiver.isConnected(this)) {
@@ -272,6 +268,25 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
 
         }
     }
+
+    private void disableAccount(Account account) {
+        account.setOption(Account.OPTION_DISABLED, true);
+        if (!xmppConnectionService.updateAccount(account)) {
+            Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void enableAccount(Account account) {
+        account.setOption(Account.OPTION_DISABLED, false);
+        final XmppConnection connection = account.getXmppConnection();
+        if (connection != null) {
+            connection.resetEverything();
+        }
+        if (!xmppConnectionService.updateAccount(account)) {
+            Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void runStatus(String str, boolean isVisible, boolean withRefresh){
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
