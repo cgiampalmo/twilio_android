@@ -15,6 +15,7 @@
         android:layout_height="7dp"
         android:layout_gravity="left|center_vertical"
         android:adjustViewBounds="true"
+        android:layout_marginLeft="@dimen/image_button_padding"
         android:layout_marginRight="@dimen/input_label_vertical_spacing"
         app:srcCompat="@drawable/ic_green_small" />
 
