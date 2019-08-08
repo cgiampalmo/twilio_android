@@ -818,11 +818,11 @@ public class MemorizingTrustManager {
 					return true;
 				} else {
 					LOGGER.log(Level.FINE, "server " + domain + " provided wrong certificate, asking user.");
-					if (interactive) {
+					//if (interactive) { //ALF AM-305
 						return interactHostname(cert, domain);
-					} else {
-						return false;
-					}
+					//} else {
+					//	return false;
+					//}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
