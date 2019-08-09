@@ -141,7 +141,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 				finishedMessage.setFingerprint(plaintextMessage.getFingerprint());
 				Log.d(Config.LOGTAG, AxolotlService.getLogprefix(finishedMessage.getConversation().getAccount()) + " Received Message with session fingerprint: " + plaintextMessage.getFingerprint());
 				return finishedMessage;
-			} else { //ALF AM-228
+			} else if (!service.isReflected(xmppAxolotlMessage)){ //ALF AM-228   //ALF AM-287 if !reflected
 				//service.verifySessions(conversation, from);
 				return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE, status);
 			}

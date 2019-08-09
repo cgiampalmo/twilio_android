@@ -1495,6 +1495,15 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 		return plaintextMessage;
 	}
 
+	//ALF AM-287
+	public boolean isReflected(XmppAxolotlMessage message) {
+		if (account.getJid().asBareJid().equals(message.getFrom().asBareJid()) && message.getSenderDeviceId() == getOwnDeviceId()) {
+			return true;
+		}
+
+		return false;
+	}
+
 	public void reportBrokenSessionException(BrokenSessionException e, boolean postpone) {
 		Log.e(Config.LOGTAG,account.getJid().asBareJid()+": broken session with "+e.getSignalProtocolAddress().toString()+" detected", e);
 		if (postpone) {

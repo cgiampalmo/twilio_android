@@ -17,7 +17,7 @@
     <bool name="enable_quiet_hours">false</bool>
     <string name="notification_ringtone">content://settings/system/notification_sound</string>
     <integer name="grace_period">144</integer>
-    <integer name="auto_accept_filesize">1048576</integer>
+    <integer name="auto_accept_filesize">10485760</integer> <!-- ALF AM-144 -->
     <string name="picture_compression">always</string>
     <string name="theme">dark</string>
     <bool name="use_green_background">false</bool>
