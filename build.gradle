@@ -102,9 +102,9 @@ dependencies {
     implementation 'com.github.omadahealth.typefaceview:typefaceview:1.5.0@aar'
 
     // GOOBER COGNITO - S3
-
-    //implementation 'com.amazonaws:aws-android-sdk-core:2.7.+'
-    implementation 'com.amazonaws:aws-android-sdk-s3:2.7.+'
+    //implementation 'com.amazonaws:aws-android-sdk-s3:2.7.+'
+    //ALF AM-313, AM-346
+    implementation 'com.amazonaws:aws-android-sdk-s3:2.14.2'
 
     // GOOBER COGNITO - Demo
 
@@ -116,15 +116,9 @@ dependencies {
 
     //implementation 'com.android.support:recyclerview-v7:28.0.0' //ALF test
     implementation 'com.android.support.constraint:constraint-layout:1.0.0-beta3'
-    implementation 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.6.8'
-
-    // GOOBER COGNITO - GlacierMessenger
-
-    // implementation 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.6.8'
-
-    // implementation ('com.amazonaws:aws-android-sdk-mobile-client:2.6.7@aar') { transitive = true; }
-
-    // implementation 'com.amazonaws:aws-android-sdk-s3:2.6.+'
+    //implementation 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.6.8'
+    //ALF AM-313, AM-346
+    implementation 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.14.2'
 
     // CMG AM-254 materialx third party dependencies
     implementation 'com.balysv:material-ripple:1.0.2'                  // ripple effect
@@ -149,8 +143,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 347
-        versionName "2.4.0-RC26"
+        versionCode 348
+        versionName "2.4.0-RC27"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
         resValue "string", "applicationId", applicationId
