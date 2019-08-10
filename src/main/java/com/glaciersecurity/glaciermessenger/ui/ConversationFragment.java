@@ -2271,9 +2271,13 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		} else {
 			//ALF AM-60
 			AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
-			axolotlService.createSessionsIfNeeded(conversation);
-			conversation.reloadFingerprints(axolotlService.getCryptoTargets(conversation));
-			conversation.setNextEncryption(Message.ENCRYPTION_AXOLOTL); //ALF AM-52
+			if (axolotlService != null) { //ALF AM-332 crash and else below
+				axolotlService.createSessionsIfNeeded(conversation);
+				conversation.reloadFingerprints(axolotlService.getCryptoTargets(conversation));
+				conversation.setNextEncryption(Message.ENCRYPTION_AXOLOTL); //ALF AM-52
+			} else {
+				conversation.setNextEncryption(Message.ENCRYPTION_NONE);
+			}
 		}
 
 		return true;
