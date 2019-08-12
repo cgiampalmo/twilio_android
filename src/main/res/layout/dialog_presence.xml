@@ -120,6 +120,7 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:hint="@string/status_message"
+                android:imeOptions="actionDone"
                 android:inputType="textShortMessage" />
         </android.support.design.widget.TextInputLayout>
     </LinearLayout>
