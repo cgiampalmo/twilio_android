@@ -127,6 +127,12 @@ import com.mikhaellopez.circularimageview.CircularImageView;
 
 import rocks.xmpp.addr.Jid;
 
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.customIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.meetingIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.sickIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.travelIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.vacationIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.getEmojiByUnicode;
 import static com.glaciersecurity.glaciermessenger.ui.ConversationFragment.REQUEST_DECRYPT_PGP;
 
 public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, OnKeyStatusUpdated, LogoutListener, ConnectivityReceiver.ConnectivityReceiverListener {
@@ -577,7 +583,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				@Override
 				public void onClick(final View view) {
 					if (mAccount != null) {
-						changePresence();
+						changePresence(mAccount);
 					}
 					drawer.closeDrawer(GravityCompat.START);
 				}
@@ -603,27 +609,32 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		}
 	}
 
-	private void changePresence() {
+	protected void changePresence(Account fragAccount) {
 		android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
 		final DialogPresenceBinding binding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.dialog_presence, null, false);
+		if (mAccount == null){
+			mAccount = fragAccount;
+		}
 		String current = mAccount.getPresenceStatusMessage();
 		if (current != null && !current.trim().isEmpty()) {
 			binding.statusMessage.append(current);
 		}
 		setAvailabilityRadioButton(mAccount.getPresenceStatus(), binding);
+		setStatusMessageRadioButton(mAccount.getPresenceStatusMessage(), binding);
 		List<PresenceTemplate> templates = xmppConnectionService.getPresenceTemplates(mAccount);
 		PresenceTemplateAdapter presenceTemplateAdapter = new PresenceTemplateAdapter(this, R.layout.simple_list_item, templates);
 		binding.statusMessage.setAdapter(presenceTemplateAdapter);
 		binding.statusMessage.setOnItemClickListener((parent, view, position, id) -> {
 			PresenceTemplate template = (PresenceTemplate) parent.getItemAtPosition(position);
 			setAvailabilityRadioButton(template.getStatus(), binding);
+			setStatusMessageRadioButton(mAccount.getPresenceStatusMessage(), binding);
 		});
 
 		binding.clearPrefs.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				binding.statusMessage.setText("");
 				binding.statuses.clearCheck();
+				binding.statusMessage.setText("");
 			}
 		});
 		binding.statuses.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
@@ -642,6 +653,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 						binding.statusMessage.setText(Presence.StatusMessage.VACATION.toShowString());
 						break;
 					default:
+						binding.statusMessage.setText("");
 						break;
 				}
 			}
@@ -723,6 +735,33 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			default:
 				binding.online.setChecked(true);
 		}
+	}
+
+
+	//CMG AM-354
+	private static void setStatusMessageRadioButton(String statusMessage, DialogPresenceBinding binding) {
+		if (statusMessage == null) {
+			binding.statuses.clearCheck();
+			return;
+		}
+
+				if (statusMessage.equals(getEmojiByUnicode(meetingIcon)+"\tIn a meeting")) {
+					binding.inMeeting.setChecked(true);
+					return;
+				} else if (statusMessage.equals(getEmojiByUnicode(travelIcon)+"\tOn travel")) {
+					binding.onTravel.setChecked(true);
+					return;
+				} else if (statusMessage.equals(getEmojiByUnicode(sickIcon)+"\tOut sick")) {
+					binding.outSick.setChecked(true);
+					return;
+				} else if (statusMessage.equals(getEmojiByUnicode(vacationIcon)+"\tVacation")) {
+					binding.vacation.setChecked(true);
+					return;
+				} else if (!statusMessage.isEmpty()) {
+					binding.statuses.clearCheck();
+					return;
+				}
+
 	}
 
 	private static Presence.Status getAvailabilityRadioButton(DialogPresenceBinding binding) {

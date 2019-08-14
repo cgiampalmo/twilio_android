@@ -69,6 +69,8 @@
     <string name="share_with">Share with…</string>
     <string name="start_conversation">Start chat</string>
     <string name="invite_contact">Add someone</string>
+    <string name="change_status">Set a status</string>
+    <string name="edit_status">Edit status</string>
     <string name="invite">Invite</string>
     <string name="contacts">Contacts</string>
     <string name="contact">Contact</string>

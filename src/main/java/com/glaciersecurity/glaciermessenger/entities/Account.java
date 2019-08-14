@@ -254,7 +254,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 	private List<Bookmark> bookmarks = new CopyOnWriteArrayList<>();
 	private final Collection<Jid> blocklist = new CopyOnWriteArraySet<>();
 	private Presence.Status presenceStatus = Presence.Status.ONLINE;
-	private String presenceStatusMessage = null;
+	private String presenceStatusMessage;
 
 	public Account(final Jid jid, final String password) {
 		this(java.util.UUID.randomUUID().toString(), jid,

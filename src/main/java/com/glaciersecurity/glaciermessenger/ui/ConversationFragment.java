@@ -1000,6 +1000,24 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	}
 
 	@Override
+	public void onPrepareOptionsMenu (Menu menu){
+		//CMG AM-352
+		final MenuItem changeStatus = menu.findItem(R.id.action_change_status);
+		final MenuItem editStatus = menu.findItem(R.id.action_edit_status);
+		if (conversation.getAccount().getPresenceStatus().equals(Presence.Status.ONLINE) && conversation.getAccount().getPresenceStatusMessage() == null){
+			changeStatus.setVisible(true);
+			editStatus.setVisible(false);
+		} else if (conversation.getAccount().getPresenceStatus().equals(Presence.Status.ONLINE) && conversation.getAccount().getPresenceStatusMessage() != null && conversation.getAccount().getPresenceStatusMessage().isEmpty()){
+			changeStatus.setVisible(true);
+			editStatus.setVisible(false);
+		} else {
+			changeStatus.setVisible(false);
+			editStatus.setVisible(true);
+		}
+	}
+
+
+	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
 		menuInflater.inflate(R.menu.fragment_conversation, menu);
 //		final MenuItem menuMucDetails = menu.findItem(R.id.action_muc_details);
@@ -1015,6 +1033,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		final MenuItem menuLeaveGroup = menu.findItem(R.id.action_leave_group);
 		final MenuItem menuEndConversation = menu.findItem(R.id.action_end_conversation);
 
+		//CMG AM-352
+		final MenuItem changeStatus = menu.findItem(R.id.action_change_status);
+		final MenuItem editStatus = menu.findItem(R.id.action_edit_status);
 		//CMG AM-284
 		//final MenuItem menuPhoneCall = menu.findItem(R.id.action_call);
 		final MenuItem disappearingMessages = menu.findItem(R.id.action_disapear_messages);
@@ -1025,6 +1046,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 
 
 		if (conversation != null) {
+
 			if (conversation.getMode() == Conversation.MODE_MULTI) {
 				//menuPhoneCall.setVisible(false);
 				disappearingMessages.setVisible(false);
@@ -1049,6 +1071,16 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				menuMute.setVisible(false);
 			} else {
 				menuUnmute.setVisible(false);
+			}
+			if (conversation.getAccount().getPresenceStatus().equals(Presence.Status.ONLINE) && conversation.getAccount().getPresenceStatusMessage() == null){
+				changeStatus.setVisible(true);
+				editStatus.setVisible(false);
+			} else if (conversation.getAccount().getPresenceStatus().equals(Presence.Status.ONLINE) && conversation.getAccount().getPresenceStatusMessage() != null && conversation.getAccount().getPresenceStatusMessage().isEmpty()){
+				changeStatus.setVisible(true);
+				editStatus.setVisible(false);
+			} else {
+				changeStatus.setVisible(false);
+				editStatus.setVisible(true);
 			}
 			ConversationMenuConfigurator.configureAttachmentMenu(conversation, menu);
 			ConversationMenuConfigurator.configureEncryptionMenu(conversation, menu);
@@ -1308,6 +1340,12 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			//	break;
 			case R.id.action_leave_group:  //ALF AM-122
 				this.endConversationDialog(conversation);
+				break;
+			case R.id.action_change_status: //CMG AM-352
+				activity.changePresence(conversation.getAccount());
+				break;
+			case R.id.action_edit_status: //CMG AM-352
+				activity.changePresence(conversation.getAccount());
 				break;
 //			case R.id.action_contact_details:
 //				activity.switchToContactDetails(conversation.getContact());

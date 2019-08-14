@@ -89,6 +89,16 @@
         <!--app:showAsAction="never"-->
         <!--android:title="@string/action_muc_details"/>-->
     <item
+        android:id="@+id/action_change_status"
+        android:orderInCategory="35"
+        app:showAsAction="never"
+        android:title="@string/change_status"/>
+    <item
+        android:id="@+id/action_edit_status"
+        android:orderInCategory="35"
+        app:showAsAction="never"
+        android:title="@string/edit_status"/>
+    <item
         android:id="@+id/action_invite"
         android:orderInCategory="45"
         app:showAsAction="never"
