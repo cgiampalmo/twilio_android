@@ -604,6 +604,7 @@
     <string name="on_travel">&#128747;\tOn travel</string>
     <string name="out_sick">&#129298;\tOut sick</string>
     <string name="vacation">&#127796;\tVacation</string>
+    <string name="custom">&#128172;\tCustom</string>
     <string name="set_a_status_message">Set a status</string>
     <string name="secure_password_generated">A secure password has been generated</string>
     <string name="device_does_not_support_battery_op">Your device does not support opting out of battery optimization</string>

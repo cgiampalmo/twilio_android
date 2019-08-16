@@ -625,8 +625,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		setAvailabilityRadioButton(mAccount.getPresenceStatus(), binding);
 		setStatusMessageRadioButton(mAccount.getPresenceStatusMessage(), binding);
 		List<PresenceTemplate> templates = xmppConnectionService.getPresenceTemplates(mAccount);
-		PresenceTemplateAdapter presenceTemplateAdapter = new PresenceTemplateAdapter(this, R.layout.simple_list_item, templates);
 		//CMG AM-365
+//		PresenceTemplateAdapter presenceTemplateAdapter = new PresenceTemplateAdapter(this, R.layout.simple_list_item, templates);
 // 		binding.statusMessage.setAdapter(presenceTemplateAdapter);
 //		binding.statusMessage.setOnItemClickListener((parent, view, position, id) -> {
 //			PresenceTemplate template = (PresenceTemplate) parent.getItemAtPosition(position);
@@ -646,40 +646,27 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				switch(checkedId){
 					case R.id.in_meeting:
 						binding.statusMessage.setText(Presence.StatusMessage.IN_MEETING.toShowString());
+						binding.statusMessage.setEnabled(false);
 						break;
 					case R.id.on_travel:
 						binding.statusMessage.setText(Presence.StatusMessage.ON_TRAVEL.toShowString());
+						binding.statusMessage.setEnabled(false);
 						break;
 					case R.id.out_sick:
 						binding.statusMessage.setText(Presence.StatusMessage.OUT_SICK.toShowString());
+						binding.statusMessage.setEnabled(false);
 						break;
 					case R.id.vacation:
 						binding.statusMessage.setText(Presence.StatusMessage.VACATION.toShowString());
+						binding.statusMessage.setEnabled(false);
+						break;
+					case R.id.custom:
+						binding.statusMessage.setEnabled(true);
 						break;
 					default:
+						binding.statusMessage.setEnabled(false);
 						break;
 				}
-			}
-		});
-		binding.statusMessage.addTextChangedListener(new TextWatcher() {
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-			}
-
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				if (s != null ) {
-					if (s.toString().isEmpty()){}
-					else if (s.toString().equals(Presence.StatusMessage.IN_MEETING.toShowString())||s.toString().equals(Presence.StatusMessage.VACATION.toShowString())||s.toString().equals(Presence.StatusMessage.OUT_SICK.toShowString())||s.toString().equals(Presence.StatusMessage.ON_TRAVEL.toShowString())){
-
-					} else {
-						binding.statuses.clearCheck();
-					}
-				}
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
 			}
 		});
 
@@ -763,7 +750,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			return;
 		}
 		binding.statuses.clearCheck();
-
+		binding.statusMessage.setEnabled(false);
 				if (statusMessage.equals(getEmojiByUnicode(meetingIcon)+"\tIn a meeting")) {
 					binding.inMeeting.setChecked(true);
 					return;
@@ -777,6 +764,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					binding.vacation.setChecked(true);
 					return;
 				} else if (!statusMessage.isEmpty()) {
+					binding.custom.setChecked(true);
+					binding.statusMessage.setEnabled(true);
+					return;
+				} else {
 					binding.statuses.clearCheck();
 					return;
 				}

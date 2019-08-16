@@ -96,6 +96,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/vacation" />
+                <RadioButton
+                    android:id="@+id/custom"
+                    style="@style/Widget.Conversations.RadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/custom" />
 
             </RadioGroup>
 
