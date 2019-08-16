@@ -46,6 +46,7 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
+import android.media.audiofx.PresetReverb;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
@@ -63,6 +64,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -623,12 +626,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		setStatusMessageRadioButton(mAccount.getPresenceStatusMessage(), binding);
 		List<PresenceTemplate> templates = xmppConnectionService.getPresenceTemplates(mAccount);
 		PresenceTemplateAdapter presenceTemplateAdapter = new PresenceTemplateAdapter(this, R.layout.simple_list_item, templates);
-		binding.statusMessage.setAdapter(presenceTemplateAdapter);
-		binding.statusMessage.setOnItemClickListener((parent, view, position, id) -> {
-			PresenceTemplate template = (PresenceTemplate) parent.getItemAtPosition(position);
-			setAvailabilityRadioButton(template.getStatus(), binding);
-			setStatusMessageRadioButton(mAccount.getPresenceStatusMessage(), binding);
-		});
+		//CMG AM-365
+// 		binding.statusMessage.setAdapter(presenceTemplateAdapter);
+//		binding.statusMessage.setOnItemClickListener((parent, view, position, id) -> {
+//			PresenceTemplate template = (PresenceTemplate) parent.getItemAtPosition(position);
+//			setAvailabilityRadioButton(template.getStatus(), binding);
+//			setStatusMessageRadioButton(mAccount.getPresenceStatusMessage(), binding);
+//		});
 
 		binding.clearPrefs.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -653,18 +657,32 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 						binding.statusMessage.setText(Presence.StatusMessage.VACATION.toShowString());
 						break;
 					default:
-						binding.statusMessage.setText("");
 						break;
 				}
 			}
 		});
-		binding.statusMessage.setOnClickListener(new View.OnClickListener() {
+		binding.statusMessage.addTextChangedListener(new TextWatcher() {
 			@Override
-			public void onClick(View v) {
-//				binding.statusMessage.setText("");
-//				binding.statuses.clearCheck();
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				if (s != null ) {
+					if (s.toString().isEmpty()){}
+					else if (s.toString().equals(Presence.StatusMessage.IN_MEETING.toShowString())||s.toString().equals(Presence.StatusMessage.VACATION.toShowString())||s.toString().equals(Presence.StatusMessage.OUT_SICK.toShowString())||s.toString().equals(Presence.StatusMessage.ON_TRAVEL.toShowString())){
+
+					} else {
+						binding.statuses.clearCheck();
+					}
+				}
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
 			}
 		});
+
 		builder.setTitle(R.string.edit_status_message_title);
 		builder.setView(binding.getRoot());
 		builder.setNegativeButton(R.string.cancel, null);
@@ -744,6 +762,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			binding.statuses.clearCheck();
 			return;
 		}
+		binding.statuses.clearCheck();
 
 				if (statusMessage.equals(getEmojiByUnicode(meetingIcon)+"\tIn a meeting")) {
 					binding.inMeeting.setChecked(true);

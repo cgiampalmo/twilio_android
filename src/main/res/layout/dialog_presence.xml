@@ -113,7 +113,7 @@
             android:layout_height="wrap_content"
             app:errorTextAppearance="@style/TextAppearance.Conversations.Design.Error">
 
-            <com.glaciersecurity.glaciermessenger.ui.widget.ImmediateAutoCompleteTextView
+            <android.widget.TextView
                 android:id="@+id/status_message"
                 style="@style/Widget.Conversations.EditText"
                 android:layout_width="match_parent"

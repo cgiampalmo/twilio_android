@@ -1034,12 +1034,13 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		setAvailabilityRadioButton(mAccount.getPresenceStatus(), binding);
 		binding.show.setVisibility(manualStatus ? VISIBLE : View.GONE);
 		List<PresenceTemplate> templates = xmppConnectionService.getPresenceTemplates(mAccount);
+	//CMG AM-365
 		PresenceTemplateAdapter presenceTemplateAdapter = new PresenceTemplateAdapter(this, R.layout.simple_list_item, templates);
-		binding.statusMessage.setAdapter(presenceTemplateAdapter);
-		binding.statusMessage.setOnItemClickListener((parent, view, position, id) -> {
-			PresenceTemplate template = (PresenceTemplate) parent.getItemAtPosition(position);
-			setAvailabilityRadioButton(template.getStatus(), binding);
-		});
+//		binding.statusMessage.setAdapter(presenceTemplateAdapter);
+//		binding.statusMessage.setOnItemClickListener((parent, view, position, id) -> {
+//			PresenceTemplate template = (PresenceTemplate) parent.getItemAtPosition(position);
+//			setAvailabilityRadioButton(template.getStatus(), binding);
+//		});
 		builder.setTitle(R.string.edit_status_message_title);
 		builder.setView(binding.getRoot());
 		builder.setNegativeButton(R.string.cancel, null);
