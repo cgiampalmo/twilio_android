@@ -543,7 +543,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					avatar.setImageBitmap(avatarService().get(mAccount, (int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
 					Button name = findViewById(R.id.nav_name);
 					name.setOnClickListener(mAvatarClickListener);
-					name.setText(mAccount.getUsername());
+					name.setText(getDisplayName());
 
 					Button status_text = (Button) findViewById(R.id.nav_status_text);
 					ImageView status_icon = (ImageView) findViewById(R.id.nav_status_icon);
@@ -809,6 +809,19 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		if (downArrow != null) {
 			downArrow.setVisibility(View.GONE);
 		}
+	}
+
+	//CMG AM-357
+	private String getDisplayName(){
+		if(mAccount != null){
+			String disname = null;
+			disname = mAccount.getDisplayName();
+			if (disname == null) {
+				disname = mAccount.getUsername();
+			}
+			return disname;
+		}
+		return "";
 	}
 
 	private void onItemNavigationClicked(MenuItem item) {

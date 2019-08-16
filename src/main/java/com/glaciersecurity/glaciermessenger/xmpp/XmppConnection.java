@@ -333,7 +333,7 @@ public class XmppConnection implements Runnable {
 
 						if (!features.encryptionEnabled) {
 							localSocket = new Socket();
-							localSocket.connect(addr, Config.SOCKET_TIMEOUT * 800);
+							localSocket.connect(addr, Config.SOCKET_TIMEOUT * 1000);
 						} else {
 							final TlsFactoryVerifier tlsFactoryVerifier = getTlsFactoryVerifier();
 							localSocket = tlsFactoryVerifier.factory.createSocket();
@@ -346,7 +346,7 @@ public class XmppConnection implements Runnable {
 							SSLSocketHelper.setHostname((SSLSocket) localSocket, account.getServer());
 							SSLSocketHelper.setApplicationProtocol((SSLSocket) localSocket, "xmpp-client");
 
-							localSocket.connect(addr, Config.SOCKET_TIMEOUT * 800);
+							localSocket.connect(addr, Config.SOCKET_TIMEOUT * 1000);
 
 							if (!tlsFactoryVerifier.verifier.verify(account.getServer(), verifiedHostname, ((SSLSocket) localSocket).getSession())) {
 								Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": TLS certificate verification failed - connect");
@@ -354,7 +354,7 @@ public class XmppConnection implements Runnable {
 								throw new StateChangingException(Account.State.TLS_ERROR);
 							}
 						}
-						localSocket.setSoTimeout(Config.SOCKET_TIMEOUT * 800);
+						localSocket.setSoTimeout(Config.SOCKET_TIMEOUT * 1000);
 						if (startXmpp(localSocket)) {
 							localSocket.setSoTimeout(0); //reset to 0; once the connection is established we don’t want this
 							if (!hardcoded && !result.equals(storedBackupResult)) {
