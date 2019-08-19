@@ -73,6 +73,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 	public static final String THEME = "theme";
 	public static final String SHOW_DYNAMIC_TAGS = "show_dynamic_tags";
 	public static final String OMEMO_SETTING = "omemo";
+	public static final String SCREEN_SECURITY = "screen_security"; //CMG AM-137
 //	public static final String DISPLAYNAME = "displayname"; //ALF AM-48
 
 	public static final int REQUEST_CREATE_BACKUP = 0xbf8701;
@@ -136,6 +137,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 				attachmentsCategory.removePreference(locationPlugin);
 			}
 		}
+
 
 		//this feature is only available on Huawei Android 6.
 		PreferenceScreen huaweiPreferenceScreen = (PreferenceScreen) mSettingsFragment.findPreference("huawei");
@@ -578,6 +580,9 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 			if (this.mTheme != theme) {
 				recreate();
 			}
+		} else if (name.equals(SCREEN_SECURITY)){
+			//CMG AM-137
+			initializeScreenshotSecurity();
 		}
 
 	}

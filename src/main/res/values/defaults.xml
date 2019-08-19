@@ -14,6 +14,7 @@
     <bool name="last_activity">true</bool>
     <bool name="vibrate_on_notification">true</bool>
     <bool name="led">true</bool>
+    <bool name="screen_security">true</bool> <!-- CMG AM-137 -->
     <bool name="enable_quiet_hours">false</bool>
     <string name="notification_ringtone">content://settings/system/notification_sound</string>
     <integer name="grace_period">144</integer>

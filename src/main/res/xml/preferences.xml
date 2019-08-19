@@ -309,6 +309,12 @@
                     android:key="remove_trusted_certificates"
                     android:summary="@string/pref_remove_trusted_certificates_summary"
                     android:title="@string/pref_remove_trusted_certificates_title"/>
+                <!--CMG AM-137-->
+                <CheckBoxPreference
+                    android:defaultValue="@bool/screen_security"
+                    android:key="screen_security"
+                    android:summary="@string/pref_screen_security_summary"
+                    android:title="@string/pref_screen_security" />
                 <!-- HONEYBADGER AM-120 Disable and hide Connect via Tor-->
                 <!--<CheckBoxPreference-->
                 <!--android:defaultValue="@bool/use_tor"-->

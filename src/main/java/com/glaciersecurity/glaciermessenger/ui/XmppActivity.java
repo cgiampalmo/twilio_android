@@ -909,6 +909,8 @@ public abstract class XmppActivity extends PinActivity {
 	@Override
 	public void onResume() {
 		super.onResume();
+		//CMG AM-137
+		initializeScreenshotSecurity();
 	}
 
 	protected int findTheme() {
