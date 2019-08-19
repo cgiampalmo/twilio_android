@@ -731,7 +731,7 @@
     <string name="pref_headsup_notifications">Heads-up Notifications</string>
     <string name="pref_headsup_notifications_summary">Show Heads-up Notifications</string>
     <string name="today">Today</string>
-    <string name="no_messages">No Messages</string>
+    <string name="no_messages">No Conversations</string>
     <string name="no_messages_yet">When you have messages, you\'ll see them here.</string>
     <string name="yesterday">Yesterday</string>
     <string name="pref_validate_hostname">Validate hostname with DNSSEC</string>
