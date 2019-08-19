@@ -747,6 +747,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	private static void setStatusMessageRadioButton(String statusMessage, DialogPresenceBinding binding) {
 		if (statusMessage == null) {
 			binding.statuses.clearCheck();
+			binding.statusMessage.setEnabled(false);
 			return;
 		}
 		binding.statuses.clearCheck();
@@ -769,6 +770,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					return;
 				} else {
 					binding.statuses.clearCheck();
+					binding.statusMessage.setEnabled(false);
 					return;
 				}
 
