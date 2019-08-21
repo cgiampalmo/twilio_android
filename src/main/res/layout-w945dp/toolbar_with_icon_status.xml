@@ -16,9 +16,11 @@
         android:layout_height="7dp"
         android:layout_gravity="left|center_vertical"
         android:adjustViewBounds="true"
-        android:layout_marginLeft="@dimen/image_button_padding"
-        android:layout_marginRight="@dimen/input_label_vertical_spacing"
-        app:srcCompat="@drawable/ic_green_small" />
+        android:layout_marginLeft="@dimen/status_icon_left_padding"
+        android:layout_marginRight="@dimen/status_icon_right_padding"
+        android:layout_marginStart="@dimen/status_icon_left_padding"
+        android:layout_marginEnd="@dimen/status_icon_right_padding"
+        app:srcCompat="@drawable/ic_green_small" />   <!-- DJF updated for AM-340 -->
 
 
     <ImageButton

@@ -11,6 +11,9 @@
 	<dimen name="audio_player_width">224dp</dimen>
 	<dimen name="avatar_item_distance">16dp</dimen>
 
+	<dimen name="status_icon_left_padding">15dp</dimen>   <!-- DJF added for AM-340 -->
+	<dimen name="status_icon_right_padding">5dp</dimen>   <!-- DJF added for AM-340-->
+
 	<dimen name="media_preview_size">80dp</dimen>
 	<dimen name="media_size">56dp</dimen> <!-- ideally not larger than avatar_on_details_screen -->
 	<dimen name="browser_media_size">96dp</dimen>
