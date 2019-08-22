@@ -1247,15 +1247,21 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		String groupname = name.replaceAll("[^a-zA-Z0-9]", "");
 		final Jid conferenceJid;
 		try {
-			conferenceJid = Jid.of(groupname + "@conference" + account.getJid().getDomain());
+			conferenceJid = Jid.of(groupname + "@conference." + account.getJid().getDomain());
 		} catch (final Exception e) {
 			editName.setError(getString(R.string.invalid_jid));
+			mToast = Toast.makeText(this, R.string.invalid_jid, Toast.LENGTH_LONG);
+			mToast.show();
+			Log.d(Config.LOGTAG, "PROBLEM - The group name you entered is not a valid group name!");
 			return;
 		}
 
 		//ALF AM-78
 		if (curAccount.hasBookmarkFor(conferenceJid) || curAccount.groupExists(conferenceJid)) {
 			editName.setError(getString(R.string.group_already_exists));
+			mToast = Toast.makeText(this, R.string.group_already_exists, Toast.LENGTH_LONG);
+			mToast.show();
+			Log.d(Config.LOGTAG, "PROBLEM - a group chat named " + conferenceJid + " already exists!");
 		} else {
 			Intent intent = new Intent(getApplicationContext(), ChooseContactActivity.class);
 			intent.putExtra(ChooseContactActivity.EXTRA_SHOW_ENTER_JID, true); //ALF from false

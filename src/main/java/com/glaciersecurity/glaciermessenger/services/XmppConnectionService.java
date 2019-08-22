@@ -2931,6 +2931,7 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 								archiveConversation(conversation);
 								if (callback != null) {
 									callback.error(R.string.conference_creation_failed, conversation);
+									Log.d(Config.LOGTAG, "PROBLEM - The group chat creation failed!");
 								}
 							}
 						});
