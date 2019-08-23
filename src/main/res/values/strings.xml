@@ -381,7 +381,7 @@
     <string name="pref_show_dynamic_tags_summary">Display read-only tags underneath contacts</string>
     <string name="enable_notifications">Enable notifications</string>
     <string name="no_conference_server_found">No group chat server found</string>
-    <string name="conference_creation_failed">Group chat creation failed!</string>
+    <string name="conference_creation_failed">Group creation failed - improper name! </string>  <!-- Group chat creation failed! -->
     <string name="account_image_description">Account avatar</string>
     <string name="copy_glacier_clipboard_description">Copy Glacier ID to clipboard</string>
     <string name="regenerate_glacier_key">Regenerate Glacier key</string>
