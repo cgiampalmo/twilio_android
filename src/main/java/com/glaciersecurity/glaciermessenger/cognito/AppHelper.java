@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 public class AppHelper {
@@ -86,6 +87,7 @@ public class AppHelper {
 
         if (userPool == null) {
             // GOOBER - Test
+            loadPropertiesFile(context); //ALF AM-313
             ClientConfiguration clientConfiguration = new ClientConfiguration();
             userPool = new CognitoUserPool(context, Constants.COGNITO_USER_POOL_ID, Constants.COGNITO_CLIENT_ID, Constants.COGNITO_CLIENT_SECRET, clientConfiguration, cognitoRegion);
         }
@@ -93,6 +95,21 @@ public class AppHelper {
         currUserAttributes = new HashSet<String>();
 
         newDevice = null;
+    }
+
+    //ALF AM-313
+    private static void loadPropertiesFile(Context context){
+        PropertyLoader propertyLoader = new PropertyLoader(context);
+        Properties properties = propertyLoader.getProperties(Constants.CONFIG_PROPERTIES_FILE);
+
+        Constants.setCognitoIdentityPoolId(properties.getProperty("COGNITO_IDENTITY_POOL_ID"));
+        Constants.setCognitoUserPoolId(properties.getProperty("COGNITO_USER_POOL_ID"));
+        Constants.setCognitoIdentityPoolId(properties.getProperty("COGNITO_IDENTITY_POOL_ID"));
+        Constants.setBucketName(properties.getProperty("BUCKET_NAME"));
+        Constants.setKeyPrefix(properties.getProperty("KEY_PREFIX"));
+        Constants.setCognitoClientSecret(properties.getProperty("COGNITO_CLIENT_SECRET"));
+        Constants.setCognitoClientId(properties.getProperty("COGNITO_CLIENT_ID"));
+        Constants.setFilesafePrefix(properties.getProperty("FILESAFE_PREFIX"));
     }
 
     public static CognitoUserPool getPool() {

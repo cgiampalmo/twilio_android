@@ -26,6 +26,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
@@ -78,6 +79,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 
 import com.glaciersecurity.glaciercore.api.IOpenVPNAPIService;
+import com.glaciersecurity.glaciercore.api.IOpenVPNStatusCallback;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.android.JabberIdContact;
@@ -162,7 +164,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.stanzas.PresencePacket;
 import me.leolin.shortcutbadger.ShortcutBadger;
 import rocks.xmpp.addr.Jid;
 
-public class XmppConnectionService extends Service { //}, ServiceConnection {  //ALF AM-57 placeholder
+public class XmppConnectionService extends Service implements ServiceConnection, Handler.Callback { //ALF AM-57 placeholder, AM-344
 
 	public static final String ACTION_REPLY_TO_CONVERSATION = "reply_to_conversations";
 	public static final String ACTION_MARK_AS_READ = "mark_as_read";
@@ -275,6 +277,11 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 	private boolean destroyed = false;
 
 	private int unreadCount = -1;
+
+	//ALF AM-344
+	protected IOpenVPNAPIService mService=null;
+	private Handler mHandler;
+	private static final int MSG_UPDATE_STATE = 0;
 
 	//Ui callback listeners
 	private final Set<OnConversationUpdate> mOnConversationUpdates = Collections.newSetFromMap(new WeakHashMap<OnConversationUpdate, Boolean>());
@@ -1110,6 +1117,18 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 		this.pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 		this.wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "XmppConnectionService");
 
+		//ALF AM-344
+		try {
+			mHandler = new Handler(this);
+			Intent icsopenvpnService = new Intent(IOpenVPNAPIService.class.getName());
+			icsopenvpnService.setPackage("com.glaciersecurity.glaciercore");
+			bindService(icsopenvpnService, this, Context.BIND_AUTO_CREATE);
+		} catch (SecurityException e) { //ALF AM-194 added Security
+			e.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
 		toggleForegroundService();
 		updateUnreadCountBadge();
 		toggleScreenEventReceiver();
@@ -1193,7 +1212,7 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 	}
 
 	public void toggleScreenEventReceiver() {
-		if (awayWhenScreenOff() && !manuallyChangePresence()) {
+		if (awayWhenScreenOff()) {   //    && !manuallyChangePresence()) {    // DJF Updated for Advanced Settings 08-27-19
 			final IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
 			filter.addAction(Intent.ACTION_SCREEN_OFF);
 			registerReceiver(this.mInternalScreenEventReceiver, filter);
@@ -4116,11 +4135,22 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 
 	private void sendPresence(final Account account, final boolean includeIdleTimestamp) {
 		Presence.Status status;
-		if (manuallyChangePresence()) {
+		/*if (manuallyChangePresence()) {
 			status = account.getPresenceStatus();
 		} else {
 			status = getTargetPresence();
+		}*/
+		// DJF Updated for Advanced Settings 08-27-19
+		if (dndOnSilentMode() && isPhoneSilenced()) {
+			status =  Presence.Status.DND;
+		} else if (awayWhenScreenOff() && !isInteractive()) {
+			status =  Presence.Status.AWAY;
+		} else if (manuallyChangePresence()) {
+			status = account.getPresenceStatus();
+		} else {
+			status =  Presence.Status.ONLINE;
 		}
+
 		PresencePacket packet = mPresenceGenerator.selfPresence(account, status);
 		String message = account.getPresenceStatusMessage();
 		if (message != null && !message.isEmpty()) {
@@ -4512,6 +4542,63 @@ public class XmppConnectionService extends Service { //}, ServiceConnection {  /
 	public ShortcutService getShortcutService() {
 		return mShortcutService;
 	}
+
+	//ALF AM-344 start
+	@Override
+	public void onServiceConnected(ComponentName name, IBinder service) {
+		mService = IOpenVPNAPIService.Stub.asInterface(service);
+
+		try {
+			mService.registerStatusCallback(mCallback);
+		} catch (RemoteException | SecurityException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void onServiceDisconnected(ComponentName className) {
+		// This is called when the connection with the service has been
+		// unexpectedly disconnected -- that is, its process crashed.
+		mService = null;
+	}
+
+	private IOpenVPNStatusCallback mCallback = new IOpenVPNStatusCallback.Stub() {
+		/**
+		 * This is called by the remote service regularly to tell us about
+		 * new values.  Note that IPC calls are dispatched through a thread
+		 * pool running in each process, so the code executing here will
+		 * NOT be running in our main thread like most other things -- so,
+		 * to update the UI, we need to use a Handler to hop over there.
+		 */
+
+		@Override
+		public void newStatus(String uuid, String state, String message, String level)
+				throws RemoteException {
+			android.os.Message msg = android.os.Message.obtain(mHandler, MSG_UPDATE_STATE, state + "|" + message);
+			msg.sendToTarget();
+		}
+	};
+
+	@Override
+	public boolean handleMessage(android.os.Message msg) {
+		if(msg.what == MSG_UPDATE_STATE) {
+			if (msg.obj.toString().startsWith("CONNECTED")) {
+				for (Account account : accounts) {
+					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": Core just connected. Account status: " + account.getStatus());
+					if (account.getStatus() == Account.State.OFFLINE || account.getStatus() == Account.State.NO_INTERNET ||
+							account.getStatus() == Account.State.SERVER_NOT_FOUND) { 
+						resetSendingToWaiting(account);
+						if (account.isEnabled() && !account.isOnlineAndConnected()) {
+							Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": Core just connected. Reconnecting account now");
+							reconnectAccount(account, true, false);
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
+	//ALF AM-344 end
 
 	public void pushMamPreferences(Account account, Element prefs) {
 		IqPacket set = new IqPacket(IqPacket.TYPE.SET);
