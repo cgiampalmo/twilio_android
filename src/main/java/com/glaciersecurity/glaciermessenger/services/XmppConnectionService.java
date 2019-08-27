@@ -4570,8 +4570,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	@Override
 	public boolean handleMessage(android.os.Message msg) {
-		com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "XmppConnectionService::handleMessage(): " + msg.obj.toString() + "::What = " + msg.what);
-
 		if(msg.what == MSG_UPDATE_STATE) {
 			if (msg.obj.toString().startsWith("CONNECTED")) {
 				for (Account account : accounts) {
