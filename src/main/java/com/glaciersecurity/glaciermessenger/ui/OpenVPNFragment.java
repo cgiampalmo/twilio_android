@@ -114,6 +114,9 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
         // mMyIp = (TextView) v.findViewById(R.id.MyIpText);
         addItemsOnProfileSpinner(v);
 
+        mStartVpn.setEnabled(true); //DJF 08-27 Start on, and then toggle off depending on conditions
+        mDisconnect.setEnabled(true); //DJF 08-27 Start on, and then toggle off depending on conditions
+
 //        //CMG AM-41
 //        offlineLayout = (LinearLayout) v.findViewById(R.id.offline_layout);
 //        networkStatus = (TextView) v.findViewById(R.id.network_status);
@@ -753,7 +756,15 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             // GOOBER - check for NOPROCESS string and change it to NOT CONNECTED
             if (msg.obj.toString().startsWith("NOPROCESS")) {
                 mStatus.setText("NOT CONNECTED");
+
+                // DJF 08-27
+                //if (profileSpinner == null) {
                 mStartVpn.setEnabled(true);
+                mDisconnect.setEnabled(false);
+                //} else {
+                //    mStartVpn.setEnabled(false);
+                //    mDisconnect.setEnabled(false);
+                //}
                 //Log.d("GOOBER", "NOT CONNECTED: connectClicked = " + connectClicked + "::randomProfileSelected = " + randomProfileSelected);
 
                 // check if this is a start of trying random profiles and it failed
@@ -786,6 +797,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                     disconnectClicked = false;
                     excludeProfileList.clear();
                     mStartVpn.setEnabled(false);
+                    mDisconnect.setEnabled(true); // DJF 08-27
                     // GOOBER - Generally don't want stuff after text when CONNECTED
                     mStatus.setText("CONNECTED");
                 } else if ((msg.obj.toString().startsWith("NONETWORK")) || (msg.obj.toString().startsWith("AUTH_FAILED")) || (msg.obj.toString().startsWith("EXITING"))) {
@@ -794,10 +806,12 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                     disconnectClicked = false;
                     excludeProfileList.clear();
                     mStartVpn.setEnabled(true);
+                    mDisconnect.setEnabled(false); // DJF 08-27
                     // GOOBER - get rid of pipe ("|") from end of message
                     mStatus.setText(((CharSequence) msg.obj).subSequence(0, ((CharSequence) msg.obj).length() - 1));
                 } else { // all other messages are in-process messages so disable "Connect" button
                     mStartVpn.setEnabled(false);
+                    mDisconnect.setEnabled(false); // DJF 08-27
                     // GOOBER - get rid of pipe ("|") from end of message
                     mStatus.setText(((CharSequence) msg.obj).subSequence(0, ((CharSequence) msg.obj).length() - 1));
                 }

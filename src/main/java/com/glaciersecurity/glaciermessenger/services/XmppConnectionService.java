@@ -1212,7 +1212,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public void toggleScreenEventReceiver() {
-		if (awayWhenScreenOff() && !manuallyChangePresence()) {
+		if (awayWhenScreenOff()) {   //    && !manuallyChangePresence()) {    // DJF Updated for Advanced Settings 08-27-19
 			final IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
 			filter.addAction(Intent.ACTION_SCREEN_OFF);
 			registerReceiver(this.mInternalScreenEventReceiver, filter);
@@ -4135,11 +4135,22 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	private void sendPresence(final Account account, final boolean includeIdleTimestamp) {
 		Presence.Status status;
-		if (manuallyChangePresence()) {
+		/*if (manuallyChangePresence()) {
 			status = account.getPresenceStatus();
 		} else {
 			status = getTargetPresence();
+		}*/
+		// DJF Updated for Advanced Settings 08-27-19
+		if (dndOnSilentMode() && isPhoneSilenced()) {
+			status =  Presence.Status.DND;
+		} else if (awayWhenScreenOff() && !isInteractive()) {
+			status =  Presence.Status.AWAY;
+		} else if (manuallyChangePresence()) {
+			status = account.getPresenceStatus();
+		} else {
+			status =  Presence.Status.ONLINE;
 		}
+
 		PresencePacket packet = mPresenceGenerator.selfPresence(account, status);
 		String message = account.getPresenceStatusMessage();
 		if (message != null && !message.isEmpty()) {

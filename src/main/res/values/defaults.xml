@@ -5,10 +5,12 @@
     <bool name="enter_is_send">false</bool>
     <bool name="notifications_from_strangers">true</bool>
     <bool name="headsup_notifications">true</bool>
-    <bool name="dnd_on_silent_mode">false</bool>
+    <bool name="manually_change_presence">true</bool> <!-- CMG AM-218 -->
+    <bool name="away_when_screen_off">true</bool> <!-- DJF Updated for Advanced Settings 08-27-19 -->
+    <bool name="dnd_on_silent_mode">true</bool> <!-- DJF Updated for Advanced Settings 08-27-19 -->
+    <bool name="treat_vibrate_as_silent">false</bool>
     <string name="displayname">displayname</string> <!-- ALF AM-48 -->
     <integer name="message_timer">0</integer> <!-- ALF AM-53 -->
-    <bool name="treat_vibrate_as_silent">false</bool>
     <bool name="confirm_messages">true</bool>
     <bool name="chat_states">true</bool>
     <bool name="last_activity">true</bool>
@@ -32,8 +34,6 @@
     <bool name="use_tor">false</bool>
     <bool name="show_connection_options">false</bool>
     <bool name="display_enter_key">false</bool>
-    <bool name="manually_change_presence">true</bool> <!-- CMG AM-218 -->
-    <bool name="away_when_screen_off">false</bool>
     <bool name="autojoin">true</bool>
     <bool name="indicate_received">true</bool>
     <bool name="enable_foreground_service">true</bool> <!-- ALF AM-164 -->

@@ -36,6 +36,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -46,12 +47,14 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
 import android.media.audiofx.PresetReverb;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.support.annotation.IdRes;
@@ -550,8 +553,24 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					status_text.setOnClickListener(mPresenceClickListener);
 					//CMG AM-218
 					if (ConnectivityReceiver.isConnected(getApplicationContext())) {
-						status_text.setText(mAccount.getPresenceStatus().toDisplayString());
-						status_icon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
+
+						Presence.Status status;
+
+						// DJF Updated for Advanced Settings 08-27-19
+						if (dndOnSilentMode() && isPhoneSilenced()) {
+							status =  Presence.Status.DND;
+						} else if (awayWhenScreenOff() && !isInteractive()) {
+							status =  Presence.Status.AWAY;
+						} else if (manuallyChangePresence()) {
+							status = mAccount.getPresenceStatus();
+						} else {
+							status =  Presence.Status.ONLINE;
+						}
+
+						status_text.setText(status.toDisplayString());
+						status_icon.setImageResource(status.getStatusIcon());
+						//status_text.setText(mAccount.getPresenceStatus().toDisplayString());
+						//status_icon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
 					} else {
 						status_text.setText(Presence.Status.OFFLINE.toDisplayString());
 						status_icon.setImageResource(Presence.Status.OFFLINE.getStatusIcon());
@@ -601,6 +620,57 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				return true;
 			}
 		});
+	}
+
+	private boolean dndOnSilentMode() {
+		return getBooleanPreference(SettingsActivity.DND_ON_SILENT_MODE, R.bool.dnd_on_silent_mode);
+	}
+
+	private boolean treatVibrateAsSilent() {
+		return getBooleanPreference(SettingsActivity.TREAT_VIBRATE_AS_SILENT, R.bool.treat_vibrate_as_silent);
+	}
+	private boolean awayWhenScreenOff() {
+		return getBooleanPreference(SettingsActivity.AWAY_WHEN_SCREEN_IS_OFF, R.bool.away_when_screen_off);
+	}
+
+	@SuppressLint("NewApi")
+	@SuppressWarnings("deprecation")
+	public boolean isInteractive() {
+		try {
+			final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+
+			final boolean isScreenOn;
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+				isScreenOn = pm.isScreenOn();
+			} else {
+				isScreenOn = pm.isInteractive();
+			}
+			return isScreenOn;
+		} catch (RuntimeException e) {
+			return false;
+		}
+	}
+	private boolean isPhoneSilenced() {
+		final boolean notificationDnd;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			final NotificationManager notificationManager = getSystemService(NotificationManager.class);
+			final int filter = notificationManager == null ? NotificationManager.INTERRUPTION_FILTER_UNKNOWN : notificationManager.getCurrentInterruptionFilter();
+			notificationDnd = filter >= NotificationManager.INTERRUPTION_FILTER_PRIORITY;
+		} else {
+			notificationDnd = false;
+		}
+		final AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+		final int ringerMode = audioManager == null ? AudioManager.RINGER_MODE_NORMAL : audioManager.getRingerMode();
+		try {
+			if (treatVibrateAsSilent()) {
+				return notificationDnd || ringerMode != AudioManager.RINGER_MODE_NORMAL;
+			} else {
+				return notificationDnd || ringerMode == AudioManager.RINGER_MODE_SILENT;
+			}
+		} catch (Throwable throwable) {
+			Log.d(Config.LOGTAG, "platform bug in isPhoneSilenced (" + throwable.getMessage() + ")");
+			return notificationDnd;
+		}
 	}
 
 	@Override
