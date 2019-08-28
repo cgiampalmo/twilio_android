@@ -4,12 +4,14 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
+import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.IdRes;
@@ -676,12 +678,65 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		});
 	}
 
+	//ALF AM-321 (next 3)
+	private void showAttachFileProgress() {
+		showCompressionDialog(this.getString(R.string.compressing_file_dialog_message));
+		// update UI
+	}
+
+	/**
+	 * Close progress dialog
+	 */
+	private void closeCompressionDialog() {
+		if (compressDialog != null && compressDialog.isShowing()){
+			compressDialog.dismiss();
+		}
+	}
+
+	static private ProgressDialog compressDialog;
+	/**
+	 * Display progress dialog
+	 *
+	 * @param message
+	 */
+	public void showCompressionDialog(String message) {
+		if (compressDialog != null) {
+			compressDialog.dismiss();
+		}
+		compressDialog = new ProgressDialog(this.getActivity());
+		compressDialog.setMessage(message); // Setting Message
+		compressDialog.setTitle("Compression Progress"); // Setting Title
+		compressDialog.setMax(100);
+		compressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+		compressDialog.show(); // Display Progress Dialog
+
+		new Thread(() -> {
+				try {
+					while (compressDialog != null && (compressDialog.getProgress() <= compressDialog
+							.getMax())) {
+						Thread.sleep(200);
+						compressDialog.setProgress(activity.xmppConnectionService.getCompressionPercent());
+
+						if (compressDialog != null && compressDialog.isShowing() &&
+								(compressDialog.getProgress() >= compressDialog.getMax() -1)) {
+							compressDialog.dismiss();
+						}
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+		}).start();
+	}
+
 	private void attachFileToConversation(Conversation conversation, Uri uri, String type) {
 		if (conversation == null) {
 			return;
 		}
 		final Toast prepareFileToast = Toast.makeText(getActivity(), getText(R.string.preparing_file), Toast.LENGTH_LONG);
 		prepareFileToast.show();
+
+		new Handler().postDelayed(() -> showAttachFileProgress(), 2000); //ALF AM-321
+
 		activity.delegateUriPermissionsToService(uri);
 		activity.xmppConnectionService.attachFileToConversation(conversation, uri, type, new UiInformableCallback<Message>() {
 			@Override
@@ -698,6 +753,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 
 			@Override
 			public void error(final int errorCode, Message message) {
+				closeCompressionDialog();
 				hidePrepareFileToast(prepareFileToast);
 				runOnUiThread(() -> activity.replaceToast(getString(errorCode)));
 

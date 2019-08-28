@@ -1,6 +1,7 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.media.MediaScannerConnection;
 import android.os.Environment;
@@ -370,34 +371,44 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 		builder.setPositiveButton(getString(R.string.wipe_all_history), (dialog, which) -> {
 			// go through each conversation and either delete or end each chat depending
 			// on what was checked.
-			List<Conversation> conversations = xmppConnectionService.getConversations();
+			//ALF AM-81 kicked off thread to solve the underlying problem
+			new Thread(() -> {
+				List<Conversation> conversations = xmppConnectionService.getConversations();
 
-			for (int i = (conversations.size() - 1); i >= 0; i--) {
-
-				// delete messages
-				if (deleteAllMessagesEachChatCheckBox.isChecked()) {
-					this.xmppConnectionService.clearConversationHistory(conversations.get(i));
-				}
-
-				// end chat
-				if (endAllChatCheckBox.isChecked()) {
-					//ALF AM-51, AM-64
-					if (conversations.get(i).getMode() == Conversation.MODE_MULTI) {
+				boolean hadMulti = false;
+				for (int i = (conversations.size() - 1); i >= 0; i--) {
+					if (endAllChatCheckBox.isChecked() && conversations.get(i).getMode() == Conversation.MODE_MULTI) {
 						sendLeavingGroupMessage(conversations.get(i));
-						// sleep required so message goes out before conversation thread stopped
-						try { Thread.sleep(3000); } catch (InterruptedException ie) {}
+						hadMulti = true;
 					}
-					this.xmppConnectionService.archiveConversation(conversations.get(i));
 				}
-			}
+				if (hadMulti) {
+					// sleep required so message goes out before conversation thread stopped
+					try { Thread.sleep(3000); } catch (InterruptedException ie) {}
+				}
 
-			// delete everything in cache
-			if (deleteAllCachedFilesCheckBox.isChecked()) {
-				clearCachedFiles();
-			}
+				for (int i = (conversations.size() - 1); i >= 0; i--) {
+
+					// delete messages
+					if (deleteAllMessagesEachChatCheckBox.isChecked()) {
+						xmppConnectionService.clearConversationHistory(conversations.get(i));
+					}
+
+					// end chat
+					if (endAllChatCheckBox.isChecked()) {
+						xmppConnectionService.archiveConversation(conversations.get(i));
+					}
+				}
+
+				// delete everything in cache
+				if (deleteAllCachedFilesCheckBox.isChecked()) {
+					clearCachedFiles();
+				}
+			}).start();
 		});
 		builder.create().show();
 	}
+
 	/**
 	 * //ALF AM-51
 	 */
