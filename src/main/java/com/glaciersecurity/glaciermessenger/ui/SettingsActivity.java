@@ -409,37 +409,6 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 		builder.create().show();
 	}
 
-	//ALF AM-81 (and next two methods)
-	static private ProgressDialog wipeDialog;
-	/**
-	 * Close progress dialog
-	 */
-	private void closeWipeDialog() {
-		if (wipeDialog != null && wipeDialog.isShowing()){
-			wipeDialog.dismiss();
-		}
-	}
-
-
-	/**
-	 * Display progress dialog
-	 *
-	 * @param message
-	 */
-	public void showWipeDialog(String message) {
-		if (wipeDialog != null) {
-			wipeDialog.dismiss();
-		}
-		wipeDialog = new ProgressDialog(this);
-		wipeDialog.setMessage(message); // Setting Message
-		wipeDialog.setTitle("Wiping History"); // Setting Title
-		//wipeDialog.setMax(100);
-		wipeDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		wipeDialog.setIndeterminate(true);
-		wipeDialog.setCancelable(false);
-		wipeDialog.show(); // Display Progress Dialog
-	}
-
 	/**
 	 * //ALF AM-51
 	 */
