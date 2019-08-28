@@ -534,11 +534,22 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		message.setCounterpart(conversation.getNextCounterpart());
 		message.setType(Message.TYPE_FILE);
 		final AttachFileToConversationRunnable runnable = new AttachFileToConversationRunnable(this, uri, type, message, callback);
+		setCompressionPercent(0); //ALF AM-321
 		if (runnable.isVideoMessage()) {
 			mVideoCompressionExecutor.execute(runnable);
 		} else {
 			mFileAddingExecutor.execute(runnable);
 		}
+	}
+
+	//ALF AM-321
+	private int compressionPercent = 0;
+	public void setCompressionPercent(int percent) {
+		compressionPercent = percent;
+	}
+
+	public int getCompressionPercent() {
+		return compressionPercent;
 	}
 
 	public void attachImageToConversation(final Conversation conversation, final Uri uri, final UiCallback<Message> callback) {

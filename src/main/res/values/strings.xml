@@ -1025,6 +1025,9 @@
     <string name="wipe_all_history">Continue</string>
     <string name="wipe_history">Continue</string>
 
+    <!-- ALF AM-321 -->
+    <string name="compressing_file_dialog_message">Compressing video...</string>
+
     <!-- ALF AM-277 -->
     <string name="action_filesafe">FileSafe</string>
     <string name="upload_filesafe_dialog_message">Uploading to FileSafe....</string>
