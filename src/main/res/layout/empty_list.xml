@@ -4,37 +4,27 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="?attr/color_background_secondary"
-    android:fitsSystemWindows="true"
-    android:orientation="vertical">
-
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <include layout="@layout/toolbar" />
-
-    </android.support.design.widget.AppBarLayout>
-
+    android:fitsSystemWindows="true">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
 
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_centerInParent="true"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_margin="40dp">
 
             <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="120dp"
                 android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
                 android:adjustViewBounds="true"
-                android:padding="20dp"
                 app:srcCompat="@drawable/ic_updated_glacier_icon" />
 
             <TextView
@@ -66,7 +56,7 @@
                     android:layout_marginEnd="@dimen/spacing_mlarge"
                     android:layout_marginRight="@dimen/spacing_mlarge"
                     android:src="@drawable/shape_circle"
-                    android:tint="@color/grey_20" />
+                    android:tint="@color/grey_700" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -76,19 +66,19 @@
                     <View
                         android:layout_width="70dp"
                         android:layout_height="@dimen/spacing_middle"
-                        android:background="@color/grey_20" />
+                        android:background="@color/grey_700" />
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/spacing_middle"
                         android:layout_marginTop="@dimen/spacing_middle"
-                        android:background="@color/grey_20" />
+                        android:background="@color/grey_700" />
 
                     <View
                         android:layout_width="40dp"
                         android:layout_height="@dimen/spacing_middle"
                         android:layout_marginTop="@dimen/spacing_middle"
-                        android:background="@color/grey_20" />
+                        android:background="@color/grey_700" />
 
                 </LinearLayout>
 
@@ -104,9 +94,9 @@
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_marginEnd="@dimen/spacing_mlarge"
-                    android:layout_marginRight="@dimen/spacing_xlarge"
+                    android:layout_marginRight="@dimen/spacing_mlarge"
                     android:src="@drawable/shape_circle"
-                    android:tint="@color/grey_10" />
+                    android:tint="@color/grey_500" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -114,21 +104,21 @@
                     android:orientation="vertical">
 
                     <View
-                        android:layout_width="100dp"
+                        android:layout_width="70dp"
                         android:layout_height="@dimen/spacing_middle"
-                        android:background="@color/grey_10" />
+                        android:background="@color/grey_500" />
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/spacing_middle"
                         android:layout_marginTop="@dimen/spacing_middle"
-                        android:background="@color/grey_10" />
+                        android:background="@color/grey_500" />
 
                     <View
                         android:layout_width="40dp"
                         android:layout_height="@dimen/spacing_middle"
                         android:layout_marginTop="@dimen/spacing_middle"
-                        android:background="@color/grey_10" />
+                        android:background="@color/grey_500" />
 
                 </LinearLayout>
 

@@ -14,7 +14,9 @@
             android:layout_height="match_parent"
             android:background="?attr/color_background_primary"
            />
-
+        <include layout="@layout/empty_list"
+            android:id="@+id/empty_list"
+            android:visibility="gone"/>
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"
             app:backgroundTint="#27a1cb"

@@ -276,6 +276,16 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		super.onAttach(activity);
 		if (activity instanceof XmppActivity) {
 			this.activity = (XmppActivity) activity;
+			View emptyLayout;
+			if (((XmppActivity) activity).xmppConnectionService != null){
+				if (((XmppActivity) activity).xmppConnectionService.isConversationsListEmpty(null)) {
+					emptyLayout = getView().findViewById(R.id.empty_list);
+					emptyLayout.setVisibility(View.VISIBLE);
+				} else {
+					emptyLayout = getView().findViewById(R.id.empty_list);
+					emptyLayout.setVisibility(View.GONE);
+				}
+			}
 		} else {
 			throw new IllegalStateException("Trying to attach fragment to activity that is not an XmppActivity");
 		}
@@ -366,6 +376,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 	public void onResume() {
 		super.onResume();
 		Log.d(Config.LOGTAG, "ConversationsOverviewFragment.onResume()");
+
 	}
 
 	@Override
@@ -403,6 +414,16 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		ScrollState scrollState = pendingScrollState.pop();
 		if (scrollState != null) {
 			setScrollPosition(scrollState);
+		}
+		View emptyLayout;
+		if (((XmppActivity) activity).xmppConnectionService != null){
+			if (((XmppActivity) activity).xmppConnectionService.isConversationsListEmpty(removed)) {
+				emptyLayout = getView().findViewById(R.id.empty_list);
+				emptyLayout.setVisibility(View.VISIBLE);
+			} else {
+				emptyLayout = getView().findViewById(R.id.empty_list);
+				emptyLayout.setVisibility(View.GONE);
+			}
 		}
 	}
 

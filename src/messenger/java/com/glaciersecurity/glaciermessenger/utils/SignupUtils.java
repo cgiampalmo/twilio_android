@@ -36,10 +36,13 @@ public class SignupUtils {
                 } else if (Config.MAGIC_CREATE_DOMAIN != null) {
                     intent = getSignUpIntent(activity); } */
                 else {
-                    intent = new Intent(activity, EditAccountActivity.class);
+                    //CMG AM-215
+                    intent = new Intent(activity, StartConversationActivity.class);
+                    intent.putExtra("isEmpty", true);
                 }
             } else {
                 intent = new Intent(activity, StartConversationActivity.class);
+                intent.putExtra("isEmpty", false);
             }
         }
         intent.putExtra("init", true);

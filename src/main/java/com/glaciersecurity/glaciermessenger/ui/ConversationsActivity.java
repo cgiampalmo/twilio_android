@@ -70,6 +70,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -268,23 +269,24 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	}
 
 	private boolean performRedirectIfNecessary(final Conversation ignore, final boolean noAnimation) {
-		if (xmppConnectionService == null) {
-			return false;
-		}
-		boolean isConversationsListEmpty = xmppConnectionService.isConversationsListEmpty(ignore);
-		if (isConversationsListEmpty && mRedirectInProcess.compareAndSet(false, true)) {
-			final Intent intent = SignupUtils.getRedirectionIntent(this);
-			if (noAnimation) {
-				intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-			}
-			runOnUiThread(() -> {
-				startActivity(intent);
-				if (noAnimation) {
-					overridePendingTransition(0, 0);
-				}
-			});
-		}
-		return mRedirectInProcess.get();
+//		if (xmppConnectionService == null) {
+//			return false;
+//		}
+//		boolean isConversationsListEmpty = xmppConnectionService.isConversationsListEmpty(ignore);
+//		if (false && mRedirectInProcess.compareAndSet(false, true)) {
+//			final Intent intent = SignupUtils.getRedirectionIntent(this);
+//			if (noAnimation) {
+//				intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+//			}
+//			runOnUiThread(() -> {
+//				startActivity(intent);
+//				if (noAnimation) {
+//					overridePendingTransition(0, 0);
+//				}
+//			});
+//		}
+//		return mRedirectInProcess.get();
+		return false;
 	}
 
 	private void showDialogsIfMainIsOverview() {

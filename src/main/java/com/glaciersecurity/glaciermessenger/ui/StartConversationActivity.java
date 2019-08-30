@@ -817,15 +817,15 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			}
 	}
 
-	private void configureHomeButton() {
-		final ActionBar actionBar = getSupportActionBar();
-		if (actionBar == null) {
-			return;
-		}
-		boolean openConversations = !createdByViewIntent && !xmppConnectionService.isConversationsListEmpty(null);
-		actionBar.setDisplayHomeAsUpEnabled(openConversations);
-		actionBar.setDisplayHomeAsUpEnabled(openConversations);
-	}
+//	private void configureHomeButton() {
+//		final ActionBar actionBar = getSupportActionBar();
+//		if (actionBar == null) {
+//			return;
+//		}
+//		boolean openConversations = !createdByViewIntent && !xmppConnectionService.isConversationsListEmpty(null);
+//		actionBar.setDisplayHomeAsUpEnabled(true);
+//		actionBar.setDisplayHomeAsUpEnabled(true);
+//	}
 
 	@Override
 	protected void onBackendConnected() {
@@ -856,7 +856,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				}
 			}
 		}
-		configureHomeButton();
+		//configureHomeButton();
 		Intent intent = pendingViewIntent.pop();
 		if (intent != null && processViewIntent(intent)) {
 			filter(null);
@@ -1205,7 +1205,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		if (mSearchEditText != null) {
 			filter(mSearchEditText.getText().toString());
 		}
-		configureHomeButton();
+		//configureHomeButton();
 		if (QuickConversationsService.isQuicksy()) {
 			setRefreshing(xmppConnectionService.getQuickConversationsService().isSynchronizing());
 		}
@@ -1217,7 +1217,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 	}
 
 	private void navigateBack() {
-		if (!createdByViewIntent && xmppConnectionService != null && !xmppConnectionService.isConversationsListEmpty(null)) {
+		if (!createdByViewIntent && xmppConnectionService != null ) {
 			Intent intent = new Intent(this, ConversationsActivity.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 			startActivity(intent);
