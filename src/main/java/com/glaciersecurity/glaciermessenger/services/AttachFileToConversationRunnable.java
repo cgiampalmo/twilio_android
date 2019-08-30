@@ -122,6 +122,7 @@ public class AttachFileToConversationRunnable implements Runnable, MediaTranscod
 		final int p = (int) Math.round(progress * 100);
 		if (p > currentProgress) {
 			currentProgress = p;
+			mXmppConnectionService.setCompressionPercent(p); //ALF AM-321
 			mXmppConnectionService.getNotificationService().updateFileAddingNotification(p,message);
 		}
 	}
@@ -129,6 +130,7 @@ public class AttachFileToConversationRunnable implements Runnable, MediaTranscod
 	@Override
 	public void onTranscodeCompleted() {
 		mXmppConnectionService.stopForcingForegroundNotification();
+		mXmppConnectionService.setCompressionPercent(100); //ALF AM-321
 		final File file = mXmppConnectionService.getFileBackend().getFile(message);
 		long convertedFileSize = mXmppConnectionService.getFileBackend().getFile(message).getSize();
 		Log.d(Config.LOGTAG,"originalFileSize="+originalFileSize+" convertedFileSize="+convertedFileSize);

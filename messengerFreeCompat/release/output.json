@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 [{"outputType":{"type":"APK"},"apkInfo":{"type":"MAIN","splits":[],"versionCode":351,"versionName":"2.4.0-RC39","enabled":true,"outputFile":"glacierMessenger-2.4.0-RC39-messenger-free-compat-release.apk","fullName":"messengerFreeCompatRelease","baseName":"messenger-free-compat-release"},"path":"glacierMessenger-2.4.0-RC39-messenger-free-compat-release.apk","properties":{}}]
+=======
+[{"outputType":{"type":"APK"},"apkInfo":{"type":"MAIN","splits":[],"versionCode":359,"versionName":"2.4.0-RC44","enabled":true,"outputFile":"glacierMessenger-2.4.0-RC44-messenger-free-compat-release.apk","fullName":"messengerFreeCompatRelease","baseName":"messenger-free-compat-release"},"path":"glacierMessenger-2.4.0-RC44-messenger-free-compat-release.apk","properties":{}}]
+>>>>>>> 57341a138bbdec99b0fc679ff1948c5874b61014
