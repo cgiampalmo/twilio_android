@@ -2727,11 +2727,17 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			for(int i = this.messageList.size() - 1; i >= 0; --i) {
 				final Message current = this.messageList.get(i);
 				if (current.getBody().endsWith(getString(R.string.added_to_group)) ||
-						current.getBody().endsWith(getString(R.string.left_group))) {
+						current.getBody().endsWith(getString(R.string.left_group))) { //ALF AM-228 added this one
 					if (lastGroupRemoved == null && onlyStatus) { //i == this.messageList.size() - 1) {
 						lastGroupRemoved = current.getUuid();
 					}
 					this.messageList.add(i+1,Message.createGroupChangedSeparator(current));
+					this.messageList.remove(i);
+				} else if (current.getEncryption() == Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE) { //ALF AM-228b
+					if (lastGroupRemoved == null && onlyStatus) {
+						lastGroupRemoved = current.getUuid();
+					}
+					this.messageList.add(i+1,Message.createNotForThisDeviceSeparator(current, getString(R.string.not_encrypted_for_this_device)));
 					this.messageList.remove(i);
 				} else if (current.getType() != Message.TYPE_STATUS) {
 					onlyStatus = false;

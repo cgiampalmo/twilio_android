@@ -2,6 +2,8 @@ package com.glaciersecurity.glaciermessenger.entities;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -88,6 +90,10 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 	private String mFirstMamReference = null;
 	private Message correctingMessage;
 
+	//ALF AM-228b
+	private boolean canReturnNotForDevice = true;
+	private Handler handler;
+
 	//ALF AM-60
 	private final Map<String, Boolean> ownKeysToTrust = new HashMap<>();
 	private final Map<Jid,Map<String, Boolean>> foreignKeysToTrust = new HashMap<>();
@@ -138,6 +144,22 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
 	public void setHasMessagesLeftOnServer(boolean value) {
 		this.messagesLeftOnServer = value;
+	}
+
+	//ALF AM-228b
+	public boolean returnNotForDevice() {
+		if (handler == null) {
+			handler = new Handler(Looper.getMainLooper());
+		}
+
+		if (canReturnNotForDevice) {
+			canReturnNotForDevice = false;
+			handler.postDelayed(() -> {
+				canReturnNotForDevice = true;
+			}, 7000);
+			return true;
+		}
+		return false;
 	}
 
 	public Message getFirstUnreadMessage() {

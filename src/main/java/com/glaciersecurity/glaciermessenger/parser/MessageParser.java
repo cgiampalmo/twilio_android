@@ -134,7 +134,12 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 				}
 			} catch (NotEncryptedForThisDeviceException e) {
 				//service.handleNotEncryptedForDevice(); //ALF AM-228
-				return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE, status);
+				//ALF AM-228b added if/else
+				if (conversation.returnNotForDevice()) {
+					return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE, status);
+				} else {
+					return null;
+				}
 			}
 			if (plaintextMessage != null) {
 				Message finishedMessage = new Message(conversation, plaintextMessage.getPlaintext(), Message.ENCRYPTION_AXOLOTL, status);
@@ -143,7 +148,12 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 				return finishedMessage;
 			} else if (!service.isReflected(xmppAxolotlMessage)){ //ALF AM-228   //ALF AM-287 if !reflected
 				//service.verifySessions(conversation, from);
-				return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE, status);
+				//ALF AM-228b added if/else
+				if (conversation.returnNotForDevice()) {
+					return new Message(conversation, "", Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE, status);
+				} else {
+					return null;
+				}
 			}
 		} else {
 			Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": received OMEMO key transport message");

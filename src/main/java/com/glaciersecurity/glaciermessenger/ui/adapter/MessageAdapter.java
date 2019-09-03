@@ -140,6 +140,8 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 			if (message.getBody().endsWith(getContext().getString(R.string.added_to_group)) ||
 					message.getBody().endsWith(getContext().getString(R.string.left_group))) {
 				return GROUP_CHANGE; //ALF AM-51
+			} else if (getContext().getString(R.string.not_encrypted_for_this_device).equals(message.getBody())) { //ALF AM-228b
+				return GROUP_CHANGE;
 			} else if (DATE_SEPARATOR_BODY.equals(message.getBody())) {
 				return DATE_SEPARATOR;
 			} else {

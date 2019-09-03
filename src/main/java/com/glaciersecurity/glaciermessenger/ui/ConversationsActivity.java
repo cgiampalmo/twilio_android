@@ -272,24 +272,27 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	}
 
 	private boolean performRedirectIfNecessary(final Conversation ignore, final boolean noAnimation) {
-//		if (xmppConnectionService == null) {
-//			return false;
-//		}
-//		boolean isConversationsListEmpty = xmppConnectionService.isConversationsListEmpty(ignore);
-//		if (false && mRedirectInProcess.compareAndSet(false, true)) {
-//			final Intent intent = SignupUtils.getRedirectionIntent(this);
-//			if (noAnimation) {
-//				intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-//			}
-//			runOnUiThread(() -> {
-//				startActivity(intent);
-//				if (noAnimation) {
-//					overridePendingTransition(0, 0);
-//				}
-//			});
-//		}
-//		return mRedirectInProcess.get();
-		return false;
+		if (xmppConnectionService == null) {
+			return false;
+		}
+
+		boolean isConversationsListEmpty = xmppConnectionService.isConversationsListEmpty(ignore);
+		if (isConversationsListEmpty && !xmppConnectionService.getAccounts().isEmpty()){
+			return false;
+		}
+		if (isConversationsListEmpty && mRedirectInProcess.compareAndSet(false, true)) {
+			final Intent intent = SignupUtils.getRedirectionIntent(this);
+			if (noAnimation) {
+				intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+			}
+			runOnUiThread(() -> {
+				startActivity(intent);
+				if (noAnimation) {
+					overridePendingTransition(0, 0);
+				}
+			});
+		}
+		return mRedirectInProcess.get();
 	}
 
 	private void showDialogsIfMainIsOverview() {

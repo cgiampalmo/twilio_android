@@ -281,6 +281,16 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 		return separator;
 	}
 
+	//ALF AM-228b
+	public static Message createNotForThisDeviceSeparator(Message message, String body) {
+		final Message separator = new Message(message.getConversation());
+		separator.setType(Message.TYPE_STATUS);
+		separator.body = body;
+		separator.setTime(message.getTimeSent());
+		if (message.isRead()) { separator.markRead(); }
+		return separator;
+	}
+
 	@Override
 	public ContentValues getContentValues() {
 		ContentValues values = new ContentValues();
