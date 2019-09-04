@@ -63,6 +63,7 @@ import com.glaciersecurity.glaciermessenger.cognito.Constants;
 import com.glaciersecurity.glaciermessenger.cognito.PropertyLoader;
 import com.glaciersecurity.glaciermessenger.cognito.Util;
 import com.glaciersecurity.glaciermessenger.databinding.DialogQuickeditBinding;
+import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.LoginAccount;
 import com.glaciersecurity.glaciermessenger.entities.NetworkConnectivityStatus;
 import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
@@ -284,8 +285,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			if (!conversationStarted) {
 				conversationStarted = true;
 				if (mAccount.getStatus() == Account.State.ONLINE) {
+					//CMG AM-215
 					Intent intent = new Intent(getApplicationContext(),
-							StartConversationActivity.class);
+							ConversationsActivity.class);
 					if (xmppConnectionService != null && xmppConnectionService.getAccounts().size() == 1) {
 						intent.putExtra("init", true);
 					}
@@ -333,6 +335,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 	}
 
+	//TODO can probably remove finishInitialSetup
 	@Override
 	public void onAccountUpdate() {
 		refreshUi();
@@ -409,7 +412,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			final XmppConnection connection = mAccount.getXmppConnection();
 			final boolean wasFirstAccount = xmppConnectionService != null && xmppConnectionService.getAccounts().size() == 1;
 			if (avatar != null || (connection != null && !connection.getFeatures().pep())) {
-				intent = new Intent(getApplicationContext(), StartConversationActivity.class);
+				//CMG AM-215
+				intent = new Intent(getApplicationContext(), ConversationsActivity.class);
 				if (wasFirstAccount) {
 					intent.putExtra("init", true);
 				}
@@ -418,9 +422,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				/* intent = new Intent(getApplicationContext(), PublishProfilePictureActivity.class);
 				intent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().asBareJid().toString());
 				intent.putExtra("setup", true);*/
-
+				//CMG AM-215
 				intent = new Intent(getApplicationContext(),
-						StartConversationActivity.class);
+						ConversationsActivity.class);
 				if (xmppConnectionService != null && xmppConnectionService.getAccounts().size() == 1) {
 					intent.putExtra("init", true);
 				}
@@ -428,7 +432,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			if (wasFirstAccount) {
 				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 			}
-			StartConversationActivity.addInviteUri(intent, getIntent());
+			//CMG AM-215
+			//StartConversationActivity.addInviteUri(intent, getIntent());
 			startActivity(intent);
 			finish();
 		});

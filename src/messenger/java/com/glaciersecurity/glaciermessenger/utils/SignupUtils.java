@@ -39,7 +39,8 @@ public class SignupUtils {
                     intent = new Intent(activity, EditAccountActivity.class);
                 }
             } else {
-                intent = new Intent(activity, StartConversationActivity.class);
+                //CMG AM-215
+                intent = new Intent(activity, ConversationsActivity.class);
             }
         }
         intent.putExtra("init", true);
