@@ -50,6 +50,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -62,6 +63,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.databinding.ActivityStartConversationBinding;
+import com.glaciersecurity.glaciermessenger.databinding.ContactBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Account.OnGroupUpdate; //ALF AM-84
 import com.glaciersecurity.glaciermessenger.entities.Bookmark;
@@ -74,6 +76,7 @@ import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService.OnRosterUpdate;
+import com.glaciersecurity.glaciermessenger.ui.adapter.BackupFileAdapter;
 import com.glaciersecurity.glaciermessenger.ui.adapter.ListItemAdapter;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnBackendConnected;
 //import com.glaciersecurity.glaciermessenger.ui.service.EmojiService;
@@ -169,6 +172,19 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			}
 		}
 	};
+
+
+
+	//CMG AM-301
+	private ListItemAdapter.OnContactClickedListener mOnContactClickedListener = new ListItemAdapter.OnContactClickedListener() {
+		@Override
+		public void onContactClicked(String contactJidString) {
+			Jid jid = Jid.of(contactJidString);
+			Contact contact = jid == null ? null : curAccount.getRoster().getContact(jid);
+			openConversationForContact(contact);
+		}
+	};
+
 	private Pair<Integer, Intent> mPostponedActivityResult;
 	private Toast mToast;
 	private UiCallback<Conversation> mAdhocConferenceCallback = new UiCallback<Conversation>() {
@@ -312,11 +328,14 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			}
 		});
 		mListPagerAdapter = new ListPagerAdapter(getSupportFragmentManager());
-		binding.startConversationViewPager.setAdapter(mListPagerAdapter);
 
+		binding.startConversationViewPager.setAdapter(mListPagerAdapter);
 		mConferenceAdapter = new ListItemAdapter(this, conferences);
 		mContactsAdapter = new ListItemAdapter(this, contacts);
 		mContactsAdapter.setOnTagClickedListener(this.mOnTagClickedListener);
+		//CMG AM-301
+		mContactsAdapter.setOnContactClickedListener(this.mOnContactClickedListener);
+
 
 		final SharedPreferences preferences = getPreferences();
 
@@ -676,6 +695,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		mSearchEditText = mSearchView.findViewById(R.id.search_field);
 		mSearchEditText.addTextChangedListener(mSearchTextWatcher);
 		mSearchEditText.setOnEditorActionListener(mSearchDone);
+
+
 		String initialSearchValue = mInitialSearchValue.pop();
 		if (initialSearchValue != null) {
 			mMenuSearchView.expandActionView();
@@ -1373,8 +1394,9 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		});
 	}*/
 
+
 	public static class MyListFragment extends SwipeRefreshListFragment {
-		private AdapterView.OnItemClickListener mOnItemClickListener;
+		public AdapterView.OnItemClickListener mOnItemClickListener;
 		private int mResContextMenu;
 
 		public void setContextMenu(final int res) {
@@ -1399,7 +1421,15 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			getListView().setFastScrollEnabled(true);
 			getListView().setDivider(null);
 			getListView().setDividerHeight(0);
+			getListView().setOnItemClickListener(mOnItemClickListener);
 		}
+
+//		public AdapterView.OnItemClickListener mOnItemClickedListener = new AdapterView.OnItemClickListener() {
+//			@Override
+//			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//				this.openConversationForContact(position);
+//			}
+//		};
 
 		@Override
 		public void onCreateContextMenu(final ContextMenu menu, final View v, final ContextMenuInfo menuInfo) {

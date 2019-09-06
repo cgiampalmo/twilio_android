@@ -9,19 +9,27 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatTextView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.entities.Bookmark;
 import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.Presence;
 import com.glaciersecurity.glaciermessenger.ui.util.AvatarWorkerTask;
+import com.glaciersecurity.glaciermessenger.ui.util.Log;
 import com.glaciersecurity.glaciermessenger.ui.util.StyledAttributes;
 import com.wefika.flowlayout.FlowLayout;
 
@@ -37,6 +45,9 @@ import com.glaciersecurity.glaciermessenger.ui.XmppActivity;
 import com.glaciersecurity.glaciermessenger.utils.EmojiWrapper;
 import com.glaciersecurity.glaciermessenger.utils.IrregularUnicodeDetector;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
+
+import de.measite.minidns.DNSMessage;
+import de.measite.minidns.record.A;
 import rocks.xmpp.addr.Jid;
 
 public class ListItemAdapter extends ArrayAdapter<ListItem> {
@@ -49,6 +60,21 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 			TextView tv = (TextView) view;
 			final String tag = tv.getText().toString();
 			mOnTagClickedListener.onTagClicked(tag);
+		}
+	};
+
+	//CMG AM-301
+	public OnContactClickedListener mOnContactClickedListener = null;
+
+	private View.OnClickListener onContactTvClick = (view)-> {
+		if (view instanceof RelativeLayout && mOnContactClickedListener != null){
+			RelativeLayout relativeLayout = (RelativeLayout) view;
+			LinearLayout linearLayout= (LinearLayout) relativeLayout.getChildAt(1);
+			AppCompatTextView textView = (AppCompatTextView) linearLayout.getChildAt(1);
+			if (textView != null) {
+				String jid = textView.getText().toString();
+				mOnContactClickedListener.onContactClicked(jid);
+			}
 		}
 	};
 
@@ -77,10 +103,10 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		if (Build.VERSION.SDK_INT >= 16) {
 			view.setBackground(StyledAttributes.getDrawable(view.getContext(), R.attr.list_item_background));
 		}
-
 		List<ListItem.Tag> tags = item.getTags(activity);
 		if (tags.size() == 0 || !this.showDynamicTags) {
 			viewHolder.tags.setVisibility(View.GONE);
+
 		} else {
 			viewHolder.tags.setVisibility(View.VISIBLE);
 			viewHolder.tags.removeAllViewsInLayout();
@@ -93,21 +119,34 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 			}
 		}
 		final Jid jid = item.getJid();
+		viewHolder.jid.setVisibility(View.INVISIBLE);
 		if (jid != null) {
 			// GOOBER USERNAME - don't show jid in contact list
 //			viewHolder.jid.setVisibility(View.VISIBLE);
-//			viewHolder.jid.setVisibility(View.INVISIBLE);
-//			viewHolder.jid.setText(IrregularUnicodeDetector.style(activity, jid));
-//		} else {
-//			viewHolder.jid.setVisibility(View.GONE);
+			viewHolder.jid.setText(IrregularUnicodeDetector.style(activity, jid));
 		}
 		viewHolder.name.setText(EmojiWrapper.transform(item.getDisplayName()));
-		if (item instanceof Contact) {
-			//CMG AM-301
-			viewHolder.status.setImageResource(item.getShownStatus().getStatusIconMenu());
+		//viewHolder.name.setOnClickListener(onContactTvClick);
+
+		//CMG AM-301
+		if (item.getShownStatusMessage() != null ) {
+			viewHolder.statusMessage.setVisibility(View.VISIBLE);
 			viewHolder.statusMessage.setText(item.getShownStatusMessage());
+		    ///viewHolder.statusMessage.setOnClickListener(this.onContactTvClick);
+		} else
+		{
+			viewHolder.statusMessage.setVisibility(View.GONE);
+		}
+		if (item.getShownStatus() != null ) {
+			viewHolder.status.setVisibility(View.VISIBLE);
+			viewHolder.status.setImageResource(item.getShownStatus().getStatusIconMenu());
+			//viewHolder.status.setOnClickListener(this.onContactTvClick);
+		} else
+		{
+			viewHolder.status.setVisibility(View.GONE);
 		}
 		AvatarWorkerTask.loadAvatar(item, viewHolder.avatar, R.dimen.avatar);
+		viewHolder.contact_field.setOnClickListener(this.onContactTvClick);
 		return view;
 	}
 
@@ -119,14 +158,24 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		void onTagClicked(String tag);
 	}
 
+	//CMG AM-301
+	public void setOnContactClickedListener(OnContactClickedListener listener) {
+		this.mOnContactClickedListener = listener;
+	}
+
+	public interface OnContactClickedListener {
+		void onContactClicked(String contactJidString);
+	}
+
 	private static class ViewHolder {
 		private TextView name;
-		//private TextView jid;
+		private TextView jid;
 		private ImageView avatar;
 		//CMG AM-301
 		private ImageButton status;
 		private TextView statusMessage;
 		private FlowLayout tags;
+		private RelativeLayout contact_field;
 
 		private ViewHolder() {
 
@@ -138,12 +187,14 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 			//CMG AM-301
 			viewHolder.status = binding.contactStatusIcon;
 			viewHolder.statusMessage = binding.contactStatusMessage;
-//			viewHolder.jid = binding.contactJid;
+			viewHolder.jid = binding.contactJid;
 			viewHolder.avatar = binding.contactPhoto;
 			viewHolder.tags = binding.tags;
+			viewHolder.contact_field = binding.contactSelect;
 			binding.getRoot().setTag(viewHolder);
 			return viewHolder;
 		}
+
 	}
 
 }
