@@ -277,9 +277,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		}
 
 		boolean isConversationsListEmpty = xmppConnectionService.isConversationsListEmpty(ignore);
-		if (isConversationsListEmpty && !xmppConnectionService.getAccounts().isEmpty()){
-			return false;
-		}
 		if (isConversationsListEmpty && mRedirectInProcess.compareAndSet(false, true)) {
 			final Intent intent = SignupUtils.getRedirectionIntent(this);
 			if (noAnimation) {
@@ -291,6 +288,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					overridePendingTransition(0, 0);
 				}
 			});
+		} else if (isConversationsListEmpty){
+			return false;
 		}
 		return mRedirectInProcess.get();
 	}
@@ -870,12 +869,28 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		statusIcon.setImageResource(s.getStatusIconMenu());
 		statusIcon.setVisibility(View.VISIBLE);
 		downArrow.setVisibility(View.VISIBLE);
+		toolbar = (Toolbar) findViewById(R.id.toolbar_with_icon_status);
+		toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_black_24dp));
+		toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onBackPressed();
+			}
+		});
 	}
 
 	//CMG AM-286
 	protected void showGroupToolbar(){
 		statusIcon.setVisibility(View.GONE);
 		downArrow.setVisibility(View.VISIBLE);
+		toolbar = (Toolbar) findViewById(R.id.toolbar_with_icon_status);
+		toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_black_24dp));
+		toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onBackPressed();
+			}
+		});
 	}
 
 	//CMG AM-286
@@ -886,6 +901,21 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		if (downArrow != null) {
 			downArrow.setVisibility(View.GONE);
 		}
+	}
+
+	protected void showNavMenu(){
+		toolbar = (Toolbar) findViewById(R.id.toolbar_with_icon_status);
+		toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_menu_black_24dp));
+		toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (drawer.isDrawerOpen(GravityCompat.START)) {
+					drawer.closeDrawer(GravityCompat.START);
+				} else {
+					drawer.openDrawer(GravityCompat.START);
+				}
+			}
+		});
 	}
 
 	//CMG AM-357
@@ -1704,6 +1734,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			actionBar.setTitle(R.string.app_name);
 			actionBar.setDisplayHomeAsUpEnabled(true);
 			//CMG AM-286
+			showNavMenu();
 			hideStatusToolbar();
 		}
 	}
