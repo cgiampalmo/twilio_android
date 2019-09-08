@@ -1396,7 +1396,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 
 
 	public static class MyListFragment extends SwipeRefreshListFragment {
-		public AdapterView.OnItemClickListener mOnItemClickListener;
+		private AdapterView.OnItemClickListener mOnItemClickListener;
 		private int mResContextMenu;
 
 		public void setContextMenu(final int res) {
@@ -1421,15 +1421,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			getListView().setFastScrollEnabled(true);
 			getListView().setDivider(null);
 			getListView().setDividerHeight(0);
-			getListView().setOnItemClickListener(mOnItemClickListener);
 		}
-
-//		public AdapterView.OnItemClickListener mOnItemClickedListener = new AdapterView.OnItemClickListener() {
-//			@Override
-//			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//				this.openConversationForContact(position);
-//			}
-//		};
 
 		@Override
 		public void onCreateContextMenu(final ContextMenu menu, final View v, final ContextMenuInfo menuInfo) {

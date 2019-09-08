@@ -146,7 +146,9 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 			viewHolder.status.setVisibility(View.GONE);
 		}
 		AvatarWorkerTask.loadAvatar(item, viewHolder.avatar, R.dimen.avatar);
-		viewHolder.contact_field.setOnClickListener(this.onContactTvClick);
+		if (item instanceof Contact) {
+			viewHolder.contact_field.setOnClickListener(this.onContactTvClick);
+		}
 		return view;
 	}
 

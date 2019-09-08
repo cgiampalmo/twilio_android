@@ -54,7 +54,6 @@
                     android:layout_marginLeft="@dimen/input_label_vertical_spacing"
                     android:singleLine="true" />
 
-
             </LinearLayout>
             <TextView
                 android:id="@+id/contact_jid"
