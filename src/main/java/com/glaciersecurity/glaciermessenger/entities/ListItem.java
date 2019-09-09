@@ -31,8 +31,9 @@ public interface ListItem extends Comparable<ListItem>, AvatarService.Avatarable
 		public String getName() {
 			return this.name;
 		}
-	}
 
+
+	}
 	Presence.Status getShownStatus();
 
 	String getShownStatusMessage();

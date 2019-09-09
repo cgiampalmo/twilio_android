@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.view.ActionMode;
 import android.view.KeyEvent;
@@ -38,10 +37,10 @@ import com.glaciersecurity.glaciermessenger.entities.MucOptions;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnBackendConnected;
 import com.glaciersecurity.glaciermessenger.ui.util.ActivityResult;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
-import com.glaciersecurity.glaciermessenger.utils.XmppUri;
+
 import rocks.xmpp.addr.Jid;
 
-public class ChooseContactActivity extends AbstractSearchableListItemActivity implements MultiChoiceModeListener, AdapterView.OnItemClickListener {
+public class ChooseContactActivity extends AbstractSearchableListItemSelectActivity implements MultiChoiceModeListener, AdapterView.OnItemClickListener {
     public static final String EXTRA_TITLE_RES_ID = "extra_title_res_id";
     public static final String EXTRA_GROUP_CHAT_NAME = "extra_group_chat_name";
     public static final String EXTRA_PUBLIC_GROUP = "extra_public_group"; //ALF AM-88
