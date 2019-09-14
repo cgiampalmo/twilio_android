@@ -65,6 +65,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 
 	//CMG AM-301
 	public OnContactClickedListener mOnContactClickedListener = null;
+	public OnContactLongClickedListener mOnContactLongClickedListener = null;
 
 	private View.OnClickListener onContactTvClick = (view)-> {
 		if (view instanceof RelativeLayout && mOnContactClickedListener != null){
@@ -77,6 +78,12 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 			}
 		}
 	};
+
+	private View.OnLongClickListener onContactLongTvClick = (view)-> {
+			view.showContextMenu();
+			return true;
+	};
+
 
 	public ListItemAdapter(XmppActivity activity, List<ListItem> objects) {
 		super(activity, 0, objects);
@@ -148,6 +155,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		AvatarWorkerTask.loadAvatar(item, viewHolder.avatar, R.dimen.avatar);
 		if (item instanceof Contact) {
 			viewHolder.contact_field.setOnClickListener(this.onContactTvClick);
+			viewHolder.contact_field.setOnLongClickListener(this.onContactLongTvClick);
 		}
 		return view;
 	}
@@ -165,7 +173,15 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		this.mOnContactClickedListener = listener;
 	}
 
+	public void setOnContactLongClickedListener(OnContactLongClickedListener listener) {
+		this.mOnContactLongClickedListener = listener;
+	}
+
 	public interface OnContactClickedListener {
+		void onContactClicked(String contactJidString);
+	}
+
+	public interface OnContactLongClickedListener {
 		void onContactClicked(String contactJidString);
 	}
 

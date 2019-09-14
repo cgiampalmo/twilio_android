@@ -9,12 +9,15 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -66,6 +69,7 @@ import com.glaciersecurity.glaciermessenger.databinding.DialogQuickeditBinding;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.LoginAccount;
 import com.glaciersecurity.glaciermessenger.entities.NetworkConnectivityStatus;
+import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
 import com.glaciersecurity.glaciermessenger.ui.util.AvatarWorkerTask;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
@@ -150,9 +154,9 @@ import static android.os.Build.HOST;
 import static android.view.View.VISIBLE;
 
 public class EditAccountActivity extends OmemoActivity implements OnAccountUpdate, OnUpdateBlocklist,
-		OnKeyStatusUpdated, OnCaptchaRequested, KeyChainAliasCallback, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnMamPreferencesFetched, Handler.Callback, OpenVPNProfileListener {
+		OnKeyStatusUpdated, OnCaptchaRequested, KeyChainAliasCallback, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnMamPreferencesFetched, Handler.Callback, OpenVPNProfileListener, ConnectivityReceiver.ConnectivityReceiverListener{
 
-	public static final String EXTRA_OPENED_FROM_NOTIFICATION = "opened_from_notification";
+		public static final String EXTRA_OPENED_FROM_NOTIFICATION = "opened_from_notification";
 
 	private static final int REQUEST_DATA_SAVER = 0x37af244;
 	private static final int MSG_UPDATE_STATE = 0;
@@ -233,6 +237,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	// GOOBER - do not change default or it will break
 	private int lastConnectionState = VPN_STATE_UNKNOWN;
+	// CMG AM-342
+	private ConnectivityReceiver connectivityReceiver;
+
 
 	// reset values
 	private String download_keys = null;
@@ -633,6 +640,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		// GOOBER COGNITO - Test
 		//TODO maybe move
 		cognitoCurrentUserSignout();
+		connectivityReceiver = new ConnectivityReceiver(this);
 
 		// initApp();
 
@@ -823,6 +831,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				}
 			}
 		}
+		registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		SharedPreferences preferences = getPreferences();
 		mUseTor = QuickConversationsService.isConversations() && preferences.getBoolean("use_tor", getResources().getBoolean(R.bool.use_tor));
 		this.mShowOptions = mUseTor || (QuickConversationsService.isConversations() && preferences.getBoolean("show_connection_options", getResources().getBoolean(R.bool.show_connection_options)));
@@ -838,6 +847,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	public void onStop() {
 		super.onStop();
 		closeWaitDialog();
+		unregisterReceiver(connectivityReceiver);
 		unbindService();
 	}
 
@@ -1551,48 +1561,56 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * @param view
 	 */
 	public void logIn(View view) {
-		//CMG AM-200
-		deleteExistingProfiles();
 
-		tempVPN.setLoginState(LoginAccount.LoginState.FORM_ENTRY); //CMG AM-172
-		if ((mLoginButton.getText().toString().compareTo(getString(R.string.login_button_label))) == 0) {
-			// log into Cognito and then messenger
-			//CMG AM-172
-			//username = binding.accountJid.getText().toString();
-			//password = mPassword.getText().toString();
-			//organization = mOrgID.getText().toString();
-			tempVPN.setLogUsername(binding.accountJid.getText().toString());
-			tempVPN.setLogPassword(mPassword.getText().toString());
-			tempVPN.setLogOrgID(mOrgID.getText().toString());
+		//CMG AM-314
+		if (!ConnectivityReceiver.isConnected(getApplicationContext())) {
+				clearPasswordField();
+				showDialogMessage(getString(R.string.error_connecting), getString(R.string.no_internet_login_error));
+		}
+		else {
+				//CMG AM-200
+				deleteExistingProfiles();
 
-			// make sure all fields are filled in before logging in
-			//if (username.trim().length() == 0) { //CMG AM-172 and next two ifs also
-			if (tempVPN.getLogUsername().trim().length() == 0) {
-				// showDialogMessage("Login", "Username cannot be empty.");
-				mAccountJidLayout.setError("Username cannot be blank");
-				mAccountJidLayout.requestFocus();
-				//} else if (password.trim().length() == 0) {
-			} else if (tempVPN.getLogPassword().trim().length() == 0) {
-				// showDialogMessage("Login", "Password cannot be empty.");
-				mPassword.setError("Password cannot be blank");
-				mPassword.requestFocus();
-				//} else if (organization.trim().length() == 0) {
-			} else if (tempVPN.getLogOrgID().trim().length() == 0) {
-				// showDialogMessage("Login", "Organization cannot be empty.");
-				mOrgID.setError("Org ID cannot be blank");
-				mOrgID.requestFocus();
-			} else {
+				tempVPN.setLoginState(LoginAccount.LoginState.FORM_ENTRY); //CMG AM-172
+				if ((mLoginButton.getText().toString().compareTo(getString(R.string.login_button_label))) == 0) {
+						// log into Cognito and then messenger
+						//CMG AM-172
+						//username = binding.accountJid.getText().toString();
+						//password = mPassword.getText().toString();
+						//organization = mOrgID.getText().toString();
+						tempVPN.setLogUsername(binding.accountJid.getText().toString());
+						tempVPN.setLogPassword(mPassword.getText().toString());
+						tempVPN.setLogOrgID(mOrgID.getText().toString());
 
-				showWaitDialog(getString(R.string.wait_dialog_logging_in));
-				signInUserState(); //CMG AM-172
-			}
-		} else if ((mLoginButton.getText().toString().compareTo(getString(R.string.continue_button_label))) == 0) {
-			// assume logged into Cognito.  Log into Messenger
-			showWaitDialog(getString(R.string.wait_dialog_retrieving_account_info));
-			//autoLoginMessenger();
-		} else if ((mLoginButton.getText().toString().compareTo(getString(R.string.retry_button_label))) == 0) {
-			showWaitDialog(getString(R.string.wait_dialog_logging_in));
-			signInUserState(); //CMG AM-172
+						// make sure all fields are filled in before logging in
+						//if (username.trim().length() == 0) { //CMG AM-172 and next two ifs also
+						if (tempVPN.getLogUsername().trim().length() == 0) {
+								// showDialogMessage("Login", "Username cannot be empty.");
+								mAccountJidLayout.setError("Username cannot be blank");
+								mAccountJidLayout.requestFocus();
+								//} else if (password.trim().length() == 0) {
+						} else if (tempVPN.getLogPassword().trim().length() == 0) {
+								// showDialogMessage("Login", "Password cannot be empty.");
+								mPassword.setError("Password cannot be blank");
+								mPassword.requestFocus();
+								//} else if (organization.trim().length() == 0) {
+						} else if (tempVPN.getLogOrgID().trim().length() == 0) {
+								// showDialogMessage("Login", "Organization cannot be empty.");
+								mOrgID.setError("Org ID cannot be blank");
+								mOrgID.requestFocus();
+						} else {
+
+								showWaitDialog(getString(R.string.wait_dialog_logging_in));
+								signInUserState(); //CMG AM-172
+						}
+				} else if ((mLoginButton.getText().toString().compareTo(getString(R.string.continue_button_label))) == 0) {
+						// assume logged into Cognito.  Log into Messenger
+						showWaitDialog(getString(R.string.wait_dialog_retrieving_account_info));
+						//autoLoginMessenger();
+				} else if ((mLoginButton.getText().toString().compareTo(getString(R.string.retry_button_label))) == 0) {
+						showWaitDialog(getString(R.string.wait_dialog_logging_in));
+						signInUserState(); //CMG AM-172
+				}
 		}
 	}
 
@@ -1809,7 +1827,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		//CMG AM-192
 		showDialogMessage(getString(R.string.invalid_connecting), getString(R.string.invalid_login_error));
 
-		//showDialogMessage(getString(R.string.error_connecting), getString(R.string.unknown_login_error));
+		//showDialogMessage(getString(R.string.error_connecting), getString(R.string.no_internet_login_error));
 		//ALF AM-74
 		//showDialogMessage(getString(R.string.signin_fail_title), AppHelper.formatException(e));
 
@@ -2915,5 +2933,27 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			return true;
 		}
 		return false;
+	}
+
+
+	//CMG AM-314
+	public static boolean isConnected(Context context) {
+			ConnectivityManager cm = (ConnectivityManager) context
+							.getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo activeNetwork = null;
+			if (cm != null) {
+					activeNetwork = cm.getActiveNetworkInfo();
+			}
+			return activeNetwork != null
+							&& activeNetwork.isConnectedOrConnecting();
+	}
+
+	public interface ConnectivityReceiverListener {
+			void onNetworkConnectionChanged(boolean isConnected);
+	}
+
+	@Override
+	public void onNetworkConnectionChanged(boolean isConnected) {
+
 	}
 }

@@ -935,7 +935,7 @@
 
     <!-- AM-74 -->
     <string name="error_connecting">Error Connecting</string>
-    <string name="unknown_login_error">Something went wrong while attempting to connect. Check your connection to the internet and try again.</string>
+    <string name="no_internet_login_error">No signal or connection. Please connect and then try again.</string>
     <string name="invalid_connecting">Invalid</string>
     <string name="invalid_login_error">Please verify your account details and try again.</string>
 

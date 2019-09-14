@@ -1,9 +1,11 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.StringRes;
 import android.util.Log;
 import android.view.View;
@@ -13,8 +15,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.glaciersecurity.glaciermessenger.ui.util.AvatarWorkerTask;
+import com.glaciersecurity.glaciermessenger.xmpp.pep.Avatar;
 import com.theartofdev.edmodo.cropper.CropImage;
 
+import java.io.ByteArrayOutputStream;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.glaciersecurity.glaciermessenger.Config;
@@ -39,13 +45,26 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
     private AtomicBoolean handledExternalUri = new AtomicBoolean(false);
     private OnLongClickListener backToDefaultListener = new OnLongClickListener() {
 
+        //CMG AM-361
         @Override
         public boolean onLongClick(View v) {
-            avatarUri = defaultUri;
-            loadImageIntoPreview(defaultUri);
+            Bitmap bm = avatarService().get(account.getDisplayName(), account.getJid().asBareJid().toString(), (int) getResources().getDimension(R.dimen.publish_avatar_size), false);
+            avatar.setImageBitmap(bm);
+            avatarUri = getImageUri(getApplicationContext(), bm);
+            if (bm != null) {
+                togglePublishButton(true, R.string.publish);
+            }
             return true;
         }
     };
+
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }
+
     private boolean mInitialAccountSetup;
 
     @Override
@@ -226,13 +245,14 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
                 this.hintOrWarning.setText(R.string.error_publish_avatar_offline);
             }
         }
-        if (this.defaultUri == null || this.defaultUri.equals(uri)) {
-            this.secondaryHint.setVisibility(View.INVISIBLE);
-            this.avatar.setOnLongClickListener(null);
-        } else if (this.defaultUri != null) {
+        //AM-361
+//       if (this.defaultUri == null || this.defaultUri.equals(uri)) {
+//           this.secondaryHint.setVisibility(View.INVISIBLE);
+//           this.avatar.setOnLongClickListener(null);
+//       } else if (this.defaultUri != null) {
             this.secondaryHint.setVisibility(View.VISIBLE);
             this.avatar.setOnLongClickListener(this.backToDefaultListener);
-        }
+//        }
     }
 
     protected void togglePublishButton(boolean enabled, @StringRes int res) {

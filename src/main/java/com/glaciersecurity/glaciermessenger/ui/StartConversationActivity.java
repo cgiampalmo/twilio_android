@@ -185,6 +185,15 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		}
 	};
 
+	private ListItemAdapter.OnContactLongClickedListener mOnContactLongClickedListener = new ListItemAdapter.OnContactLongClickedListener() {
+			@Override
+			public void onContactClicked(String contactJidString) {
+					Jid jid = Jid.of(contactJidString);
+					Contact contact = jid == null ? null : curAccount.getRoster().getContact(jid);
+					//openContextMenu(view);
+			}
+	};
+
 	private Pair<Integer, Intent> mPostponedActivityResult;
 	private Toast mToast;
 	private UiCallback<Conversation> mAdhocConferenceCallback = new UiCallback<Conversation>() {
@@ -335,6 +344,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		mContactsAdapter.setOnTagClickedListener(this.mOnTagClickedListener);
 		//CMG AM-301
 		mContactsAdapter.setOnContactClickedListener(this.mOnContactClickedListener);
+		mContactsAdapter.setOnContactLongClickedListener(this.mOnContactLongClickedListener);
 
 
 		final SharedPreferences preferences = getPreferences();

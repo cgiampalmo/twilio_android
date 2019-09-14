@@ -277,6 +277,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		}
 
 		boolean isConversationsListEmpty = xmppConnectionService.isConversationsListEmpty(ignore);
+		if (isConversationsListEmpty && !xmppConnectionService.getAccounts().isEmpty()){
+				return false;
+		}
 		if (isConversationsListEmpty && mRedirectInProcess.compareAndSet(false, true)) {
 			final Intent intent = SignupUtils.getRedirectionIntent(this);
 			if (noAnimation) {
@@ -288,8 +291,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					overridePendingTransition(0, 0);
 				}
 			});
-		} else if (isConversationsListEmpty){
-			return false;
 		}
 		return mRedirectInProcess.get();
 	}
