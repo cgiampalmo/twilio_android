@@ -186,6 +186,7 @@
     <string name="encryption_choice_glacier">Glacier</string>
     <string name="mgmt_account_delete">Delete account</string>
     <string name="mgmt_account_disable">Temporarily disable</string>
+    <string name="reset_avatar">Reset avatar to default</string>
     <string name="mgmt_account_publish_avatar">Publish avatar</string>
     <string name="mgmt_account_publish_pgp">Publish OpenPGP public key</string>
     <string name="unpublish_pgp">Remove OpenPGP public key</string>
@@ -935,7 +936,9 @@
 
     <!-- AM-74 -->
     <string name="error_connecting">Error Connecting</string>
-    <string name="no_internet_login_error">No signal or connection. Please connect and then try again.</string>
+    <string name="unknown_login_error">Something went wrong while attempting to connect. Check your connection to the internet and try again.</string>
+    <string name="no_internet">No internet connection.</string>
+    <string name="no_interent_login_error">Please connect and try again.</string>
     <string name="invalid_connecting">Invalid</string>
     <string name="invalid_login_error">Please verify your account details and try again.</string>
 

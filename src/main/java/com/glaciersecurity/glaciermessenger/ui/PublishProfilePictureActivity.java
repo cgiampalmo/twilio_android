@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.StringRes;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.widget.Button;
@@ -16,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.ui.util.AvatarWorkerTask;
+import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.xmpp.pep.Avatar;
 import com.theartofdev.edmodo.cropper.CropImage;
 
@@ -129,6 +132,33 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
             this.avatarUri = savedInstanceState.getParcelable("uri");
             this.handledExternalUri.set(savedInstanceState.getBoolean("handle_external_uri",false));
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.reset_avatar, menu);
+        //AccountUtils.showHideMenuItems(menu);
+        MenuItem resetAvatar = menu.findItem(R.id.action_reset_avatar);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (MenuDoubleTabUtil.shouldIgnoreTap()) {
+            return false;
+        }
+        switch (item.getItemId()) {
+            case R.id.action_reset_avatar:
+                Bitmap bm = avatarService().get(account.getDisplayName(), account.getJid().asBareJid().toString(), (int) getResources().getDimension(R.dimen.publish_avatar_size), false);
+                avatar.setImageBitmap(bm);
+                avatarUri = getImageUri(getApplicationContext(), bm);
+                if (bm != null) {
+                    togglePublishButton(true, R.string.publish);
+                }
+                break;
+              default:
+        }
+        return true;
     }
 
     @Override
@@ -246,13 +276,13 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
             }
         }
         //AM-361
-//       if (this.defaultUri == null || this.defaultUri.equals(uri)) {
-//           this.secondaryHint.setVisibility(View.INVISIBLE);
-//           this.avatar.setOnLongClickListener(null);
-//       } else if (this.defaultUri != null) {
+        if (this.defaultUri == null || this.defaultUri.equals(uri)) {
+            this.secondaryHint.setVisibility(View.INVISIBLE);
+            this.avatar.setOnLongClickListener(null);
+        } else if (this.defaultUri != null) {
             this.secondaryHint.setVisibility(View.VISIBLE);
             this.avatar.setOnLongClickListener(this.backToDefaultListener);
-//        }
+        }
     }
 
     protected void togglePublishButton(boolean enabled, @StringRes int res) {

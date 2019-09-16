@@ -278,7 +278,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 		boolean isConversationsListEmpty = xmppConnectionService.isConversationsListEmpty(ignore);
 		if (isConversationsListEmpty && !xmppConnectionService.getAccounts().isEmpty()){
-				return false;
+			return false;
 		}
 		if (isConversationsListEmpty && mRedirectInProcess.compareAndSet(false, true)) {
 			final Intent intent = SignupUtils.getRedirectionIntent(this);
@@ -827,27 +827,27 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		}
 		binding.statuses.clearCheck();
 		binding.statusMessage.setEnabled(false);
-				if (statusMessage.equals(getEmojiByUnicode(meetingIcon)+"\tIn a meeting")) {
-					binding.inMeeting.setChecked(true);
-					return;
-				} else if (statusMessage.equals(getEmojiByUnicode(travelIcon)+"\tOn travel")) {
-					binding.onTravel.setChecked(true);
-					return;
-				} else if (statusMessage.equals(getEmojiByUnicode(sickIcon)+"\tOut sick")) {
-					binding.outSick.setChecked(true);
-					return;
-				} else if (statusMessage.equals(getEmojiByUnicode(vacationIcon)+"\tVacation")) {
-					binding.vacation.setChecked(true);
-					return;
-				} else if (!statusMessage.isEmpty()) {
-					binding.custom.setChecked(true);
-					binding.statusMessage.setEnabled(true);
-					return;
-				} else {
-					binding.statuses.clearCheck();
-					binding.statusMessage.setEnabled(false);
-					return;
-				}
+		if (statusMessage.equals(getEmojiByUnicode(meetingIcon)+"\tIn a meeting")) {
+			binding.inMeeting.setChecked(true);
+			return;
+		} else if (statusMessage.equals(getEmojiByUnicode(travelIcon)+"\tOn travel")) {
+			binding.onTravel.setChecked(true);
+			return;
+		} else if (statusMessage.equals(getEmojiByUnicode(sickIcon)+"\tOut sick")) {
+			binding.outSick.setChecked(true);
+			return;
+		} else if (statusMessage.equals(getEmojiByUnicode(vacationIcon)+"\tVacation")) {
+			binding.vacation.setChecked(true);
+			return;
+		} else if (!statusMessage.isEmpty()) {
+			binding.custom.setChecked(true);
+			binding.statusMessage.setEnabled(true);
+			return;
+		} else {
+			binding.statuses.clearCheck();
+			binding.statusMessage.setEnabled(false);
+			return;
+		}
 
 	}
 
@@ -871,6 +871,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		statusIcon.setVisibility(View.VISIBLE);
 		downArrow.setVisibility(View.VISIBLE);
 		toolbar = (Toolbar) findViewById(R.id.toolbar_with_icon_status);
+		//CMG AM-368
+		toolbar.setOnClickListener(conversationFragment.clickToContactDetails);
 		toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_black_24dp));
 		toolbar.setNavigationOnClickListener(new View.OnClickListener() {
 			@Override
@@ -885,6 +887,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		statusIcon.setVisibility(View.GONE);
 		downArrow.setVisibility(View.VISIBLE);
 		toolbar = (Toolbar) findViewById(R.id.toolbar_with_icon_status);
+		toolbar.setOnClickListener(conversationFragment.clickToContactDetails);
 		toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_black_24dp));
 		toolbar.setNavigationOnClickListener(new View.OnClickListener() {
 			@Override
@@ -906,6 +909,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	protected void showNavMenu(){
 		toolbar = (Toolbar) findViewById(R.id.toolbar_with_icon_status);
+		toolbar.setOnClickListener(null);
 		toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_menu_black_24dp));
 		toolbar.setNavigationOnClickListener(new View.OnClickListener() {
 			@Override
@@ -1473,7 +1477,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			String previousNetworkState = networkStatus.getText().toString();
 			final Account account = xmppConnectionService.getAccounts().get(0);
 			if (account != null) {
-			    // previousNetworkState: ie what string is displayed currently in the offline status bar
+				// previousNetworkState: ie what string is displayed currently in the offline status bar
 				if (previousNetworkState != null) {
 
 				    /*
@@ -1485,14 +1489,14 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_available))) {
 						networkStatus.setText(getResources().getString(R.string.refreshing_status));
 						if (account.getPresenceStatus().equals(Presence.Status.OFFLINE)){
-						    enableAccount(account);
-                        }
-                        PresenceTemplate template = new PresenceTemplate(Presence.Status.ONLINE, account.getPresenceStatusMessage());
-                        if (account.getPgpId() != 0 && hasPgp()) {
-                            generateSignature(null, template);
-                        } else {
-                            xmppConnectionService.changeStatus(account, template, null);
-                        }
+							enableAccount(account);
+						}
+						PresenceTemplate template = new PresenceTemplate(Presence.Status.ONLINE, account.getPresenceStatusMessage());
+						if (account.getPgpId() != 0 && hasPgp()) {
+							generateSignature(null, template);
+						} else {
+							xmppConnectionService.changeStatus(account, template, null);
+						}
 
                      /*
 				     Case 2. ACCOUNT) "Disconnected: tap to connect"
@@ -1501,20 +1505,20 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				      */
 					} else if (previousNetworkState.contains(getResources().getString(R.string.disconnect_tap_to_connect))) {
 						networkStatus.setText(getResources().getString(R.string.refreshing_connection));
-                        if (!(account.getStatus().equals(Account.State.CONNECTING) || account.getStatus().equals(Account.State.ONLINE))){
-                            enableAccount(account);
-                        }
+						if (!(account.getStatus().equals(Account.State.CONNECTING) || account.getStatus().equals(Account.State.ONLINE))){
+							enableAccount(account);
+						}
                      /*
 				     Case 2. NETWORK) "No internet connection"
 				     -> refresh to "Checking for signal"
 				     -> ???
 				      */
-                    } else if (previousNetworkState.contains(getResources().getString(R.string.status_no_network))) {
+					} else if (previousNetworkState.contains(getResources().getString(R.string.status_no_network))) {
 						networkStatus.setText(getResources().getString(R.string.refreshing_network));
-                        enableAccount(account);
+						enableAccount(account);
 					}
 				} else {
-				    // should not reach here... Offline status message state should be defined in one of the above cases
+					// should not reach here... Offline status message state should be defined in one of the above cases
 					networkStatus.setText(getResources().getString(R.string.refreshing_connection));
 				}
 
@@ -1663,13 +1667,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		if (this.drawer.isDrawerOpen(GravityCompat.START)){
 			Button status_text = (Button) findViewById(R.id.nav_status_text);
 			ImageView status_icon = (ImageView) findViewById(R.id.nav_status_icon);
-				if (ConnectivityReceiver.isConnected(getApplicationContext())) {
-					status_text.setText(mAccount.getPresenceStatus().toDisplayString());
-					status_icon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
-				} else {
-					status_text.setText(Presence.Status.OFFLINE.toDisplayString());
-					status_icon.setImageResource(Presence.Status.OFFLINE.getStatusIcon());
-				}
+			if (ConnectivityReceiver.isConnected(getApplicationContext())) {
+				status_text.setText(mAccount.getPresenceStatus().toDisplayString());
+				status_icon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
+			} else {
+				status_text.setText(Presence.Status.OFFLINE.toDisplayString());
+				status_icon.setImageResource(Presence.Status.OFFLINE.getStatusIcon());
+			}
 
 		}
 	}

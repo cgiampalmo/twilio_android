@@ -194,7 +194,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	//ALF AM-51
 	private String lastGroupRemoved = null;
 
-	private OnClickListener clickToContactDetails = new OnClickListener() {
+	protected OnClickListener clickToContactDetails = new OnClickListener() {
 
 		@Override
 		public void onClick(View v) {
@@ -205,7 +205,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 					intent.putExtra("uuid", conversation.getUuid());
 					startActivity(intent);
 				} else {
-					activity.switchToContactDetails(conversation.getContact());
+						activity.switchToContactDetails(conversation.getContact());
 				}
 			}
 		}
@@ -1036,8 +1036,8 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		Log.d(Config.LOGTAG, "ConversationFragment.onAttach()");
 		if (activity instanceof ConversationsActivity) {
 			this.activity = (ConversationsActivity) activity;
-			//CMG AM-330
-			getActivity().findViewById(R.id.toolbar_with_icon_status).setOnClickListener(clickToContactDetails);
+			//CMG AM-330  //CMG AM-368
+			//getActivity().findViewById(R.id.toolbar_with_icon_status).setOnClickListener(clickToContactDetails);
 		} else {
 			throw new IllegalStateException("Trying to attach fragment to activity that is not the ConversationsActivity");
 		}

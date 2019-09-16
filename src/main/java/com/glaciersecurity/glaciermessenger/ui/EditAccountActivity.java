@@ -156,7 +156,7 @@ import static android.view.View.VISIBLE;
 public class EditAccountActivity extends OmemoActivity implements OnAccountUpdate, OnUpdateBlocklist,
 		OnKeyStatusUpdated, OnCaptchaRequested, KeyChainAliasCallback, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnMamPreferencesFetched, Handler.Callback, OpenVPNProfileListener, ConnectivityReceiver.ConnectivityReceiverListener{
 
-		public static final String EXTRA_OPENED_FROM_NOTIFICATION = "opened_from_notification";
+	public static final String EXTRA_OPENED_FROM_NOTIFICATION = "opened_from_notification";
 
 	private static final int REQUEST_DATA_SAVER = 0x37af244;
 	private static final int MSG_UPDATE_STATE = 0;
@@ -1564,8 +1564,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 		//CMG AM-314
 		if (!ConnectivityReceiver.isConnected(getApplicationContext())) {
-				clearPasswordField();
-				showDialogMessage(getString(R.string.error_connecting), getString(R.string.no_internet_login_error));
+			clearPasswordField();
+			showDialogMessage(getString(R.string.no_internet), getString(R.string.no_interent_login_error));
 		}
 		else {
 				//CMG AM-200
@@ -1827,7 +1827,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		//CMG AM-192
 		showDialogMessage(getString(R.string.invalid_connecting), getString(R.string.invalid_login_error));
 
-		//showDialogMessage(getString(R.string.error_connecting), getString(R.string.no_internet_login_error));
+		//showDialogMessage(getString(R.string.error_connecting), getString(R.string.unknown_login_error));
 		//ALF AM-74
 		//showDialogMessage(getString(R.string.signin_fail_title), AppHelper.formatException(e));
 
@@ -2938,18 +2938,18 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	//CMG AM-314
 	public static boolean isConnected(Context context) {
-			ConnectivityManager cm = (ConnectivityManager) context
-							.getSystemService(Context.CONNECTIVITY_SERVICE);
-			NetworkInfo activeNetwork = null;
-			if (cm != null) {
-					activeNetwork = cm.getActiveNetworkInfo();
-			}
-			return activeNetwork != null
-							&& activeNetwork.isConnectedOrConnecting();
+		ConnectivityManager cm = (ConnectivityManager) context
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetwork = null;
+		if (cm != null) {
+			activeNetwork = cm.getActiveNetworkInfo();
+		}
+		return activeNetwork != null
+				&& activeNetwork.isConnectedOrConnecting();
 	}
 
 	public interface ConnectivityReceiverListener {
-			void onNetworkConnectionChanged(boolean isConnected);
+		void onNetworkConnectionChanged(boolean isConnected);
 	}
 
 	@Override
