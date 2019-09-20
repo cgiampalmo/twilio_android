@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.IntentSender.SendIntentException;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -38,6 +39,7 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.annotation.BoolRes;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
@@ -52,6 +54,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -61,6 +64,9 @@ import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 
 import com.glaciersecurity.glaciercore.api.CoreConnectionState;
+import com.glaciersecurity.glaciermessenger.databinding.DialogPresenceBinding;
+import com.glaciersecurity.glaciermessenger.entities.Presence;
+import com.glaciersecurity.glaciermessenger.entities.PresenceTemplate;
 import com.glaciersecurity.glaciermessenger.lollipin.lib.PinActivity;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
@@ -77,6 +83,7 @@ import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService.XmppConnectionBinder;
 import com.glaciersecurity.glaciermessenger.ui.service.EmojiService;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
+import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.PresenceSelector;
 import com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils;
 import com.glaciersecurity.glaciermessenger.utils.AccountUtils;
@@ -87,6 +94,11 @@ import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
 import rocks.xmpp.addr.Jid;
 
 import static android.Manifest.permission.READ_CONTACTS;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.meetingIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.sickIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.travelIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.vacationIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.getEmojiByUnicode;
 
 // GOOBER PIN - extend to use PIN everywherety
 // public abstract class XmppActivity extends ActionBarActivity {
@@ -100,6 +112,9 @@ public abstract class XmppActivity extends PinActivity {
 	protected static final String CORE_APK_PACKAGE = "com.glaciersecurity.glaciercore";
 	public XmppConnectionService xmppConnectionService;
 	public boolean xmppConnectionServiceBound = false;
+
+	private final PendingItem<PresenceTemplate> mPendingPresenceTemplate = new PendingItem<>();
+
 
 	protected int mColorRed;
 
@@ -210,6 +225,8 @@ public abstract class XmppActivity extends PinActivity {
 	}
 
 	abstract protected void refreshUiReal();
+
+
 
 	@Override
 	protected void onStart() {

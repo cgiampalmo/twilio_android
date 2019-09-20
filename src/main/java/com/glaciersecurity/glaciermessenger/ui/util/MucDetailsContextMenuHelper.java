@@ -134,12 +134,12 @@ public final class MucDetailsContextMenuHelper {
         final XmppConnectionService.OnAffiliationChanged onAffiliationChanged = activity instanceof XmppConnectionService.OnAffiliationChanged ? (XmppConnectionService.OnAffiliationChanged) activity : null;
         Jid jid = user.getRealJid();
         switch (item.getItemId()) {
-//            case R.id.action_contact_details:
-//                Contact contact = user.getContact();
-//                if (contact != null) {
-//                    activity.switchToContactDetails(contact, fingerprint);
-//                }
-//                return true;
+            case R.id.action_contact_details:
+                Contact contact = user.getContact();
+                if (contact != null) {
+                    activity.switchToContactDetails(contact, fingerprint);
+                }
+                return true;
             case R.id.start_conversation:
                 startConversation(user, activity);
                 return true;

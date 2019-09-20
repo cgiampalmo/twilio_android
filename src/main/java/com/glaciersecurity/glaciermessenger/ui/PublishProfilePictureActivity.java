@@ -51,23 +51,11 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
         //CMG AM-361
         @Override
         public boolean onLongClick(View v) {
-            Bitmap bm = avatarService().get(account.getDisplayName(), account.getJid().asBareJid().toString(), (int) getResources().getDimension(R.dimen.publish_avatar_size), false);
-            avatar.setImageBitmap(bm);
-            avatarUri = getImageUri(getApplicationContext(), bm);
-            if (bm != null) {
-                togglePublishButton(true, R.string.publish);
-            }
+            avatarUri = defaultUri;
+            loadImageIntoPreview(defaultUri);
             return true;
         }
     };
-
-    public Uri getImageUri(Context inContext, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
-        return Uri.parse(path);
-    }
-
     private boolean mInitialAccountSetup;
 
     @Override
@@ -127,20 +115,22 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
             finish();
         });
         this.avatar.setOnClickListener(v -> chooseAvatar());
-        this.defaultUri = PhoneHelper.getProfilePictureUri(getApplicationContext());
         if (savedInstanceState != null) {
             this.avatarUri = savedInstanceState.getParcelable("uri");
+            this.defaultUri = savedInstanceState.getParcelable("default");
             this.handledExternalUri.set(savedInstanceState.getBoolean("handle_external_uri",false));
+        } else {
+            this.avatarUri = PhoneHelper.getProfilePictureUri(getApplicationContext());
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.reset_avatar, menu);
-        //AccountUtils.showHideMenuItems(menu);
-        MenuItem resetAvatar = menu.findItem(R.id.action_reset_avatar);
-        return super.onCreateOptionsMenu(menu);
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.reset_avatar, menu);
+//        //AccountUtils.showHideMenuItems(menu);
+//        MenuItem resetAvatar = menu.findItem(R.id.action_reset_avatar);
+//        return super.onCreateOptionsMenu(menu);
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -148,15 +138,17 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
             return false;
         }
         switch (item.getItemId()) {
-            case R.id.action_reset_avatar:
-                Bitmap bm = avatarService().get(account.getDisplayName(), account.getJid().asBareJid().toString(), (int) getResources().getDimension(R.dimen.publish_avatar_size), false);
-                avatar.setImageBitmap(bm);
-                avatarUri = getImageUri(getApplicationContext(), bm);
-                if (bm != null) {
-                    togglePublishButton(true, R.string.publish);
-                }
+            //CMG AM-361
+//            case R.id.action_reset_avatar:
+//                if (account != null) {
+//                    avatarUri = defaultUri;
+//                    loadImageIntoPreview(defaultUri);
+//                    return true;
+//                }
+//                break;
+            case android.R.id.home:
+                finish();
                 break;
-              default:
         }
         return true;
     }
@@ -165,6 +157,7 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
     public void onSaveInstanceState(Bundle outState) {
         if (this.avatarUri != null) {
             outState.putParcelable("uri", this.avatarUri);
+            outState.putParcelable("default", this.defaultUri);
         }
         outState.putBoolean("handle_external_uri", handledExternalUri.get());
         super.onSaveInstanceState(outState);
@@ -275,7 +268,6 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
                 this.hintOrWarning.setText(R.string.error_publish_avatar_offline);
             }
         }
-        //AM-361
         if (this.defaultUri == null || this.defaultUri.equals(uri)) {
             this.secondaryHint.setVisibility(View.INVISIBLE);
             this.avatar.setOnLongClickListener(null);

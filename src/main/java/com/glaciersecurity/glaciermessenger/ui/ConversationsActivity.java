@@ -1481,13 +1481,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				if (previousNetworkState != null) {
 
 				    /*
-				     Case 1. PRESENCE) "_____: tap to set to Available"
-				     -> refresh to "Changing status to Available"
-				     -> if was offline need to reenable account
+				     Case 1a. PRESENCE -> OFFLINE ) "_____: tap to Reconnect"
+				     -> refresh to "Attempting to Connect"
+				     -> presence is offline, need to reenable account
 				     -> change presence to online
 				      */
-					if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_available))) {
-						networkStatus.setText(getResources().getString(R.string.refreshing_status));
+					if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_enable))) {
+						networkStatus.setText(getResources().getString(R.string.refreshing_connection));
 						if (account.getPresenceStatus().equals(Presence.Status.OFFLINE)){
 							enableAccount(account);
 						}
@@ -1497,6 +1497,16 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 						} else {
 							xmppConnectionService.changeStatus(account, template, null);
 						}
+					}
+					/*
+				     Case 1b. PRESENCE) "_____: tap to set to Available"
+				     -> refresh to "Changing status to Available"
+				     -> if was offline need to reenable account
+				     -> change presence to online
+				      */
+						else if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_available))) {
+							networkStatus.setText(getResources().getString(R.string.refreshing_status));
+							changePresence(account);
 
                      /*
 				     Case 2. ACCOUNT) "Disconnected: tap to connect"
@@ -1505,9 +1515,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				      */
 					} else if (previousNetworkState.contains(getResources().getString(R.string.disconnect_tap_to_connect))) {
 						networkStatus.setText(getResources().getString(R.string.refreshing_connection));
-						if (!(account.getStatus().equals(Account.State.CONNECTING) || account.getStatus().equals(Account.State.ONLINE))){
-							enableAccount(account);
-						}
+                        if (!(account.getStatus().equals(Account.State.CONNECTING) || account.getStatus().equals(Account.State.ONLINE))){
+                            enableAccount(account);
+                        }
                      /*
 				     Case 2. NETWORK) "No internet connection"
 				     -> refresh to "Checking for signal"
@@ -1534,7 +1544,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				final Account account = xmppConnectionService.getAccounts().get(0);
 				Account.State accountStatus = account.getStatus();
 				Presence.Status presenceStatus = account.getPresenceStatus();
-				if (!presenceStatus.equals(Presence.Status.ONLINE)){
+				if (presenceStatus.equals(Presence.Status.OFFLINE)){
+					runStatus( getResources().getString(R.string.status_tap_to_enable) ,true, true);
+					Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_enable));
+				} else if (!presenceStatus.equals(Presence.Status.ONLINE)){
 					runStatus( presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_available) ,true, true);
 					Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_available));
 				} else {

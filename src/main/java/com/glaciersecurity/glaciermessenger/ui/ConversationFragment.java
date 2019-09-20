@@ -1403,9 +1403,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			case R.id.action_edit_status: //CMG AM-352
 				activity.changePresence(conversation.getAccount());
 				break;
-//			case R.id.action_contact_details:
-//				activity.switchToContactDetails(conversation.getContact());
-//				break;
+			case R.id.action_contact_details:
+				activity.switchToContactDetails(conversation.getContact());
+				break;
 //			case R.id.action_muc_details:
 //				Intent intent = new Intent(getActivity(), ConferenceDetailsActivity.class);
 //				intent.setAction(ConferenceDetailsActivity.ACTION_VIEW_MUC);
@@ -2528,7 +2528,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		} else if (contact != null && !contact.showInRoster() && contact.getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST)) {
 			showSnackbar(R.string.contact_added_you, R.string.add_back, this.mAddBackClickListener, this.mLongPressBlockListener);
 		} else if (contact != null && contact.getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST)) {
-			showSnackbar(R.string.contact_asks_for_presence_subscription, R.string.allow, this.mAllowPresenceSubscription, this.mLongPressBlockListener);
+			showSnackbar(activity.getString(R.string.contact_asks_for_presence_subscription, contact.getDisplayName()), R.string.allow, this.mAllowPresenceSubscription, this.mLongPressBlockListener);
 		} else if (mode == Conversation.MODE_MULTI
 				&& !conversation.getMucOptions().online()
 				&& account.getStatus() == Account.State.ONLINE) {
@@ -2899,6 +2899,19 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	}
 
 	protected void showSnackbar(final int message, final int action, final OnClickListener clickListener, final View.OnLongClickListener longClickListener) {
+		this.binding.snackbar.setVisibility(View.VISIBLE);
+		this.binding.snackbar.setOnClickListener(null);
+		this.binding.snackbarMessage.setText(message);
+		this.binding.snackbarMessage.setOnClickListener(null);
+		this.binding.snackbarAction.setVisibility(clickListener == null ? View.GONE : View.VISIBLE);
+		if (action != 0) {
+			this.binding.snackbarAction.setText(action);
+		}
+		this.binding.snackbarAction.setOnClickListener(clickListener);
+		this.binding.snackbarAction.setOnLongClickListener(longClickListener);
+	}
+
+	protected void showSnackbar(final String message, final int action, final OnClickListener clickListener, final View.OnLongClickListener longClickListener) {
 		this.binding.snackbar.setVisibility(View.VISIBLE);
 		this.binding.snackbar.setOnClickListener(null);
 		this.binding.snackbarMessage.setText(message);

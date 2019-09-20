@@ -3,10 +3,13 @@ package com.glaciersecurity.glaciermessenger.ui;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
+import android.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -14,6 +17,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
+import android.support.annotation.IdRes;
 import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -21,6 +25,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +54,7 @@ import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.cognito.Constants;
 import com.glaciersecurity.glaciermessenger.cognito.PropertyLoader;
 import com.glaciersecurity.glaciermessenger.cognito.Util;
+import com.glaciersecurity.glaciermessenger.databinding.DialogPresenceBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Presence;
 import com.glaciersecurity.glaciermessenger.entities.PresenceTemplate;
@@ -57,6 +63,7 @@ import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.ui.util.ActivityResult;
 import com.glaciersecurity.glaciermessenger.ui.util.Attachment;
+import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.PresenceSelector;
 import com.glaciersecurity.glaciermessenger.utils.FileUtils;
 import com.glaciersecurity.glaciermessenger.utils.MimeUtils;
@@ -73,6 +80,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.meetingIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.sickIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.travelIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.vacationIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.getEmojiByUnicode;
+
 //ALF AM-277
 public class FileSafeActivity extends XmppActivity implements ConnectivityReceiver.ConnectivityReceiverListener{
 
@@ -86,7 +99,8 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
     private boolean retried = false;
     private ConnectivityReceiver connectivityReceiver; //CMG AM-41
 
-
+    //CMG AM-41
+    private LinearLayout offlineLayout;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -199,158 +213,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
         super.onStop();
     }
 
-    @Override
-    public void onNetworkConnectionChanged(boolean isConnected) {
-            updateOfflineStatusBar();
-    }
 
-
-
-
-    //CMG AM-41
-    private LinearLayout offlineLayout;
-    // CMG AM-41
-    private void checkNetworkStatus() {
-        updateOfflineStatusBar();
-    }
-
-    private View.OnClickListener mRefreshNetworkClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            TextView networkStatus = findViewById(R.id.network_status);
-            networkStatus.setCompoundDrawables(null, null, null, null);
-            String previousNetworkState = networkStatus.getText().toString();
-            final Account account = xmppConnectionService.getAccounts().get(0);
-            if (account != null) {
-                // previousNetworkState: ie what string is displayed currently in the offline status bar
-                if (previousNetworkState != null) {
-
-				    /*
-				     Case 1. PRESENCE) "_____: tap to set to Available"
-				     -> refresh to "Changing status to Available"
-				     -> if was offline need to reenable account
-				     -> change presence to online
-				      */
-                    if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_available))) {
-                        networkStatus.setText(getResources().getString(R.string.refreshing_status));
-                        if (account.getPresenceStatus().equals(Presence.Status.OFFLINE)){
-                            enableAccount(account);
-                        }
-                        PresenceTemplate template = new PresenceTemplate(Presence.Status.ONLINE, account.getPresenceStatusMessage());
-
-                        xmppConnectionService.changeStatus(account, template, null);
-
-
-                     /*
-				     Case 2. ACCOUNT) "Disconnected: tap to connect"
-				     -> refresh to "Attempting to Connect"
-				     -> toggle account connection(ie what used to be manage accounts toggle)
-				      */
-                    } else if (previousNetworkState.contains(getResources().getString(R.string.disconnect_tap_to_connect))) {
-                        networkStatus.setText(getResources().getString(R.string.refreshing_connection));
-                        if (!(account.getStatus().equals(Account.State.CONNECTING) || account.getStatus().equals(Account.State.ONLINE))){
-                            enableAccount(account);
-                        }
-                     /*
-				     Case 2. NETWORK) "No internet connection"
-				     -> refresh to "Checking for signal"
-				     -> ???
-				      */
-                    } else if (previousNetworkState.contains(getResources().getString(R.string.status_no_network))) {
-                        networkStatus.setText(getResources().getString(R.string.refreshing_network));
-                        enableAccount(account);
-                    }
-                } else {
-                    // should not reach here... Offline status message state should be defined in one of the above cases
-                    networkStatus.setText(getResources().getString(R.string.refreshing_connection));
-                }
-
-                updateOfflineStatusBar();
-            }
-
-        }
-    };
-
-    protected void updateOfflineStatusBar(){
-        if (ConnectivityReceiver.isConnected(this)) {
-            if (xmppConnectionService != null  && !xmppConnectionService.getAccounts().isEmpty()){
-                final Account account = xmppConnectionService.getAccounts().get(0);
-                Account.State accountStatus = account.getStatus();
-                Presence.Status presenceStatus = account.getPresenceStatus();
-                if (!presenceStatus.equals(Presence.Status.ONLINE)){
-                    runStatus( presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_available) ,true, true);
-                    Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_available));
-                } else {
-                    if (accountStatus == Account.State.ONLINE ) {
-                        runStatus("", false, false);
-                    } else if (accountStatus == Account.State.CONNECTING) {
-                        runStatus(getResources().getString(R.string.connecting),true, false);
-                        Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + getResources().getString(accountStatus.getReadableId()));
-                    } else {
-                        runStatus(getResources().getString(R.string.disconnect_tap_to_connect),true, true);
-                        Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + getResources().getString(accountStatus.getReadableId()));
-                    }
-                }
-            }
-        } else {
-            runStatus(getResources().getString(R.string.status_no_network), true, true);
-            Log.w(Config.LOGTAG ,"updateOfflineStatusBar disconnected from network");
-
-        }
-    }
-
-    private void disableAccount(Account account) {
-        account.setOption(Account.OPTION_DISABLED, true);
-        if (!xmppConnectionService.updateAccount(account)) {
-            Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void enableAccount(Account account) {
-        account.setOption(Account.OPTION_DISABLED, false);
-        final XmppConnection connection = account.getXmppConnection();
-        if (connection != null) {
-            connection.resetEverything();
-        }
-        if (!xmppConnectionService.updateAccount(account)) {
-            Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void runStatus(String str, boolean isVisible, boolean withRefresh){
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                reconfigureOfflineText(str, withRefresh);
-                if(isVisible){
-                    offlineLayout.setVisibility(View.VISIBLE);
-                } else {
-                    offlineLayout.setVisibility(View.GONE);
-                }
-            }
-        }, 1000);
-    }
-    private void reconfigureOfflineText(String str, boolean withRefresh) {
-        if (offlineLayout.isShown()) {
-            TextView networkStatus = findViewById(R.id.network_status);
-            if (networkStatus != null) {
-                networkStatus.setText(str);
-                if (withRefresh) {
-                    Drawable refreshIcon =
-                            ContextCompat.getDrawable(this, R.drawable.ic_refresh_black_24dp);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                        networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
-                    } else {
-                        refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
-                        networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
-                    }
-                } else {
-                    networkStatus.setCompoundDrawables(null, null, null, null);
-                }
-            }
-        }
-    }
 
     protected void toggleUploadButton(boolean enabled, @StringRes int res) {
         final boolean status = enabled && !uploading;
@@ -943,6 +806,348 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
                 }
             }
         }).start();
+    }
+
+    ///// OFFLINE STATUS BAR  TODO move to own class, rather than duplicated over code
+    @Override
+    public void onNetworkConnectionChanged(boolean isConnected) {
+        updateOfflineStatusBar();
+
+    }
+    // CMG AM-41
+    private void checkNetworkStatus() {
+        updateOfflineStatusBar();
+    }
+
+    private View.OnClickListener mRefreshNetworkClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            TextView networkStatus = findViewById(R.id.network_status);
+            networkStatus.setCompoundDrawables(null, null, null, null);
+            String previousNetworkState = networkStatus.getText().toString();
+            final Account account = xmppConnectionService.getAccounts().get(0);
+            if (account != null) {
+                // previousNetworkState: ie what string is displayed currently in the offline status bar
+                if (previousNetworkState != null) {
+
+				    /*
+				     Case 1a. PRESENCE -> OFFLINE ) "_____: tap to Reconnect"
+				     -> refresh to "Attempting to Connect"
+				     -> presence is offline, need to reenable account
+				     -> change presence to online
+				      */
+                    if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_enable))) {
+                        networkStatus.setText(getResources().getString(R.string.refreshing_connection));
+                        if (account.getPresenceStatus().equals(Presence.Status.OFFLINE)){
+                            enableAccount(account);
+                        }
+                        PresenceTemplate template = new PresenceTemplate(Presence.Status.ONLINE, account.getPresenceStatusMessage());
+                        xmppConnectionService.changeStatus(account, template, null);
+
+                    }
+					/*
+				     Case 1b. PRESENCE) "_____: tap to set to Available"
+				     -> refresh to "Changing status to Available"
+				     -> if was offline need to reenable account
+				     -> change presence to online
+				      */
+                    else if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_available))) {
+                        networkStatus.setText(getResources().getString(R.string.refreshing_status));
+                        changePresence(account);
+
+                     /*
+				     Case 2. ACCOUNT) "Disconnected: tap to connect"
+				     -> refresh to "Attempting to Connect"
+				     -> toggle account connection(ie what used to be manage accounts toggle)
+				      */
+                    } else if (previousNetworkState.contains(getResources().getString(R.string.disconnect_tap_to_connect))) {
+                        networkStatus.setText(getResources().getString(R.string.refreshing_connection));
+                        if (!(account.getStatus().equals(Account.State.CONNECTING) || account.getStatus().equals(Account.State.ONLINE))){
+                            enableAccount(account);
+                        }
+                     /*
+				     Case 2. NETWORK) "No internet connection"
+				     -> refresh to "Checking for signal"
+				     -> ???
+				      */
+                    } else if (previousNetworkState.contains(getResources().getString(R.string.status_no_network))) {
+                        networkStatus.setText(getResources().getString(R.string.refreshing_network));
+                        enableAccount(account);
+                    }
+                } else {
+                    // should not reach here... Offline status message state should be defined in one of the above cases
+                    networkStatus.setText(getResources().getString(R.string.refreshing_connection));
+                }
+
+                updateOfflineStatusBar();
+            }
+
+        }
+    };
+
+    protected void updateOfflineStatusBar(){
+        if (ConnectivityReceiver.isConnected(this)) {
+            if (xmppConnectionService != null  && !xmppConnectionService.getAccounts().isEmpty()){
+                final Account account = xmppConnectionService.getAccounts().get(0);
+                Account.State accountStatus = account.getStatus();
+                Presence.Status presenceStatus = account.getPresenceStatus();
+                if (presenceStatus.equals(Presence.Status.OFFLINE)){
+                    runStatus( getResources().getString(R.string.status_tap_to_enable) ,true, true);
+                    Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_enable));
+                } else if (!presenceStatus.equals(Presence.Status.ONLINE)){
+                    runStatus( presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_available) ,true, true);
+                    Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_available));
+                } else {
+                    if (accountStatus == Account.State.ONLINE ) {
+                        runStatus("", false, false);
+                    } else if (accountStatus == Account.State.CONNECTING) {
+                        runStatus(getResources().getString(R.string.connecting),true, false);
+                        Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + getResources().getString(accountStatus.getReadableId()));
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateOfflineStatusBar();
+                            }
+                        },1000);
+                    } else {
+                        runStatus(getResources().getString(R.string.disconnect_tap_to_connect),true, true);
+                        Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + getResources().getString(accountStatus.getReadableId()));
+                    }
+                }
+            }
+        } else {
+            runStatus(getResources().getString(R.string.status_no_network), true, true);
+            Log.w(Config.LOGTAG ,"updateOfflineStatusBar disconnected from network");
+
+        }
+    }
+
+    private void disableAccount(Account account) {
+        account.setOption(Account.OPTION_DISABLED, true);
+        if (!xmppConnectionService.updateAccount(account)) {
+            Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void enableAccount(Account account) {
+        account.setOption(Account.OPTION_DISABLED, false);
+        final XmppConnection connection = account.getXmppConnection();
+        if (connection != null) {
+            connection.resetEverything();
+        }
+        if (!xmppConnectionService.updateAccount(account)) {
+            Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void runStatus(String str, boolean isVisible, boolean withRefresh){
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                reconfigureOfflineText(str, withRefresh);
+                if(isVisible){
+                    offlineLayout.setVisibility(View.VISIBLE);
+                } else {
+                    offlineLayout.setVisibility(View.GONE);
+                }
+            }
+        }, 1000);
+    }
+    private void reconfigureOfflineText(String str, boolean withRefresh) {
+        if (offlineLayout.isShown()) {
+            TextView networkStatus = findViewById(R.id.network_status);
+            if (networkStatus != null) {
+                networkStatus.setText(str);
+                if (withRefresh) {
+                    Drawable refreshIcon =
+                            ContextCompat.getDrawable(this, R.drawable.ic_refresh_black_24dp);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                        networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
+                    } else {
+                        refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
+                        networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
+                    }
+                } else {
+                    networkStatus.setCompoundDrawables(null, null, null, null);
+                }
+            }
+        }
+    }
+    protected void changePresence(Account fragAccount) {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        final DialogPresenceBinding binding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.dialog_presence, null, false);
+        String current = fragAccount.getPresenceStatusMessage();
+        if (current != null && !current.trim().isEmpty()) {
+            binding.statusMessage.append(current);
+        }
+        setAvailabilityRadioButton(fragAccount.getPresenceStatus(), binding);
+        setStatusMessageRadioButton(fragAccount.getPresenceStatusMessage(), binding);
+        List<PresenceTemplate> templates = xmppConnectionService.getPresenceTemplates(fragAccount);
+        //CMG AM-365
+//		PresenceTemplateAdapter presenceTemplateAdapter = new PresenceTemplateAdapter(this, R.layout.simple_list_item, templates);
+// 		binding.statusMessage.setAdapter(presenceTemplateAdapter);
+//		binding.statusMessage.setOnItemClickListener((parent, view, position, id) -> {
+//			PresenceTemplate template = (PresenceTemplate) parent.getItemAtPosition(position);
+//			setAvailabilityRadioButton(template.getStatus(), binding);
+//			setStatusMessageRadioButton(mAccount.getPresenceStatusMessage(), binding);
+//		});
+
+        binding.clearPrefs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                binding.statuses.clearCheck();
+                binding.statusMessage.setText("");
+            }
+        });
+        binding.statuses.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
+            public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+                switch(checkedId){
+                    case R.id.in_meeting:
+                        binding.statusMessage.setText(Presence.StatusMessage.IN_MEETING.toShowString());
+                        binding.statusMessage.setEnabled(false);
+                        break;
+                    case R.id.on_travel:
+                        binding.statusMessage.setText(Presence.StatusMessage.ON_TRAVEL.toShowString());
+                        binding.statusMessage.setEnabled(false);
+                        break;
+                    case R.id.out_sick:
+                        binding.statusMessage.setText(Presence.StatusMessage.OUT_SICK.toShowString());
+                        binding.statusMessage.setEnabled(false);
+                        break;
+                    case R.id.vacation:
+                        binding.statusMessage.setText(Presence.StatusMessage.VACATION.toShowString());
+                        binding.statusMessage.setEnabled(false);
+                        break;
+                    case R.id.custom:
+                        binding.statusMessage.setEnabled(true);
+                        break;
+                    default:
+                        binding.statusMessage.setEnabled(false);
+                        break;
+                }
+            }
+        });
+
+        builder.setTitle(R.string.edit_status_message_title);
+        builder.setView(binding.getRoot());
+        builder.setNegativeButton(R.string.cancel, null);
+        builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
+            PresenceTemplate template = new PresenceTemplate(getAvailabilityRadioButton(binding), binding.statusMessage.getText().toString().trim());
+            //CMG AM-218
+            if (fragAccount.getPgpId() != 0 && hasPgp()) {
+                generateSignature(null, template, fragAccount);
+            } else {
+                xmppConnectionService.changeStatus(fragAccount, template, null);
+            }
+            if (template.getStatus().equals(Presence.Status.OFFLINE)){
+                disableAccount(fragAccount);
+            } else {
+                if (!template.getStatus().equals(Presence.Status.OFFLINE) && fragAccount.getStatus().equals(Account.State.DISABLED)){
+                    enableAccount(fragAccount);
+                }
+            }
+            updateOfflineStatusBar();
+
+        });
+        builder.create().show();
+    }
+
+
+    private void generateSignature(Intent intent, PresenceTemplate template, Account fragAccount) {
+        xmppConnectionService.getPgpEngine().generateSignature(intent, fragAccount, template.getStatusMessage(), new UiCallback<String>() {
+            @Override
+            public void success(String signature) {
+                xmppConnectionService.changeStatus(fragAccount, template, signature);
+            }
+
+            @Override
+            public void error(int errorCode, String object) {
+
+            }
+
+            @Override
+            public void userInputRequried(PendingIntent pi, String object) {
+                mPendingPresenceTemplate.push(template);
+                try {
+                    startIntentSenderForResult(pi.getIntentSender(), REQUEST_CHANGE_STATUS, null, 0, 0, 0);
+                } catch (final IntentSender.SendIntentException ignored) {
+                }
+            }
+        });
+    }
+
+    private static final int REQUEST_CHANGE_STATUS = 0xee11;
+    private final PendingItem<PresenceTemplate> mPendingPresenceTemplate = new PendingItem<>();
+
+
+    private static void setAvailabilityRadioButton(Presence.Status status, DialogPresenceBinding binding) {
+        if (status == null) {
+            binding.online.setChecked(true);
+            return;
+        }
+        switch (status) {
+            case DND:
+                binding.dnd.setChecked(true);
+                break;
+            case OFFLINE:
+                binding.xa.setChecked(true);
+                break;
+            case XA:
+                binding.xa.setChecked(true);
+                break;
+            case AWAY:
+                binding.away.setChecked(true);
+                break;
+            default:
+                binding.online.setChecked(true);
+        }
+    }
+
+
+    //CMG AM-354
+    private static void setStatusMessageRadioButton(String statusMessage, DialogPresenceBinding binding) {
+        if (statusMessage == null) {
+            binding.statuses.clearCheck();
+            binding.statusMessage.setEnabled(false);
+            return;
+        }
+        binding.statuses.clearCheck();
+        binding.statusMessage.setEnabled(false);
+        if (statusMessage.equals(getEmojiByUnicode(meetingIcon)+"\tIn a meeting")) {
+            binding.inMeeting.setChecked(true);
+            return;
+        } else if (statusMessage.equals(getEmojiByUnicode(travelIcon)+"\tOn travel")) {
+            binding.onTravel.setChecked(true);
+            return;
+        } else if (statusMessage.equals(getEmojiByUnicode(sickIcon)+"\tOut sick")) {
+            binding.outSick.setChecked(true);
+            return;
+        } else if (statusMessage.equals(getEmojiByUnicode(vacationIcon)+"\tVacation")) {
+            binding.vacation.setChecked(true);
+            return;
+        } else if (!statusMessage.isEmpty()) {
+            binding.custom.setChecked(true);
+            binding.statusMessage.setEnabled(true);
+            return;
+        } else {
+            binding.statuses.clearCheck();
+            binding.statusMessage.setEnabled(false);
+            return;
+        }
+
+    }
+
+    private static Presence.Status getAvailabilityRadioButton(DialogPresenceBinding binding) {
+        if (binding.dnd.isChecked()) {
+            return Presence.Status.DND;
+        } else if (binding.xa.isChecked()) {
+            return Presence.Status.OFFLINE;
+        } else if (binding.away.isChecked()) {
+            return Presence.Status.AWAY;
+        } else {
+            return Presence.Status.ONLINE;
+        }
     }
 
 }

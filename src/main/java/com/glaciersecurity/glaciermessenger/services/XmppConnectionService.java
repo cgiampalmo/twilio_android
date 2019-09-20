@@ -4564,6 +4564,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		} catch (RemoteException | SecurityException e) {
 			e.printStackTrace();
 		}
+
 	}
 
 	@Override
