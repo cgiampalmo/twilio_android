@@ -1060,15 +1060,20 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		//CMG AM-352
 		final MenuItem changeStatus = menu.findItem(R.id.action_change_status);
 		final MenuItem editStatus = menu.findItem(R.id.action_edit_status);
-		if (conversation.getAccount().getPresenceStatus().equals(Presence.Status.ONLINE) && conversation.getAccount().getPresenceStatusMessage() == null){
-			changeStatus.setVisible(true);
-			editStatus.setVisible(false);
-		} else if (conversation.getAccount().getPresenceStatus().equals(Presence.Status.ONLINE) && conversation.getAccount().getPresenceStatusMessage() != null && conversation.getAccount().getPresenceStatusMessage().isEmpty()){
-			changeStatus.setVisible(true);
-			editStatus.setVisible(false);
+		if(conversation != null && conversation.getAccount()!= null) {
+			if (conversation.getAccount().getPresenceStatus().equals(Presence.Status.ONLINE) && conversation.getAccount().getPresenceStatusMessage() == null) {
+				changeStatus.setVisible(true);
+				editStatus.setVisible(false);
+			} else if (conversation.getAccount().getPresenceStatus().equals(Presence.Status.ONLINE) && conversation.getAccount().getPresenceStatusMessage() != null && conversation.getAccount().getPresenceStatusMessage().isEmpty()) {
+				changeStatus.setVisible(true);
+				editStatus.setVisible(false);
+			} else {
+				changeStatus.setVisible(false);
+				editStatus.setVisible(true);
+			}
 		} else {
 			changeStatus.setVisible(false);
-			editStatus.setVisible(true);
+			editStatus.setVisible(false);
 		}
 	}
 

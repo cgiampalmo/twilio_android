@@ -115,7 +115,7 @@ dependencies {
     //implementation 'com.android.support:cardview-v7:26.0.0'
 
     //implementation 'com.android.support:recyclerview-v7:28.0.0' //ALF test
-    implementation 'com.android.support.constraint:constraint-layout:1.0.0-beta3'
+//    implementation 'com.android.support.constraint:constraint-layout:1.0.0-beta3'
     //implementation 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.6.8'
     //ALF AM-313, AM-346
     implementation 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.14.2'
@@ -144,7 +144,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 28
         versionCode 364
-        versionName "2.4.1-RC7"
+        versionName "2.4.2"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
         resValue "string", "applicationId", applicationId
