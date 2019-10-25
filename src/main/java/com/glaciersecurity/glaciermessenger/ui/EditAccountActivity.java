@@ -1318,10 +1318,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				closeWaitDialog();
 				// GOOBER - if unauthorized, delete account from services
 				// so that app stays on login screen
-				xmppConnectionService.deleteAccount(mAccount); //ALF AM-143?
-				this.binding.accountJid.getEditableText().clear();
-				mJid.setText("");
-				mPassword.setText("");
+
+				// CMG AM-378
+				//xmppConnectionService.deleteAccount(mAccount); //ALF AM-143?
+//				this.binding.accountJid.getEditableText().clear();
+//				mJid.setText("");
+//				mPassword.setText("");
 
 				if (this.mAccount.getStatus() == Account.State.UNAUTHORIZED) {
 					errorLayout = this.mAccountPasswordLayout;
@@ -1561,6 +1563,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * @param view
 	 */
 	public void logIn(View view) {
+		mAccountPasswordLayout.setPasswordVisibilityToggleEnabled(false);
+		mAccountPasswordLayout.setPasswordVisibilityToggleEnabled(true);
 
 		//CMG AM-314
 		if (!ConnectivityReceiver.isConnected(getApplicationContext())) {
@@ -1811,6 +1815,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 							newPasswordContinuation.getRequiredAttributes());
 					closeWaitDialog();
 					firstTimeSignIn();
+					showWaitDialog(getString(R.string.wait_dialog_retrieving_account_info));
 				}
 			}
 		}
@@ -1860,6 +1865,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 		try {
 			newPasswordContinuation.continueTask();
+			showWaitDialog(getString(R.string.wait_dialog_retrieving_account_info));
+
 		} catch (Exception e) {
 			handleLoginFailure();
 		}
