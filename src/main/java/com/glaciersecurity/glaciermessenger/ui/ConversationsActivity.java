@@ -987,6 +987,21 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				startActivity(intent);
 				break;
 			}
+			case R.id.VoiceApp: {
+				try {
+					PackageManager pm = getPackageManager();
+					Intent intent = pm.getLaunchIntentForPackage("com.glaciersecurity.glaciervoice");
+					startActivity(intent);
+				} catch (java.lang.NullPointerException e) {
+					// If not installed, then download Voice from Play store
+					Intent intent = new Intent(Intent.ACTION_VIEW);
+					intent.setData(Uri.parse(
+							"https://play.google.com/store/apps/details?id=com.glaciersecurity.glaciervoice"));
+					intent.setPackage("com.android.vending");
+					startActivity(intent);
+				}
+				break;
+			}
 			case R.id.Logout: {
 				showLogoutConfirmationDialog();
 				break;
