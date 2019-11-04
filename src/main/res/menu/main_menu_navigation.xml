@@ -30,6 +30,10 @@
             android:icon="@drawable/ic_wifi"
             android:title="Core" />
         <item
+            android:id="@+id/VoiceApp"
+            android:icon="@drawable/dialer_back"
+            android:title="Voice"/>
+        <item
             android:id="@+id/Settings"
             android:icon="@drawable/ic_settings"
             android:title="Settings" />
