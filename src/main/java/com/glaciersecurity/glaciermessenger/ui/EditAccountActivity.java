@@ -171,7 +171,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	private static final int REQUEST_CHANGE_STATUS = 0xee11;
 	private TextInputLayout mAccountJidLayout;
-	private TextInputEditText mJid;
+	private EditText mJid;
 
 	private EditText mPassword;
 	private TextInputLayout mAccountPasswordLayout;
@@ -392,6 +392,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				if (view.getId() == R.id.hostname) {
 					resId = mUseTor ? R.string.hostname_or_onion : R.string.hostname_example;
 				}
+				if (view.getId() == R.id.account_password) {
+					resId = R.string.password;
+				}
+				if (view.getId() == R.id.account_orgid) {
+					resId = R.string.orgid;
+				}
 				final int res = resId;
 				new Handler().postDelayed(() -> et.setHint(res), 200);
 			} else {
@@ -558,8 +564,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		configureActionBar(getSupportActionBar());
 		binding.accountJid.addTextChangedListener(this.mTextWatcher);
 		binding.accountJid.setOnFocusChangeListener(this.mEditTextFocusListener);
+		binding.accountPassword.setOnFocusChangeListener(this.mEditTextFocusListener);
 		this.mAccountJidLayout = (TextInputLayout) findViewById(R.id.account_jid_layout);
-		this.mJid = (TextInputEditText) findViewById(R.id.account_password);
+		this.mJid = (EditText) findViewById(R.id.account_jid);
 		this.mPassword = (EditText) findViewById(R.id.account_password);
 		this.mPassword.addTextChangedListener(this.mTextWatcher);
 		this.mAccountPasswordLayout = (TextInputLayout) findViewById(R.id.account_password_layout);
@@ -914,6 +921,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				this.mPassword.setHint(R.string.authenticate_with_certificate);
 				if (this.mInitMode) {
 					this.mPassword.requestFocus();
+					this.binding.accountPassword.setHint(R.string.password);
+
 				}
 			}
 			if (mPendingFingerprintVerificationUri != null) {
@@ -924,7 +933,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 
 		if (mUsernameMode) {
-			this.binding.accountJid.setHint(R.string.username_hint);
+//			this.binding.accountJid.setHint(R.string.username_hint);
+//			this.binding.accountPassword.setHint(R.string.password);
+//			this.binding.accountOrgid.setHint(R.string.orgid);
 		} else {
 			// GOOBER USERNAME - Removed auto complete text
 			/* final KnownHostsAdapter mKnownHostsAdapter = new KnownHostsAdapter(this,
@@ -1330,7 +1341,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				} else if (mShowOptions
 						&& this.mAccount.getStatus() == Account.State.SERVER_NOT_FOUND
 						&& this.mHostname.getText().length() > 0) {
-					errorLayout = this.mHostnameLayout;
+					errorLayout = this.mAccountJidLayout;
 				} else {
 					errorLayout = this.mAccountJidLayout;
 				}
@@ -1590,8 +1601,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						//if (username.trim().length() == 0) { //CMG AM-172 and next two ifs also
 						if (tempVPN.getLogUsername().trim().length() == 0) {
 								// showDialogMessage("Login", "Username cannot be empty.");
-								mAccountJidLayout.setError("Username cannot be blank");
-								mAccountJidLayout.requestFocus();
+								mJid.setError("Username cannot be blank");
+								mJid.requestFocus();
 								//} else if (password.trim().length() == 0) {
 						} else if (tempVPN.getLogPassword().trim().length() == 0) {
 								// showDialogMessage("Login", "Password cannot be empty.");
@@ -1655,11 +1666,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				jid = Jid.of(tempVPN.getLogUsername());
 			} catch (final NullPointerException | IllegalArgumentException e) {
 				if (mUsernameMode) {
-					binding.accountJidLayout.setError(getString(R.string.invalid_username));
+					mJid.setError(getString(R.string.invalid_username));
 				} else {
-					binding.accountJidLayout.setError(getString(R.string.invalid_jid));
+					mJid.setError(getString(R.string.invalid_jid));
 				}
-				binding.accountJid.requestFocus();
+				mJid.requestFocus();
 				removeErrorsOnAllBut(binding.accountJidLayout);
 				return;
 			}
@@ -1693,9 +1704,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 			if (jid.getLocal() == null) {
 				if (mUsernameMode) {
-					binding.accountJidLayout.setError(getString(R.string.invalid_username));
+					mJid.setError(getString(R.string.invalid_username));
 				} else {
-					binding.accountJidLayout.setError(getString(R.string.invalid_jid));
+					mJid.setError(getString(R.string.invalid_jid));
 				}
 				removeErrorsOnAllBut(binding.accountJidLayout);
 				binding.accountJid.requestFocus();
@@ -2237,9 +2248,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 
 	private void resetEntryErrors(){ //CMG AM-172
-		mOrgID.setError(null);
+		mAccountJidLayout.setError(null);
 		mAccountPasswordLayout.setError(null);
-		mAccountPasswordLayout.setError(null);
+		mAccountOrgIDLayout.setError(null);
 	}
 
 

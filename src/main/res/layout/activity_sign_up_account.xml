@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/color_background_secondary"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="330dp"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_centerVertical="true"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_large">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Username"
+                android:textAlignment="center"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+                android:textColor="?attr/edit_text_color"
+                android:textStyle="bold" />
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/account_jid_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:hintTextAppearance="@style/TextAppearance.Conversations.Design.Hint"
+                app:errorTextAppearance="@style/TextAppearance.Conversations.Design.Error">
+
+                <AutoCompleteTextView
+                    android:id="@+id/account_jid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="textEmailAddress"
+                    android:textColor="?attr/edit_text_color"
+                    style="@style/Widget.Conversations.EditText"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="@dimen/spacing_large" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Password"
+                android:textAlignment="center"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+                android:textColor="?attr/edit_text_color"
+                android:textStyle="bold" />
+
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/new_password_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:passwordToggleDrawable="@drawable/visibility_toggle_drawable"
+                app:passwordToggleEnabled="true"
+                app:hintTextAppearance="@style/TextAppearance.Conversations.Design.Hint"
+                app:errorTextAppearance="@style/TextAppearance.Conversations.Design.Error">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/editTextNewPassPass"
+                    style="@style/Widget.Conversations.EditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:textColor="?attr/edit_text_color"
+                    android:inputType="textPassword" />
+            </android.support.design.widget.TextInputLayout>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="@dimen/spacing_large" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Confirm Password"
+                android:textAlignment="center"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+                android:textColor="?attr/edit_text_color"
+                android:textStyle="bold" />
+
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/reEditTextNewPassPass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:passwordToggleDrawable="@drawable/visibility_toggle_drawable"
+                app:passwordToggleEnabled="true"
+                app:hintTextAppearance="@style/TextAppearance.Conversations.Design.Hint"
+                app:errorTextAppearance="@style/TextAppearance.Conversations.Design.Error">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/re_new_password_layout"
+                    style="@style/Widget.Conversations.EditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:textColor="?attr/edit_text_color"
+                    android:inputType="textPassword" />
+            </android.support.design.widget.TextInputLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="@dimen/spacing_large" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Email"
+                android:textAlignment="center"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+                android:textColor="?attr/edit_text_color"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/recovery_email_message"
+                android:textAlignment="center"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+                android:textColor="?attr/edit_text_color"
+                android:textStyle="italic" />
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/account_email_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:hintTextAppearance="@style/TextAppearance.Conversations.Design.Hint"
+                app:errorTextAppearance="@style/TextAppearance.Conversations.Design.Error">
+
+                <AutoCompleteTextView
+                    android:id="@+id/account_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="textEmailAddress"
+                    android:textColor="?attr/edit_text_color"
+                    style="@style/Widget.Conversations.EditText"/>
+            </android.support.design.widget.TextInputLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="@dimen/spacing_large" />
+
+            <Button
+                android:id="@+id/continueSignIn"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginLeft="-4dp"
+                android:layout_marginRight="-4dp"
+                android:background="@drawable/btn_rounded_accent_300"
+                android:text="Create Account"
+                android:textAllCaps="false"
+                android:textColor="@color/blue_grey_300" />
+
+
+        </LinearLayout>
+
+    </RelativeLayout>
+</LinearLayout>
+</layout>

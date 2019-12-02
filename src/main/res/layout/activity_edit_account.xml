@@ -93,7 +93,7 @@
             </android.support.design.widget.TextInputLayout>
             <View
                 android:layout_width="0dp"
-                android:layout_height="@dimen/spacing_mlarge" />
+                android:layout_height="@dimen/spacing_large" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
