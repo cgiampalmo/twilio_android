@@ -1565,6 +1565,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		refreshUi();
 	}
 
+	public void gotoSignUp(View view) {
+		Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
+		startActivity(intent);
+	}
+
 	/**
 	 * *********** GOOBER COGNITO MODIFICATIONS **************
 	 */

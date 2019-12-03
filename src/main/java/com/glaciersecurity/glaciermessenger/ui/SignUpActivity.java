@@ -21,11 +21,14 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -56,66 +59,17 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up_account);
 
-        ActionBar ab = getSupportActionBar();
-        if (ab != null) {
-            ab.setDisplayShowHomeEnabled(false);
-            ab.setDisplayHomeAsUpEnabled(false);
+        newUsername = (EditText) findViewById(R.id.signup_username);
+        newPassword = (EditText) findViewById(R.id.signup_password);
+        reNewPassword = (EditText) findViewById(R.id.resignup_password);
+        email = (EditText) findViewById(R.id.signup_email);
+        newUsernameLayout = (TextInputLayout) findViewById(R.id.signup_username_layout);
+        newPasswordLayout = (TextInputLayout) findViewById(R.id.signup_password_layout);
+        reNewPasswordLayout = (TextInputLayout) findViewById(R.id.resignup_password_layout);
+        emailLayout = (TextInputLayout) findViewById(R.id.signup_email_layout);
+        clearLayoutErrors();
 
-            //HONEYBADGER AM-125 remove "Messenger" Title bar
-            //ab.setTitle(R.string.app_name); //ALF changed from action_add_account, maybe part of AM-173
-        }
-
-        /*Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_NewPassword);
-        if (toolbar != null) {
-            toolbar.setTitle("");
-            setSupportActionBar(toolbar);
-        }
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-
-        TextView main_title = (TextView) findViewById(R.id.newpassword_toolbar_title);
-        main_title.setText("Welcome");
-
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                exit(false);
-            }
-        });*/
-
-        init();
-    }
-
-    @Override
-    public void onBackPressed() {
-        exit(false);
-    }
-
-    private void init() {
-        newPassword = (EditText) findViewById(R.id.editTextNewPassPass);
-
-        this.newPasswordLayout = (TextInputLayout) findViewById(R.id.new_password_layout);
-        this.newPasswordLayout.setError(null);
-
-        this.reNewPassword = (EditText) findViewById(R.id.reEditTextNewPassPass);
-
-        this.reNewPasswordLayout = (TextInputLayout) findViewById(R.id.re_new_password_layout);
-        this.reNewPasswordLayout.setError(null);
-
-        newUsername = (EditText) findViewById(R.id.account_jid);
-
-        this.newUsernameLayout = (TextInputLayout) findViewById(R.id.account_jid_layout);
-        this.newUsernameLayout.setError(null);
-
-        email = (EditText) findViewById(R.id.account_email);
-
-        this.emailLayout = (TextInputLayout) findViewById(R.id.account_email_layout);
-        this.emailLayout.setError(null);
-
-
-
-        continueSignIn = (Button) findViewById(R.id.buttonNewPass);
+        continueSignIn = (Button) findViewById(R.id.continueSignIn);
         continueSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -127,12 +81,96 @@ public class SignUpActivity extends AppCompatActivity {
 
 
                 } else {
-                    showDialogMessage("Error", "Enter all required attributed", false);
+                    //showDialogMessage("Error", "Enter all required attributed", false);
                 }
             }
         });
+
+
+        newUsername.addTextChangedListener(signupTextWatcher);
+        newPassword.addTextChangedListener(signupTextWatcher);
+        reNewPassword.addTextChangedListener(signupTextWatcher);
+        email.addTextChangedListener(signupTextWatcher);
+
+
     }
 
+
+    private void clearLayoutErrors() {
+        this.newUsernameLayout.setError(null);
+        this.newPasswordLayout.setError(null);
+        this.reNewPasswordLayout.setError(null);
+        this.emailLayout.setError(null);
+
+    }
+//        newPassword = (EditText) findViewById(R.id.editTextNewPassPass);
+//
+//        this.newPasswordLayout = (TextInputLayout) findViewById(R.id.new_password_layout);
+//        this.newPasswordLayout.setError(null);
+//
+//        this.reNewPassword = (EditText) findViewById(R.id.reEditTextNewPassPass);
+//
+//        this.reNewPasswordLayout = (TextInputLayout) findViewById(R.id.re_new_password_layout);
+//        this.reNewPasswordLayout.setError(null);
+//
+//        newUsername = (EditText) findViewById(R.id.account_jid);
+//
+//        this.newUsernameLayout = (TextInputLayout) findViewById(R.id.account_jid_layout);
+//        this.newUsernameLayout.setError(null);
+//
+//        email = (EditText) findViewById(R.id.account_email);
+//
+//        this.emailLayout = (TextInputLayout) findViewById(R.id.account_email_layout);
+//        this.emailLayout.setError(null);
+//
+//        newUsername.addTextChangedListener(signupTextWatcher);
+//        newPassword.addTextChangedListener(signupTextWatcher);
+//        reNewPassword.addTextChangedListener(signupTextWatcher);
+//
+//
+//        continueSignIn = (Button) findViewById(R.id.buttonNewPass);
+//        continueSignIn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                removeAllErrors();
+//
+//                final String emailInput = email.getText().toString();
+//                if (isValidPasswords( ) && isValidUsername()) {
+//
+//
+//
+//                } else {
+//                    showDialogMessage("Error", "Enter all required attributed", false);
+//                }
+//            }
+//        });
+//    }
+
+    private TextWatcher signupTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            String usernameInput = newUsername.getText().toString().trim();
+            String passwordInput = newPassword.getText().toString().trim();
+            String repasswordInput = reNewPassword.getText().toString().trim();
+
+            continueSignIn.setEnabled(!usernameInput.isEmpty() && !passwordInput.isEmpty()&& !repasswordInput.isEmpty());
+            if (!continueSignIn.isEnabled()){
+                continueSignIn.setTextColor(Color.BLACK);
+            } else {
+                continueSignIn.setTextColor(Color.WHITE);
+            }
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+        }
+    };
     private boolean isValidPasswords(){
         final String newUserPassword = newPassword.getText().toString();
         final String reNewUserPassword = reNewPassword.getText().toString();
@@ -168,24 +206,24 @@ public class SignUpActivity extends AppCompatActivity {
 
         return false;
     }
-
-    private void setPasswordForFirsTimeLogin(String newUserPassword){
-        AppHelper.setPasswordForFirstTimeLogin(newUserPassword);
-        if (checkAttributes()) {
-            newPasswordLayout.setError(null);
-            removeAllErrors();
-            exit(true);
-        } else {
-            newPasswordLayout.setError("Error");
-            showDialogMessage("Error", "Enter all required attributed", false);
-        }
-    }
-
-    private boolean checkAttributes() {
-        // Check if all required attributes have values
-        return true;
-    }
-
+//
+//    private void setPasswordForFirsTimeLogin(String newUserPassword){
+//        AppHelper.setPasswordForFirstTimeLogin(newUserPassword);
+//        if (checkAttributes()) {
+//            newPasswordLayout.setError(null);
+//            removeAllErrors();
+//            exit(true);
+//        } else {
+//            newPasswordLayout.setError("Error");
+//            showDialogMessage("Error", "Enter all required attributed", false);
+//        }
+//    }
+//
+//    private boolean checkAttributes() {
+//        // Check if all required attributes have values
+//        return true;
+//    }
+//
     public static boolean isValid(String passwordhere) {
         Pattern specailCharPatten = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
         Pattern UpperCasePatten = Pattern.compile("[A-Z ]");
@@ -211,34 +249,34 @@ public class SignUpActivity extends AppCompatActivity {
         }
         return flag;
     }
-
-
-    private void showDialogMessage(String title, String body, final boolean exit) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(title).setMessage(body).setNeutralButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    userDialog.dismiss();
-                    if (exit) {
-                        exit(false);
-                    }
-                } catch (Exception e) {
-                    exit(false);
-                }
-            }
-        });
-        userDialog = builder.create();
-        userDialog.show();
-    }
-
-    private void exit(Boolean continueWithSignIn) {
-        Intent intent = new Intent();
-        intent.putExtra("continueSignIn", continueWithSignIn);
-        setResult(RESULT_OK, intent);
-        finish();
-    }
-
+//
+//
+//    private void showDialogMessage(String title, String body, final boolean exit) {
+//        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        builder.setTitle(title).setMessage(body).setNeutralButton("OK", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                try {
+//                    userDialog.dismiss();
+//                    if (exit) {
+//                        exit(false);
+//                    }
+//                } catch (Exception e) {
+//                    exit(false);
+//                }
+//            }
+//        });
+//        userDialog = builder.create();
+//        userDialog.show();
+//    }
+//
+//    private void exit(Boolean continueWithSignIn) {
+//        Intent intent = new Intent();
+//        intent.putExtra("continueSignIn", continueWithSignIn);
+//        setResult(RESULT_OK, intent);
+//        finish();
+//    }
+//
     private void removeErrorsOnAllBut(TextInputLayout exception) {
         if (this.newPasswordLayout != exception) {
             this.newPasswordLayout.setErrorEnabled(false);
@@ -255,8 +293,6 @@ public class SignUpActivity extends AppCompatActivity {
             this.newPasswordLayout.setError(null);
             this.reNewPasswordLayout.setErrorEnabled(false);
             this.reNewPasswordLayout.setError(null);
-            this.newPassword.setError(null);
-            this.reNewPassword.setError(null);
     }
 
 }
