@@ -1570,6 +1570,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		startActivity(intent);
 	}
 
+	public void forgotPassword(View view) {
+		Intent intent = new Intent(getApplicationContext(), ForgotPasswordActivity.class);
+		startActivity(intent);
+	}
+
 	/**
 	 * *********** GOOBER COGNITO MODIFICATIONS **************
 	 */

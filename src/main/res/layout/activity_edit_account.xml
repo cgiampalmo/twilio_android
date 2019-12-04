@@ -133,6 +133,7 @@
                 android:layout_gravity="right|end"
                 android:layout_marginTop="@dimen/spacing_medium"
                 android:clickable="true"
+                android:onClick="forgotPassword"
                 android:text="Forgot Password?"
                 android:textAlignment="center"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
