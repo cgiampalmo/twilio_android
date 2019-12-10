@@ -1,0 +1,73 @@
+# this is an auto generated file. This will be overwritten
+subscription OnCreateGlacierUsers(
+  $cognito_user_id: String
+  $organization: String
+  $email: String
+  $user_type: String
+  $user_name: String
+) {
+  onCreateGlacierUsers(
+    cognito_user_id: $cognito_user_id
+    organization: $organization
+    email: $email
+    user_type: $user_type
+    user_name: $user_name
+  ) {
+    cognito_user_id
+    organization
+    email
+    user_type
+    user_name
+    username
+    glacierpwd
+    ask_for_password
+  }
+}
+subscription OnUpdateGlacierUsers(
+  $cognito_user_id: String
+  $organization: String
+  $email: String
+  $user_type: String
+  $user_name: String
+) {
+  onUpdateGlacierUsers(
+    cognito_user_id: $cognito_user_id
+    organization: $organization
+    email: $email
+    user_type: $user_type
+    user_name: $user_name
+  ) {
+    cognito_user_id
+    organization
+    email
+    user_type
+    user_name
+    username
+    glacierpwd
+    ask_for_password
+  }
+}
+subscription OnDeleteGlacierUsers(
+  $cognito_user_id: String
+  $organization: String
+  $email: String
+  $user_type: String
+  $user_name: String
+) {
+  onDeleteGlacierUsers(
+    cognito_user_id: $cognito_user_id
+    organization: $organization
+    email: $email
+    user_type: $user_type
+    user_name: $user_name
+  ) {
+    cognito_user_id
+    organization
+    email
+    user_type
+    user_name
+    username
+    glacierpwd
+    ask_for_password
+  }
+}
