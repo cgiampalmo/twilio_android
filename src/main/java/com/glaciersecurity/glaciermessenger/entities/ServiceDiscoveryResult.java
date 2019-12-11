@@ -2,9 +2,8 @@ package com.glaciersecurity.glaciermessenger.entities;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Base64;
-import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.Comparable;
@@ -12,14 +11,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.xml.Element;
 import com.glaciersecurity.glaciermessenger.xml.Namespace;
 import com.glaciersecurity.glaciermessenger.xmpp.forms.Data;

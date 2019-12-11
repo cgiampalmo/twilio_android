@@ -31,7 +31,7 @@ package com.glaciersecurity.glaciermessenger.ui.util;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.annotation.AttrRes;
+import androidx.annotation.AttrRes;
 
 public class Drawable {
 	public static android.graphics.drawable.Drawable get(Context context, @AttrRes int id) {

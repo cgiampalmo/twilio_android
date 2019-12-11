@@ -30,21 +30,15 @@
 package com.glaciersecurity.glaciermessenger.ui.util;
 
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.widget.Toast;
 
-import java.net.URL;
 import java.util.regex.Matcher;
 
-import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.DownloadableFile;
 import com.glaciersecurity.glaciermessenger.entities.Message;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
-import com.glaciersecurity.glaciermessenger.ui.ConversationsActivity;
 import com.glaciersecurity.glaciermessenger.ui.XmppActivity;
 import com.glaciersecurity.glaciermessenger.utils.Patterns;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;

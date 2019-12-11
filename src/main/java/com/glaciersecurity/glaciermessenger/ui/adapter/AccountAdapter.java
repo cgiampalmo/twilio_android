@@ -1,30 +1,20 @@
 package com.glaciersecurity.glaciermessenger.ui.adapter;
 
-import android.content.res.Resources;
-import android.databinding.DataBindingUtil;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
-import android.support.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
+import androidx.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 
-import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.concurrent.RejectedExecutionException;
 
-import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.databinding.AccountRowBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.ui.XmppActivity;
 import com.glaciersecurity.glaciermessenger.ui.util.AvatarWorkerTask;
 import com.glaciersecurity.glaciermessenger.ui.util.StyledAttributes;
-import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 
 public class AccountAdapter extends ArrayAdapter<Account> {
 

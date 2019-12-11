@@ -30,7 +30,7 @@
 package com.glaciersecurity.glaciermessenger.utils;
 
 import android.content.Context;
-import android.support.annotation.PluralsRes;
+import androidx.annotation.PluralsRes;
 
 import com.glaciersecurity.glaciermessenger.R;
 

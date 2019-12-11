@@ -1,6 +1,6 @@
 package com.glaciersecurity.glaciermessenger.ui.util;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.glaciersecurity.glaciermessenger.entities.ServiceDiscoveryResult;
 import com.glaciersecurity.glaciermessenger.xml.Element;

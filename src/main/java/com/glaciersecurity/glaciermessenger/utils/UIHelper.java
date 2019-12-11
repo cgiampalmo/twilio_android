@@ -1,7 +1,7 @@
 package com.glaciersecurity.glaciermessenger.utils;
 
 import android.content.Context;
-import android.support.annotation.ColorInt;
+import androidx.annotation.ColorInt;
 import android.text.SpannableStringBuilder;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
@@ -9,15 +9,11 @@ import android.util.Pair;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;

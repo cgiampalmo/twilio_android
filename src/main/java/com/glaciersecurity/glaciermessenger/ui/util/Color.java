@@ -32,8 +32,8 @@ package com.glaciersecurity.glaciermessenger.ui.util;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.annotation.AttrRes;
-import android.support.annotation.ColorInt;
+import androidx.annotation.AttrRes;
+import androidx.annotation.ColorInt;
 
 public class Color {
 

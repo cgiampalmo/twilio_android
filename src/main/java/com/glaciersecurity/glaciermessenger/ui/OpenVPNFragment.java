@@ -10,26 +10,20 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.glaciersecurity.glaciercore.api.APIVpnProfile;
 import com.glaciersecurity.glaciercore.api.IOpenVPNAPIService;
@@ -243,7 +237,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
      * HONEYBADGER AM-76
      */
     private void doCoreErrorAction() {
-        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this.getContext());
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this.getContext());
         builder.setTitle(R.string.core_missing);
         builder.setMessage(R.string.glacier_core_install);
         builder.setPositiveButton(R.string.next, (dialog, which) -> {
@@ -256,7 +250,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 e2.printStackTrace();
             }
         });
-        final android.support.v7.app.AlertDialog dialog = builder.create();
+        final androidx.appcompat.app.AlertDialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
     }

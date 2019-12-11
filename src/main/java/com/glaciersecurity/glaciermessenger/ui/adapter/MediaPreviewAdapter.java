@@ -1,24 +1,22 @@
 package com.glaciersecurity.glaciermessenger.ui.adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.annotation.AttrRes;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 
@@ -27,7 +25,6 @@ import com.glaciersecurity.glaciermessenger.databinding.MediaPreviewBinding;
 import com.glaciersecurity.glaciermessenger.ui.ConversationFragment;
 import com.glaciersecurity.glaciermessenger.ui.XmppActivity;
 import com.glaciersecurity.glaciermessenger.ui.util.Attachment;
-import com.glaciersecurity.glaciermessenger.ui.util.StyledAttributes;
 
 public class MediaPreviewAdapter extends RecyclerView.Adapter<MediaPreviewAdapter.MediaPreviewViewHolder> {
 

@@ -4,8 +4,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 import org.json.JSONArray;
@@ -30,7 +30,6 @@ import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.FingerprintStatus;
 import com.glaciersecurity.glaciermessenger.persistance.DatabaseBackend;
 import com.glaciersecurity.glaciermessenger.services.AvatarService;
-import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.JidHelper;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;

@@ -1,7 +1,6 @@
 package com.glaciersecurity.glaciermessenger.xml;
 
-import android.support.annotation.NonNull;
-import android.util.Log;
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +8,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 
-import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.utils.XmlHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.InvalidJid;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.MessagePacket;

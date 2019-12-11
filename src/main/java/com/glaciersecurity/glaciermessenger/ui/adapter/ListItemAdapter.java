@@ -1,41 +1,29 @@
 package com.glaciersecurity.glaciermessenger.ui.adapter;
 
 import android.content.SharedPreferences;
-import android.content.res.Resources;
-import android.databinding.DataBindingUtil;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
+
+import androidx.databinding.DataBindingUtil;
+
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatTextView;
+
+import androidx.appcompat.widget.AppCompatTextView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.glaciersecurity.glaciermessenger.Config;
-import com.glaciersecurity.glaciermessenger.entities.Bookmark;
 import com.glaciersecurity.glaciermessenger.entities.Contact;
-import com.glaciersecurity.glaciermessenger.entities.Presence;
 import com.glaciersecurity.glaciermessenger.ui.util.AvatarWorkerTask;
-import com.glaciersecurity.glaciermessenger.ui.util.Log;
 import com.glaciersecurity.glaciermessenger.ui.util.StyledAttributes;
 import com.wefika.flowlayout.FlowLayout;
 
-import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.concurrent.RejectedExecutionException;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.databinding.ContactBinding;
@@ -44,10 +32,7 @@ import com.glaciersecurity.glaciermessenger.ui.SettingsActivity;
 import com.glaciersecurity.glaciermessenger.ui.XmppActivity;
 import com.glaciersecurity.glaciermessenger.utils.EmojiWrapper;
 import com.glaciersecurity.glaciermessenger.utils.IrregularUnicodeDetector;
-import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 
-import de.measite.minidns.DNSMessage;
-import de.measite.minidns.record.A;
 import rocks.xmpp.addr.Jid;
 
 public class ListItemAdapter extends ArrayAdapter<ListItem> {

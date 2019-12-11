@@ -114,7 +114,7 @@
 
         </LinearLayout>
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:errorTextAppearance="@style/TextAppearance.Conversations.Design.Error">
@@ -128,6 +128,6 @@
                 android:hint="@string/status_message"
                 android:imeOptions="actionDone"
                 android:inputType="textShortMessage" />
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 </layout>

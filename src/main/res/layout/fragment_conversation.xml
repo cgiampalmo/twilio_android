@@ -26,7 +26,7 @@
         </ListView>
 
 
-        <android.support.design.widget.FloatingActionButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/scroll_to_bottom_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -64,7 +64,7 @@
             android:background="?attr/color_background_primary"
             android:layout_alignParentLeft="true">
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:visibility="gone"
                 android:id="@+id/media_preview"
                 android:layout_width="wrap_content"
@@ -73,13 +73,13 @@
                 android:layout_toStartOf="@+id/textSendButton"
                 tools:listitem="@layout/media_preview"
                 android:orientation="horizontal"
-                app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 android:paddingTop="8dp"
                 android:requiresFadingEdge="horizontal"
                 android:layout_alignParentLeft="true"
                 android:layout_toLeftOf="@+id/textSendButton">
 
-            </android.support.v7.widget.RecyclerView>
+            </androidx.recyclerview.widget.RecyclerView>
 
             <com.glaciersecurity.glaciermessenger.ui.widget.EditMessage
                 android:id="@+id/textinput"

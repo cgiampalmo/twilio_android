@@ -2,8 +2,8 @@ package com.glaciersecurity.glaciermessenger.crypto.axolotl;
 
 import android.os.Bundle;
 import android.security.KeyChain;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
 
@@ -48,7 +48,6 @@ import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.SerialSingleThreadExecutor;
 import com.glaciersecurity.glaciermessenger.xml.Element;
-import com.glaciersecurity.glaciermessenger.xml.Namespace;
 import com.glaciersecurity.glaciermessenger.xmpp.OnAdvancedStreamFeaturesLoaded;
 import com.glaciersecurity.glaciermessenger.xmpp.OnIqPacketReceived;
 import com.glaciersecurity.glaciermessenger.xmpp.pep.PublishOptions;

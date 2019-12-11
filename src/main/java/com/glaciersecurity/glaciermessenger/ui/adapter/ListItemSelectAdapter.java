@@ -1,7 +1,7 @@
 package com.glaciersecurity.glaciermessenger.ui.adapter;
 
 import android.content.SharedPreferences;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -20,7 +20,6 @@ import com.wefika.flowlayout.FlowLayout;
 import java.util.List;
 
 import com.glaciersecurity.glaciermessenger.R;
-import com.glaciersecurity.glaciermessenger.databinding.ContactBinding;
 import com.glaciersecurity.glaciermessenger.ui.SettingsActivity;
 import com.glaciersecurity.glaciermessenger.ui.XmppActivity;
 import com.glaciersecurity.glaciermessenger.utils.EmojiWrapper;

@@ -1,15 +1,11 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.media.MediaScannerConnection;
-import android.os.Environment;
 import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
-import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -38,13 +34,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUser;
-import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserPool;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
-import com.glaciersecurity.glaciermessenger.cognito.AppHelper;
-import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
-import com.glaciersecurity.glaciermessenger.cognito.Util;
 import com.glaciersecurity.glaciermessenger.crypto.OmemoSetting;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
@@ -55,9 +46,7 @@ import com.glaciersecurity.glaciermessenger.services.MemorizingTrustManager;
 import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
 import com.glaciersecurity.glaciermessenger.ui.util.Color;
 import com.glaciersecurity.glaciermessenger.utils.GeoHelper;
-import com.glaciersecurity.glaciermessenger.utils.LogoutListener;
 import com.glaciersecurity.glaciermessenger.utils.TimeframeUtils;
-import rocks.xmpp.addr.Jid;
 
 public class SettingsActivity extends XmppActivity implements OnSharedPreferenceChangeListener{
 	//OnSharedPreferenceChangeListener, LogoutListener {  //ALF AM-143 LogoutListener

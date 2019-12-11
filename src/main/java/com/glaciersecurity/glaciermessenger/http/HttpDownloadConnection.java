@@ -1,7 +1,7 @@
 package com.glaciersecurity.glaciermessenger.http;
 
 import android.os.PowerManager;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -22,14 +22,12 @@ import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.DownloadableFile;
 import com.glaciersecurity.glaciermessenger.entities.Message;
 import com.glaciersecurity.glaciermessenger.entities.Transferable;
-import com.glaciersecurity.glaciermessenger.entities.TransferablePlaceholder;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
 import com.glaciersecurity.glaciermessenger.services.AbstractConnectionManager;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.FileWriterException;
 import com.glaciersecurity.glaciermessenger.utils.WakeLockHelper;
-import com.glaciersecurity.glaciermessenger.xmpp.OnIqPacketReceived;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.IqPacket;
 import rocks.xmpp.addr.Jid;
 

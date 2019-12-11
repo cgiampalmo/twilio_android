@@ -5,17 +5,14 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.support.annotation.DimenRes;
+import androidx.annotation.DimenRes;
 import android.widget.ImageView;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.RejectedExecutionException;
 
-import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.services.AvatarService;
 import com.glaciersecurity.glaciermessenger.ui.XmppActivity;
-import com.glaciersecurity.glaciermessenger.ui.adapter.AccountAdapter;
-import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 
 public class AvatarWorkerTask extends AsyncTask<AvatarService.Avatarable, Void, Bitmap> {
     private final WeakReference<ImageView> imageViewReference;

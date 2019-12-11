@@ -3,8 +3,8 @@ package com.glaciersecurity.glaciermessenger.ui;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
+
+import androidx.appcompat.widget.Toolbar;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -13,7 +13,6 @@ import java.util.List;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.ui.adapter.AccountAdapter;
-import rocks.xmpp.addr.Jid;
 
 public class ChooseAccountForProfilePictureActivity extends XmppActivity {
 

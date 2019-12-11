@@ -9,8 +9,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.glaciersecurity.glaciermessenger.lollipin.lib.interfaces.LifeCycleInterface;
 import com.glaciersecurity.glaciermessenger.lollipin.lib.managers.AppLockActivity;

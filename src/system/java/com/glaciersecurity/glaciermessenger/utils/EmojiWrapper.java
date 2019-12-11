@@ -29,7 +29,7 @@
 
 package com.glaciersecurity.glaciermessenger.utils;
 
-import android.support.text.emoji.EmojiCompat;
+import androidx.emoji.text.EmojiCompat;
 
 public class EmojiWrapper {
 

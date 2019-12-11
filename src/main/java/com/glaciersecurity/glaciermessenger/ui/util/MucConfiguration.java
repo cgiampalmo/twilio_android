@@ -2,7 +2,7 @@ package com.glaciersecurity.glaciermessenger.ui.util;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.StringRes;
+import androidx.annotation.StringRes;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.MucOptions;

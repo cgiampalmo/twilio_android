@@ -1,11 +1,8 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
+import androidx.appcompat.widget.Toolbar;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;

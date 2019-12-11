@@ -30,5 +30,8 @@
 # Android 6.0 release removes support for the Apache HTTP client
 -dontwarn org.apache.http.**
 # The SDK has several references of Apache HTTP client
+-dontwarn com.amazonaws.mobile.**
+-dontwarn okhttp3.**
 -dontwarn com.amazonaws.http.**
+-dontwarn com.amplifyframework.datastore.**
 -dontwarn com.amazonaws.metrics.**

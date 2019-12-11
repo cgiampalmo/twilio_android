@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.IntentSender.SendIntentException;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -20,7 +19,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -37,24 +36,21 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
-import android.support.annotation.BoolRes;
-import android.support.annotation.IdRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AlertDialog.Builder;
-import android.support.v7.app.AppCompatDelegate;
+
+import androidx.annotation.BoolRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog.Builder;
+import androidx.appcompat.app.AppCompatDelegate;
 import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -63,9 +59,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 
-import com.glaciersecurity.glaciercore.api.CoreConnectionState;
-import com.glaciersecurity.glaciermessenger.databinding.DialogPresenceBinding;
-import com.glaciersecurity.glaciermessenger.entities.Presence;
 import com.glaciersecurity.glaciermessenger.entities.PresenceTemplate;
 import com.glaciersecurity.glaciermessenger.lollipin.lib.PinActivity;
 import com.glaciersecurity.glaciermessenger.Config;
@@ -86,7 +79,6 @@ import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.PresenceSelector;
 import com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils;
-import com.glaciersecurity.glaciermessenger.utils.AccountUtils;
 import com.glaciersecurity.glaciermessenger.utils.ExceptionHelper;
 import com.glaciersecurity.glaciermessenger.utils.ThemeHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.OnKeyStatusUpdated;
@@ -94,11 +86,6 @@ import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
 import rocks.xmpp.addr.Jid;
 
 import static android.Manifest.permission.READ_CONTACTS;
-import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.meetingIcon;
-import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.sickIcon;
-import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.travelIcon;
-import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.vacationIcon;
-import static com.glaciersecurity.glaciermessenger.entities.Presence.getEmojiByUnicode;
 
 // GOOBER PIN - extend to use PIN everywherety
 // public abstract class XmppActivity extends ActionBarActivity {
@@ -428,7 +415,7 @@ public abstract class XmppActivity extends PinActivity {
 	 * HONEYBADGER AM-76
 	 */
 	private void doCoreErrorAction() {
-		android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+		androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
 		builder.setTitle(R.string.core_missing);
 		builder.setMessage(R.string.glacier_core_install);
 		builder.setPositiveButton(R.string.next, (dialog, which) -> {
@@ -442,7 +429,7 @@ public abstract class XmppActivity extends PinActivity {
 				e2.printStackTrace();
 			}
 		});
-		final android.support.v7.app.AlertDialog dialog = builder.create();
+		final androidx.appcompat.app.AlertDialog dialog = builder.create();
 		dialog.setCanceledOnTouchOutside(false);
 		dialog.show();
 	}

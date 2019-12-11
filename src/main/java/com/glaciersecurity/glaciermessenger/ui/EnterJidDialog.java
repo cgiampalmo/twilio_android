@@ -1,22 +1,17 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.app.Activity;
-import android.databinding.DataBindingUtil;
-import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
+import androidx.databinding.DataBindingUtil;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.Spinner;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 import com.glaciersecurity.glaciermessenger.Config;

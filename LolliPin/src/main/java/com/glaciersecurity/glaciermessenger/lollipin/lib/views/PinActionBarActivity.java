@@ -1,6 +1,6 @@
 package com.glaciersecurity.glaciermessenger.lollipin.lib.views;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.glaciersecurity.glaciermessenger.lollipin.lib.interfaces.LifeCycleInterface;
 import com.glaciersecurity.glaciermessenger.lollipin.lib.managers.LockManager;

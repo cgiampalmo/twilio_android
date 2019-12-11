@@ -1,10 +1,6 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import java.util.ArrayList;

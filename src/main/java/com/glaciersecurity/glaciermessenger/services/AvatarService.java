@@ -3,7 +3,6 @@ package com.glaciersecurity.glaciermessenger.services;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
@@ -13,10 +12,9 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.support.annotation.ColorInt;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.Nullable;
-import android.support.v4.content.res.ResourcesCompat;
+import androidx.annotation.ColorInt;
+import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -42,7 +40,7 @@ import com.glaciersecurity.glaciermessenger.entities.MucOptions;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.OnAdvancedStreamFeaturesLoaded;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
-import com.glaciersecurity.glaciermessenger.xmpp.pep.Avatar;
+
 import rocks.xmpp.addr.Jid;
 
 public class AvatarService implements OnAdvancedStreamFeaturesLoaded {

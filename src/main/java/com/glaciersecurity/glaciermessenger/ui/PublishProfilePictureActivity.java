@@ -1,14 +1,12 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.support.annotation.StringRes;
+
+import androidx.annotation.StringRes;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnLongClickListener;
@@ -17,13 +15,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.glaciersecurity.glaciermessenger.ui.util.AvatarWorkerTask;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
-import com.glaciersecurity.glaciermessenger.xmpp.pep.Avatar;
 import com.theartofdev.edmodo.cropper.CropImage;
 
-import java.io.ByteArrayOutputStream;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.glaciersecurity.glaciermessenger.Config;

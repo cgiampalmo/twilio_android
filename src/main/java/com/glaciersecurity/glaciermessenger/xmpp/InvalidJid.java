@@ -29,7 +29,7 @@
 
 package com.glaciersecurity.glaciermessenger.xmpp;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.AbstractStanza;
 import rocks.xmpp.addr.Jid;

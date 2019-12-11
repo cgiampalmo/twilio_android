@@ -30,20 +30,14 @@
 package com.glaciersecurity.glaciermessenger.ui.util;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
-import com.glaciersecurity.glaciermessenger.crypto.OmemoSetting;
-import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
-import com.glaciersecurity.glaciermessenger.entities.Conversational;
-import com.glaciersecurity.glaciermessenger.entities.Message;
 
 public class ConversationMenuConfigurator {
 

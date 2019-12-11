@@ -29,7 +29,7 @@
 
 package com.glaciersecurity.glaciermessenger.ui.interfaces;
 
-import android.support.annotation.StringRes;
+import androidx.annotation.StringRes;
 
 public interface OnAvatarPublication {
 

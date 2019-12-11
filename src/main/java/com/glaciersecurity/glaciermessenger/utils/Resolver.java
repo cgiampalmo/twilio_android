@@ -2,7 +2,7 @@ package com.glaciersecurity.glaciermessenger.utils;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import java.io.IOException;

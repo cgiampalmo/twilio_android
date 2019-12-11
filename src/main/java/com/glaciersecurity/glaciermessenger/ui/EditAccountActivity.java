@@ -14,7 +14,7 @@ import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.databinding.DataBindingUtil;
+import androidx.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -31,16 +31,16 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
-import android.support.annotation.RequiresApi;
-import android.support.annotation.StringRes;
-import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
-import android.support.v7.app.ActionBar;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.StringRes;
+
+import com.google.android.material.textfield.TextInputLayout;
+import androidx.appcompat.app.ActionBar;
 //import android.support.v7.app.AlertDialog;
 //import android.support.v7.app.AlertDialog.Builder;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -54,7 +54,6 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
@@ -66,9 +65,7 @@ import com.glaciersecurity.glaciermessenger.cognito.Constants;
 import com.glaciersecurity.glaciermessenger.cognito.PropertyLoader;
 import com.glaciersecurity.glaciermessenger.cognito.Util;
 import com.glaciersecurity.glaciermessenger.databinding.DialogQuickeditBinding;
-import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.LoginAccount;
-import com.glaciersecurity.glaciermessenger.entities.NetworkConnectivityStatus;
 import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
 import com.glaciersecurity.glaciermessenger.ui.util.AvatarWorkerTask;
@@ -76,7 +73,6 @@ import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -150,7 +146,6 @@ import com.glaciersecurity.glaciermessenger.xmpp.forms.Data;
 import com.glaciersecurity.glaciermessenger.xmpp.pep.Avatar;
 import rocks.xmpp.addr.Jid;
 
-import static android.os.Build.HOST;
 import static android.view.View.VISIBLE;
 
 public class EditAccountActivity extends OmemoActivity implements OnAccountUpdate, OnUpdateBlocklist,
@@ -676,7 +671,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						   final @StringRes int hint,
 						   boolean password,
 						   boolean permitEmpty) {
-		android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+		androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
 		DialogQuickeditBinding binding = DataBindingUtil.inflate(getLayoutInflater(),R.layout.dialog_quickedit, null, false);
 		if (password) {
 			binding.inputEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -691,7 +686,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 		builder.setView(binding.getRoot());
 		builder.setNegativeButton(R.string.cancel, null);
-		final android.support.v7.app.AlertDialog dialog = builder.create();
+		final androidx.appcompat.app.AlertDialog dialog = builder.create();
 		dialog.setOnShowListener(d -> SoftKeyboardUtils.showKeyboard(binding.inputEditText));
 		dialog.show();
 		View.OnClickListener clickListener = v -> {
@@ -2534,7 +2529,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * HONEYBADGER AM-76
 	 */
 	private void doCoreErrorAction() {
-		android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+		androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
 		builder.setTitle(R.string.core_missing);
 		builder.setMessage(R.string.glacier_core_install);
 		builder.setPositiveButton(R.string.next, (dialog, which) -> {
@@ -2548,7 +2543,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				e2.printStackTrace();
 			}
 		});
-		final android.support.v7.app.AlertDialog dialog = builder.create();
+		final androidx.appcompat.app.AlertDialog dialog = builder.create();
 		dialog.setCanceledOnTouchOutside(false);
 		dialog.show();
 	}
