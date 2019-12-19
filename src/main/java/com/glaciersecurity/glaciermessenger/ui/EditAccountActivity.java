@@ -34,6 +34,11 @@ import android.security.KeyChainAliasCallback;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 
+import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobile.client.Callback;
+import com.amazonaws.mobile.client.UserStateDetails;
+import com.amplifyframework.api.aws.AWSApiPlugin;
+import com.amplifyframework.core.Amplify;
 import com.google.android.material.textfield.TextInputLayout;
 import androidx.appcompat.app.ActionBar;
 //import android.support.v7.app.AlertDialog;
@@ -1767,6 +1772,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			AppHelper.setCurrSession(cognitoUserSession);
 			AppHelper.newDevice(device);
 			// closeWaitDialog();
+			this.initializeAmplify();
+			// TODO take user... get user geo location from cognito
+			// TODO retrieve user from dynamo db
+			// TODO get user info
 
 			// username/password is correct.  Now check if bucket exists
 			if (tempVPN.getLogOrgID()!= null) { //CMG changed
@@ -1807,6 +1816,27 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			AuthenticationDetails authenticationDetails = new AuthenticationDetails(username, tempVPN.getLogPassword(), null); //CMG AM-172 changed
 			continuation.setAuthenticationDetails(authenticationDetails);
 			continuation.continueTask();
+		}
+
+		private void initializeAmplify(){
+			AWSMobileClient.getInstance().initialize(getApplicationContext(), new Callback<UserStateDetails>() {
+				@Override
+				public void onResult(UserStateDetails userStateDetails) {
+					try {
+						Amplify.addPlugin(new AWSApiPlugin());
+						Amplify.configure(getApplicationContext());
+						android.util.Log.i("ApiQuickstart", "All set and ready to go!");
+					} catch (Exception e) {
+						android.util.Log.e("ApiQuickstart", e.getMessage());
+					}
+				}
+
+				@Override
+				public void onError(Exception e) {
+					android.util.Log.e("ApiQuickstart", "Initialization error.", e);
+				}
+			});
+
 		}
 
 		@Override

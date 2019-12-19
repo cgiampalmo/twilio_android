@@ -56,6 +56,7 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
+
 import com.google.android.material.navigation.NavigationView;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -524,7 +525,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		actionBar.setHomeButtonEnabled(true);
 
 	}
-
 
 	private void initNavigationMenu() {
 		nav_view = (NavigationView) findViewById(R.id.nav_view);
