@@ -1,15 +1,16 @@
 projects:
-  GlacierTest AppSync:
-    schemaPath: ../../../../../../../src/main/graphql/schema.json
+  GlacierAppSync:
+    schemaPath: android-messenger/src/main/graphql/schema.json
     includes:
-      - /src/main/graphql/**/*.graphql
+      - android-messenger/src/main/graphql/**/*.graphql
     excludes:
       - ./amplify/**
     extensions:
       amplify:
         codeGenTarget: ''
         generatedFileName: ''
-        docsFilePath: /src/main/graphql/com/amazonaws/amplify/generated/graphql
+        docsFilePath: >-
+          android-messenger/src/main/graphql/com/amazonaws/amplify/generated/graphql
         region: us-east-1
-        apiId: sv5epdhjzrgnvj7cgzwyemibyy
+        apiId: ttnai7yxq5ba5fizvggj6rjebq
         maxDepth: 2

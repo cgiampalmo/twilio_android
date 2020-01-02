@@ -34,9 +34,17 @@ import android.security.KeyChainAliasCallback;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 
+import com.amazonaws.auth.AWSAbstractCognitoIdentityProvider;
+import com.amazonaws.auth.AWSCognitoIdentityProvider;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobile.client.Callback;
 import com.amazonaws.mobile.client.UserStateDetails;
+import com.amazonaws.mobile.config.AWSConfiguration;
+import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserDetails;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GetDetailsHandler;
+import com.amazonaws.services.cognitoidentityprovider.model.GetUserRequest;
+import com.amazonaws.services.cognitoidentityprovider.model.GetUserResult;
 import com.amplifyframework.api.aws.AWSApiPlugin;
 import com.amplifyframework.core.Amplify;
 import com.google.android.material.textfield.TextInputLayout;
@@ -149,6 +157,8 @@ import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection.Features;
 import com.glaciersecurity.glaciermessenger.xmpp.forms.Data;
 import com.glaciersecurity.glaciermessenger.xmpp.pep.Avatar;
+
+import de.measite.minidns.record.A;
 import rocks.xmpp.addr.Jid;
 
 import static android.view.View.VISIBLE;
@@ -1771,11 +1781,38 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			Log.d("GOOBER", " -- Auth Success");
 			AppHelper.setCurrSession(cognitoUserSession);
 			AppHelper.newDevice(device);
-			// closeWaitDialog();
-			this.initializeAmplify();
-			// TODO take user... get user geo location from cognito
+
+			//CMG AM-389
+			CognitoUserPool userPool = AppHelper.getPool();
+			if (userPool != null) {
+				CognitoUser user = userPool.getCurrentUser();
+				user.getDetails(new GetDetailsHandler() {
+					@Override
+					public void onSuccess(CognitoUserDetails cognitoUserDetails) {
+						cognitoUserDetails.getAttributes();
+						AWSConfiguration awsConfig = new AWSConfiguration(getApplicationContext());
+						AWSAppSyncClient client = AWSAppSyncClient.builder()
+								.context(getApplicationContext())
+								.awsConfiguration(awsConfig)
+								.build();
+						//client.query();
+
+					}
+
+					@Override
+					public void onFailure(Exception exception) {
+
+					}
+				});
+
+			}
+			closeWaitDialog();
+
+
+
 			// TODO retrieve user from dynamo db
 			// TODO get user info
+
 
 			// username/password is correct.  Now check if bucket exists
 			if (tempVPN.getLogOrgID()!= null) { //CMG changed
@@ -1838,6 +1875,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			});
 
 		}
+
+
 
 		@Override
 		public void getMFACode(MultiFactorAuthenticationContinuation multiFactorAuthenticationContinuation) {

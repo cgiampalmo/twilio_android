@@ -62,7 +62,7 @@ public class AppHelper {
      * Set Your User Pools region.
      * e.g. if your user pools are in US East (N Virginia) then set cognitoRegion = Regions.US_EAST_1.
      */
-    private static final Regions cognitoRegion = Regions.US_EAST_1;
+    private static final Regions cognitoRegion = Regions.US_EAST_2;
 
     // User details from the service
     private static CognitoUserSession currSession;
@@ -200,6 +200,16 @@ public class AppHelper {
 
     }
 
+//    //CMG AM-389
+//    public static String getOrg(){
+//        for(Map.Entry<String, String> attr: userDetails.getAttributes().getAttributes().entrySet()) {
+//
+//            if(attr.getKey().contains("custom:organization")) {
+//                return attr.getValue();
+//            }
+//        }
+//        return null;
+//    }
     private static void refreshWithSync() {
         // This will refresh the current items to display list with the attributes fetched from service
         List<String> tempKeys = new ArrayList<>();
