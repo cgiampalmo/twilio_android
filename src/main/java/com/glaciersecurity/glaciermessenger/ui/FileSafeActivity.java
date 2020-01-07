@@ -143,6 +143,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
     }
 
 
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

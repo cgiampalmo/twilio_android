@@ -4,7 +4,7 @@
     "frontend": "android",
     "android": {
         "config": {
-            "ResDir": "app/src/main/res"
+            "ResDir": "src/main/res"
         }
     },
     "providers": [
