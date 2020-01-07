@@ -1810,7 +1810,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						initializeAmplify();
 
 
-						//getGlacierUsers(org, name);
+						getGlacierUsers(org, name);
 
 					}
 
@@ -1891,7 +1891,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 		}
 
-//		private void getGlacierUsers(String org, String user) {
+		private void getGlacierUsers(String org, String user) {
+
 //			Amplify.API.query(
 //					GlacierUsers.class,
 //					id,
@@ -1911,7 +1912,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 //						}
 //					}
 //			);
-//		}
+
+		}
 
 
 
