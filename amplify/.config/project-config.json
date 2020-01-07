@@ -4,7 +4,7 @@
     "frontend": "android",
     "android": {
         "config": {
-            "ResDir": "android-messenger/src/main/res"
+            "ResDir": "app/src/main/res"
         }
     },
     "providers": [

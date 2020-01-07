@@ -21,6 +21,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
@@ -40,12 +41,13 @@ import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobile.client.Callback;
 import com.amazonaws.mobile.client.UserStateDetails;
 import com.amazonaws.mobile.config.AWSConfiguration;
-import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserAttributes;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserDetails;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GetDetailsHandler;
 import com.amazonaws.services.cognitoidentityprovider.model.GetUserRequest;
 import com.amazonaws.services.cognitoidentityprovider.model.GetUserResult;
 import com.amplifyframework.api.aws.AWSApiPlugin;
+import com.amplifyframework.api.graphql.QueryType;
 import com.amplifyframework.core.Amplify;
 import com.google.android.material.textfield.TextInputLayout;
 import androidx.appcompat.app.ActionBar;
@@ -1789,13 +1791,26 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				user.getDetails(new GetDetailsHandler() {
 					@Override
 					public void onSuccess(CognitoUserDetails cognitoUserDetails) {
-						cognitoUserDetails.getAttributes();
+						CognitoUserAttributes cognitoUserAttributes = cognitoUserDetails.getAttributes();
+						String org = null;
+						if (cognitoUserAttributes.getAttributes().containsKey("custom:organization")){
+							org = cognitoUserAttributes.getAttributes().get("custom:organization");
+						}
+						String name = cognitoUserSession.getUsername();
+						if (name == null || org == null){
+							handleLoginFailure();
+						}
 						AWSConfiguration awsConfig = new AWSConfiguration(getApplicationContext());
-						AWSAppSyncClient client = AWSAppSyncClient.builder()
-								.context(getApplicationContext())
-								.awsConfiguration(awsConfig)
-								.build();
+//						AWSAppSyncClient client = AWSAppSyncClient.builder()
+//								.context(getApplicationContext())
+//								.awsConfiguration(awsConfig)
+//								.build();
+
 						//client.query();
+						initializeAmplify();
+
+
+						//getGlacierUsers(org, name);
 
 					}
 
@@ -1875,6 +1890,29 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			});
 
 		}
+
+//		private void getGlacierUsers(String org, String user) {
+//			Amplify.API.query(
+//					GlacierUsers.class,
+//					id,
+//					new ResultListener<GraphQLResponse<GlacierUsers>>() {
+//						@Override
+//						public void onResult(GraphQLResponse<GlacierUsers> response) {
+//							Log.i("ApiQuickStart", "Got " + response.getData().getName());
+//
+//							for(Post post : response.getData().getPosts()) {
+//								Log.i("ApiQuickStart", "Post: " + post.getTitle());
+//							}
+//						}
+//
+//						@Override
+//						public void onError(Throwable throwable) {
+//							Log.e("ApiQuickStart", throwable.getMessage());
+//						}
+//					}
+//			);
+//		}
+
 
 
 

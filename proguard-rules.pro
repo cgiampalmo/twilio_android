@@ -35,3 +35,6 @@
 -dontwarn com.amazonaws.http.**
 -dontwarn com.amplifyframework.datastore.**
 -dontwarn com.amazonaws.metrics.**
+# Amplify plugin
+-dontwarn com.amazonaws.mobileconnectors.**
+-dontwarn com.apollographql.apollo.**

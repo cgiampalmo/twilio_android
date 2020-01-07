@@ -1,15 +1,15 @@
 {
     "dev": {
         "awscloudformation": {
-            "AuthRoleName": "amplify-android-messenger-dev-165858-authRole",
-            "UnauthRoleArn": "arn:aws:iam::840786921545:role/amplify-android-messenger-dev-165858-unauthRole",
-            "AuthRoleArn": "arn:aws:iam::840786921545:role/amplify-android-messenger-dev-165858-authRole",
+            "AuthRoleName": "amplify-android-messenger-dev-111057-authRole",
+            "UnauthRoleArn": "arn:aws:iam::840786921545:role/amplify-android-messenger-dev-111057-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::840786921545:role/amplify-android-messenger-dev-111057-authRole",
             "Region": "us-east-1",
-            "DeploymentBucketName": "amplify-android-messenger-dev-165858-deployment",
-            "UnauthRoleName": "amplify-android-messenger-dev-165858-unauthRole",
-            "StackName": "amplify-android-messenger-dev-165858",
-            "StackId": "arn:aws:cloudformation:us-east-1:840786921545:stack/amplify-android-messenger-dev-165858/152427d0-2dab-11ea-8cc4-12d8771823f5",
-            "AmplifyAppId": "d3w5brpykbmybg"
+            "DeploymentBucketName": "amplify-android-messenger-dev-111057-deployment",
+            "UnauthRoleName": "amplify-android-messenger-dev-111057-unauthRole",
+            "StackName": "amplify-android-messenger-dev-111057",
+            "StackId": "arn:aws:cloudformation:us-east-1:840786921545:stack/amplify-android-messenger-dev-111057/4b13f3a0-3168-11ea-a3ed-0ed24b955b13",
+            "AmplifyAppId": "d3rbed9ru513ex"
         }
     }
 }
