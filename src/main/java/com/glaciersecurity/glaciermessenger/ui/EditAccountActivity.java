@@ -35,20 +35,22 @@ import android.security.KeyChainAliasCallback;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 
+import com.amazonaws.amplify.generated.graphql.GetGlacierUsersQuery;
 import com.amazonaws.auth.AWSAbstractCognitoIdentityProvider;
 import com.amazonaws.auth.AWSCognitoIdentityProvider;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobile.client.Callback;
 import com.amazonaws.mobile.client.UserStateDetails;
 import com.amazonaws.mobile.config.AWSConfiguration;
+import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
+import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserAttributes;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserDetails;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GetDetailsHandler;
-import com.amazonaws.services.cognitoidentityprovider.model.GetUserRequest;
-import com.amazonaws.services.cognitoidentityprovider.model.GetUserResult;
-import com.amplifyframework.api.aws.AWSApiPlugin;
-import com.amplifyframework.api.graphql.QueryType;
-import com.amplifyframework.core.Amplify;
+
+import com.apollographql.apollo.GraphQLCall;
+import com.apollographql.apollo.api.Response;
+import com.apollographql.apollo.exception.ApolloException;
 import com.google.android.material.textfield.TextInputLayout;
 import androidx.appcompat.app.ActionBar;
 //import android.support.v7.app.AlertDialog;
@@ -159,6 +161,8 @@ import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection.Features;
 import com.glaciersecurity.glaciermessenger.xmpp.forms.Data;
 import com.glaciersecurity.glaciermessenger.xmpp.pep.Avatar;
+
+import javax.annotation.Nonnull;
 
 import de.measite.minidns.record.A;
 import rocks.xmpp.addr.Jid;
@@ -283,6 +287,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	private String currentProfileUUID = null;
 	private String currentProfileName = null;
+	private AWSAppSyncClient mAWSAppSyncClientmAWSAppSyncClient;
+
 
 	public void refreshUiReal() {
 		//invalidateOptionsMenu();
@@ -1800,18 +1806,16 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						if (name == null || org == null){
 							handleLoginFailure();
 						}
-						AWSConfiguration awsConfig = new AWSConfiguration(getApplicationContext());
-//						AWSAppSyncClient client = AWSAppSyncClient.builder()
-//								.context(getApplicationContext())
-//								.awsConfiguration(awsConfig)
-//								.build();
-
-						//client.query();
-						initializeAmplify();
-
-
-						getGlacierUsers(org, name);
-
+						mAWSAppSyncClientmAWSAppSyncClient = AWSAppSyncClient.builder()
+								.context(getApplicationContext())
+								.awsConfiguration(new AWSConfiguration(getApplicationContext()))
+								.build();
+						mAWSAppSyncClientmAWSAppSyncClient.query(GetGlacierUsersQuery.builder()
+								.organization(org)
+								.username(name)
+								.build())
+								.responseFetcher(AppSyncResponseFetchers.NETWORK_ONLY)
+								.enqueue(getUserCallback);
 					}
 
 					@Override
@@ -1870,54 +1874,36 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			continuation.continueTask();
 		}
 
-		private void initializeAmplify(){
-			AWSMobileClient.getInstance().initialize(getApplicationContext(), new Callback<UserStateDetails>() {
-				@Override
-				public void onResult(UserStateDetails userStateDetails) {
-					try {
-						Amplify.addPlugin(new AWSApiPlugin());
-						Amplify.configure(getApplicationContext());
-						android.util.Log.i("ApiQuickstart", "All set and ready to go!");
-					} catch (Exception e) {
-						android.util.Log.e("ApiQuickstart", e.getMessage());
-					}
-				}
-
-				@Override
-				public void onError(Exception e) {
-					android.util.Log.e("ApiQuickstart", "Initialization error.", e);
-				}
-			});
-
-		}
-
-		private void getGlacierUsers(String org, String user) {
-
-//			Amplify.API.query(
-//					GlacierUsers.class,
-//					id,
-//					new ResultListener<GraphQLResponse<GlacierUsers>>() {
-//						@Override
-//						public void onResult(GraphQLResponse<GlacierUsers> response) {
-//							Log.i("ApiQuickStart", "Got " + response.getData().getName());
-//
-//							for(Post post : response.getData().getPosts()) {
-//								Log.i("ApiQuickStart", "Post: " + post.getTitle());
-//							}
-//						}
-//
-//						@Override
-//						public void onError(Throwable throwable) {
-//							Log.e("ApiQuickStart", throwable.getMessage());
-//						}
-//					}
-//			);
-
-		}
 
 
 
 
+        private GraphQLCall.Callback<GetGlacierUsersQuery.Data> getUserCallback = new GraphQLCall.Callback<GetGlacierUsersQuery.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<GetGlacierUsersQuery.Data> response) {
+                android.util.Log.i("Results", response.data().toString());
+                // Hide The In Progress Text
+                // Show the User Details
+                // Show the User Table
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Response received from API Call
+                        Log.i("Results", response.data().toString());
+                    }
+                });
+
+
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                Log.i("Results", e.toString());
+
+
+
+            }
+        };
 		@Override
 		public void getMFACode(MultiFactorAuthenticationContinuation multiFactorAuthenticationContinuation) {
 			// GOOBER COGNITO - do nothing

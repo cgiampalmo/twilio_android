@@ -38,3 +38,4 @@
 # Amplify plugin
 -dontwarn com.amazonaws.mobileconnectors.**
 -dontwarn com.apollographql.apollo.**
+-dontwarn org.codehaus.mojo.**

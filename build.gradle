@@ -7,12 +7,12 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.3.1'
-        classpath 'com.amplifyframework:amplify-tools-gradle-plugin:0.2.0'
+        classpath 'com.amazonaws:aws-android-sdk-appsync-gradle-plugin:2.9.+'
     }
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'com.amplifyframework.amplifytools'
+apply plugin: 'com.amazonaws.appsync'
 
 repositories {
     google()
@@ -134,10 +134,12 @@ dependencies {
     implementation 'androidx.emoji:emoji:1.0.0'
 
 
-    // appsync  aws amplify
-    implementation 'com.amplifyframework:core:0.9.0'
-    implementation 'com.amplifyframework:aws-api:0.9.0'
-    implementation 'com.amazonaws:aws-android-sdk-appsync:2.8.+'
+    //Base SDK
+    implementation 'com.amazonaws:aws-android-sdk-core:2.16.3'
+    //AppSync SDK
+    implementation 'com.amazonaws:aws-android-sdk-appsync:3.0.0'
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
+    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
 
 
 
