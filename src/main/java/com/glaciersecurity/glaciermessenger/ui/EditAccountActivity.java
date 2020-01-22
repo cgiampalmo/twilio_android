@@ -287,7 +287,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	private String currentProfileUUID = null;
 	private String currentProfileName = null;
-	private AWSAppSyncClient mAWSAppSyncClientmAWSAppSyncClient;
 
 
 	public void refreshUiReal() {
@@ -1806,11 +1805,13 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						if (name == null || org == null){
 							handleLoginFailure();
 						}
-						mAWSAppSyncClientmAWSAppSyncClient = AWSAppSyncClient.builder()
+						AWSConfiguration awsConfig = new AWSConfiguration(getApplicationContext());
+						AWSAppSyncClient client = AWSAppSyncClient.builder()
 								.context(getApplicationContext())
-								.awsConfiguration(new AWSConfiguration(getApplicationContext()))
+								.awsConfiguration(awsConfig)
 								.build();
-						mAWSAppSyncClientmAWSAppSyncClient.query(GetGlacierUsersQuery.builder()
+
+						client.query(GetGlacierUsersQuery.builder()
 								.organization(org)
 								.username(name)
 								.build())
