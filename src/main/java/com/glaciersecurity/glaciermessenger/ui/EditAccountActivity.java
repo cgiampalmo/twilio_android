@@ -1747,6 +1747,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						if (response != null) {
 							if (response.data().getUsers() != null) {
 								messenger_id = response.data().getUsers().messenger_id();
+								password = response.data().getUsers().glacierpwd();
 								autoLoginMessenger();
 							}
 						}
