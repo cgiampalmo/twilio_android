@@ -1,70 +1,46 @@
 # this is an auto generated file. This will be overwritten
-subscription OnCreateGlacierUsers(
-  $organization: String
-  $username: String
-  $email: String
-  $glacierpwd: String
-  $extension_voiceserver: String
-) {
-  onCreateGlacierUsers(
-    organization: $organization
-    username: $username
-    email: $email
-    glacierpwd: $glacierpwd
-    extension_voiceserver: $extension_voiceserver
-  ) {
+subscription OnCreateUsers($organization: String, $username: String) {
+  onCreateUsers(organization: $organization, username: $username) {
     organization
     username
     email
-    glacierpwd
     extension_voiceserver
+    first_name
+    glacierpwd
+    isActive
+    last_name
     messenger_id
     user_name
+    user_type
   }
 }
-subscription OnUpdateGlacierUsers(
-  $organization: String
-  $username: String
-  $email: String
-  $glacierpwd: String
-  $extension_voiceserver: String
-) {
-  onUpdateGlacierUsers(
-    organization: $organization
-    username: $username
-    email: $email
-    glacierpwd: $glacierpwd
-    extension_voiceserver: $extension_voiceserver
-  ) {
+subscription OnUpdateUsers($organization: String, $username: String) {
+  onUpdateUsers(organization: $organization, username: $username) {
     organization
     username
     email
-    glacierpwd
     extension_voiceserver
+    first_name
+    glacierpwd
+    isActive
+    last_name
     messenger_id
     user_name
+    user_type
   }
 }
-subscription OnDeleteGlacierUsers(
-  $organization: String
-  $username: String
-  $email: String
-  $glacierpwd: String
-  $extension_voiceserver: String
-) {
-  onDeleteGlacierUsers(
-    organization: $organization
-    username: $username
-    email: $email
-    glacierpwd: $glacierpwd
-    extension_voiceserver: $extension_voiceserver
-  ) {
+subscription OnDeleteUsers($organization: String, $username: String) {
+  onDeleteUsers(organization: $organization, username: $username) {
     organization
     username
     email
-    glacierpwd
     extension_voiceserver
+    first_name
+    glacierpwd
+    isActive
+    last_name
     messenger_id
     user_name
+    user_type
   }
 }

@@ -9,7 +9,7 @@
             "ApiUrl": "https://gscpopey5ngpzgdou26slhd67i.appsync-api.us-east-2.amazonaws.com/graphql",
             "Region": "us-east-2",
             "AuthMode": "API_KEY",
-            "ApiKey": "da2-wacgc64qajdphp6xy75dovrwia",
+            "ApiKey": "da2-5q5d2qcmrngsbcevf3h6ylvndi",
             "ClientDatabasePrefix": "fetchUserDetails_API_KEY"
         }
     }

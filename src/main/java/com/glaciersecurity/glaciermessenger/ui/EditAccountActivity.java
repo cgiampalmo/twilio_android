@@ -34,7 +34,7 @@ import android.security.KeyChainAliasCallback;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 
-import com.amazonaws.amplify.generated.graphql.GetGlacierUsersQuery;
+import com.amazonaws.amplify.generated.graphql.GetUsersQuery;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
 import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
@@ -232,6 +232,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private String username = null;
 	private String password = null;
 	private String organization = null;
+	private String messenger_id = null;
 
 	protected IOpenVPNAPIService mService = null;
 
@@ -1672,7 +1673,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 								.build();
 
 
-						client.query(GetGlacierUsersQuery.builder()
+						client.query(GetUsersQuery.builder()
 								.organization(org)
 								.username(name)
 								.build())
@@ -1689,8 +1690,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						//downloadS3Files();
 
 						// GOOBER - This is where we call download file
-						//launchUser();
-						//autoLoginMessenger();
+
 					}
 
 					@Override
@@ -1737,19 +1737,24 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 
 
-        private GraphQLCall.Callback<GetGlacierUsersQuery.Data> getUserCallback = new GraphQLCall.Callback<GetGlacierUsersQuery.Data>() {
+        private GraphQLCall.Callback<GetUsersQuery.Data> getUserCallback = new GraphQLCall.Callback<GetUsersQuery.Data>() {
 			@Override
-			public void onResponse(@Nonnull Response<GetGlacierUsersQuery.Data> response) {
-				android.util.Log.i("Results", response.data().toString());
-				// Hide The In Progress Text
-				// Show the User Details
-				// Show the User Table
+			public void onResponse(@Nonnull Response<GetUsersQuery.Data> response) {
+				android.util.Log.i("Results", "RES...");
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-
+						if (response != null) {
+							if (response.data().getUsers() != null) {
+								messenger_id = response.data().getUsers().messenger_id();
+								autoLoginMessenger();
+							}
+						}
 					}
 				});
+
+
+
 
             }
 
@@ -2571,7 +2576,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			if (mUsernameMode) {
 				jid = Jid.of(username, getUserModeDomain(), null); //CMG AM-172
 			} else {
-				jid = Jid.of(username+"@"+organization); //CMG AM-172
+				jid = Jid.of(messenger_id); //CMG AM-172
 			}
 		} catch (final NullPointerException | IllegalArgumentException e) {
 			if (mUsernameMode) {
@@ -2649,11 +2654,15 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			//if (mAccount == null) {
 			mAccount = new Account(jid.asBareJid(), password);
 			mAccount.setPort(numericPort);
-			mAccount.setHostname(hostname);
+			//TODO host name is possibly whole domain
+
+			String hostname2 = messenger_id.substring(messenger_id.indexOf('@')+1);
+			mAccount.setHostname(hostname2);
 			mAccount.setOption(Account.OPTION_USETLS, true);
 			mAccount.setOption(Account.OPTION_USECOMPRESSION, true);
 			mAccount.setOption(Account.OPTION_REGISTER, registerNewAccount);
 			//newAccount = true;
+
 			//}
 			xmppConnectionService.createAccount(mAccount, true);
 		}

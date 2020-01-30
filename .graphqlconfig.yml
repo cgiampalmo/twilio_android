@@ -1,5 +1,5 @@
 projects:
-  fetchUserDetails:
+  Codegen Project:
     schemaPath: src\main\graphql\schema.json
     includes:
       - src\main\graphql\**\*.graphql
@@ -11,4 +11,9 @@ projects:
         generatedFileName: ''
         docsFilePath: src\main\graphql\com\amazonaws\amplify\generated\graphql
         region: us-east-2
+        apiId: qysbquafrffudaqixh3sbbyosu
+        frontend: android
         maxDepth: 2
+extensions:
+  amplify:
+    version: 3
