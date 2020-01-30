@@ -91,40 +91,6 @@
                     android:textColor="?attr/edit_text_color"
                     android:inputType="textPassword" />
             </com.google.android.material.textfield.TextInputLayout>
-            <View
-                android:layout_width="0dp"
-                android:layout_height="@dimen/spacing_large" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/Organization"
-                android:textAlignment="center"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
-                android:textColor="?attr/edit_text_color"
-                android:textStyle="bold" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/account_orgid_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:passwordToggleDrawable="@drawable/visibility_toggle_drawable"
-                app:passwordToggleEnabled="true"
-                app:passwordToggleTint="?android:textColorSecondary"
-                app:hintTextAppearance="@style/TextAppearance.Conversations.Design.Hint"
-                app:errorTextAppearance="@style/TextAppearance.Conversations.Design.Error">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/account_orgid"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:inputType="text"
-                    style="@style/Widget.Conversations.EditText"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="@dimen/spacing_middle" />
 
             <TextView
                 android:id="@+id/forgot_password"

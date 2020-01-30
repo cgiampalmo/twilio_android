@@ -21,7 +21,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
@@ -197,8 +196,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private Button mSaveButton;*/
 
 	// GOOBER COGNITO
-	private EditText mOrgID;
-	private TextInputLayout mAccountOrgIDLayout;
 	private Button mLoginButton;
 	private Button mSupportButton;
 	private String mConnectionType = null;
@@ -287,7 +284,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	private String currentProfileUUID = null;
 	private String currentProfileName = null;
-
 
 	public void refreshUiReal() {
 		//invalidateOptionsMenu();
@@ -411,9 +407,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				}
 				if (view.getId() == R.id.account_password) {
 					resId = R.string.password;
-				}
-				if (view.getId() == R.id.account_orgid) {
-					resId = R.string.orgid;
 				}
 				final int res = resId;
 				new Handler().postDelayed(() -> et.setHint(res), 200);
@@ -589,8 +582,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.mAccountPasswordLayout = (TextInputLayout) findViewById(R.id.account_password_layout);
 
 		// GOOBER COGNITO
-		this.mOrgID = (EditText) findViewById(R.id.account_orgid);
-		this.mAccountOrgIDLayout = (TextInputLayout) findViewById(R.id.account_orgid_layout);
 		this.mLoginButton = (Button) findViewById(R.id.account_login);
 		this.mSupportButton = (Button) findViewById(R.id.account_support);
 
@@ -1160,7 +1151,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 	}
 
-	private void updateAccountInformation(boolean init) {
+	private void  updateAccountInformation(boolean init) {
 		if (init) {
 			if (mUsernameMode) {
 				//CMG AM-172 Stop using the gui text fields to store the VPN login info
@@ -1622,7 +1613,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						//organization = mOrgID.getText().toString();
 						tempVPN.setLogUsername(binding.accountJid.getText().toString());
 						tempVPN.setLogPassword(mPassword.getText().toString());
-						tempVPN.setLogOrgID(mOrgID.getText().toString());
 
 						// make sure all fields are filled in before logging in
 						//if (username.trim().length() == 0) { //CMG AM-172 and next two ifs also
@@ -1636,10 +1626,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 								mPassword.setError("Password cannot be blank");
 								mPassword.requestFocus();
 								//} else if (organization.trim().length() == 0) {
-						} else if (tempVPN.getLogOrgID().trim().length() == 0) {
-								// showDialogMessage("Login", "Organization cannot be empty.");
-								mOrgID.setError("Org ID cannot be blank");
-								mOrgID.requestFocus();
 						} else {
 
 								showWaitDialog(getString(R.string.wait_dialog_logging_in));
@@ -1667,13 +1653,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * GOOBER COGNITO - login AWS
 	 */
 	private void signInUserState() {
-		//CMG for test bypass of cognito
-		if (tempVPN.getLogOrgID().equals(Config.TESTER_ORG)){
-			bypassCognitoLogin();
-		} else {
 			AppHelper.setUser(tempVPN.getLogUsername()); //CMG AM-172 changed
 			AppHelper.getPool().getUser(tempVPN.getLogUsername()).getSessionInBackground(authenticationHandler);
-		}
 	}
 
 	private void retrieveVpnState(){
@@ -1800,6 +1781,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						String org = null;
 						if (cognitoUserAttributes.getAttributes().containsKey("custom:organization")){
 							org = cognitoUserAttributes.getAttributes().get("custom:organization");
+							tempVPN.setLogOrgID(org);
 						}
 						String name = cognitoUserSession.getUsername();
 						if (name == null || org == null){
@@ -1817,33 +1799,32 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 								.build())
 								.responseFetcher(AppSyncResponseFetchers.NETWORK_ONLY)
 								.enqueue(getUserCallback);
+
+
+
+						// TODO store user info from dynamo db
+						//keyList.clear();
+
+						// TODO commented out s3
+						// GOOBER - try to list objects in directory
+						//downloadS3Files();
+
+						// GOOBER - This is where we call download file
+						//launchUser();
 					}
 
 					@Override
 					public void onFailure(Exception exception) {
-
+						closeWaitDialog();
+						//CMG AM-192
+						//showDialogMessage(getString(R.string.signin_fail_title), "Invalid Org ID");
+						showDialogMessage(getString(R.string.invalid_connecting), getString(R.string.invalid_login_error));
+						//ALF AM-143 log out of cognito
+						logOut();
 					}
 				});
+				autoLoginMessenger();
 
-			}
-			closeWaitDialog();
-
-
-
-			// TODO retrieve user from dynamo db
-			// TODO get user info
-
-
-			// username/password is correct.  Now check if bucket exists
-			if (tempVPN.getLogOrgID()!= null) { //CMG changed
-				// GOOBER - Clear list of keys before logging in
-				keyList.clear();
-
-				// GOOBER - try to list objects in directory
-				downloadS3Files();
-
-				// GOOBER - This is where we call download file
-				launchUser();
 			} else {
 				closeWaitDialog();
 				//CMG AM-192
@@ -1882,18 +1863,13 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         private GraphQLCall.Callback<GetGlacierUsersQuery.Data> getUserCallback = new GraphQLCall.Callback<GetGlacierUsersQuery.Data>() {
             @Override
             public void onResponse(@Nonnull Response<GetGlacierUsersQuery.Data> response) {
-                android.util.Log.i("Results", response.data().toString());
-                // Hide The In Progress Text
-                // Show the User Details
-                // Show the User Table
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Response received from API Call
-                        Log.i("Results", response.data().toString());
-                    }
-                });
+            	if (response != null && response.data()!=null) {
+					android.util.Log.i("Results", response.data().toString());
+					// Hide The In Progress Text
+					// Show the User Details
+					// Show the User Table
 
+				}
 
             }
 
@@ -2051,7 +2027,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						// save cognito information and account information
 						BackupAccountManager backupAccountManager = new BackupAccountManager(getApplicationContext());
 						//CMG AM-172 changed next 2
-						backupAccountManager.createAppConfigFile(tmpFile, tempVPN.getLogUsername(), tempVPN.getLogPassword(), tempVPN.getLogOrgID(), BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_VOICE);
 						backupAccountManager.createAppConfigFile(tmpFile, tempVPN.getLogUsername(), tempVPN.getLogPassword(), tempVPN.getLogOrgID(), BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
 						tmpFile.delete();
 					} else if (key.endsWith("ovpn") == true) {
@@ -2351,7 +2326,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private void resetEntryErrors(){ //CMG AM-172
 		mAccountJidLayout.setError(null);
 		mAccountPasswordLayout.setError(null);
-		mAccountOrgIDLayout.setError(null);
 	}
 
 

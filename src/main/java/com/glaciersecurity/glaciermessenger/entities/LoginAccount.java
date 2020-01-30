@@ -16,7 +16,6 @@ public class LoginAccount {
     private LoginAccount(){
         this.logUsername = null;
         this.logPassword = null;
-        this.logOrgID = null;
         this.loginState = LoginState.FORM_ENTRY;
     }
 
