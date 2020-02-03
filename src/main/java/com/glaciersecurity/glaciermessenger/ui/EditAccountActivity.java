@@ -1563,13 +1563,14 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		refreshUi();
 	}
 
-	public void gotoSignUp(View view) {
-		Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
-		startActivity(intent);
-	}
+//	public void gotoSignUp(View view) {
+//		Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
+//		startActivity(intent);
+//	}
 
 	public void forgotPassword(View view) {
-		Intent intent = new Intent(getApplicationContext(), ForgotPasswordActivity.class);
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		intent.setData(Uri.parse("http://console.glaciersec.cc/forget-password"));
 		startActivity(intent);
 	}
 
