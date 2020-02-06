@@ -800,8 +800,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			this.mInitMode = init || this.jidToEdit == null;
 			this.messageFingerprint = intent.getStringExtra("fingerprint");
 			if (!mInitMode) {
-				this.binding.accountRegisterNew.setVisibility(View.GONE);
-				this.binding.editor.setVisibility(View.GONE); //ALF AM-206
+				//this.binding.accountRegisterNew.setVisibility(View.GONE);
+				//this.binding.editor.setVisibility(View.GONE); //ALF AM-206
+				this.binding.accountLoginView.setVisibility(View.GONE);
+				this.binding.accountMainLayout.setVisibility(View.VISIBLE);
+
+
 				ActionBar ab = getSupportActionBar();
 				configureActionBar(ab, !openedFromNotification);
 				//HONEYBADGER AM-120 rm "using account ... "
@@ -811,7 +815,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				if (ab != null) {
 					ab.setTitle(R.string.my_profile);
 				}
-				this.binding.displayname.setVisibility(VISIBLE); //CMG AM-323
+				//this.binding.displayname.setVisibility(VISIBLE); //CMG AM-323
 
 				if (this.mDisplayName != null){
 					mDisplayName.setText(getDisplayName());
@@ -820,9 +824,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 				}
 			} else {
-				this.binding.displayname.setVisibility(View.GONE); //CMG AM-323
-				this.mAvatar.setVisibility(View.GONE);
-				this.binding.acctdetails.setVisibility(View.GONE); //ALF AM-206
+//				this.binding.displayname.setVisibility(View.GONE); //CMG AM-323
+//				this.mAvatar.setVisibility(View.GONE);
+//				this.binding.acctdetails.setVisibility(View.GONE); //ALF AM-206
+				this.binding.accountLoginView.setVisibility(VISIBLE);
+				this.binding.accountMainLayout.setVisibility(View.GONE);
 				ActionBar ab = getSupportActionBar();
 				if (ab != null) {
 					// GOOBER - don't show back button when in Cognito login screen
@@ -1763,6 +1769,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
             @Override
             public void onFailure(@Nonnull ApolloException e) {
                 Log.i("Results", e.toString());
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						handleLoginFailure();
+					}
+				});
 
 
 
