@@ -266,7 +266,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private boolean mSavedInstanceInit = false;
 	private Button mClearDevicesButton;
 	private XmppUri pendingUri = null;
-	private ImageButton mEditDisplayNameButton;
+	private Button mEditDisplayNameButton;
 	private TextView mDisplayName;
 	private boolean mUseTor;
 	private ActivityEditAccountBinding binding;
@@ -597,7 +597,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.mHostnameLayout = (TextInputLayout) findViewById(R.id.hostname_layout);
 		this.mClearDevicesButton = (Button) findViewById(R.id.clear_devices);
 		//CMG AM-
-		this.mEditDisplayNameButton = (ImageButton) findViewById(R.id.edit_displayname_name_button);
+		this.mEditDisplayNameButton = (Button) findViewById(R.id.edit_displayname_name_button);
 		this.mDisplayName = (TextView) findViewById(R.id.displayname_text);
 		this.mDisplayName.addTextChangedListener(mTextWatcher);
 		//CMG AM-318
