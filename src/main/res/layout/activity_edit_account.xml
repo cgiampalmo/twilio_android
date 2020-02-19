@@ -355,7 +355,6 @@
                         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                         android:textColor="@color/blue_grey_500"
                         app:fontFamily="sans-serif-medium" />
-
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -363,30 +362,43 @@
                         android:layout_marginRight="@dimen/spacing_mlarge"
                         android:orientation="vertical">
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
                         <Button
                             android:id="@+id/edit_displayname_name_button"
                             style="@style/Widget.Conversations.Button.Borderless"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="@dimen/spacing_xxlarge"
                             android:textColor="?colorAccent"
-                            android:text="Change Name" />
+                            android:text="\tChange Name"
+                            android:textAppearance="@style/TextAppearance.Conversations.Body1"
+                            android:drawableLeft="@drawable/ic_account_box_white_24dp"/>
+
 
                         <Button
                             android:id="@+id/change_password"
                             android:onClick="forgotPassword"
-                            android:text="Change Password"
+                            android:text="\tChange Password"
                             style="@style/Widget.Conversations.Button.Borderless"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="?colorAccent"/>
+                            android:layout_height="@dimen/spacing_xxlarge"
+                            android:textColor="?colorAccent"
+                            android:textAppearance="@style/TextAppearance.Conversations.Body1"
+                            android:drawableLeft="@drawable/ic_baseline_screen_lock"/>
 
+                    </LinearLayout>
                         <Button
                             android:id="@+id/clear_devices"
                             style="@style/Widget.Conversations.Button.Borderless"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/clear_other_devices"
-                            android:textColor="?colorAccent"/>
+                            android:layout_height="@dimen/spacing_xxlarge"
+                            android:text="\tClear Devices"
+                            android:textAppearance="@style/TextAppearance.Conversations.Body1"
+                            android:textColor="?colorAccent"
+                            android:drawableLeft="@drawable/ic_delete"/>
 
                     </LinearLayout>
 
