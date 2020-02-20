@@ -1,16 +1,46 @@
 {
-    "UserAgent": "aws-amplify-cli/0.1.0",
-    "Version": "1.0",
+    "UserAgent": "aws-amplify/cli",
+    "Version": "0.1.0",
     "IdentityManager": {
         "Default": {}
     },
     "AppSync": {
         "Default": {
-            "ApiUrl": "https://gscpopey5ngpzgdou26slhd67i.appsync-api.us-east-2.amazonaws.com/graphql",
-            "Region": "us-east-2",
+            "ApiUrl": "https://gchd4c6oajd6bkzp5crmovv62q.appsync-api.us-east-1.amazonaws.com/graphql",
+            "Region": "us-east-1",
             "AuthMode": "API_KEY",
-            "ApiKey": "da2-imfxghswvjehnogfctu7qomwzq",
-            "ClientDatabasePrefix": "fetchUserDetails_API_KEY"
+            "ApiKey": "da2-pefesos7o5eixmnv4pxpoabcuq",
+            "ClientDatabasePrefix": "GlacierAppSyncAPI_API_KEY"
+        }
+    },
+    "S3TransferUtility": {
+        "Default": {
+            "Region": "us-east-1"
+        }
+    },
+    "S3TransferManager": {
+        "Default": {
+            "Region": "us-east-1"
+        }
+    },
+    "CognitoUserPool": {
+        "Default": {
+            "CognitoAuthScopes": ["openid", "email", "aws.cognito.signin.user.admin"],
+            "CognitoAuthSignInRedirectUri": "glaciermessenger://",
+            "CognitoAuthSignOutRedirectUri": "glaciermessenger://",
+            "CognitoAuthWebDomain": "https://glaciersec.auth.us-east-1.amazoncognito.com",
+            "CognitoUserPoolAppClientId": "4o3p01m37i9omnuo27vg4fh8gt",
+            "CognitoUserPoolAppClientSecret": "9qv3ceupufgr6j54n476bk2orprlmva8vnu1a4limps4g3gb90g",
+            "CognitoUserPoolId": "us-east-1_g1AdCGbFH",
+            "Region": "us-east-1"
+        }
+    },
+    "CredentialsProvider": {
+        "CognitoIdentity": {
+            "Default": {
+                "PoolId": "us-east-1:967acd81-c1f7-44f8-a582-1c2541a95081",
+                "Region": "us-east-1"
+            }
         }
     }
 }

@@ -34,7 +34,7 @@ import android.security.KeyChainAliasCallback;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 
-import com.amazonaws.amplify.generated.graphql.GetUsersQuery;
+import com.amazonaws.amplify.generated.graphql.GetGlacierUsersQuery;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
 import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
@@ -1689,7 +1689,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 								.build();
 
 
-						client.query(GetUsersQuery.builder()
+						client.query(GetGlacierUsersQuery.builder()
 								.organization(org)
 								.username(name)
 								.build())
@@ -1753,17 +1753,17 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 
 
-        private GraphQLCall.Callback<GetUsersQuery.Data> getUserCallback = new GraphQLCall.Callback<GetUsersQuery.Data>() {
+        private GraphQLCall.Callback<GetGlacierUsersQuery.Data> getUserCallback = new GraphQLCall.Callback<GetGlacierUsersQuery.Data>() {
 			@Override
-			public void onResponse(@Nonnull Response<GetUsersQuery.Data> response) {
+			public void onResponse(@Nonnull Response<GetGlacierUsersQuery.Data> response) {
 				android.util.Log.i("Results", "RES...");
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
 						if (response != null) {
-							if (response.data().getUsers() != null) {
-								messenger_id = response.data().getUsers().messenger_id();
-								password = response.data().getUsers().glacierpwd();
+							if (response.data().getGlacierUsers() != null) {
+								messenger_id = response.data().getGlacierUsers().messenger_id();
+								password = response.data().getGlacierUsers().glacierpwd();
 								autoLoginMessenger();
 							}
 						}
