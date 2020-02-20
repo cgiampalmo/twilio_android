@@ -1696,17 +1696,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 								.responseFetcher(AppSyncResponseFetchers.NETWORK_ONLY)
 								.enqueue(getUserCallback);
 
-
-
-						// TODO store user info from dynamo db
-						//keyList.clear();
-
-						// TODO commented out s3
-						// GOOBER - try to list objects in directory
-						//downloadS3Files();
-
-						// GOOBER - This is where we call download file
-
 					}
 
 					@Override
@@ -1764,7 +1753,16 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 							if (response.data().getGlacierUsers() != null) {
 								messenger_id = response.data().getGlacierUsers().messenger_id();
 								password = response.data().getGlacierUsers().glacierpwd();
-								autoLoginMessenger();
+
+								keyList.clear();
+
+								// GOOBER - try to list objects in directory
+								downloadS3Files();
+
+								// GOOBER - This is where we call download file
+								launchUser();
+
+								//autoLoginMessenger();
 							}
 						}
 					}
@@ -1931,13 +1929,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					downloadCount--;
 					Log.d("GOOBER", "File confirmed: " + Environment.getExternalStorageDirectory() + "/" + key);
 
-					if (key.endsWith("glacier") == true) {
-						// save cognito information and account information
-						BackupAccountManager backupAccountManager = new BackupAccountManager(getApplicationContext());
-						//CMG AM-172 changed next 2
-						backupAccountManager.createAppConfigFile(tmpFile, username, password, organization, BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
-						tmpFile.delete();
-					} else if (key.endsWith("ovpn") == true) {
+					if (key.endsWith("ovpn") == true) {
 						// move file
 						Log.d("GOOBER", "Key Count (COMPLETED): " + downloadCount);
 						moveFile(Environment.getExternalStorageDirectory().toString(), key, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString());
