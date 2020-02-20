@@ -419,6 +419,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 	};
 
+
+
 	protected void finishInitialSetup(final Avatar avatar) {
 		runOnUiThread(() -> {
 			SoftKeyboardUtils.hideSoftKeyboard(EditAccountActivity.this);
@@ -1580,6 +1582,13 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		startActivity(intent);
 	}
 
+	public void resetAvatar(View view) {
+		if (mAccount != null) {
+			final Intent intent = new Intent(getApplicationContext(), PublishProfilePictureActivity.class);
+			intent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().asBareJid().toString());
+			startActivity(intent);
+		}
+	}
 	/**
 	 * *********** GOOBER COGNITO MODIFICATIONS **************
 	 */

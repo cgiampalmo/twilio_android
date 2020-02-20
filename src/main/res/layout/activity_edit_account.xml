@@ -370,36 +370,62 @@
                         <Button
                             android:id="@+id/edit_displayname_name_button"
                             style="@style/Widget.Conversations.Button.Borderless"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0px"
+                            android:layout_weight=".5"
+                            android:gravity="start|center_vertical"
+                            android:textAlignment="textStart"
                             android:layout_height="@dimen/spacing_xxlarge"
                             android:textColor="?colorAccent"
                             android:text="\tChange Name"
                             android:textAppearance="@style/TextAppearance.Conversations.Body1"
-                            android:drawableLeft="@drawable/ic_account_box_white_24dp"/>
+                            android:drawableLeft="@drawable/ic_account_box_white_20dp"/>
 
 
                         <Button
-                            android:id="@+id/change_password"
-                            android:onClick="forgotPassword"
-                            android:text="\tChange Password"
+                            android:id="@+id/change_avatar"
+                            android:onClick="resetAvatar"
+                            android:text="\tChange Avatar"
+                            android:gravity="start|center_vertical"
+                            android:textAlignment="textStart"
                             style="@style/Widget.Conversations.Button.Borderless"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0px"
+                            android:layout_weight=".5"
                             android:layout_height="@dimen/spacing_xxlarge"
                             android:textColor="?colorAccent"
                             android:textAppearance="@style/TextAppearance.Conversations.Body1"
-                            android:drawableLeft="@drawable/ic_baseline_screen_lock"/>
+                            android:drawableLeft="@drawable/ic_add_a_photo_white_20dp"/>
 
                     </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+                            <Button
+                                android:id="@+id/change_password"
+                                android:onClick="forgotPassword"
+                                android:gravity="start|center_vertical"
+                                android:textAlignment="textStart"
+                                android:text="\tChange Password"
+                                style="@style/Widget.Conversations.Button.Borderless"
+                                android:layout_width="0px"
+                                android:layout_weight=".5"
+                                android:layout_height="@dimen/spacing_xxlarge"
+                                android:textColor="?colorAccent"
+                                android:textAppearance="@style/TextAppearance.Conversations.Body1"
+                                android:drawableLeft="@drawable/ic_phonelink_lock_white_20dp"/>
                         <Button
                             android:id="@+id/clear_devices"
                             style="@style/Widget.Conversations.Button.Borderless"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0px"
+                            android:layout_weight=".5"
+                            android:gravity="start|center_vertical"
+                            android:textAlignment="textStart"
                             android:layout_height="@dimen/spacing_xxlarge"
                             android:text="\tClear Devices"
                             android:textAppearance="@style/TextAppearance.Conversations.Body1"
                             android:textColor="?colorAccent"
-                            android:drawableLeft="@drawable/ic_delete"/>
-
+                            android:drawableLeft="@drawable/ic_phonelink_erase_white_20dp"/>
+                        </LinearLayout>
                     </LinearLayout>
 
                     <View
