@@ -1753,14 +1753,22 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 							if (response.data().getGlacierUsers() != null) {
 								messenger_id = response.data().getGlacierUsers().messenger_id();
 								password = response.data().getGlacierUsers().glacierpwd();
+								organization = response.data().getGlacierUsers().organization();
 
 								keyList.clear();
 
 								// GOOBER - try to list objects in directory
-								downloadS3Files();
+								if (downloadS3Files()){
+									launchUser();
+								} else {
+									autoLoginMessenger();
+								}
 
 								// GOOBER - This is where we call download file
-								launchUser();
+
+
+
+
 
 								//autoLoginMessenger();
 							}
@@ -2333,7 +2341,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.binding.accountJid.requestFocus();
 	}
 
-	private void downloadS3Files() {
+	private boolean downloadS3Files() {
+		boolean hasDownload = false;
 		String bucketName = Constants.BUCKET_NAME.replace(REPLACEMENT_ORG_ID, organization); //CMG AM-172 changed
 		AmazonS3 sS3Client = Util.getS3Client(getApplicationContext());
 		TransferUtility transferUtility = Util.getTransferUtility(getApplicationContext(), bucketName);
@@ -2346,12 +2355,13 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					Log.d("GOOBER", "Keys found in S3 Bucket (" + summary.getBucketName() + "): " + summary.getKey());
 					String tmpString = stripDirectory(summary.getKey().toString());
 
-					if ((summary.getKey().contains("_" + username + ".ovpn") || (tmpString.compareTo(username + ".glacier") == 0))) { //CMG AM-172 changed
+					if ((summary.getKey().contains("_" + username + ".ovpn") )) { //CMG AM-172 changed
 						Log.d("GOOBER", "File we want to download: " + summary.getKey());
 						String destFilename = summary.getKey().substring(Constants.KEY_PREFIX.length() + 1, summary.getKey().length());
 
 						// bump the number of files to download
 						downloadCount++;
+						hasDownload = true;
 
 						File destFile = new File(Environment.getExternalStorageDirectory() + "/" + destFilename);
 						TransferObserver observer = transferUtility.download(summary.getKey(), destFile, new DownloadListener(destFilename));
@@ -2362,6 +2372,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						}
 					}
 				}
+
 			} else {
 				closeWaitDialog();
 				showDialogMessage(getString(R.string.signin_fail_title), getString(R.string.login_error_message));
@@ -2397,6 +2408,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					"such as not being able to access the network.");
 			Log.d("GOOBER","Error Message: " + ace.getMessage());
 		}
+		return hasDownload;
 	}
 
 	/**
