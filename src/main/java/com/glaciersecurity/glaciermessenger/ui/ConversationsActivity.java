@@ -358,7 +358,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			final Conversation conversation = ((ConversationFragment) fragment).getConversation();
 			if (conversation != null) {
 				if (conversation.getMode() != Conversation.MODE_MULTI) {
-					show1v1ChatToolbar(conversation);
+					show1v1ChatToolbar(conversation, (ConversationFragment) fragment);
 				}
 			}
 		}
@@ -854,14 +854,16 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 
 	//CMG AM-286
-	protected void show1v1ChatToolbar(Conversation conversation){
+	protected void show1v1ChatToolbar(Conversation conversation, ConversationFragment mainFrag){
 		Presence.Status s =conversation.getContact().getShownStatus();
 		statusIcon.setImageResource(s.getStatusIconMenu());
 		statusIcon.setVisibility(View.VISIBLE);
 		downArrow.setVisibility(View.VISIBLE);
 		toolbar = (Toolbar) findViewById(R.id.toolbar_with_icon_status);
 		//CMG AM-368
-		toolbar.setOnClickListener(conversationFragment.clickToContactDetails);
+		if (mainFrag != null) {
+			toolbar.setOnClickListener(mainFrag.clickToContactDetails);
+		}
 		toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_black_24dp));
 		toolbar.setNavigationOnClickListener(new View.OnClickListener() {
 			@Override
@@ -1632,20 +1634,22 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			if (xmppConnectionService != null) {
 				clearPendingViewIntent();
 				processViewIntent(intent);
+
+				//ALF AM-60
+				String uuid = intent.getStringExtra(EXTRA_CONVERSATION);
+				Conversation conversation = uuid != null ? xmppConnectionService.findConversationByUuid(uuid) : null;
+				if (conversation != null) {
+					if (conversation.getMode() == Conversation.MODE_MULTI && (conversation.getMucOptions().membersOnly())) { //ALF AM-88 added &&
+						AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
+						axolotlService.createSessionsIfNeeded(conversation);
+						conversation.reloadFingerprints(axolotlService.getCryptoTargets(conversation));
+					}
+				}
+
 			} else {
 				pendingViewIntent.push(intent);
 			}
 
-			//ALF AM-60
-			String uuid = intent.getStringExtra(EXTRA_CONVERSATION);
-			Conversation conversation = uuid != null ? xmppConnectionService.findConversationByUuid(uuid) : null;
-			if (conversation != null) {
-				if (conversation.getMode() == Conversation.MODE_MULTI && (conversation.getMucOptions().membersOnly())) { //ALF AM-88 added &&
-					AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
-					axolotlService.createSessionsIfNeeded(conversation);
-					conversation.reloadFingerprints(axolotlService.getCryptoTargets(conversation));
-				}
-			}
 		}
 		setIntent(createLauncherIntent(this));
 	}
@@ -1747,7 +1751,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 						showGroupToolbar();
 					} else {
 						//CMG AM-286
-						show1v1ChatToolbar(conversation);
+						show1v1ChatToolbar(conversation,(ConversationFragment) mainFragment);
 					}
 					actionBar.setDisplayHomeAsUpEnabled(true);
 					return;
