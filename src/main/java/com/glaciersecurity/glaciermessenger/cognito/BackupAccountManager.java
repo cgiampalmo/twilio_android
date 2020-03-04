@@ -310,33 +310,37 @@ public class BackupAccountManager {
     /**
      * GOOBER - Create messenger config file in public directory from Cognito config file
      *
-     * @param file
+     * @param
      * @return
      */
-    public void createAppConfigFile(File file, String usr, String passwd, String orgID, int location, int appType) {
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
+    public void createAppConfigFile(String usr, String cog_passwd, String orgID, String jid, String extension, String pass, String display_name, int location, int appType) {
 
             // save cognito information
-            String buffer = COGNITO_USERNAME_KEY + "=" + usr + "\n" + COGNITO_PASSWORD_KEY + "=" + passwd + "\n" + COGNITO_ORGANIZATION_KEY + "=" + orgID + "\n";
-            String line = br.readLine();
+            String buffer = COGNITO_USERNAME_KEY + "=" + usr + "\n" + COGNITO_PASSWORD_KEY + "=" + cog_passwd + "\n" + COGNITO_ORGANIZATION_KEY + "=" + orgID + "\n";
 
             // save app account information
             // we know there's only one account
             buffer = buffer + ACCOUNT_DELIMITER + "\n";
-            while (line != null) {
-                buffer = buffer + line + "\n";
-                line = br.readLine();
-            }
 
-            br.close();
+            if (jid != null) {
+                buffer = buffer + USERNAME_KEY + "=" + jid + "\n";
+            }
+            if (extension != null) {
+                buffer = buffer + EXTENSION_KEY + "=" + extension + "\n";
+            }
+            if (pass != null) {
+                buffer = buffer + PASSWORD_KEY + "=" + pass + "\n";
+            }
+            if (display_name != null) {
+                buffer = buffer + DISPLAYNAME_KEY + "=" + display_name + "\n";
+            }
+            buffer = buffer + "connection=openvpn\n";
+
+
+
 
             encryptAndSaveToFile(buffer, getAccountFile(location, appType));
-        } catch (FileNotFoundException e) {
-            Log.d("GOOBER", "File does not exist: " + file.toString());
-        } catch (IOException e) {
-            Log.d("GOOBER", "Problem reading file: " + file.toString());
-        }
+
     }
 
     /**

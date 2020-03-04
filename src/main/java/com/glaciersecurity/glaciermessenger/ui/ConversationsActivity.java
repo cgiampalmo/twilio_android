@@ -1645,11 +1645,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 						conversation.reloadFingerprints(axolotlService.getCryptoTargets(conversation));
 					}
 				}
-
 			} else {
 				pendingViewIntent.push(intent);
 			}
-
 		}
 		setIntent(createLauncherIntent(this));
 	}

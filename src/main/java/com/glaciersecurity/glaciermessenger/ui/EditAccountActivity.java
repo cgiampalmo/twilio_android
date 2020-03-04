@@ -229,10 +229,16 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private boolean mFetchingAvatar = false;
 
 	// Cognito Details - remember when retry to login  //CMG removed
+	private String inputUsername = null;
+	private String inputPassword = null;
 	private String username = null;
 	private String password = null;
 	private String organization = null;
 	private String messenger_id = null;
+	private String display_name = null;
+	private String extension = null;
+
+
 
 	protected IOpenVPNAPIService mService = null;
 
@@ -1619,6 +1625,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						username = binding.accountJid.getText().toString();
 						password = mPassword.getText().toString();
 
+						// store off cognito login variables
+						inputUsername = username;
+						inputPassword = password;
+
 						// make sure all fields are filled in before logging in
 						//if (username.trim().length() == 0) { //CMG AM-172 and next two ifs also
 						if (username.trim().length() == 0) {
@@ -1754,6 +1764,13 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 								messenger_id = response.data().getGlacierUsers().messenger_id();
 								password = response.data().getGlacierUsers().glacierpwd();
 								organization = response.data().getGlacierUsers().organization();
+								extension = response.data().getGlacierUsers().extension_voiceserver();
+								display_name = response.data().getGlacierUsers().username();
+
+								// save cognito information and account information
+								BackupAccountManager backupAccountManager = new BackupAccountManager(getApplicationContext());
+								//CMG AM-172 changed next 2
+								backupAccountManager.createAppConfigFile(inputUsername, inputPassword, organization, messenger_id, extension, password, display_name, BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
 
 								keyList.clear();
 
@@ -1763,14 +1780,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 								} else {
 									autoLoginMessenger();
 								}
-
-								// GOOBER - This is where we call download file
-
-
-
-
-
-								//autoLoginMessenger();
 							}
 						}
 					}
@@ -2516,10 +2525,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		builder.setMessage(R.string.glacier_core_install);
 		builder.setPositiveButton(R.string.next, (dialog, which) -> {
 			try {
+				dialog.dismiss();
 				Intent intent = new Intent(Intent.ACTION_VIEW);
 				intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
 				startActivity(intent);
-				dialog.dismiss();
+
 			}
 			catch(Exception e2){
 				e2.printStackTrace();
@@ -2562,6 +2572,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	//TODO AM-151 we are relying on the text fields which may or maynot have been altered with a stored account.. I think we should be looking at an VPN object instead
 
 	private void autoLoginMessenger() {
+
 		final String password = this.password; //CMG AM-172
 		final boolean wasDisabled = mAccount != null && mAccount.getStatus() == Account.State.DISABLED;
 
@@ -2679,6 +2690,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			//mAccount = xmppConnectionService.getExistingAccount(jid.asBareJid().toEscapedString());
 			//boolean newAccount = false;
 			//if (mAccount == null) {
+
 			mAccount = new Account(jid.asBareJid(), password);
 			mAccount.setPort(numericPort);
 			//TODO host name is possibly whole domain
