@@ -1604,8 +1604,17 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * @param view
 	 */
 	public void logIn(View view) {
+
 		mAccountPasswordLayout.setPasswordVisibilityToggleEnabled(false);
 		mAccountPasswordLayout.setPasswordVisibilityToggleEnabled(true);
+
+		BackupAccountManager backupAccountManager = new BackupAccountManager(getApplicationContext());
+		if (backupAccountManager.accountFileExists(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER)){
+			backupAccountManager.deleteAccountFile(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
+		}
+		if (backupAccountManager.accountFileExists(BackupAccountManager.LOCATION_PRIVATE, BackupAccountManager.APPTYPE_MESSENGER)){
+			backupAccountManager.deleteAccountFile(BackupAccountManager.LOCATION_PRIVATE, BackupAccountManager.APPTYPE_MESSENGER);
+		}
 
 		//CMG AM-314
 		if (!ConnectivityReceiver.isConnected(getApplicationContext())) {
@@ -1769,9 +1778,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 								// save cognito information and account information
 								BackupAccountManager backupAccountManager = new BackupAccountManager(getApplicationContext());
+
 								//CMG AM-172 changed next 2
 								backupAccountManager.createAppConfigFile(inputUsername, inputPassword, organization, messenger_id, extension, password, display_name, BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
-
+								backupAccountManager.copyAccountFileFromPublicToPrivate(BackupAccountManager.APPTYPE_MESSENGER);
 								keyList.clear();
 
 								// GOOBER - try to list objects in directory
@@ -1867,6 +1877,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 	private void continueWithFirstTimeSignIn() {
 		newPasswordContinuation.setPassword(AppHelper.getPasswordForFirstTimeLogin());
+		inputPassword = AppHelper.getPasswordForFirstTimeLogin();
 		Map<String, String> newAttributes = AppHelper.getUserAttributesForFirstTimeLogin();
 		if (newAttributes != null) {
 			for(Map.Entry<String, String> attr: newAttributes.entrySet()) {
@@ -2309,6 +2320,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					// GOOBER TEST - Move/Don't move account file.  Used to test auto login feature.
 					backupAccountManager.copyAccountFileFromPublicToPrivate(BackupAccountManager.APPTYPE_MESSENGER);
 					backupAccountManager.deleteAccountFile(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
+
 					return true;
 				}
 			}
