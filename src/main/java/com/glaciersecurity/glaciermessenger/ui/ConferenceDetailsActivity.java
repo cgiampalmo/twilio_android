@@ -246,12 +246,12 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             case android.R.id.home:
                 finish();
                 break;
-            case R.id.action_share_http:
-                shareLink(true);
-                break;
-            case R.id.action_share_uri:
-                shareLink(false);
-                break;
+//            case R.id.action_share_http:
+//                shareLink(true);
+//                break;
+//            case R.id.action_share_uri:
+//                shareLink(false);
+//                break;
             case R.id.action_save_as_bookmark:
                 saveAsBookmark();
                 break;
@@ -376,8 +376,9 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
     public boolean onCreateOptionsMenu(Menu menu) {
         final boolean groupChat = mConversation != null && mConversation.isPrivateAndNonAnonymous();
         getMenuInflater().inflate(R.menu.muc_details, menu);
-        final MenuItem share = menu.findItem(R.id.action_share);
-        share.setVisible(!groupChat);
+        //CMG AM-401
+//        final MenuItem share = menu.findItem(R.id.action_share);
+//        share.setVisible(!groupChat);
         final MenuItem destroy = menu.findItem(R.id.action_destroy_room);
         destroy.setTitle(groupChat ? R.string.destroy_room : R.string.destroy_channel);
         //AccountUtils.showHideMenuItems(menu);

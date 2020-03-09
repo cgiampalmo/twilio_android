@@ -50,6 +50,7 @@ public class BackupAccountManager {
     final public static String DISPLAYNAME_KEY = "displayname";
     final public static String CONNECTION_KEY = "connection";
     final public static String EXTERNALNUMBER_KEY = "externalnumber";
+
     final public static String HA1_KEY = "ha1";
     final public static String REALM_KEY = "realm";
 
@@ -313,7 +314,7 @@ public class BackupAccountManager {
      * @param
      * @return
      */
-    public void createAppConfigFile(String usr, String cog_passwd, String orgID, String jid, String extension, String pass, String display_name, int location, int appType) {
+    public void createAppConfigFile(String usr, String cog_passwd, String orgID, String jid, String extension, String pass, String display_name, String connection, int location, int appType) {
 
             // save cognito information
             String buffer = COGNITO_USERNAME_KEY + "=" + usr + "\n" + COGNITO_PASSWORD_KEY + "=" + cog_passwd + "\n" + COGNITO_ORGANIZATION_KEY + "=" + orgID + "\n";
@@ -334,7 +335,7 @@ public class BackupAccountManager {
             if (display_name != null) {
                 buffer = buffer + DISPLAYNAME_KEY + "=" + display_name + "\n";
             }
-            buffer = buffer + "connection=openvpn\n";
+            buffer = buffer + CONNECTION_KEY + "=" + connection + "\n";
 
 
 

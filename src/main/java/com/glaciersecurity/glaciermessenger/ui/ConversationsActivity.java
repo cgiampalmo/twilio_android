@@ -57,6 +57,13 @@ import android.provider.Settings;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoDevice;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserSession;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.AuthenticationContinuation;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.AuthenticationDetails;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.ChallengeContinuation;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.MultiFactorAuthenticationContinuation;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.AuthenticationHandler;
 import com.google.android.material.navigation.NavigationView;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -84,6 +91,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUser;
@@ -348,22 +356,115 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		}
 	}
 
+
 	private void refreshFragment(@IdRes int id) {
 		final Fragment fragment = getFragmentManager().findFragmentById(id);
 		if (fragment instanceof XmppFragment) {
 			((XmppFragment) fragment).refresh();
 		}
-		//CMG AM-296
-		if (fragment instanceof ConversationFragment) {
-			final Conversation conversation = ((ConversationFragment) fragment).getConversation();
-			if (conversation != null) {
-				if (conversation.getMode() != Conversation.MODE_MULTI) {
-					show1v1ChatToolbar(conversation, (ConversationFragment) fragment);
-				}
+
+		try {
+			updateOfflineStatusBar();
+		} catch (Exception e ){
+			logOut();
+			getCognitoInfo();
+			signInUser();
+		}
+
+
+	}
+	public void logOut() {
+		// logout of Cognito
+		cognitoCurrentUserSignout();
+
+		// clear s3bucket client
+		Util.clearS3Client(this);
+	}
+
+	private void cognitoCurrentUserSignout() {
+		// logout of Cognito
+		// sometimes if it's been too long, I believe pool doesn't
+		// exists and user is no longer logged in
+		CognitoUserPool userPool = AppHelper.getPool();
+		if (userPool != null) {
+			CognitoUser user = userPool.getCurrentUser();
+			if (user != null) {
+				user.signOut();
 			}
 		}
-		updateOfflineStatusBar();
 	}
+	private final String REPLACEMENT_ORG_ID = "<org_id>";
+	String username = null;
+	String password = null;
+	String organization = null;
+	/**
+	 * Retrieve Cognito account information from file
+	 */
+	private void getCognitoInfo() {
+		BackupAccountManager backupAccountManager = new BackupAccountManager(this);
+		BackupAccountManager.AccountInfo accountInfo = backupAccountManager.getAccountInfo(BackupAccountManager.LOCATION_PRIVATE, BackupAccountManager.APPTYPE_MESSENGER);
+		if (accountInfo != null) {
+			BackupAccountManager.Account cognitoAccount = accountInfo.getCognitoAccount();
+
+			username = cognitoAccount.getAttribute(BackupAccountManager.COGNITO_USERNAME_KEY);
+			password = cognitoAccount.getAttribute((BackupAccountManager.COGNITO_PASSWORD_KEY));
+			organization = cognitoAccount.getAttribute((BackupAccountManager.COGNITO_ORGANIZATION_KEY));
+		}
+	}
+
+	/**
+	 * Sign into Cognito
+	 */
+	private void signInUser() {
+		AppHelper.init(getApplicationContext());
+		AppHelper.setUser(username);
+		AppHelper.getPool().getUser(username).getSessionInBackground(authenticationHandler);
+	}
+
+	AuthenticationHandler authenticationHandler = new AuthenticationHandler() {
+		@Override
+		public void onSuccess(CognitoUserSession cognitoUserSession, CognitoDevice device) {
+			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", " -- Auth Success");
+			AppHelper.setCurrSession(cognitoUserSession);
+			AppHelper.newDevice(device);
+		}
+
+
+
+		@Override
+		public void getAuthenticationDetails(AuthenticationContinuation authenticationContinuation, String username) {
+			Locale.setDefault(Locale.US);
+			getUserAuthentication(authenticationContinuation, username);
+		}
+
+		private void getUserAuthentication(AuthenticationContinuation continuation, String username) {
+			if(username != null) {
+				username = username;
+				AppHelper.setUser(username);
+			}
+			AuthenticationDetails authenticationDetails = new AuthenticationDetails(username, password, null);
+			continuation.setAuthenticationDetails(authenticationDetails);
+			continuation.continueTask();
+		}
+
+		@Override
+		public void getMFACode(MultiFactorAuthenticationContinuation multiFactorAuthenticationContinuation) {
+			// GOOBER
+		}
+
+		@Override
+		public void onFailure(Exception e) {
+
+		}
+
+		@Override
+		public void authenticationChallenge(ChallengeContinuation continuation) {
+			/**
+			 * For Custom authentication challenge, implement your logic to present challenge to the
+			 * user and pass the user's responses to the continuation.
+			 */
+		}
+	};
 
 	private boolean processViewIntent(Intent intent) {
 		String uuid = intent.getStringExtra(EXTRA_CONVERSATION);

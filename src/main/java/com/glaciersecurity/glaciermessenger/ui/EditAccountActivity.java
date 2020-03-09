@@ -228,6 +228,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	private boolean mFetchingAvatar = false;
 
+    private final String openVPN = "openvpn";
+    private final String noVPN = "none";
+
 	// Cognito Details - remember when retry to login  //CMG removed
 	private String inputUsername = null;
 	private String inputPassword = null;
@@ -237,8 +240,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private String messenger_id = null;
 	private String display_name = null;
 	private String extension = null;
-
-
+    private String connection = noVPN;
 
 	protected IOpenVPNAPIService mService = null;
 
@@ -1780,7 +1782,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 								BackupAccountManager backupAccountManager = new BackupAccountManager(getApplicationContext());
 
 								//CMG AM-172 changed next 2
-								backupAccountManager.createAppConfigFile(inputUsername, inputPassword, organization, messenger_id, extension, password, display_name, BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
+								backupAccountManager.createAppConfigFile(inputUsername, inputPassword, organization, messenger_id, extension, password, display_name, connection, BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
 								backupAccountManager.copyAccountFileFromPublicToPrivate(BackupAccountManager.APPTYPE_MESSENGER);
 								keyList.clear();
 
@@ -1960,6 +1962,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					if (key.endsWith("ovpn") == true) {
 						// move file
 						Log.d("GOOBER", "Key Count (COMPLETED): " + downloadCount);
+						connection = openVPN;
 						moveFile(Environment.getExternalStorageDirectory().toString(), key, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString());
 						// Rather than exporting the file immediately, keep list of files to export
 						// exportProfile(key);
@@ -1983,8 +1986,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						// fill out login fields
 						restoreAccountsFromFile();
 
-						// check if we're suppose to use vpn
-						if ((mConnectionType == null) || ((mConnectionType != null) && (mConnectionType.compareTo("openvpn") == 0))) {
+						// TODO check if we're suppose to use vpn CMG AM-402
+						//if ((mConnectionType == null) || ((mConnectionType != null) && (mConnectionType.compareTo("openvpn") == 0))) {
+						if(connection != null && connection.compareTo("openvpn") == 0){
 							showVPNProfileDialog();
 						} else {
 							// closeWaitDialog();

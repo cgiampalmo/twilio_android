@@ -4,25 +4,25 @@
 
 
     //HONEYBADGER AM-120 Remove the top right barcode scanning feature
-    <item
-        android:id="@+id/action_share"
-        android:icon="?attr/icon_share"
-        android:orderInCategory="15"
-        app:showAsAction="always"
-        android:title="@string/share_uri_with">
-        <menu>
-            <item
-                android:id="@+id/action_share_uri"
-                android:title="@string/share_as_uri"/>
-            <item
-                android:id="@+id/action_share_http"
-                android:title="@string/share_as_http"/>
-            <!--<item-->
-                <!--android:id="@+id/action_show_qr_code"-->
-                <!--android:title="@string/show_qr_code"/>-->
-                <!--android:visible="false"-->
-        </menu>
-    </item>
+<!--    <item-->
+<!--        android:id="@+id/action_share"-->
+<!--        android:icon="?attr/icon_share"-->
+<!--        android:orderInCategory="15"-->
+<!--        app:showAsAction="always"-->
+<!--        android:title="@string/share_uri_with">-->
+<!--        <menu>-->
+<!--&lt;!&ndash;            <item&ndash;&gt;-->
+<!--&lt;!&ndash;                android:id="@+id/action_share_uri"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:title="@string/share_as_uri"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            <item&ndash;&gt;-->
+<!--&lt;!&ndash;                android:id="@+id/action_share_http"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:title="@string/share_as_http"/>&ndash;&gt;-->
+<!--            &lt;!&ndash;<item&ndash;&gt;-->
+<!--                &lt;!&ndash;android:id="@+id/action_show_qr_code"&ndash;&gt;-->
+<!--                &lt;!&ndash;android:title="@string/show_qr_code"/>&ndash;&gt;-->
+<!--                &lt;!&ndash;android:visible="false"&ndash;&gt;-->
+<!--        </menu>-->
+<!--    </item>-->
 
     <item
         android:id="@+id/action_save_as_bookmark"

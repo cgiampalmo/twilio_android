@@ -138,8 +138,8 @@ dependencies {
     implementation 'com.amazonaws:aws-android-sdk-core:2.16.3'
     //AppSync SDK
     implementation 'com.amazonaws:aws-android-sdk-appsync:3.0.0'
-    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
-    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
+    //implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
+    //implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
 
 
 
@@ -159,7 +159,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
         versionCode 396
-        versionName "2.4.4"
+        versionName "2.4.5-RC2"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
         resValue "string", "applicationId", applicationId
