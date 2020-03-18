@@ -4,8 +4,10 @@ query GetGlacierUsers($organization: String!, $username: String!) {
     organization
     username
     email
-    glacierpwd
     extension_voiceserver
+    first_name
+    glacierpwd
+    last_name
     messenger_id
     user_name
   }
@@ -20,8 +22,10 @@ query ListGlacierUsers(
       organization
       username
       email
-      glacierpwd
       extension_voiceserver
+      first_name
+      glacierpwd
+      last_name
       messenger_id
       user_name
     }

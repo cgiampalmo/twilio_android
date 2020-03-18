@@ -1776,7 +1776,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 								password = response.data().getGlacierUsers().glacierpwd();
 								organization = response.data().getGlacierUsers().organization();
 								extension = response.data().getGlacierUsers().extension_voiceserver();
-								display_name = response.data().getGlacierUsers().username();
+								display_name = response.data().getGlacierUsers().first_name();
 
 								// save cognito information and account information
 								BackupAccountManager backupAccountManager = new BackupAccountManager(getApplicationContext());

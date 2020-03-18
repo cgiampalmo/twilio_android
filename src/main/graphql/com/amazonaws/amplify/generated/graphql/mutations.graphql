@@ -4,8 +4,10 @@ mutation CreateGlacierUsers($input: CreateGlacierUsersInput!) {
     organization
     username
     email
-    glacierpwd
     extension_voiceserver
+    first_name
+    glacierpwd
+    last_name
     messenger_id
     user_name
   }
@@ -15,8 +17,10 @@ mutation UpdateGlacierUsers($input: UpdateGlacierUsersInput!) {
     organization
     username
     email
-    glacierpwd
     extension_voiceserver
+    first_name
+    glacierpwd
+    last_name
     messenger_id
     user_name
   }
@@ -26,8 +30,10 @@ mutation DeleteGlacierUsers($input: DeleteGlacierUsersInput!) {
     organization
     username
     email
-    glacierpwd
     extension_voiceserver
+    first_name
+    glacierpwd
+    last_name
     messenger_id
     user_name
   }

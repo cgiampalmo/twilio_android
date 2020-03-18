@@ -7,7 +7,9 @@
 type GlacierUsers {
   email: String
   extension_voiceserver: String
+  first_name: String
   glacierpwd: String
+  last_name: String
   messenger_id: String
   organization: String!
   user_name: String
@@ -31,15 +33,17 @@ type Query {
 }
 
 type Subscription {
-  onCreateGlacierUsers(email: String, extension_voiceserver: String, glacierpwd: String, organization: String, username: String): GlacierUsers @aws_subscribe(mutations : ["createGlacierUsers"])
-  onDeleteGlacierUsers(email: String, extension_voiceserver: String, glacierpwd: String, organization: String, username: String): GlacierUsers @aws_subscribe(mutations : ["deleteGlacierUsers"])
-  onUpdateGlacierUsers(email: String, extension_voiceserver: String, glacierpwd: String, organization: String, username: String): GlacierUsers @aws_subscribe(mutations : ["updateGlacierUsers"])
+  onCreateGlacierUsers(email: String, extension_voiceserver: String, first_name: String, organization: String, username: String): GlacierUsers
+  onDeleteGlacierUsers(email: String, extension_voiceserver: String, first_name: String, organization: String, username: String): GlacierUsers
+  onUpdateGlacierUsers(email: String, extension_voiceserver: String, first_name: String, organization: String, username: String): GlacierUsers
 }
 
 input CreateGlacierUsersInput {
   email: String
   extension_voiceserver: String
+  first_name: String
   glacierpwd: String
+  last_name: String
   messenger_id: String
   organization: String!
   user_name: String
@@ -71,7 +75,9 @@ input TableFloatFilterInput {
 input TableGlacierUsersFilterInput {
   email: TableStringFilterInput
   extension_voiceserver: TableStringFilterInput
+  first_name: TableStringFilterInput
   glacierpwd: TableStringFilterInput
+  last_name: TableStringFilterInput
   messenger_id: TableStringFilterInput
   organization: TableStringFilterInput
   user_name: TableStringFilterInput
@@ -119,7 +125,9 @@ input TableStringFilterInput {
 input UpdateGlacierUsersInput {
   email: String
   extension_voiceserver: String
+  first_name: String
   glacierpwd: String
+  last_name: String
   messenger_id: String
   organization: String!
   user_name: String

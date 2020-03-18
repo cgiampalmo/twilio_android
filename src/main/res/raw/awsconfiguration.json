@@ -1,5 +1,5 @@
 {
-    "UserAgent": "aws-amplify/cli",
+    "UserAgent": "aws-amplify-cli/0.1.0",
     "Version": "0.1.0",
     "IdentityManager": {
         "Default": {}
@@ -25,7 +25,11 @@
     },
     "CognitoUserPool": {
         "Default": {
-            "CognitoAuthScopes": ["openid", "email", "aws.cognito.signin.user.admin"],
+            "CognitoAuthScopes": [
+                "openid",
+                "email",
+                "aws.cognito.signin.user.admin"
+            ],
             "CognitoAuthSignInRedirectUri": "glaciermessenger://",
             "CognitoAuthSignOutRedirectUri": "glaciermessenger://",
             "CognitoAuthWebDomain": "https://glaciersec.auth.us-east-1.amazoncognito.com",
