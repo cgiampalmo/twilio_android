@@ -638,7 +638,7 @@ public class XmppConnection implements Runnable {
 					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": resumption failed");
 				}
 				resetStreamId();
-				sendBindRequest();
+				sendBindRequest(false); //ALF AM-395 added false
 			} else if (nextTag.isStart("iq")) {
 				processIq(nextTag);
 			} else if (nextTag.isStart("message")) {
@@ -868,9 +868,11 @@ public class XmppConnection implements Runnable {
 			this.mSmCatchupMessageCounter.set(0);
 			this.mWaitingForSmCatchup.set(true);
 			this.tagWriter.writeStanzaAsync(resume);
-		} else if (needsBinding) {
-			if (this.streamFeatures.hasChild("bind") && isSecure) {
-				sendBindRequest();
+		} else if (needsBinding) { //ALF AM-395 added glacier bind to sendBindRequest
+			if (this.streamFeatures.hasChild("bind", "com.glaciersecurity.glaciermessenger.bind") && isSecure) {
+				sendBindRequest(true);
+			} else if (this.streamFeatures.hasChild("bind") && isSecure) {
+				sendBindRequest(false);
 			} else {
 				Log.d(Config.LOGTAG,account.getJid().asBareJid()+": unable to find bind feature "+ XmlHelper.printElementNames(this.streamFeatures));
 				throw new StateChangingException(Account.State.INCOMPATIBLE_SERVER);
@@ -1026,7 +1028,8 @@ public class XmppConnection implements Runnable {
 		}
 	}
 
-	private void sendBindRequest() {
+	//ALF AM-395 added glacierbind and if/else logic
+	private void sendBindRequest(boolean glacierbind) {
 		try {
 			mXmppConnectionService.restoredFromDatabaseLatch.await();
 		} catch (InterruptedException e) {
@@ -1041,7 +1044,11 @@ public class XmppConnection implements Runnable {
 		}
 		final IqPacket iq = new IqPacket(IqPacket.TYPE.SET);
 		final String resource = Config.USE_RANDOM_RESOURCE_ON_EVERY_BIND ? nextRandomId() : account.getResource();
-		iq.addChild("bind", Namespace.BIND).addChild("resource").setContent(resource);
+		if (glacierbind) {
+			iq.addChild("bind", Namespace.GLACIER_BIND).addChild("resource").setContent(resource);
+		} else {
+			iq.addChild("bind", Namespace.BIND).addChild("resource").setContent(resource);
+		}
 		this.sendUnmodifiedIqPacket(iq, (account, packet) -> {
 			if (packet.getType() == IqPacket.TYPE.TIMEOUT) {
 				return;
