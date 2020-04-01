@@ -724,7 +724,11 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		final Toast prepareFileToast = Toast.makeText(getActivity(), getText(R.string.preparing_file), Toast.LENGTH_LONG);
 		prepareFileToast.show();
 
-		new Handler().postDelayed(() -> showAttachFileProgress(), 2000); //ALF AM-321
+		//CMG AM-383
+		if(type != null && type.contains("video")){
+			new Handler().postDelayed(() -> showAttachFileProgress(), 2000); //ALF AM-321
+		}
+
 
 		activity.delegateUriPermissionsToService(uri);
 		activity.xmppConnectionService.attachFileToConversation(conversation, uri, type, new UiInformableCallback<Message>() {
