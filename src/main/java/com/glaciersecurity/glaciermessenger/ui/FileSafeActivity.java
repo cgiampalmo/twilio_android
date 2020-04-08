@@ -33,6 +33,8 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoDevice;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUser;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserAttributes;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserDetails;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserPool;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserSession;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.AuthenticationContinuation;
@@ -40,6 +42,7 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.Auth
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.ChallengeContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.MultiFactorAuthenticationContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.AuthenticationHandler;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GetDetailsHandler;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
@@ -50,12 +53,12 @@ import com.amazonaws.util.IOUtils;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.cognito.AppHelper;
-import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.cognito.Constants;
 import com.glaciersecurity.glaciermessenger.cognito.PropertyLoader;
 import com.glaciersecurity.glaciermessenger.cognito.Util;
 import com.glaciersecurity.glaciermessenger.databinding.DialogPresenceBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
+import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
 import com.glaciersecurity.glaciermessenger.entities.Presence;
 import com.glaciersecurity.glaciermessenger.entities.PresenceTemplate;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
@@ -95,7 +98,6 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
     private Button uploadButton;
     //private Account account;
     private boolean uploading = false;
-    private boolean retried = false;
     private ConnectivityReceiver connectivityReceiver; //CMG AM-41
 
     //CMG AM-41
@@ -114,7 +116,6 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
         this.offlineLayout.setOnClickListener(mRefreshNetworkClickListener);
         this.uploadFilesList = findViewById(R.id.upload_filesafe_files);
         this.uploadButton.setOnClickListener(v -> {
-            retried = false;
             tryFileSafeUpload();
         });
         this.cancelButton.setOnClickListener(v -> {
@@ -311,17 +312,20 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
      * Retrieve Cognito account information from file
      */
     private void getCognitoInfo() {
-        BackupAccountManager backupAccountManager = new BackupAccountManager(this);
-        BackupAccountManager.AccountInfo accountInfo = backupAccountManager.getAccountInfo(BackupAccountManager.LOCATION_PRIVATE, BackupAccountManager.APPTYPE_MESSENGER);
-        if (accountInfo != null) {
-            BackupAccountManager.Account cognitoAccount = accountInfo.getCognitoAccount();
+        //ALF AM-388 get account from database if exists
+        if (xmppConnectionService != null) {
+            for (Account account : xmppConnectionService.getAccounts()) {
 
-            username = cognitoAccount.getAttribute(BackupAccountManager.COGNITO_USERNAME_KEY);
-            password = cognitoAccount.getAttribute((BackupAccountManager.COGNITO_PASSWORD_KEY));
-            organization = cognitoAccount.getAttribute((BackupAccountManager.COGNITO_ORGANIZATION_KEY));
-        } else {
-            showFailedDialog("Account info cannot be found to initiate login.");
+                CognitoAccount cacct = xmppConnectionService.databaseBackend.getCognitoAccount(account);
+                if (cacct != null) {
+                    username = cacct.getUserName();
+                    password = cacct.getPassword();
+                    return;
+                }
+            }
         }
+
+        showFailedDialog("Account info cannot be found to initiate login.");
     }
 
     /**
@@ -522,20 +526,8 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
 
                     @Override
                     public void onError(int id, Exception ex) {
-                        /*if (!retried) {
-                            retried = true;
-                            tryFileSafeUpload();
-                            int toastmsg = R.string.upload_filesafe_retry_error_message;
-                            Toast.makeText(FileSafeActivity.this,
-                                toastmsg,
-                                Toast.LENGTH_SHORT).show();
-                            return;
-                        } else {*/
-                            int toastmsg = R.string.upload_filesafe_error_message;
-                            Toast.makeText(FileSafeActivity.this,
-                                toastmsg,
-                                Toast.LENGTH_SHORT).show();
-                        //}*/
+                        int toastmsg = R.string.upload_filesafe_error_message;
+                        Toast.makeText(FileSafeActivity.this, toastmsg, Toast.LENGTH_SHORT).show();
 
                         Log.e("FileSafeActivity", "Error in upload of id" + id);
                         for (int i=0; i<transferIds.length; i++) {
@@ -654,22 +646,48 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
             AppHelper.setCurrSession(cognitoUserSession);
             AppHelper.newDevice(device);
 
-            // username/password is correct.  Now check if bucket exists
-            if (organization != null) {
-                if (doesBucketExist()) {
-                    uploadFileSafe();
-                } else {
-                    showFailedDialog("Could not find storage location");
-                    // log out of cognito
-                    logOut();
-                }
+            //ALF AM-388 get organization from user attributes
+            CognitoUserPool userPool = AppHelper.getPool();
+            if (userPool != null) {
+                CognitoUser user = userPool.getCurrentUser();
+                user.getDetails(new GetDetailsHandler() {
+                    @Override
+                    public void onSuccess(CognitoUserDetails cognitoUserDetails) {
+                        CognitoUserAttributes cognitoUserAttributes = cognitoUserDetails.getAttributes();
+                        String org = null;
+                        if (cognitoUserAttributes.getAttributes().containsKey("custom:organization")) {
+                            org = cognitoUserAttributes.getAttributes().get("custom:organization");
+                            organization = org;
+
+                            if (organization != null) {
+                                if (doesBucketExist()) {
+                                    uploadFileSafe();
+                                } else {
+                                    showFailedDialog("Could not find storage location");
+                                    // log out of cognito
+                                    logOut();
+                                }
+                            } else {
+                                showFailedDialog("Could not find storage location");
+                                logOut();
+                            }
+                        } else {
+                            showFailedDialog("Could not find storage location");
+                            logOut();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Exception exception) {
+                        showFailedDialog("Could not find storage location");
+                        logOut();
+                    }
+                });
             } else {
-                // log out of cognito
+                showFailedDialog("Could not find storage location");
                 logOut();
             }
         }
-
-
 
         @Override
         public void getAuthenticationDetails(AuthenticationContinuation authenticationContinuation, String username) {

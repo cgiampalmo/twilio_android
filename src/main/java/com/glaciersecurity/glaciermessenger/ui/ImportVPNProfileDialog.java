@@ -24,6 +24,8 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoDevice;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUser;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserAttributes;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserDetails;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserPool;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserSession;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.AuthenticationContinuation;
@@ -31,6 +33,7 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.Auth
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.ChallengeContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.MultiFactorAuthenticationContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.AuthenticationHandler;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GetDetailsHandler;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
@@ -42,10 +45,11 @@ import com.glaciersecurity.glaciercore.api.APIVpnProfile;
 import com.glaciersecurity.glaciercore.api.IOpenVPNAPIService;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.cognito.AppHelper;
-import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
-import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager.Account;
 import com.glaciersecurity.glaciermessenger.cognito.Constants;
 import com.glaciersecurity.glaciermessenger.cognito.Util;
+import com.glaciersecurity.glaciermessenger.entities.Account;
+import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
+import com.glaciersecurity.glaciermessenger.persistance.DatabaseBackend;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.io.BufferedReader;
@@ -163,14 +167,15 @@ public class ImportVPNProfileDialog extends Dialog implements View.OnClickListen
      * Retrieve Cognito account information from file
      */
     private void getCognitoInfo() {
-        BackupAccountManager backupAccountManager = new BackupAccountManager(getContext());
-        BackupAccountManager.AccountInfo accountInfo = backupAccountManager.getAccountInfo(BackupAccountManager.LOCATION_PRIVATE, BackupAccountManager.APPTYPE_MESSENGER);
-        if (accountInfo != null) {
-            Account cognitoAccount = accountInfo.getCognitoAccount();
-
-            username = cognitoAccount.getAttribute(BackupAccountManager.COGNITO_USERNAME_KEY);
-            password = cognitoAccount.getAttribute((BackupAccountManager.COGNITO_PASSWORD_KEY));
-            organization = cognitoAccount.getAttribute((BackupAccountManager.COGNITO_ORGANIZATION_KEY));
+        //ALF AM-388 get account from database if exists
+        DatabaseBackend databaseBackend = DatabaseBackend.getInstance(this.getContext());
+        for (Account account : databaseBackend.getAccounts()) {
+            CognitoAccount cacct = databaseBackend.getCognitoAccount(account);
+            if (cacct != null) {
+                username = cacct.getUserName();
+                password = cacct.getPassword();
+                break;
+            }
         }
     }
 
@@ -334,6 +339,36 @@ public class ImportVPNProfileDialog extends Dialog implements View.OnClickListen
     }
 
     /**
+     * //ALF AM-388 moved to simplify the "onSuccess"
+     */
+    private void getBucketAndProfiles() {
+        if (doesBucketExist()) {
+            // GOOBER - try to list objects in directory
+            // put together list
+            List<String> listStr =  new ArrayList<String>();
+            if (doesBucketExist()) {
+                listStr = downloadS3Files();
+            }
+
+            // sort list
+            Collections.sort(listStr);
+            setUpTitleText(R.string.select_vpn_profile_dialog_message);
+
+            closeWaitDialog();
+
+            // add spinner
+            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_spinner_item, listStr);
+            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            profileSpinner.setAdapter(spinnerAdapter);
+            spinnerAdapter.notifyDataSetChanged();
+
+            okButton.setEnabled(true);
+        } else {
+            showFailedDialog("Failed to retrieve profile list(4)!");
+        }
+    }
+
+    /**
      *
      */
     AuthenticationHandler authenticationHandler = new AuthenticationHandler() {
@@ -344,37 +379,38 @@ public class ImportVPNProfileDialog extends Dialog implements View.OnClickListen
             AppHelper.newDevice(device);
             // closeWaitDialog();
 
-            // username/password is correct.  Now check if bucket exists
-            if (organization != null) {
-                if (doesBucketExist()) {
-                    // GOOBER - try to list objects in directory
-                    // put together list
-                    List<String> listStr =  new ArrayList<String>();
-                    if (doesBucketExist()) {
-                        listStr = downloadS3Files();
+            //ALF AM-388 get organization from user attributes
+            CognitoUserPool userPool = AppHelper.getPool();
+            if (userPool != null) {
+                CognitoUser user = userPool.getCurrentUser();
+                user.getDetails(new GetDetailsHandler() {
+                    @Override
+                    public void onSuccess(CognitoUserDetails cognitoUserDetails) {
+                        CognitoUserAttributes cognitoUserAttributes = cognitoUserDetails.getAttributes();
+                        String org = null;
+                        if (cognitoUserAttributes.getAttributes().containsKey("custom:organization")) {
+                            org = cognitoUserAttributes.getAttributes().get("custom:organization");
+                            organization = org;
+
+                            // username/password is correct.  Now check if bucket exists
+                            if (organization != null) {
+                                getBucketAndProfiles(); //ALF AM-388 to simplify this method
+                            } else {
+                                // log out of cognito
+                                logOut();
+                            }
+                        } else {
+                            showFailedDialog("Something is missing from account information");
+                        }
                     }
 
-                    // sort list
-                    Collections.sort(listStr);
-                    setUpTitleText(R.string.select_vpn_profile_dialog_message);
-
-                    closeWaitDialog();
-
-                    // add spinner
-                    ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_spinner_item, listStr);
-                    spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    profileSpinner.setAdapter(spinnerAdapter);
-                    spinnerAdapter.notifyDataSetChanged();
-
-                    okButton.setEnabled(true);
-                } else {
-                    showFailedDialog("Failed to retrieve profile list(4)!");
-                    // log out of cognito
-                    logOut();
-                }
+                    @Override
+                    public void onFailure(Exception exception) {
+                        showFailedDialog("Something is missing from account information");
+                    }
+                });
             } else {
-                // log out of cognito
-                logOut();
+                showFailedDialog("Could not access account information");
             }
         }
 

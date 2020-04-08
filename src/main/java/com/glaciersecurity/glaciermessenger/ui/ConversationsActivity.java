@@ -58,12 +58,16 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoDevice;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserAttributes;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserDetails;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserSession;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.AuthenticationContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.AuthenticationDetails;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.ChallengeContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.MultiFactorAuthenticationContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.AuthenticationHandler;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GetDetailsHandler;
+import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
 import com.google.android.material.navigation.NavigationView;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -99,7 +103,6 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserPool;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.cognito.AppHelper;
-import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.cognito.Util;
 import com.glaciersecurity.glaciermessenger.crypto.OmemoSetting;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
@@ -401,14 +404,17 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	 * Retrieve Cognito account information from file
 	 */
 	private void getCognitoInfo() {
-		BackupAccountManager backupAccountManager = new BackupAccountManager(this);
-		BackupAccountManager.AccountInfo accountInfo = backupAccountManager.getAccountInfo(BackupAccountManager.LOCATION_PRIVATE, BackupAccountManager.APPTYPE_MESSENGER);
-		if (accountInfo != null) {
-			BackupAccountManager.Account cognitoAccount = accountInfo.getCognitoAccount();
+		//ALF AM-388 get account from database if exists
+		if (xmppConnectionService != null) {
+			for (Account account : xmppConnectionService.getAccounts()) {
 
-			username = cognitoAccount.getAttribute(BackupAccountManager.COGNITO_USERNAME_KEY);
-			password = cognitoAccount.getAttribute((BackupAccountManager.COGNITO_PASSWORD_KEY));
-			organization = cognitoAccount.getAttribute((BackupAccountManager.COGNITO_ORGANIZATION_KEY));
+				CognitoAccount cacct = xmppConnectionService.databaseBackend.getCognitoAccount(account);
+				if (cacct != null) {
+					username = cacct.getUserName();
+					password = cacct.getPassword();
+					return;
+				}
+			}
 		}
 	}
 
@@ -428,8 +434,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			AppHelper.setCurrSession(cognitoUserSession);
 			AppHelper.newDevice(device);
 		}
-
-
 
 		@Override
 		public void getAuthenticationDetails(AuthenticationContinuation authenticationContinuation, String username) {
@@ -1124,29 +1128,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	//ALF AM-143
 	private void doLogout() {
-		BackupAccountManager backupAccountManager = new BackupAccountManager(this);
-
-		// delete private configuration file
-		if (backupAccountManager.deleteAccountFile(BackupAccountManager.LOCATION_PRIVATE, BackupAccountManager.APPTYPE_MESSENGER)) {
-			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Private Messenger configuration file successefully deleted.");
-		} else {
-			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Failed to delete private Messenger configuration file.");
-		}
-
-		// delete private configuration file
-		if (backupAccountManager.deleteAccountFile(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER)) {
-			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Private Messenger configuration file successefully deleted.");
-		} else {
-			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Failed to delete private Messenger configuration file.");
-		}
-
-		// delete public configuration file
-		if (backupAccountManager.deleteAccountFile(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_VOICE)) {
-			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Public Voice configuration file successefully deleted.");
-		} else {
-			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Failed to delete public Voice configuration file.");
-		}
-
 		LogoutListener activity = (LogoutListener) this;
 		activity.onLogout();
 	}
@@ -1175,6 +1156,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		for (Account account : accounts) {
 			xmppConnectionService.deleteAccount(account);
 		}
+
+		//ALF AM-388 this should delete the Cognito account too. So onCreate in Edit, query DB
 
 		// logout of Cognito
 		// sometimes if it's been too long, I believe pool doesn't

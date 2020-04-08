@@ -44,6 +44,7 @@ import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.FingerprintStatus;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.SQLiteAxolotlStore;
 import com.glaciersecurity.glaciermessenger.entities.Account;
+import com.glaciersecurity.glaciermessenger.entities.CognitoAccount; //ALF AM-388
 import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.Message;
@@ -63,7 +64,7 @@ import rocks.xmpp.addr.Jid;
 public class DatabaseBackend extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "history";
-	private static final int DATABASE_VERSION = 44;
+	private static final int DATABASE_VERSION = 45; //ALF AM-388 changed to 45
 	private static DatabaseBackend instance = null;
 	private static String CREATE_CONTATCS_STATEMENT = "create table "
 			+ Contact.TABLENAME + "(" + Contact.ACCOUNT + " TEXT, "
@@ -162,6 +163,13 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 			+ Resolver.Result.PORT + " NUMBER,"
 			+ "UNIQUE(" + Resolver.Result.DOMAIN + ") ON CONFLICT REPLACE"
 			+ ");";
+
+	//ALF AM-388
+	private static String CREATE_COGNITO_ACCOUNT_TABLE = "create table " + CognitoAccount.TABLENAME + " ("
+			+ CognitoAccount.UUID + " TEXT PRIMARY KEY, " + CognitoAccount.USERNAME + " TEXT, " + CognitoAccount.PASSWORD
+				+ " TEXT, " + CognitoAccount.ACCOUNT + " TEXT, FOREIGN KEY("
+			+ CognitoAccount.ACCOUNT + ") REFERENCES " + Account.TABLENAME
+				+ "(" + Account.UUID + ") ON DELETE CASCADE);";
 
 	private static String CREATE_MESSAGE_TIME_INDEX = "create INDEX message_time_index ON " + Message.TABLENAME + "(" + Message.TIME_SENT + ")";
 	private static String CREATE_MESSAGE_CONVERSATION_INDEX = "create INDEX message_conversation_index ON " + Message.TABLENAME + "(" + Message.CONVERSATION + ")";
@@ -554,6 +562,11 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 			db.execSQL(CREATE_MESSAGE_RELATIVE_FILE_PATH_INDEX);
 			db.execSQL(CREATE_MESSAGE_TYPE_INDEX);
 		}
+
+		//ALF AM-388
+		if (oldVersion < 45 && newVersion >= 45) {
+			db.execSQL(CREATE_COGNITO_ACCOUNT_TABLE);
+		}
 	}
 
 	private void canonicalizeJids(SQLiteDatabase db) {
@@ -648,6 +661,12 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 	public void createAccount(Account account) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		db.insert(Account.TABLENAME, null, account.getContentValues());
+	}
+
+	//ALF AM-388
+	public void createCognitoAccount(CognitoAccount account) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		db.insert(CognitoAccount.TABLENAME, null, account.getContentValues());
 	}
 
 	public void insertDiscoveryResult(ServiceDiscoveryResult result) {
@@ -1000,6 +1019,22 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 		String[] args = {account.getUuid()};
 		final int rows = db.delete(Account.TABLENAME, Account.UUID + "=?", args);
 		return rows == 1;
+	}
+
+	//ALF AM-388
+	public CognitoAccount getCognitoAccount(final Account account) {
+		SQLiteDatabase db = this.getReadableDatabase();
+		String args[] = {account.getUuid()};
+		Cursor cursor = db.query(CognitoAccount.TABLENAME, null,
+				CognitoAccount.ACCOUNT + "=?", args, null, null, null);
+		if (cursor.getCount() == 0) {
+			cursor.close();
+			return null;
+		}
+		cursor.moveToFirst();
+		CognitoAccount cognitoAccount = CognitoAccount.fromCursor(cursor);
+		cursor.close();
+		return cognitoAccount;
 	}
 
 	public boolean updateMessage(Message message, boolean includeBody) {

@@ -45,6 +45,7 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GetDetail
 import com.apollographql.apollo.GraphQLCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
+import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
 import com.google.android.material.textfield.TextInputLayout;
 import androidx.appcompat.app.ActionBar;
 //import android.support.v7.app.AlertDialog;
@@ -71,7 +72,6 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.glaciersecurity.glaciercore.api.APIVpnProfile;
 import com.glaciersecurity.glaciercore.api.IOpenVPNAPIService;
 import com.glaciersecurity.glaciercore.api.IOpenVPNStatusCallback;
-import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.cognito.Constants;
 import com.glaciersecurity.glaciermessenger.cognito.PropertyLoader;
 import com.glaciersecurity.glaciermessenger.cognito.Util;
@@ -232,8 +232,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
     private final String noVPN = "none";
 
 	// Cognito Details - remember when retry to login  //CMG removed
-	private String inputUsername = null;
-	private String inputPassword = null;
+	private String cognitoUsername = null;
+	private String cognitoPassword = null;
 	private String username = null;
 	private String password = null;
 	private String organization = null;
@@ -946,31 +946,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			updateAccountInformation(init);
 		}
 
-		if (mUsernameMode) {
-//			this.binding.accountJid.setHint(R.string.username_hint);
-//			this.binding.accountPassword.setHint(R.string.password);
-//			this.binding.accountOrgid.setHint(R.string.orgid);
-		} else {
-			// GOOBER USERNAME - Removed auto complete text
-			/* final KnownHostsAdapter mKnownHostsAdapter = new KnownHostsAdapter(this,
-					R.layout.simple_list_item,
-					xmppConnectionService.getKnownHosts());
-			this.binding.accountJid.setAdapter(mKnownHostsAdapter);*/
-		}
-
 		if (pendingUri != null) {
 			processFingerprintVerification(pendingUri, false);
 			pendingUri = null;
 		}
-
-		/* GOOBER COGNITO - removed in favor of button
-		updateSaveButton();*/
-
-		//invalidateOptionsMenu();
-
-		// GOOBER COGNITO - get storage permsissions
-
-
 	}
 
 	private String getUserModeDomain() {
@@ -1610,13 +1589,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		mAccountPasswordLayout.setPasswordVisibilityToggleEnabled(false);
 		mAccountPasswordLayout.setPasswordVisibilityToggleEnabled(true);
 
-		BackupAccountManager backupAccountManager = new BackupAccountManager(getApplicationContext());
-		if (backupAccountManager.accountFileExists(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER)){
-			backupAccountManager.deleteAccountFile(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
-		}
-		if (backupAccountManager.accountFileExists(BackupAccountManager.LOCATION_PRIVATE, BackupAccountManager.APPTYPE_MESSENGER)){
-			backupAccountManager.deleteAccountFile(BackupAccountManager.LOCATION_PRIVATE, BackupAccountManager.APPTYPE_MESSENGER);
-		}
+		//ALF AM-388 get existing user/pass from db? No this is AFTER cicking logIn
 
 		//CMG AM-314
 		if (!ConnectivityReceiver.isConnected(getApplicationContext())) {
@@ -1630,24 +1603,17 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				if ((mLoginButton.getText().toString().compareTo(getString(R.string.login_button_label))) == 0) {
 						// log into Cognito and then messenger
 						//CMG AM-172
-						//username = binding.accountJid.getText().toString();
-						//password = mPassword.getText().toString();
-						//organization = mOrgID.getText().toString();
-						username = binding.accountJid.getText().toString();
-						password = mPassword.getText().toString();
-
-						// store off cognito login variables
-						inputUsername = username;
-						inputPassword = password;
+						cognitoUsername = binding.accountJid.getText().toString();
+						cognitoPassword = mPassword.getText().toString();
 
 						// make sure all fields are filled in before logging in
 						//if (username.trim().length() == 0) { //CMG AM-172 and next two ifs also
-						if (username.trim().length() == 0) {
+						if (cognitoUsername.trim().length() == 0) {
 								// showDialogMessage("Login", "Username cannot be empty.");
 								mJid.setError("Username cannot be blank");
 								mJid.requestFocus();
 								//} else if (password.trim().length() == 0) {
-						} else if (password.trim().length() == 0) {
+						} else if (cognitoPassword.trim().length() == 0) {
 								// showDialogMessage("Login", "Password cannot be empty.");
 								mPassword.setError("Password cannot be blank");
 								mPassword.requestFocus();
@@ -1673,8 +1639,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * GOOBER COGNITO - login AWS
 	 */
 	private void signInUserState() {
-			AppHelper.setUser(username); //CMG AM-172 changed
-			AppHelper.getPool().getUser(username).getSessionInBackground(authenticationHandler);
+			AppHelper.setUser(cognitoUsername); //CMG AM-172 changed
+			AppHelper.getPool().getUser(cognitoUsername).getSessionInBackground(authenticationHandler);
 	}
 
 	/**
@@ -1742,19 +1708,19 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 
 		@Override
-		public void getAuthenticationDetails(AuthenticationContinuation authenticationContinuation, String username) {
+		public void getAuthenticationDetails(AuthenticationContinuation authenticationContinuation, String cogusername) {
 			// closeWaitDialog();
 			Locale.setDefault(Locale.US);
-			getUserAuthentication(authenticationContinuation, username);
+			getUserAuthentication(authenticationContinuation, cogusername);
 		}
 
-		private void getUserAuthentication(AuthenticationContinuation continuation, String username) {
+		private void getUserAuthentication(AuthenticationContinuation continuation, String cogusername) {
 			//closeWaitDialog();
-			if(username != null) {
-				username = username;
-				AppHelper.setUser(username);
+			if(cogusername != null) {
+				cognitoUsername = cogusername;
+				AppHelper.setUser(cogusername);
 			}
-			AuthenticationDetails authenticationDetails = new AuthenticationDetails(username, password, null); //CMG AM-172 changed
+			AuthenticationDetails authenticationDetails = new AuthenticationDetails(cogusername, cognitoPassword, null); //CMG AM-172 changed
 			continuation.setAuthenticationDetails(authenticationDetails);
 			continuation.continueTask();
 		}
@@ -1779,11 +1745,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 								display_name = response.data().getGlacierUsers().first_name();
 
 								// save cognito information and account information
-								BackupAccountManager backupAccountManager = new BackupAccountManager(getApplicationContext());
+								//CognitoAccountManager backupAccountManager = new CognitoAccountManager(getApplicationContext()); //ALF AM-388
 
 								//CMG AM-172 changed next 2
-								backupAccountManager.createAppConfigFile(inputUsername, inputPassword, organization, messenger_id, extension, password, display_name, connection, BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
-								backupAccountManager.copyAccountFileFromPublicToPrivate(BackupAccountManager.APPTYPE_MESSENGER);
+								//ALF AM-388 store Cognito things?
 								keyList.clear();
 
 								// GOOBER - try to list objects in directory
@@ -1866,7 +1831,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	//CMG AM-192
 	private void clearPasswordField(){
 		mPassword.setText("");
-		password = null;
+		cognitoPassword = null;
 	}
 
 	//ALF AM-220
@@ -1879,7 +1844,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 	private void continueWithFirstTimeSignIn() {
 		newPasswordContinuation.setPassword(AppHelper.getPasswordForFirstTimeLogin());
-		inputPassword = AppHelper.getPasswordForFirstTimeLogin();
+		cognitoPassword = AppHelper.getPasswordForFirstTimeLogin();
 		Map<String, String> newAttributes = AppHelper.getUserAttributesForFirstTimeLogin();
 		if (newAttributes != null) {
 			for(Map.Entry<String, String> attr: newAttributes.entrySet()) {
@@ -1984,7 +1949,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						addVPNProfiles();
 
 						// fill out login fields
-						restoreAccountsFromFile();
+						//restoreAccountsFromFile(); //ALF AM-388
 
 						// TODO check if we're suppose to use vpn CMG AM-402
 						//if ((mConnectionType == null) || ((mConnectionType != null) && (mConnectionType.compareTo("openvpn") == 0))) {
@@ -2264,7 +2229,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	// App methods
 	// Logout of Cognito and display logout screen
-	// This is actually cuplicate of logOut() but call
+	// This is a duplicate of logOut() but call
 	// is comes from layout xml file.  Hence View is
 	// defined.
 	//ALF AM-143
@@ -2272,12 +2237,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		// logout of Cognito
 		cognitoCurrentUserSignout();
 
-		// clear s3bucket client
-		Util.clearS3Client(getApplicationContext());
+		// clear s3bucket client and set Login text
 		setLoginContentView();
-		//resetLogin();
-
-		mLoginButton.setText(R.string.login_button_label);
 	}
 
 	// App methods
@@ -2294,41 +2255,17 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * GOOBER - Restore accounts from file
 	 */
 	private boolean restoreAccountsFromFile() {
-		Log.d("GOOBER", "Permissions granted!!");
-		BackupAccountManager backupAccountManager = new BackupAccountManager(getApplicationContext());
-
-		// GOOBER TODO: Need to change AccountManager to BackupAccountManager!!
-		if (backupAccountManager.accountFileExists(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER)) {
-			// retreive account information
-			BackupAccountManager.AccountInfo accountInfo = backupAccountManager.getAccountInfo(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
-			if (accountInfo != null) {
-				// retrieve account information
-				ArrayList<BackupAccountManager.Account> accounts = accountInfo.getAccounts();
-
-				// should only be one account...
-				for (int i = 0; i < accounts.size(); i++) {
-					BackupAccountManager.Account tmpAccount = accounts.get(i);
-
-					//CMG AM-172 AM-210 stop using gui to store user info
-					//binding.accountJid.setText(getFullyQualifiedJid(tmpAccount.getAttribute(BackupAccountManager.USERNAME_KEY))); // + "@" + StartConversationActivity.DOMAIN_IP);
-					//mPassword.setText(tmpAccount.getAttribute(BackupAccountManager.PASSWORD_KEY));
-					//mOrgID.setText(tmpAccount.getAttribute(BackupAccountManager.EXTERNALNUMBER_KEY));
-
-					String goober = tmpAccount.getAttribute(BackupAccountManager.USERNAME_KEY);
-					//CMG AM-172 changed next 3
-					username = getFullyQualifiedJid(tmpAccount.getAttribute(BackupAccountManager.USERNAME_KEY)); // + "@" + StartConversationActivity.DOMAIN_IP);
-					password = tmpAccount.getAttribute(BackupAccountManager.PASSWORD_KEY);
-					organization = tmpAccount.getAttribute(BackupAccountManager.EXTERNALNUMBER_KEY);
-					mConnectionType = tmpAccount.getAttribute(BackupAccountManager.CONNECTION_KEY);
-
-					// GOOBER TEST - Move/Don't move account file.  Used to test auto login feature.
-					backupAccountManager.copyAccountFileFromPublicToPrivate(BackupAccountManager.APPTYPE_MESSENGER);
-					backupAccountManager.deleteAccountFile(BackupAccountManager.LOCATION_PUBLIC, BackupAccountManager.APPTYPE_MESSENGER);
-
-					return true;
-				}
+		//need to have set messenger_id and username/pass here
+		//ALF AM-388 get account from database if exists? If not, query Dynamo?
+		for (Account account : xmppConnectionService.getAccounts()) {
+			CognitoAccount cacct = xmppConnectionService.databaseBackend.getCognitoAccount(account);
+			if (cacct != null) {
+				cognitoUsername = cacct.getUserName();
+				cognitoPassword = cacct.getPassword();
+				return true;
 			}
 		}
+
 		return false;
 	}
 
@@ -2380,7 +2317,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					Log.d("GOOBER", "Keys found in S3 Bucket (" + summary.getBucketName() + "): " + summary.getKey());
 					String tmpString = stripDirectory(summary.getKey().toString());
 
-					if ((summary.getKey().contains("_" + username + ".ovpn") )) { //CMG AM-172 changed
+					if ((summary.getKey().contains("_" + cognitoUsername + ".ovpn") )) { //CMG AM-172 changed
 						Log.d("GOOBER", "File we want to download: " + summary.getKey());
 						String destFilename = summary.getKey().substring(Constants.KEY_PREFIX.length() + 1, summary.getKey().length());
 
@@ -2586,10 +2523,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 */
 
 	//TODO AM-151 we are relying on the text fields which may or maynot have been altered with a stored account.. I think we should be looking at an VPN object instead
-
 	private void autoLoginMessenger() {
-
-		final String password = this.password; //CMG AM-172
+		//final String password = this.password; //CMG AM-172
 		final boolean wasDisabled = mAccount != null && mAccount.getStatus() == Account.State.DISABLED;
 
 		if (mInitMode && mAccount != null) {
@@ -2603,7 +2538,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			return;
 		}
 		final boolean registerNewAccount = binding.accountRegisterNew.isChecked() && !Config.DISALLOW_REGISTRATION_IN_UI;
-		if (mUsernameMode && username.contains("@")) { //CMG AM-172
+		if (mUsernameMode && username.contains("@")) { //CMG AM-172   //AM-388 figure this out
 			mAccountJidLayout.setError(getString(R.string.invalid_username));
 			removeErrorsOnAllBut(mAccountJidLayout);
 			binding.accountJid.requestFocus();
@@ -2720,6 +2655,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 			//}
 			xmppConnectionService.createAccount(mAccount, true);
+
+			//ALF AM-388
+			CognitoAccount cacct = new CognitoAccount(cognitoUsername, cognitoPassword, mAccount.getUuid());
+			xmppConnectionService.databaseBackend.createCognitoAccount(cacct);
 		}
 		mHostnameLayout.setError(null);
 		mPortLayout.setError(null);
@@ -2838,7 +2777,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			if (shouldShowOpenVPNDialog) {
 				shouldShowOpenVPNDialog = false;
 				addVPNProfiles();
-				restoreAccountsFromFile();
+				//restoreAccountsFromFile(); //ALF AM-388
 				showVPNProfileDialog();
 			}
 		} catch (RuntimeException e){
@@ -2944,7 +2883,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 		// restore accounts from file if exists
-		if (restoreAccountsFromFile() == true) {
+		//I think this ONLY works for single sign on so probably irrelevant for us
+		if (restoreAccountsFromFile() == true) { //ALF AM-388 this indicates getting actual account info
 			showWaitDialog(getString(R.string.wait_dialog_retrieving_account_info));
 			autoLoginMessenger();
 		}
