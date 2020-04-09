@@ -202,14 +202,26 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
      */
     private void getCognitoInfo() {
         //ALF AM-388 get account from database if exists
+        Account firstacct = null;
         DatabaseBackend databaseBackend = DatabaseBackend.getInstance(getActivity().getApplicationContext());
         for (Account account : databaseBackend.getAccounts()) {
-            CognitoAccount cacct = databaseBackend.getCognitoAccount(account);
+            CognitoAccount cacct = databaseBackend.getCognitoAccount(account,getActivity().getApplicationContext());
             if (cacct != null) {
                 username = cacct.getUserName();
                 password = cacct.getPassword();
-                break;
+                return;
             }
+            if (firstacct == null) {
+                firstacct = account;
+            }
+        }
+
+        //if not found, go to login screen. With jid or without? and how to come back here?
+        //or setup open a different login screen?
+        if (firstacct != null) {
+            Intent intent = new Intent(getActivity().getApplicationContext(), EditAccountActivity.class);
+            intent.putExtra("jid", firstacct.getJid().asBareJid().toString());
+            startActivity(intent);
         }
     }
 

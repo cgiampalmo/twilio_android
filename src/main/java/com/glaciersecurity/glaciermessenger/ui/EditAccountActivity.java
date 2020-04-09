@@ -1744,11 +1744,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 								extension = response.data().getGlacierUsers().extension_voiceserver();
 								display_name = response.data().getGlacierUsers().first_name();
 
-								// save cognito information and account information
-								//CognitoAccountManager backupAccountManager = new CognitoAccountManager(getApplicationContext()); //ALF AM-388
-
 								//CMG AM-172 changed next 2
-								//ALF AM-388 store Cognito things?
 								keyList.clear();
 
 								// GOOBER - try to list objects in directory
@@ -2256,9 +2252,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 */
 	private boolean restoreAccountsFromFile() {
 		//need to have set messenger_id and username/pass here
-		//ALF AM-388 get account from database if exists? If not, query Dynamo?
+		//ALF AM-388
 		for (Account account : xmppConnectionService.getAccounts()) {
-			CognitoAccount cacct = xmppConnectionService.databaseBackend.getCognitoAccount(account);
+			CognitoAccount cacct = xmppConnectionService.databaseBackend.getCognitoAccount(account,getApplicationContext());
 			if (cacct != null) {
 				cognitoUsername = cacct.getUserName();
 				cognitoPassword = cacct.getPassword();

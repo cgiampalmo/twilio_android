@@ -170,7 +170,7 @@ public class ImportVPNProfileDialog extends Dialog implements View.OnClickListen
         //ALF AM-388 get account from database if exists
         DatabaseBackend databaseBackend = DatabaseBackend.getInstance(this.getContext());
         for (Account account : databaseBackend.getAccounts()) {
-            CognitoAccount cacct = databaseBackend.getCognitoAccount(account);
+            CognitoAccount cacct = databaseBackend.getCognitoAccount(account,getContext());
             if (cacct != null) {
                 username = cacct.getUserName();
                 password = cacct.getPassword();

@@ -67,6 +67,7 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.Chal
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.MultiFactorAuthenticationContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.AuthenticationHandler;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GetDetailsHandler;
+import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
 import com.google.android.material.navigation.NavigationView;
 import androidx.core.content.ContextCompat;
@@ -408,7 +409,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		if (xmppConnectionService != null) {
 			for (Account account : xmppConnectionService.getAccounts()) {
 
-				CognitoAccount cacct = xmppConnectionService.databaseBackend.getCognitoAccount(account);
+				CognitoAccount cacct = xmppConnectionService.databaseBackend.getCognitoAccount(account,getApplicationContext());
 				if (cacct != null) {
 					username = cacct.getUserName();
 					password = cacct.getPassword();
@@ -1157,7 +1158,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			xmppConnectionService.deleteAccount(account);
 		}
 
-		//ALF AM-388 this should delete the Cognito account too. So onCreate in Edit, query DB
+		//ALF AM-388
+		BackupAccountManager backupAccountManager = new BackupAccountManager(getApplicationContext());
+		backupAccountManager.deleteAccountFiles();
 
 		// logout of Cognito
 		// sometimes if it's been too long, I believe pool doesn't
