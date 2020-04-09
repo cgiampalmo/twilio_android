@@ -158,8 +158,8 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 398
-        versionName "2.4.6"
+        versionCode 400
+        versionName "2.4.7-RC2"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
         resValue "string", "applicationId", applicationId
@@ -265,10 +265,10 @@ android {
 
         signingConfigs {
             release {
-                storeFile file(props['keystore'])
-                storePassword props['keystore.password']
-                keyAlias props['keystore.alias']
-                keyPassword props['keystore.password']
+                storeFile file(props['storeFile'])
+                storePassword props['storePassword']
+                keyAlias props['keyAlias']
+                keyPassword props['keyPassword']
             }
         }
         buildTypes.release.signingConfig = signingConfigs.release

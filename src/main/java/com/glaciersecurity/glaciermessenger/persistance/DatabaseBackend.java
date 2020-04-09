@@ -1030,8 +1030,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 				CognitoAccount.ACCOUNT + "=?", args, null, null, null);
 		if (cursor.getCount() == 0) {
 			cursor.close();
-			//return null;
 			return getMissingCognitoAccount(account, context);
+			//return null when we remove getMissingCognitoAccount
 		}
 		cursor.moveToFirst();
 		CognitoAccount cognitoAccount = CognitoAccount.fromCursor(cursor);
