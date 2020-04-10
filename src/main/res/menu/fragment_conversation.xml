@@ -25,69 +25,76 @@
         </menu>
     </item>
     <!--<item-->
-        <!--android:id="@+id/action_call"-->
-        <!--android:icon="@drawable/ic_phone"-->
-        <!--android:orderInCategory="20"-->
-        <!--android:visible="true"-->
-        <!--app:showAsAction="always"-->
-        <!--android:title="@string/content_description_call"></item>-->
-    <item
-        android:id="@+id/action_disapear_messages"
-        android:icon="@drawable/ic_baseline_timer_24px"
-        android:orderInCategory="20"
-        android:visible="true"
-        app:showAsAction="always"
-        android:title="@string/conversation_message_timer"></item>
-    <item
-        android:id="@+id/action_attach_file"
-        android:icon="?attr/icon_new_attachment"
-        android:orderInCategory="30"
-        app:showAsAction="always"
-        android:title="@string/attach_file">
-        <menu>
+    <!--android:id="@+id/action_call"-->
+    <!--android:icon="@drawable/ic_phone"-->
+    <!--android:orderInCategory="20"-->
+    <!--android:visible="true"-->
+    <!--app:showAsAction="always"-->
+    <!--android:title="@string/content_description_call"></item>-->
+    <!--    CMG AM-411-->
+    <!--    <item-->
+    <!--        android:id="@+id/action_call"-->
+    <!--        android:icon="@drawable/ic_call"-->
+    <!--        android:orderInCategory="100"-->
+    <!--        android:title="Call"-->
+    <!--        app:showAsAction="always" />-->
+    <!--    <item-->
+    <!--        android:id="@+id/action_disapear_messages"-->
+    <!--        android:icon="@drawable/ic_baseline_timer_24px"-->
+    <!--        android:orderInCategory="20"-->
+    <!--        android:visible="true"-->
+    <!--        app:showAsAction="always"-->
+    <!--        android:title="@string/conversation_message_timer"></item>-->
+    <!--    <item-->
+    <!--        android:id="@+id/action_attach_file"-->
+    <!--        android:icon="?attr/icon_new_attachment"-->
+    <!--        android:orderInCategory="30"-->
+    <!--        app:showAsAction="always"-->
+    <!--        android:title="@string/attach_file">-->
+    <!--        <menu>-->
 
-            <item
-                android:id="@+id/attach_choose_file"
-                android:title="@string/choose_file"
-                android:icon="?attr/ic_attach_document"/>
+    <!--            <item-->
+    <!--                android:id="@+id/attach_choose_file"-->
+    <!--                android:title="@string/choose_file"-->
+    <!--                android:icon="?attr/ic_attach_document"/>-->
 
-            <item
-                android:id="@+id/attach_choose_picture"
-                android:title="@string/attach_choose_picture"
-                android:icon="?attr/ic_attach_photo"/>
+    <!--            <item-->
+    <!--                android:id="@+id/attach_choose_picture"-->
+    <!--                android:title="@string/attach_choose_picture"-->
+    <!--                android:icon="?attr/ic_attach_photo"/>-->
 
-            <item
-                android:id="@+id/attach_take_picture"
-                android:title="@string/attach_take_picture"
-                android:icon="?attr/ic_attach_camera"/>
+    <!--            <item-->
+    <!--                android:id="@+id/attach_take_picture"-->
+    <!--                android:title="@string/attach_take_picture"-->
+    <!--                android:icon="?attr/ic_attach_camera"/>-->
 
-            <item
-                android:id="@+id/attach_record_video"
-                android:title="@string/attach_record_video"
-                android:icon="?attr/ic_attach_videocam"/>
+    <!--            <item-->
+    <!--                android:id="@+id/attach_record_video"-->
+    <!--                android:title="@string/attach_record_video"-->
+    <!--                android:icon="?attr/ic_attach_videocam"/>-->
 
-            <item
-                android:id="@+id/attach_record_voice"
-                android:title="@string/attach_record_voice"
-                android:icon="?attr/ic_attach_record"/>
+    <!--            <item-->
+    <!--                android:id="@+id/attach_record_voice"-->
+    <!--                android:title="@string/attach_record_voice"-->
+    <!--                android:icon="?attr/ic_attach_record"/>-->
 
-            <item
-                android:id="@+id/attach_location"
-                android:title="@string/send_location"
-                android:icon="?attr/ic_attach_location"/>
-        </menu>
-    </item>
+    <!--            <item-->
+    <!--                android:id="@+id/attach_location"-->
+    <!--                android:title="@string/send_location"-->
+    <!--                android:icon="?attr/ic_attach_location"/>-->
+    <!--        </menu>-->
+    <!--    </item>-->
     <!--<item-->
-        <!--android:id="@+id/action_contact_details"-->
-        <!--android:orderInCategory="40"-->
-        <!--app:showAsAction="never"-->
-        <!--android:title="@string/action_contact_details"/>-->
+    <!--android:id="@+id/action_contact_details"-->
+    <!--android:orderInCategory="40"-->
+    <!--app:showAsAction="never"-->
+    <!--android:title="@string/action_contact_details"/>-->
     <!--<item-->
-        <!--android:id="@+id/action_muc_details"-->
-        <!--android:icon="?attr/icon_group"-->
-        <!--android:orderInCategory="40"-->
-        <!--app:showAsAction="never"-->
-        <!--android:title="@string/action_muc_details"/>-->
+    <!--android:id="@+id/action_muc_details"-->
+    <!--android:icon="?attr/icon_group"-->
+    <!--android:orderInCategory="40"-->
+    <!--app:showAsAction="never"-->
+    <!--android:title="@string/action_muc_details"/>-->
     <item
         android:id="@+id/action_change_status"
         android:orderInCategory="35"
@@ -105,10 +112,10 @@
         android:title="@string/invite_contact"/>
     <!-- ALF AM-53 -->
     <!--<item-->
-        <!--android:id="@+id/action_conversation_timer"-->
-        <!--android:orderInCategory="55"-->
-        <!--android:showAsAction="never"-->
-        <!--android:title="@string/conversation_message_timer"/>-->
+    <!--android:id="@+id/action_conversation_timer"-->
+    <!--android:orderInCategory="55"-->
+    <!--android:showAsAction="never"-->
+    <!--android:title="@string/conversation_message_timer"/>-->
     <!-- GOOBER WIPE ALL HISTORY - Replace with our own clear/end chat
     <item
         android:id="@+id/action_clear_history"
@@ -124,7 +131,7 @@
         android:id="@+id/action_end_conversation"
         android:orderInCategory="60"
         app:showAsAction="never"
-        android:title="@string/action_end_conversation"/> -->
+        android:title="@string/action_end_conversation"/>
     <!-- ALF AM-122 -->
     <item
         android:id="@+id/action_leave_group"

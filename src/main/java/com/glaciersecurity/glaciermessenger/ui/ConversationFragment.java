@@ -1090,20 +1090,28 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		//CMG AM-352
 		final MenuItem changeStatus = menu.findItem(R.id.action_change_status);
 		final MenuItem editStatus = menu.findItem(R.id.action_edit_status);
-		//CMG AM-284
-		//final MenuItem menuPhoneCall = menu.findItem(R.id.action_call);
-		final MenuItem disappearingMessages = menu.findItem(R.id.action_disapear_messages);
-		disappearingMessages.setOnMenuItemClickListener(menuItem -> { if (conversation == null){
-			return false;
-		}
-			this.conversationMessageTimerDialog(conversation);   return true;});
+
+		//CMG AM-411
+//		final MenuItem menuPhoneCall = menu.findItem(R.id.action_call);
+//		menuPhoneCall.setOnMenuItemClickListener(menuItem -> { if (conversation == null){
+//			return false;
+//		}
+//			//TODO START PHONECALL
+//			return true;
+//		});
+
+//		final MenuItem disappearingMessages = menu.findItem(R.id.action_disapear_messages);
+//		disappearingMessages.setOnMenuItemClickListener(menuItem -> { if (conversation == null){
+//			return false;
+//		}
+//			this.conversationMessageTimerDialog(conversation);   return true;});
 
 
 		if (conversation != null) {
 
 			if (conversation.getMode() == Conversation.MODE_MULTI) {
 				//menuPhoneCall.setVisible(false);
-				disappearingMessages.setVisible(false);
+				//disappearingMessages.setVisible(false);
 				//menuContactDetails.setVisible(false);
 				menuInviteContact.setVisible(conversation.getMucOptions().canInvite());
 				//menuConversationTimer.setVisible(false); //ALF AM-53
@@ -1112,7 +1120,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				//menuMucDetails.setTitle(conversation.getMucOptions().isPrivateAndNonAnonymous() ? R.string.action_muc_details : R.string.channel_details);
 			} else {
 				//menuPhoneCall.setVisible(true);
-				disappearingMessages.setVisible(true);
+				//disappearingMessages.setVisible(true);
 //				menuContactDetails.setVisible(!this.conversation.withSelf());
 //				menuMucDetails.setVisible(false);
 				final XmppConnectionService service = activity.xmppConnectionService;
@@ -1156,6 +1164,101 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		binding.textinput.setRichContentListener(new String[]{"image/*"}, mEditorContentListener);
 
 		binding.textSendButton.setOnClickListener(this.mSendButtonListener);
+
+		//CMG AM-411
+		binding.attachChoosePicture.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				attachFile(ATTACHMENT_CHOICE_CHOOSE_IMAGE);
+			}
+		});
+		binding.attachLocation.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				attachFile(ATTACHMENT_CHOICE_LOCATION);
+
+			}
+		});
+		binding.attachTakePicture.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				attachFile(ATTACHMENT_CHOICE_TAKE_PHOTO);
+			}
+		});
+		binding.attachChooseFile.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				attachFile(ATTACHMENT_CHOICE_CHOOSE_FILE);
+
+			}
+		});
+		binding.actionDisapearMessages.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (conversation != null) {
+					conversationMessageTimerDialog(conversation);
+				}
+			}
+		});
+		binding.attachRecordVideo.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (conversation != null) {
+					attachFile(ATTACHMENT_CHOICE_RECORD_VIDEO);
+				}
+			}
+		});
+		binding.attachRecordVoice.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (conversation != null) {
+					attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
+				}
+			}
+		});
+		binding.actionShowSecondary.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				binding.actionShowPrimary.setVisibility(View.VISIBLE);
+				binding.attachRecordVoice.setVisibility(View.VISIBLE);
+				binding.attachLocation.setVisibility(View.VISIBLE);
+				binding.attachRecordVideo.setVisibility(View.VISIBLE);
+
+				binding.actionShowSecondary.setVisibility(View.GONE);
+				binding.attachChooseFile.setVisibility(View.GONE);
+				binding.attachTakePicture.setVisibility(View.GONE);
+				binding.attachChoosePicture.setVisibility(View.GONE);
+				binding.actionDisapearMessages.setVisibility(View.GONE);
+
+				if (conversation != null) {
+					if (conversation.getMode() == Conversation.MODE_MULTI) {
+						binding.attachRecordVoice.setVisibility(View.GONE);
+					}
+				}
+			}
+		});
+		binding.actionShowPrimary.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				binding.actionShowPrimary.setVisibility(View.GONE);
+				binding.attachRecordVoice.setVisibility(View.GONE);
+				binding.attachLocation.setVisibility(View.GONE);
+				binding.attachRecordVideo.setVisibility(View.GONE);
+
+				binding.actionShowSecondary.setVisibility(View.VISIBLE);
+				binding.attachChooseFile.setVisibility(View.VISIBLE);
+				binding.attachTakePicture.setVisibility(View.VISIBLE);
+				binding.attachChoosePicture.setVisibility(View.VISIBLE);
+				binding.actionDisapearMessages.setVisibility(View.VISIBLE);
+
+				if (conversation != null) {
+					if (conversation.getMode() == Conversation.MODE_MULTI) {
+						binding.actionDisapearMessages.setVisibility(View.GONE);
+						binding.attachRecordVoice.setVisibility(View.VISIBLE);
+					}
+				}
+			}
+		});
 
 		binding.scrollToBottomButton.setOnClickListener(this.mScrollButtonListener);
 		binding.messagesView.setOnScrollListener(mOnScrollListener);
@@ -1373,14 +1476,17 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 //			case R.id.encryption_choice_none:
 //				handleEncryptionSelection(item);
 //				break;
-			case R.id.attach_choose_picture:
-			case R.id.attach_take_picture:
-			case R.id.attach_record_video:
-			case R.id.attach_choose_file:
-			case R.id.attach_record_voice:
-			case R.id.attach_location:
-				handleAttachmentSelection(item);
-				break;
+
+//			//CMG AM-411
+//			case R.id.attach_choose_picture:
+//			case R.id.attach_take_picture:
+//			case R.id.attach_record_video:
+//			case R.id.attach_choose_file:
+//			case R.id.attach_record_voice:
+//			case R.id.attach_location:
+//				handleAttachmentSelection(item);
+//				break;
+
 			/* GOOBER WIPE ALL HISTORY
 			case R.id.action_archive:
 				activity.xmppConnectionService.archiveConversation(conversation);
@@ -1444,30 +1550,31 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		return super.onOptionsItemSelected(item);
 	}
 
-	private void handleAttachmentSelection(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.attach_choose_picture:
-				attachFile(ATTACHMENT_CHOICE_CHOOSE_IMAGE);
-				break;
-			case R.id.attach_take_picture:
-				attachFile(ATTACHMENT_CHOICE_TAKE_PHOTO);
-				break;
-			case R.id.attach_record_video:
-				attachFile(ATTACHMENT_CHOICE_RECORD_VIDEO);
-				break;
-			case R.id.attach_choose_file:
-				attachFile(ATTACHMENT_CHOICE_CHOOSE_FILE);
-				break;
-			case R.id.attach_record_voice:
-				attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
-				break;
-			case R.id.attach_location:
-				attachFile(ATTACHMENT_CHOICE_LOCATION);
-				break;
-		}
-	}
 
-//	private void handleEncryptionSelection(MenuItem item) {
+//	private void handleAttachmentSelection(MenuItem item) {
+//		switch (item.getItemId()) {
+//			case R.id.attach_choose_picture:
+//				attachFile(ATTACHMENT_CHOICE_CHOOSE_IMAGE);
+//				break;
+//			case R.id.attach_take_picture:
+//				attachFile(ATTACHMENT_CHOICE_TAKE_PHOTO);
+//				break;
+//			case R.id.attach_record_video:
+//				attachFile(ATTACHMENT_CHOICE_RECORD_VIDEO);
+//				break;
+//			case R.id.attach_choose_file:
+//				attachFile(ATTACHMENT_CHOICE_CHOOSE_FILE);
+//				break;
+//			case R.id.attach_record_voice:
+//				attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
+//				break;
+//			case R.id.attach_location:
+//				attachFile(ATTACHMENT_CHOICE_LOCATION);
+//				break;
+//		}
+//	}
+
+// 	private void handleEncryptionSelection(MenuItem item) {
 //		if (conversation == null) {
 //			return;
 //		}

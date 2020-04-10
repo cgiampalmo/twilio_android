@@ -48,7 +48,7 @@ public class ConversationMenuConfigurator {
 	}
 
 	public static void configureAttachmentMenu(@NonNull Conversation conversation, Menu menu) {
-		final MenuItem menuAttach = menu.findItem(R.id.action_attach_file);
+		//final MenuItem menuAttach = menu.findItem(R.id.action_attach_file);
 
 		final boolean visible;
 		if (conversation.getMode() == Conversation.MODE_MULTI) {
@@ -56,11 +56,11 @@ public class ConversationMenuConfigurator {
 		} else {
 			visible = true;
 		}
-		menuAttach.setVisible(visible);
+		//menuAttach.setVisible(visible);
 		if (!visible) {
 			return;
 		}
-		menu.findItem(R.id.attach_record_voice).setVisible(microphoneAvailable);
+		//menu.findItem(R.id.attach_record_voice).setVisible(microphoneAvailable);
 	}
 
 	public static void configureEncryptionMenu(@NonNull Conversation conversation, Menu menu) {
