@@ -311,6 +311,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						intent.putExtra("init", true);
 					}
 					closeWaitDialog(); //ALF AM-190
+					SoftKeyboardUtils.hideSoftKeyboard(EditAccountActivity.this); //ALF AM-388
 					startActivity(intent);
 					finish();
 				}
@@ -796,6 +797,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				this.jidToEdit = Jid.of(intent.getStringExtra("jid"));
 			} catch (final IllegalArgumentException | NullPointerException ignored) {
 				this.jidToEdit = null;
+				this.mAccount = null; //ALF AM-388
 			}
 			if (jidToEdit != null && intent.getData() != null && intent.getBooleanExtra("scanned", false)) {
 				final XmppUri uri = new XmppUri(intent.getData());
@@ -869,6 +871,15 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		super.onStop();
 		closeWaitDialog();
 		unregisterReceiver(connectivityReceiver);
+
+		//ALF AM-388
+		try {
+			mService.unregisterStatusCallback(mCallback);
+			} catch (RemoteException | SecurityException e) { //ALF AM-194 added Security for UVP
+			//
+		}
+		mHandler = null;
+
 		unbindService();
 	}
 
@@ -1588,8 +1599,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 		mAccountPasswordLayout.setPasswordVisibilityToggleEnabled(false);
 		mAccountPasswordLayout.setPasswordVisibilityToggleEnabled(true);
-
-		//ALF AM-388 get existing user/pass from db? No this is AFTER cicking logIn
 
 		//CMG AM-314
 		if (!ConnectivityReceiver.isConnected(getApplicationContext())) {
@@ -2534,7 +2543,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			return;
 		}
 		final boolean registerNewAccount = binding.accountRegisterNew.isChecked() && !Config.DISALLOW_REGISTRATION_IN_UI;
-		if (mUsernameMode && username.contains("@")) { //CMG AM-172   //AM-388 figure this out
+		if (mUsernameMode && username.contains("@")) { //CMG AM-172
 			mAccountJidLayout.setError(getString(R.string.invalid_username));
 			removeErrorsOnAllBut(mAccountJidLayout);
 			binding.accountJid.requestFocus();
