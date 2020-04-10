@@ -874,8 +874,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 		//ALF AM-388
 		try {
-			mService.unregisterStatusCallback(mCallback);
-			} catch (RemoteException | SecurityException e) { //ALF AM-194 added Security for UVP
+				if (mService != null && mCallback != null) {
+					mService.unregisterStatusCallback(mCallback);
+				}
+			} catch (Exception e) {
 			//
 		}
 		mHandler = null;
