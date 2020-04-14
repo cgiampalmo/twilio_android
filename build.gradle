@@ -8,11 +8,13 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.3.1'
         classpath 'com.amazonaws:aws-android-sdk-appsync-gradle-plugin:2.9.+'
+        classpath 'com.google.gms:google-services:4.3.3'
     }
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.amazonaws.appsync'
+apply plugin: 'com.google.gms.google-services'
 
 repositories {
     google()
@@ -22,6 +24,7 @@ repositories {
 
 allprojects {
     repositories {
+        google()  // Google's Maven repository
         maven{
             url "https://github.com/omadahealth/omada-nexus/raw/master/release"
         }
@@ -53,6 +56,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'appcompat-v7'
         exclude group: 'com.android.support', module: 'exifinterface'
     }
+    implementation 'com.google.firebase:firebase-analytics:17.2.2'
     implementation 'androidx.legacy:legacy-support-v13:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'androidx.exifinterface:exifinterface:1.0.0'

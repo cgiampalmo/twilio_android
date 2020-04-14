@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_server">p2.glaciersec.cc</string>
+    <string name="gcm_defaultSenderId" translatable="false">556768963899</string>
+    <string name="google_app_id">1:556768963899:android:5cf0f0ab73963afdc99b1e</string>
+</resources>
