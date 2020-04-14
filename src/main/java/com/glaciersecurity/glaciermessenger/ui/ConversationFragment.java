@@ -84,6 +84,7 @@ import com.glaciersecurity.glaciermessenger.entities.Presence;
 import com.glaciersecurity.glaciermessenger.entities.ReadByMarker;
 import com.glaciersecurity.glaciermessenger.entities.Transferable;
 import com.glaciersecurity.glaciermessenger.entities.TransferablePlaceholder;
+import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
 import com.glaciersecurity.glaciermessenger.http.HttpDownloadConnection;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
 import com.glaciersecurity.glaciermessenger.services.MessageArchiveService;
@@ -1091,14 +1092,53 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		final MenuItem changeStatus = menu.findItem(R.id.action_change_status);
 		final MenuItem editStatus = menu.findItem(R.id.action_edit_status);
 
-		//CMG AM-411
-//		final MenuItem menuPhoneCall = menu.findItem(R.id.action_call);
-//		menuPhoneCall.setOnMenuItemClickListener(menuItem -> { if (conversation == null){
-//			return false;
-//		}
-//			//TODO START PHONECALL
-//			return true;
-//		});
+		//CMG AM-410
+		final MenuItem menuPhoneCall = menu.findItem(R.id.action_call);
+		menuPhoneCall.setOnMenuItemClickListener(menuItem -> {
+			if (conversation == null){
+				return false;
+			}
+			final Account account = conversation.getAccount();
+            TwilioCall call = new TwilioCall(account);
+			call.setReceiver(conversation.getJid().asBareJid().toString());
+			//This might open the UI and that implements the OnTwilioCallCreated
+			//and maybe the callRequest will be initiated there.
+			activity.xmppConnectionService.sendCallRequest(call, new XmppConnectionService.OnTwilioCallCreated() {
+				@Override
+				public void onCallSetupResponse(TwilioCall call) {
+					// hand off call info to Christina?
+					// or store the response info?
+				}
+
+				@Override
+				public void onCallAcceptResponse(TwilioCall call) {
+					//hand off call info to Christina?
+					// might be blank
+				}
+
+				@Override
+				public void onCallRejectResponse(TwilioCall call) {
+					//hand off call info to Christina?
+				}
+
+				@Override
+				public void informUser(final int resId) {
+
+					runOnUiThread(() -> {
+						if (messageLoaderToast != null) {
+							messageLoaderToast.cancel();
+						}
+						if (ConversationFragment.this.conversation != conversation) {
+							return;
+						}
+						messageLoaderToast = Toast.makeText(getActivity(), resId, Toast.LENGTH_LONG);
+						messageLoaderToast.show();
+					});
+
+				}
+			});
+			return true;
+		});
 
 //		final MenuItem disappearingMessages = menu.findItem(R.id.action_disapear_messages);
 //		disappearingMessages.setOnMenuItemClickListener(menuItem -> { if (conversation == null){

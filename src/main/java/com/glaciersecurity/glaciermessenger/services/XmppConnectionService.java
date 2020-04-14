@@ -100,6 +100,7 @@ import com.glaciersecurity.glaciermessenger.entities.Presence;
 import com.glaciersecurity.glaciermessenger.entities.PresenceTemplate;
 import com.glaciersecurity.glaciermessenger.entities.Roster;
 import com.glaciersecurity.glaciermessenger.entities.ServiceDiscoveryResult;
+import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
 import com.glaciersecurity.glaciermessenger.generator.AbstractGenerator;
 import com.glaciersecurity.glaciermessenger.generator.IqGenerator;
 import com.glaciersecurity.glaciermessenger.generator.MessageGenerator;
@@ -162,6 +163,7 @@ import rocks.xmpp.addr.Jid;
 public class XmppConnectionService extends Service implements ServiceConnection, Handler.Callback { //ALF AM-57 placeholder, AM-344
 
 	public static final String ACTION_REPLY_TO_CONVERSATION = "reply_to_conversations";
+	public static final String ACTION_REPLY_TO_CALL_REQUEST = "reply_to_call_request"; //ALF AM-410 or use fcm_message_received line
 	public static final String ACTION_MARK_AS_READ = "mark_as_read";
 	public static final String ACTION_SNOOZE = "snooze";
 	public static final String ACTION_CLEAR_NOTIFICATION = "clear_notification";
@@ -698,6 +700,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							Log.d(Config.LOGTAG, "unable to process direct reply");
 						}
 					});
+					break;
+				case ACTION_REPLY_TO_CALL_REQUEST: //ALF AM-410
 					break;
 				case ACTION_MARK_AS_READ:
 					mNotificationExecutor.execute(() -> {
@@ -4361,6 +4365,179 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 	}
 
+	//ALF AM-410 (next 3) //receiver is bare jid of receiver
+	public void sendCallRequest(TwilioCall call, final OnTwilioCallCreated callback) {
+		final String deviceId = PhoneHelper.getAndroidId(this);
+
+		final IqPacket request = new IqPacket(IqPacket.TYPE.SET);
+		request.setTo(Jid.of("p2.glaciersec.cc"));
+		request.setAttribute("from",call.getAccount().getJid().toString());
+
+		final Element command = request.addChild("command", "http://jabber.org/protocol/commands");
+		command.setAttribute("action", "execute");
+		command.setAttribute("node", "call-user-fcm");
+		final Element x = command.addChild("x", "jabber:x:data");
+		x.setAttribute("type", "submit");
+
+		final Element callerfield = x.addChild("field");
+		callerfield.setAttribute("var", "caller");
+		Element callerval = new Element("value");
+		callerval.setContent(call.getAccount().getDisplayName());
+		callerfield.addChild(callerval);
+
+		final Element callerdevice = x.addChild("field");
+		callerdevice.setAttribute("var", "callerdevice");
+		Element deviceval = new Element("value");
+		deviceval.setContent(deviceId);
+		callerdevice.addChild(deviceval);
+
+		final Element receiver = x.addChild("field");
+		receiver.setAttribute("var", "receiver");
+		Element receiverval = new Element("value");
+		receiverval.setContent(call.getReceiver());
+		receiver.addChild(receiverval);
+
+		Log.d(Config.LOGTAG, call.getAccount().getJid().asBareJid() + ": making call request to " + call.getReceiver());
+		sendIqPacket(call.getAccount(), request, new OnIqPacketReceived() {
+			@Override
+			public void onIqPacketReceived(final Account account, final IqPacket packet) {
+				if (packet.getType() == IqPacket.TYPE.RESULT) {
+					final Element x = packet.findChild("x", "jabber:x:data");
+					for (final Element item : x.getChildren()) {
+						//<field var="callid"><value>237</value></field>
+						if (item.getName().equals("field")) {
+							if (item.getAttribute("var").equals("caller")) {
+								call.setCaller(item.findChild("value").getContent());
+							} else if (item.getAttribute("var").equals("receiver")) {
+								call.setReceiver(item.findChild("value").getContent());
+							} else if (item.getAttribute("var").equals("room_name")) {
+								call.setRoomName(item.findChild("value").getContent());
+							} else if (item.getAttribute("var").equals("token")) {
+								call.setToken(item.findChild("value").getContent());
+							} else if (item.getAttribute("var").equals("call_id")) {
+								String call_id = item.findChild("value").getContent();
+								try {
+									int callid = Integer.parseInt(call_id);
+									call.setCallId(callid);
+								} catch (NumberFormatException nfe) {}
+							}
+						}
+					}
+
+					if (callback != null) {
+						callback.onCallSetupResponse(call);
+					}
+				} else {
+					//callback.informUser("Something bad");
+					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not create call");
+				}
+			}
+		});
+	}
+
+	public void acceptCall(TwilioCall call, final OnTwilioCallCreated callback) {
+		final String deviceId = PhoneHelper.getAndroidId(this);
+		int callid = call.getCallId();
+
+		final IqPacket request = new IqPacket(IqPacket.TYPE.SET);
+		request.setTo(Jid.of("p2.glaciersec.cc"));
+		request.setAttribute("from",call.getAccount().getJid().toString());
+
+		final Element command = request.addChild("command", "http://jabber.org/protocol/commands");
+		command.setAttribute("action", "execute");
+		command.setAttribute("node", "accept-call-fcm");
+		final Element x = command.addChild("x", "jabber:x:data");
+		x.setAttribute("type", "submit");
+
+		final Element callidfield = x.addChild("field");
+		callidfield.setAttribute("var", "callid");
+		Element callidval = new Element("value");
+		callidval.setContent(Integer.toString(callid));
+		callidfield.addChild(callidval);
+
+		final Element receiverdevice = x.addChild("field");
+		receiverdevice.setAttribute("var", "receiverdevice");
+		Element deviceval = new Element("value");
+		deviceval.setContent(deviceId);
+		receiverdevice.addChild(deviceval);
+
+		Log.d(Config.LOGTAG, call.getAccount().getJid().asBareJid() + ": accepting call from " + call.getCaller());
+		sendIqPacket(call.getAccount(), request, new OnIqPacketReceived() {
+			@Override
+			public void onIqPacketReceived(final Account account, final IqPacket packet) {
+				if (packet.getType() == IqPacket.TYPE.RESULT) {
+					final Element x = packet.findChild("x", "jabber:x:data");
+					for (final Element item : x.getChildren()) {
+						//<field var="callid"><value>237</value></field>
+						if (item.getName().equals("field")) {
+							if (item.getAttribute("var").equals("call_id")) {
+								String call_id = item.findChild("value").getContent();
+								try {
+									int callid = Integer.parseInt(call_id);
+									call.setCallId(callid);
+								} catch (NumberFormatException nfe) {}
+							} else if (item.getAttribute("var").equals("token")) {
+								call.setToken(item.findChild("value").getContent());
+							}
+						}
+					}
+
+					if (callback != null) {
+						callback.onCallAcceptResponse(call);
+					}
+				} else {
+					//callback.informUser("Something bad");
+					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not create call");
+				}
+			}
+		});
+	}
+
+	public void rejectCall(TwilioCall call, final OnTwilioCallCreated callback) {
+		final String deviceId = PhoneHelper.getAndroidId(this);
+
+		final IqPacket request = new IqPacket(IqPacket.TYPE.SET);
+		request.setTo(Jid.of("p2.glaciersec.cc"));
+		request.setAttribute("from",call.getAccount().getJid().toString());
+
+		final Element command = request.addChild("command", "http://jabber.org/protocol/commands");
+		command.setAttribute("action", "execute");
+		command.setAttribute("node", "reject-call-fcm");
+		final Element x = command.addChild("x", "jabber:x:data");
+		x.setAttribute("type", "submit");
+
+		final Element callidfield = x.addChild("field");
+		callidfield.setAttribute("var", "callid");
+		Element callidval = new Element("value");
+		callidval.setContent(Integer.toString(call.getCallId()));
+		callidfield.addChild(callidval);
+
+		Log.d(Config.LOGTAG, call.getAccount().getJid().asBareJid() + ": rejecting call from " + call.getCaller());
+		sendIqPacket(call.getAccount(), request, null);
+	}
+
+	public void callReceived(TwilioCall call) {
+		/*guard let userInfo = notification.userInfo as? [String:AnyObject] else {
+			return
+		}
+		if let callId = userInfo[kNotificationCallIdKey] as? NSNumber,
+				let caller = userInfo[kNotificationCallerKey] as? String,
+				let status = userInfo[kNotificationCallStatusKey] as? String,
+				let roomname = userInfo[kNotificationCallRoomnameKey] as? String {
+			call.callid = callId
+			call.caller = caller
+			call.roomname = roomname
+			call.status = status
+			tdelegate?.didReceiveCall(call)
+			//tdelegate should pop up gui and give accept/reject option
+
+			//just for testing
+			//self.rejectCall(call)
+			//self.acceptCall(call)
+		}*/
+
+	}
+
 	public void publishDisplayName(Account account) {
 		String displayName = account.getDisplayName();
 		final IqPacket request;
@@ -4621,6 +4798,15 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	public interface OnAccountCreated {
 		void onAccountCreated(Account account);
+
+		void informUser(int r);
+	}
+
+	//ALF AM-410
+	public interface OnTwilioCallCreated {
+		void onCallSetupResponse(TwilioCall call);
+		void onCallAcceptResponse(TwilioCall call);
+		void onCallRejectResponse(TwilioCall call);
 
 		void informUser(int r);
 	}

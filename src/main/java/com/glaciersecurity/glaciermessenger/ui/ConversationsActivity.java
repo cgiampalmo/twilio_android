@@ -69,6 +69,7 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.Authentic
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GetDetailsHandler;
 import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
+import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
 import com.google.android.material.navigation.NavigationView;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -144,6 +145,7 @@ import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessa
 import static com.glaciersecurity.glaciermessenger.entities.Presence.getEmojiByUnicode;
 import static com.glaciersecurity.glaciermessenger.ui.ConversationFragment.REQUEST_DECRYPT_PGP;
 
+//ALF AM-410 add OnTwilioCallCreated? did this for now in ConversationFragment
 public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, OnKeyStatusUpdated, LogoutListener, ConnectivityReceiver.ConnectivityReceiverListener {
 
 	public static final String ACTION_VIEW_CONVERSATION = "com.glaciersecurity.glaciermessenger.action.VIEW";
@@ -1931,4 +1933,21 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	public void onShowErrorToast(int resId) {
 		runOnUiThread(() -> Toast.makeText(this, resId, Toast.LENGTH_SHORT).show());
 	}
+
+	//ALF AM-410 (next 3) for now in ConversationFragment
+	// do I need to register this as a listener?
+	/*@Override
+	public void onCallSetupResponse(TwilioCall call) {
+		//handoff call info to Christina?
+	}
+
+	@Override
+	public void onCallAcceptResponse(TwilioCall call) {
+		//handoff call info to Christina?
+	}
+
+	@Override
+	public void onCallRejectResponse(TwilioCall call) {
+		//handoff call info to Christina?
+	}*/
 }

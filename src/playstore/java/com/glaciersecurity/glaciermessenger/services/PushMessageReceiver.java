@@ -23,6 +23,7 @@ public class PushMessageReceiver extends FirebaseMessagingService {
 		final Map<String, String> data = message.getData();
 		final Intent intent = new Intent(this, XmppConnectionService.class);
 		intent.setAction(XmppConnectionService.ACTION_FCM_MESSAGE_RECEIVED);
+		//maybe separate this if its a call and use ACTION_REPLY_TO_CALL_REQUEST //ALF AM-410
 		intent.putExtra("account", data.get("account"));
 		Compatibility.startService(this, intent);
 	}

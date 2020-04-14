@@ -32,12 +32,12 @@
     <!--app:showAsAction="always"-->
     <!--android:title="@string/content_description_call"></item>-->
     <!--    CMG AM-411-->
-    <!--    <item-->
-    <!--        android:id="@+id/action_call"-->
-    <!--        android:icon="@drawable/ic_call"-->
-    <!--        android:orderInCategory="100"-->
-    <!--        android:title="Call"-->
-    <!--        app:showAsAction="always" />-->
+    <item
+        android:id="@+id/action_call"
+        android:icon="@drawable/ic_call"
+        android:orderInCategory="100"
+        android:title="Call"
+        app:showAsAction="always" />
     <!--    <item-->
     <!--        android:id="@+id/action_disapear_messages"-->
     <!--        android:icon="@drawable/ic_baseline_timer_24px"-->
