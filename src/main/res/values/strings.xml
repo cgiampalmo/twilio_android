@@ -914,6 +914,8 @@
     <string name="account_logout_text">Logout</string>
     <!-- ALF AM-220 -->
     <string name="title_activity_new_password">NewPassword</string>
+    <!-- ALF AM-410 -->
+    <string name="app_server">p2.glaciersec.cc</string>
 
     <string name="profile_list_title">Login</string>
     <string name="cancel_button_text">Cancel</string>

@@ -233,6 +233,7 @@ android {
         }
         messengerFreeCompat {
             java {
+                srcDirs 'src/messenger/java'  //ALF AM-410
                 srcDirs 'src/freeCompat/java'
             }
         }
