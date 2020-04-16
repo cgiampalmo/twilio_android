@@ -131,6 +131,7 @@ import com.glaciersecurity.glaciermessenger.utils.ReplacingTaskManager;
 import com.glaciersecurity.glaciermessenger.utils.Resolver;
 import com.glaciersecurity.glaciermessenger.utils.SerialSingleThreadExecutor;
 import com.glaciersecurity.glaciermessenger.utils.StringUtils;
+import com.glaciersecurity.glaciermessenger.utils.TwilioCallListener;
 import com.glaciersecurity.glaciermessenger.utils.WakeLockHelper;
 import com.glaciersecurity.glaciermessenger.xml.Namespace;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
@@ -160,10 +161,10 @@ import com.glaciersecurity.glaciermessenger.xmpp.stanzas.PresencePacket;
 import me.leolin.shortcutbadger.ShortcutBadger;
 import rocks.xmpp.addr.Jid;
 
-public class XmppConnectionService extends Service implements ServiceConnection, Handler.Callback { //ALF AM-57 placeholder, AM-344
+public class XmppConnectionService extends Service implements ServiceConnection, Handler.Callback, TwilioCallListener { //ALF AM-57 placeholder, AM-344, AM-410
 
 	public static final String ACTION_REPLY_TO_CONVERSATION = "reply_to_conversations";
-	public static final String ACTION_REPLY_TO_CALL_REQUEST = "reply_to_call_request"; //ALF AM-410 or use fcm_message_received line
+	public static final String ACTION_REPLY_TO_CALL_REQUEST = "reply_to_call_request"; //ALF AM-410
 	public static final String ACTION_MARK_AS_READ = "mark_as_read";
 	public static final String ACTION_SNOOZE = "snooze";
 	public static final String ACTION_CLEAR_NOTIFICATION = "clear_notification";
@@ -279,6 +280,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	protected IOpenVPNAPIService mService=null;
 	private Handler mHandler;
 	private static final int MSG_UPDATE_STATE = 0;
+
+	//ALF AM-410
+	private TwilioCallListener twilioCallListener;
+	private TwilioCall currentTwilioCall;
 
 	//Ui callback listeners
 	private final Set<OnConversationUpdate> mOnConversationUpdates = Collections.newSetFromMap(new WeakHashMap<OnConversationUpdate, Boolean>());
@@ -702,6 +707,31 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					});
 					break;
 				case ACTION_REPLY_TO_CALL_REQUEST: //ALF AM-410
+					pushedAccountHash = intent.getStringExtra("account");
+					Account acct = null;
+					for (Account account : accounts) {
+						if (CryptoHelper.getAccountFingerprint(account,PhoneHelper.getAndroidId(this)).equals(pushedAccountHash)) {
+							acct = account;
+						}
+					}
+
+					if (acct != null) {
+						TwilioCall call = new TwilioCall(acct);
+						try {
+							int callid = Integer.parseInt(intent.getStringExtra("call_id"));
+							call.setCallId(callid);
+						} catch (NumberFormatException nfe) {
+						}
+						call.setCaller(intent.getStringExtra("caller"));
+						call.setRoomName(intent.getStringExtra("roomname"));
+						call.setStatus(intent.getStringExtra("status"));
+						//onCallReceived(call);
+						currentTwilioCall = call;
+						if (twilioCallListener != null) {
+							twilioCallListener.onCallReceived(call);
+						}
+						Log.d(Config.LOGTAG, "push message arrived in service. account=" + pushedAccountHash);
+					}
 					break;
 				case ACTION_MARK_AS_READ:
 					mNotificationExecutor.execute(() -> {
@@ -1126,6 +1156,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 		this.pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 		this.wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "XmppConnectionService");
+
+		//AM-410
+		//twilioCallListener = this;
+		currentTwilioCall = null;
 
 		//ALF AM-344
 		try {
@@ -4365,9 +4399,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 	}
 
-	//ALF AM-410 (next 3) //receiver is bare jid of receiver
-	public void sendCallRequest(TwilioCall call, final OnTwilioCallCreated callback) {
+	//ALF AM-410 (next 8) //receiver is bare jid of receiver
+	public void sendCallRequest(TwilioCall call) {
 		final String deviceId = PhoneHelper.getAndroidId(this);
+		currentTwilioCall = null;
 
 		final IqPacket request = new IqPacket(IqPacket.TYPE.SET);
 		request.setTo(Jid.of("p2.glaciersec.cc"));
@@ -4382,7 +4417,11 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		final Element callerfield = x.addChild("field");
 		callerfield.setAttribute("var", "caller");
 		Element callerval = new Element("value");
-		callerval.setContent(call.getAccount().getDisplayName());
+		String name = call.getAccount().getDisplayName();
+		if (name == null) {
+			name = call.getAccount().getUsername();
+		}
+		callerval.setContent(name);
 		callerfield.addChild(callerval);
 
 		final Element callerdevice = x.addChild("field");
@@ -4402,7 +4441,18 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			@Override
 			public void onIqPacketReceived(final Account account, final IqPacket packet) {
 				if (packet.getType() == IqPacket.TYPE.RESULT) {
-					final Element x = packet.findChild("x", "jabber:x:data");
+					final Element command = packet.findChild("command", "http://jabber.org/protocol/commands");
+					if (command == null) {
+						Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not create call");
+						return;
+					}
+
+					final Element x = command.findChild("x", "jabber:x:data");
+					if (x == null) {
+						Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not create call");
+						return;
+					}
+
 					for (final Element item : x.getChildren()) {
 						//<field var="callid"><value>237</value></field>
 						if (item.getName().equals("field")) {
@@ -4424,8 +4474,9 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						}
 					}
 
-					if (callback != null) {
-						callback.onCallSetupResponse(call);
+					currentTwilioCall = call;
+					if (twilioCallListener != null) {
+						twilioCallListener.onCallSetupResponse(call);
 					}
 				} else {
 					//callback.informUser("Something bad");
@@ -4435,7 +4486,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		});
 	}
 
-	public void acceptCall(TwilioCall call, final OnTwilioCallCreated callback) {
+	public void acceptCall(TwilioCall call) {
 		final String deviceId = PhoneHelper.getAndroidId(this);
 		int callid = call.getCallId();
 
@@ -4466,9 +4517,18 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			@Override
 			public void onIqPacketReceived(final Account account, final IqPacket packet) {
 				if (packet.getType() == IqPacket.TYPE.RESULT) {
-					final Element x = packet.findChild("x", "jabber:x:data");
+					final Element command = packet.findChild("command", "http://jabber.org/protocol/commands");
+					if (command == null) {
+						Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not create call");
+						return;
+					}
+
+					final Element x = command.findChild("x", "jabber:x:data");
+					if (x == null) {
+						Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not create call");
+						return;
+					}
 					for (final Element item : x.getChildren()) {
-						//<field var="callid"><value>237</value></field>
 						if (item.getName().equals("field")) {
 							if (item.getAttribute("var").equals("call_id")) {
 								String call_id = item.findChild("value").getContent();
@@ -4482,8 +4542,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						}
 					}
 
-					if (callback != null) {
-						callback.onCallAcceptResponse(call);
+					if (twilioCallListener != null) {
+						twilioCallListener.onCallAcceptResponse(call);
 					}
 				} else {
 					//callback.informUser("Something bad");
@@ -4493,7 +4553,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		});
 	}
 
-	public void rejectCall(TwilioCall call, final OnTwilioCallCreated callback) {
+	public void rejectCall(TwilioCall call) {
 		final String deviceId = PhoneHelper.getAndroidId(this);
 
 		final IqPacket request = new IqPacket(IqPacket.TYPE.SET);
@@ -4516,27 +4576,54 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		sendIqPacket(call.getAccount(), request, null);
 	}
 
-	public void callReceived(TwilioCall call) {
-		/*guard let userInfo = notification.userInfo as? [String:AnyObject] else {
-			return
-		}
-		if let callId = userInfo[kNotificationCallIdKey] as? NSNumber,
-				let caller = userInfo[kNotificationCallerKey] as? String,
-				let status = userInfo[kNotificationCallStatusKey] as? String,
-				let roomname = userInfo[kNotificationCallRoomnameKey] as? String {
-			call.callid = callId
-			call.caller = caller
-			call.roomname = roomname
-			call.status = status
-			tdelegate?.didReceiveCall(call)
-			//tdelegate should pop up gui and give accept/reject option
+	public void onCallReceived(TwilioCall call) {
+		currentTwilioCall = call;
+		//tdelegate should pop up gui and give accept/reject option
+		//just for testing
+		//if (call.getCallId() > 0 && call.getRoomName() != null) {
+			//rejectCall(call);
+			//acceptCall(call);
+		//}
 
-			//just for testing
-			//self.rejectCall(call)
-			//self.acceptCall(call)
-		}*/
+		if (twilioCallListener != null) {
+			twilioCallListener.onCallReceived(call);
+		}
+	}
+
+	public void setTwilioCallListener(TwilioCallListener callListener) {
+		twilioCallListener = callListener;
+	}
+
+	public void onCallSetupResponse(TwilioCall call) {
+		currentTwilioCall = call;
+		// hand off call info to Christina?
+		// or store the response info?
+	}
+
+	public void onCallAcceptResponse(TwilioCall call) {
+		if (currentTwilioCall != null) {
+			currentTwilioCall.setCallId(call.getCallId());
+			currentTwilioCall.setToken(call.getToken());
+		}
+		//hand off call info to Christina?
+		// might be blank
+	}
+
+	public void informUser(final int resId) {
+
+		/*runOnUiThread(() -> {
+			if (messageLoaderToast != null) {
+				messageLoaderToast.cancel();
+			}
+			if (ConversationFragment.this.conversation != conversation) {
+				return;
+			}
+			messageLoaderToast = Toast.makeText(getActivity(), resId, Toast.LENGTH_LONG);
+			messageLoaderToast.show();
+		});*/
 
 	}
+	//ALF AM-410 end TwilioCall stuff
 
 	public void publishDisplayName(Account account) {
 		String displayName = account.getDisplayName();
@@ -4798,15 +4885,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	public interface OnAccountCreated {
 		void onAccountCreated(Account account);
-
-		void informUser(int r);
-	}
-
-	//ALF AM-410
-	public interface OnTwilioCallCreated {
-		void onCallSetupResponse(TwilioCall call);
-		void onCallAcceptResponse(TwilioCall call);
-		void onCallRejectResponse(TwilioCall call);
 
 		void informUser(int r);
 	}

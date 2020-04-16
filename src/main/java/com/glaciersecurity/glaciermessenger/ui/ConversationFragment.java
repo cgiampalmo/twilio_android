@@ -1103,40 +1103,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			call.setReceiver(conversation.getJid().asBareJid().toString());
 			//This might open the UI and that implements the OnTwilioCallCreated
 			//and maybe the callRequest will be initiated there.
-			activity.xmppConnectionService.sendCallRequest(call, new XmppConnectionService.OnTwilioCallCreated() {
-				@Override
-				public void onCallSetupResponse(TwilioCall call) {
-					// hand off call info to Christina?
-					// or store the response info?
-				}
-
-				@Override
-				public void onCallAcceptResponse(TwilioCall call) {
-					//hand off call info to Christina?
-					// might be blank
-				}
-
-				@Override
-				public void onCallRejectResponse(TwilioCall call) {
-					//hand off call info to Christina?
-				}
-
-				@Override
-				public void informUser(final int resId) {
-
-					runOnUiThread(() -> {
-						if (messageLoaderToast != null) {
-							messageLoaderToast.cancel();
-						}
-						if (ConversationFragment.this.conversation != conversation) {
-							return;
-						}
-						messageLoaderToast = Toast.makeText(getActivity(), resId, Toast.LENGTH_LONG);
-						messageLoaderToast.show();
-					});
-
-				}
-			});
+			activity.xmppConnectionService.sendCallRequest(call);
 			return true;
 		});
 

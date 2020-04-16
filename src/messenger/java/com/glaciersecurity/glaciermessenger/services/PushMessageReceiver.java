@@ -20,11 +20,24 @@ public class PushMessageReceiver extends FirebaseMessagingService {
 			Log.d(Config.LOGTAG,"PushMessageReceiver ignored message because no accounts are enabled");
 			return;
 		}
+
 		final Map<String, String> data = message.getData();
 		final Intent intent = new Intent(this, XmppConnectionService.class);
-		intent.setAction(XmppConnectionService.ACTION_FCM_MESSAGE_RECEIVED);
-		//maybe separate this if its a call and use ACTION_REPLY_TO_CALL_REQUEST //ALF AM-410
+
+		//ALF AM-410 all of type and if
+		String type = data.get("type");
+		if (type != null && type.equals("call")) {
+			intent.setAction(XmppConnectionService.ACTION_REPLY_TO_CALL_REQUEST);
+			intent.putExtra("call_id", data.get("call_id"));
+			intent.putExtra("caller", data.get("caller"));
+			intent.putExtra("roomname", data.get("roomname"));
+			intent.putExtra("status", data.get("status"));
+		} else {
+			intent.setAction(XmppConnectionService.ACTION_FCM_MESSAGE_RECEIVED);
+		}
+
 		intent.putExtra("account", data.get("account"));
+
 		Compatibility.startService(this, intent);
 	}
 

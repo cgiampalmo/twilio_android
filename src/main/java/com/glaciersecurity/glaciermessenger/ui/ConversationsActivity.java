@@ -145,7 +145,6 @@ import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessa
 import static com.glaciersecurity.glaciermessenger.entities.Presence.getEmojiByUnicode;
 import static com.glaciersecurity.glaciermessenger.ui.ConversationFragment.REQUEST_DECRYPT_PGP;
 
-//ALF AM-410 add OnTwilioCallCreated? did this for now in ConversationFragment
 public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, OnKeyStatusUpdated, LogoutListener, ConnectivityReceiver.ConnectivityReceiverListener {
 
 	public static final String ACTION_VIEW_CONVERSATION = "com.glaciersecurity.glaciermessenger.action.VIEW";
