@@ -25,11 +25,10 @@ repositories {
 allprojects {
     repositories {
         google()  // Google's Maven repository
+        jcenter()
         maven{
             url "https://github.com/omadahealth/omada-nexus/raw/master/release"
         }
-        jcenter()
-
     }
 }
 
@@ -46,7 +45,8 @@ ext {
 }
 
 dependencies {
-    playstoreImplementation('com.google.firebase:firebase-messaging:17.3.4') {
+    //ALF AM-410 updated version and pointed to messenger, added google-services above
+    messengerFreeCompatImplementation('com.google.firebase:firebase-messaging:20.1.5') {
         exclude group: 'com.google.firebase', module: 'firebase-core'
         exclude group: 'com.google.firebase', module: 'firebase-analytics'
         exclude group: 'com.google.firebase', module: 'firebase-measurement-connector'
@@ -56,7 +56,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'appcompat-v7'
         exclude group: 'com.android.support', module: 'exifinterface'
     }
-    implementation 'com.google.firebase:firebase-analytics:17.2.2'
+    //implementation 'com.google.firebase:firebase-analytics:17.2.2'
     implementation 'androidx.legacy:legacy-support-v13:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'androidx.exifinterface:exifinterface:1.0.0'
@@ -233,8 +233,11 @@ android {
         }
         messengerFreeCompat {
             java {
-                srcDirs 'src/messenger/java'  //ALF AM-410
-                srcDirs 'src/freeCompat/java'
+                srcDir 'src/messenger/java'  //ALF AM-410
+                srcDir 'src/freeCompat/java'
+            }
+            res {
+                srcDir 'src/messenger/res' //ALF AM-410
             }
         }
         messengerPlaystoreCompat {
