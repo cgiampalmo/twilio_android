@@ -1052,6 +1052,7 @@
     <string name="upload_filesafe_message">Touch to select files to upload</string>
     <string name="upload_filesafe_files_selected_message">Selected files:</string>
     <string name="upload_filesafe_files_uploaded_message">Uploaded files:</string>
+    <string name="call_activity_title">Call Activity</string>
     <string name="upload_filesafe_title">FileSafe upload</string>
     <string name="upload">Upload</string>
     <string name="upload_filesafe_retry_error_message">Something went wrong while uploading. Retrying upload.</string>
