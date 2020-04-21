@@ -32,14 +32,22 @@
         android:background="?attr/color_background_secondary">
 
 
-            <com.makeramen.roundedimageview.RoundedImageView
-                android:id="@+id/avater"
-                android:layout_width="@dimen/avatar_on_incoming_call_screen_size"
-                android:layout_height="@dimen/avatar_on_incoming_call_screen_size"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:contentDescription="@string/account_image_description"
-                app:riv_corner_radius="40dip" />
+<!--            <com.makeramen.roundedimageview.RoundedImageView-->
+<!--                android:id="@+id/participant_selected_layout"-->
+<!--                android:layout_width="@dimen/avatar_on_incoming_call_screen_size"-->
+<!--                android:layout_height="@dimen/avatar_on_incoming_call_screen_size"-->
+<!--                android:layout_centerHorizontal="true"-->
+<!--                android:layout_centerVertical="true"-->
+<!--                android:contentDescription="@string/account_image_description"-->
+<!--                app:riv_corner_radius="40dip" />-->
+
+        <ImageView
+            android:id="@+id/participant_stub_image"
+            android:layout_width="107dp"
+            android:layout_height="107dp"
+            android:layout_centerInParent="true"
+            android:contentDescription="@string/profile_picture"
+            app:srcCompat="@drawable/ic_account_circle_white_48px" />
 
 
 
@@ -50,7 +58,7 @@
             android:layout_height="wrap_content"
             android:layout_above="@id/call_state"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="12dp"
             android:textColor="?attr/edit_text_color"
             android:textSize="40sp"
             android:textStyle="bold"
@@ -60,7 +68,7 @@
             android:id="@+id/call_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@id/avater"
+            android:layout_above="@id/participant_stub_image"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="24dp"
             android:textColor="?attr/edit_text_color"
@@ -82,6 +90,15 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/end_call"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_vertical|center_horizontal"
+                android:layout_alignParentLeft="true"
+                >
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/reject_call_button"
             android:layout_width="wrap_content"
@@ -89,8 +106,7 @@
             android:layout_margin="@dimen/fab_margin"
             android:background="@drawable/roundbutton"
             app:backgroundTint="@android:color/holo_red_dark"
-            app:srcCompat="@drawable/ic_call_end_white_24px"
-            android:layout_alignParentLeft="true"/>
+            app:srcCompat="@drawable/ic_call_end_white_24px"/>
 
             <TextView
                 android:id="@+id/reject_text"
@@ -102,10 +118,17 @@
                 android:textColor="?attr/edit_text_color"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                android:text="Reject"
-                android:layout_alignParentLeft="true"/>
+                android:text="Reject"/>
+            </LinearLayout>
 
-
+ <LinearLayout
+     android:id="@+id/accept"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:orientation="vertical"
+     android:gravity="center_vertical|center_horizontal"
+     android:layout_alignParentRight="true"
+     >
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/accept_call_button"
             android:layout_width="wrap_content"
@@ -114,7 +137,7 @@
             android:background="@drawable/roundbutton"
             app:backgroundTint="@android:color/holo_green_dark"
             app:srcCompat="@drawable/ic_phone_accept"
-            android:layout_alignParentRight="true"/>
+            />
 
             <TextView
                 android:id="@+id/accept_text"
@@ -126,8 +149,9 @@
                 android:textColor="?attr/edit_text_color"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                android:layout_alignParentRight="true"
                 android:text="Accept"/>
+
+            </LinearLayout>
     </RelativeLayout>
     </LinearLayout>
 

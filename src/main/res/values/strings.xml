@@ -39,6 +39,12 @@
     <string name="refreshing_status">Changing status to Available</string>
     <string name="refreshing_connection">Attempting to Connect</string>
     <string name="refreshing">Attempting to refresh</string>
+    <string name="incoming_call">Incoming call...</string>
+    <string name="outgoing_call">Calling ...</string>
+    <string name="reject_call">Reject</string>
+    <string name="end_call">End</string>
+    <string name="accept_call">Accept</string>
+
     <string name="refreshing_network">Checking for signal</string>
     <string name="profile_picture">Profile picture</string>
     <string name="just_now">just now</string>
