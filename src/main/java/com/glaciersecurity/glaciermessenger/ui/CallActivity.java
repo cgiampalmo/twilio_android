@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.databinding.DataBindingUtil;
 
 import com.glaciersecurity.glaciermessenger.R;
@@ -24,8 +25,8 @@ public class CallActivity extends AppCompatActivity {
 	private TextView rejectText;
 	private LinearLayout acceptCall;
 	private LinearLayout endCall;
-	private Button rejectCallBtn;
-	private Button acceptCallBtn;
+	private AppCompatImageButton rejectCallBtn;
+	private AppCompatImageButton acceptCallBtn;
 
 
 

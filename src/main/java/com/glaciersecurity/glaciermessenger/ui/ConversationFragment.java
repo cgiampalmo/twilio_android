@@ -1104,6 +1104,8 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			//This might open the UI and that implements the OnTwilioCallCreated
 			//and maybe the callRequest will be initiated there.
 			activity.xmppConnectionService.sendCallRequest(call);
+			Intent settingsActivity = new Intent(getContext(), CallActivity.class);
+			startActivity(settingsActivity);
 			return true;
 		});
 
