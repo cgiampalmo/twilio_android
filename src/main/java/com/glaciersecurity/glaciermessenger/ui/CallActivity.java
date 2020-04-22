@@ -26,7 +26,6 @@ public class CallActivity extends AppCompatActivity {
 
 	public static final String ACTION_INCOMING_CALL = "incoming_call";
 	public static final String ACTION_OUTGOING_CALL = "outgoing_code";
-	//public static final String ACTION_SCAN_QR_CODE = "scan_qr_code";
 
 	//private ImageView mAvatar;
 	private TextView callState;
@@ -94,10 +93,10 @@ public class CallActivity extends AppCompatActivity {
 	}
 
 	private void onIncomingCall(){
-		callState.setText(getResources().getString(R.string.incoming_call) + " from " + currentTwilioCall.getCaller());
+		String incoming = getResources().getString(R.string.incoming_call) + " from " + currentTwilioCall.getCaller();
+		callState.setText(incoming);
 		acceptCall.setVisibility(View.VISIBLE);
 		endCall.setVisibility(View.VISIBLE);
-		//callState.setText(getResources().getString(R.string.incoming_call));
 		rejectText.setText(getResources().getString(R.string.reject_call));
 
 	}
