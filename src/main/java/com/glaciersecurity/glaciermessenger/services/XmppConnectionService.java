@@ -113,6 +113,7 @@ import com.glaciersecurity.glaciermessenger.parser.MessageParser;
 import com.glaciersecurity.glaciermessenger.parser.PresenceParser;
 import com.glaciersecurity.glaciermessenger.persistance.DatabaseBackend;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
+import com.glaciersecurity.glaciermessenger.ui.CallActivity;
 import com.glaciersecurity.glaciermessenger.ui.ChooseAccountForProfilePictureActivity;
 import com.glaciersecurity.glaciermessenger.ui.SettingsActivity;
 import com.glaciersecurity.glaciermessenger.ui.UiCallback;
@@ -163,8 +164,12 @@ import rocks.xmpp.addr.Jid;
 
 public class XmppConnectionService extends Service implements ServiceConnection, Handler.Callback, TwilioCallListener { //ALF AM-57 placeholder, AM-344, AM-410
 
+	//ALF AM-410
+	public static final String ACTION_REPLY_TO_CALL_REQUEST = "reply_to_call_request";
+	public static final String ACTION_ACCEPT_CALL_REQUEST = "accept_call_request";
+	public static final String ACTION_REJECT_CALL_REQUEST = "reject_call_request";
+
 	public static final String ACTION_REPLY_TO_CONVERSATION = "reply_to_conversations";
-	public static final String ACTION_REPLY_TO_CALL_REQUEST = "reply_to_call_request"; //ALF AM-410
 	public static final String ACTION_MARK_AS_READ = "mark_as_read";
 	public static final String ACTION_SNOOZE = "snooze";
 	public static final String ACTION_CLEAR_NOTIFICATION = "clear_notification";
@@ -727,11 +732,29 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						call.setStatus(intent.getStringExtra("status"));
 						//onCallReceived(call);
 						currentTwilioCall = call;
-						if (twilioCallListener != null) {
+
+						Intent callIntent = new Intent(this, CallActivity.class);
+						callIntent.setAction(CallActivity.ACTION_INCOMING_CALL);
+						callIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+						callIntent.putExtra("caller", call.getCaller());
+						callIntent.putExtra("roomname", call.getRoomName());
+						callIntent.putExtra("status", call.getStatus());
+						callIntent.putExtra("call_id", call.getCallId());
+						callIntent.putExtra("account", pushedAccountHash);
+						this.startActivity(callIntent);
+
+						/*if (twilioCallListener != null) {
 							twilioCallListener.onCallReceived(call);
-						}
+							//start CallActivity? Maybe don't need listener
+						}*/
 						Log.d(Config.LOGTAG, "push message arrived in service. account=" + pushedAccountHash);
 					}
+					break;
+				case ACTION_ACCEPT_CALL_REQUEST: //ALF AM-410
+					acceptCall(currentTwilioCall);
+					break;
+				case ACTION_REJECT_CALL_REQUEST: //ALF AM-410
+					rejectCall(currentTwilioCall);
 					break;
 				case ACTION_MARK_AS_READ:
 					mNotificationExecutor.execute(() -> {
