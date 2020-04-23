@@ -1,6 +1,9 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -54,6 +57,8 @@ public class CallActivity extends XmppActivity {
 		this.acceptCallBtn= findViewById(R.id.accept_call_button);
 		this.avatar = (ImageView) findViewById(R.id.participant_stub_image);
 
+        registerReceiver(mMessageReceiver, new IntentFilter("callActivityFinish"));
+
 		if (getIntent().getAction().equals(ACTION_OUTGOING_CALL)) {
 			try {
 				this.contactJid = Jid.of(getIntent().getExtras().getString("receiver"));
@@ -82,7 +87,7 @@ public class CallActivity extends XmppActivity {
 		if (intent == null) {
 			return;
 		}
-		//final String type = intent.getType();
+
 		final String action = intent.getAction();
 
 		if (CallActivity.ACTION_INCOMING_CALL.equals(action)) {
@@ -104,6 +109,20 @@ public class CallActivity extends XmppActivity {
 			this.onOutgoingCall();
 		}
 	}
+
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            finish();
+        }
+    };
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mMessageReceiver);
+    }
+
 	@Override
 	protected void onBackendConnected() {
 //		if (xmppConnectionService != null) {

@@ -132,7 +132,6 @@ import com.glaciersecurity.glaciermessenger.utils.ReplacingTaskManager;
 import com.glaciersecurity.glaciermessenger.utils.Resolver;
 import com.glaciersecurity.glaciermessenger.utils.SerialSingleThreadExecutor;
 import com.glaciersecurity.glaciermessenger.utils.StringUtils;
-import com.glaciersecurity.glaciermessenger.utils.TwilioCallListener;
 import com.glaciersecurity.glaciermessenger.utils.WakeLockHelper;
 import com.glaciersecurity.glaciermessenger.xml.Namespace;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
@@ -162,7 +161,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.stanzas.PresencePacket;
 import me.leolin.shortcutbadger.ShortcutBadger;
 import rocks.xmpp.addr.Jid;
 
-public class XmppConnectionService extends Service implements ServiceConnection, Handler.Callback, TwilioCallListener { //ALF AM-57 placeholder, AM-344, AM-410
+public class XmppConnectionService extends Service implements ServiceConnection, Handler.Callback { //ALF AM-57 placeholder, AM-344
 
 	//ALF AM-410
 	public static final String ACTION_REPLY_TO_CALL_REQUEST = "reply_to_call_request";
@@ -287,7 +286,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	private static final int MSG_UPDATE_STATE = 0;
 
 	//ALF AM-410
-	private TwilioCallListener twilioCallListener;
 	private TwilioCall currentTwilioCall;
 
 	//Ui callback listeners
@@ -712,10 +710,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					});
 					break;
 				case ACTION_REPLY_TO_CALL_REQUEST: //ALF AM-410
-
-					// check status for reject or accept
-					String
-
 					pushedAccountHash = intent.getStringExtra("account");
 					Account acct = null;
 					for (Account account : accounts) {
@@ -734,14 +728,20 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						call.setCaller(intent.getStringExtra("caller"));
 						call.setRoomName(intent.getStringExtra("roomname"));
 						call.setStatus(intent.getStringExtra("status"));
-						//onCallReceived(call);
+
 						currentTwilioCall = call;
 
 						if (call.getStatus().equalsIgnoreCase("reject")) {
 							//stop CallActivity
+							Intent intent1 = new Intent("callActivityFinish");
+							sendBroadcast(intent1);
+
 							//notify user of rejection
 						} else if (call.getStatus().equalsIgnoreCase("accept")) {
 							//stop CallActivity
+							Intent intent1 = new Intent("callActivityFinish");
+							sendBroadcast(intent1);
+
 							//open RoomActivity
 						} else {
 							Intent callIntent = new Intent(getApplicationContext(), CallActivity.class);
@@ -756,10 +756,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							this.startActivity(callIntent);
 						}
 
-						/*if (twilioCallListener != null) {
-							twilioCallListener.onCallReceived(call);
-							//start CallActivity? Maybe don't need listener
-						}*/
 						Log.d(Config.LOGTAG, "push message arrived in service. account=" + pushedAccountHash);
 					}
 					break;
@@ -4435,7 +4431,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 	}
 
-	//ALF AM-410 (next 8) //receiver is bare jid of receiver
+	//ALF AM-410 (next 3) //receiver is bare jid of receiver
 	public void sendCallRequest(TwilioCall call) {
 		final String deviceId = PhoneHelper.getAndroidId(this);
 		currentTwilioCall = null;
@@ -4511,9 +4507,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					}
 
 					currentTwilioCall = call;
-					if (twilioCallListener != null) {
-						twilioCallListener.onCallSetupResponse(call);
-					}
 				} else {
 					//callback.informUser("Something bad");
 					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not create call");
@@ -4577,11 +4570,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							}
 						}
 					}
-
-					//close CallActivity and open room Activity
-					if (twilioCallListener != null) {
-						twilioCallListener.onCallAcceptResponse(call);
-					}
 				} else {
 					//callback.informUser("Something bad"); //TODO ALERT USER
 					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not create call");
@@ -4611,54 +4599,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 		Log.d(Config.LOGTAG, call.getAccount().getJid().asBareJid() + ": rejecting call from " + call.getCaller());
 		sendIqPacket(call.getAccount(), request, null);
-	}
-
-	public void onCallReceived(TwilioCall call) {
-		currentTwilioCall = call;
-		//tdelegate should pop up gui and give accept/reject option
-		//just for testing
-		//if (call.getCallId() > 0 && call.getRoomName() != null) {
-			//rejectCall(call);
-			//acceptCall(call);
-		//}
-
-		if (twilioCallListener != null) {
-			twilioCallListener.onCallReceived(call);
-		}
-	}
-
-	public void setTwilioCallListener(TwilioCallListener callListener) {
-		twilioCallListener = callListener;
-	}
-
-	public void onCallSetupResponse(TwilioCall call) {
-		currentTwilioCall = call;
-		// hand off call info to Christina?
-		// or store the response info?
-	}
-
-	public void onCallAcceptResponse(TwilioCall call) {
-		if (currentTwilioCall != null) {
-			currentTwilioCall.setCallId(call.getCallId());
-			currentTwilioCall.setToken(call.getToken());
-		}
-		//hand off call info to Christina?
-		// might be blank
-	}
-
-	public void informUser(final int resId) {
-
-		/*runOnUiThread(() -> {
-			if (messageLoaderToast != null) {
-				messageLoaderToast.cancel();
-			}
-			if (ConversationFragment.this.conversation != conversation) {
-				return;
-			}
-			messageLoaderToast = Toast.makeText(getActivity(), resId, Toast.LENGTH_LONG);
-			messageLoaderToast.show();
-		});*/
-
 	}
 	//ALF AM-410 end TwilioCall stuff
 

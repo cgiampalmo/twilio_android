@@ -1932,21 +1932,4 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	public void onShowErrorToast(int resId) {
 		runOnUiThread(() -> Toast.makeText(this, resId, Toast.LENGTH_SHORT).show());
 	}
-
-	//ALF AM-410 (next 3) for now in ConversationFragment
-	// do I need to register this as a listener?
-	/*@Override
-	public void onCallSetupResponse(TwilioCall call) {
-		//handoff call info to Christina?
-	}
-
-	@Override
-	public void onCallAcceptResponse(TwilioCall call) {
-		//handoff call info to Christina?
-	}
-
-	@Override
-	public void onCallRejectResponse(TwilioCall call) {
-		//handoff call info to Christina?
-	}*/
 }
