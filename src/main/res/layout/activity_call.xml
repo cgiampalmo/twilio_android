@@ -21,7 +21,6 @@
         android:layout_height="0dp"
         android:layout_gravity="center"
         android:layout_marginTop="@dimen/spacing_xlarge"
-        android:layout_marginBottom="@dimen/spacing_xlarge"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -39,7 +38,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
                 android:contentDescription="@string/account_image_description"
-                app:riv_corner_radius="40dip" />
+                app:riv_corner_radius="90dip" />
 
 <!--        <ImageView-->
 <!--            android:id="@+id/participant_stub_image"-->
@@ -56,7 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_above="@id/call_state"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="12dp"
             android:text="Participant Name"
             android:textColor="?attr/edit_text_color"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
@@ -68,7 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_above="@id/participant_stub_image"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="24dp"
             android:text="@string/incoming_call"
             android:textColor="?attr/edit_text_color"
             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
@@ -80,7 +79,6 @@
         android:layout_width="@dimen/calling__controls__max_width"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
-        android:layout_marginBottom="@dimen/spacing_xlarge"
         android:layout_marginStart="@dimen/spacing_slarge"
         android:layout_marginEnd="@dimen/spacing_slarge"
         android:orientation="horizontal">
@@ -105,7 +103,7 @@
                     android:layout_margin="@dimen/fab_margin"
                     android:background="@drawable/roundbutton"
                     app:backgroundTint="@color/lobbyMediaControls"
-                    app:srcCompat="@drawable/ic_mic_off_gray_24px" />
+                    app:srcCompat="@drawable/ic_mic_white_24px" />
 
                 <TextView
                     android:id="@+id/audio_text"
@@ -133,7 +131,7 @@
                     android:layout_margin="@dimen/fab_margin"
                     android:background="@drawable/roundbutton"
                     app:backgroundTint="@color/lobbyMediaControls"
-                    app:srcCompat="@drawable/ic_videocam_white_24px" />
+                    app:srcCompat="@drawable/ic_videocam_off_gray_24px" />
 
                 <TextView
                     android:id="@+id/video_text"
@@ -161,7 +159,7 @@
                     android:layout_margin="@dimen/fab_margin"
                     android:background="@drawable/roundbutton"
                     app:backgroundTint="@color/lobbyMediaControls"
-                    app:srcCompat="@drawable/ic_volume_up_black_24dp" />
+                    app:srcCompat="@drawable/ic_volume_up_white_24dp" />
 
                 <TextView
                     android:id="@+id/speaker_text"

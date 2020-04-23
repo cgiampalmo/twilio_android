@@ -4,23 +4,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
-import androidx.databinding.DataBindingUtil;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.Account;
+import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
@@ -33,17 +27,28 @@ public class CallActivity extends XmppActivity {
 	public static final String ACTION_INCOMING_CALL = "incoming_call";
 	public static final String ACTION_OUTGOING_CALL = "outgoing_code";
 
+
+	private Boolean isAudioMuted = false;
+	private Boolean isVideoMuted = true;
+	private Boolean isSpeakerphoneOn = false;
+	private Boolean isVideoEnabled = false;
+
 	private TextView callState;
-	private TextView contact;
+	private TextView contactText;
 	private LinearLayout incomingCallLayout;
 	private LinearLayout outgoingCallLayout;
 	private AppCompatImageButton rejectCallBtn;
 	private AppCompatImageButton acceptCallBtn;
+	private AppCompatImageButton endCallBtn;
+	private AppCompatImageButton videoBtn;
+	private AppCompatImageButton audioBtn;
+	private AppCompatImageButton speakerBtn;
 	private ImageView avatar;
 
 
 	private TwilioCall currentTwilioCall;
 	private Jid contactJid;
+	private String conversationUuid;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -51,10 +56,9 @@ public class CallActivity extends XmppActivity {
 		setContentView(R.layout.activity_call);
 		setSupportActionBar(findViewById(R.id.toolbar));
 		this.callState = findViewById(R.id.call_state);
-		this.contact = findViewById(R.id.participant_selected_identity);
+		this.contactText = findViewById(R.id.participant_selected_identity);
 		this.incomingCallLayout = findViewById(R.id.call_status_incoming);
 		this.outgoingCallLayout = findViewById(R.id.call_status_outgoing);
-		this.acceptCallBtn= findViewById(R.id.accept_call_button);
 		this.avatar = (ImageView) findViewById(R.id.participant_stub_image);
 
         registerReceiver(mMessageReceiver, new IntentFilter("callActivityFinish"));
@@ -62,9 +66,12 @@ public class CallActivity extends XmppActivity {
 		if (getIntent().getAction().equals(ACTION_OUTGOING_CALL)) {
 			try {
 				this.contactJid = Jid.of(getIntent().getExtras().getString("receiver"));
+				this.conversationUuid = getIntent().getExtras().getString("uuid");
+
 			} catch (final IllegalArgumentException ignored) {
 			}
 		}
+		this.acceptCallBtn= findViewById(R.id.accept_call_button);
 		acceptCallBtn.setOnClickListener(v -> {
 			//needs access to XmppConnectionService
 			final Intent intent = new Intent(this, XmppConnectionService.class);
@@ -78,6 +85,45 @@ public class CallActivity extends XmppActivity {
 			intent.setAction(XmppConnectionService.ACTION_REJECT_CALL_REQUEST);
 			Compatibility.startService(this, intent);
 		});
+
+		this.endCallBtn= findViewById(R.id.end_call_button);
+		endCallBtn.setOnClickListener(v -> {
+
+		});
+		this.videoBtn = findViewById(R.id.local_video_image_button);
+		videoBtn.setOnClickListener(v -> {
+			if (isVideoMuted) {
+				isVideoMuted = false;
+				videoBtn.setImageResource(R.drawable.ic_videocam_off_gray_24px);
+			} else {
+				isVideoMuted = true;
+				videoBtn.setImageResource(R.drawable.ic_videocam_white_24px);
+			}
+
+		});
+		this.audioBtn = findViewById(R.id.audio_image_button);
+		audioBtn.setOnClickListener(v -> {
+			if (isAudioMuted) {
+				isAudioMuted = false;
+				audioBtn.setImageResource(R.drawable.ic_mic_off_gray_24dp);
+			} else {
+				isAudioMuted = true;
+				audioBtn.setImageResource(R.drawable.ic_mic_white_24px);
+			}
+		});
+
+		// TODO in twilio roomActiviy audio manager is used to manage speaker phone status
+		this.speakerBtn= findViewById(R.id.speaker_button);
+		speakerBtn.setOnClickListener(v -> {
+			if (isSpeakerphoneOn) {
+				isSpeakerphoneOn = false;
+				speakerBtn.setImageResource(R.drawable.ic_volume_up_gray_24dp);
+			} else {
+				isSpeakerphoneOn = true;
+				speakerBtn.setImageResource(R.drawable.ic_volume_up_white_24dp);
+			}
+		});
+
 	}
 
 	@Override
@@ -125,24 +171,39 @@ public class CallActivity extends XmppActivity {
 
 	@Override
 	protected void onBackendConnected() {
-//		if (xmppConnectionService != null) {
-//			avatar.setImageBitmap(avatarService().get(xmppConnectionService.findAccountByJid(Jid.of(contactJid)), (int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
-//		}
+		try {
+			if (xmppConnectionService != null) {
+				Account mAccount = xmppConnectionService.getAccounts().get(0);
+				if (mAccount != null || conversationUuid != null) {
+					Conversation conversation = xmppConnectionService.findConversationByUuid(conversationUuid);
+					avatar.setImageBitmap(avatarService().get(conversation.getContact(), (int) getResources().getDimension(R.dimen.avatar_on_incoming_call_screen_size)));
+
+				}
+			}
+		} catch (Exception e){
+
+		}
 	}
+
+
 	public void refreshUiReal() {
 	}
 	private void onIncomingCall(){
-		String incoming = getResources().getString(R.string.incoming_call) + " from " + currentTwilioCall.getCaller();
+		String incoming = getResources().getString(R.string.incoming_call);
 		callState.setText(incoming);
-		contact.setText(currentTwilioCall.getCaller());
+		contactText.setText(currentTwilioCall.getCaller());
 		incomingCallLayout.setVisibility(View.VISIBLE);
 		outgoingCallLayout.setVisibility(View.GONE);
 	}
 
 	private void onOutgoingCall(){
 		callState.setText(getResources().getString(R.string.outgoing_call));
-		//contact.setText(currentTwilioCall.getCaller());
-		contact.setText(contactJid.getEscapedLocal());
+		try {
+			contactText.setText(Jid.of(currentTwilioCall.getReceiver()).getEscapedLocal());
+		}
+		catch (final IllegalArgumentException ignored) {
+			contactText.setText(contactJid);
+		}
 		incomingCallLayout.setVisibility(View.GONE);
 		outgoingCallLayout.setVisibility(View.VISIBLE);
 	}
