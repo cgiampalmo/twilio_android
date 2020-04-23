@@ -29,7 +29,6 @@ public class CallActivity extends XmppActivity {
 
 	public static final String ACTION_INCOMING_CALL = "incoming_call";
 	public static final String ACTION_OUTGOING_CALL = "outgoing_code";
-	//public static final String ACTION_SCAN_QR_CODE = "scan_qr_code";
 
 	private TextView callState;
 	private TextView contact;
