@@ -99,7 +99,7 @@ public class CallActivity extends XmppActivity {
 			this.onIncomingCall();
 		} else if (CallActivity.ACTION_OUTGOING_CALL.equals(action)) {
 			TwilioCall call = new TwilioCall(null);
-			call.setReceiver(intent.getStringExtra("caller"));
+			call.setReceiver(intent.getStringExtra("receiver"));
 			currentTwilioCall = call;
 			this.onOutgoingCall();
 		}
@@ -113,7 +113,8 @@ public class CallActivity extends XmppActivity {
 	public void refreshUiReal() {
 	}
 	private void onIncomingCall(){
-		callState.setText(getResources().getString(R.string.incoming_call));
+		String incoming = getResources().getString(R.string.incoming_call) + " from " + currentTwilioCall.getCaller();
+		callState.setText(incoming);
 		contact.setText(contactJid.getEscapedLocal());
 		incomingCallLayout.setVisibility(View.VISIBLE);
 		outgoingCallLayout.setVisibility(View.GONE);
