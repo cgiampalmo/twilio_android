@@ -713,8 +713,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					break;
 				case ACTION_REPLY_TO_CALL_REQUEST: //ALF AM-410
 
-					// check status for reject or accept
-					String
+					// check status for reject or accept String
 
 					pushedAccountHash = intent.getStringExtra("account");
 					Account acct = null;

@@ -1108,6 +1108,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			callActivity.setAction(CallActivity.ACTION_OUTGOING_CALL);
 			callActivity.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 			callActivity.putExtra("receiver", call.getReceiver());
+			callActivity.putExtra("uuid", conversation.getUuid());
 			startActivity(callActivity);
 			return true;
 		});
