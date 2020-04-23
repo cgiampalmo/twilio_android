@@ -14,7 +14,6 @@ import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
-import com.glaciersecurity.glaciermessenger.ui.util.AvatarWorkerTask;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 
 import rocks.xmpp.addr.Jid;
@@ -25,6 +24,12 @@ public class CallActivity extends XmppActivity {
 	public static final String ACTION_INCOMING_CALL = "incoming_call";
 	public static final String ACTION_OUTGOING_CALL = "outgoing_code";
 
+
+	private Boolean isAudioMuted = false;
+	private Boolean isVideoMuted = true;
+	private Boolean isSpeakerphoneOn = false;
+	private Boolean isVideoEnabled = false;
+
 	private TextView callState;
 	private TextView contactText;
 	private LinearLayout incomingCallLayout;
@@ -32,6 +37,9 @@ public class CallActivity extends XmppActivity {
 	private AppCompatImageButton rejectCallBtn;
 	private AppCompatImageButton acceptCallBtn;
 	private AppCompatImageButton endCallBtn;
+	private AppCompatImageButton videoBtn;
+	private AppCompatImageButton audioBtn;
+	private AppCompatImageButton speakerBtn;
 	private ImageView avatar;
 
 
@@ -48,7 +56,6 @@ public class CallActivity extends XmppActivity {
 		this.contactText = findViewById(R.id.participant_selected_identity);
 		this.incomingCallLayout = findViewById(R.id.call_status_incoming);
 		this.outgoingCallLayout = findViewById(R.id.call_status_outgoing);
-		this.acceptCallBtn= findViewById(R.id.accept_call_button);
 		this.avatar = (ImageView) findViewById(R.id.participant_stub_image);
 
 		if (getIntent().getAction().equals(ACTION_OUTGOING_CALL)) {
@@ -59,6 +66,7 @@ public class CallActivity extends XmppActivity {
 			} catch (final IllegalArgumentException ignored) {
 			}
 		}
+		this.acceptCallBtn= findViewById(R.id.accept_call_button);
 		acceptCallBtn.setOnClickListener(v -> {
 			//needs access to XmppConnectionService
 			final Intent intent = new Intent(this, XmppConnectionService.class);
@@ -72,10 +80,45 @@ public class CallActivity extends XmppActivity {
 			intent.setAction(XmppConnectionService.ACTION_REJECT_CALL_REQUEST);
 			Compatibility.startService(this, intent);
 		});
+
 		this.endCallBtn= findViewById(R.id.end_call_button);
 		endCallBtn.setOnClickListener(v -> {
 
 		});
+		this.videoBtn = findViewById(R.id.local_video_image_button);
+		videoBtn.setOnClickListener(v -> {
+			if (isVideoMuted) {
+				isVideoMuted = false;
+				videoBtn.setImageResource(R.drawable.ic_videocam_off_gray_24px);
+			} else {
+				isVideoMuted = true;
+				videoBtn.setImageResource(R.drawable.ic_videocam_white_24px);
+			}
+
+		});
+		this.audioBtn = findViewById(R.id.audio_image_button);
+		audioBtn.setOnClickListener(v -> {
+			if (isAudioMuted) {
+				isAudioMuted = false;
+				audioBtn.setImageResource(R.drawable.ic_mic_off_gray_24dp);
+			} else {
+				isAudioMuted = true;
+				audioBtn.setImageResource(R.drawable.ic_mic_white_24px);
+			}
+		});
+
+		// TODO in twilio roomActiviy audio manager is used to manage speaker phone status
+		this.speakerBtn= findViewById(R.id.speaker_button);
+		speakerBtn.setOnClickListener(v -> {
+			if (isSpeakerphoneOn) {
+				isSpeakerphoneOn = false;
+				speakerBtn.setImageResource(R.drawable.ic_volume_up_gray_24dp);
+			} else {
+				isSpeakerphoneOn = true;
+				speakerBtn.setImageResource(R.drawable.ic_volume_up_white_24dp);
+			}
+		});
+
 	}
 
 	@Override
@@ -122,6 +165,8 @@ public class CallActivity extends XmppActivity {
 
 		}
 	}
+
+
 	public void refreshUiReal() {
 	}
 	private void onIncomingCall(){
