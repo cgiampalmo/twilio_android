@@ -40,7 +40,7 @@
     <string name="refreshing_connection">Attempting to Connect</string>
     <string name="refreshing">Attempting to refresh</string>
     <string name="incoming_call">Incoming call...</string>
-    <string name="outgoing_call">Calling ...</string>
+    <string name="outgoing_call">Ringing...</string>
     <string name="reject_call">Reject</string>
     <string name="end_call">End</string>
     <string name="accept_call">Accept</string>

@@ -17,26 +17,31 @@ import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.databinding.DataBindingUtil;
 
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 
+import rocks.xmpp.addr.Jid;
+
 //CMG AM-410
-public class CallActivity extends AppCompatActivity {
+public class CallActivity extends XmppActivity {
 
 	public static final String ACTION_INCOMING_CALL = "incoming_call";
 	public static final String ACTION_OUTGOING_CALL = "outgoing_code";
 	//public static final String ACTION_SCAN_QR_CODE = "scan_qr_code";
 
-	//private ImageView mAvatar;
 	private TextView callState;
-	private TextView rejectText;
-	private LinearLayout acceptCall;
-	private LinearLayout endCall;
+	private TextView contact;
+	private LinearLayout incomingCallLayout;
+	private LinearLayout outgoingCallLayout;
 	private AppCompatImageButton rejectCallBtn;
 	private AppCompatImageButton acceptCallBtn;
+	private ImageView avatar;
+
 
 	private TwilioCall currentTwilioCall;
+	private Jid contactJid;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +49,18 @@ public class CallActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_call);
 		setSupportActionBar(findViewById(R.id.toolbar));
 		this.callState = findViewById(R.id.call_state);
-		this.acceptCall = findViewById(R.id.accept);
-		this.endCall = findViewById(R.id.end_call);
-		this.rejectText = findViewById(R.id.reject_text);
+		this.contact = findViewById(R.id.participant_selected_identity);
+		this.incomingCallLayout = findViewById(R.id.call_status_incoming);
+		this.outgoingCallLayout = findViewById(R.id.call_status_outgoing);
 		this.acceptCallBtn= findViewById(R.id.accept_call_button);
+		this.avatar = (ImageView) findViewById(R.id.participant_stub_image);
+
+		if (getIntent().getAction().equals(ACTION_OUTGOING_CALL)) {
+			try {
+				this.contactJid = Jid.of(getIntent().getExtras().getString("receiver"));
+			} catch (final IllegalArgumentException ignored) {
+			}
+		}
 		acceptCallBtn.setOnClickListener(v -> {
 			//needs access to XmppConnectionService
 			final Intent intent = new Intent(this, XmppConnectionService.class);
@@ -92,22 +105,28 @@ public class CallActivity extends AppCompatActivity {
 			this.onOutgoingCall();
 		}
 	}
-
+	@Override
+	protected void onBackendConnected() {
+//		if (xmppConnectionService != null) {
+//			avatar.setImageBitmap(avatarService().get(xmppConnectionService.findAccountByJid(Jid.of(contactJid)), (int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
+//		}
+	}
+	public void refreshUiReal() {
+	}
 	private void onIncomingCall(){
-		callState.setText(getResources().getString(R.string.incoming_call) + " from " + currentTwilioCall.getCaller());
-		acceptCall.setVisibility(View.VISIBLE);
-		endCall.setVisibility(View.VISIBLE);
-		//callState.setText(getResources().getString(R.string.incoming_call));
-		rejectText.setText(getResources().getString(R.string.reject_call));
+		callState.setText(getResources().getString(R.string.incoming_call));
+		contact.setText(contactJid.getEscapedLocal());
+		incomingCallLayout.setVisibility(View.VISIBLE);
+		outgoingCallLayout.setVisibility(View.GONE);
 
 	}
 
 	private void onOutgoingCall(){
 		callState.setText(getResources().getString(R.string.outgoing_call));
-		acceptCall.setVisibility(View.GONE);
-		endCall.setVisibility(View.VISIBLE);
-		rejectText.setText(getResources().getString(R.string.end_call));
-
+		//contact.setText(currentTwilioCall.getCaller());
+		contact.setText(contactJid.getEscapedLocal());
+		incomingCallLayout.setVisibility(View.GONE);
+		outgoingCallLayout.setVisibility(View.VISIBLE);
 	}
 
 }
