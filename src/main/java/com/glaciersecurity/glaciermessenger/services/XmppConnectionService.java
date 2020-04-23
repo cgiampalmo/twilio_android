@@ -712,6 +712,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					});
 					break;
 				case ACTION_REPLY_TO_CALL_REQUEST: //ALF AM-410
+
+					// check status for reject or accept
+					String
+
 					pushedAccountHash = intent.getStringExtra("account");
 					Account acct = null;
 					for (Account account : accounts) {
@@ -733,16 +737,24 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						//onCallReceived(call);
 						currentTwilioCall = call;
 
-						Intent callIntent = new Intent(getApplicationContext(), CallActivity.class);
-						callIntent.setAction(CallActivity.ACTION_INCOMING_CALL);
-						//callIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-						callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-						callIntent.putExtra("caller", call.getCaller());
-						callIntent.putExtra("roomname", call.getRoomName());
-						callIntent.putExtra("status", call.getStatus());
-						callIntent.putExtra("call_id", call.getCallId());
-						callIntent.putExtra("account", pushedAccountHash);
-						this.startActivity(callIntent);
+						if (call.getStatus().equalsIgnoreCase("reject")) {
+							//stop CallActivity
+							//notify user of rejection
+						} else if (call.getStatus().equalsIgnoreCase("accept")) {
+							//stop CallActivity
+							//open RoomActivity
+						} else {
+							Intent callIntent = new Intent(getApplicationContext(), CallActivity.class);
+							callIntent.setAction(CallActivity.ACTION_INCOMING_CALL);
+							//callIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+							callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+							callIntent.putExtra("caller", call.getCaller());
+							callIntent.putExtra("roomname", call.getRoomName());
+							callIntent.putExtra("status", call.getStatus());
+							callIntent.putExtra("call_id", call.getCallId());
+							callIntent.putExtra("account", pushedAccountHash);
+							this.startActivity(callIntent);
+						}
 
 						/*if (twilioCallListener != null) {
 							twilioCallListener.onCallReceived(call);
@@ -4566,11 +4578,12 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						}
 					}
 
+					//close CallActivity and open room Activity
 					if (twilioCallListener != null) {
 						twilioCallListener.onCallAcceptResponse(call);
 					}
 				} else {
-					//callback.informUser("Something bad");
+					//callback.informUser("Something bad"); //TODO ALERT USER
 					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not create call");
 				}
 			}
