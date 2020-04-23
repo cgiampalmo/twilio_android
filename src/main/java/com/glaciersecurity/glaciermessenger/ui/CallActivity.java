@@ -115,10 +115,9 @@ public class CallActivity extends XmppActivity {
 	private void onIncomingCall(){
 		String incoming = getResources().getString(R.string.incoming_call) + " from " + currentTwilioCall.getCaller();
 		callState.setText(incoming);
-		contact.setText(contactJid.getEscapedLocal());
+		contact.setText(currentTwilioCall.getCaller());
 		incomingCallLayout.setVisibility(View.VISIBLE);
 		outgoingCallLayout.setVisibility(View.GONE);
-
 	}
 
 	private void onOutgoingCall(){

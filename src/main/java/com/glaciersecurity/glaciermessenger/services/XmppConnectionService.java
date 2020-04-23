@@ -736,7 +736,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						Intent callIntent = new Intent(getApplicationContext(), CallActivity.class);
 						callIntent.setAction(CallActivity.ACTION_INCOMING_CALL);
 						//callIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-						//callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+						callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 						callIntent.putExtra("caller", call.getCaller());
 						callIntent.putExtra("roomname", call.getRoomName());
 						callIntent.putExtra("status", call.getStatus());
