@@ -4570,6 +4570,12 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							}
 						}
 					}
+
+					//do something with this information. Maybe close CallActivity and enter
+					Intent intent1 = new Intent("callActivityFinish");
+					sendBroadcast(intent1);
+
+					//open RoomActivity with callToken/info
 				} else {
 					//callback.informUser("Something bad"); //TODO ALERT USER
 					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not create call");
@@ -4599,6 +4605,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 		Log.d(Config.LOGTAG, call.getAccount().getJid().asBareJid() + ": rejecting call from " + call.getCaller());
 		sendIqPacket(call.getAccount(), request, null);
+
+		//Close CallActivity
+		Intent intent1 = new Intent("callActivityFinish");
+		sendBroadcast(intent1);
 	}
 	//ALF AM-410 end TwilioCall stuff
 

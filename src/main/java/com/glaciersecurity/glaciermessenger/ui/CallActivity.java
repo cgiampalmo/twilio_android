@@ -138,11 +138,7 @@ public class CallActivity extends XmppActivity {
 
 		if (CallActivity.ACTION_INCOMING_CALL.equals(action)) {
 			TwilioCall call = new TwilioCall(null);
-			try {
-				int callid = Integer.parseInt(intent.getStringExtra("call_id"));
-				call.setCallId(callid);
-			} catch (NumberFormatException nfe) {
-			}
+			call.setCallId(intent.getIntExtra("call_id", 0));
 			call.setCaller(intent.getStringExtra("caller"));
 			call.setRoomName(intent.getStringExtra("roomname"));
 			call.setStatus(intent.getStringExtra("status"));
