@@ -140,7 +140,7 @@ public class CallActivity extends XmppActivity {
 			TwilioCall call = new TwilioCall(null);
 			call.setCallId(intent.getIntExtra("call_id", 0));
 			call.setCaller(intent.getStringExtra("caller"));
-			call.setRoomName(intent.getStringExtra("roomname"));
+			//call.setRoomName(intent.getStringExtra("roomname"));
 			call.setStatus(intent.getStringExtra("status"));
 			currentTwilioCall = call;
 			this.onIncomingCall();

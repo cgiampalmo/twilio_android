@@ -719,37 +719,54 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					}
 
 					if (acct != null) {
+
 						TwilioCall call = new TwilioCall(acct);
 						try {
 							int callid = Integer.parseInt(intent.getStringExtra("call_id"));
 							call.setCallId(callid);
 						} catch (NumberFormatException nfe) {
 						}
-						call.setCaller(intent.getStringExtra("caller"));
-						call.setRoomName(intent.getStringExtra("roomname"));
-						call.setStatus(intent.getStringExtra("status"));
 
-						currentTwilioCall = call;
+						call.setStatus(intent.getStringExtra("status"));
 
 						if (call.getStatus().equalsIgnoreCase("reject")) {
 							//stop CallActivity
 							Intent intent1 = new Intent("callActivityFinish");
 							sendBroadcast(intent1);
 
-							//notify user of rejection
+							//notify user of rejection from other party
+
+							currentTwilioCall = null;
 						} else if (call.getStatus().equalsIgnoreCase("accept")) {
+							// other party accepted call
 							//stop CallActivity
 							Intent intent1 = new Intent("callActivityFinish");
 							sendBroadcast(intent1);
 
-							//open RoomActivity
+							if (currentTwilioCall != null) {
+								//open RoomActivity
+								/*Intent callIntent = new Intent(getApplicationContext(), RoomActivity.class);
+								callIntent.setAction(CallActivity.ACTION_ACCEPTED_CALL);
+								callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+								callIntent.putExtra("call_id", currentTwilioCall.getCallId());
+								callIntent.putExtra("token", currentTwilioCall.getToken());
+								callIntent.putExtra("roomname", currentTwilioCall.getRoomName());
+								callIntent.putExtra("caller", currentTwilioCall.getCaller());
+								callIntent.putExtra("receiver", currentTwilioCall.getReceiver());
+								this.startActivity(callIntent);*/
+							}
 						} else {
+							call.setCaller(intent.getStringExtra("caller"));
+							//call.setRoomName(intent.getStringExtra("roomname"));
+
+							currentTwilioCall = call;
+
 							Intent callIntent = new Intent(getApplicationContext(), CallActivity.class);
 							callIntent.setAction(CallActivity.ACTION_INCOMING_CALL);
 							//callIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 							callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 							callIntent.putExtra("caller", call.getCaller());
-							callIntent.putExtra("roomname", call.getRoomName());
+							//callIntent.putExtra("roomname", call.getRoomName());
 							callIntent.putExtra("status", call.getStatus());
 							callIntent.putExtra("call_id", call.getCallId());
 							callIntent.putExtra("account", pushedAccountHash);
@@ -4567,6 +4584,12 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								} catch (NumberFormatException nfe) {}
 							} else if (item.getAttribute("var").equals("token")) {
 								call.setToken(item.findChild("value").getContent());
+							} else if (item.getAttribute("var").equals("roomname")) {
+								call.setRoomName(item.findChild("value").getContent());
+							} else if (item.getAttribute("var").equals("caller")) {
+								call.setCaller(item.findChild("value").getContent());
+							} else if (item.getAttribute("var").equals("receiver")) {
+								call.setReceiver(item.findChild("value").getContent());
 							}
 						}
 					}
@@ -4576,6 +4599,15 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					sendBroadcast(intent1);
 
 					//open RoomActivity with callToken/info
+					/*Intent callIntent = new Intent(getApplicationContext(), RoomActivity.class);
+					callIntent.setAction(CallActivity.ACTION_ACCEPTED_CALL);
+					callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					callIntent.putExtra("call_id", call.getCallId());
+					callIntent.putExtra("token", call.getToken());
+					callIntent.putExtra("roomname", call.getRoomName());
+					callIntent.putExtra("caller", call.getCaller());
+					callIntent.putExtra("receiver", call.getReceiver());
+					this.startActivity(callIntent);*/
 				} else {
 					//callback.informUser("Something bad"); //TODO ALERT USER
 					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not create call");
