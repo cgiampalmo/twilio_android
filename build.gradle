@@ -166,11 +166,7 @@ dependencies {
     implementation "com.twilio:audioswitch:${versions.audioSwitch}"
     implementation "com.twilio:video-android:${versions.videoAndroid}"
     implementation "com.koushikdutta.ion:ion:${versions.ion}"
-    implementation "com.android.support:appcompat-v7:${versions.supportLibrary}"
-    implementation "com.android.support:preference-v14:${versions.supportLibrary}"
-    implementation "com.android.support:design:${versions.supportLibrary}"
-
-
+    implementation "androidx.coordinatorlayout:coordinatorlayout:1.1.0"
 
 }
 

@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -160,10 +161,10 @@ public class VideoActivity extends AppCompatActivity {
     private CameraCapturerCompat cameraCapturerCompat;
     private LocalAudioTrack localAudioTrack;
     private LocalVideoTrack localVideoTrack;
-    private FloatingActionButton connectActionFab;
-    private FloatingActionButton switchCameraActionFab;
-    private FloatingActionButton localVideoActionFab;
-    private FloatingActionButton muteActionFab;
+    private ImageButton connectActionFab;
+    private ImageButton switchCameraActionFab;
+    private ImageButton localVideoActionFab;
+    private ImageButton muteActionFab;
     private ProgressBar reconnectingProgressBar;
     private AlertDialog connectDialog;
     private String remoteParticipantIdentity;
@@ -526,11 +527,11 @@ public class VideoActivity extends AppCompatActivity {
      * The initial state when there is no active room.
      */
     private void intializeUI() {
-        switchCameraActionFab.show();
+        switchCameraActionFab.setVisibility(View.VISIBLE);
         switchCameraActionFab.setOnClickListener(switchCameraClickListener());
-        localVideoActionFab.show();
+        localVideoActionFab.setVisibility(View.VISIBLE);
         localVideoActionFab.setOnClickListener(localVideoClickListener());
-        muteActionFab.show();
+        muteActionFab.setVisibility(View.VISIBLE);
         muteActionFab.setOnClickListener(muteClickListener());
     }
 
@@ -645,7 +646,7 @@ public class VideoActivity extends AppCompatActivity {
     private void setDisconnectAction() {
         connectActionFab.setImageDrawable(ContextCompat.getDrawable(this,
                 R.drawable.ic_call_end_white_24px));
-        connectActionFab.show();
+        connectActionFab.setVisibility(View.VISIBLE);
         connectActionFab.setOnClickListener(disconnectClickListener());
     }
 
@@ -1135,10 +1136,10 @@ public class VideoActivity extends AppCompatActivity {
                 int icon;
                 if (enable) {
                     icon = R.drawable.ic_videocam_white_24dp;
-                    switchCameraActionFab.show();
+                    switchCameraActionFab.setVisibility(View.VISIBLE);
                 } else {
                     icon = R.drawable.ic_videocam_off_black_24dp;
-                    switchCameraActionFab.hide();
+                    switchCameraActionFab.setVisibility(View.GONE);
                 }
                 localVideoActionFab.setImageDrawable(
                         ContextCompat.getDrawable(VideoActivity.this, icon));
