@@ -39,4 +39,7 @@
 -dontwarn com.amazonaws.mobileconnectors.**
 -dontwarn com.apollographql.apollo.**
 -dontwarn org.codehaus.mojo.**
--dontwarn kotlinx.coroutines.**
+-keep class tvi.webrtc.** { *; }
+-keep class com.twilio.video.** { *; }
+-keep class com.twilio.common.** { *; }
+-keepattributes InnerClasses

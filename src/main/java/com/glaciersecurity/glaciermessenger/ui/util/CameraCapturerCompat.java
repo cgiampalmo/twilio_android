@@ -1,4 +1,4 @@
-package com.glaciersecurity.glaciermessenger.utils;
+package com.glaciersecurity.glaciermessenger.ui.util;
 
 import android.content.Context;
 import android.graphics.ImageFormat;

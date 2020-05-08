@@ -2,7 +2,6 @@ package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,13 +25,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.glaciersecurity.glaciermessenger.BuildConfig;
 import com.glaciersecurity.glaciermessenger.R;
-import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
-import com.glaciersecurity.glaciermessenger.utils.CameraCapturerCompat;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.glaciersecurity.glaciermessenger.ui.util.CameraCapturerCompat;
 import com.google.android.material.snackbar.Snackbar;
-import com.koushikdutta.ion.Ion;
 import com.twilio.audioswitch.selection.AudioDevice;
 import com.twilio.audioswitch.selection.AudioDevice.BluetoothHeadset;
 import com.twilio.audioswitch.selection.AudioDevice.WiredHeadset;
@@ -73,7 +68,6 @@ import com.twilio.video.Vp9Codec;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import kotlin.Unit;
 
@@ -91,39 +85,12 @@ public class VideoActivity extends AppCompatActivity {
     private static final String LOCAL_AUDIO_TRACK_NAME = "mic";
     private static final String LOCAL_VIDEO_TRACK_NAME = "camera";
 
-    // Settings
-    public static final String PREF_AUDIO_CODEC = "audio_codec";
-    public static final String PREF_AUDIO_CODEC_DEFAULT = OpusCodec.NAME;
-    public static final String PREF_VIDEO_CODEC = "video_codec";
-    public static final String PREF_VIDEO_CODEC_DEFAULT = Vp8Codec.NAME;
-    public static final String PREF_SENDER_MAX_AUDIO_BITRATE = "sender_max_audio_bitrate";
-    public static final String PREF_SENDER_MAX_AUDIO_BITRATE_DEFAULT = "0";
-    public static final String PREF_SENDER_MAX_VIDEO_BITRATE = "sender_max_video_bitrate";
-    public static final String PREF_SENDER_MAX_VIDEO_BITRATE_DEFAULT = "0";
-    public static final String PREF_VP8_SIMULCAST = "vp8_simulcast";
-    public static final String PREF_ENABLE_AUTOMATIC_SUBSCRIPTION = "enable_automatic_subscription";
-    public static final boolean PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT = true;
-    public static final boolean PREF_VP8_SIMULCAST_DEFAULT = false;
 
-    private static final String[] VIDEO_CODEC_NAMES = new String[] {
-            Vp8Codec.NAME, H264Codec.NAME, Vp9Codec.NAME
-    };
-
-    private static final String[] AUDIO_CODEC_NAMES = new String[] {
-            IsacCodec.NAME, OpusCodec.NAME, PcmaCodec.NAME, PcmuCodec.NAME, G722Codec.NAME
-    };
-
-//    /*
-//     * You must provide a Twilio Access Token to connect to the Video service
-//     */
-//    private static final String TWILIO_ACCESS_TOKEN = BuildConfig.TWILIO_ACCESS_TOKEN;
-//    private static final String ACCESS_TOKEN_SERVER = BuildConfig.TWILIO_ACCESS_TOKEN_SERVER;
-//
-//    /*
-//     * Access token used to connect. This field will be set either from the console generated token
-//     * or the request to the token server.
-//     */
-//    private String accessToken;
+    /*
+     * Access token used to connect. This field will be set either from the console generated token
+     * or the request to the token server.
+     */
+    private String accessToken;
 
     /*
      * A Room represents communication between a local participant and one or more participants.
@@ -226,7 +193,6 @@ public class VideoActivity extends AppCompatActivity {
 
     private int callid;
     private String caller;
-    private String accessToken;
     private String roomname;
     private String receiver;
 
@@ -310,12 +276,12 @@ public class VideoActivity extends AppCompatActivity {
         /*
          * Update preferred audio and video codec in case changed in settings
          */
-        audioCodec = getAudioCodecPreference(PREF_AUDIO_CODEC,
-                PREF_AUDIO_CODEC_DEFAULT);
-        videoCodec = getVideoCodecPreference(PREF_VIDEO_CODEC,
-                PREF_VIDEO_CODEC_DEFAULT);
-        enableAutomaticSubscription = getAutomaticSubscriptionPreference(PREF_ENABLE_AUTOMATIC_SUBSCRIPTION,
-                PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT);
+        audioCodec = getAudioCodecPreference(VideoSettingsActivity.PREF_AUDIO_CODEC,
+                VideoSettingsActivity.PREF_AUDIO_CODEC_DEFAULT);
+        videoCodec = getVideoCodecPreference(VideoSettingsActivity.PREF_VIDEO_CODEC,
+                VideoSettingsActivity.PREF_VIDEO_CODEC_DEFAULT);
+        enableAutomaticSubscription = getAutomaticSubscriptionPreference(VideoSettingsActivity.PREF_ENABLE_AUTOMATIC_SUBSCRIPTION,
+                VideoSettingsActivity.PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT);
         /*
          * Get latest encoding parameters
          */
@@ -613,8 +579,8 @@ public class VideoActivity extends AppCompatActivity {
 
         switch (videoCodecName) {
             case Vp8Codec.NAME:
-                boolean simulcast = preferences.getBoolean(PREF_VP8_SIMULCAST,
-                        PREF_VP8_SIMULCAST_DEFAULT);
+                boolean simulcast = preferences.getBoolean(VideoSettingsActivity.PREF_VP8_SIMULCAST,
+                        VideoSettingsActivity.PREF_VP8_SIMULCAST_DEFAULT);
                 return new Vp8Codec(simulcast);
             case H264Codec.NAME:
                 return new H264Codec();
@@ -631,11 +597,11 @@ public class VideoActivity extends AppCompatActivity {
 
     private EncodingParameters getEncodingParameters() {
         final int maxAudioBitrate = Integer.parseInt(
-                preferences.getString(PREF_SENDER_MAX_AUDIO_BITRATE,
-                        PREF_SENDER_MAX_AUDIO_BITRATE_DEFAULT));
+                preferences.getString(VideoSettingsActivity.PREF_SENDER_MAX_AUDIO_BITRATE,
+                        VideoSettingsActivity.PREF_SENDER_MAX_AUDIO_BITRATE_DEFAULT));
         final int maxVideoBitrate = Integer.parseInt(
-                preferences.getString(PREF_SENDER_MAX_VIDEO_BITRATE,
-                        PREF_SENDER_MAX_VIDEO_BITRATE_DEFAULT));
+                preferences.getString(VideoSettingsActivity.PREF_SENDER_MAX_VIDEO_BITRATE,
+                        VideoSettingsActivity.PREF_SENDER_MAX_VIDEO_BITRATE_DEFAULT));
 
         return new EncodingParameters(maxAudioBitrate, maxVideoBitrate);
     }
