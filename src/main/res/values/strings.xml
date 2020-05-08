@@ -1073,4 +1073,13 @@
     <!--CMG AM-254 material_x nav bar-->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!--    CMG twilio-->
+    <string name="permissions_needed">Camera permission needed</string>
+    <string name="audio_device">Audio Device</string>
+    <string name="room_screen_select_device">Select Device</string>
+    <string name="room_status">status</string>
+    <string name="Video">Video</string>
+
+
 </resources>

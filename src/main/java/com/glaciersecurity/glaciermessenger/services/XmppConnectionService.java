@@ -117,6 +117,7 @@ import com.glaciersecurity.glaciermessenger.ui.CallActivity;
 import com.glaciersecurity.glaciermessenger.ui.ChooseAccountForProfilePictureActivity;
 import com.glaciersecurity.glaciermessenger.ui.SettingsActivity;
 import com.glaciersecurity.glaciermessenger.ui.UiCallback;
+import com.glaciersecurity.glaciermessenger.ui.VideoActivity;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnAvatarPublication;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnMediaLoaded;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnSearchResultsAvailable;
@@ -745,7 +746,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 							if (currentTwilioCall != null) {
 								//open RoomActivity
-								/*Intent callIntent = new Intent(getApplicationContext(), RoomActivity.class);
+								Intent callIntent = new Intent(getApplicationContext(), VideoActivity.class);
 								callIntent.setAction(CallActivity.ACTION_ACCEPTED_CALL);
 								callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 								callIntent.putExtra("call_id", currentTwilioCall.getCallId());
@@ -753,7 +754,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								callIntent.putExtra("roomname", currentTwilioCall.getRoomName());
 								callIntent.putExtra("caller", currentTwilioCall.getCaller());
 								callIntent.putExtra("receiver", currentTwilioCall.getReceiver());
-								this.startActivity(callIntent);*/
+								this.startActivity(callIntent);
 							}
 						} else {
 							call.setCaller(intent.getStringExtra("caller"));
@@ -4599,7 +4600,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					sendBroadcast(intent1);
 
 					//open RoomActivity with callToken/info
-					/*Intent callIntent = new Intent(getApplicationContext(), RoomActivity.class);
+					Intent callIntent = new Intent(getApplicationContext(), VideoActivity.class);
 					callIntent.setAction(CallActivity.ACTION_ACCEPTED_CALL);
 					callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					callIntent.putExtra("call_id", call.getCallId());
@@ -4607,7 +4608,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					callIntent.putExtra("roomname", call.getRoomName());
 					callIntent.putExtra("caller", call.getCaller());
 					callIntent.putExtra("receiver", call.getReceiver());
-					this.startActivity(callIntent);*/
+					startActivity(callIntent);
 				} else {
 					//callback.informUser("Something bad"); //TODO ALERT USER
 					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not create call");

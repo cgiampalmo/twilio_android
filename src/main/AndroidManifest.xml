@@ -341,6 +341,11 @@
         <activity
             android:name=".ui.MucUsersActivity"
             android:label="@string/group_chat_members" />
+        <activity
+            android:name=".ui.VideoActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/Video">
+        </activity>
     </application>
 
 </manifest>

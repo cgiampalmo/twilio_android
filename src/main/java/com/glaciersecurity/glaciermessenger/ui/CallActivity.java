@@ -26,6 +26,8 @@ public class CallActivity extends XmppActivity {
 
 	public static final String ACTION_INCOMING_CALL = "incoming_call";
 	public static final String ACTION_OUTGOING_CALL = "outgoing_code";
+	public static final String ACTION_ACCEPTED_CALL = "call_accepted";
+	public static final String ACTION_REJECTED_CALL = "call_rejected";
 
 
 	private Boolean isAudioMuted = false;
