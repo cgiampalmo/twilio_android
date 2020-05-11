@@ -1092,6 +1092,8 @@
     <string name="audio_device">Audio Device</string>
     <string name="room_screen_select_device">Select Device</string>
     <string name="Video">Video</string>
+    <string name="turn_speaker_on">Speaker ON</string>
+    <string name="turn_speaker_off">Speaker OFF</string>
 
 
 
