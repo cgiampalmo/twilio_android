@@ -192,6 +192,7 @@ public class VideoActivity extends AppCompatActivity {
          */
         intializeUI();
 
+
     }
 
 
@@ -216,9 +217,64 @@ public class VideoActivity extends AppCompatActivity {
             accessToken = intent.getStringExtra("token");
             roomname = intent.getStringExtra("roomname");
             receiver = intent.getStringExtra("receiver");
-
-
         }
+
+
+        audioCodec = getAudioCodecPreference(VideoSettingsActivity.PREF_AUDIO_CODEC,
+                VideoSettingsActivity.PREF_AUDIO_CODEC_DEFAULT);
+        videoCodec = getVideoCodecPreference(VideoSettingsActivity.PREF_VIDEO_CODEC,
+                VideoSettingsActivity.PREF_VIDEO_CODEC_DEFAULT);
+        enableAutomaticSubscription = getAutomaticSubscriptionPreference(VideoSettingsActivity.PREF_ENABLE_AUTOMATIC_SUBSCRIPTION,
+                VideoSettingsActivity.PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT);
+        /*
+         * Get latest encoding parameters
+         */
+        final EncodingParameters newEncodingParameters = getEncodingParameters();
+
+        /*
+         * If the local video track was released when the app was put in the background, recreate.
+         */
+        if (localVideoTrack == null && checkPermissionForCameraAndMicrophone()) {
+            localVideoTrack = LocalVideoTrack.create(this,
+                    true,
+                    cameraCapturerCompat.getVideoCapturer(),
+                    LOCAL_VIDEO_TRACK_NAME);
+            localVideoTrack.addRenderer(localVideoView);
+
+            /*
+             * If connected to a Room then share the local video track.
+             */
+            if (localParticipant != null) {
+                localParticipant.publishTrack(localVideoTrack);
+
+                /*
+                 * Update encoding parameters if they have changed.
+                 */
+                if (!newEncodingParameters.equals(encodingParameters)) {
+                    localParticipant.setEncodingParameters(newEncodingParameters);
+                }
+            }
+        }
+
+        /*
+         * Update encoding parameters
+         */
+        encodingParameters = newEncodingParameters;
+
+        /*
+         * Route audio through cached value.
+         */
+        audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
+
+        /*
+         * Update reconnecting UI
+         */
+        if (room != null) {
+            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
+                    View.GONE :
+                    View.VISIBLE);
+        }
+
         connectToRoom(roomname);
     }
         @Override
@@ -483,7 +539,8 @@ public class VideoActivity extends AppCompatActivity {
         /*
          * Set the sender side encoding parameters.
          */
-//        connectOptionsBuilder.encodingParameters(encodingParameters);
+        encodingParameters = getEncodingParameters();
+        connectOptionsBuilder.encodingParameters(encodingParameters);
 
         /*
          * Toggles automatic track subscription. If set to false, the LocalParticipant will receive
@@ -492,7 +549,7 @@ public class VideoActivity extends AppCompatActivity {
          * published. If unset, the default is true. Note: This feature is only available for Group
          * Rooms. Toggling the flag in a P2P room does not modify subscription behavior.
          */
-  //      connectOptionsBuilder.enableAutomaticSubscription(enableAutomaticSubscription);
+        connectOptionsBuilder.enableAutomaticSubscription(enableAutomaticSubscription);
 
         room = Video.connect(this, connectOptionsBuilder.build(), roomListener());
         setDisconnectAction();
@@ -1077,13 +1134,13 @@ public class VideoActivity extends AppCompatActivity {
 //    private View.OnClickListener connectActionClickListener() {
 //        return v -> showConnectDialog();
 //    }
-
-    private DialogInterface.OnClickListener cancelConnectDialogClickListener() {
-        return (dialog, which) -> {
-            intializeUI();
-            connectDialog.dismiss();
-        };
-    }
+//
+//    private DialogInterface.OnClickListener cancelConnectDialogClickListener() {
+//        return (dialog, which) -> {
+//            intializeUI();
+//            connectDialog.dismiss();
+//        };
+//    }
 
     private View.OnClickListener switchCameraClickListener() {
         return v -> {
