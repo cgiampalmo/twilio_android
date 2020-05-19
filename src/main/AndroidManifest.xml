@@ -345,15 +345,6 @@
             android:configChanges="orientation|screenSize"
             android:label="@string/Video">
         </activity>
-
-        <activity
-            android:name=".ui.VideoSettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:parentActivityName=".ui.VideoActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.VideoActivity" />
-        </activity>
     </application>
 
 </manifest>

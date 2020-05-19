@@ -30,7 +30,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.entities.Account;
+import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.ui.util.CameraCapturerCompat;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.twilio.video.AudioCodec;
 import com.twilio.video.CameraCapturer;
@@ -64,11 +67,12 @@ import com.twilio.video.Vp8Codec;
 import com.twilio.video.Vp9Codec;
 
 
+
 import java.util.ArrayList;
 import java.util.Collections;
 
 
-public class VideoActivity extends AppCompatActivity {
+public class VideoActivity extends XmppActivity {
     private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
     private static final String TAG = "VideoActivity";
 
@@ -95,8 +99,8 @@ public class VideoActivity extends AppCompatActivity {
     private Room room;
     private LocalParticipant localParticipant;
     private AudioManager audioManager;
-    private MenuItem turnSpeakerOnMenuItem;
-    private MenuItem turnSpeakerOffMenuItem;
+//    private MenuItem turnSpeakerOnMenuItem;
+//    private MenuItem turnSpeakerOffMenuItem;
     private int previousAudioMode;
     private boolean previousMicrophoneMute;
     private boolean isSpeakerPhoneEnabled = true;
@@ -132,13 +136,27 @@ public class VideoActivity extends AppCompatActivity {
     private CameraCapturerCompat cameraCapturerCompat;
     private LocalAudioTrack localAudioTrack;
     private LocalVideoTrack localVideoTrack;
-    private ImageButton connectActionFab;
-    private ImageButton switchCameraActionFab;
-    private ImageButton localVideoActionFab;
-    private ImageButton muteActionFab;
-    private ProgressBar reconnectingProgressBar;
+    private FloatingActionButton connectActionFab;
+    private FloatingActionButton switchCameraActionFab;
+    private FloatingActionButton localVideoActionFab;
+    private FloatingActionButton muteActionFab;
+    private FloatingActionButton speakerPhoneActionFab;
+    //private ProgressBar reconnectingProgressBar;
     private AlertDialog connectDialog;
     private String remoteParticipantIdentity;
+
+    public static final String PREF_AUDIO_CODEC = "audio_codec";
+    public static final String PREF_AUDIO_CODEC_DEFAULT = OpusCodec.NAME;
+    public static final String PREF_VIDEO_CODEC = "video_codec";
+    public static final String PREF_VIDEO_CODEC_DEFAULT = Vp8Codec.NAME;
+    public static final String PREF_SENDER_MAX_AUDIO_BITRATE = "sender_max_audio_bitrate";
+    public static final String PREF_SENDER_MAX_AUDIO_BITRATE_DEFAULT = "0";
+    public static final String PREF_SENDER_MAX_VIDEO_BITRATE = "sender_max_video_bitrate";
+    public static final String PREF_SENDER_MAX_VIDEO_BITRATE_DEFAULT = "0";
+    public static final String PREF_VP8_SIMULCAST = "vp8_simulcast";
+    public static final String PREF_ENABLE_AUTOMATIC_SUBSCRIPTION = "enable_automatic_subscription";
+    public static final boolean PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT = true;
+    public static final boolean PREF_VP8_SIMULCAST_DEFAULT = false;
 
     /*
      * Audio management
@@ -157,11 +175,12 @@ public class VideoActivity extends AppCompatActivity {
 
         primaryVideoView = findViewById(R.id.primary_video_view);
         thumbnailVideoView = findViewById(R.id.thumbnail_video_view);
-        reconnectingProgressBar = findViewById(R.id.reconnecting_progress_bar);
+//        reconnectingProgressBar = findViewById(R.id.reconnecting_progress_bar);
 
         connectActionFab = findViewById(R.id.connect_action_fab);
         switchCameraActionFab = findViewById(R.id.switch_camera_action_fab);
         localVideoActionFab = findViewById(R.id.local_video_action_fab);
+        speakerPhoneActionFab = findViewById(R.id.speaker_phone_action_fab);
         muteActionFab = findViewById(R.id.mute_action_fab);
 
         /*
@@ -220,12 +239,12 @@ public class VideoActivity extends AppCompatActivity {
         }
 
 
-        audioCodec = getAudioCodecPreference(VideoSettingsActivity.PREF_AUDIO_CODEC,
-                VideoSettingsActivity.PREF_AUDIO_CODEC_DEFAULT);
-        videoCodec = getVideoCodecPreference(VideoSettingsActivity.PREF_VIDEO_CODEC,
-                VideoSettingsActivity.PREF_VIDEO_CODEC_DEFAULT);
-        enableAutomaticSubscription = getAutomaticSubscriptionPreference(VideoSettingsActivity.PREF_ENABLE_AUTOMATIC_SUBSCRIPTION,
-                VideoSettingsActivity.PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT);
+        audioCodec = getAudioCodecPreference(PREF_AUDIO_CODEC,
+                PREF_AUDIO_CODEC_DEFAULT);
+        videoCodec = getVideoCodecPreference(PREF_VIDEO_CODEC,
+                PREF_VIDEO_CODEC_DEFAULT);
+        enableAutomaticSubscription = getAutomaticSubscriptionPreference(PREF_ENABLE_AUTOMATIC_SUBSCRIPTION,
+                PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT);
         /*
          * Get latest encoding parameters
          */
@@ -269,47 +288,31 @@ public class VideoActivity extends AppCompatActivity {
         /*
          * Update reconnecting UI
          */
-        if (room != null) {
-            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
-                    View.GONE :
-                    View.VISIBLE);
-        }
+//        if (room != null) {
+//            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
+//                    View.GONE :
+//                    View.VISIBLE);
+//        }
 
         connectToRoom(roomname);
     }
-        @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_video_activity, menu);
 
-        /*
-         * Start the audio device selector after the menu is created and update the icon when the
-         * selected audio device changes.
-         */
-            turnSpeakerOnMenuItem = menu.findItem(R.id.menu_turn_speaker_on);
-            turnSpeakerOffMenuItem = menu.findItem(R.id.menu_turn_speaker_off);
 
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_settings:
-                startActivity(new Intent(this, SettingsActivity.class));
-                return true;
-            case R.id.menu_turn_speaker_on:
-            case R.id.menu_turn_speaker_off:
-                boolean expectedSpeakerPhoneState = !audioManager.isSpeakerphoneOn();
-
-                audioManager.setSpeakerphoneOn(expectedSpeakerPhoneState);
-                turnSpeakerOffMenuItem.setVisible(expectedSpeakerPhoneState);
-                turnSpeakerOnMenuItem.setVisible(!expectedSpeakerPhoneState);
-                isSpeakerPhoneEnabled = expectedSpeakerPhoneState;
-            default:
-                return false;
-        }
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        switch (item.getItemId()) {
+//            case R.id.menu_turn_speaker_on:
+//            case R.id.menu_turn_speaker_off:
+//                boolean expectedSpeakerPhoneState = !audioManager.isSpeakerphoneOn();
+//
+//                audioManager.setSpeakerphoneOn(expectedSpeakerPhoneState);
+//                turnSpeakerOffMenuItem.setVisible(expectedSpeakerPhoneState);
+//                turnSpeakerOnMenuItem.setVisible(!expectedSpeakerPhoneState);
+//                isSpeakerPhoneEnabled = expectedSpeakerPhoneState;
+//            default:
+//                return false;
+//        }
+//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -335,18 +338,18 @@ public class VideoActivity extends AppCompatActivity {
 
     @SuppressLint("SetTextI18n")
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
 
         /*
          * Update preferred audio and video codec in case changed in settings
          */
-        audioCodec = getAudioCodecPreference(VideoSettingsActivity.PREF_AUDIO_CODEC,
-                VideoSettingsActivity.PREF_AUDIO_CODEC_DEFAULT);
-        videoCodec = getVideoCodecPreference(VideoSettingsActivity.PREF_VIDEO_CODEC,
-                VideoSettingsActivity.PREF_VIDEO_CODEC_DEFAULT);
-        enableAutomaticSubscription = getAutomaticSubscriptionPreference(VideoSettingsActivity.PREF_ENABLE_AUTOMATIC_SUBSCRIPTION,
-                VideoSettingsActivity.PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT);
+        audioCodec = getAudioCodecPreference(PREF_AUDIO_CODEC,
+                PREF_AUDIO_CODEC_DEFAULT);
+        videoCodec = getVideoCodecPreference(PREF_VIDEO_CODEC,
+                PREF_VIDEO_CODEC_DEFAULT);
+        enableAutomaticSubscription = getAutomaticSubscriptionPreference(PREF_ENABLE_AUTOMATIC_SUBSCRIPTION,
+                PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT);
         /*
          * Get latest encoding parameters
          */
@@ -390,15 +393,15 @@ public class VideoActivity extends AppCompatActivity {
         /*
          * Update reconnecting UI
          */
-        if (room != null) {
-            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
-                    View.GONE :
-                    View.VISIBLE);
-        }
+//        if (room != null) {
+//            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
+//                    View.GONE :
+//                    View.VISIBLE);
+//        }
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         /*
          * Release the local video track before going in the background. This ensures that the
          * camera can be used by other applications while this app is in the background.
@@ -552,19 +555,24 @@ public class VideoActivity extends AppCompatActivity {
         connectOptionsBuilder.enableAutomaticSubscription(enableAutomaticSubscription);
 
         room = Video.connect(this, connectOptionsBuilder.build(), roomListener());
-        setDisconnectAction();
     }
 
     /*
      * The initial state when there is no active room.
      */
     private void intializeUI() {
-        switchCameraActionFab.setVisibility(View.VISIBLE);
+        connectActionFab.setImageDrawable(ContextCompat.getDrawable(this,
+                R.drawable.ic_call_end_white_24px));
+        connectActionFab.show();
+        connectActionFab.setOnClickListener(disconnectClickListener());
+        switchCameraActionFab.show();
         switchCameraActionFab.setOnClickListener(switchCameraClickListener());
-        localVideoActionFab.setVisibility(View.VISIBLE);
+        localVideoActionFab.show();
         localVideoActionFab.setOnClickListener(localVideoClickListener());
-        muteActionFab.setVisibility(View.VISIBLE);
+        muteActionFab.show();
         muteActionFab.setOnClickListener(muteClickListener());
+        speakerPhoneActionFab.show();
+        speakerPhoneActionFab.setOnClickListener(speakerPhoneClickListener());
     }
 
 
@@ -598,8 +606,8 @@ public class VideoActivity extends AppCompatActivity {
 
         switch (videoCodecName) {
             case Vp8Codec.NAME:
-                boolean simulcast = preferences.getBoolean(VideoSettingsActivity.PREF_VP8_SIMULCAST,
-                        VideoSettingsActivity.PREF_VP8_SIMULCAST_DEFAULT);
+                boolean simulcast = preferences.getBoolean(PREF_VP8_SIMULCAST,
+                        PREF_VP8_SIMULCAST_DEFAULT);
                 return new Vp8Codec(simulcast);
             case H264Codec.NAME:
                 return new H264Codec();
@@ -616,23 +624,13 @@ public class VideoActivity extends AppCompatActivity {
 
     private EncodingParameters getEncodingParameters() {
         final int maxAudioBitrate = Integer.parseInt(
-                preferences.getString(VideoSettingsActivity.PREF_SENDER_MAX_AUDIO_BITRATE,
-                        VideoSettingsActivity.PREF_SENDER_MAX_AUDIO_BITRATE_DEFAULT));
+                preferences.getString(PREF_SENDER_MAX_AUDIO_BITRATE,
+                        PREF_SENDER_MAX_AUDIO_BITRATE_DEFAULT));
         final int maxVideoBitrate = Integer.parseInt(
-                preferences.getString(VideoSettingsActivity.PREF_SENDER_MAX_VIDEO_BITRATE,
-                        VideoSettingsActivity.PREF_SENDER_MAX_VIDEO_BITRATE_DEFAULT));
+                preferences.getString(PREF_SENDER_MAX_VIDEO_BITRATE,
+                        PREF_SENDER_MAX_VIDEO_BITRATE_DEFAULT));
 
         return new EncodingParameters(maxAudioBitrate, maxVideoBitrate);
-    }
-
-    /*
-     * The actions performed during disconnect.
-     */
-    private void setDisconnectAction() {
-        connectActionFab.setImageDrawable(ContextCompat.getDrawable(this,
-                R.drawable.ic_call_end_white_24px));
-        connectActionFab.setVisibility(View.VISIBLE);
-        connectActionFab.setOnClickListener(disconnectClickListener());
     }
 
     /*
@@ -767,12 +765,12 @@ public class VideoActivity extends AppCompatActivity {
 
             @Override
             public void onReconnecting(@NonNull Room room, @NonNull TwilioException twilioException) {
-                reconnectingProgressBar.setVisibility(View.VISIBLE);
+              //  reconnectingProgressBar.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onReconnected(@NonNull Room room) {
-                reconnectingProgressBar.setVisibility(View.GONE);
+               // reconnectingProgressBar.setVisibility(View.GONE);
             }
 
             @Override
@@ -784,7 +782,7 @@ public class VideoActivity extends AppCompatActivity {
             @Override
             public void onDisconnected(Room room, TwilioException e) {
                 localParticipant = null;
-                reconnectingProgressBar.setVisibility(View.GONE);
+              //  reconnectingProgressBar.setVisibility(View.GONE);
                 VideoActivity.this.room = null;
                 // Only reinitialize the UI if disconnect was not called from onDestroy()
                 if (!disconnectedFromOnDestroy) {
@@ -1127,7 +1125,7 @@ public class VideoActivity extends AppCompatActivity {
             if (room != null) {
                 room.disconnect();
             }
-            intializeUI();
+            finish();
         };
     }
 
@@ -1167,10 +1165,10 @@ public class VideoActivity extends AppCompatActivity {
                 int icon;
                 if (enable) {
                     icon = R.drawable.ic_videocam_white_24dp;
-                    switchCameraActionFab.setVisibility(View.VISIBLE);
+                    switchCameraActionFab.show();
                 } else {
                     icon = R.drawable.ic_videocam_off_black_24dp;
-                    switchCameraActionFab.setVisibility(View.GONE);
+                    switchCameraActionFab.hide();
                 }
                 localVideoActionFab.setImageDrawable(
                         ContextCompat.getDrawable(VideoActivity.this, icon));
@@ -1178,6 +1176,28 @@ public class VideoActivity extends AppCompatActivity {
         };
     }
 
+    private View.OnClickListener speakerPhoneClickListener() {
+        return v -> {
+            /*
+             * Enable/disable the speakerphone
+             */
+            if (audioManager != null) {
+                boolean expectedSpeakerPhoneState = !audioManager.isSpeakerphoneOn();
+
+                audioManager.setSpeakerphoneOn(expectedSpeakerPhoneState);
+                isSpeakerPhoneEnabled = expectedSpeakerPhoneState;
+
+                int icon;
+                if (expectedSpeakerPhoneState) {
+                    icon = R.drawable.ic_volume_up_white_24dp;
+                } else {
+                    icon = R.drawable.ic_phonelink_ring_white_24dp;
+                }
+                speakerPhoneActionFab.setImageDrawable(
+                        ContextCompat.getDrawable(VideoActivity.this, icon));
+            }
+        };
+    }
     private View.OnClickListener muteClickListener() {
         return v -> {
             /*
@@ -1211,4 +1231,24 @@ public class VideoActivity extends AppCompatActivity {
 //                    }
 //                });
 //    }
+
+    @Override
+    protected void onBackendConnected() {
+        try {
+            if (xmppConnectionService != null) {
+                Account mAccount = xmppConnectionService.getAccounts().get(0);
+//                if (mAccount != null || conversationUuid != null) {
+//                    Conversation conversation = xmppConnectionService.findConversationByUuid(conversationUuid);
+//                    avatar.setImageBitmap(avatarService().get(conversation.getContact(), (int) getResources().getDimension(R.dimen.avatar_on_incoming_call_screen_size)));
+//
+//                }
+            }
+        } catch (Exception e){
+
+        }
+    }
+
+
+    public void refreshUiReal() {
+    }
 }

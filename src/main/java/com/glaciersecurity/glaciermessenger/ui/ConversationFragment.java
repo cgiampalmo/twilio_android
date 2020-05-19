@@ -3396,7 +3396,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		} else {
 			popupMenu.inflate(R.menu.account_context);
 			final Menu menu = popupMenu.getMenu();
-			menu.findItem(R.id.action_manage_accounts).setVisible(QuickConversationsService.isConversations());
+			//menu.findItem(R.id.action_manage_accounts).setVisible(QuickConversationsService.isConversations());
 			popupMenu.setOnMenuItemClickListener(item -> {
 				switch (item.getItemId()) {
 					//case R.id.action_show_qr_code: //ALF
@@ -3405,9 +3405,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 					case R.id.action_account_details:
 						activity.switchToAccount(message.getConversation().getAccount(), fingerprint);
 						break;
-					case R.id.action_manage_accounts:
-						AccountUtils.launchManageAccounts(activity);
-						break;
+//					case R.id.action_manage_accounts:
+//						AccountUtils.launchManageAccounts(activity);
+//						break;
 				}
 				return true;
 			});
