@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -103,7 +104,7 @@ public class VideoActivity extends XmppActivity {
 //    private MenuItem turnSpeakerOffMenuItem;
     private int previousAudioMode;
     private boolean previousMicrophoneMute;
-    private boolean isSpeakerPhoneEnabled = true;
+    private boolean isSpeakerPhoneEnabled = false;
 
 
     /*
@@ -141,9 +142,10 @@ public class VideoActivity extends XmppActivity {
     private FloatingActionButton localVideoActionFab;
     private FloatingActionButton muteActionFab;
     private FloatingActionButton speakerPhoneActionFab;
-    //private ProgressBar reconnectingProgressBar;
+    private ProgressBar reconnectingProgressBar;
     private AlertDialog connectDialog;
     private String remoteParticipantIdentity;
+    private TextView primaryTitle;
 
     public static final String PREF_AUDIO_CODEC = "audio_codec";
     public static final String PREF_AUDIO_CODEC_DEFAULT = OpusCodec.NAME;
@@ -175,13 +177,15 @@ public class VideoActivity extends XmppActivity {
 
         primaryVideoView = findViewById(R.id.primary_video_view);
         thumbnailVideoView = findViewById(R.id.thumbnail_video_view);
-//        reconnectingProgressBar = findViewById(R.id.reconnecting_progress_bar);
+        reconnectingProgressBar = findViewById(R.id.reconnecting_progress_bar);
 
         connectActionFab = findViewById(R.id.connect_action_fab);
         switchCameraActionFab = findViewById(R.id.switch_camera_action_fab);
         localVideoActionFab = findViewById(R.id.local_video_action_fab);
         speakerPhoneActionFab = findViewById(R.id.speaker_phone_action_fab);
         muteActionFab = findViewById(R.id.mute_action_fab);
+        this.primaryTitle  = findViewById(R.id.primary_video_title);
+
 
         /*
          * Get shared preferences to read settings
@@ -219,6 +223,7 @@ public class VideoActivity extends XmppActivity {
     private String caller;
     private String roomname;
     private String receiver;
+
 
     @Override
     public void onStart() {
@@ -274,7 +279,7 @@ public class VideoActivity extends XmppActivity {
                 }
             }
         }
-
+        primaryTitle.setText(roomname);
         /*
          * Update encoding parameters
          */
@@ -288,11 +293,11 @@ public class VideoActivity extends XmppActivity {
         /*
          * Update reconnecting UI
          */
-//        if (room != null) {
-//            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
-//                    View.GONE :
-//                    View.VISIBLE);
-//        }
+        if (room != null) {
+            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
+                    View.GONE :
+                    View.VISIBLE);
+        }
 
         connectToRoom(roomname);
     }
@@ -390,14 +395,24 @@ public class VideoActivity extends XmppActivity {
          */
         audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
 
+        int muteIcon = audioManager.isMicrophoneMute() ?
+                R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_gray_24dp;
+        muteActionFab.setImageDrawable(ContextCompat.getDrawable(
+                VideoActivity.this, muteIcon));
+
+        int speakerIcon = isSpeakerPhoneEnabled ?
+                R.drawable.ic_volume_up_white_24dp : R.drawable.ic_phonelink_ring_white_24dp;
+        speakerPhoneActionFab.setImageDrawable(ContextCompat.getDrawable(
+                VideoActivity.this, speakerIcon));
+
         /*
          * Update reconnecting UI
          */
-//        if (room != null) {
-//            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
-//                    View.GONE :
-//                    View.VISIBLE);
-//        }
+        if (room != null) {
+            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
+                    View.GONE :
+                    View.VISIBLE);
+        }
     }
 
     @Override
@@ -1167,7 +1182,7 @@ public class VideoActivity extends XmppActivity {
                     icon = R.drawable.ic_videocam_white_24dp;
                     switchCameraActionFab.show();
                 } else {
-                    icon = R.drawable.ic_videocam_off_black_24dp;
+                    icon = R.drawable.ic_videocam_off_gray_24px;
                     switchCameraActionFab.hide();
                 }
                 localVideoActionFab.setImageDrawable(
@@ -1209,7 +1224,7 @@ public class VideoActivity extends XmppActivity {
                 boolean enable = !localAudioTrack.isEnabled();
                 localAudioTrack.enable(enable);
                 int icon = enable ?
-                        R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_black_24dp;
+                        R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_gray_24dp;
                 muteActionFab.setImageDrawable(ContextCompat.getDrawable(
                         VideoActivity.this, icon));
             }

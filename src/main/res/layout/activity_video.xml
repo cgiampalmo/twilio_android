@@ -11,6 +11,16 @@
 
 
     <include layout="@layout/content_video" />
+    <TextView
+        android:id="@+id/primary_video_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_gravity="top|right"
+        android:text="Participant Name"
+        android:textColor="?attr/edit_text_color"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        app:fontFamily="sans-serif-medium" />
 
     <RelativeLayout
         android:id="@+id/call_action_bar"
