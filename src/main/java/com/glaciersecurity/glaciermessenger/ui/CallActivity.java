@@ -87,8 +87,6 @@ public class CallActivity extends XmppActivity {
 			//needs access to XmppConnectionService
 			final Intent intent = new Intent(this, XmppConnectionService.class);
 			intent.setAction(XmppConnectionService.ACTION_ACCEPT_CALL_REQUEST);
-//			intent.putExtra("is_audio_muted", isAudioMuted);
-//			intent.putExtra("is_speakerphone_on", isSpeakerphoneOn);
 			Compatibility.startService(this, intent);
 		});
 		this.rejectCallBtn= findViewById(R.id.reject_call_button);

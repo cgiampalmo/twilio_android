@@ -395,7 +395,7 @@ public class VideoActivity extends XmppActivity {
          */
         audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
 
-        int muteIcon = audioManager.isMicrophoneMute() ?
+        int muteIcon = !audioManager.isMicrophoneMute() ?
                 R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_gray_24dp;
         muteActionFab.setImageDrawable(ContextCompat.getDrawable(
                 VideoActivity.this, muteIcon));
