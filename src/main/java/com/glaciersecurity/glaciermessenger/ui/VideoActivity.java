@@ -33,10 +33,12 @@ import androidx.core.content.ContextCompat;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
+import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.ui.util.CameraCapturerCompat;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.twilio.video.AudioCodec;
+import com.twilio.video.Camera2Capturer;
 import com.twilio.video.CameraCapturer;
 import com.twilio.video.CameraCapturer.CameraSource;
 import com.twilio.video.ConnectOptions;
@@ -774,18 +776,23 @@ public class VideoActivity extends XmppActivity {
 
                 for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
                     addRemoteParticipant(remoteParticipant);
+                    String other = remoteParticipant.getIdentity();
+                    if (other.contains("@")){
+                        other = other.substring(0, other.indexOf("@"));
+                    }
+                    primaryTitle.setText(other);
                     break;
                 }
             }
 
             @Override
             public void onReconnecting(@NonNull Room room, @NonNull TwilioException twilioException) {
-              //  reconnectingProgressBar.setVisibility(View.VISIBLE);
+              reconnectingProgressBar.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onReconnected(@NonNull Room room) {
-               // reconnectingProgressBar.setVisibility(View.GONE);
+               reconnectingProgressBar.setVisibility(View.GONE);
             }
 
             @Override
@@ -797,7 +804,7 @@ public class VideoActivity extends XmppActivity {
             @Override
             public void onDisconnected(Room room, TwilioException e) {
                 localParticipant = null;
-              //  reconnectingProgressBar.setVisibility(View.GONE);
+                reconnectingProgressBar.setVisibility(View.GONE);
                 VideoActivity.this.room = null;
                 // Only reinitialize the UI if disconnect was not called from onDestroy()
                 if (!disconnectedFromOnDestroy) {
@@ -816,6 +823,11 @@ public class VideoActivity extends XmppActivity {
             @Override
             public void onParticipantDisconnected(Room room, RemoteParticipant remoteParticipant) {
                 removeRemoteParticipant(remoteParticipant);
+                //CMG disconnect when remote leaves
+                localParticipant = null;
+                //  reconnectingProgressBar.setVisibility(View.GONE);
+                VideoActivity.this.room = null;
+                finish();
             }
 
             @Override
