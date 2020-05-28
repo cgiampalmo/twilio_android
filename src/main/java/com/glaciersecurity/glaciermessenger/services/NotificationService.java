@@ -263,6 +263,7 @@ public class NotificationService {
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, "calls");
 		mBuilder.setContentTitle("Incoming Call")
 				.setContentText(ctext)
+				.setContentIntent(pendingIntent)
 				.setCategory(Notification.CATEGORY_CALL)
 				.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 				.setWhen(System.currentTimeMillis())
@@ -274,10 +275,16 @@ public class NotificationService {
 		mBuilder.setFullScreenIntent(pendingIntent, true); // THIS HERE is the full-screen intent
 		//.setContentIntent(pendingIntent)
 
+		Uri callUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+		try {
+			mBuilder.setSound(callUri);
+		} catch (SecurityException e) {
+			Log.d(Config.LOGTAG, "unable to use ringtone");
+		}
+
 		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			mBuilder.setCategory(Notification.CATEGORY_CALL);
 		}
-		//mBuilder.setOngoing(true);
 		//setNotificationColor(mBuilder);
 		//mBuilder.setDefaults(0);
 
