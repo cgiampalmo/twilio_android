@@ -730,7 +730,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 						call.setStatus(intent.getStringExtra("status"));
 
-						if (call.getStatus().equalsIgnoreCase("reject")) {
+						if (call.getStatus().equalsIgnoreCase("reject") || call.getStatus().equalsIgnoreCase("cancel")) {
 							//stop CallActivity
 							Intent intent1 = new Intent("callActivityFinish");
 							sendBroadcast(intent1);
@@ -762,16 +762,16 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 							currentTwilioCall = call;
 
-							Intent callIntent = new Intent(getApplicationContext(), CallActivity.class);
-							callIntent.setAction(CallActivity.ACTION_INCOMING_CALL);
-							//callIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-							callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-							callIntent.putExtra("caller", call.getCaller());
-							//callIntent.putExtra("roomname", call.getRoomName());
-							callIntent.putExtra("status", call.getStatus());
-							callIntent.putExtra("call_id", call.getCallId());
-							callIntent.putExtra("account", pushedAccountHash);
-							this.startActivity(callIntent);
+							if (!getNotificationService().pushForCall(call, pushedAccountHash)) {
+								Intent callIntent = new Intent(getApplicationContext(), CallActivity.class);
+								callIntent.setAction(CallActivity.ACTION_INCOMING_CALL);
+								callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+								callIntent.putExtra("caller", call.getCaller());
+								callIntent.putExtra("status", call.getStatus());
+								callIntent.putExtra("call_id", call.getCallId());
+								callIntent.putExtra("account", pushedAccountHash);
+								this.startActivity(callIntent);
+							}
 						}
 
 						Log.d(Config.LOGTAG, "push message arrived in service. account=" + pushedAccountHash);
@@ -4608,7 +4608,13 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					callIntent.putExtra("roomname", call.getRoomName());
 					callIntent.putExtra("caller", call.getCaller());
 					callIntent.putExtra("receiver", call.getReceiver());
-					startActivity(callIntent);
+
+					if (isInteractive()) {
+						startActivity(callIntent);
+					} else {
+						startActivity(callIntent);
+					}
+					getNotificationService().dismissCallNotification();
 				} else {
 					//callback.informUser("Something bad"); //TODO ALERT USER
 					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not create call");
@@ -4642,6 +4648,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		//Close CallActivity
 		Intent intent1 = new Intent("callActivityFinish");
 		sendBroadcast(intent1);
+		getNotificationService().dismissCallNotification();
 	}
 	//ALF AM-410 end TwilioCall stuff
 

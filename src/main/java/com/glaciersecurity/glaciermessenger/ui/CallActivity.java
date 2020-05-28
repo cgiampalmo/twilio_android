@@ -4,12 +4,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.AppCompatImageButton;
 
 import com.glaciersecurity.glaciermessenger.R;
@@ -28,6 +30,7 @@ public class CallActivity extends XmppActivity {
 	public static final String ACTION_OUTGOING_CALL = "outgoing_code";
 	public static final String ACTION_ACCEPTED_CALL = "call_accepted";
 	public static final String ACTION_REJECTED_CALL = "call_rejected";
+	public static final String ACTION_CANCELLED_CALL = "call_cancelled";
 
 
 	private Boolean isAudioMuted = false;
@@ -62,8 +65,12 @@ public class CallActivity extends XmppActivity {
 		this.incomingCallLayout = findViewById(R.id.call_status_incoming);
 		this.outgoingCallLayout = findViewById(R.id.call_status_outgoing);
 		this.avatar = (ImageView) findViewById(R.id.participant_stub_image);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+			this.setTurnScreenOn(true);
+			this.setShowWhenLocked(true);
+		}
 
-        registerReceiver(mMessageReceiver, new IntentFilter("callActivityFinish"));
+		registerReceiver(mMessageReceiver, new IntentFilter("callActivityFinish"));
 
 		if (getIntent().getAction().equals(ACTION_OUTGOING_CALL)) {
 			try {
@@ -142,7 +149,6 @@ public class CallActivity extends XmppActivity {
 			TwilioCall call = new TwilioCall(null);
 			call.setCallId(intent.getIntExtra("call_id", 0));
 			call.setCaller(intent.getStringExtra("caller"));
-			//call.setRoomName(intent.getStringExtra("roomname"));
 			call.setStatus(intent.getStringExtra("status"));
 			currentTwilioCall = call;
 			this.onIncomingCall();

@@ -183,6 +183,11 @@ public class VideoActivity extends XmppActivity {
         speakerPhoneActionFab = findViewById(R.id.speaker_phone_action_fab);
         muteActionFab = findViewById(R.id.mute_action_fab);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            this.setTurnScreenOn(true);
+            this.setShowWhenLocked(true);
+        }
+
         /*
          * Get shared preferences to read settings
          */
@@ -350,11 +355,26 @@ public class VideoActivity extends XmppActivity {
                 PREF_VIDEO_CODEC_DEFAULT);
         enableAutomaticSubscription = getAutomaticSubscriptionPreference(PREF_ENABLE_AUTOMATIC_SUBSCRIPTION,
                 PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT);
-        /*
-         * Get latest encoding parameters
-         */
-        final EncodingParameters newEncodingParameters = getEncodingParameters();
 
+        recreateVideoTrackIfNeeded();
+
+        /*
+         * Route audio through cached value.
+         */
+        audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
+
+        /*
+         * Update reconnecting UI
+         */
+//        if (room != null) {
+//            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
+//                    View.GONE :
+//                    View.VISIBLE);
+//        }
+    }
+
+    private void recreateVideoTrackIfNeeded() {
+        final EncodingParameters newEncodingParameters = getEncodingParameters();
         /*
          * If the local video track was released when the app was put in the background, recreate.
          */
@@ -384,20 +404,6 @@ public class VideoActivity extends XmppActivity {
          * Update encoding parameters
          */
         encodingParameters = newEncodingParameters;
-
-        /*
-         * Route audio through cached value.
-         */
-        audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
-
-        /*
-         * Update reconnecting UI
-         */
-//        if (room != null) {
-//            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
-//                    View.GONE :
-//                    View.VISIBLE);
-//        }
     }
 
     @Override
@@ -695,6 +701,7 @@ public class VideoActivity extends XmppActivity {
     private void moveLocalVideoToThumbnailView() {
         if (thumbnailVideoView.getVisibility() == View.GONE) {
             thumbnailVideoView.setVisibility(View.VISIBLE);
+            recreateVideoTrackIfNeeded();
             localVideoTrack.removeRenderer(primaryVideoView);
             localVideoTrack.addRenderer(thumbnailVideoView);
             localVideoView = thumbnailVideoView;

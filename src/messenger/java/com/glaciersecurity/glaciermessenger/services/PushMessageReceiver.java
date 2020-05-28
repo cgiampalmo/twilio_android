@@ -1,9 +1,7 @@
 package com.glaciersecurity.glaciermessenger.services;
 
 import android.content.Intent;
-import androidx.core.content.ContextCompat;
 import android.util.Log;
-
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -53,5 +51,4 @@ public class PushMessageReceiver extends FirebaseMessagingService {
 		intent.setAction(XmppConnectionService.ACTION_FCM_TOKEN_REFRESH);
 		Compatibility.startService(this, intent);
 	}
-
 }
