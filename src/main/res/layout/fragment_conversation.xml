@@ -99,13 +99,15 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/spacing_xxlarge"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/spacing_xxlarge"
                 android:orientation="horizontal">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:visibility="gone"
                     android:id="@+id/media_preview"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     tools:listitem="@layout/media_preview"
                     android:orientation="horizontal"
@@ -260,6 +262,11 @@
                     android:layout_height="0dp"
                     android:layout_weight="1" />
 
+
+
+
+
+
                 <ImageView
                     android:id="@+id/attach_record_voice"
                     android:layout_width="@dimen/spacing_xxlarge"
@@ -282,6 +289,15 @@
                     app:srcCompat="@drawable/ic_timer_black_24dp"
                     />
 
+                <ImageView
+                    android:id="@+id/action_disapear_messages_spacer"
+                    android:layout_width="@dimen/spacing_xxlarge"
+                    android:layout_height="@dimen/spacing_xxlarge"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:padding="@dimen/spacing_large"
+                    android:visibility="gone"
+                    />
 
                 <View
                     android:layout_width="0dp"
@@ -297,6 +313,15 @@
                     android:padding="@dimen/spacing_large"
                     android:tint="@color/grey_40"
                     app:srcCompat="@drawable/ic_insert_drive" />
+
+                <ImageView
+                    android:id="@+id/attach_choose_file_spacer"
+                    android:layout_width="@dimen/spacing_xxlarge"
+                    android:layout_height="@dimen/spacing_xxlarge"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:padding="@dimen/spacing_large"
+                    android:visibility="gone"/>
 
 
                 <View

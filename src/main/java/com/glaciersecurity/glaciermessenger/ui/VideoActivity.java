@@ -37,6 +37,7 @@ import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.ui.util.CameraCapturerCompat;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.makeramen.roundedimageview.RoundedImageView;
 import com.twilio.video.AudioCodec;
 import com.twilio.video.Camera2Capturer;
 import com.twilio.video.CameraCapturer;
@@ -144,7 +145,10 @@ public class VideoActivity extends XmppActivity {
     private FloatingActionButton localVideoActionFab;
     private FloatingActionButton muteActionFab;
     private FloatingActionButton speakerPhoneActionFab;
+
     private ProgressBar reconnectingProgressBar;
+    private RoundedImageView noVideoView;
+    private VideoView videoView;
     private AlertDialog connectDialog;
     private String remoteParticipantIdentity;
     private TextView primaryTitle;
@@ -180,6 +184,9 @@ public class VideoActivity extends XmppActivity {
         primaryVideoView = findViewById(R.id.primary_video_view);
         thumbnailVideoView = findViewById(R.id.thumbnail_video_view);
         reconnectingProgressBar = findViewById(R.id.reconnecting_progress_bar);
+        noVideoView = findViewById(R.id.primary_no_video_view);
+       // videoView = findViewById(R.id.primary_video_view);
+
 
         connectActionFab = findViewById(R.id.connect_action_fab);
         switchCameraActionFab = findViewById(R.id.switch_camera_action_fab);
@@ -188,6 +195,11 @@ public class VideoActivity extends XmppActivity {
         muteActionFab = findViewById(R.id.mute_action_fab);
         this.primaryTitle  = findViewById(R.id.primary_video_title);
 
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            this.setTurnScreenOn(true);
+            this.setShowWhenLocked(true);
+        }
 
         /*
          * Get shared preferences to read settings
@@ -281,7 +293,7 @@ public class VideoActivity extends XmppActivity {
                 }
             }
         }
-        primaryTitle.setText(roomname);
+       // primaryTitle.setText(roomname);
         /*
          * Update encoding parameters
          */
@@ -357,11 +369,36 @@ public class VideoActivity extends XmppActivity {
                 PREF_VIDEO_CODEC_DEFAULT);
         enableAutomaticSubscription = getAutomaticSubscriptionPreference(PREF_ENABLE_AUTOMATIC_SUBSCRIPTION,
                 PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT);
-        /*
-         * Get latest encoding parameters
-         */
-        final EncodingParameters newEncodingParameters = getEncodingParameters();
 
+        recreateVideoTrackIfNeeded();
+
+        /*
+         * Route audio through cached value.
+         */
+        audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
+
+        int muteIcon = !audioManager.isMicrophoneMute() ?
+                R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_gray_24dp;
+        muteActionFab.setImageDrawable(ContextCompat.getDrawable(
+                VideoActivity.this, muteIcon));
+
+        int speakerIcon = isSpeakerPhoneEnabled ?
+                R.drawable.ic_volume_up_white_24dp : R.drawable.ic_phonelink_ring_white_24dp;
+        speakerPhoneActionFab.setImageDrawable(ContextCompat.getDrawable(
+                VideoActivity.this, speakerIcon));
+
+        /*
+         * Update reconnecting UI
+         */
+        if (room != null) {
+            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
+                    View.GONE :
+                    View.VISIBLE);
+        }
+    }
+
+    private void recreateVideoTrackIfNeeded() {
+        final EncodingParameters newEncodingParameters = getEncodingParameters();
         /*
          * If the local video track was released when the app was put in the background, recreate.
          */
@@ -391,30 +428,6 @@ public class VideoActivity extends XmppActivity {
          * Update encoding parameters
          */
         encodingParameters = newEncodingParameters;
-
-        /*
-         * Route audio through cached value.
-         */
-        audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
-
-        int muteIcon = !audioManager.isMicrophoneMute() ?
-                R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_gray_24dp;
-        muteActionFab.setImageDrawable(ContextCompat.getDrawable(
-                VideoActivity.this, muteIcon));
-
-        int speakerIcon = isSpeakerPhoneEnabled ?
-                R.drawable.ic_volume_up_white_24dp : R.drawable.ic_phonelink_ring_white_24dp;
-        speakerPhoneActionFab.setImageDrawable(ContextCompat.getDrawable(
-                VideoActivity.this, speakerIcon));
-
-        /*
-         * Update reconnecting UI
-         */
-        if (room != null) {
-            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
-                    View.GONE :
-                    View.VISIBLE);
-        }
     }
 
     @Override
@@ -678,6 +691,11 @@ public class VideoActivity extends XmppActivity {
             return;
         }
         remoteParticipantIdentity = remoteParticipant.getIdentity();
+        String other = remoteParticipant.getIdentity();
+        if (other.contains("@")){
+            other = other.substring(0, other.indexOf("@"));
+        }
+        primaryTitle.setText(other);
 
         /*
          * Add remote participant renderer
@@ -712,6 +730,7 @@ public class VideoActivity extends XmppActivity {
     private void moveLocalVideoToThumbnailView() {
         if (thumbnailVideoView.getVisibility() == View.GONE) {
             thumbnailVideoView.setVisibility(View.VISIBLE);
+            recreateVideoTrackIfNeeded();
             localVideoTrack.removeRenderer(primaryVideoView);
             localVideoTrack.addRenderer(thumbnailVideoView);
             localVideoView = thumbnailVideoView;
@@ -787,12 +806,12 @@ public class VideoActivity extends XmppActivity {
 
             @Override
             public void onReconnecting(@NonNull Room room, @NonNull TwilioException twilioException) {
-              reconnectingProgressBar.setVisibility(View.VISIBLE);
+                reconnectingProgressBar.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onReconnected(@NonNull Room room) {
-               reconnectingProgressBar.setVisibility(View.GONE);
+                reconnectingProgressBar.setVisibility(View.GONE);
             }
 
             @Override
@@ -823,6 +842,7 @@ public class VideoActivity extends XmppActivity {
             @Override
             public void onParticipantDisconnected(Room room, RemoteParticipant remoteParticipant) {
                 removeRemoteParticipant(remoteParticipant);
+                room.disconnect();
                 //CMG disconnect when remote leaves
                 localParticipant = null;
                 //  reconnectingProgressBar.setVisibility(View.GONE);

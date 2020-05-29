@@ -4,13 +4,16 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.content.ContextCompat;
 
@@ -31,7 +34,6 @@ public class CallActivity extends XmppActivity {
 	public static final String ACTION_INCOMING_CALL = "incoming_call";
 	public static final String ACTION_OUTGOING_CALL = "outgoing_code";
 	public static final String ACTION_ACCEPTED_CALL = "call_accepted";
-	//public static final String ACTION_REJECTED_CALL = "call_rejected";
 	private AudioManager audioManager;
 
 
@@ -68,11 +70,19 @@ public class CallActivity extends XmppActivity {
 		this.incomingCallLayout = findViewById(R.id.call_status_incoming);
 		this.outgoingCallLayout = findViewById(R.id.call_status_outgoing);
 		this.avatar = (ImageView) findViewById(R.id.participant_stub_image);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+			this.setTurnScreenOn(true);
+			this.setShowWhenLocked(true);
+		}
+
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+				| WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+				| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 		audioManager.setSpeakerphoneOn(isSpeakerphoneOn);
 
-        registerReceiver(mMessageReceiver, new IntentFilter("callActivityFinish"));
+		registerReceiver(mMessageReceiver, new IntentFilter("callActivityFinish"));
 
 		if (getIntent().getAction().equals(ACTION_OUTGOING_CALL)) {
 			try {
@@ -97,10 +107,11 @@ public class CallActivity extends XmppActivity {
 			Compatibility.startService(this, intent);
 		});
 
+
 		this.endCallBtn= findViewById(R.id.end_call_button);
 		endCallBtn.setOnClickListener(v -> {
 			final Intent intent = new Intent(this, XmppConnectionService.class);
-			intent.setAction(XmppConnectionService.ACTION_REJECT_CALL_REQUEST);
+			intent.setAction(XmppConnectionService.ACTION_CANCEL_CALL_REQUEST);
 			Compatibility.startService(this, intent);
 		});
 		this.videoBtn = findViewById(R.id.local_video_image_button);
@@ -148,7 +159,6 @@ public class CallActivity extends XmppActivity {
 			TwilioCall call = new TwilioCall(null);
 			call.setCallId(intent.getIntExtra("call_id", 0));
 			call.setCaller(intent.getStringExtra("caller"));
-			//call.setRoomName(intent.getStringExtra("roomname"));
 			call.setStatus(intent.getStringExtra("status"));
 			currentTwilioCall = call;
 			this.onIncomingCall();
@@ -160,18 +170,18 @@ public class CallActivity extends XmppActivity {
 		}
 	}
 
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            finish();
-        }
-    };
+	private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			finish();
+		}
+	};
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        unregisterReceiver(mMessageReceiver);
-    }
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		unregisterReceiver(mMessageReceiver);
+	}
 
 	@Override
 	protected void onBackendConnected() {

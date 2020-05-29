@@ -1130,9 +1130,10 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				//menuConversationTimer.setVisible(false); //ALF AM-53
 				menuLeaveGroup.setVisible(true); //ALF AM-122 (and next line)
 				menuEndConversation.setVisible(false);
+				menuPhoneCall.setVisible(false);
 				//menuMucDetails.setTitle(conversation.getMucOptions().isPrivateAndNonAnonymous() ? R.string.action_muc_details : R.string.channel_details);
 			} else {
-				//menuPhoneCall.setVisible(true);
+				menuPhoneCall.setVisible(true);
 				//disappearingMessages.setVisible(true);
 //				menuContactDetails.setVisible(!this.conversation.withSelf());
 //				menuMucDetails.setVisible(false);

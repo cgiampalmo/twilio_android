@@ -168,6 +168,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	public static final String ACTION_REPLY_TO_CALL_REQUEST = "reply_to_call_request";
 	public static final String ACTION_ACCEPT_CALL_REQUEST = "accept_call_request";
 	public static final String ACTION_REJECT_CALL_REQUEST = "reject_call_request";
+	public static final String ACTION_CANCEL_CALL_REQUEST = "cancel_call_request";
 
 	public static final String ACTION_REPLY_TO_CONVERSATION = "reply_to_conversations";
 	public static final String ACTION_MARK_AS_READ = "mark_as_read";
@@ -466,7 +467,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	//HONEYBADGER maybe?
 	public void checkNewPermission(){
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED )) {
-            startContactObserver();
+			startContactObserver();
 		}
 	}
 
@@ -637,14 +638,14 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		final String action = intent == null ? null : intent.getAction();
 
 		//ALF AM-184 from Conversations
-        final boolean needsForegroundService = intent != null && intent.getBooleanExtra(EventReceiver.EXTRA_NEEDS_FOREGROUND_SERVICE, false);
-        if (needsForegroundService) {
-            Log.d(Config.LOGTAG,"toggle forced foreground service after receiving event (action="+action+")");
-            //toggleForegroundService(true);
+		final boolean needsForegroundService = intent != null && intent.getBooleanExtra(EventReceiver.EXTRA_NEEDS_FOREGROUND_SERVICE, false);
+		if (needsForegroundService) {
+			Log.d(Config.LOGTAG,"toggle forced foreground service after receiving event (action="+action+")");
+			//toggleForegroundService(true);
 			toggleForegroundService();
-        }
+		}
 
-        //ALF AM-57 placeholder?
+		//ALF AM-57 placeholder?
 		//bindService(new Intent(this, VPNConnectionService.class), this, Context.BIND_AUTO_CREATE);
 
 		String pushedAccountHash = null;
@@ -762,16 +763,16 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 							currentTwilioCall = call;
 
-							Intent callIntent = new Intent(getApplicationContext(), CallActivity.class);
-							callIntent.setAction(CallActivity.ACTION_INCOMING_CALL);
-							//callIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-							callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-							callIntent.putExtra("caller", call.getCaller());
-							//callIntent.putExtra("roomname", call.getRoomName());
-							callIntent.putExtra("status", call.getStatus());
-							callIntent.putExtra("call_id", call.getCallId());
-							callIntent.putExtra("account", pushedAccountHash);
-							this.startActivity(callIntent);
+							if (!getNotificationService().pushForCall(call, pushedAccountHash)) {
+								Intent callIntent = new Intent(getApplicationContext(), CallActivity.class);
+								callIntent.setAction(CallActivity.ACTION_INCOMING_CALL);
+								callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+								callIntent.putExtra("caller", call.getCaller());
+								callIntent.putExtra("status", call.getStatus());
+								callIntent.putExtra("call_id", call.getCallId());
+								callIntent.putExtra("account", pushedAccountHash);
+								this.startActivity(callIntent);
+							}
 						}
 
 						Log.d(Config.LOGTAG, "push message arrived in service. account=" + pushedAccountHash);
@@ -782,6 +783,14 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					break;
 				case ACTION_REJECT_CALL_REQUEST: //ALF AM-410
 					rejectCall(currentTwilioCall);
+					break;
+				case ACTION_CANCEL_CALL_REQUEST: //CMG
+					Intent intent1 = new Intent("callActivityFinish");
+					sendBroadcast(intent1);
+
+					//notify user of rejection from other party
+
+					currentTwilioCall = null;
 					break;
 				case ACTION_MARK_AS_READ:
 					mNotificationExecutor.execute(() -> {
@@ -1029,18 +1038,18 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	@SuppressLint("NewApi")
 	@SuppressWarnings("deprecation")
 	public boolean isInteractive() {
-        try {
-		final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		try {
+			final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 
-            final boolean isScreenOn;
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                isScreenOn = pm.isScreenOn();
-            } else {
-                isScreenOn = pm.isInteractive();
-            }
-            return isScreenOn;
-        } catch (RuntimeException e) {
-            return false;
+			final boolean isScreenOn;
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+				isScreenOn = pm.isScreenOn();
+			} else {
+				isScreenOn = pm.isInteractive();
+			}
+			return isScreenOn;
+		} catch (RuntimeException e) {
+			return false;
 		}
 	}
 
@@ -1141,11 +1150,11 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		this.destroyed = false;
 		OmemoSetting.load(this);
 		ExceptionHelper.init(getApplicationContext());
-        try {
-            Security.insertProviderAt(Conscrypt.newProvider(), 1);
-        } catch (Throwable throwable) {
-            Log.e(Config.LOGTAG,"unable to initialize security provider", throwable);
-        }
+		try {
+			Security.insertProviderAt(Conscrypt.newProvider(), 1);
+		} catch (Throwable throwable) {
+			Log.e(Config.LOGTAG,"unable to initialize security provider", throwable);
+		}
 		Resolver.init(this);
 		this.mRandom = new SecureRandom();
 		updateMemorizingTrustmanager();
@@ -1320,28 +1329,28 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	//ALF AM-184 next 3 from Conversations, removed old one
-    public void toggleForegroundService() {
-        toggleForegroundService(false);
-    }
+	public void toggleForegroundService() {
+		toggleForegroundService(false);
+	}
 
-    private void toggleForegroundService(boolean force) {
-        final boolean status;
-        if (force || mForceDuringOnCreate.get() || mForceForegroundService.get() || (Compatibility.keepForegroundService(this) && hasEnabledAccounts())) {
+	private void toggleForegroundService(boolean force) {
+		final boolean status;
+		if (force || mForceDuringOnCreate.get() || mForceForegroundService.get() || (Compatibility.keepForegroundService(this) && hasEnabledAccounts())) {
 			final Notification notification = this.mNotificationService.createForegroundNotification();
 			startForeground(NotificationService.FOREGROUND_NOTIFICATION_ID, notification);
 			if (!mForceForegroundService.get()) {
 				mNotificationService.notify(NotificationService.FOREGROUND_NOTIFICATION_ID, notification);
 			}
-            status = true;
-        } else {
-            stopForeground(true);
-            status = false;
-        }
+			status = true;
+		} else {
+			stopForeground(true);
+			status = false;
+		}
 		if (!mForceForegroundService.get()) {
 			mNotificationService.dismissForcedForegroundNotification(); //if the channel was changed the previous call might fail
 		}
-        Log.d(Config.LOGTAG,"ForegroundService: "+(status?"on":"off"));
-    }
+		Log.d(Config.LOGTAG,"ForegroundService: "+(status?"on":"off"));
+	}
 
 	public boolean foregroundNotificationNeedsUpdatingWhenErrorStateChanges() {
 		return !mForceForegroundService.get() && Compatibility.keepForegroundService(this) && hasEnabledAccounts();
@@ -1398,12 +1407,12 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		final long timeToWake = SystemClock.elapsedRealtime() + (seconds < 0 ? 1 : seconds + 1) * 1000;
 		final AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 		if (alarmManager == null) {
-		    return;
-        }
+			return;
+		}
 		final Intent intent = new Intent(this, EventReceiver.class);
 		intent.setAction("ping");
 		try {
-		    PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, 0);
+			PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, 0);
 			alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, timeToWake, pendingIntent);
 		} catch (RuntimeException e) {
 			Log.e(Config.LOGTAG, "unable to schedule alarm for ping", e);
@@ -1416,12 +1425,12 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		final long timeToWake = SystemClock.elapsedRealtime() + (Config.PING_MIN_INTERVAL * 1000);
 		final AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 		if (alarmManager == null) {
-		    return;
-        }
+			return;
+		}
 		final Intent intent = new Intent(this, EventReceiver.class);
 		intent.setAction(ACTION_IDLE_PING);
 		try {
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+			PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
 			alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, timeToWake, pendingIntent);
 		} catch (RuntimeException e) {
 			Log.d(Config.LOGTAG, "unable to schedule alarm for idle ping", e);
@@ -1492,13 +1501,13 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		boolean saveInDb = addToConversation;
 		message.setStatus(Message.STATUS_WAITING);
 
-        if (message.getEncryption() != Message.ENCRYPTION_NONE && conversation.getMode() == Conversation.MODE_MULTI && conversation.isPrivateAndNonAnonymous()) {
-            if (conversation.setAttribute(Conversation.ATTRIBUTE_FORMERLY_PRIVATE_NON_ANONYMOUS, true)) {
-                databaseBackend.updateConversation(conversation);
-            }
-        }
+		if (message.getEncryption() != Message.ENCRYPTION_NONE && conversation.getMode() == Conversation.MODE_MULTI && conversation.isPrivateAndNonAnonymous()) {
+			if (conversation.setAttribute(Conversation.ATTRIBUTE_FORMERLY_PRIVATE_NON_ANONYMOUS, true)) {
+				databaseBackend.updateConversation(conversation);
+			}
+		}
 
-        if (account.isOnlineAndConnected()) {
+		if (account.isOnlineAndConnected()) {
 			switch (message.getEncryption()) {
 				case Message.ENCRYPTION_NONE:
 					if (message.needsUploading()) {
@@ -2170,11 +2179,11 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 	}
 
-    public void stopPresenceUpdatesTo(Contact contact) {
-        Log.d(Config.LOGTAG, "Canceling presence request from " + contact.getJid().toString());
-        sendPresencePacket(contact.getAccount(), mPresenceGenerator.stopPresenceUpdatesTo(contact));
-        contact.resetOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST);
-    }
+	public void stopPresenceUpdatesTo(Contact contact) {
+		Log.d(Config.LOGTAG, "Canceling presence request from " + contact.getJid().toString());
+		sendPresencePacket(contact.getAccount(), mPresenceGenerator.stopPresenceUpdatesTo(contact));
+		contact.resetOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST);
+	}
 
 	//ALF AM-228 here to createAccount
 	Map<String, Set<PreKeyRecord>> preKeyRecordSet = new Hashtable<>();
@@ -2206,7 +2215,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	public void createAccount(final Account account, boolean newAccount) {
 		//ALF AM-228 (if...also added newAccount above)
 		//if (newAccount) {
-			account.initAccountServices(this);
+		account.initAccountServices(this);
 		//}
 		//existingAccount = null;
 
@@ -2982,10 +2991,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public boolean createAdhocConference(final Account account,
-	                                     final String name,
-	                                     final Iterable<Jid> jids,
+										 final String name,
+										 final Iterable<Jid> jids,
 										 final boolean publicgroup, //ALF AM-88
-	                                     final UiCallback<Conversation> callback) {
+										 final UiCallback<Conversation> callback) {
 		Log.d(Config.LOGTAG, account.getJid().asBareJid().toString() + ": creating adhoc conference with " + jids.toString());
 		if (account.getStatus() == Account.State.ONLINE) {
 			try {
@@ -3435,39 +3444,39 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		});
 	}
 
-    public void publishAvatar(Account account, final Avatar avatar, final OnAvatarPublication callback) {
-        final Bundle options;
-        if (account.getXmppConnection().getFeatures().pepPublishOptions()) {
-            options = PublishOptions.openAccess();
-        } else {
-            options = null;
-        }
-        publishAvatar(account, avatar, options, true, callback);
-    }
+	public void publishAvatar(Account account, final Avatar avatar, final OnAvatarPublication callback) {
+		final Bundle options;
+		if (account.getXmppConnection().getFeatures().pepPublishOptions()) {
+			options = PublishOptions.openAccess();
+		} else {
+			options = null;
+		}
+		publishAvatar(account, avatar, options, true, callback);
+	}
 
 	public void publishAvatar(Account account, final Avatar avatar, final Bundle options, final boolean retry, final OnAvatarPublication callback) {
-        Log.d(Config.LOGTAG,account.getJid().asBareJid()+": publishing avatar. options="+options);
+		Log.d(Config.LOGTAG,account.getJid().asBareJid()+": publishing avatar. options="+options);
 		IqPacket packet = this.mIqGenerator.publishAvatar(avatar, options);
 		this.sendIqPacket(account, packet, new OnIqPacketReceived() {
 
 			@Override
 			public void onIqPacketReceived(Account account, IqPacket result) {
 				if (result.getType() == IqPacket.TYPE.RESULT) {
-                    publishAvatarMetadata(account, avatar, options,true, callback);
-                } else if (retry && PublishOptions.preconditionNotMet(result)) {
-				    pushNodeConfiguration(account, "urn:xmpp:avatar:data", options, new OnConfigurationPushed() {
-                        @Override
-                        public void onPushSucceeded() {
-                            Log.d(Config.LOGTAG,account.getJid().asBareJid()+": changed node configuration for avatar node");
-                            publishAvatar(account, avatar, options, false, callback);
-                        }
+					publishAvatarMetadata(account, avatar, options,true, callback);
+				} else if (retry && PublishOptions.preconditionNotMet(result)) {
+					pushNodeConfiguration(account, "urn:xmpp:avatar:data", options, new OnConfigurationPushed() {
+						@Override
+						public void onPushSucceeded() {
+							Log.d(Config.LOGTAG,account.getJid().asBareJid()+": changed node configuration for avatar node");
+							publishAvatar(account, avatar, options, false, callback);
+						}
 
-                        @Override
-                        public void onPushFailed() {
-                            Log.d(Config.LOGTAG,account.getJid().asBareJid()+": unable to change node configuration for avatar node");
-                            publishAvatar(account, avatar, null, false, callback);
-                        }
-                    });
+						@Override
+						public void onPushFailed() {
+							Log.d(Config.LOGTAG,account.getJid().asBareJid()+": unable to change node configuration for avatar node");
+							publishAvatar(account, avatar, null, false, callback);
+						}
+					});
 				} else {
 					Element error = result.findChild("error");
 					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": server rejected avatar " + (avatar.size / 1024) + "KiB " + (error != null ? error.toString() : ""));
@@ -3480,42 +3489,42 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public void publishAvatarMetadata(Account account, final Avatar avatar, final Bundle options, final boolean retry, final OnAvatarPublication callback) {
-        final IqPacket packet = XmppConnectionService.this.mIqGenerator.publishAvatarMetadata(avatar, options);
-        sendIqPacket(account, packet, new OnIqPacketReceived() {
-            @Override
-            public void onIqPacketReceived(Account account, IqPacket result) {
-                if (result.getType() == IqPacket.TYPE.RESULT) {
-                    if (account.setAvatar(avatar.getFilename())) {
-                        getAvatarService().clear(account);
-                        databaseBackend.updateAccount(account);
-                        notifyAccountAvatarHasChanged(account);
-                    }
-                    Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": published avatar " + (avatar.size / 1024) + "KiB");
-                    if (callback != null) {
-                        callback.onAvatarPublicationSucceeded();
-                    }
-                } else if (retry && PublishOptions.preconditionNotMet(result)) {
-                    pushNodeConfiguration(account, "urn:xmpp:avatar:metadata", options, new OnConfigurationPushed() {
-                        @Override
-                        public void onPushSucceeded() {
-                            Log.d(Config.LOGTAG,account.getJid().asBareJid()+": changed node configuration for avatar meta data node");
-                            publishAvatarMetadata(account, avatar, options,false, callback);
-                        }
+		final IqPacket packet = XmppConnectionService.this.mIqGenerator.publishAvatarMetadata(avatar, options);
+		sendIqPacket(account, packet, new OnIqPacketReceived() {
+			@Override
+			public void onIqPacketReceived(Account account, IqPacket result) {
+				if (result.getType() == IqPacket.TYPE.RESULT) {
+					if (account.setAvatar(avatar.getFilename())) {
+						getAvatarService().clear(account);
+						databaseBackend.updateAccount(account);
+						notifyAccountAvatarHasChanged(account);
+					}
+					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": published avatar " + (avatar.size / 1024) + "KiB");
+					if (callback != null) {
+						callback.onAvatarPublicationSucceeded();
+					}
+				} else if (retry && PublishOptions.preconditionNotMet(result)) {
+					pushNodeConfiguration(account, "urn:xmpp:avatar:metadata", options, new OnConfigurationPushed() {
+						@Override
+						public void onPushSucceeded() {
+							Log.d(Config.LOGTAG,account.getJid().asBareJid()+": changed node configuration for avatar meta data node");
+							publishAvatarMetadata(account, avatar, options,false, callback);
+						}
 
-                        @Override
-                        public void onPushFailed() {
-                            Log.d(Config.LOGTAG,account.getJid().asBareJid()+": unable to change node configuration for avatar meta data node");
-                            publishAvatarMetadata(account, avatar,  null,false, callback);
-                        }
-                    });
-                } else {
-                    if (callback != null) {
-                        callback.onAvatarPublicationFailed(R.string.error_publish_avatar_server_reject);
-                    }
-                }
-            }
-        });
-    }
+						@Override
+						public void onPushFailed() {
+							Log.d(Config.LOGTAG,account.getJid().asBareJid()+": unable to change node configuration for avatar meta data node");
+							publishAvatarMetadata(account, avatar,  null,false, callback);
+						}
+					});
+				} else {
+					if (callback != null) {
+						callback.onAvatarPublicationFailed(R.string.error_publish_avatar_server_reject);
+					}
+				}
+			}
+		});
+	}
 
 	public void republishAvatarIfNeeded(Account account) {
 		if (account.getAxolotlService().isPepBroken()) {
@@ -3568,22 +3577,22 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	public void fetchAvatar(Account account, final Avatar avatar, final UiCallback<Avatar> callback) {
 		final String KEY = generateFetchKey(account, avatar);
 		synchronized (this.mInProgressAvatarFetches) {
-		    if (mInProgressAvatarFetches.add(KEY)) {
-                switch (avatar.origin) {
-                    case PEP:
-                        this.mInProgressAvatarFetches.add(KEY);
-                        fetchAvatarPep(account, avatar, callback);
-                        break;
-                    case VCARD:
-                        this.mInProgressAvatarFetches.add(KEY);
-                        fetchAvatarVcard(account, avatar, callback);
-                        break;
-                }
-            } else if (avatar.origin == Avatar.Origin.PEP) {
-		        mOmittedPepAvatarFetches.add(KEY);
-            } else {
-		        Log.d(Config.LOGTAG,account.getJid().asBareJid()+": already fetching "+avatar.origin+" avatar for "+avatar.owner);
-            }
+			if (mInProgressAvatarFetches.add(KEY)) {
+				switch (avatar.origin) {
+					case PEP:
+						this.mInProgressAvatarFetches.add(KEY);
+						fetchAvatarPep(account, avatar, callback);
+						break;
+					case VCARD:
+						this.mInProgressAvatarFetches.add(KEY);
+						fetchAvatarVcard(account, avatar, callback);
+						break;
+				}
+			} else if (avatar.origin == Avatar.Origin.PEP) {
+				mOmittedPepAvatarFetches.add(KEY);
+			} else {
+				Log.d(Config.LOGTAG,account.getJid().asBareJid()+": already fetching "+avatar.origin+" avatar for "+avatar.owner);
+			}
 		}
 	}
 
@@ -3645,9 +3654,9 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		this.sendIqPacket(account, packet, new OnIqPacketReceived() {
 			@Override
 			public void onIqPacketReceived(Account account, IqPacket packet) {
-			    final boolean previouslyOmittedPepFetch;
+				final boolean previouslyOmittedPepFetch;
 				synchronized (mInProgressAvatarFetches) {
-				    final String KEY = generateFetchKey(account, avatar);
+					final String KEY = generateFetchKey(account, avatar);
 					mInProgressAvatarFetches.remove(KEY);
 					previouslyOmittedPepFetch = mOmittedPepAvatarFetches.remove(KEY);
 				}
@@ -3687,13 +3696,13 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 											updateMucRosterUi();
 										}
 										if (user.getRealJid() != null) {
-										    Contact contact = account.getRoster().getContact(user.getRealJid());
-										    if (contact.setAvatar(avatar)) {
-                                                syncRoster(account);
-                                                getAvatarService().clear(contact);
-                                                updateRosterUi();
-                                            }
-                                        }
+											Contact contact = account.getRoster().getContact(user.getRealJid());
+											if (contact.setAvatar(avatar)) {
+												syncRoster(account);
+												getAvatarService().clear(contact);
+												updateRosterUi();
+											}
+										}
 									}
 								}
 							}
@@ -3738,21 +3747,21 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public void notifyAccountAvatarHasChanged(final Account account) {
-	    final XmppConnection connection = account.getXmppConnection();
-	    if (connection != null && connection.getFeatures().bookmarksConversion()) {
-            Log.d(Config.LOGTAG,account.getJid().asBareJid()+": avatar changed. resending presence to online group chats");
-            for(Conversation conversation : conversations) {
-                if (conversation.getAccount() == account && conversation.getMode() == Conversational.MODE_MULTI) {
-                    final MucOptions mucOptions = conversation.getMucOptions();
-                    if (mucOptions.online()) {
-                        PresencePacket packet = mPresenceGenerator.selfPresence(account, Presence.Status.ONLINE, mucOptions.nonanonymous());
-                        packet.setTo(mucOptions.getSelf().getFullJid());
-                        connection.sendPresencePacket(packet);
-                    }
-                }
-            }
-        }
-    }
+		final XmppConnection connection = account.getXmppConnection();
+		if (connection != null && connection.getFeatures().bookmarksConversion()) {
+			Log.d(Config.LOGTAG,account.getJid().asBareJid()+": avatar changed. resending presence to online group chats");
+			for(Conversation conversation : conversations) {
+				if (conversation.getAccount() == account && conversation.getMode() == Conversational.MODE_MULTI) {
+					final MucOptions mucOptions = conversation.getMucOptions();
+					if (mucOptions.online()) {
+						PresencePacket packet = mPresenceGenerator.selfPresence(account, Presence.Status.ONLINE, mucOptions.nonanonymous());
+						packet.setTo(mucOptions.getSelf().getFullJid());
+						connection.sendPresencePacket(packet);
+					}
+				}
+			}
+		}
+	}
 
 	public void deleteContactOnServer(Contact contact) {
 		contact.resetOption(Contact.Options.PREEMPTIVE_GRANT);
@@ -4164,8 +4173,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			}
 		}
 		if (Config.QUICKSY_DOMAIN != null) {
-		    hosts.remove(Config.QUICKSY_DOMAIN); //we only want to show this when we type a e164 number
-        }
+			hosts.remove(Config.QUICKSY_DOMAIN); //we only want to show this when we type a e164 number
+		}
 		if (Config.DOMAIN_LOCK != null) {
 			hosts.add(Config.DOMAIN_LOCK);
 		}
@@ -4219,8 +4228,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		if (connection != null) {
 			connection.sendIqPacket(packet, callback);
 		} else if (callback != null) {
-		    callback.onIqPacketReceived(account,new IqPacket(IqPacket.TYPE.TIMEOUT));
-        }
+			callback.onIqPacketReceived(account,new IqPacket(IqPacket.TYPE.TIMEOUT));
+		}
 	}
 
 	public void sendPresence(final Account account) {
@@ -4311,8 +4320,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public QuickConversationsService getQuickConversationsService() {
-        return this.mQuickConversationsService;
-    }
+		return this.mQuickConversationsService;
+	}
 
 	public List<Contact> findContacts(Jid jid, String accountJid) {
 		ArrayList<Contact> contacts = new ArrayList<>();
@@ -4595,9 +4604,9 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						}
 					}
 
-					//do something with this information. Maybe close CallActivity and enter
 					Intent intent1 = new Intent("callActivityFinish");
 					sendBroadcast(intent1);
+					getNotificationService().dismissCallNotification();
 
 					//open RoomActivity with callToken/info
 					Intent callIntent = new Intent(getApplicationContext(), VideoActivity.class);
@@ -4608,6 +4617,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					callIntent.putExtra("roomname", call.getRoomName());
 					callIntent.putExtra("caller", call.getCaller());
 					callIntent.putExtra("receiver", call.getReceiver());
+
 					startActivity(callIntent);
 				} else {
 					//callback.informUser("Something bad"); //TODO ALERT USER
@@ -4642,6 +4652,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		//Close CallActivity
 		Intent intent1 = new Intent("callActivityFinish");
 		sendBroadcast(intent1);
+		getNotificationService().dismissCallNotification();
 	}
 	//ALF AM-410 end TwilioCall stuff
 
@@ -4877,7 +4888,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				for (Account account : accounts) {
 					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": Core just connected. Account status: " + account.getStatus());
 					if (account.getStatus() == Account.State.OFFLINE || account.getStatus() == Account.State.NO_INTERNET ||
-							account.getStatus() == Account.State.SERVER_NOT_FOUND) { 
+							account.getStatus() == Account.State.SERVER_NOT_FOUND) {
 						resetSendingToWaiting(account);
 						if (account.isEnabled() && !account.isOnlineAndConnected()) {
 							Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": Core just connected. Reconnecting account now");

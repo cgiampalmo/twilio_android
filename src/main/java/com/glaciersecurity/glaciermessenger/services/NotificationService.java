@@ -12,6 +12,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.media.AudioAttributes;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.SystemClock;
@@ -53,7 +54,9 @@ import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.Conversational;
 import com.glaciersecurity.glaciermessenger.entities.Message;
+import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
+import com.glaciersecurity.glaciermessenger.ui.CallActivity;
 import com.glaciersecurity.glaciermessenger.ui.ConversationsActivity;
 import com.glaciersecurity.glaciermessenger.ui.EditAccountActivity;
 import com.glaciersecurity.glaciermessenger.ui.TimePreference;
@@ -79,6 +82,7 @@ public class NotificationService {
 	public static final int NOTIFICATION_ID = 2 * NOTIFICATION_ID_MULTIPLIER;
 	static final int FOREGROUND_NOTIFICATION_ID = NOTIFICATION_ID_MULTIPLIER * 4;
 	public static final int ERROR_NOTIFICATION_ID = NOTIFICATION_ID_MULTIPLIER * 6;
+	public static final int CALL_NOTIFICATION_ID = 5 * NOTIFICATION_ID; //ALF AM-410
 
 	private Conversation mOpenConversation;
 	private boolean mIsInForeground;
@@ -232,6 +236,65 @@ public class NotificationService {
 					&& !this.inMiniGracePeriod(account);
 			updateNotification(doNotify, Collections.singletonList(conversation.getUuid()));
 		}
+	}
+
+	//ALF AM-410
+	public boolean pushForCall(final TwilioCall call, final String pushedAccountHash) {
+		final boolean isScreenOn = mXmppConnectionService.isInteractive();
+		if (this.mIsInForeground && isScreenOn) {
+			Log.d(Config.LOGTAG, "suppressing call notification because screen is open");
+			return false;
+		}
+
+		Intent callIntent = new Intent(mXmppConnectionService, CallActivity.class);
+		callIntent.setAction(CallActivity.ACTION_INCOMING_CALL);
+		callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		callIntent.putExtra("caller", call.getCaller());
+		callIntent.putExtra("status", call.getStatus());
+		callIntent.putExtra("call_id", call.getCallId());
+		callIntent.putExtra("account", pushedAccountHash);
+
+		//callIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		//callIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		PendingIntent pendingIntent = PendingIntent.getActivity(mXmppConnectionService, 6, callIntent,
+				PendingIntent.FLAG_UPDATE_CURRENT);
+
+		String ctext = "Call from " + call.getCaller();
+		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, "calls");
+		mBuilder.setContentTitle("Incoming Call")
+				.setContentText(ctext)
+				.setContentIntent(pendingIntent)
+				.setCategory(Notification.CATEGORY_CALL)
+				.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+				.setWhen(System.currentTimeMillis())
+				.setAutoCancel(true)
+				.setShowWhen(true)
+				.setOngoing(true)
+				.setSmallIcon(R.drawable.ic_notification)
+				.setPriority(NotificationCompat.PRIORITY_HIGH);
+		mBuilder.setFullScreenIntent(pendingIntent, true); // THIS HERE is the full-screen intent
+		//.setContentIntent(pendingIntent)
+
+		Uri callUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+		try {
+			mBuilder.setSound(callUri);
+		} catch (SecurityException e) {
+			Log.d(Config.LOGTAG, "unable to use ringtone");
+		}
+
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			mBuilder.setCategory(Notification.CATEGORY_CALL);
+		}
+		//setNotificationColor(mBuilder);
+		//mBuilder.setDefaults(0);
+
+		notify(CALL_NOTIFICATION_ID, mBuilder.build());
+
+		return true;
+	}
+
+	void dismissCallNotification() {
+		cancel(CALL_NOTIFICATION_ID);
 	}
 
 	public void clear() {
@@ -537,7 +600,7 @@ public class NotificationService {
 	}
 
 	private void modifyForImage(final Builder builder, final UnreadConversation.Builder uBuilder,
-	                            final Message message, final ArrayList<Message> messages) {
+								final Message message, final ArrayList<Message> messages) {
 		try {
 			final Bitmap bitmap = mXmppConnectionService.getFileBackend()
 					.getThumbnail(message, getPixel(288), false);
@@ -1052,6 +1115,25 @@ public class NotificationService {
 		messagesChannel.enableLights(true);
 		messagesChannel.setGroup("chats");
 		notificationManager.createNotificationChannel(messagesChannel);
+
+		//ALF AM-410
+		notificationManager.createNotificationChannelGroup(new NotificationChannelGroup("callgroup", "Calls"));
+		final NotificationChannel callsChannel = new NotificationChannel("calls",
+				"Calls",
+				NotificationManager.IMPORTANCE_HIGH);
+		callsChannel.setShowBadge(true);
+		Uri callUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+		callsChannel.setSound(callUri, new AudioAttributes.Builder()
+				.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+				.setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+				.build());
+		callsChannel.setLightColor(ContextCompat.getColor(mXmppConnectionService, R.color.light_blue_500));
+		callsChannel.setVibrationPattern(pattern);
+		callsChannel.enableVibration(true);
+		callsChannel.enableLights(true);
+		callsChannel.setGroup("callgroup");
+		notificationManager.createNotificationChannel(callsChannel);
+
 		final NotificationChannel silentMessagesChannel = new NotificationChannel("silent_messages",
 				c.getString(R.string.silent_messages_channel_name),
 				NotificationManager.IMPORTANCE_LOW);

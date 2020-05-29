@@ -29,7 +29,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"/>
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/primary_no_video_view"
+            android:layout_width="@dimen/avatar_on_incoming_call_screen_size"
+            android:layout_height="@dimen/avatar_on_incoming_call_screen_size"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/account_image_description"
+            app:riv_corner_radius="90dip" />
     </RelativeLayout>
+
 
     <ProgressBar
         android:id="@+id/reconnecting_progress_bar"
