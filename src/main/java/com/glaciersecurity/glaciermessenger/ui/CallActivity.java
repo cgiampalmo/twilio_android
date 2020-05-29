@@ -8,6 +8,7 @@ import android.os.Build;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -73,6 +74,10 @@ public class CallActivity extends XmppActivity {
 			this.setTurnScreenOn(true);
 			this.setShowWhenLocked(true);
 		}
+
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+				| WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+				| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 		audioManager.setSpeakerphoneOn(isSpeakerphoneOn);

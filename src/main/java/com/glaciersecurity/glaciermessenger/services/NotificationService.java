@@ -267,7 +267,7 @@ public class NotificationService {
 				.setCategory(Notification.CATEGORY_CALL)
 				.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 				.setWhen(System.currentTimeMillis())
-				.setAutoCancel(false)
+				.setAutoCancel(true)
 				.setShowWhen(true)
 				.setOngoing(true)
 				.setSmallIcon(R.drawable.ic_notification)

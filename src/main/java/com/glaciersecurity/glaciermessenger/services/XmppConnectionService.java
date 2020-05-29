@@ -4595,9 +4595,9 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						}
 					}
 
-					//do something with this information. Maybe close CallActivity and enter
 					Intent intent1 = new Intent("callActivityFinish");
 					sendBroadcast(intent1);
+					getNotificationService().dismissCallNotification();
 
 					//open RoomActivity with callToken/info
 					Intent callIntent = new Intent(getApplicationContext(), VideoActivity.class);
@@ -4609,12 +4609,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					callIntent.putExtra("caller", call.getCaller());
 					callIntent.putExtra("receiver", call.getReceiver());
 
-					if (isInteractive()) {
-						startActivity(callIntent);
-					} else {
-						startActivity(callIntent);
-					}
-					getNotificationService().dismissCallNotification();
+					startActivity(callIntent);
 				} else {
 					//callback.informUser("Something bad"); //TODO ALERT USER
 					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not create call");
