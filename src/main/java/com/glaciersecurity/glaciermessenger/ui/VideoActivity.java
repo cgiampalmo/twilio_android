@@ -313,7 +313,9 @@ public class VideoActivity extends XmppActivity {
                     View.VISIBLE);
         }
 
-        connectToRoom(roomname);
+        if (room == null || room.getState() == Room.State.DISCONNECTED) {
+            connectToRoom(roomname);
+        }
     }
 
 
@@ -825,9 +827,9 @@ public class VideoActivity extends XmppActivity {
                 localParticipant = null;
                 reconnectingProgressBar.setVisibility(View.GONE);
                 VideoActivity.this.room = null;
+                configureAudio(false);
                 // Only reinitialize the UI if disconnect was not called from onDestroy()
                 if (!disconnectedFromOnDestroy) {
-                    configureAudio(false);
                     intializeUI();
                     moveLocalVideoToPrimaryView();
                 }

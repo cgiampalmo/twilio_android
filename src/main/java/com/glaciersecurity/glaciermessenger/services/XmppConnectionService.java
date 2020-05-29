@@ -731,7 +731,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 						call.setStatus(intent.getStringExtra("status"));
 
-						if (call.getStatus().equalsIgnoreCase("reject")|| call.getStatus().equalsIgnoreCase("cancel") ) {
+						if (call.getStatus().equalsIgnoreCase("reject") || call.getStatus().equalsIgnoreCase("cancel")) {
 							//stop CallActivity
 							Intent intent1 = new Intent("callActivityFinish");
 							sendBroadcast(intent1);
