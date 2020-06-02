@@ -20,9 +20,10 @@
         app:tviMirror="true"
         android:visibility="gone"
         android:layout_width="96dp"
-        android:layout_height="96dp"
-        android:layout_margin="16dp"
-        android:layout_alignParentTop="true"/>
+        android:layout_height="170dp"
+        android:layout_margin="12dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"/>
 
     <com.twilio.video.VideoView
         android:id="@+id/primary_video_view"
@@ -30,7 +31,22 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"/>
 
-        <com.makeramen.roundedimageview.RoundedImageView
+    <LinearLayout
+        android:id="@+id/no_video_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/spacing_xlarge"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/color_background_secondary">
+
+
+    <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/primary_no_video_view"
             android:layout_width="@dimen/avatar_on_incoming_call_screen_size"
             android:layout_height="@dimen/avatar_on_incoming_call_screen_size"
@@ -38,6 +54,8 @@
             android:layout_centerVertical="true"
             android:contentDescription="@string/account_image_description"
             app:riv_corner_radius="90dip" />
+    </RelativeLayout>
+    </LinearLayout>
     </RelativeLayout>
 
 

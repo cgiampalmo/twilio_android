@@ -181,12 +181,12 @@ ext {
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 28
-        versionCode 409
-        versionName "2.5.0-RC3"
+        targetSdkVersion 29
+        versionCode 410
+        versionName "2.5.0-RC4"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
         resValue "string", "applicationId", applicationId

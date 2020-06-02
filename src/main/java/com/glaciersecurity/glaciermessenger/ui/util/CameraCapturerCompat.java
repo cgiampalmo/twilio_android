@@ -173,13 +173,13 @@ public class CameraCapturerCompat {
         // Normalize the color filter arrangement
         colorFilterArrangement = colorFilterArrangement == null ? -1 : colorFilterArrangement;
 
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.) {
-//            isMonoChromeSupported =
-//                    colorFilterArrangement
-//                            == CameraMetadata.SENSOR_INFO_COLOR_FILTER_ARRANGEMENT_MONO
-//                            || colorFilterArrangement
-//                            == CameraMetadata.SENSOR_INFO_COLOR_FILTER_ARRANGEMENT_NIR;
-//        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            isMonoChromeSupported =
+                    colorFilterArrangement
+                            == CameraMetadata.SENSOR_INFO_COLOR_FILTER_ARRANGEMENT_MONO
+                            || colorFilterArrangement
+                            == CameraMetadata.SENSOR_INFO_COLOR_FILTER_ARRANGEMENT_NIR;
+        }
         return isPrivateImageFormatSupported && !isMonoChromeSupported;
     }
 }

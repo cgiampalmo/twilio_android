@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -147,7 +148,7 @@ public class VideoActivity extends XmppActivity {
     private FloatingActionButton speakerPhoneActionFab;
 
     private ProgressBar reconnectingProgressBar;
-    private RoundedImageView noVideoView;
+    private LinearLayout noVideoView;
     private VideoView videoView;
     private AlertDialog connectDialog;
     private String remoteParticipantIdentity;
@@ -184,8 +185,8 @@ public class VideoActivity extends XmppActivity {
         primaryVideoView = findViewById(R.id.primary_video_view);
         thumbnailVideoView = findViewById(R.id.thumbnail_video_view);
         reconnectingProgressBar = findViewById(R.id.reconnecting_progress_bar);
-        noVideoView = findViewById(R.id.primary_no_video_view);
-       // videoView = findViewById(R.id.primary_video_view);
+        noVideoView = findViewById(R.id.no_video_view);
+        videoView = findViewById(R.id.primary_video_view);
 
 
         connectActionFab = findViewById(R.id.connect_action_fab);
@@ -273,26 +274,27 @@ public class VideoActivity extends XmppActivity {
          * If the local video track was released when the app was put in the background, recreate.
          */
         if (localVideoTrack == null && checkPermissionForCameraAndMicrophone()) {
-            localVideoTrack = LocalVideoTrack.create(this,
-                    true,
-                    cameraCapturerCompat.getVideoCapturer(),
-                    LOCAL_VIDEO_TRACK_NAME);
-            localVideoTrack.addRenderer(localVideoView);
-
-            /*
-             * If connected to a Room then share the local video track.
-             */
-            if (localParticipant != null) {
-                localParticipant.publishTrack(localVideoTrack);
-
-                /*
-                 * Update encoding parameters if they have changed.
-                 */
-                if (!newEncodingParameters.equals(encodingParameters)) {
-                    localParticipant.setEncodingParameters(newEncodingParameters);
-                }
-            }
+//            localVideoTrack = LocalVideoTrack.create(this,
+//                    true,
+//                    cameraCapturerCompat.getVideoCapturer(),
+//                    LOCAL_VIDEO_TRACK_NAME);
+//            localVideoTrack.addRenderer(localVideoView);
+//
+//            /*
+//             * If connected to a Room then share the local video track.
+//             */
+//            if (localParticipant != null) {
+//                localParticipant.publishTrack(localVideoTrack);
+//
+//                /*
+//                 * Update encoding parameters if they have changed.
+//                 */
+//                if (!newEncodingParameters.equals(encodingParameters)) {
+//                    localParticipant.setEncodingParameters(newEncodingParameters);
+//                }
+//            }
         }
+
        // primaryTitle.setText(roomname);
         /*
          * Update encoding parameters
@@ -1215,9 +1217,11 @@ public class VideoActivity extends XmppActivity {
                 if (enable) {
                     icon = R.drawable.ic_videocam_white_24dp;
                     switchCameraActionFab.show();
+                    enableSpeakerPhone(true);
                 } else {
                     icon = R.drawable.ic_videocam_off_gray_24px;
                     switchCameraActionFab.hide();
+                    enableSpeakerPhone(false);
                 }
                 localVideoActionFab.setImageDrawable(
                         ContextCompat.getDrawable(VideoActivity.this, icon));
@@ -1246,6 +1250,26 @@ public class VideoActivity extends XmppActivity {
                         ContextCompat.getDrawable(VideoActivity.this, icon));
             }
         };
+    }
+    private void enableSpeakerPhone(boolean expectedSpeakerPhoneState){
+        if (audioManager != null) {
+
+            audioManager.setSpeakerphoneOn(expectedSpeakerPhoneState);
+            isSpeakerPhoneEnabled = expectedSpeakerPhoneState;
+
+            int icon;
+            if (expectedSpeakerPhoneState) {
+                icon = R.drawable.ic_volume_up_white_24dp;
+            } else {
+                icon = R.drawable.ic_phonelink_ring_white_24dp;
+            }
+            speakerPhoneActionFab.setImageDrawable(
+                    ContextCompat.getDrawable(VideoActivity.this, icon));
+        }
+
+    }
+    private void disableSpeakerPhone(){
+
     }
     private View.OnClickListener muteClickListener() {
         return v -> {
