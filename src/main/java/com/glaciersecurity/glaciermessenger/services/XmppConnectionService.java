@@ -711,7 +711,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						}
 					});
 					break;
-				case ACTION_REPLY_TO_CALL_REQUEST: //ALF AM-410
+				case ACTION_REPLY_TO_CALL_REQUEST: //ALF AM-410 (and next 3 cases)
 					pushedAccountHash = intent.getStringExtra("account");
 					Account acct = null;
 					for (Account account : accounts) {
@@ -778,18 +778,15 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						Log.d(Config.LOGTAG, "push message arrived in service. account=" + pushedAccountHash);
 					}
 					break;
-				case ACTION_ACCEPT_CALL_REQUEST: //ALF AM-410
+				case ACTION_ACCEPT_CALL_REQUEST:
 					acceptCall(currentTwilioCall);
 					break;
-				case ACTION_REJECT_CALL_REQUEST: //ALF AM-410
+				case ACTION_REJECT_CALL_REQUEST:
 					rejectCall(currentTwilioCall);
+					currentTwilioCall = null;
 					break;
-				case ACTION_CANCEL_CALL_REQUEST: //CMG
-					Intent intent1 = new Intent("callActivityFinish");
-					sendBroadcast(intent1);
-
-					//notify user of rejection from other party
-
+				case ACTION_CANCEL_CALL_REQUEST: //CMG 
+					cancelCall(currentTwilioCall);
 					currentTwilioCall = null;
 					break;
 				case ACTION_MARK_AS_READ:
@@ -4653,6 +4650,31 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		Intent intent1 = new Intent("callActivityFinish");
 		sendBroadcast(intent1);
 		getNotificationService().dismissCallNotification();
+	}
+
+	public void cancelCall(TwilioCall call) {
+		final IqPacket request = new IqPacket(IqPacket.TYPE.SET);
+		request.setTo(Jid.of("p2.glaciersec.cc"));
+		request.setAttribute("from",call.getAccount().getJid().toString());
+
+		final Element command = request.addChild("command", "http://jabber.org/protocol/commands");
+		command.setAttribute("action", "execute");
+		command.setAttribute("node", "cancel-call-fcm");
+		final Element x = command.addChild("x", "jabber:x:data");
+		x.setAttribute("type", "submit");
+
+		final Element callidfield = x.addChild("field");
+		callidfield.setAttribute("var", "callid");
+		Element callidval = new Element("value");
+		callidval.setContent(Integer.toString(call.getCallId()));
+		callidfield.addChild(callidval);
+
+		Log.d(Config.LOGTAG, call.getAccount().getJid().asBareJid() + ": cancelling call from " + call.getCaller());
+		sendIqPacket(call.getAccount(), request, null);
+
+		//Close CallActivity
+		Intent intent1 = new Intent("callActivityFinish");
+		sendBroadcast(intent1);
 	}
 	//ALF AM-410 end TwilioCall stuff
 
