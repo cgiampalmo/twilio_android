@@ -17,7 +17,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:layout_gravity="top|left"
-        android:text="Participant Name"
         android:textColor="?attr/edit_text_color"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
         app:fontFamily="sans-serif-medium" />

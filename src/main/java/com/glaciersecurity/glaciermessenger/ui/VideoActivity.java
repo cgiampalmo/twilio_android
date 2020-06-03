@@ -149,7 +149,7 @@ public class VideoActivity extends XmppActivity {
 
     private ProgressBar reconnectingProgressBar;
     private LinearLayout noVideoView;
-    private VideoView videoView;
+    private RoundedImageView avatar;
     private AlertDialog connectDialog;
     private String remoteParticipantIdentity;
     private TextView primaryTitle;
@@ -186,7 +186,7 @@ public class VideoActivity extends XmppActivity {
         thumbnailVideoView = findViewById(R.id.thumbnail_video_view);
         reconnectingProgressBar = findViewById(R.id.reconnecting_progress_bar);
         noVideoView = findViewById(R.id.no_video_view);
-        videoView = findViewById(R.id.primary_video_view);
+        avatar = findViewById(R.id.no_video_view_avatar);
 
 
         connectActionFab = findViewById(R.id.connect_action_fab);
@@ -637,7 +637,12 @@ public class VideoActivity extends XmppActivity {
      */
     private VideoCodec getVideoCodecPreference(String key, String defaultValue) {
         final String videoCodecName = preferences.getString(key, defaultValue);
-
+        if(Build.MODEL == "Pixel 3" || Build.MODEL == "Pixel 4" ){ //using a plugin to detect mobile model
+            return new H264Codec();
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return new H264Codec();
+        }
         switch (videoCodecName) {
             case Vp8Codec.NAME:
                 boolean simulcast = preferences.getBoolean(PREF_VP8_SIMULCAST,
@@ -1148,13 +1153,15 @@ public class VideoActivity extends XmppActivity {
             @Override
             public void onVideoTrackEnabled(RemoteParticipant remoteParticipant,
                                             RemoteVideoTrackPublication remoteVideoTrackPublication) {
-
+                noVideoView.setVisibility(View.GONE);
+                primaryVideoView.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onVideoTrackDisabled(RemoteParticipant remoteParticipant,
                                              RemoteVideoTrackPublication remoteVideoTrackPublication) {
-
+                noVideoView.setVisibility(View.VISIBLE);
+                primaryVideoView.setVisibility(View.GONE);
             }
         };
     }
@@ -1309,12 +1316,7 @@ public class VideoActivity extends XmppActivity {
     protected void onBackendConnected() {
         try {
             if (xmppConnectionService != null) {
-                Account mAccount = xmppConnectionService.getAccounts().get(0);
-//                if (mAccount != null || conversationUuid != null) {
-//                    Conversation conversation = xmppConnectionService.findConversationByUuid(conversationUuid);
-//                    avatar.setImageBitmap(avatarService().get(conversation.getContact(), (int) getResources().getDimension(R.dimen.avatar_on_incoming_call_screen_size)));
-//
-//                }
+                //caller
             }
         } catch (Exception e){
 

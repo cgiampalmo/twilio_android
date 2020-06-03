@@ -45,9 +45,8 @@
         android:layout_height="match_parent"
         android:background="?attr/color_background_secondary">
 
-
     <com.makeramen.roundedimageview.RoundedImageView
-            android:id="@+id/primary_no_video_view"
+            android:id="@+id/no_video_view_avatar"
             android:layout_width="@dimen/avatar_on_incoming_call_screen_size"
             android:layout_height="@dimen/avatar_on_incoming_call_screen_size"
             android:layout_centerHorizontal="true"
