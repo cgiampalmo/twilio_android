@@ -1182,7 +1182,6 @@ public class VideoActivity extends XmppActivity {
             public void onVideoTrackEnabled(RemoteParticipant remoteParticipant,
                                             RemoteVideoTrackPublication remoteVideoTrackPublication) {
                 noVideoView.setVisibility(View.GONE);
-                thumbnailVideoView.setVisibility(View.VISIBLE);
                 primaryVideoView.setVisibility(View.VISIBLE);
             }
 
@@ -1190,7 +1189,6 @@ public class VideoActivity extends XmppActivity {
             public void onVideoTrackDisabled(RemoteParticipant remoteParticipant,
                                              RemoteVideoTrackPublication remoteVideoTrackPublication) {
                 noVideoView.setVisibility(View.VISIBLE);
-                thumbnailVideoView.setVisibility(View.GONE);
                 primaryVideoView.setVisibility(View.GONE);
             }
         };
@@ -1257,11 +1255,14 @@ public class VideoActivity extends XmppActivity {
                     enableSpeakerPhone(true);
                     recreateVideoTrackIfNeeded();
                     isVideoMuted = false;
+                    thumbnailVideoView.setVisibility(View.VISIBLE);
+
                 } else {
                     icon = R.drawable.ic_videocam_off_gray_24px;
                     switchCameraActionFab.hide();
                     enableSpeakerPhone(false);
                     isVideoMuted = true;
+                    thumbnailVideoView.setVisibility(View.GONE);
                 }
                 localVideoActionFab.setImageDrawable(
                         ContextCompat.getDrawable(VideoActivity.this, icon));
