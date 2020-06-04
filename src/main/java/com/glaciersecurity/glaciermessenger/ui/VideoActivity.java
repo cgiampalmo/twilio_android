@@ -538,9 +538,7 @@ public class VideoActivity extends XmppActivity {
             cameraCapturerCompat = new CameraCapturerCompat(this, getAvailableCameraSource());
         }
 
-        //if (!isVideoMuted) {
-            setupLocalVideoTrack();
-        //}
+        setupLocalVideoTrack();
     }
 
     private void setupLocalVideoTrack() {
