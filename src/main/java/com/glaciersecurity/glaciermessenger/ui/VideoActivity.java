@@ -1357,4 +1357,8 @@ public class VideoActivity extends XmppActivity {
 
     public void refreshUiReal() {
     }
+
+    @Override
+    public void onBackPressed() {
+    }
 }
