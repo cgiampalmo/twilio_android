@@ -14,47 +14,49 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:orientation="vertical">
-    <com.twilio.video.VideoView
-        android:id="@+id/thumbnail_video_view"
-        app:tviOverlaySurface="true"
-        app:tviMirror="true"
-        android:visibility="gone"
-        android:layout_width="96dp"
-        android:layout_height="170dp"
-        android:layout_margin="12dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"/>
+
 
     <com.twilio.video.VideoView
         android:id="@+id/primary_video_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        android:visibility="gone"/>
 
     <LinearLayout
         android:id="@+id/no_video_view"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:layout_marginTop="@dimen/spacing_xlarge"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        >
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="?attr/color_background_secondary">
+        android:layout_height="match_parent">
+
 
     <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/no_video_view_avatar"
-            android:layout_width="@dimen/avatar_on_incoming_call_screen_size"
-            android:layout_height="@dimen/avatar_on_incoming_call_screen_size"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
+            app:srcCompat="@drawable/avatar_default"
             android:contentDescription="@string/account_image_description"
-            app:riv_corner_radius="90dip" />
+            app:riv_corner_radius="100dip" />
     </RelativeLayout>
     </LinearLayout>
+        <com.twilio.video.VideoView
+            android:id="@+id/thumbnail_video_view"
+            app:tviOverlaySurface="true"
+            app:tviMirror="true"
+            android:visibility="gone"
+            android:layout_width="96dp"
+            android:layout_height="170dp"
+            android:layout_margin="12dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"/>
     </RelativeLayout>
 
 

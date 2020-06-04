@@ -109,6 +109,8 @@ public class VideoActivity extends XmppActivity {
     private int previousAudioMode;
     private boolean previousMicrophoneMute;
     private boolean isSpeakerPhoneEnabled = false;
+    private Boolean isAudioMuted = false;
+    private Boolean isVideoMuted = true;
 
 
     /*
@@ -166,6 +168,8 @@ public class VideoActivity extends XmppActivity {
     public static final String PREF_ENABLE_AUTOMATIC_SUBSCRIPTION = "enable_automatic_subscription";
     public static final boolean PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT = true;
     public static final boolean PREF_VP8_SIMULCAST_DEFAULT = false;
+    private static final String IS_AUDIO_MUTED = "IS_AUDIO_MUTED";
+    private static final String IS_VIDEO_MUTED = "IS_VIDEO_MUTED";
 
     /*
      * Audio management
@@ -207,6 +211,11 @@ public class VideoActivity extends XmppActivity {
          */
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
+        if (savedInstanceState != null) {
+            isAudioMuted = savedInstanceState.getBoolean(IS_AUDIO_MUTED);
+            isVideoMuted = savedInstanceState.getBoolean(IS_VIDEO_MUTED);
+        }
+
         /*
          * Setup audio management and set the volume control stream
          */
@@ -214,7 +223,7 @@ public class VideoActivity extends XmppActivity {
         audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
         savedVolumeControlStream = getVolumeControlStream();
         setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
-
+        avatar.setImageResource(R.drawable.avatar_default);
         /*
          * Check camera and microphone permissions. Needed in Android M.
          */
@@ -374,7 +383,9 @@ public class VideoActivity extends XmppActivity {
         enableAutomaticSubscription = getAutomaticSubscriptionPreference(PREF_ENABLE_AUTOMATIC_SUBSCRIPTION,
                 PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT);
 
-        recreateVideoTrackIfNeeded();
+        if(!isVideoMuted) {
+            recreateVideoTrackIfNeeded();
+        }
 
         /*
          * Route audio through cached value.
@@ -457,6 +468,13 @@ public class VideoActivity extends XmppActivity {
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putBoolean(IS_AUDIO_MUTED, isAudioMuted);
+        outState.putBoolean(IS_VIDEO_MUTED, isVideoMuted);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     protected void onDestroy() {
 
         /*
@@ -511,7 +529,18 @@ public class VideoActivity extends XmppActivity {
         localAudioTrack = LocalAudioTrack.create(this, true, LOCAL_AUDIO_TRACK_NAME);
 
         // Share your camera
-        cameraCapturerCompat = new CameraCapturerCompat(this, getAvailableCameraSource());
+        if (cameraCapturerCompat == null) {
+            cameraCapturerCompat = new CameraCapturerCompat(this, getAvailableCameraSource());
+        }
+
+        if (!isVideoMuted) {
+            setupLocalVideoTrack();
+
+        }
+    }
+
+    private void setupLocalVideoTrack() {
+
         localVideoTrack = LocalVideoTrack.create(this,
                 true,
                 cameraCapturerCompat.getVideoCapturer(),
@@ -638,9 +667,6 @@ public class VideoActivity extends XmppActivity {
     private VideoCodec getVideoCodecPreference(String key, String defaultValue) {
         final String videoCodecName = preferences.getString(key, defaultValue);
         if(Build.MODEL == "Pixel 3" || Build.MODEL == "Pixel 4" ){ //using a plugin to detect mobile model
-            return new H264Codec();
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             return new H264Codec();
         }
         switch (videoCodecName) {
@@ -1225,10 +1251,13 @@ public class VideoActivity extends XmppActivity {
                     icon = R.drawable.ic_videocam_white_24dp;
                     switchCameraActionFab.show();
                     enableSpeakerPhone(true);
+                    recreateVideoTrackIfNeeded();
+                    isVideoMuted = false;
                 } else {
                     icon = R.drawable.ic_videocam_off_gray_24px;
                     switchCameraActionFab.hide();
                     enableSpeakerPhone(false);
+                    isVideoMuted = true;
                 }
                 localVideoActionFab.setImageDrawable(
                         ContextCompat.getDrawable(VideoActivity.this, icon));
@@ -1316,7 +1345,7 @@ public class VideoActivity extends XmppActivity {
     protected void onBackendConnected() {
         try {
             if (xmppConnectionService != null) {
-                //caller
+                //getCallingActivity().
             }
         } catch (Exception e){
 

@@ -113,6 +113,7 @@
             android:layout_marginBottom="@dimen/fab_margin"
             android:layout_marginTop="@dimen/fab_margin"
             app:backgroundTint="@color/lobbyHangup"
+
             app:fabSize="normal"
             app:srcCompat="@drawable/ic_call_end_white_24px" />
             <View
