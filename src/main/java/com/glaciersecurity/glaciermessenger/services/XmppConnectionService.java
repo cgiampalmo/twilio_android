@@ -289,6 +289,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	//ALF AM-410
 	private TwilioCall currentTwilioCall;
+	private boolean awaitingCallResponse=false;
 
 	//Ui callback listeners
 	private final Set<OnConversationUpdate> mOnConversationUpdates = Collections.newSetFromMap(new WeakHashMap<OnConversationUpdate, Boolean>());
@@ -735,6 +736,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							//stop CallActivity
 							Intent intent1 = new Intent("callActivityFinish");
 							sendBroadcast(intent1);
+							awaitingCallResponse = false;
 
 							//notify user of rejection from other party
 
@@ -773,15 +775,26 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								callIntent.putExtra("account", pushedAccountHash);
 								this.startActivity(callIntent);
 							}
+
+							//start timer waiting for answer
+							awaitingCallResponse = true;
+							new Handler().postDelayed(() -> {
+								if (awaitingCallResponse) {
+									rejectCall(currentTwilioCall);
+									currentTwilioCall = null;
+								}
+							},30000);
 						}
 
 						Log.d(Config.LOGTAG, "push message arrived in service. account=" + pushedAccountHash);
 					}
 					break;
 				case ACTION_ACCEPT_CALL_REQUEST:
+					awaitingCallResponse = false;
 					acceptCall(currentTwilioCall);
 					break;
 				case ACTION_REJECT_CALL_REQUEST:
+					awaitingCallResponse = false;
 					rejectCall(currentTwilioCall);
 					currentTwilioCall = null;
 					break;
