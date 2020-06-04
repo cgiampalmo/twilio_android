@@ -152,7 +152,7 @@ public class VideoActivity extends XmppActivity {
 
     private ProgressBar reconnectingProgressBar;
     private LinearLayout noVideoView;
-    private RoundedImageView avatar;
+    //private RoundedImageView avatar;
     private AlertDialog connectDialog;
     private String remoteParticipantIdentity;
     private TextView primaryTitle;
@@ -191,7 +191,7 @@ public class VideoActivity extends XmppActivity {
         thumbnailVideoView = findViewById(R.id.thumbnail_video_view);
         reconnectingProgressBar = findViewById(R.id.reconnecting_progress_bar);
         noVideoView = findViewById(R.id.no_video_view);
-        avatar = findViewById(R.id.no_video_view_avatar);
+        //avatar = findViewById(R.id.no_video_view_avatar);
 
 
         connectActionFab = findViewById(R.id.connect_action_fab);
@@ -228,7 +228,6 @@ public class VideoActivity extends XmppActivity {
         audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
         savedVolumeControlStream = getVolumeControlStream();
         setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
-        avatar.setImageResource(R.drawable.avatar_default);
         /*
          * Check camera and microphone permissions. Needed in Android M.
          */
@@ -1182,6 +1181,7 @@ public class VideoActivity extends XmppActivity {
             public void onVideoTrackEnabled(RemoteParticipant remoteParticipant,
                                             RemoteVideoTrackPublication remoteVideoTrackPublication) {
                 noVideoView.setVisibility(View.GONE);
+                thumbnailVideoView.setVisibility(View.VISIBLE);
                 primaryVideoView.setVisibility(View.VISIBLE);
             }
 
@@ -1189,6 +1189,7 @@ public class VideoActivity extends XmppActivity {
             public void onVideoTrackDisabled(RemoteParticipant remoteParticipant,
                                              RemoteVideoTrackPublication remoteVideoTrackPublication) {
                 noVideoView.setVisibility(View.VISIBLE);
+                thumbnailVideoView.setVisibility(View.GONE);
                 primaryVideoView.setVisibility(View.GONE);
             }
         };
