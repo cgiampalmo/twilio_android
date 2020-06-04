@@ -2262,6 +2262,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * GOOBER - Restore accounts from file
 	 */
 	private boolean restoreAccountsFromFile() {
+		//ALF AM-413 test
+		if (xmppConnectionService == null || xmppConnectionService.getAccounts() == null) {
+			return false;
+		}
+
 		//need to have set messenger_id and username/pass here
 		//ALF AM-388
 		for (Account account : xmppConnectionService.getAccounts()) {
