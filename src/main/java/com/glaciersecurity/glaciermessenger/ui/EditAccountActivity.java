@@ -2262,7 +2262,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * GOOBER - Restore accounts from file
 	 */
 	private boolean restoreAccountsFromFile() {
-		//ALF AM-413 test
+		//ALF AM-413
 		if (xmppConnectionService == null || xmppConnectionService.getAccounts() == null) {
 			return false;
 		}
