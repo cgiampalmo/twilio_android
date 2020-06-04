@@ -44,14 +44,13 @@
         android:layout_height="match_parent">
 
 
-    <com.makeramen.roundedimageview.RoundedImageView
-        android:id="@+id/no_video_view_avatar"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_width="@dimen/publish_avatar_size"
-        android:layout_height="@dimen/publish_avatar_size"
-        app:srcCompat="@drawable/avatar_default"
-        app:riv_corner_radius="100dip"/>
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/no_video_view_avatar"
+            android:layout_width="240dp"
+            android:layout_height="240dp"
+            android:layout_centerInParent="true"
+            app:riv_corner_radius="100dip"
+            app:srcCompat="@drawable/avatar_default" />
     </RelativeLayout>
     </LinearLayout>
 
