@@ -16,36 +16,36 @@
         android:orientation="vertical">
 
 
-    <com.twilio.video.VideoView
-        android:id="@+id/primary_video_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:visibility="gone"/>
+        <com.twilio.video.VideoView
+            android:id="@+id/primary_video_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:visibility="gone"/>
 
-    <LinearLayout
-        android:id="@+id/no_video_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:orientation="vertical"
-        >
+        <LinearLayout
+            android:id="@+id/no_video_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            >
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
 
-    <com.makeramen.roundedimageview.RoundedImageView
-            android:id="@+id/no_video_view_avatar"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            app:srcCompat="@drawable/avatar_default"
-            android:contentDescription="@string/account_image_description"/>
-    </RelativeLayout>
-    </LinearLayout>
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/no_video_view_avatar"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    app:srcCompat="@drawable/avatar_default"
+                    android:contentDescription="@string/account_image_description"/>
+            </RelativeLayout>
+        </LinearLayout>
         <com.twilio.video.VideoView
             android:id="@+id/thumbnail_video_view"
             app:tviOverlaySurface="true"

@@ -105,7 +105,7 @@ public class VideoActivity extends XmppActivity {
     private Room room;
     private LocalParticipant localParticipant;
     private AudioManager audioManager;
-//    private MenuItem turnSpeakerOnMenuItem;
+    //    private MenuItem turnSpeakerOnMenuItem;
 //    private MenuItem turnSpeakerOffMenuItem;
     private int previousAudioMode;
     private boolean previousMicrophoneMute;
@@ -309,7 +309,7 @@ public class VideoActivity extends XmppActivity {
 //            }
         }
 
-       // primaryTitle.setText(roomname);
+        // primaryTitle.setText(roomname);
         /*
          * Update encoding parameters
          */
