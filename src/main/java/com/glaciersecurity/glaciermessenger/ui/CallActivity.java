@@ -7,6 +7,8 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -17,6 +19,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.content.ContextCompat;
 
+import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
@@ -58,6 +61,7 @@ public class CallActivity extends XmppActivity {
 	private TwilioCall currentTwilioCall;
 	private Jid contactJid;
 	private String conversationUuid;
+	private Handler handler = new Handler();
 
 
 	@Override
@@ -173,6 +177,7 @@ public class CallActivity extends XmppActivity {
 	private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			handler.removeCallbacksAndMessages(null);
 			finish();
 		}
 	};
@@ -180,6 +185,7 @@ public class CallActivity extends XmppActivity {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		handler.removeCallbacksAndMessages(null);
 		unregisterReceiver(mMessageReceiver);
 	}
 
@@ -208,6 +214,13 @@ public class CallActivity extends XmppActivity {
 		contactText.setText(currentTwilioCall.getCaller());
 		incomingCallLayout.setVisibility(View.VISIBLE);
 		outgoingCallLayout.setVisibility(View.GONE);
+
+		handler.postDelayed(() -> {
+			Log.d(Config.LOGTAG, "CallActivity - Cancelling call after 30 sec");
+			final Intent intent = new Intent(this, XmppConnectionService.class);
+			intent.setAction(XmppConnectionService.ACTION_REJECT_CALL_REQUEST);
+			Compatibility.startService(this, intent);
+		},30000);
 	}
 
 	private void onOutgoingCall(){

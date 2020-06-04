@@ -289,6 +289,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	//ALF AM-410
 	private TwilioCall currentTwilioCall;
+	private Handler callHandler = new Handler();
 
 	//Ui callback listeners
 	private final Set<OnConversationUpdate> mOnConversationUpdates = Collections.newSetFromMap(new WeakHashMap<OnConversationUpdate, Boolean>());
@@ -735,6 +736,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							//stop CallActivity
 							Intent intent1 = new Intent("callActivityFinish");
 							sendBroadcast(intent1);
+							callHandler.removeCallbacksAndMessages(null);
 
 							//notify user of rejection from other party
 
@@ -772,6 +774,13 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								callIntent.putExtra("call_id", call.getCallId());
 								callIntent.putExtra("account", pushedAccountHash);
 								this.startActivity(callIntent);
+							} else if (this.isInteractive()) {
+								callHandler.postDelayed(() -> {
+									Log.d(Config.LOGTAG, "XmppConnectionService - Cancelling call after 30 sec");
+									rejectCall(currentTwilioCall);
+									currentTwilioCall = null;
+									callHandler.removeCallbacksAndMessages(null);
+								},30000);
 							}
 						}
 
@@ -780,10 +789,12 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					break;
 				case ACTION_ACCEPT_CALL_REQUEST:
 					acceptCall(currentTwilioCall);
+					callHandler.removeCallbacksAndMessages(null);
 					break;
 				case ACTION_REJECT_CALL_REQUEST:
 					rejectCall(currentTwilioCall);
 					currentTwilioCall = null;
+					callHandler.removeCallbacksAndMessages(null);
 					break;
 				case ACTION_CANCEL_CALL_REQUEST: //CMG 
 					cancelCall(currentTwilioCall);

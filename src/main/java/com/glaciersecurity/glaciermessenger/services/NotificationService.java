@@ -285,8 +285,6 @@ public class NotificationService {
 		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			mBuilder.setCategory(Notification.CATEGORY_CALL);
 		}
-		//setNotificationColor(mBuilder);
-		//mBuilder.setDefaults(0);
 
 		notify(CALL_NOTIFICATION_ID, mBuilder.build());
 
