@@ -424,7 +424,7 @@ public class VideoActivity extends XmppActivity {
          */
         if (localVideoTrack == null && checkPermissionForCameraAndMicrophone()) {
             localVideoTrack = LocalVideoTrack.create(this,
-                    true,
+                    false,
                     cameraCapturerCompat.getVideoCapturer(),
                     LOCAL_VIDEO_TRACK_NAME);
             localVideoTrack.addRenderer(localVideoView);
@@ -538,16 +538,15 @@ public class VideoActivity extends XmppActivity {
             cameraCapturerCompat = new CameraCapturerCompat(this, getAvailableCameraSource());
         }
 
-        if (!isVideoMuted) {
+        //if (!isVideoMuted) {
             setupLocalVideoTrack();
-
-        }
+        //}
     }
 
     private void setupLocalVideoTrack() {
 
         localVideoTrack = LocalVideoTrack.create(this,
-                true,
+                false,
                 cameraCapturerCompat.getVideoCapturer(),
                 LOCAL_VIDEO_TRACK_NAME);
         primaryVideoView.setMirror(true);
