@@ -152,7 +152,7 @@ public class VideoActivity extends XmppActivity {
 
     private ProgressBar reconnectingProgressBar;
     private LinearLayout noVideoView;
-    //private RoundedImageView avatar;
+    private RoundedImageView avatar;
     private AlertDialog connectDialog;
     private String remoteParticipantIdentity;
     private TextView primaryTitle;
@@ -191,7 +191,8 @@ public class VideoActivity extends XmppActivity {
         thumbnailVideoView = findViewById(R.id.thumbnail_video_view);
         reconnectingProgressBar = findViewById(R.id.reconnecting_progress_bar);
         noVideoView = findViewById(R.id.no_video_view);
-        //avatar = findViewById(R.id.no_video_view_avatar);
+        avatar = findViewById(R.id.no_video_view_avatar);
+        avatar.setImageResource(R.drawable.avatar_default);
 
 
         connectActionFab = findViewById(R.id.connect_action_fab);
