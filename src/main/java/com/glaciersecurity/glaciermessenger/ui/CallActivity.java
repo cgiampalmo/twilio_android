@@ -142,7 +142,7 @@ public class CallActivity extends XmppActivity {
 		speakerBtn.setOnClickListener(v -> {
 			audioManager.setSpeakerphoneOn(isSpeakerphoneOn);
 			int icon = isSpeakerphoneOn ?
-					R.drawable.ic_volume_up_white_24dp : R.drawable.ic_phonelink_ring_white_24dp;
+					R.drawable.ic_volume_up_white_24dp : R.drawable.ic_volume_off_gray_24dp;
 			speakerBtn.setImageDrawable(ContextCompat.getDrawable(
 					CallActivity.this, icon));
 		});

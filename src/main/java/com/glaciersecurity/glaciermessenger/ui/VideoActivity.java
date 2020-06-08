@@ -7,6 +7,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
@@ -23,6 +27,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -78,9 +83,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 
-public class VideoActivity extends XmppActivity {
+public class VideoActivity extends XmppActivity implements SensorEventListener {
     private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
     private static final String TAG = "VideoActivity";
+
+    //CMG AM-419
+    private SensorManager sensorManager;
+    private Sensor proximity;
 
     /*
      * Audio and video tracks can be created with names. This feature is useful for categorizing
@@ -149,6 +158,7 @@ public class VideoActivity extends XmppActivity {
     private FloatingActionButton localVideoActionFab;
     private FloatingActionButton muteActionFab;
     private FloatingActionButton speakerPhoneActionFab;
+    private RelativeLayout callBar;
 
     private ProgressBar reconnectingProgressBar;
     private LinearLayout noVideoView;
@@ -201,6 +211,7 @@ public class VideoActivity extends XmppActivity {
         speakerPhoneActionFab = findViewById(R.id.speaker_phone_action_fab);
         muteActionFab = findViewById(R.id.mute_action_fab);
         this.primaryTitle  = findViewById(R.id.primary_video_title);
+        callBar = findViewById(R.id.call_action_bar);
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -229,6 +240,11 @@ public class VideoActivity extends XmppActivity {
         audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
         savedVolumeControlStream = getVolumeControlStream();
         setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
+
+        //CMG AM-419
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        proximity = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+
         /*
          * Check camera and microphone permissions. Needed in Android M.
          */
@@ -403,9 +419,10 @@ public class VideoActivity extends XmppActivity {
                 VideoActivity.this, muteIcon));
 
         int speakerIcon = isSpeakerPhoneEnabled ?
-                R.drawable.ic_volume_up_white_24dp : R.drawable.ic_phonelink_ring_white_24dp;
+                R.drawable.ic_volume_up_white_24dp : R.drawable.ic_volume_off_gray_24dp;
         speakerPhoneActionFab.setImageDrawable(ContextCompat.getDrawable(
                 VideoActivity.this, speakerIcon));
+        sensorManager.registerListener(this, proximity, SensorManager.SENSOR_DELAY_NORMAL);
 
         /*
          * Update reconnecting UI
@@ -469,6 +486,8 @@ public class VideoActivity extends XmppActivity {
             localVideoTrack.release();
             localVideoTrack = null;
         }
+        sensorManager.unregisterListener(this);
+
         super.onPause();
     }
 
@@ -477,6 +496,21 @@ public class VideoActivity extends XmppActivity {
         outState.putBoolean(IS_AUDIO_MUTED, isAudioMuted);
         outState.putBoolean(IS_VIDEO_MUTED, isVideoMuted);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public final void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // Do something here if sensor accuracy changes.
+    }
+
+    @Override
+    public final void onSensorChanged(SensorEvent event) {
+        float distance = event.values[0];
+        if (distance == 0f){
+            callBar.setClickable(false);
+        } else {
+            callBar.setClickable(true);
+        }
     }
 
     @Override
@@ -1285,7 +1319,7 @@ public class VideoActivity extends XmppActivity {
                 if (expectedSpeakerPhoneState) {
                     icon = R.drawable.ic_volume_up_white_24dp;
                 } else {
-                    icon = R.drawable.ic_phonelink_ring_white_24dp;
+                    icon = R.drawable.ic_volume_off_gray_24dp;
                 }
                 speakerPhoneActionFab.setImageDrawable(
                         ContextCompat.getDrawable(VideoActivity.this, icon));
@@ -1302,7 +1336,7 @@ public class VideoActivity extends XmppActivity {
             if (expectedSpeakerPhoneState) {
                 icon = R.drawable.ic_volume_up_white_24dp;
             } else {
-                icon = R.drawable.ic_phonelink_ring_white_24dp;
+                icon = R.drawable.ic_volume_off_gray_24dp;
             }
             speakerPhoneActionFab.setImageDrawable(
                     ContextCompat.getDrawable(VideoActivity.this, icon));
