@@ -23,7 +23,7 @@
     <string name="title_activity_glaciervpn">Core Connection</string>
     <string name="title_activity_conference_details">Group Details</string> <!-- ALF AM-78 room to group -->
     <string name="title_activity_contact_details">Contact Details</string>
-    <string name="title_activity_sharewith">Share with Messenger</string>
+    <string name="title_activity_sharewith">Share with Glacier</string>
     <string name="title_activity_start_conversation">Contacts</string>
     <string name="content_description_add_contact">Add to contacts</string>
     <string name="content_description_call">Call</string>
@@ -89,11 +89,11 @@
     <string name="unblock">Unblock</string>
     <string name="save">Save</string>
     <string name="ok">OK</string>
-    <string name="crash_report_title">Messenger Crash</string>
-    <string name="crash_report_message">Messenger has crashed!  Please notify Glacier Security immediately if problem persists.</string>
+    <string name="crash_report_title">Glacier Crash</string>
+    <string name="crash_report_message">Glacier has crashed!  Please notify Glacier Security immediately if problem persists.</string>
     <string name="send_now">Send now</string>
     <string name="send_never">Never ask again</string>
-    <string name="problem_connecting_to_account">Unable to connect to Glacier Messenger</string> <!-- ALF AM-201 -->
+    <string name="problem_connecting_to_account">Unable to connect to Glacier</string> <!-- ALF AM-201 -->
     <string name="problem_connecting_to_accounts">Unable to connect to multiple accounts</string>
     <string name="touch_to_fix">Touch here to manage your accounts</string>
     <string name="attach_file">Attach file</string>
@@ -121,16 +121,16 @@
     <string name="send_unencrypted">Send unencrypted</string>
     <string name="decryption_failed">Decryption failed. Maybe you don’t have the proper private key.</string>
     <string name="openkeychain_required">OpenKeychain</string>
-    <string name="openkeychain_required_long">Messenger utilizes a third party app called <b>OpenKeychain</b> to encrypt and decrypt messages and to manage your public keys.\n\nOpenKeychain is licensed under GPLv3 and available on F-Droid and Google Play.\n\n<small>(Please restart Messenger afterwards.)</small></string>
+    <string name="openkeychain_required_long">Glacier utilizes a third party app called <b>OpenKeychain</b> to encrypt and decrypt messages and to manage your public keys.\n\nOpenKeychain is licensed under GPLv3 and available on F-Droid and Google Play.\n\n<small>(Please restart Glacier afterwards.)</small></string>
     <string name="restart">Restart</string>
     <string name="install">Install</string>
     <string name="openkeychain_not_installed">Please install OpenKeychain</string>
     <string name="offering">offering…</string>
     <string name="waiting">waiting…</string>
     <string name="no_pgp_key">No OpenPGP Key found</string>
-    <string name="contact_has_no_pgp_key">Messenger is unable to encrypt your messages because your contact is not announcing his or hers public key.\n\n<small>Please ask your contact to setup OpenPGP.</small></string>
+    <string name="contact_has_no_pgp_key">Glacier is unable to encrypt your messages because your contact is not announcing his or hers public key.\n\n<small>Please ask your contact to setup OpenPGP.</small></string>
     <string name="no_pgp_keys">No OpenPGP Keys found</string>
-    <string name="contacts_have_no_pgp_keys">Messenger is unable to encrypt your messages because your contacts are not announcing their public key.\n\n<small>Please ask your contacts to setup OpenPGP.</small></string>
+    <string name="contacts_have_no_pgp_keys">Glacier is unable to encrypt your messages because your contacts are not announcing their public key.\n\n<small>Please ask your contacts to setup OpenPGP.</small></string>
     <string name="pref_general">General</string>
     <string name="pref_accept_files">Accept files</string>
     <string name="pref_accept_files_summary">Automatically accept files smaller than 10MiB</string>
@@ -145,10 +145,10 @@
     <string name="pref_sound">Ringtone</string>
     <string name="pref_sound_summary">Play sound when a new message arrives</string>
     <string name="pref_notification_grace_period">Grace Period</string>
-    <string name="pref_notification_grace_period_summary">The length of time Messenger keeps quiet after seeing activity on another device</string>
+    <string name="pref_notification_grace_period_summary">The length of time Glacier keeps quiet after seeing activity on another device</string>
     <string name="pref_advanced_options">Advanced</string>
     <string name="pref_never_send_crash">Never send crash reports</string>
-    <string name="pref_never_send_crash_summary">By sending in stack traces you are helping the ongoing development of Messenger</string>
+    <string name="pref_never_send_crash_summary">By sending in stack traces you are helping the ongoing development of Glacier</string>
     <string name="pref_confirm_messages">Confirm Messages</string>
     <string name="pref_confirm_messages_summary">Let your contacts know when you have received and read their messages</string>
     <string name="pref_ui_options">User Interface</string> <!-- ALF AM-16 -->
@@ -362,13 +362,13 @@
     <string name="account_details">Account details</string>
     <string name="confirm">Confirm</string>
     <string name="try_again">Try again</string>
-    <string name="conversations_foreground_service">Messenger</string>
+    <string name="conversations_foreground_service">Glacier</string>
     <string name="pref_keep_foreground_service">Keep service in foreground</string>
     <string name="pref_keep_foreground_service_summary">Prevents the operating system from killing your connection</string>
     <!-- ALF AM-90, AM-168 next 3 -->
-    <string name="channel_name">Messenger</string>
-    <string name="channel_description">Messenger</string>
-    <string name="channel_id">Messenger</string>
+    <string name="channel_name">Glacier</string>
+    <string name="channel_description">Glacier</string>
+    <string name="channel_id">Glacier</string>
     <string name="choose_file">Choose file</string>
     <string name="receiving_x_file">Receiving %1$s (%2$d%% completed)</string>
     <string name="download_x_file">Download %s</string>
@@ -555,7 +555,7 @@
     <string name="hostname_or_onion">Server- or .onion-Address</string>
     <string name="not_a_valid_port">This is not a valid port number</string>
     <string name="not_valid_hostname">This is not a valid hostname</string>
-    <string name="connected_accounts">Glacier Messenger is active</string>
+    <string name="connected_accounts">Glacier is active</string>
     <plurals name="x_messages">
         <item quantity="one">%d message</item>
         <item quantity="other">%d messages</item>
@@ -565,10 +565,10 @@
     <string name="shared_image_with_x">Shared image with %s</string>
     <string name="shared_images_with_x">Shared images with %s</string>
     <string name="shared_text_with_x">Shared text with %s</string>
-    <string name="no_storage_permission">Messenger needs access to external storage</string>
-    <string name="no_camera_permission">Messenger needs access to the camera</string>
+    <string name="no_storage_permission">Glacier needs access to external storage</string>
+    <string name="no_camera_permission">Glacier needs access to the camera</string>
     <string name="sync_with_contacts">Synchronize with contacts</string>
-    <string name="sync_with_contacts_long">Messenger wants to match your server side contact list with your local address book to show your contacts’ full names and avatars.\n\nMessenger will only read your contacts and match them locally without uploading them to your server.\n\nYou will now be asked to grant permission to access your contacts.</string>
+    <string name="sync_with_contacts_long">Glacier wants to match your server side contact list with your local address book to show your contacts’ full names and avatars.\n\nGlacier will only read your contacts and match them locally without uploading them to your server.\n\nYou will now be asked to grant permission to access your contacts.</string>
     <string name="sync_with_contacts_quicksy"><![CDATA[Quicksy needs access to your contacts’ phone numbers to make suggestions about possible contacts who are already on Quicksy.<br><br>We will not store a copy of those phone numbers.\n\nFor more information read our <a href="https://quicksy.im/#privacy">privacy policy</a>.<br><br>You will now be asked to grant permission to access your contacts.]]></string>
     <string name="notify_on_all_messages">Notify on all messages</string>
     <string name="notify_only_when_highlighted">Notify only when mentioned</string>
@@ -580,11 +580,11 @@
     <!--HONEYBADGER AM-76 Glacier core strings-->
     <string name="core_missing">Core Missing</string>
     <string name="glacier_core_https">https://play.google.com/store/apps/details?id=com.glaciersecurity.glaciercore</string>
-    <string name="glacier_core_install">Messenger requires Glacier Core to be installed for this account to function properly. \n\nPlease install the application from Google Play.</string>
+    <string name="glacier_core_install">Glacier requires Core to be installed for this account to function properly. \n\nPlease install the application from Google Play.</string>
     <string name="automatically">Automatically</string>
     <string name="battery_optimizations_enabled">Battery optimizations enabled</string>
-    <string name="battery_optimizations_enabled_explained">Your device is doing some heavy battery optimizations on Messenger that might lead to delayed notifications or even message loss.\nIt is recommended to disable those.</string>
-    <string name="battery_optimizations_enabled_dialog">Your device is doing some heavy battery optimizations on Messenger that might lead to delayed notifications or even message loss.\n\nYou will now be asked to disable those.</string>
+    <string name="battery_optimizations_enabled_explained">Your device is doing some heavy battery optimizations on Glacier that might lead to delayed notifications or even message loss.\nIt is recommended to disable those.</string>
+    <string name="battery_optimizations_enabled_dialog">Your device is doing some heavy battery optimizations on Glacier that might lead to delayed notifications or even message loss.\n\nYou will now be asked to disable those.</string>
     <string name="disable">Disable</string>
     <string name="selection_too_large">The selected area is too large</string>
     <string name="no_accounts">(No activated accounts)</string>
@@ -597,7 +597,7 @@
     <string name="no_application_to_share_uri">No application found to share URI</string>
     <string name="share_uri_with">Share URI with…</string>
     <string name="welcome_header" translatable="false">Join the Conversation</string>
-    <string name="welcome_text">XMPP is a provider independent protocol. You can use this client with what ever XMPP server you choose.\nHowever for your convenience we made it easy to create an account on messenger.im¹; a provider specially suited for the use with Messenger.</string>
+    <string name="welcome_text">XMPP is a provider independent protocol. You can use this client with what ever XMPP server you choose.\nHowever for your convenience we made it easy to create an account on messenger.im¹; a provider specially suited for the use with Glacier.</string>
     <string name="magic_create_text">We will guide you through the process of creating an account on conversations.im.¹\nWhen picking conversations.im as a provider you will be able to communicate with users of other providers by giving them your full Jabber ID.</string>
     <string name="your_full_jid_will_be">Your full Chat ID will be: %s</string>
     <string name="create_account">Create Account</string>
@@ -631,7 +631,7 @@
     <string name="gp_medium">Medium</string>
     <string name="gp_long">Long</string>
     <string name="pref_broadcast_last_activity">Broadcast Last User Interaction</string>
-    <string name="pref_broadcast_last_activity_summary">Let all your contacts know when you use Messenger</string>
+    <string name="pref_broadcast_last_activity_summary">Let all your contacts know when you use Glacier</string>
     <string name="pref_privacy">Privacy</string>
     <string name="pref_theme_options">Theme</string>
     <string name="pref_theme_options_summary">Select Theme</string>
@@ -666,8 +666,8 @@
     <string name="show_error_message">Show error message</string>
     <string name="error_message">Error Message</string>
     <string name="data_saver_enabled">Data saver enabled</string>
-    <string name="data_saver_enabled_explained">Your operating system is restricting Messenger from accessing the Internet when in background. To receive notifications of new messages you should allow Messenger unrestricted access when Data saver is on.\nMessenger will still make an effort to save data when possible.</string>
-    <string name="device_does_not_support_data_saver">Your device does not support disabling Data saver for Messenger.</string>
+    <string name="data_saver_enabled_explained">Your operating system is restricting Glacier from accessing the Internet when in background. To receive notifications of new messages you should allow Glacier unrestricted access when Data saver is on.\nGlacier will still make an effort to save data when possible.</string>
+    <string name="device_does_not_support_data_saver">Your device does not support disabling Data saver for Glacier.</string>
     <string name="error_unable_to_create_temporary_file">Unable to create temporary file</string>
     <string name="this_device_has_been_verified">This device has been verified</string>
     <string name="copy_fingerprint">Copy fingerprint</string>
@@ -757,7 +757,7 @@
     <string name="search_for_contacts_or_groups">Search for contacts or groups</string>
     <string name="private_messages_are_disabled">Private messages are disabled</string>
     <string name="huawei_protected_apps">Protected Apps</string>
-    <string name="huawei_protected_apps_summary">To keep receiving notifications, even when the screen is turned off, you need to add Messenger to the list of protected apps.</string>
+    <string name="huawei_protected_apps_summary">To keep receiving notifications, even when the screen is turned off, you need to add Glacier to the list of protected apps.</string>
     <string name="mtm_accept_cert">Accept Unknown Certificate?</string>
     <string name="mtm_trust_anchor">The server certificate is not signed by a known Certificate Authority.</string>
     <string name="mtm_accept_servername">Accept Mismatching Server Name?</string>
@@ -771,7 +771,7 @@
     <string name="edit_status_message_title">My Status</string>
     <string name="edit_status_message">Edit status message</string>
     <string name="disable_encryption">Disable encryption</string>
-    <string name="error_trustkey_general">Messenger is unable to send encrypted messages to %1$s. This may be due to your contact using an outdated server or client that can not handle Glacier encryption.</string>
+    <string name="error_trustkey_general">Glacier is unable to send encrypted messages to %1$s. This may be due to your contact using an outdated server or client that can not handle Glacier encryption.</string>
     <string name="error_trustkey_device_list">Unable to fetch device list</string>
     <string name="error_trustkey_bundle">Unable to fetch device bundles</string>
     <string name="error_trustkey_hint_mutual">Hint: In some cases this can be fixed by adding each other your contact lists.</string>
@@ -804,7 +804,7 @@
     <string name="share">Share</string>
     <string name="unable_to_start_recording">Unable to start recording</string>
     <string name="please_wait">Please wait…</string>
-    <string name="no_microphone_permission">Messenger needs access to the microphone</string>
+    <string name="no_microphone_permission">Glacier needs access to the microphone</string>
     <string name="search_messages">Search messages</string>
     <string name="gif">GIF</string>
     <string name="view_conversation">View chat session</string>
@@ -825,7 +825,7 @@
     <string name="create_dialog_group_chat_name">Group chat name</string>
     <string name="conference_destroyed">This group chat has been destroyed</string>
     <string name="unable_to_save_recording">Unable to save recording</string>
-    <string name="set_profile_picture">Messenger profile picture</string>
+    <string name="set_profile_picture">Glacier profile picture</string>
     <string name="choose_account">Choose account</string>
     <string name="restore_backup">Restore backup</string>
     <string name="restore">Restore</string>
@@ -845,7 +845,7 @@
     <string name="notification_restored_backup_title">Your backup has been restored</string>
     <string name="notification_restored_backup_subtitle">Do not forget to enable the account.</string>
     <string name="foreground_service_channel_name">Foreground service</string>
-    <string name="foreground_service_channel_description">This notification category is used to display a permanent notification indicating that Messenger is running.</string>
+    <string name="foreground_service_channel_description">This notification category is used to display a permanent notification indicating that Glacier is running.</string>
     <string name="notification_group_status_information">Status Information</string>
     <string name="error_channel_name">Connectivity Problems</string>
     <string name="error_channel_description">This notification category is used to display a notification in case there is a problem connecting to an account.</string>
@@ -905,9 +905,9 @@
     <!-- GOOBER - Added text for rooms tab -->
     <string name="room_tab_error_title">Account Error</string>
     <!-- ALF AM-78 room to group -->
-    <string name="room_tab_error_message">Groups tab could not be opened. Core might not be connected to server.\n\nPlease check Core for VPN status and Messenger Account for account status.</string>
+    <string name="room_tab_error_message">Groups tab could not be opened. Core might not be connected to server.\n\nPlease check Core for VPN status and Glacier Account for account status.</string>
     <string name="create_room_error_title">Account Error</string>
-    <string name="create_room_error_message">Cannot create group. Core might not be connected to server.\n\nPlease check Core for VPN status and Messenger Account for account status.</string>
+    <string name="create_room_error_message">Cannot create group. Core might not be connected to server.\n\nPlease check Core for VPN status and Glacier Account for account status.</string>
 
     <!-- GOOBER Cognito -->
     <!-- <string name="app_name">GlacierSecurity Identity</string> -->
@@ -938,7 +938,7 @@
     <string name="logout_description">Click \"Logout\" to go back to login screen.</string>
     <string name="account_core_error">Unable to complete login process, please check Core connection.</string>
     <string name="logout_button_key">Logout</string>
-    <string name="logout_button_summary">Click to wipe all history and logout of Messenger</string>
+    <string name="logout_button_summary">Click to wipe all history and logout of Glacier</string>
     <string name="login_error_message">Unable to validate login information.  Please enter login information again.</string>
     <string name="signin_fail_title">Sign-in failed</string>
     <string name="enter_password">enter password</string>
@@ -959,7 +959,7 @@
     <string name="wait_dialog_title">Glacier Login</string>
     <string name="wait_dialog_retrieving_account_info">Attempting to retrieve account info....</string>
     <string name="wait_dialog_connecting_vpn">Connecting VPN....</string>
-    <string name="account_logout_confirmation">Do you really want to logout of Messenger?\n\nAll conversation and media history will be unrecoverable.</string> <!-- ALF AM-228 modified -->
+    <string name="account_logout_confirmation">Do you really want to logout of Glacier?\n\nAll conversation and media history will be unrecoverable.</string> <!-- ALF AM-228 modified -->
 
     <string name="select_vpn_profile_dialog_message">Select VPN you want to add</string>
     <string name="no_vpn_profile_dialog_message">No VPN profile to add</string> <!-- ALF AM-76 -->
@@ -1066,7 +1066,7 @@
     <string name="glaciersecurity_problems">If you are experiencing problems or are in need of additional assistance, please contact us at:</string>
     <string name="glaciersecurity_contactphone">Phone #: (844) 345-2243</string>
     <string name="glaciersecurity_contactemail">Email: info@glaciersecurity.com</string>
-    <string name="glaciersecurity_property">Messenger is a property of Glacier Security</string>
+    <string name="glaciersecurity_property">Glacier is a property of Glacier Security</string>
     <string name="glaciersecurity_help">Please visit us at glaciersecurity.com</string>
     <string name="version_info">%1$s %2$s</string>
 

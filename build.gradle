@@ -190,7 +190,7 @@ android {
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
         resValue "string", "applicationId", applicationId
-        resValue "string", "app_name", "Messenger"
+        resValue "string", "app_name", "Glacier"
         buildConfigField "String", "LOGTAG", "\"messenger\""
 
         vectorDrawables.useSupportLibrary = true
