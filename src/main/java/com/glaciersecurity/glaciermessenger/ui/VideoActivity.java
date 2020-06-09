@@ -508,8 +508,18 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
         float distance = event.values[0];
         if (distance == 0f){
             callBar.setClickable(false);
+            speakerPhoneActionFab.setClickable(false);
+            switchCameraActionFab.setClickable(false);
+            connectActionFab.setClickable(false);
+            localVideoActionFab.setClickable(false);
+            muteActionFab.setClickable(false);
         } else {
             callBar.setClickable(true);
+            speakerPhoneActionFab.setClickable(true);
+            switchCameraActionFab.setClickable(true);
+            connectActionFab.setClickable(true);
+            localVideoActionFab.setClickable(true);
+            muteActionFab.setClickable(true);
         }
     }
 
