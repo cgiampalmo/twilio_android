@@ -170,6 +170,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	public static final String ACTION_ACCEPT_CALL_REQUEST = "accept_call_request";
 	public static final String ACTION_REJECT_CALL_REQUEST = "reject_call_request";
 	public static final String ACTION_CANCEL_CALL_REQUEST = "cancel_call_request";
+	public static final String ACTION_FINISH_CALL = "finish_call";
 
 	public static final String ACTION_REPLY_TO_CONVERSATION = "reply_to_conversations";
 	public static final String ACTION_MARK_AS_READ = "mark_as_read";
@@ -770,24 +771,28 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							call.setCaller(intent.getStringExtra("caller"));
 							//call.setRoomName(intent.getStringExtra("roomname"));
 
-							currentTwilioCall = call;
-
-							if (!getNotificationService().pushForCall(call, pushedAccountHash)) {
-								Intent callIntent = new Intent(getApplicationContext(), CallActivity.class);
-								callIntent.setAction(CallActivity.ACTION_INCOMING_CALL);
-								callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-								callIntent.putExtra("caller", call.getCaller());
-								callIntent.putExtra("status", call.getStatus());
-								callIntent.putExtra("call_id", call.getCallId());
-								callIntent.putExtra("account", pushedAccountHash);
-								this.startActivity(callIntent);
-							} else if (this.isInteractive()) {
-								callHandler.postDelayed(() -> {
-									Log.d(Config.LOGTAG, "XmppConnectionService - Cancelling call after 30 sec");
-									rejectCall(currentTwilioCall);
-									currentTwilioCall = null;
-									callHandler.removeCallbacksAndMessages(null);
-								},30000);
+							//ALF AM-420 if is already in call, respond with busy
+							if (currentTwilioCall != null) { //in call
+								rejectCall(currentTwilioCall, true);
+							} else {
+								currentTwilioCall = call;
+								if (!getNotificationService().pushForCall(call, pushedAccountHash)) {
+									Intent callIntent = new Intent(getApplicationContext(), CallActivity.class);
+									callIntent.setAction(CallActivity.ACTION_INCOMING_CALL);
+									callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+									callIntent.putExtra("caller", call.getCaller());
+									callIntent.putExtra("status", call.getStatus());
+									callIntent.putExtra("call_id", call.getCallId());
+									callIntent.putExtra("account", pushedAccountHash);
+									this.startActivity(callIntent);
+								} else if (this.isInteractive()) {
+									callHandler.postDelayed(() -> {
+										Log.d(Config.LOGTAG, "XmppConnectionService - Cancelling call after 30 sec");
+										rejectCall(currentTwilioCall, false);
+										currentTwilioCall = null;
+										callHandler.removeCallbacksAndMessages(null);
+									}, 30000);
+								}
 							}
 						}
 
@@ -799,14 +804,16 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					callHandler.removeCallbacksAndMessages(null);
 					break;
 				case ACTION_REJECT_CALL_REQUEST:
-					rejectCall(currentTwilioCall);
+					rejectCall(currentTwilioCall, false);
 					currentTwilioCall = null;
 					callHandler.removeCallbacksAndMessages(null);
 					break;
 				case ACTION_CANCEL_CALL_REQUEST: //CMG 
 					cancelCall(currentTwilioCall);
 					currentTwilioCall = null;
-					//busyHandler.removeCallbacksAndMessages(null); //ALF AM-420
+					break;
+				case ACTION_FINISH_CALL: //ALF AM-420
+					currentTwilioCall = null;
 					break;
 				case ACTION_MARK_AS_READ:
 					mNotificationExecutor.execute(() -> {
@@ -905,23 +912,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			Intent intent1 = new Intent("callActivityFinish");
 			sendBroadcast(intent1);
 		},4500);
-		/*Thread t = new Thread() {
-			public void run() {
-				ToneGenerator toneGenerator = new ToneGenerator(AudioManager.STREAM_VOICE_CALL, 80);
-				if (toneGenerator.startTone(ToneGenerator.TONE_SUP_BUSY, 4000)) {
-					try {
-						Thread.sleep(4500);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					toneGenerator.stopTone();
-				}
-				toneGenerator.release();
-				Intent intent1 = new Intent("callActivityFinish");
-				sendBroadcast(intent1);
-			}
-		};
-		t.start();*/
 	}
 
 	private boolean processAccountState(Account account, boolean interactive, boolean isUiAction, boolean isAccountPushed, HashSet<Account> pingCandidates) {
@@ -4672,7 +4662,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		});
 	}
 
-	public void rejectCall(TwilioCall call) {
+	public void rejectCall(TwilioCall call, boolean isBusy) {
 		final String deviceId = PhoneHelper.getAndroidId(this);
 
 		final IqPacket request = new IqPacket(IqPacket.TYPE.SET);
@@ -4681,7 +4671,11 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 		final Element command = request.addChild("command", "http://jabber.org/protocol/commands");
 		command.setAttribute("action", "execute");
-		command.setAttribute("node", "reject-call-fcm");
+		if (isBusy) {
+			command.setAttribute("node", "busy-call-fcm");
+		} else {
+			command.setAttribute("node", "reject-call-fcm");
+		}
 		final Element x = command.addChild("x", "jabber:x:data");
 		x.setAttribute("type", "submit");
 
