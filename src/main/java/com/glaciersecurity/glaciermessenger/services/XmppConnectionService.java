@@ -19,6 +19,7 @@ import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -290,6 +291,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	//ALF AM-410
 	private TwilioCall currentTwilioCall;
 	private Handler callHandler = new Handler();
+	private Handler busyHandler = new Handler(); //ALF AM-420
 
 	//Ui callback listeners
 	private final Set<OnConversationUpdate> mOnConversationUpdates = Collections.newSetFromMap(new WeakHashMap<OnConversationUpdate, Boolean>());
@@ -741,6 +743,11 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							//notify user of rejection from other party
 
 							currentTwilioCall = null;
+						} else if (call.getStatus().equalsIgnoreCase("busy")) { //ALF AM-420
+							//just play busy tone but do nothing else. Up to them to cancel
+							this.playTone(ToneGenerator.TONE_SUP_BUSY);
+							callHandler.removeCallbacksAndMessages(null);
+							currentTwilioCall = null;
 						} else if (call.getStatus().equalsIgnoreCase("accept")) {
 							// other party accepted call
 							//stop CallActivity
@@ -799,6 +806,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				case ACTION_CANCEL_CALL_REQUEST: //CMG 
 					cancelCall(currentTwilioCall);
 					currentTwilioCall = null;
+					//busyHandler.removeCallbacksAndMessages(null); //ALF AM-420
 					break;
 				case ACTION_MARK_AS_READ:
 					mNotificationExecutor.execute(() -> {
@@ -885,6 +893,35 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			expireOldMessages();
 		}
 		return START_STICKY;
+	}
+
+	//ALF AM-420
+	private void playTone(int tone) {
+		ToneGenerator toneGenerator = new ToneGenerator(AudioManager.STREAM_VOICE_CALL, 80);
+		toneGenerator.startTone(ToneGenerator.TONE_SUP_BUSY, 4000);
+		busyHandler.postDelayed(() -> {
+			toneGenerator.stopTone();
+			toneGenerator.release();
+			Intent intent1 = new Intent("callActivityFinish");
+			sendBroadcast(intent1);
+		},4500);
+		/*Thread t = new Thread() {
+			public void run() {
+				ToneGenerator toneGenerator = new ToneGenerator(AudioManager.STREAM_VOICE_CALL, 80);
+				if (toneGenerator.startTone(ToneGenerator.TONE_SUP_BUSY, 4000)) {
+					try {
+						Thread.sleep(4500);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					toneGenerator.stopTone();
+				}
+				toneGenerator.release();
+				Intent intent1 = new Intent("callActivityFinish");
+				sendBroadcast(intent1);
+			}
+		};
+		t.start();*/
 	}
 
 	private boolean processAccountState(Account account, boolean interactive, boolean isUiAction, boolean isAccountPushed, HashSet<Account> pingCandidates) {
@@ -4664,6 +4701,12 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public void cancelCall(TwilioCall call) {
+		if (call == null) {
+			Intent intent1 = new Intent("callActivityFinish");
+			sendBroadcast(intent1);
+			return;
+		}
+
 		final IqPacket request = new IqPacket(IqPacket.TYPE.SET);
 		request.setTo(Jid.of("p2.glaciersec.cc"));
 		request.setAttribute("from",call.getAccount().getJid().toString());
