@@ -42,6 +42,8 @@ import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.ui.util.CameraCapturerCompat;
+import com.glaciersecurity.glaciermessenger.ui.util.SoundPoolManager;
+import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.makeramen.roundedimageview.RoundedImageView;
@@ -928,6 +930,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                 localParticipant = null;
                 //  reconnectingProgressBar.setVisibility(View.GONE);
                 VideoActivity.this.room = null;
+                handleDisconnect(); //ALF AM-420
                 finish();
             }
 
@@ -1255,8 +1258,17 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
             if (room != null) {
                 room.disconnect();
             }
+            handleDisconnect(); //ALF AM-420
             finish();
         };
+    }
+
+    //ALF AM-420
+    private void handleDisconnect() {
+        SoundPoolManager.getInstance(VideoActivity.this).playDisconnect();
+        final Intent intent = new Intent(this, XmppConnectionService.class);
+        intent.setAction(XmppConnectionService.ACTION_FINISH_CALL);
+        Compatibility.startService(this, intent);
     }
 
 //    private View.OnClickListener connectActionClickListener() {
