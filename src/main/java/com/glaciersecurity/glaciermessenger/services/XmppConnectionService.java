@@ -773,7 +773,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 							//ALF AM-420 if is already in call, respond with busy
 							if (currentTwilioCall != null) { //in call
-								rejectCall(currentTwilioCall, true);
+								rejectCall(call, true);
 							} else {
 								currentTwilioCall = call;
 								if (!getNotificationService().pushForCall(call, pushedAccountHash)) {
