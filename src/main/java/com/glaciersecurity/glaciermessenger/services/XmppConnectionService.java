@@ -119,9 +119,11 @@ import com.glaciersecurity.glaciermessenger.ui.ChooseAccountForProfilePictureAct
 import com.glaciersecurity.glaciermessenger.ui.SettingsActivity;
 import com.glaciersecurity.glaciermessenger.ui.UiCallback;
 import com.glaciersecurity.glaciermessenger.ui.VideoActivity;
+import com.glaciersecurity.glaciermessenger.ui.XmppActivity;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnAvatarPublication;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnMediaLoaded;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnSearchResultsAvailable;
+import com.glaciersecurity.glaciermessenger.ui.util.SoundPoolManager;
 import com.glaciersecurity.glaciermessenger.utils.ConversationsFileObserver;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
@@ -724,6 +726,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					}
 
 					if (acct != null) {
+						SoundPoolManager.getInstance(XmppConnectionService.this).stopRinging();
 
 						TwilioCall call = new TwilioCall(acct);
 						try {
@@ -795,15 +798,19 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					}
 					break;
 				case ACTION_ACCEPT_CALL_REQUEST:
+					SoundPoolManager.getInstance(XmppConnectionService.this).playJoin();
 					acceptCall(currentTwilioCall);
 					callHandler.removeCallbacksAndMessages(null);
 					break;
 				case ACTION_REJECT_CALL_REQUEST:
+					SoundPoolManager.getInstance(XmppConnectionService.this).playDisconnect();
 					rejectCall(currentTwilioCall);
 					currentTwilioCall = null;
 					callHandler.removeCallbacksAndMessages(null);
 					break;
-				case ACTION_CANCEL_CALL_REQUEST: //CMG 
+				case ACTION_CANCEL_CALL_REQUEST: //CMG
+					SoundPoolManager.getInstance(XmppConnectionService.this).stopRinging();
+					SoundPoolManager.getInstance(XmppConnectionService.this).playDisconnect();
 					cancelCall(currentTwilioCall);
 					currentTwilioCall = null;
 					//busyHandler.removeCallbacksAndMessages(null); //ALF AM-420
@@ -898,7 +905,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	//ALF AM-420
 	private void playTone(int tone) {
 		ToneGenerator toneGenerator = new ToneGenerator(AudioManager.STREAM_VOICE_CALL, 80);
-		toneGenerator.startTone(ToneGenerator.TONE_SUP_BUSY, 4000);
+		toneGenerator.startTone(tone, 4000);
 		busyHandler.postDelayed(() -> {
 			toneGenerator.stopTone();
 			toneGenerator.release();
@@ -4588,6 +4595,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public void acceptCall(TwilioCall call) {
+
 		final String deviceId = PhoneHelper.getAndroidId(this);
 		int callid = call.getCallId();
 

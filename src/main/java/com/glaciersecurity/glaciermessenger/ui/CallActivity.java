@@ -25,6 +25,7 @@ import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
+import com.glaciersecurity.glaciermessenger.ui.util.SoundPoolManager;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.PhoneHelper;
@@ -98,6 +99,8 @@ public class CallActivity extends XmppActivity {
 		}
 		this.acceptCallBtn= findViewById(R.id.accept_call_button);
 		acceptCallBtn.setOnClickListener(v -> {
+			SoundPoolManager.getInstance(CallActivity.this).stopRinging();
+			SoundPoolManager.getInstance(CallActivity.this).playJoin();
 			//needs access to XmppConnectionService
 			final Intent intent = new Intent(this, XmppConnectionService.class);
 			intent.setAction(XmppConnectionService.ACTION_ACCEPT_CALL_REQUEST);
@@ -105,6 +108,8 @@ public class CallActivity extends XmppActivity {
 		});
 		this.rejectCallBtn= findViewById(R.id.reject_call_button);
 		rejectCallBtn.setOnClickListener(v -> {
+			SoundPoolManager.getInstance(CallActivity.this).stopRinging();
+			SoundPoolManager.getInstance(CallActivity.this).playDisconnect();
 			//needs access to XmppConnectionService
 			final Intent intent = new Intent(this, XmppConnectionService.class);
 			intent.setAction(XmppConnectionService.ACTION_REJECT_CALL_REQUEST);
@@ -114,6 +119,8 @@ public class CallActivity extends XmppActivity {
 
 		this.endCallBtn= findViewById(R.id.end_call_button);
 		endCallBtn.setOnClickListener(v -> {
+			SoundPoolManager.getInstance(CallActivity.this).stopRinging();
+			SoundPoolManager.getInstance(CallActivity.this).playDisconnect();
 			final Intent intent = new Intent(this, XmppConnectionService.class);
 			intent.setAction(XmppConnectionService.ACTION_CANCEL_CALL_REQUEST);
 			Compatibility.startService(this, intent);
@@ -209,6 +216,7 @@ public class CallActivity extends XmppActivity {
 	public void refreshUiReal() {
 	}
 	private void onIncomingCall(){
+		SoundPoolManager.getInstance(CallActivity.this).playRinging();
 		String incoming = getResources().getString(R.string.incoming_call);
 		callState.setText(incoming);
 		contactText.setText(currentTwilioCall.getCaller());
@@ -224,6 +232,7 @@ public class CallActivity extends XmppActivity {
 	}
 
 	private void onOutgoingCall(){
+		SoundPoolManager.getInstance(CallActivity.this).playRinging();
 		callState.setText(getResources().getString(R.string.outgoing_call));
 		try {
 			contactText.setText(Jid.of(currentTwilioCall.getReceiver()).getEscapedLocal());
