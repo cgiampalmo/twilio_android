@@ -649,6 +649,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
          */
         connectOptionsBuilder.preferAudioCodecs(Collections.singletonList(audioCodec));
         connectOptionsBuilder.preferVideoCodecs(Collections.singletonList(videoCodec));
+        connectOptionsBuilder.enableIceGatheringOnAnyAddressPorts(true);
 
         /*
          * Set the sender side encoding parameters.
