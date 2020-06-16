@@ -53,9 +53,10 @@ public class CallActivity extends XmppActivity {
 	private AppCompatImageButton rejectCallBtn;
 	private AppCompatImageButton acceptCallBtn;
 	private AppCompatImageButton endCallBtn;
-	private AppCompatImageButton videoBtn;
 	private AppCompatImageButton audioBtn;
+	private AppCompatImageButton audioBtnOff;
 	private AppCompatImageButton speakerBtn;
+	private AppCompatImageButton speakerBtnOff;
 	private ImageView avatar;
 
 
@@ -125,33 +126,36 @@ public class CallActivity extends XmppActivity {
 			intent.setAction(XmppConnectionService.ACTION_CANCEL_CALL_REQUEST);
 			Compatibility.startService(this, intent);
 		});
-		this.videoBtn = findViewById(R.id.local_video_image_button);
-//		videoBtn.setOnClickListener(v -> {
-//
-//			int icon = isVideoMuted ?
-//					R.drawable.ic_videocam_white_24px : R.drawable.ic_videocam_off_gray_24px;
-//			videoBtn.setImageDrawable(ContextCompat.getDrawable(
-//					CallActivity.this, icon));
-//
-//		});
+
 		this.audioBtn = findViewById(R.id.audio_image_button);
-		audioBtn.setOnClickListener(v -> {
+		this.audioBtnOff = findViewById(R.id.audio_image_button_off);
+		audioBtnOff.setOnClickListener(v -> {
 			audioManager.setMicrophoneMute(isAudioMuted);
 
-			int icon = isAudioMuted ?
-					R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_gray_24dp;
-			audioBtn.setImageDrawable(ContextCompat.getDrawable(
-					CallActivity.this, icon));
+			audioBtn.setVisibility(View.VISIBLE);
+			audioBtnOff.setVisibility(View.GONE);
+
 		});
+		audioBtn.setOnClickListener(v -> {
+			audioManager.setMicrophoneMute(isAudioMuted);
+			audioBtnOff.setVisibility(View.VISIBLE);
+			audioBtn.setVisibility(View.GONE);
+		});
+
 
 		// TODO in twilio roomActiviy audio manager is used to manage speaker phone status
 		this.speakerBtn= findViewById(R.id.speaker_button);
+		this.speakerBtnOff= findViewById(R.id.speaker_button_off);
+
+		speakerBtnOff.setOnClickListener(v -> {
+			audioManager.setSpeakerphoneOn(isSpeakerphoneOn);
+			speakerBtn.setVisibility(View.VISIBLE);
+			speakerBtnOff.setVisibility(View.GONE);
+		});
 		speakerBtn.setOnClickListener(v -> {
 			audioManager.setSpeakerphoneOn(isSpeakerphoneOn);
-			int icon = isSpeakerphoneOn ?
-					R.drawable.ic_volume_up_white_24dp : R.drawable.ic_volume_off_gray_24dp;
-			speakerBtn.setImageDrawable(ContextCompat.getDrawable(
-					CallActivity.this, icon));
+			speakerBtn.setVisibility(View.GONE);
+			speakerBtnOff.setVisibility(View.VISIBLE);
 		});
 
 	}
