@@ -822,7 +822,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					currentTwilioCall = null;
 					break;
 				case ACTION_FINISH_CALL: //ALF AM-420
-					this.getNotificationService().dismissCallNotification();
 					currentTwilioCall = null;
 					break;
 				case ACTION_MARK_AS_READ:
