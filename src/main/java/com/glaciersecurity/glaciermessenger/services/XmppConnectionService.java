@@ -743,8 +743,11 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							Intent intent1 = new Intent("callActivityFinish");
 							sendBroadcast(intent1);
 							callHandler.removeCallbacksAndMessages(null);
+							//TODO: notify user of rejection from other party if reject
 
-							//notify user of rejection from other party
+							if (call.getStatus().equalsIgnoreCase("cancel")) {
+								this.getNotificationService().dismissCallNotification();
+							}
 
 							currentTwilioCall = null;
 						} else if (call.getStatus().equalsIgnoreCase("busy")) { //ALF AM-420
