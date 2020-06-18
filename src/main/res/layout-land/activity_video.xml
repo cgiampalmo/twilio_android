@@ -50,7 +50,8 @@
                 app:backgroundTint="@color/lobbyMediaControls"
                 android:layout_marginTop="@dimen/fab_margin"
                 app:fabSize="normal"
-                app:srcCompat="@drawable/ic_flip_camera" />
+                app:srcCompat="@drawable/ic_flip_camera"
+                android:visibility="gone"/>
 
             <View
                 android:layout_width="0dp"
@@ -80,9 +81,9 @@
                 android:layout_gravity="center"
                 android:layout_marginBottom="@dimen/fab_margin"
                 android:layout_marginTop="@dimen/fab_margin"
-                app:backgroundTint="@color/lobbyMediaControls"
+                app:backgroundTint="@color/white"
                 app:fabSize="normal"
-                app:srcCompat="@drawable/ic_videocam_white_24dp" />
+                app:srcCompat="@drawable/ic_videocam_off_gray_24px" />
 
             <View
                 android:layout_width="0dp"

@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -417,11 +419,23 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
 
         int muteIcon = !audioManager.isMicrophoneMute() ?
                 R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_gray_24dp;
+        if (!audioManager.isMicrophoneMute()){
+            muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
+        } else {
+            muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+        }
         muteActionFab.setImageDrawable(ContextCompat.getDrawable(
                 VideoActivity.this, muteIcon));
 
+
         int speakerIcon = isSpeakerPhoneEnabled ?
                 R.drawable.ic_volume_up_white_24dp : R.drawable.ic_volume_off_gray_24dp;
+        if (isSpeakerPhoneEnabled) {
+            speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
+
+        } else {
+            speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+        }
         speakerPhoneActionFab.setImageDrawable(ContextCompat.getDrawable(
                 VideoActivity.this, speakerIcon));
         sensorManager.registerListener(this, proximity, SensorManager.SENSOR_DELAY_NORMAL);
@@ -677,7 +691,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                 R.drawable.ic_call_end_white_24px));
         connectActionFab.show();
         connectActionFab.setOnClickListener(disconnectClickListener());
-        switchCameraActionFab.show();
         switchCameraActionFab.setOnClickListener(switchCameraClickListener());
         localVideoActionFab.show();
         localVideoActionFab.setOnClickListener(localVideoClickListener());
@@ -1308,6 +1321,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                 int icon;
                 if (enable) {
                     icon = R.drawable.ic_videocam_white_24dp;
+                    localVideoActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
                     switchCameraActionFab.show();
                     enableSpeakerPhone(true);
                     recreateVideoTrackIfNeeded();
@@ -1316,6 +1330,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
 
                 } else {
                     icon = R.drawable.ic_videocam_off_gray_24px;
+                    localVideoActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
                     switchCameraActionFab.hide();
                     enableSpeakerPhone(false);
                     isVideoMuted = true;
@@ -1341,8 +1356,12 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                 int icon;
                 if (expectedSpeakerPhoneState) {
                     icon = R.drawable.ic_volume_up_white_24dp;
+                    speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
+
                 } else {
                     icon = R.drawable.ic_volume_off_gray_24dp;
+                    speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+
                 }
                 speakerPhoneActionFab.setImageDrawable(
                         ContextCompat.getDrawable(VideoActivity.this, icon));
@@ -1358,8 +1377,12 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
             int icon;
             if (expectedSpeakerPhoneState) {
                 icon = R.drawable.ic_volume_up_white_24dp;
+                speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
+
             } else {
                 icon = R.drawable.ic_volume_off_gray_24dp;
+                speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+
             }
             speakerPhoneActionFab.setImageDrawable(
                     ContextCompat.getDrawable(VideoActivity.this, icon));
@@ -1381,6 +1404,13 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                 localAudioTrack.enable(enable);
                 int icon = enable ?
                         R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_gray_24dp;
+
+
+                if (enable){
+                    muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
+                } else {
+                    muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+                }
                 muteActionFab.setImageDrawable(ContextCompat.getDrawable(
                         VideoActivity.this, icon));
             }
