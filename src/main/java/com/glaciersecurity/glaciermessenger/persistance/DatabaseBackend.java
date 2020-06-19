@@ -65,7 +65,7 @@ import rocks.xmpp.addr.Jid;
 public class DatabaseBackend extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "history";
-	private static final int DATABASE_VERSION = 45; //ALF AM-388 changed to 45
+	private static final int DATABASE_VERSION = 46; //ALF AM-388 changed to 45, AM-422 to 46
 	private static DatabaseBackend instance = null;
 	private static String CREATE_CONTATCS_STATEMENT = "create table "
 			+ Contact.TABLENAME + "(" + Contact.ACCOUNT + " TEXT, "
@@ -565,9 +565,13 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 			db.execSQL(CREATE_MESSAGE_TYPE_INDEX);
 		}
 
-		//ALF AM-388
-		if (oldVersion < 45 && newVersion >= 45) {
-			db.execSQL(CREATE_COGNITO_ACCOUNT_TABLE);
+		//ALF AM-388, AM-422 changed to 46
+		if (oldVersion < 46 && newVersion >= 46) {
+			try {
+				db.execSQL(CREATE_COGNITO_ACCOUNT_TABLE);
+			}catch (Exception exc) {
+				//table might already exist
+			}
 		}
 	}
 
