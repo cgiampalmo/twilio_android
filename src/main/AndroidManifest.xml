@@ -233,7 +233,7 @@
         <!-- ALF AM-277 -->
         <activity
             android:name=".ui.FileSafeActivity"
-            android:label="@string/call_activity_title"
+            android:label="@string/upload_filesafe_title"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".ui.CallActivity"
