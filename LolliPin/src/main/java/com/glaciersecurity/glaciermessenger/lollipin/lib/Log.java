@@ -22,7 +22,7 @@
 package com.glaciersecurity.glaciermessenger.lollipin.lib;
 
 public class Log {
-    private static int logLevel = 5;
+    private static int logLevel = 0;
 
     /**
      * Change current logging level

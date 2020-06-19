@@ -24,7 +24,7 @@ package com.glaciersecurity.glaciermessenger.ui.util;
 public class Log {
     // RELEASE_CHECK - set to no logging (zero)
     // option 0 through 5
-    private static int logLevel = 5;
+    private static int logLevel = 0;
 
     /**
      * Change current logging level
