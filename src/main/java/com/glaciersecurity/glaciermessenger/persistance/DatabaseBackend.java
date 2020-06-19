@@ -273,6 +273,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 		db.execSQL(CREATE_MESSAGE_INDEX_TABLE);
 		db.execSQL(CREATE_MESSAGE_INSERT_TRIGGER);
 		db.execSQL(CREATE_MESSAGE_UPDATE_TRIGGER);
+		db.execSQL(CREATE_COGNITO_ACCOUNT_TABLE); //ALF AM-388, AM-422
 	}
 
 	@Override
