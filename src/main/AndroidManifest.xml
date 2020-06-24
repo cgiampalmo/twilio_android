@@ -57,8 +57,8 @@
     <application
         android:allowBackup="true"
         android:appCategory="social"
-        android:icon="@mipmap/glacier_launcher"
-        android:roundIcon="@mipmap/glacier_launcher_round"
+        android:icon="@mipmap/android_icon"
+        android:roundIcon="@mipmap/android_icon_round"
         android:requestLegacyExternalStorage="true"
         android:label="@string/app_name"
         android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
@@ -193,6 +193,10 @@
         <activity
             android:name=".ui.ChooseContactActivity"
             android:label="@string/title_activity_choose_contact"/>
+        <activity
+            android:name=".ui.StepperWizard"
+            android:label="@string/title_activity_permissions_wizard"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.BlocklistActivity"
             android:label="@string/title_activity_block_list"/>

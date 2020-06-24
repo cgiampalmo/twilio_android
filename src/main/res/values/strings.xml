@@ -31,6 +31,8 @@
     <string name="address_bar_hint"></string>
     <string name="dial_pad">Dial Pad</string>
     <string name="title_activity_choose_contact">Choose contact</string>
+    <string name="title_activity_permissions_wizard">Permissions Wizard</string>
+
     <string name="title_activity_choose_contacts">Choose contacts</string>
     <string name="title_activity_share_via_account">Share via account</string>
     <string name="title_activity_block_list">Block list</string>
