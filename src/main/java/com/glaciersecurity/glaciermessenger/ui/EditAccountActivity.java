@@ -2,6 +2,7 @@ package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
@@ -14,6 +15,8 @@ import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+
+import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
@@ -278,6 +281,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private TextView mDisplayName;
 	private boolean mUseTor;
 	private ActivityEditAccountBinding binding;
+
+	public static final int REQUEST_PERMISSION_LOCATION= 1;
 
 	private boolean conversationStarted = false;
 
@@ -1597,7 +1602,48 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * @param view
 	 */
 	public void logIn(View view) {
+		if(hasStoragePermissions()) {
+			userLogin();
+		} else {
+			requestPermissions(REQUEST_PERMISSION_LOCATION);
+		}
+	}
 
+	@TargetApi(Build.VERSION_CODES.M)
+	protected boolean hasStoragePermissions() {
+		return (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED ||
+				checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+	}
+
+	@TargetApi(Build.VERSION_CODES.M)
+	protected void requestPermissions(final int request_code) {
+		if (!hasStoragePermissions()) {
+			requestPermissions(
+					new String[]{
+							Manifest.permission.READ_EXTERNAL_STORAGE,
+							Manifest.permission.WRITE_EXTERNAL_STORAGE,
+					},
+					request_code
+			);
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(final int requestCode,
+										   @NonNull final String[] permissions,
+										   @NonNull final int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		for (int i = 0; i < grantResults.length; i++) {
+			if (Manifest.permission.READ_EXTERNAL_STORAGE.equals(permissions[i]) ||
+					Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permissions[i])) {
+				if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+					userLogin();
+				}
+			}
+		}
+	}
+
+	private void userLogin(){
 		mAccountPasswordLayout.setPasswordVisibilityToggleEnabled(false);
 		mAccountPasswordLayout.setPasswordVisibilityToggleEnabled(true);
 
@@ -1643,6 +1689,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				}
 		}
 	}
+
 
 
 	/**
@@ -2489,7 +2536,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		builder.setMessage(R.string.glacier_core_install);
 		builder.setPositiveButton(R.string.next, (dialog, which) -> {
 			try {
-				dialog.dismiss();
+				dialog.cancel();
 				Intent intent = new Intent(Intent.ACTION_VIEW);
 				intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
 				startActivity(intent);
@@ -2499,7 +2546,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				e2.printStackTrace();
 			}
 		});
-		final androidx.appcompat.app.AlertDialog dialog = builder.create();
+		androidx.appcompat.app.AlertDialog dialog = builder.create();
 		dialog.setCanceledOnTouchOutside(false);
 		dialog.show();
 	}
