@@ -327,30 +327,33 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
 //                    localParticipant.setEncodingParameters(newEncodingParameters);
 //                }
 //            }
-        }
 
-        // primaryTitle.setText(roomname);
-        /*
-         * Update encoding parameters
-         */
-        encodingParameters = newEncodingParameters;
 
-        /*
-         * Route audio through cached value.
-         */
-        audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
+            // primaryTitle.setText(roomname);
+            /*
+             * Update encoding parameters
+             */
+            encodingParameters = newEncodingParameters;
 
-        /*
-         * Update reconnecting UI
-         */
-        if (room != null) {
-            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
-                    View.GONE :
-                    View.VISIBLE);
-        }
+            /*
+             * Route audio through cached value.
+             */
+            audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
 
-        if (room == null || room.getState() == Room.State.DISCONNECTED) {
-            connectToRoom(roomname);
+            /*
+             * Update reconnecting UI
+             */
+            if (room != null) {
+                reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
+                        View.GONE :
+                        View.VISIBLE);
+            }
+
+            if (room == null || room.getState() == Room.State.DISCONNECTED) {
+                connectToRoom(roomname);
+            }
+        } else {
+            requestPermissionForCameraAndMicrophone();
         }
     }
 

@@ -32,7 +32,6 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.Manifest.permission.READ_CONTACTS;
 
 //CMG AM-427
 public class StepperWizard extends AppCompatActivity {
@@ -64,9 +63,9 @@ public class StepperWizard extends AppCompatActivity {
     };
     private int about_images_array[] = {
             R.drawable.step1_glacierlogo,
-            R.drawable.step2_howitworks,
-            R.drawable.step3_foryoureyes,
-            R.drawable.step4_talkopenly
+            R.drawable.step2_howitworks2,
+            R.drawable.step3_foryoureyes2,
+            R.drawable.step4_talkopenly2
     };
 
 
@@ -234,8 +233,6 @@ public class StepperWizard extends AppCompatActivity {
             // when time comes which inevitably fails at that point.
             if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
                 permissionsNeeded.add("Write Storage");
-            if (!addPermission(permissionsList, READ_CONTACTS))
-                permissionsNeeded.add("Read Contacts");
             if (!addPermission(permissionsList, Manifest.permission.CAMERA))
                 permissionsNeeded.add("Camera");
             if (!addPermission(permissionsList, Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS))
