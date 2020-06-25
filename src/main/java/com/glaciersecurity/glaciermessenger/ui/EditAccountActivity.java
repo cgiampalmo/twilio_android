@@ -648,7 +648,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		if (Config.DISALLOW_REGISTRATION_IN_UI) {
 			this.binding.accountRegisterNew.setVisibility(View.GONE);
 		}
-		askForPermissions();
 
 		// Cognito - Initialize application
 		AppHelper.init(getApplicationContext());
@@ -2843,86 +2842,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 	};
 
-	/**
-	 * GOOBER PERMISSIONS - Ask for permissions
-	 */
-	private void askForPermissions() {
-		final int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
-
-		//String[] request = {Manifest.permission.READ_CONTACTS, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			Log.d("GOOBER", "EditAccountActivity::askForPermissions-1");
-			List<String> permissionsNeeded = new ArrayList<String>();
-
-			final List<String> permissionsList = new ArrayList<String>();
-			// GOOBER - added WRITE_EXTERNAL_STORAGE permission ahead of time so that it doesn't ask
-			// when time comes which inevitably fails at that point.
-			if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
-				permissionsNeeded.add("Write Storage");
-			// if (!addPermission(permissionsList, Manifest.permission.READ_EXTERNAL_STORAGE))
-			//	permissionsNeeded.add("Read Storage");
-
-			if (permissionsList.size() > 0) {
-				if (permissionsNeeded.size() > 0) {
-					// Need Rationale
-					String message = "You need to grant access to " + permissionsNeeded.get(0);
-					for (int i = 1; i < permissionsNeeded.size(); i++) {
-						message = message + ", " + permissionsNeeded.get(i);
-					}
-
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-						requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
-								REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
-					}
-
-					return;
-				}
-				requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
-						REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
-
-				return;
-			}
-		}
-	}
-
-	/**
-	 * GOOBER PERMISSIONS - This is how we ensure that permissions are granted and then accounts are restored
-	 *
-	 * @param requestCode
-	 * @param permissions
-	 * @param grantResults
-	 */
-	@Override
-	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-		// restore accounts from file if exists
-		//I think this ONLY works for single sign on so probably irrelevant for us
-		if (restoreAccountsFromFile() == true) { //ALF AM-388 this indicates getting actual account info
-			showWaitDialog(getString(R.string.wait_dialog_retrieving_account_info));
-			autoLoginMessenger();
-		}
-	}
-
-
-	/**
-	 * GOOBER PERMISSIONS - add permission
-	 *
-	 * @param permissionsList
-	 * @param permission
-	 * @return
-	 */
-	private boolean addPermission(List<String> permissionsList, String permission) {
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			if (this.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-				permissionsList.add(permission);
-				// Check for Rationale Option
-				if (!shouldShowRequestPermissionRationale(permission))
-					return false;
-			}
-			return true;
-		}
-		return false;
-	}
 
 
 	//CMG AM-314

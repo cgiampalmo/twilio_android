@@ -1,24 +1,38 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.ui.util.Tools;
+import com.glaciersecurity.glaciermessenger.utils.Log;
+import com.google.android.material.snackbar.Snackbar;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static android.Manifest.permission.READ_CONTACTS;
 
 //CMG AM-427
 public class StepperWizard extends AppCompatActivity {
@@ -35,6 +49,13 @@ public class StepperWizard extends AppCompatActivity {
             "Talk openly"
     };
 
+    private int color_array[] = {
+            R.color.blue_grey_600,
+            R.color.blue_grey_800,
+            R.color.blue_grey_700,
+            R.color.blue_grey_900
+    };
+
     private String description_array[] = {
             "We’re building the world’s most human secure communications company.",
             "Launch a private, obfuscated, and encrypted communications network to protect your devices and secure your teams most sensitive conversations.",
@@ -47,12 +68,7 @@ public class StepperWizard extends AppCompatActivity {
             R.drawable.step3_foryoureyes,
             R.drawable.step4_talkopenly
     };
-    private int color_array[] = {
-            R.color.red_600,
-            R.color.blue_grey_600,
-            R.color.purple_600,
-            R.color.deep_orange_600
-    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,10 +77,11 @@ public class StepperWizard extends AppCompatActivity {
 
         initComponent();
 
-        Tools.setSystemBarTransparent(this);
+        Tools.setSystemBarColor(this, R.color.primary800);
     }
 
     private void initComponent() {
+
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         btn_got_it = (Button) findViewById(R.id.btn_got_it);
 
@@ -74,27 +91,25 @@ public class StepperWizard extends AppCompatActivity {
         myViewPagerAdapter = new MyViewPagerAdapter();
         viewPager.setAdapter(myViewPagerAdapter);
         viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
-        Intent editAccount = new Intent(this, EditAccountActivity.class);
-
 
         btn_got_it.setVisibility(View.GONE);
         btn_got_it.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                showConfirmDialog();
+
             }
         });
 
         ((Button) findViewById(R.id.btn_skip)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
-                startActivity(editAccount);
+                showConfirmDialog();
 
             }
         });
-    }
 
+    }
     private void bottomProgressDots(int current_index) {
         LinearLayout dotsLayout = (LinearLayout) findViewById(R.id.layoutDots);
         ImageView[] dots = new ImageView[MAX_STEP];
@@ -107,13 +122,13 @@ public class StepperWizard extends AppCompatActivity {
             params.setMargins(10, 10, 10, 10);
             dots[i].setLayoutParams(params);
             dots[i].setImageResource(R.drawable.shape_circle);
-            dots[i].setColorFilter(getResources().getColor(R.color.overlay_dark_30), PorterDuff.Mode.SRC_IN);
+            dots[i].setColorFilter(getResources().getColor(R.color.grey_20), PorterDuff.Mode.SRC_IN);
             dotsLayout.addView(dots[i]);
         }
 
         if (dots.length > 0) {
             dots[current_index].setImageResource(R.drawable.shape_circle);
-            dots[current_index].setColorFilter(getResources().getColor(R.color.grey_10), PorterDuff.Mode.SRC_IN);
+            dots[current_index].setColorFilter(getResources().getColor(R.color.orange_400), PorterDuff.Mode.SRC_IN);
         }
     }
 
@@ -181,4 +196,101 @@ public class StepperWizard extends AppCompatActivity {
             container.removeView(view);
         }
     }
+
+    private void showConfirmDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.permission_need_req);
+        builder.setPositiveButton(R.string.CONTINUE, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                askForPermissions();
+            }
+        });
+        builder.setNegativeButton(R.string.NOT_NOW, new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                setResult(RESULT_OK);
+                finish();
+            }
+        });
+        builder.show();
+    }
+
+
+
+    /**
+     * GOOBER PERMISSIONS - Ask for permissions
+     */
+    private void askForPermissions() {
+        final int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
+
+        //String[] request = {Manifest.permission.READ_CONTACTS, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "StartConversationActivity::askForPermissions-1");
+            List<String> permissionsNeeded = new ArrayList<String>();
+
+            final List<String> permissionsList = new ArrayList<String>();
+            // GOOBER - added WRITE_EXTERNAL_STORAGE permission ahead of time so that it doesn't ask
+            // when time comes which inevitably fails at that point.
+            if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+                permissionsNeeded.add("Write Storage");
+            if (!addPermission(permissionsList, READ_CONTACTS))
+                permissionsNeeded.add("Read Contacts");
+            if (!addPermission(permissionsList, Manifest.permission.CAMERA))
+                permissionsNeeded.add("Camera");
+            if (!addPermission(permissionsList, Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS))
+                permissionsNeeded.add("Ignore Battery Optimizations");
+            if (permissionsList.size() > 0) {
+                if (permissionsNeeded.size() > 0) {
+                    // Need Rationale
+                    String message = "You need to grant access to " + permissionsNeeded.get(0);
+                    for (int i = 1; i < permissionsNeeded.size(); i++) {
+                        message = message + ", " + permissionsNeeded.get(i);
+                    }
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
+                                REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
+                    }
+
+                    return;
+                }
+                requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
+                        REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
+
+                return;
+            }
+        }
+    }
+
+
+    /**
+     * GOOBER PERMISSIONS - add permission
+     *
+     * @param permissionsList
+     * @param permission
+     * @return
+     */
+    private boolean addPermission(List<String> permissionsList, String permission) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (this.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+                permissionsList.add(permission);
+                // Check for Rationale Option
+                if (!shouldShowRequestPermissionRationale(permission))
+                    return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        // restore accounts from file if exists
+        //I think this ONLY works for single sign on so probably irrelevant for us
+        setResult(RESULT_OK);
+        finish();
+    }
+
 }

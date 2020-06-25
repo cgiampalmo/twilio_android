@@ -43,6 +43,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import androidx.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
@@ -78,6 +79,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
+import androidx.preference.PreferenceManager;
 
 import android.util.Log;
 import android.view.Menu;
@@ -154,6 +156,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	public static final String EXTRA_NICK = "nick";
 	public static final String EXTRA_IS_PRIVATE_MESSAGE = "pm";
 	public static final String EXTRA_DO_NOT_APPEND = "do_not_append";
+
+	private static final int RESULT_PERMISSION_WIZARD = 1;
+
 
 	private ConversationFragment conversationFragment;
 
@@ -570,6 +575,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				}
 				break;
 			}
+			case RESULT_PERMISSION_WIZARD: {
+				super.onStart();
+			}
 		}
 	}
 
@@ -616,8 +624,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		connectivityReceiver = new ConnectivityReceiver(this);
 		checkNetworkStatus();
 		updateOfflineStatusBar();
-
-
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 	}
 
 	private void initToolbar() {
@@ -1543,7 +1550,20 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		}
 		mRedirectInProcess.set(false);
 		registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-		super.onStart();
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		if (!prefs.getBoolean("firstTime", false)) {
+
+			// mark first time has ran.
+			SharedPreferences.Editor editor = prefs.edit();
+			editor.putBoolean("firstTime", true);
+			editor.commit();
+			Intent permissionsWizard = new Intent(getApplicationContext(), StepperWizard.class);
+			startActivityForResult(permissionsWizard,RESULT_PERMISSION_WIZARD);
+
+		} else {
+			super.onStart();
+		}
+
 	}
 
 	@Override
