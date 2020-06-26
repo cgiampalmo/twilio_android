@@ -1,7 +1,5 @@
 package com.glaciersecurity.glaciermessenger.parser;
 
-import android.content.Intent;
-import android.media.ToneGenerator;
 import android.util.Log;
 import android.util.Pair;
 
@@ -12,7 +10,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -35,10 +32,6 @@ import com.glaciersecurity.glaciermessenger.http.P1S3UrlStreamHandler;
 import com.glaciersecurity.glaciermessenger.services.MessageArchiveService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
-import com.glaciersecurity.glaciermessenger.ui.CallActivity;
-import com.glaciersecurity.glaciermessenger.ui.VideoActivity;
-import com.glaciersecurity.glaciermessenger.ui.util.SoundPoolManager;
-import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.xml.Namespace;
 import com.glaciersecurity.glaciermessenger.xml.Element;
