@@ -249,15 +249,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         proximity = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
-        /*
-         * Check camera and microphone permissions. Needed in Android M.
-         */
-        if (!checkPermissionForCameraAndMicrophone()) {
-            requestPermissionForCameraAndMicrophone();
-        } else {
-            createAudioAndVideoTracks();
-            //setAccessToken();
-        }
+        createAudioAndVideoTracks();
 
         /*
          * Set the initial state of the UI
@@ -304,14 +296,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
          */
         final EncodingParameters newEncodingParameters = getEncodingParameters();
 
-        /*
-         * If the local video track was released when the app was put in the background, recreate.
-         */
-        if (!checkPermissionForCameraAndMicrophone()) {
-            requestPermissionForCameraAndMicrophone();
-        }
-
-        // primaryTitle.setText(roomname);
         /*
          * Update encoding parameters
          */
@@ -538,21 +522,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
         int resultMic = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
         return resultCamera == PackageManager.PERMISSION_GRANTED &&
                 resultMic == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestPermissionForCameraAndMicrophone() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA) ||
-                ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.RECORD_AUDIO)) {
-            Toast.makeText(this,
-                    R.string.permissions_needed,
-                    Toast.LENGTH_LONG).show();
-        } else {
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
-                    CAMERA_MIC_PERMISSION_REQUEST_CODE);
-        }
     }
 
     private void createAudioAndVideoTracks() {
