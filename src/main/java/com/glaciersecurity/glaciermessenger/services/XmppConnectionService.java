@@ -775,7 +775,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							}
 						} else {
 							call.setCaller(intent.getStringExtra("caller"));
-							//call.setRoomName(intent.getStringExtra("roomname"));
 
 							//ALF AM-420 if is already in call, respond with busy
 							if (currentTwilioCall != null) { //in call
@@ -912,6 +911,50 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			expireOldMessages();
 		}
 		return START_STICKY;
+	}
+
+	//ALF AM-431
+	public void handleCallSetupMessage(Account account, TwilioCall call) {
+		if (account != null && call != null) {
+			SoundPoolManager.getInstance(XmppConnectionService.this).stopRinging();
+
+			if (call.getStatus().equalsIgnoreCase("reject") || call.getStatus().equalsIgnoreCase("cancel")) {
+				//stop CallActivity
+				Intent intent1 = new Intent("callActivityFinish");
+				sendBroadcast(intent1);
+				callHandler.removeCallbacksAndMessages(null);
+				//TODO: notify user of rejection from other party if reject
+
+				if (call.getStatus().equalsIgnoreCase("cancel")) {
+					this.getNotificationService().dismissCallNotification();
+				}
+
+				currentTwilioCall = null;
+			} else if (call.getStatus().equalsIgnoreCase("busy")) { //ALF AM-420
+				//just play busy tone but do nothing else. Up to them to cancel
+				this.playTone(ToneGenerator.TONE_SUP_BUSY);
+				callHandler.removeCallbacksAndMessages(null);
+				currentTwilioCall = null;
+			} else if (call.getStatus().equalsIgnoreCase("accept")) {
+				// other party accepted call
+				//stop CallActivity
+				Intent intent1 = new Intent("callActivityFinish");
+				sendBroadcast(intent1);
+
+				if (currentTwilioCall != null) {
+					//open RoomActivity
+					Intent callIntent = new Intent(getApplicationContext(), VideoActivity.class);
+					callIntent.setAction(CallActivity.ACTION_ACCEPTED_CALL);
+					callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					callIntent.putExtra("call_id", currentTwilioCall.getCallId());
+					callIntent.putExtra("token", currentTwilioCall.getToken());
+					callIntent.putExtra("roomname", currentTwilioCall.getRoomName());
+					callIntent.putExtra("caller", currentTwilioCall.getCaller());
+					callIntent.putExtra("receiver", currentTwilioCall.getReceiver());
+					this.startActivity(callIntent);
+				}
+			}
+		}
 	}
 
 	//ALF AM-420

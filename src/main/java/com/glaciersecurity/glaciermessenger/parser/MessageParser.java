@@ -1,5 +1,7 @@
 package com.glaciersecurity.glaciermessenger.parser;
 
+import android.content.Intent;
+import android.media.ToneGenerator;
 import android.util.Log;
 import android.util.Pair;
 
@@ -10,6 +12,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,11 +29,16 @@ import com.glaciersecurity.glaciermessenger.entities.Message;
 import com.glaciersecurity.glaciermessenger.entities.MucOptions;
 import com.glaciersecurity.glaciermessenger.entities.ReadByMarker;
 import com.glaciersecurity.glaciermessenger.entities.ReceiptRequest;
+import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
 import com.glaciersecurity.glaciermessenger.http.HttpConnectionManager;
 import com.glaciersecurity.glaciermessenger.http.P1S3UrlStreamHandler;
 import com.glaciersecurity.glaciermessenger.services.MessageArchiveService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
+import com.glaciersecurity.glaciermessenger.ui.CallActivity;
+import com.glaciersecurity.glaciermessenger.ui.VideoActivity;
+import com.glaciersecurity.glaciermessenger.ui.util.SoundPoolManager;
+import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.xml.Namespace;
 import com.glaciersecurity.glaciermessenger.xml.Element;
@@ -292,6 +300,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 		if (handleErrorMessage(account, original)) {
 			return;
 		}
+
 		final MessagePacket packet;
 		Long timestamp = null;
 		boolean isCarbon = false;
@@ -327,6 +336,22 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 			isCarbon = f != null;
 		} else {
 			packet = original;
+
+			//ALF AM-431
+			final Element callElement = packet.findChild("x", "jabber:x:callupdate");
+			if (callElement != null && callElement.getAttribute("callstatus") != null) {
+
+				TwilioCall call = new TwilioCall(account);
+				try {
+					int callid = Integer.parseInt(callElement.getAttribute("callid"));
+					call.setCallId(callid);
+				} catch (NumberFormatException nfe) {
+				}
+				call.setStatus(callElement.getAttribute("callstatus"));
+
+				mXmppConnectionService.handleCallSetupMessage(account, call);
+				return;
+			}
 		}
 
 		if (timestamp == null) {

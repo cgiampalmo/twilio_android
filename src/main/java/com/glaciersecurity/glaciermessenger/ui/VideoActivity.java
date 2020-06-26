@@ -491,7 +491,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
          */
         //ALF AM-419 onPause gets called after open if the screen was locked causing video not to work
         //added remoteParticipantIdentity because this is set after the onPause call
-        if (localVideoTrack != null && remoteParticipantIdentity != null) { 
+        if (localVideoTrack != null && remoteParticipantIdentity != null) {
             /*
              * If this local video track is being shared in a Room, unpublish from room before
              * releasing the video track. Participants will be notified that the track has been
