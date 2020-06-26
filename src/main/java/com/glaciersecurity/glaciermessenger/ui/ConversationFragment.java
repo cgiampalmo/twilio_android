@@ -7,6 +7,9 @@ import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
 import android.net.Uri;
@@ -150,6 +153,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	public static final int ATTACHMENT_CHOICE_LOCATION = 0x0305;
 	public static final int ATTACHMENT_CHOICE_INVALID = 0x0306;
 	public static final int ATTACHMENT_CHOICE_RECORD_VIDEO = 0x0307;
+
+	private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
+
 
 	public static final String RECENTLY_USED_QUICK_ACTION = "recently_used_quick_action";
 	public static final String STATE_CONVERSATION_UUID = ConversationFragment.class.getName() + ".uuid";
@@ -1098,19 +1104,13 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			if (conversation == null){
 				return false;
 			}
-			final Account account = conversation.getAccount();
-            TwilioCall call = new TwilioCall(account);
-			call.setReceiver(conversation.getJid().asBareJid().toString());
-			//This might open the UI and that implements the OnTwilioCallCreated
-			//and maybe the callRequest will be initiated there.
-			activity.xmppConnectionService.sendCallRequest(call);
-			Intent callActivity = new Intent(getContext(), CallActivity.class);
-			callActivity.setAction(CallActivity.ACTION_OUTGOING_CALL);
-			callActivity.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-			callActivity.putExtra("receiver", call.getReceiver());
-			callActivity.putExtra("uuid", conversation.getUuid());
-			startActivity(callActivity);
+			if(checkPermissionForCameraAndMicrophone()){
+				makeCall();
+			} else {
+				requestPermissionForCameraAndMicrophone();
+			}
 			return true;
+
 		});
 
 //		final MenuItem disappearingMessages = menu.findItem(R.id.action_disapear_messages);
@@ -1166,6 +1166,22 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	}
 
 
+
+
+
+	private boolean checkPermissionForCameraAndMicrophone() {
+		int resultCamera = ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA);
+		int resultMic = ContextCompat.checkSelfPermission(activity, Manifest.permission.RECORD_AUDIO);
+		return resultCamera == PackageManager.PERMISSION_GRANTED &&
+				resultMic == PackageManager.PERMISSION_GRANTED;
+	}
+
+	private void requestPermissionForCameraAndMicrophone() {
+			ActivityCompat.requestPermissions(
+					activity,
+					new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
+					CAMERA_MIC_PERMISSION_REQUEST_CODE);
+	}
 
 	@Override
 	public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -1692,6 +1708,21 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		}
 	}
 
+	private void makeCall(){
+		final Account account = conversation.getAccount();
+		TwilioCall call = new TwilioCall(account);
+		call.setReceiver(conversation.getJid().asBareJid().toString());
+		//This might open the UI and that implements the OnTwilioCallCreated
+		//and maybe the callRequest will be initiated there.
+		activity.xmppConnectionService.sendCallRequest(call);
+		Intent callActivity = new Intent(getContext(), CallActivity.class);
+		callActivity.setAction(CallActivity.ACTION_OUTGOING_CALL);
+		callActivity.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+		callActivity.putExtra("receiver", call.getReceiver());
+		callActivity.putExtra("uuid", conversation.getUuid());
+		startActivity(callActivity);
+	}
+
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
 		if (grantResults.length > 0) {
@@ -1709,6 +1740,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 						break;
 					case REQUEST_COMMIT_ATTACHMENTS:
 						commitAttachments();
+						break;
+					case CAMERA_MIC_PERMISSION_REQUEST_CODE:
+						makeCall();
 						break;
 					default:
 						attachFile(requestCode);

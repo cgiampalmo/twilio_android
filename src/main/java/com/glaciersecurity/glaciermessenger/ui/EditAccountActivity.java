@@ -2,6 +2,7 @@ package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
@@ -14,6 +15,8 @@ import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+
+import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
@@ -278,6 +281,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private TextView mDisplayName;
 	private boolean mUseTor;
 	private ActivityEditAccountBinding binding;
+
+	public static final int REQUEST_PERMISSION_LOCATION= 1;
 
 	private boolean conversationStarted = false;
 
@@ -648,7 +653,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		if (Config.DISALLOW_REGISTRATION_IN_UI) {
 			this.binding.accountRegisterNew.setVisibility(View.GONE);
 		}
-		askForPermissions();
 
 		// Cognito - Initialize application
 		AppHelper.init(getApplicationContext());
@@ -1598,7 +1602,48 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 * @param view
 	 */
 	public void logIn(View view) {
+		if(hasStoragePermissions()) {
+			userLogin();
+		} else {
+			requestPermissions(REQUEST_PERMISSION_LOCATION);
+		}
+	}
 
+	@TargetApi(Build.VERSION_CODES.M)
+	protected boolean hasStoragePermissions() {
+		return (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED ||
+				checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+	}
+
+	@TargetApi(Build.VERSION_CODES.M)
+	protected void requestPermissions(final int request_code) {
+		if (!hasStoragePermissions()) {
+			requestPermissions(
+					new String[]{
+							Manifest.permission.READ_EXTERNAL_STORAGE,
+							Manifest.permission.WRITE_EXTERNAL_STORAGE,
+					},
+					request_code
+			);
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(final int requestCode,
+										   @NonNull final String[] permissions,
+										   @NonNull final int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		for (int i = 0; i < grantResults.length; i++) {
+			if (Manifest.permission.READ_EXTERNAL_STORAGE.equals(permissions[i]) ||
+					Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permissions[i])) {
+				if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+					userLogin();
+				}
+			}
+		}
+	}
+
+	private void userLogin(){
 		mAccountPasswordLayout.setPasswordVisibilityToggleEnabled(false);
 		mAccountPasswordLayout.setPasswordVisibilityToggleEnabled(true);
 
@@ -1644,6 +1689,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				}
 		}
 	}
+
 
 
 	/**
@@ -2490,7 +2536,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		builder.setMessage(R.string.glacier_core_install);
 		builder.setPositiveButton(R.string.next, (dialog, which) -> {
 			try {
-				dialog.dismiss();
+				dialog.cancel();
 				Intent intent = new Intent(Intent.ACTION_VIEW);
 				intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
 				startActivity(intent);
@@ -2500,7 +2546,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				e2.printStackTrace();
 			}
 		});
-		final androidx.appcompat.app.AlertDialog dialog = builder.create();
+		androidx.appcompat.app.AlertDialog dialog = builder.create();
 		dialog.setCanceledOnTouchOutside(false);
 		dialog.show();
 	}
@@ -2843,86 +2889,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 	};
 
-	/**
-	 * GOOBER PERMISSIONS - Ask for permissions
-	 */
-	private void askForPermissions() {
-		final int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
-
-		//String[] request = {Manifest.permission.READ_CONTACTS, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			Log.d("GOOBER", "EditAccountActivity::askForPermissions-1");
-			List<String> permissionsNeeded = new ArrayList<String>();
-
-			final List<String> permissionsList = new ArrayList<String>();
-			// GOOBER - added WRITE_EXTERNAL_STORAGE permission ahead of time so that it doesn't ask
-			// when time comes which inevitably fails at that point.
-			if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
-				permissionsNeeded.add("Write Storage");
-			// if (!addPermission(permissionsList, Manifest.permission.READ_EXTERNAL_STORAGE))
-			//	permissionsNeeded.add("Read Storage");
-
-			if (permissionsList.size() > 0) {
-				if (permissionsNeeded.size() > 0) {
-					// Need Rationale
-					String message = "You need to grant access to " + permissionsNeeded.get(0);
-					for (int i = 1; i < permissionsNeeded.size(); i++) {
-						message = message + ", " + permissionsNeeded.get(i);
-					}
-
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-						requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
-								REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
-					}
-
-					return;
-				}
-				requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
-						REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
-
-				return;
-			}
-		}
-	}
-
-	/**
-	 * GOOBER PERMISSIONS - This is how we ensure that permissions are granted and then accounts are restored
-	 *
-	 * @param requestCode
-	 * @param permissions
-	 * @param grantResults
-	 */
-	@Override
-	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-		// restore accounts from file if exists
-		//I think this ONLY works for single sign on so probably irrelevant for us
-		if (restoreAccountsFromFile() == true) { //ALF AM-388 this indicates getting actual account info
-			showWaitDialog(getString(R.string.wait_dialog_retrieving_account_info));
-			autoLoginMessenger();
-		}
-	}
-
-
-	/**
-	 * GOOBER PERMISSIONS - add permission
-	 *
-	 * @param permissionsList
-	 * @param permission
-	 * @return
-	 */
-	private boolean addPermission(List<String> permissionsList, String permission) {
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			if (this.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-				permissionsList.add(permission);
-				// Check for Rationale Option
-				if (!shouldShowRequestPermissionRationale(permission))
-					return false;
-			}
-			return true;
-		}
-		return false;
-	}
 
 
 	//CMG AM-314

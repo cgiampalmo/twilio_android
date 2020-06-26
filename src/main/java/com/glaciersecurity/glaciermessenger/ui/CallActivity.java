@@ -1,9 +1,12 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -14,9 +17,12 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.AppCompatImageButton;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.glaciersecurity.glaciermessenger.Config;
@@ -38,6 +44,9 @@ public class CallActivity extends XmppActivity {
 	public static final String ACTION_INCOMING_CALL = "incoming_call";
 	public static final String ACTION_OUTGOING_CALL = "outgoing_code";
 	public static final String ACTION_ACCEPTED_CALL = "call_accepted";
+
+	private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
+
 	private AudioManager audioManager;
 
 
@@ -100,12 +109,11 @@ public class CallActivity extends XmppActivity {
 		}
 		this.acceptCallBtn= findViewById(R.id.accept_call_button);
 		acceptCallBtn.setOnClickListener(v -> {
-			SoundPoolManager.getInstance(CallActivity.this).stopRinging();
-			SoundPoolManager.getInstance(CallActivity.this).playJoin();
-			//needs access to XmppConnectionService
-			final Intent intent = new Intent(this, XmppConnectionService.class);
-			intent.setAction(XmppConnectionService.ACTION_ACCEPT_CALL_REQUEST);
-			Compatibility.startService(this, intent);
+			if(checkPermissionForCameraAndMicrophone()){
+				acceptCall();
+			} else {
+				requestPermissionForCameraAndMicrophone();
+			}
 		});
 		this.rejectCallBtn= findViewById(R.id.reject_call_button);
 		rejectCallBtn.setOnClickListener(v -> {
@@ -160,6 +168,14 @@ public class CallActivity extends XmppActivity {
 
 	}
 
+	public void acceptCall(){
+			SoundPoolManager.getInstance(CallActivity.this).stopRinging();
+			SoundPoolManager.getInstance(CallActivity.this).playJoin();
+			//needs access to XmppConnectionService
+			final Intent intent = new Intent(this, XmppConnectionService.class);
+			intent.setAction(XmppConnectionService.ACTION_ACCEPT_CALL_REQUEST);
+			Compatibility.startService(this, intent);
+		}
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -247,5 +263,64 @@ public class CallActivity extends XmppActivity {
 		incomingCallLayout.setVisibility(View.GONE);
 		outgoingCallLayout.setVisibility(View.VISIBLE);
 	}
+
+	@TargetApi(Build.VERSION_CODES.M)
+	protected boolean hasStoragePermissions() {
+		return (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED ||
+				checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+	}
+
+	@TargetApi(Build.VERSION_CODES.M)
+	protected void requestPermissions(final int request_code) {
+		if (!hasStoragePermissions()) {
+			requestPermissions(
+					new String[]{
+							Manifest.permission.READ_EXTERNAL_STORAGE,
+							Manifest.permission.WRITE_EXTERNAL_STORAGE,
+					},
+					request_code
+			);
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(final int requestCode,
+										   @NonNull final String[] permissions,
+										   @NonNull final int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		for (int i = 0; i < grantResults.length; i++) {
+			if (Manifest.permission.READ_EXTERNAL_STORAGE.equals(permissions[i]) ||
+					Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permissions[i])) {
+				if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+					acceptCall();
+				}
+			}
+		}
+	}
+
+
+
+	private boolean checkPermissionForCameraAndMicrophone() {
+		int resultCamera = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+		int resultMic = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
+		return resultCamera == PackageManager.PERMISSION_GRANTED &&
+				resultMic == PackageManager.PERMISSION_GRANTED;
+	}
+
+	private void requestPermissionForCameraAndMicrophone() {
+		if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA) ||
+				ActivityCompat.shouldShowRequestPermissionRationale(this,
+						Manifest.permission.RECORD_AUDIO)) {
+			Toast.makeText(this,
+					R.string.permissions_needed,
+					Toast.LENGTH_LONG).show();
+		} else {
+			ActivityCompat.requestPermissions(
+					this,
+					new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
+					CAMERA_MIC_PERMISSION_REQUEST_CODE);
+		}
+	}
+
 
 }
