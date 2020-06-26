@@ -13,6 +13,7 @@ import com.glaciersecurity.glaciermessenger.crypto.axolotl.XmppAxolotlMessage;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.Message;
+import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
 import com.glaciersecurity.glaciermessenger.http.P1S3UrlStreamHandler;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.xml.Element;
@@ -233,6 +234,15 @@ public class MessageGenerator extends AbstractGenerator {
 		packet.setTo(to);
 		packet.addChild("received", "urn:xmpp:receipts").setAttribute("id", id);
 		packet.addChild("store", "urn:xmpp:hints");
+		return packet;
+	}
+
+	//ALF AM-431
+	public MessagePacket callUpdate(TwilioCall call, Jid to) {
+		MessagePacket packet = new MessagePacket();
+		packet.setFrom(call.getAccount().getJid());
+		packet.setTo(to);
+		packet.addChild("x", "jabber:x:callupdate").setAttribute("callstatus", call.getStatus()).setAttribute("callid", call.getCallId());
 		return packet;
 	}
 }

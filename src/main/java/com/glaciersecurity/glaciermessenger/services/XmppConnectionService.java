@@ -4695,6 +4695,11 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						}
 					}
 
+					//ALF AM-431 send message
+					call.setStatus("accept");
+					MessagePacket messagePacket = mMessageGenerator.callUpdate(call, Jid.of(call.getCaller()));
+					sendMessagePacket(call.getAccount(), messagePacket);
+
 					Intent intent1 = new Intent("callActivityFinish");
 					sendBroadcast(intent1);
 					getNotificationService().dismissCallNotification();
@@ -4742,7 +4747,46 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		callidfield.addChild(callidval);
 
 		Log.d(Config.LOGTAG, call.getAccount().getJid().asBareJid() + ": rejecting call from " + call.getCaller());
-		sendIqPacket(call.getAccount(), request, null);
+		//sendIqPacket(call.getAccount(), request, null);
+
+		//ALF AM-431 handle response
+		sendIqPacket(call.getAccount(), request, new OnIqPacketReceived() {
+			@Override
+			public void onIqPacketReceived(final Account account, final IqPacket packet) {
+				if (packet.getType() == IqPacket.TYPE.RESULT) {
+					final Element command = packet.findChild("command", "http://jabber.org/protocol/commands");
+					if (command == null) {
+						return;
+					}
+					final Element x = command.findChild("x", "jabber:x:data");
+					if (x == null) {
+						return;
+					}
+					for (final Element item : x.getChildren()) {
+						if (item.getName().equals("field")) {
+							if (item.getAttribute("var").equals("call_id")) {
+								String call_id = item.findChild("value").getContent();
+								try {
+									int callid = Integer.parseInt(call_id);
+									call.setCallId(callid);
+								} catch (NumberFormatException nfe) {
+								}
+							} else if (item.getAttribute("var").equals("caller")) {
+								call.setCaller(item.findChild("value").getContent());
+							}
+						}
+					}
+
+					if (isBusy) {
+						call.setStatus("busy");
+					} else {
+						call.setStatus("reject");
+					}
+					MessagePacket messagePacket = mMessageGenerator.callUpdate(call, Jid.of(call.getCaller()));
+					sendMessagePacket(call.getAccount(), messagePacket);
+				}
+			}
+		});
 
 		//Close CallActivity
 		Intent intent1 = new Intent("callActivityFinish");
@@ -4775,6 +4819,11 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 		Log.d(Config.LOGTAG, call.getAccount().getJid().asBareJid() + ": cancelling call from " + call.getCaller());
 		sendIqPacket(call.getAccount(), request, null);
+
+		//ALF AM-431 send message
+		call.setStatus("cancel");
+		MessagePacket packet = mMessageGenerator.callUpdate(call, Jid.of(call.getReceiver()));
+		sendMessagePacket(call.getAccount(), packet);
 
 		//Close CallActivity
 		Intent intent1 = new Intent("callActivityFinish");

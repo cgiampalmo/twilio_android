@@ -307,72 +307,33 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
         /*
          * If the local video track was released when the app was put in the background, recreate.
          */
-        if (localVideoTrack == null && checkPermissionForCameraAndMicrophone()) {
-//            localVideoTrack = LocalVideoTrack.create(this,
-//                    true,
-//                    cameraCapturerCompat.getVideoCapturer(),
-//                    LOCAL_VIDEO_TRACK_NAME);
-//            localVideoTrack.addRenderer(localVideoView);
-//
-//            /*
-//             * If connected to a Room then share the local video track.
-//             */
-//            if (localParticipant != null) {
-//                localParticipant.publishTrack(localVideoTrack);
-//
-//                /*
-//                 * Update encoding parameters if they have changed.
-//                 */
-//                if (!newEncodingParameters.equals(encodingParameters)) {
-//                    localParticipant.setEncodingParameters(newEncodingParameters);
-//                }
-//            }
-
-
-            // primaryTitle.setText(roomname);
-            /*
-             * Update encoding parameters
-             */
-            encodingParameters = newEncodingParameters;
-
-            /*
-             * Route audio through cached value.
-             */
-            audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
-
-            /*
-             * Update reconnecting UI
-             */
-            if (room != null) {
-                reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
-                        View.GONE :
-                        View.VISIBLE);
-            }
-
-            if (room == null || room.getState() == Room.State.DISCONNECTED) {
-                connectToRoom(roomname);
-            }
-        } else {
+        if (!checkPermissionForCameraAndMicrophone()) {
             requestPermissionForCameraAndMicrophone();
         }
+
+        // primaryTitle.setText(roomname);
+        /*
+         * Update encoding parameters
+         */
+        encodingParameters = newEncodingParameters;
+
+        /*
+         * Route audio through cached value.
+         */
+        audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
+
+        /*
+         * Update reconnecting UI
+         */
+        if (room != null) {
+            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ? View.GONE :
+                    View.VISIBLE);
+        }
+
+        if (room == null || room.getState() == Room.State.DISCONNECTED) {
+            connectToRoom(roomname);
+        }
     }
-
-
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case R.id.menu_turn_speaker_on:
-//            case R.id.menu_turn_speaker_off:
-//                boolean expectedSpeakerPhoneState = !audioManager.isSpeakerphoneOn();
-//
-//                audioManager.setSpeakerphoneOn(expectedSpeakerPhoneState);
-//                turnSpeakerOffMenuItem.setVisible(expectedSpeakerPhoneState);
-//                turnSpeakerOnMenuItem.setVisible(!expectedSpeakerPhoneState);
-//                isSpeakerPhoneEnabled = expectedSpeakerPhoneState;
-//            default:
-//                return false;
-//        }
-//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
