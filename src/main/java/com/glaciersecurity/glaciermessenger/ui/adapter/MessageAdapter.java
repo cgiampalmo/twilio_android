@@ -146,7 +146,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 				return DATE_SEPARATOR;
 			} else if (message.getBody().startsWith("You called")
 					|| message.getBody().startsWith("Call received")
-					|| message.getBody().startsWith("Call missed")) { //ALF AM-421
+					|| message.getBody().startsWith("Missed call")) { //ALF AM-421
 				return CALL_STATUS;
 			} else {
 				return STATUS;

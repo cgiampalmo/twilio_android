@@ -295,7 +295,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 		} else if (status == Message.STATUS_CALL_SENT) {
 			separator.body = "You called";
 		} else if (status == Message.STATUS_CALL_MISSED) {
-			separator.body = "Call missed";
+			separator.body = "Missed call";
 		}
 		separator.setTime(System.currentTimeMillis());
 		//if (message.isRead()) { separator.markRead(); }
@@ -721,8 +721,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 						!this.getBody().startsWith("You called") &&
 						!message.getBody().startsWith("Call received") &&
 						!this.getBody().startsWith("Call received") &&
-						!message.getBody().startsWith("Call missed") &&
-						!this.getBody().startsWith("Call missed") && //ALF AM-421
+						!message.getBody().startsWith("Missed call") &&
+						!this.getBody().startsWith("Missed call") && //ALF AM-421
 						!this.bodyIsOnlyEmojis() &&
 						!message.bodyIsOnlyEmojis() &&
 						((this.axolotlFingerprint == null && message.axolotlFingerprint == null) || (this.axolotlFingerprint != null && message.axolotlFingerprint != null && this.axolotlFingerprint.equals(message.getFingerprint()))) && //ALF AM-75 added != nulls
