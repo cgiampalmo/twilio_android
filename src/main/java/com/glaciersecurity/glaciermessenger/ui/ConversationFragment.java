@@ -1815,9 +1815,13 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		builder.setNegativeButton(getString(R.string.cancel), null);
 		DelayedHintHelper.setHint(R.string.conference_address_example, nameBox);
 
+
+		//CMG AM-429
 		builder.setPositiveButton(getString(R.string.invite_contact), (dialog, which) -> {
-		    Intent intent = ChooseContactActivity.create(activity, conversation);
-            intent.putExtra(ChooseContactActivity.EXTRA_GROUP_CHAT_NAME, nameBox.getText().toString().trim());
+			String groupname =nameBox.getText().toString().trim();
+			groupname = groupname.replaceAll(" ","");
+			Intent intent = ChooseContactActivity.create(activity, conversation);
+            intent.putExtra(ChooseContactActivity.EXTRA_GROUP_CHAT_NAME, groupname);
 			startActivityForResult(intent, REQUEST_INVITE_TO_CONVERSATION);
 		});
 		//builder.create().show();
