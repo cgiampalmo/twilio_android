@@ -1575,10 +1575,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		refreshUi();
 	}
 
-//	public void gotoSignUp(View view) {
-//		Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
-//		startActivity(intent);
-//	}
+	//CMG AM-433
+	public void gotoSignUp(View view) {
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		intent.setData(Uri.parse("https://glacier.chat/product#signup"));
+		startActivity(intent);
+	}
 
 	public void forgotPassword(View view) {
 		Intent intent = new Intent(Intent.ACTION_VIEW);

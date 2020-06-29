@@ -145,21 +145,6 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-<!--            <Button-->
-<!--                android:id="@+id/signUp"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:background="@color/transparent"-->
-<!--                android:baselineAligned="true"-->
-<!--                android:onClick="gotoSignUp"-->
-<!--                android:text="Sign Up"-->
-<!--                android:textAlignment="center"-->
-<!--                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"-->
-<!--                android:textColor="@color/accent2"-->
-<!--                android:textStyle="bold" />-->
-
-
-
             <Button
                 android:id="@+id/account_support"
                 android:layout_width="wrap_content"
@@ -172,6 +157,20 @@
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/accent2"
                 android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/signUp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:baselineAligned="true"
+                android:onClick="gotoSignUp"
+                android:text="Create a team"
+                android:textAlignment="center"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                android:textColor="@color/accent2"
+                android:textStyle="bold" />
+
         </LinearLayout>
 
         </LinearLayout>
