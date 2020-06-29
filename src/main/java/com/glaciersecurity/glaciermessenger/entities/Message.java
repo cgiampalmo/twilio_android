@@ -43,6 +43,11 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 	public static final int STATUS_SEND_RECEIVED = 7;
 	public static final int STATUS_SEND_DISPLAYED = 8;
 
+	//ALF AM-421
+	public static final int STATUS_CALL_RECEIVED = 9;
+	public static final int STATUS_CALL_SENT = 10;
+	public static final int STATUS_CALL_MISSED = 11;
+
 	public static final int ENCRYPTION_NONE = 0;
 	public static final int ENCRYPTION_PGP = 1;
 	public static final int ENCRYPTION_OTR = 2;
@@ -278,6 +283,22 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 		separator.body = message.getBody();
 		separator.setTime(message.getTimeSent());
 		if (message.isRead()) { separator.markRead(); }
+		return separator;
+	}
+
+	//ALF AM-421
+	public static Message createCallStatusMessage(Conversation conversation, int status) {
+		final Message separator = new Message(conversation);
+		separator.setType(Message.TYPE_STATUS);
+		if (status == Message.STATUS_CALL_RECEIVED) {
+			separator.body = "Call received";
+		} else if (status == Message.STATUS_CALL_SENT) {
+			separator.body = "You called";
+		} else if (status == Message.STATUS_CALL_MISSED) {
+			separator.body = "Call missed";
+		}
+		separator.setTime(System.currentTimeMillis());
+		//if (message.isRead()) { separator.markRead(); }
 		return separator;
 	}
 
@@ -696,6 +717,12 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 						!message.getBody().endsWith("left the group") && //ALF AM-51
 						!this.getBody().endsWith("added to the group") &&
 						!this.getBody().endsWith("left the group") && //ALF AM-51, AM-75
+						!message.getBody().startsWith("You called") &&
+						!this.getBody().startsWith("You called") &&
+						!message.getBody().startsWith("Call received") &&
+						!this.getBody().startsWith("Call received") &&
+						!message.getBody().startsWith("Call missed") &&
+						!this.getBody().startsWith("Call missed") && //ALF AM-421
 						!this.bodyIsOnlyEmojis() &&
 						!message.bodyIsOnlyEmojis() &&
 						((this.axolotlFingerprint == null && message.axolotlFingerprint == null) || (this.axolotlFingerprint != null && message.axolotlFingerprint != null && this.axolotlFingerprint.equals(message.getFingerprint()))) && //ALF AM-75 added != nulls

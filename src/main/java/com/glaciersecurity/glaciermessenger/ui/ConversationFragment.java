@@ -1712,8 +1712,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		final Account account = conversation.getAccount();
 		TwilioCall call = new TwilioCall(account);
 		call.setReceiver(conversation.getJid().asBareJid().toString());
-		//This might open the UI and that implements the OnTwilioCallCreated
-		//and maybe the callRequest will be initiated there.
 		activity.xmppConnectionService.sendCallRequest(call);
 		Intent callActivity = new Intent(getContext(), CallActivity.class);
 		callActivity.setAction(CallActivity.ACTION_OUTGOING_CALL);
@@ -1721,6 +1719,11 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		callActivity.putExtra("receiver", call.getReceiver());
 		callActivity.putExtra("uuid", conversation.getUuid());
 		startActivity(callActivity);
+
+		//ALF AM-421
+		Message msg = Message.createCallStatusMessage(conversation, Message.STATUS_CALL_SENT);
+		conversation.add(msg);
+		activity.xmppConnectionService.databaseBackend.createMessage(msg);
 	}
 
 	@Override

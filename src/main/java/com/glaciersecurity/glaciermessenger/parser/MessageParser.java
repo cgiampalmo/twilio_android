@@ -342,6 +342,11 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 				}
 				call.setStatus(callElement.getAttribute("callstatus"));
 
+				//ALF AM-421
+				if (call.getStatus().equalsIgnoreCase("cancel") && original.getFrom() != null) {
+					call.setCaller(original.getFrom().asBareJid().toString());
+				}
+
 				mXmppConnectionService.handleCallSetupMessage(account, call);
 				return;
 			}

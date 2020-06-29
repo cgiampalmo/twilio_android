@@ -747,6 +747,14 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 							if (call.getStatus().equalsIgnoreCase("cancel")) {
 								this.getNotificationService().dismissCallNotification();
+
+								//ALF AM-421
+								final Conversation c = findConversationByUuid(uuid);
+								if (currentTwilioCall != null && c != null) {
+									Message msg = Message.createCallStatusMessage(c, Message.STATUS_CALL_MISSED);
+									c.add(msg);
+									databaseBackend.createMessage(msg);
+								}
 							}
 
 							currentTwilioCall = null;
@@ -927,6 +935,16 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 				if (call.getStatus().equalsIgnoreCase("cancel")) {
 					this.getNotificationService().dismissCallNotification();
+
+					//ALF AM-421
+					if (call.getCaller() != null) {
+						Conversation c = find(getConversations(), account, Jid.of(call.getCaller()));
+						if (c != null) {
+							Message msg = Message.createCallStatusMessage(c, Message.STATUS_CALL_MISSED);
+							c.add(msg);
+							databaseBackend.createMessage(msg);
+						}
+					}
 				}
 
 				currentTwilioCall = null;
@@ -4704,6 +4722,14 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					sendBroadcast(intent1);
 					getNotificationService().dismissCallNotification();
 
+					//ALF AM-421
+					Conversation c = find(getConversations(), account, Jid.of(call.getCaller()));
+					if (c != null) {
+						Message msg = Message.createCallStatusMessage(c, Message.STATUS_CALL_RECEIVED);
+						c.add(msg);
+						databaseBackend.createMessage(msg);
+					}
+
 					//open RoomActivity with callToken/info
 					Intent callIntent = new Intent(getApplicationContext(), VideoActivity.class);
 					callIntent.setAction(CallActivity.ACTION_ACCEPTED_CALL);
@@ -4747,7 +4773,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		callidfield.addChild(callidval);
 
 		Log.d(Config.LOGTAG, call.getAccount().getJid().asBareJid() + ": rejecting call from " + call.getCaller());
-		//sendIqPacket(call.getAccount(), request, null);
 
 		//ALF AM-431 handle response
 		sendIqPacket(call.getAccount(), request, new OnIqPacketReceived() {
@@ -4779,6 +4804,14 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 					if (isBusy) {
 						call.setStatus("busy");
+
+						//ALF AM-421
+						Conversation c = find(getConversations(), account, Jid.of(call.getCaller()));
+						if (c != null) {
+							Message msg = Message.createCallStatusMessage(c, Message.STATUS_CALL_MISSED);
+							c.add(msg);
+							databaseBackend.createMessage(msg);
+						}
 					} else {
 						call.setStatus("reject");
 					}

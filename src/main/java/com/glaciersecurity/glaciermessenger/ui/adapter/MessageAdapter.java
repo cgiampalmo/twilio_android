@@ -78,6 +78,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 	private static final int STATUS = 2;
 	private static final int DATE_SEPARATOR = 3;
 	private static final int GROUP_CHANGE = 4; //ALF AM-51
+	private static final int CALL_STATUS = 5; //ALF AM-421
 	private final XmppActivity activity;
 	private final ListSelectionManager listSelectionManager = new ListSelectionManager();
 	private final AudioPlayer audioPlayer;
@@ -131,7 +132,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 
 	@Override
 	public int getViewTypeCount() {
-		return 5; //ALF AM-51 4 to 5
+		return 6; //ALF AM-51 4 to 5, AM-421 5 to 6
 	}
 
 	private int getItemViewType(Message message) {
@@ -143,6 +144,10 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 				return GROUP_CHANGE;
 			} else if (DATE_SEPARATOR_BODY.equals(message.getBody())) {
 				return DATE_SEPARATOR;
+			} else if (message.getBody().startsWith("You called")
+					|| message.getBody().startsWith("Call received")
+					|| message.getBody().startsWith("Call missed")) { //ALF AM-421
+				return CALL_STATUS;
 			} else {
 				return STATUS;
 			}
@@ -611,14 +616,16 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 			viewHolder = new ViewHolder();
 			switch (type) {
 				case GROUP_CHANGE: //ALF AM-51
-					view = activity.getLayoutInflater().inflate(R.layout.message_date_bubble, parent, false);
-					viewHolder.status_message = (TextView) view.findViewById(R.id.message_body);
-					viewHolder.message_box = (LinearLayout) view.findViewById(R.id.message_box);
-					break;
 				case DATE_SEPARATOR:
 					view = activity.getLayoutInflater().inflate(R.layout.message_date_bubble, parent, false);
 					viewHolder.status_message = view.findViewById(R.id.message_body);
 					viewHolder.message_box = view.findViewById(R.id.message_box);
+					break;
+				case CALL_STATUS: //ALF AM-421
+					view = activity.getLayoutInflater().inflate(R.layout.call_status_bubble, parent, false);
+					viewHolder.status_message = view.findViewById(R.id.message_body);
+					viewHolder.message_box = view.findViewById(R.id.message_box);
+					viewHolder.time = view.findViewById(R.id.message_time);
 					break;
 				case SENT:
 					view = activity.getLayoutInflater().inflate(R.layout.message_sent, parent, false);
@@ -671,7 +678,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 
 		boolean darkBackground = type == RECEIVED && (!isInValidSession || mUseGreenBackground) || activity.isDarkTheme();
 
-		if (type == GROUP_CHANGE) { //ALF AM-51
+		if (type == GROUP_CHANGE || type == CALL_STATUS) { //ALF AM-51, AM-421
 			viewHolder.status_message.setText(message.getBody());
 			viewHolder.message_box.setBackgroundResource(activity.isDarkTheme() ? R.drawable.date_bubble_grey : R.drawable.date_bubble_white);
 			return view;

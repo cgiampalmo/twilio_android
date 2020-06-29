@@ -154,6 +154,10 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 			if (message.getBody().endsWith(activity.getString(R.string.added_to_group)) ||
 					message.getBody().endsWith(activity.getString(R.string.left_group))) { //ALF AM-51
 				viewHolder.binding.senderName.setVisibility(View.GONE);
+			} else if (message.getStatus() == Message.STATUS_CALL_RECEIVED ||
+					message.getStatus() == Message.STATUS_CALL_SENT ||
+					message.getStatus() == Message.STATUS_CALL_MISSED) { //ALF AM-421
+				viewHolder.binding.senderName.setVisibility(View.GONE);
 			} else if (message.getStatus() == Message.STATUS_RECEIVED) {
 				if (conversation.getMode() == Conversation.MODE_MULTI) {
 					viewHolder.binding.senderName.setVisibility(View.VISIBLE);
