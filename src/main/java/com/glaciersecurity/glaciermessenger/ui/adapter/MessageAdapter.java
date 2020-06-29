@@ -678,11 +678,17 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 
 		boolean darkBackground = type == RECEIVED && (!isInValidSession || mUseGreenBackground) || activity.isDarkTheme();
 
-		if (type == GROUP_CHANGE || type == CALL_STATUS) { //ALF AM-51, AM-421
+		if (type == GROUP_CHANGE) { //ALF AM-51
 			viewHolder.status_message.setText(message.getBody());
 			viewHolder.message_box.setBackgroundResource(activity.isDarkTheme() ? R.drawable.date_bubble_grey : R.drawable.date_bubble_white);
 			return view;
-		} else if (type == DATE_SEPARATOR) {
+		} else if (type == CALL_STATUS) { //ALF AM-421
+			viewHolder.status_message.setText(message.getBody());
+			viewHolder.message_box.setBackgroundResource(activity.isDarkTheme() ? R.drawable.date_bubble_grey : R.drawable.date_bubble_white);
+			String formattedTime = UIHelper.readableTimeDifferenceFull(getContext(), message.getMergedTimeSent());
+			viewHolder.time.setText(formattedTime);
+			return view;
+		}else if (type == DATE_SEPARATOR) {
 			if (UIHelper.today(message.getTimeSent())) {
 				viewHolder.status_message.setText(R.string.today);
 			} else if (UIHelper.yesterday(message.getTimeSent())) {
