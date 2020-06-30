@@ -4677,6 +4677,12 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		deviceval.setContent(deviceId);
 		receiverdevice.addChild(deviceval);
 
+		final Element migratedfield = x.addChild("field");
+		migratedfield.setAttribute("var", "migrated");
+		Element migratedval = new Element("value");
+		migratedval.setContent("true");
+		migratedfield.addChild(migratedval);
+
 		Log.d(Config.LOGTAG, call.getAccount().getJid().asBareJid() + ": accepting call from " + call.getCaller());
 		sendIqPacket(call.getAccount(), request, new OnIqPacketReceived() {
 			@Override
@@ -4771,6 +4777,12 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		Element callidval = new Element("value");
 		callidval.setContent(Integer.toString(call.getCallId()));
 		callidfield.addChild(callidval);
+
+		final Element migratedfield = x.addChild("field");
+		migratedfield.setAttribute("var", "migrated");
+		Element migratedval = new Element("value");
+		migratedval.setContent("true");
+		migratedfield.addChild(migratedval);
 
 		Log.d(Config.LOGTAG, call.getAccount().getJid().asBareJid() + ": rejecting call from " + call.getCaller());
 

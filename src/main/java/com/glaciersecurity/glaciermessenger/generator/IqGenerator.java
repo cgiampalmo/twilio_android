@@ -439,6 +439,7 @@ public class IqGenerator extends AbstractGenerator {
 		Data data = new Data();
 		data.put("token", token);
 		data.put("android-id", deviceId);
+		data.put("migrated", "true");
 		data.submit();
 		command.addChild(data);
 		return packet;
