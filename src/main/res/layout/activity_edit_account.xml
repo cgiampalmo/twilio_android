@@ -154,9 +154,17 @@
                 android:onClick="gotoSupportPage"
                 android:text="Support"
                 android:textAlignment="center"
+                android:paddingRight="@dimen/spacing_mlarge"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/accent2"
                 android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="@dimen/spacing_mlarge"
+                />
+
 
             <Button
                 android:id="@+id/signUp"
@@ -167,6 +175,7 @@
                 android:onClick="gotoSignUp"
                 android:text="Create a team"
                 android:textAlignment="center"
+                android:paddingLeft="@dimen/spacing_mlarge"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:textColor="@color/accent2"
                 android:textStyle="bold" />

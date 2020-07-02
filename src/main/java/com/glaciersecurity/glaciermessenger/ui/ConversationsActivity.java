@@ -157,11 +157,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	public static final String EXTRA_IS_PRIVATE_MESSAGE = "pm";
 	public static final String EXTRA_DO_NOT_APPEND = "do_not_append";
 
-	private static final int RESULT_PERMISSION_WIZARD = 1;
-
-	private AlertDialog.Builder batteryOpBuilder;
-
-
 	private ConversationFragment conversationFragment;
 
 	private static List<String> VIEW_AND_SHARE_ACTIONS = Arrays.asList(
@@ -192,7 +187,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	private ActivityConversationsBinding binding;
 	private boolean mActivityPaused = true;
 	private AtomicBoolean mRedirectInProcess = new AtomicBoolean(false);
-	private AlertDialog batteryOpDialog;
 
 	private boolean initialConnect = true; //ALF AM-78
 	private ConnectivityReceiver connectivityReceiver; //CMG AM-41
@@ -333,10 +327,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				&& isOptimizingBattery()
 				&& android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M
 				&& getPreferences().getBoolean(getBatteryOptimizationPreferenceKey(), true)) {
-			batteryOpBuilder = new AlertDialog.Builder(this);
-			batteryOpBuilder.setTitle(R.string.battery_optimizations_enabled);
-			batteryOpBuilder.setMessage(R.string.battery_optimizations_enabled_dialog);
-			batteryOpBuilder.setPositiveButton(R.string.next, (dialog, which) -> {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle(R.string.battery_optimizations_enabled);
+			builder.setMessage(R.string.battery_optimizations_enabled_dialog);
+			builder.setPositiveButton(R.string.next, (dialog, which) -> {
 				Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
 				Uri uri = Uri.parse("package:" + getPackageName());
 				intent.setData(uri);
@@ -346,13 +340,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					Toast.makeText(this, R.string.device_does_not_support_battery_op, Toast.LENGTH_SHORT).show();
 				}
 			});
-			batteryOpBuilder.setOnDismissListener(dialog -> setNeverAskForBatteryOptimizationsAgain());
-
-			if (batteryOpDialog == null){
-				batteryOpDialog = batteryOpBuilder.create();
-			}
-			batteryOpDialog.setCanceledOnTouchOutside(false);
-			batteryOpDialog.show();
+			builder.setOnDismissListener(dialog -> setNeverAskForBatteryOptimizationsAgain());
+			final AlertDialog dialog = builder.create();
+			dialog.setCanceledOnTouchOutside(false);
+			dialog.show();
 		}
 	}
 
@@ -580,9 +571,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					generateSignature(data, template);
 				}
 				break;
-			}
-			case RESULT_PERMISSION_WIZARD: {
-				super.onStart();
 			}
 		}
 	}
@@ -1556,20 +1544,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		}
 		mRedirectInProcess.set(false);
 		registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		if (!prefs.getBoolean("firstTime", false)) {
-
-			// mark first time has ran.
-			SharedPreferences.Editor editor = prefs.edit();
-			editor.putBoolean("firstTime", true);
-			editor.commit();
-			Intent permissionsWizard = new Intent(getApplicationContext(), StepperWizard.class);
-			startActivityForResult(permissionsWizard,RESULT_PERMISSION_WIZARD);
-
-		} else {
-			super.onStart();
-		}
-
+		super.onStart();
 	}
 
 	@Override
@@ -1781,9 +1756,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	@Override
 	public void onPause() {
 		this.mActivityPaused = true;
-		if (batteryOpDialog != null && batteryOpDialog.isShowing()){
-			batteryOpDialog.dismiss();
-		}
 		super.onPause();
 	}
 

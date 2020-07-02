@@ -183,6 +183,9 @@
 	<color name="deep_orange_A400">#FF3D00</color>
 	<color name="deep_orange_A700">#DD2C00</color>
 
+
+	<color name="off_white">#E3E3E3</color>
+	<color name="black_accent">#2A2829</color>
 	<color name="blue_grey_50">#ECEFF1</color>
 	<color name="blue_grey_100">#CFD8DC</color>
 	<color name="blue_grey_200">#B0BEC5</color>

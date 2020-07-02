@@ -40,6 +40,9 @@ public class StepperWizard extends AppCompatActivity {
 
     private ViewPager viewPager;
     private MyViewPagerAdapter myViewPagerAdapter;
+    private ImageView image;
+    private TextView title;
+    private TextView description;
     private Button btn_got_it;
     private String title_array[] = {
             "Welcome to Glacier",
@@ -49,7 +52,7 @@ public class StepperWizard extends AppCompatActivity {
     };
 
     private int color_array[] = {
-            R.color.blue_grey_600,
+            R.color.off_white,
             R.color.blue_grey_800,
             R.color.blue_grey_700,
             R.color.blue_grey_900
@@ -62,7 +65,7 @@ public class StepperWizard extends AppCompatActivity {
             "Glacier uses strong cryptography to ensure your conversations stay private. Even we are unable to read you messages.",
     };
     private int about_images_array[] = {
-            R.drawable.step1_glacierlogo,
+            R.drawable.twitter_photo,
             R.drawable.step2_howitworks2,
             R.drawable.step3_foryoureyes2,
             R.drawable.step4_talkopenly2
@@ -73,6 +76,9 @@ public class StepperWizard extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stepper_wizard_color);
+        image = findViewById(R.id.image);
+        title = findViewById(R.id.title);
+        description = findViewById(R.id.description);
 
         initComponent();
 
@@ -127,7 +133,7 @@ public class StepperWizard extends AppCompatActivity {
 
         if (dots.length > 0) {
             dots[current_index].setImageResource(R.drawable.shape_circle);
-            dots[current_index].setColorFilter(getResources().getColor(R.color.orange_400), PorterDuff.Mode.SRC_IN);
+            dots[current_index].setColorFilter(getResources().getColor(R.color.black), PorterDuff.Mode.SRC_IN);
         }
     }
 

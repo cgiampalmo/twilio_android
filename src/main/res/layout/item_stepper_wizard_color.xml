@@ -19,8 +19,7 @@
             android:layout_width="250dp"
             android:layout_height="250dp"
             android:padding="@dimen/spacing_xlarge"
-            android:src="@drawable/splash_logo"
-            android:tint="@android:color/white" />
+            android:src="@drawable/twitter_photo"/>
 
         <TextView
             android:id="@+id/title"
@@ -28,7 +27,7 @@
             android:layout_height="wrap_content"
             android:text="Welcome to Glacier"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@android:color/white"
+            android:textColor="@color/black_accent"
             android:textStyle="bold" />
 
         <TextView
@@ -39,7 +38,7 @@
             android:text="We’re building the world’s most human secure communications company."
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            android:textColor="@color/grey_20" />
-
+            android:textColor="@color/black_accent"
+            android:layout_gravity="center"/>
     </LinearLayout>
 </RelativeLayout>
