@@ -1129,6 +1129,8 @@ public abstract class XmppActivity extends PinActivity {
 					permissionsNeeded.add("Write Storage");
 				if (!addPermission(permissionsList, Manifest.permission.CAMERA))
 					permissionsNeeded.add("Camera");
+			if (!addPermission(permissionsList, Manifest.permission.RECORD_AUDIO))
+				permissionsNeeded.add("Record Audio");
 				if (!addPermission(permissionsList, Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS))
 					permissionsNeeded.add("Ignore Battery Optimizations");
 

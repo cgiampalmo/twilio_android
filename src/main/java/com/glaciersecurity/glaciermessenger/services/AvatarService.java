@@ -160,7 +160,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 
 	private static Bitmap getRoundLauncherIcon(Resources resources) {
 		
-		final Drawable drawable = ResourcesCompat.getDrawable(resources, R.mipmap.glacier_launcher_round,null); //ALF AM-184 changed from ic_launcher
+		final Drawable drawable = ResourcesCompat.getDrawable(resources, R.mipmap.ic_launcher,null); //ALF AM-184 changed from ic_launcher
 		if (drawable == null) {
 			return null;
 		}

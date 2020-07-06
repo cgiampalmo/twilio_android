@@ -183,6 +183,8 @@
 	<color name="deep_orange_A400">#FF3D00</color>
 	<color name="deep_orange_A700">#DD2C00</color>
 
+	<color name="primary_color">#808080</color> <!-- Was 28373e - Try to have a color that renders well on both light & dark theme -->
+
 
 	<color name="off_white">#E3E3E3</color>
 	<color name="black_accent">#2A2829</color>
