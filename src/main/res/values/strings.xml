@@ -46,6 +46,7 @@
     <string name="reject_call">Reject</string>
     <string name="end_call">End</string>
     <string name="accept_call">Accept</string>
+    <string name="select_device">Select device</string> <!-- ALF AM-440 -->
 
     <string name="refreshing_network">Checking for signal</string>
     <string name="profile_picture">Profile picture</string>

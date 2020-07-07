@@ -49,6 +49,8 @@ import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.makeramen.roundedimageview.RoundedImageView;
+import com.twilio.audioswitch.selection.AudioDevice;
+import com.twilio.audioswitch.selection.AudioDeviceSelector;
 import com.twilio.video.AudioCodec;
 import com.twilio.video.Camera2Capturer;
 import com.twilio.video.CameraCapturer;
@@ -81,10 +83,11 @@ import com.twilio.video.VideoView;
 import com.twilio.video.Vp8Codec;
 import com.twilio.video.Vp9Codec;
 
-
-
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+
+import kotlin.Unit; //AM-440
 
 
 public class VideoActivity extends XmppActivity implements SensorEventListener {
@@ -190,7 +193,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
      * Audio management
      */
     private int savedVolumeControlStream;
-    private MenuItem audioDeviceMenuItem;
+    private AudioDeviceSelector audioDeviceSelector; //AM-440 Audio device mgmt
 
     private VideoRenderer localVideoView;
     private boolean disconnectedFromOnDestroy;
@@ -244,6 +247,9 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
         audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
         savedVolumeControlStream = getVolumeControlStream();
         setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
+
+        //AM-440 Setup audio device management
+        audioDeviceSelector = new AudioDeviceSelector(getApplicationContext());
 
         //CMG AM-419
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -513,6 +519,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
             localVideoTrack.release();
             localVideoTrack = null;
         }
+
+        audioDeviceSelector.stop(); //AM-440
 
         super.onDestroy();
     }
@@ -824,6 +832,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
             public void onConnected(Room room) {
                 localParticipant = room.getLocalParticipant();
                 setTitle(room.getName());
+                audioDeviceSelector.activate(); //AM-440
 
                 for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
                     addRemoteParticipant(remoteParticipant);
@@ -849,6 +858,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
             @Override
             public void onConnectFailure(Room room, TwilioException e) {
                 configureAudio(false);
+                audioDeviceSelector.deactivate(); //AM-440
                 intializeUI();
             }
 
@@ -858,6 +868,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                 reconnectingProgressBar.setVisibility(View.GONE);
                 VideoActivity.this.room = null;
                 configureAudio(false);
+                audioDeviceSelector.deactivate(); //AM-440
                 // Only reinitialize the UI if disconnect was not called from onDestroy()
                 if (!disconnectedFromOnDestroy) {
                     intializeUI();
@@ -920,6 +931,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
              */
             previousMicrophoneMute = audioManager.isMicrophoneMute();
             audioManager.setMicrophoneMute(false);
+
+            audioDeviceSelector.start((audioDevices, audioDevice) -> Unit.INSTANCE); //AM-440
         } else {
             audioManager.setMode(previousAudioMode);
             audioManager.abandonAudioFocus(null);
@@ -947,6 +960,57 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
         }
     }
+
+    //AM-440 and next method
+    /*
+     * Show the current available audio devices.
+     */
+    private void showAudioDevices() {
+        AudioDevice selectedDevice = audioDeviceSelector.getSelectedAudioDevice();
+        List<AudioDevice> availableAudioDevices = audioDeviceSelector.getAvailableAudioDevices();
+
+        if (selectedDevice != null) {
+            int selectedDeviceIndex = availableAudioDevices.indexOf(selectedDevice);
+
+            ArrayList<String> audioDeviceNames = new ArrayList<>();
+            for (AudioDevice a : availableAudioDevices) {
+                audioDeviceNames.add(a.getName());
+            }
+
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.select_device)
+                    .setSingleChoiceItems(
+                            audioDeviceNames.toArray(new CharSequence[0]),
+                            selectedDeviceIndex,
+                            (dialog, index) -> {
+                                dialog.dismiss();
+                                AudioDevice selectedAudioDevice = availableAudioDevices.get(index);
+                                updateAudioDeviceIcon(selectedAudioDevice);
+                                audioDeviceSelector.selectDevice(selectedAudioDevice);
+                            }).create().show();
+        }
+    }
+
+    /*
+     * Update the menu icon based on the currently selected audio device.
+     */
+    private void updateAudioDeviceIcon(AudioDevice selectedAudioDevice) {
+        int audioDeviceIcon = R.drawable.ic_phonelink_ring_white_24dp;
+
+        if (selectedAudioDevice instanceof AudioDevice.BluetoothHeadset) {
+            audioDeviceIcon = R.drawable.ic_bluetooth_white_24dp;
+        } else if (selectedAudioDevice instanceof AudioDevice.WiredHeadset) {
+            audioDeviceIcon = R.drawable.ic_headset_mic_white_24dp;
+        } else if (selectedAudioDevice instanceof AudioDevice.Earpiece) {
+            audioDeviceIcon = R.drawable.ic_phonelink_ring_white_24dp;
+        } else if (selectedAudioDevice instanceof AudioDevice.Speakerphone) {
+            audioDeviceIcon = R.drawable.ic_volume_up_white_24dp;
+        }
+
+        speakerPhoneActionFab.setImageDrawable(
+                ContextCompat.getDrawable(VideoActivity.this, audioDeviceIcon));
+    }
+
 
 
     @SuppressLint("SetTextI18n")
@@ -1279,10 +1343,12 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
 
     private View.OnClickListener speakerPhoneClickListener() {
         return v -> {
+            //AM-440
+            showAudioDevices();
             /*
              * Enable/disable the speakerphone
              */
-            if (audioManager != null) {
+            /*if (audioManager != null) {
                 boolean expectedSpeakerPhoneState = !audioManager.isSpeakerphoneOn();
 
                 audioManager.setSpeakerphoneOn(expectedSpeakerPhoneState);
@@ -1300,7 +1366,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                 }
                 speakerPhoneActionFab.setImageDrawable(
                         ContextCompat.getDrawable(VideoActivity.this, icon));
-            }
+            }*/
         };
     }
     private void enableSpeakerPhone(boolean expectedSpeakerPhoneState){

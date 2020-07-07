@@ -4876,6 +4876,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 	//ALF AM-410 end TwilioCall stuff
 
+	
 	public void publishDisplayName(Account account) {
 		String displayName = account.getDisplayName();
 		final IqPacket request;

@@ -164,6 +164,9 @@ dependencies {
     //implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
 
     implementation "com.twilio:video-android:${versions.videoAndroid}"
+    //AM-440
+    implementation 'com.twilio:audioswitch:0.1.5'
+
     implementation "com.koushikdutta.ion:ion:${versions.ion}"
     implementation "com.android.support:appcompat-v7:${versions.supportLibrary}"
     implementation "com.android.support:preference-v14:${versions.supportLibrary}"
