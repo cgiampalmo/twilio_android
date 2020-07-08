@@ -2931,7 +2931,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		// restore accounts from file if exists
 		//I think this ONLY works for single sign on so probably irrelevant for us
 		if (restoreAccountsFromFile() == true) { //ALF AM-388 this indicates getting actual account info
-			showWaitDialog(getString(R.string.wait_dialog_retrieving_account_info));
+			//showWaitDialog(getString(R.string.wait_dialog_retrieving_account_info));
 			autoLoginMessenger();
 		}
 	}

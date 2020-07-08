@@ -966,7 +966,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
             }
 
             new AlertDialog.Builder(this)
-                    .setTitle(R.string.select_device)
+                    .setTitle(R.string.room_screen_select_device)
                     .setSingleChoiceItems(
                             audioDeviceNames.toArray(new CharSequence[0]),
                             selectedDeviceIndex,
@@ -994,6 +994,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
         } else if (selectedAudioDevice instanceof AudioDevice.Speakerphone) {
             audioDeviceIcon = R.drawable.ic_volume_up_white_24dp;
         }
+        speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
+
 
         speakerPhoneActionFab.setImageDrawable(
                 ContextCompat.getDrawable(VideoActivity.this, audioDeviceIcon));
