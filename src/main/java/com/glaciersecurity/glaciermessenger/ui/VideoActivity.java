@@ -244,7 +244,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
          * Setup audio management and set the volume control stream
          */
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
+        //audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
         savedVolumeControlStream = getVolumeControlStream();
         setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
 
@@ -702,18 +702,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
 
         return new EncodingParameters(maxAudioBitrate, maxVideoBitrate);
     }
-
-    /*
-     * Creates an connect UI dialog
-     */
-//    private void showConnectDialog() {
-//        EditText roomEditText = new EditText(this);
-//        connectDialog = Dialog.createConnectDialog(roomEditText,
-//                connectClickListener(roomEditText),
-//                cancelConnectDialogClickListener(),
-//                this);
-//        connectDialog.show();
-//    }
 
     /*
      * Called when remote participant joins the room
@@ -1251,15 +1239,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                 noVideoView.setVisibility(View.VISIBLE);
                 primaryVideoView.setVisibility(View.GONE);
             }
-        };
-    }
-
-    private DialogInterface.OnClickListener connectClickListener(final EditText roomEditText) {
-        return (dialog, which) -> {
-            /*
-             * Connect to room
-             */
-            connectToRoom(roomEditText.getText().toString());
         };
     }
 

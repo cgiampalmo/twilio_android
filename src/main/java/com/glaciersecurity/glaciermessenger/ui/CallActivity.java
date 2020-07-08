@@ -35,7 +35,10 @@ import com.glaciersecurity.glaciermessenger.ui.util.SoundPoolManager;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.PhoneHelper;
+import com.twilio.audioswitch.selection.AudioDevice;
+import com.twilio.audioswitch.selection.AudioDeviceSelector;
 
+import kotlin.Unit;
 import rocks.xmpp.addr.Jid;
 
 //CMG AM-410
@@ -48,12 +51,6 @@ public class CallActivity extends XmppActivity {
 	private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
 
 	private AudioManager audioManager;
-
-
-	private Boolean isAudioMuted = false;
-	private Boolean isVideoMuted = true;
-	private Boolean isSpeakerphoneOn = false;
-	private Boolean isVideoEnabled = false;
 
 	private TextView callState;
 	private TextView contactText;
@@ -68,6 +65,7 @@ public class CallActivity extends XmppActivity {
 	private AppCompatImageButton speakerBtnOff;
 	private ImageView avatar;
 
+	private AudioDeviceSelector audioDeviceSelector; //AM-440
 
 	private TwilioCall currentTwilioCall;
 	private Jid contactJid;
@@ -95,7 +93,13 @@ public class CallActivity extends XmppActivity {
 				| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-		audioManager.setSpeakerphoneOn(isSpeakerphoneOn);
+		//audioManager.setSpeakerphoneOn(isSpeakerphoneOn); //speaker is never true at this point
+
+		//AM-440 Setup audio device management
+		audioDeviceSelector = new AudioDeviceSelector(getApplicationContext());
+		audioDeviceSelector.start((audioDevices, audioDevice) -> Unit.INSTANCE); //AM-440
+		AudioDevice selectedDevice = audioDeviceSelector.getSelectedAudioDevice();
+		Log.d(Config.LOGTAG, "Selected Device: " + selectedDevice.getName());
 
 		registerReceiver(mMessageReceiver, new IntentFilter("callActivityFinish"));
 
@@ -137,34 +141,35 @@ public class CallActivity extends XmppActivity {
 
 		this.audioBtn = findViewById(R.id.audio_image_button);
 		this.audioBtnOff = findViewById(R.id.audio_image_button_off);
-		audioBtnOff.setOnClickListener(v -> {
-			audioManager.setMicrophoneMute(isAudioMuted);
-
+		this.audioBtnOff.setEnabled(false);
+		/*audioBtnOff.setOnClickListener(v -> {
+			audioManager.setMicrophoneMute(true);
 			audioBtn.setVisibility(View.VISIBLE);
 			audioBtnOff.setVisibility(View.GONE);
 
 		});
 		audioBtn.setOnClickListener(v -> {
-			audioManager.setMicrophoneMute(isAudioMuted);
+			audioManager.setMicrophoneMute(false);
 			audioBtnOff.setVisibility(View.VISIBLE);
 			audioBtn.setVisibility(View.GONE);
-		});
+		});*/
 
 
 		// TODO in twilio roomActiviy audio manager is used to manage speaker phone status
 		this.speakerBtn= findViewById(R.id.speaker_button);
 		this.speakerBtnOff= findViewById(R.id.speaker_button_off);
+		this.speakerBtnOff.setEnabled(false);
 
-		speakerBtnOff.setOnClickListener(v -> {
-			audioManager.setSpeakerphoneOn(isSpeakerphoneOn);
+		/*speakerBtnOff.setOnClickListener(v -> {
+			audioManager.setSpeakerphoneOn(true);
 			speakerBtn.setVisibility(View.VISIBLE);
 			speakerBtnOff.setVisibility(View.GONE);
 		});
 		speakerBtn.setOnClickListener(v -> {
-			audioManager.setSpeakerphoneOn(isSpeakerphoneOn);
+			audioManager.setSpeakerphoneOn(false);
 			speakerBtn.setVisibility(View.GONE);
 			speakerBtnOff.setVisibility(View.VISIBLE);
-		});
+		});*/
 
 	}
 
@@ -212,6 +217,8 @@ public class CallActivity extends XmppActivity {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		audioDeviceSelector.deactivate();
+		audioDeviceSelector.stop(); //AM-440
 		handler.removeCallbacksAndMessages(null);
 		unregisterReceiver(mMessageReceiver);
 	}
@@ -237,6 +244,7 @@ public class CallActivity extends XmppActivity {
 	}
 	private void onIncomingCall(){
 		SoundPoolManager.getInstance(CallActivity.this).playRinging();
+		audioDeviceSelector.activate(); //AM-440
 		String incoming = getResources().getString(R.string.incoming_call);
 		callState.setText(incoming);
 		contactText.setText(currentTwilioCall.getCaller());
@@ -253,6 +261,7 @@ public class CallActivity extends XmppActivity {
 
 	private void onOutgoingCall(){
 		SoundPoolManager.getInstance(CallActivity.this).playRinging();
+		audioDeviceSelector.activate(); //AM-440
 		callState.setText(getResources().getString(R.string.outgoing_call));
 		try {
 			contactText.setText(Jid.of(currentTwilioCall.getReceiver()).getEscapedLocal());
