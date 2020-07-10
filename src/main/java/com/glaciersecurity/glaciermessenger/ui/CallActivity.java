@@ -65,7 +65,7 @@ public class CallActivity extends XmppActivity {
 	private AppCompatImageButton speakerBtnOff;
 	private ImageView avatar;
 
-	private AudioDeviceSelector audioDeviceSelector; //AM-440
+	//private AudioDeviceSelector audioDeviceSelector; //AM-440
 
 	private TwilioCall currentTwilioCall;
 	private Jid contactJid;
@@ -96,10 +96,10 @@ public class CallActivity extends XmppActivity {
 		//audioManager.setSpeakerphoneOn(isSpeakerphoneOn); //speaker is never true at this point
 
 		//AM-440 Setup audio device management
-		audioDeviceSelector = new AudioDeviceSelector(getApplicationContext());
-		audioDeviceSelector.start((audioDevices, audioDevice) -> Unit.INSTANCE); //AM-440
-		AudioDevice selectedDevice = audioDeviceSelector.getSelectedAudioDevice();
-		Log.d(Config.LOGTAG, "Selected Device: " + selectedDevice.getName());
+//		audioDeviceSelector = new AudioDeviceSelector(getApplicationContext());
+//		audioDeviceSelector.start((audioDevices, audioDevice) -> Unit.INSTANCE); //AM-440
+//		AudioDevice selectedDevice = audioDeviceSelector.getSelectedAudioDevice();
+//		Log.d(Config.LOGTAG, "Selected Device: " + selectedDevice.getName());
 
 		registerReceiver(mMessageReceiver, new IntentFilter("callActivityFinish"));
 
@@ -217,8 +217,8 @@ public class CallActivity extends XmppActivity {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		audioDeviceSelector.deactivate();
-		audioDeviceSelector.stop(); //AM-440
+//		audioDeviceSelector.deactivate();
+//		audioDeviceSelector.stop(); //AM-440
 		handler.removeCallbacksAndMessages(null);
 		unregisterReceiver(mMessageReceiver);
 	}
@@ -244,7 +244,7 @@ public class CallActivity extends XmppActivity {
 	}
 	private void onIncomingCall(){
 		SoundPoolManager.getInstance(CallActivity.this).playRinging();
-		audioDeviceSelector.activate(); //AM-440
+//		audioDeviceSelector.activate(); //AM-440
 		String incoming = getResources().getString(R.string.incoming_call);
 		callState.setText(incoming);
 		contactText.setText(currentTwilioCall.getCaller());
@@ -261,7 +261,7 @@ public class CallActivity extends XmppActivity {
 
 	private void onOutgoingCall(){
 		SoundPoolManager.getInstance(CallActivity.this).playRinging();
-		audioDeviceSelector.activate(); //AM-440
+//		audioDeviceSelector.activate(); //AM-440
 		callState.setText(getResources().getString(R.string.outgoing_call));
 		try {
 			contactText.setText(Jid.of(currentTwilioCall.getReceiver()).getEscapedLocal());

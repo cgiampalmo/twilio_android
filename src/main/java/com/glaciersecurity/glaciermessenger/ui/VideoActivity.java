@@ -921,6 +921,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
             audioManager.setMicrophoneMute(false);
 
             audioDeviceSelector.start((audioDevices, audioDevice) -> Unit.INSTANCE); //AM-440
+
         } else {
             audioManager.setMode(previousAudioMode);
             audioManager.abandonAudioFocus(null);
