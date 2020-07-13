@@ -988,18 +988,22 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
      * Update the menu icon based on the currently selected audio device.
      */
     private void updateAudioDeviceIcon(AudioDevice selectedAudioDevice) {
-        int audioDeviceIcon = R.drawable.ic_phonelink_ring_white_24dp;
+        int audioDeviceIcon = R.drawable.ic_volume_off_gray_24dp;
+        speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
 
         if (selectedAudioDevice instanceof AudioDevice.BluetoothHeadset) {
+            speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
             audioDeviceIcon = R.drawable.ic_bluetooth_white_24dp;
         } else if (selectedAudioDevice instanceof AudioDevice.WiredHeadset) {
+            speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
             audioDeviceIcon = R.drawable.ic_headset_mic_white_24dp;
         } else if (selectedAudioDevice instanceof AudioDevice.Earpiece) {
-            audioDeviceIcon = R.drawable.ic_phonelink_ring_white_24dp;
+            audioDeviceIcon = R.drawable.ic_volume_off_gray_24dp;
+            speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
         } else if (selectedAudioDevice instanceof AudioDevice.Speakerphone) {
+            speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
             audioDeviceIcon = R.drawable.ic_volume_up_white_24dp;
         }
-        speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
 
 
         speakerPhoneActionFab.setImageDrawable(
@@ -1330,7 +1334,28 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
     private View.OnClickListener speakerPhoneClickListener() {
         return v -> {
             //AM-440
+            List<AudioDevice> availableAudioDevices = audioDeviceSelector.getAvailableAudioDevices();
+            if (availableAudioDevices.size()>2){
             showAudioDevices();
+            }else{
+                boolean expectedSpeakerPhoneState = !audioManager.isSpeakerphoneOn();
+
+                audioManager.setSpeakerphoneOn(expectedSpeakerPhoneState);
+                isSpeakerPhoneEnabled = expectedSpeakerPhoneState;
+
+                int icon;
+                if (expectedSpeakerPhoneState) {
+                    icon = R.drawable.ic_volume_up_white_24dp;
+                    speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
+
+                } else {
+                    icon = R.drawable.ic_volume_off_gray_24dp;
+                    speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+
+                }
+                speakerPhoneActionFab.setImageDrawable(
+                        ContextCompat.getDrawable(VideoActivity.this, icon));
+            }
             /*
              * Enable/disable the speakerphone
              */
