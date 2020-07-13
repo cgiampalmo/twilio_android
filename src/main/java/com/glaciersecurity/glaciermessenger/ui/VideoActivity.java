@@ -371,16 +371,16 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
          */
         audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
 
+        int muteIcon = !audioManager.isMicrophoneMute() ?
+                R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_gray_24dp;
+        if (!audioManager.isMicrophoneMute()){
+            muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
+        } else {
+            muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+        }
+        muteActionFab.setImageDrawable(ContextCompat.getDrawable(
+                VideoActivity.this, muteIcon));
 
-//        int muteIcon = !audioManager.isMicrophoneMute() ?
-//                R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_gray_24dp;
-//        if (!audioManager.isMicrophoneMute()){
-//            muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
-//        } else {
-//            muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
-//        }
-//        muteActionFab.setImageDrawable(ContextCompat.getDrawable(
-//                VideoActivity.this, muteIcon));
 
 
 //        int speakerIcon = isSpeakerPhoneEnabled ?

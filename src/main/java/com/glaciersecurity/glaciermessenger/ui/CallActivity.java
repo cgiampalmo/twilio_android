@@ -298,8 +298,8 @@ public class CallActivity extends XmppActivity {
 										   @NonNull final int[] grantResults) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		for (int i = 0; i < grantResults.length; i++) {
-			if (Manifest.permission.READ_EXTERNAL_STORAGE.equals(permissions[i]) ||
-					Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permissions[i])) {
+			if (Manifest.permission.RECORD_AUDIO.equals(permissions[i]) ||
+					Manifest.permission.CAMERA.equals(permissions[i])) {
 				if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
 					acceptCall();
 				}
