@@ -371,27 +371,29 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
          */
         audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
 
-        int muteIcon = !audioManager.isMicrophoneMute() ?
-                R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_gray_24dp;
-        if (!audioManager.isMicrophoneMute()){
-            muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
-        } else {
-            muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
-        }
-        muteActionFab.setImageDrawable(ContextCompat.getDrawable(
-                VideoActivity.this, muteIcon));
+
+//        int muteIcon = !audioManager.isMicrophoneMute() ?
+//                R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_gray_24dp;
+//        if (!audioManager.isMicrophoneMute()){
+//            muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
+//        } else {
+//            muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+//        }
+//        muteActionFab.setImageDrawable(ContextCompat.getDrawable(
+//                VideoActivity.this, muteIcon));
 
 
-        int speakerIcon = isSpeakerPhoneEnabled ?
-                R.drawable.ic_volume_up_white_24dp : R.drawable.ic_volume_off_gray_24dp;
-        if (isSpeakerPhoneEnabled) {
-            speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
+//        int speakerIcon = isSpeakerPhoneEnabled ?
+//                R.drawable.ic_volume_up_white_24dp : R.drawable.ic_volume_off_gray_24dp;
+//        if (isSpeakerPhoneEnabled) {
+//            speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
+//
+//        } else {
+//            speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+//        }
+//        speakerPhoneActionFab.setImageDrawable(ContextCompat.getDrawable(
+//                VideoActivity.this, speakerIcon));
 
-        } else {
-            speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
-        }
-        speakerPhoneActionFab.setImageDrawable(ContextCompat.getDrawable(
-                VideoActivity.this, speakerIcon));
         sensorManager.registerListener(this, proximity, SensorManager.SENSOR_DELAY_NORMAL);
 
         /*
@@ -821,6 +823,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                 localParticipant = room.getLocalParticipant();
                 setTitle(room.getName());
                 audioDeviceSelector.activate(); //AM-440
+                updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
 
                 for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
                     addRemoteParticipant(remoteParticipant);
@@ -921,6 +924,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
             audioManager.setMicrophoneMute(false);
 
             audioDeviceSelector.start((audioDevices, audioDevice) -> Unit.INSTANCE); //AM-440
+            updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
 
         } else {
             audioManager.setMode(previousAudioMode);
