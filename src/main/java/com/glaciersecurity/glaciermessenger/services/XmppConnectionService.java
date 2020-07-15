@@ -1411,6 +1411,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		} catch (IllegalArgumentException e) {
 			//ignored
 		}
+		SoundPoolManager.getInstance(XmppConnectionService.this).stopRinging();
 		destroyed = false;
 		fileObserver.stopWatching();
 		super.onDestroy();
