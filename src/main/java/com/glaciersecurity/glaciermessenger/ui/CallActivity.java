@@ -217,6 +217,7 @@ public class CallActivity extends XmppActivity {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		SoundPoolManager.getInstance(CallActivity.this).stopRinging();
 //		audioDeviceSelector.deactivate();
 //		audioDeviceSelector.stop(); //AM-440
 		handler.removeCallbacksAndMessages(null);
