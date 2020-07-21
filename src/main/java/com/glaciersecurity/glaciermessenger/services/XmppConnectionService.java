@@ -19,6 +19,8 @@ import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.media.ToneGenerator;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -789,8 +791,11 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								rejectCall(call, true);
 							} else {
 								currentTwilioCall = call;
-								SoundPoolManager.getInstance(XmppConnectionService.this).playRinging(); //ALF AM-446
+								//SoundPoolManager.getInstance(XmppConnectionService.this).playRinging(); //ALF AM-446
 								if (!getNotificationService().pushForCall(call, pushedAccountHash)) {
+									//ALF AM-447
+									SoundPoolManager.getInstance(XmppConnectionService.this).playRinging();
+
 									Intent callIntent = new Intent(getApplicationContext(), CallActivity.class);
 									callIntent.setAction(CallActivity.ACTION_INCOMING_CALL);
 									callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

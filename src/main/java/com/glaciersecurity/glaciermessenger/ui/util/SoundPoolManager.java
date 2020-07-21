@@ -1,10 +1,13 @@
 package com.glaciersecurity.glaciermessenger.ui.util;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.media.AudioManager;
+import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.media.SoundPool;
 import android.media.ToneGenerator;
+import android.net.Uri;
 import android.os.Build;
 
 import com.glaciersecurity.glaciermessenger.R;
@@ -23,6 +26,8 @@ public class SoundPoolManager {
     private int disconnectSoundId;
     private int joingSoundId;
 
+    Ringtone ringtone; //ALF AM-447
+
     private static SoundPoolManager instance;
 
     private SoundPoolManager(Context context) {
@@ -31,6 +36,11 @@ public class SoundPoolManager {
         float actualVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         volume = actualVolume / maxVolume;
+
+        //AM-447
+        Uri soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"+ context.getPackageName() + "/" + R.raw.outgoing_ring);
+        //Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+        ringtone = RingtoneManager.getRingtone(context,soundUri);
 
         // Load the sounds
         int maxStreams = 2; //AM-446
@@ -67,7 +77,9 @@ public class SoundPoolManager {
 
     public void playRinging() {
         if (loaded && !playing) {
-            ringingStreamId = soundPool.play(ringingSoundId, volume, volume, 1, -1, 1f);
+            //ringingStreamId = soundPool.play(ringingSoundId, volume, volume, 1, -1, 1f);
+            ringtone.play(); //AM-447
+
             playing = true;
         } else {
             playingCalled = true;
@@ -77,6 +89,9 @@ public class SoundPoolManager {
     public void stopRinging() {
         if (playing) {
             soundPool.stop(ringingStreamId);
+            if (ringtone != null) { //ALF AM-447
+                ringtone.stop();
+            }
             playing = false;
         }
     }

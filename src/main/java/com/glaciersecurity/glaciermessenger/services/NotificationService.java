@@ -5,6 +5,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationChannelGroup;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -275,12 +276,14 @@ public class NotificationService {
 		mBuilder.setFullScreenIntent(pendingIntent, true); // THIS HERE is the full-screen intent
 		//.setContentIntent(pendingIntent)
 
-		/*Uri callUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+		//Uri callUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
 		try {
-			mBuilder.setSound(callUri);
+			//AM-447
+			Uri soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"+ mXmppConnectionService.getPackageName() + "/" + R.raw.outgoing_ring);
+			mBuilder.setSound(soundUri);
 		} catch (SecurityException e) {
 			Log.d(Config.LOGTAG, "unable to use ringtone");
-		}*/ //ALF AM-446 calls channel already sets sound, this shouldn't be necessary
+		} //ALF AM-446 calls channel already sets sound, this shouldn't be necessary
 
 		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			mBuilder.setCategory(Notification.CATEGORY_CALL);
@@ -1120,8 +1123,9 @@ public class NotificationService {
 				"Calls",
 				NotificationManager.IMPORTANCE_HIGH);
 		callsChannel.setShowBadge(true);
-		Uri callUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-		callsChannel.setSound(callUri, new AudioAttributes.Builder()
+		//Uri callUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE); //AM-447
+		Uri soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"+ mXmppConnectionService.getPackageName() + "/" + R.raw.outgoing_ring);
+		callsChannel.setSound(soundUri, new AudioAttributes.Builder()
 				.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
 				.setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
 				.build());
