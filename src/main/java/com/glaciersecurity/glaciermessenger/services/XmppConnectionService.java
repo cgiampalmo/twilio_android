@@ -789,6 +789,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								rejectCall(call, true);
 							} else {
 								currentTwilioCall = call;
+								SoundPoolManager.getInstance(XmppConnectionService.this).playRinging(); //ALF AM-446
 								if (!getNotificationService().pushForCall(call, pushedAccountHash)) {
 									Intent callIntent = new Intent(getApplicationContext(), CallActivity.class);
 									callIntent.setAction(CallActivity.ACTION_INCOMING_CALL);
@@ -800,6 +801,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 									this.startActivity(callIntent);
 								} else if (this.isInteractive()) {
 									callHandler.postDelayed(() -> {
+										SoundPoolManager.getInstance(XmppConnectionService.this).stopRinging(); //ALF AM-444
 										Log.d(Config.LOGTAG, "XmppConnectionService - Cancelling call after 30 sec");
 										rejectCall(currentTwilioCall, false);
 										currentTwilioCall = null;
@@ -826,7 +828,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					callHandler.removeCallbacksAndMessages(null);
 					break;
 				case ACTION_CANCEL_CALL_REQUEST: //CMG
-					SoundPoolManager.getInstance(XmppConnectionService.this).stopRinging();
 					SoundPoolManager.getInstance(XmppConnectionService.this).playDisconnect();
 					cancelCall(currentTwilioCall);
 					currentTwilioCall = null;
@@ -1412,6 +1413,12 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			//ignored
 		}
 		SoundPoolManager.getInstance(XmppConnectionService.this).stopRinging();
+
+		//ALF AM-444
+		SoundPoolManager.getInstance(XmppConnectionService.this).release();
+		currentTwilioCall = null;
+		callHandler.removeCallbacksAndMessages(null);
+
 		destroyed = false;
 		fileObserver.stopWatching();
 		super.onDestroy();

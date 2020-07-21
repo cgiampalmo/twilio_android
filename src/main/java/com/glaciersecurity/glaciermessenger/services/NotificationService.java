@@ -275,12 +275,12 @@ public class NotificationService {
 		mBuilder.setFullScreenIntent(pendingIntent, true); // THIS HERE is the full-screen intent
 		//.setContentIntent(pendingIntent)
 
-		Uri callUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+		/*Uri callUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
 		try {
 			mBuilder.setSound(callUri);
 		} catch (SecurityException e) {
 			Log.d(Config.LOGTAG, "unable to use ringtone");
-		}
+		}*/ //ALF AM-446 calls channel already sets sound, this shouldn't be necessary
 
 		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			mBuilder.setCategory(Notification.CATEGORY_CALL);

@@ -22,6 +22,7 @@ public class SoundPoolManager {
     private int ringingStreamId;
     private int disconnectSoundId;
     private int joingSoundId;
+
     private static SoundPoolManager instance;
 
     private SoundPoolManager(Context context) {
@@ -32,7 +33,7 @@ public class SoundPoolManager {
         volume = actualVolume / maxVolume;
 
         // Load the sounds
-        int maxStreams = 1;
+        int maxStreams = 2; //AM-446
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             soundPool = new SoundPool.Builder()
                     .setMaxStreams(maxStreams)
@@ -97,6 +98,7 @@ public class SoundPoolManager {
         if (soundPool != null) {
             soundPool.unload(ringingSoundId);
             soundPool.unload(disconnectSoundId);
+            soundPool.unload(joingSoundId);
             soundPool.release();
             soundPool = null;
         }

@@ -195,6 +195,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
     private int savedVolumeControlStream;
     private AudioDeviceSelector audioDeviceSelector; //AM-440 Audio device mgmt
 
+    private AudioFocusRequest focusRequest; //ALF AM-446
+
     private VideoRenderer localVideoView;
     private boolean disconnectedFromOnDestroy;
     private boolean enableAutomaticSubscription;
@@ -514,15 +516,21 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
          * or video is freed.
          */
         if (localAudioTrack != null) {
+            //localAudioTrack.enable(false); //ALF test
             localAudioTrack.release();
             localAudioTrack = null;
         }
         if (localVideoTrack != null) {
+            //localVideoTrack.enable(false); //ALF test
             localVideoTrack.release();
             localVideoTrack = null;
         }
 
         audioDeviceSelector.stop(); //AM-440
+
+        //ALF AM-446
+        setVolumeControlStream(savedVolumeControlStream);
+        audioManager.setMode(previousAudioMode);
 
         super.onDestroy();
     }
@@ -927,26 +935,32 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
             updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
 
         } else {
-            audioManager.setMode(previousAudioMode);
-            audioManager.abandonAudioFocus(null);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { //ALF AM-446
+                audioManager.abandonAudioFocusRequest(focusRequest);
+            } else {
+                audioManager.abandonAudioFocus(null);
+            }
             audioManager.setMicrophoneMute(previousMicrophoneMute);
+            audioManager.setMode(previousAudioMode);
         }
     }
 
     private void requestAudioFocus() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            AudioAttributes playbackAttributes = new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                    .build();
-            AudioFocusRequest focusRequest =
-                    new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
-                            .setAudioAttributes(playbackAttributes)
-                            .setAcceptsDelayedFocusGain(true)
-                            .setOnAudioFocusChangeListener(
-                                    i -> {
-                                    })
-                            .build();
+            if (focusRequest == null) { //ALF AM-446
+                AudioAttributes playbackAttributes = new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                        .build();
+                focusRequest =
+                        new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                                .setAudioAttributes(playbackAttributes)
+                                .setAcceptsDelayedFocusGain(true)
+                                .setOnAudioFocusChangeListener(
+                                        i -> {
+                                        })
+                                .build();
+            }
             audioManager.requestAudioFocus(focusRequest);
         } else {
             audioManager.requestAudioFocus(null, AudioManager.STREAM_VOICE_CALL,

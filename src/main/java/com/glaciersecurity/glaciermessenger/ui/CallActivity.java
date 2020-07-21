@@ -122,7 +122,6 @@ public class CallActivity extends XmppActivity {
 		this.rejectCallBtn= findViewById(R.id.reject_call_button);
 		rejectCallBtn.setOnClickListener(v -> {
 			SoundPoolManager.getInstance(CallActivity.this).stopRinging();
-			SoundPoolManager.getInstance(CallActivity.this).playDisconnect();
 			//needs access to XmppConnectionService
 			final Intent intent = new Intent(this, XmppConnectionService.class);
 			intent.setAction(XmppConnectionService.ACTION_REJECT_CALL_REQUEST);
@@ -133,7 +132,6 @@ public class CallActivity extends XmppActivity {
 		this.endCallBtn= findViewById(R.id.end_call_button);
 		endCallBtn.setOnClickListener(v -> {
 			SoundPoolManager.getInstance(CallActivity.this).stopRinging();
-			SoundPoolManager.getInstance(CallActivity.this).playDisconnect();
 			final Intent intent = new Intent(this, XmppConnectionService.class);
 			intent.setAction(XmppConnectionService.ACTION_CANCEL_CALL_REQUEST);
 			Compatibility.startService(this, intent);
@@ -175,7 +173,6 @@ public class CallActivity extends XmppActivity {
 
 	public void acceptCall(){
 			SoundPoolManager.getInstance(CallActivity.this).stopRinging();
-			SoundPoolManager.getInstance(CallActivity.this).playJoin();
 			//needs access to XmppConnectionService
 			final Intent intent = new Intent(this, XmppConnectionService.class);
 			intent.setAction(XmppConnectionService.ACTION_ACCEPT_CALL_REQUEST);
@@ -244,7 +241,6 @@ public class CallActivity extends XmppActivity {
 	public void refreshUiReal() {
 	}
 	private void onIncomingCall(){
-		SoundPoolManager.getInstance(CallActivity.this).playRinging();
 //		audioDeviceSelector.activate(); //AM-440
 		String incoming = getResources().getString(R.string.incoming_call);
 		callState.setText(incoming);
@@ -253,6 +249,7 @@ public class CallActivity extends XmppActivity {
 		outgoingCallLayout.setVisibility(View.GONE);
 
 		handler.postDelayed(() -> {
+			SoundPoolManager.getInstance(CallActivity.this).stopRinging(); //ALF AM-444
 			Log.d(Config.LOGTAG, "CallActivity - Cancelling call after 30 sec");
 			final Intent intent = new Intent(this, XmppConnectionService.class);
 			intent.setAction(XmppConnectionService.ACTION_REJECT_CALL_REQUEST);
