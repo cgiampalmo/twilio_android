@@ -791,9 +791,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								rejectCall(call, true);
 							} else {
 								currentTwilioCall = call;
-								//SoundPoolManager.getInstance(XmppConnectionService.this).playRinging(); //ALF AM-446
 								if (!getNotificationService().pushForCall(call, pushedAccountHash)) {
-									//ALF AM-447
+									//ALF AM-447, no notification in this case because app is open, so manually play ringtone
 									SoundPoolManager.getInstance(XmppConnectionService.this).playRinging();
 
 									Intent callIntent = new Intent(getApplicationContext(), CallActivity.class);

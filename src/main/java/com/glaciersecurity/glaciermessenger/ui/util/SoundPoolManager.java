@@ -89,7 +89,7 @@ public class SoundPoolManager {
     public void stopRinging() {
         if (playing) {
             soundPool.stop(ringingStreamId);
-            if (ringtone != null) { //ALF AM-447
+            if (ringtone != null) { //ALF AM-447, probably don't need above line anymore
                 ringtone.stop();
             }
             playing = false;

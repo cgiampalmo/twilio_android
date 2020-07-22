@@ -261,7 +261,7 @@ public class NotificationService {
 				PendingIntent.FLAG_UPDATE_CURRENT);
 
 		String ctext = "Call from " + call.getCaller();
-		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, "calls");
+		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, "gcalls");
 		mBuilder.setContentTitle("Incoming Call")
 				.setContentText(ctext)
 				.setContentIntent(pendingIntent)
@@ -275,15 +275,6 @@ public class NotificationService {
 				.setPriority(NotificationCompat.PRIORITY_HIGH);
 		mBuilder.setFullScreenIntent(pendingIntent, true); // THIS HERE is the full-screen intent
 		//.setContentIntent(pendingIntent)
-
-		//Uri callUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-		try {
-			//AM-447
-			Uri soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"+ mXmppConnectionService.getPackageName() + "/" + R.raw.outgoing_ring);
-			mBuilder.setSound(soundUri);
-		} catch (SecurityException e) {
-			Log.d(Config.LOGTAG, "unable to use ringtone");
-		} //ALF AM-446 calls channel already sets sound, this shouldn't be necessary
 
 		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			mBuilder.setCategory(Notification.CATEGORY_CALL);
@@ -1119,16 +1110,17 @@ public class NotificationService {
 
 		//ALF AM-410
 		notificationManager.createNotificationChannelGroup(new NotificationChannelGroup("callgroup", "Calls"));
-		final NotificationChannel callsChannel = new NotificationChannel("calls",
+		final NotificationChannel callsChannel = new NotificationChannel("gcalls",
 				"Calls",
 				NotificationManager.IMPORTANCE_HIGH);
 		callsChannel.setShowBadge(true);
-		//Uri callUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE); //AM-447
-		Uri soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"+ mXmppConnectionService.getPackageName() + "/" + R.raw.outgoing_ring);
-		callsChannel.setSound(soundUri, new AudioAttributes.Builder()
+		//Uri callUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE); //AM-447 
+		Uri callUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"+ mXmppConnectionService.getPackageName() + "/" + R.raw.outgoing_ring);
+		callsChannel.setSound(callUri, new AudioAttributes.Builder()
 				.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
 				.setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
 				.build());
+
 		callsChannel.setLightColor(ContextCompat.getColor(mXmppConnectionService, R.color.light_blue_500));
 		callsChannel.setVibrationPattern(pattern);
 		callsChannel.enableVibration(true);
