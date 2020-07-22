@@ -560,9 +560,11 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                 false,
                 cameraCapturerCompat.getVideoCapturer(),
                 LOCAL_VIDEO_TRACK_NAME);
-        primaryVideoView.setMirror(true);
-        localVideoTrack.addRenderer(primaryVideoView);
-        localVideoView = primaryVideoView;
+        //AM-450 change local from primary to thumbnail
+        localVideoTrack.addRenderer(thumbnailVideoView);
+        localVideoView = thumbnailVideoView;
+        thumbnailVideoView.setMirror(cameraCapturerCompat.getCameraSource() ==
+                CameraSource.FRONT_CAMERA);
     }
 
     private CameraSource getAvailableCameraSource() {
@@ -760,12 +762,13 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
      * Set primary view as renderer for participant video track
      */
     private void addRemoteParticipantVideo(VideoTrack videoTrack) {
-        moveLocalVideoToThumbnailView();
+        //moveLocalVideoToThumbnailView(); //AM-450
         primaryVideoView.setMirror(false);
         videoTrack.addRenderer(primaryVideoView);
     }
 
-    private void moveLocalVideoToThumbnailView() {
+    //AM-450 commented out
+    /*private void moveLocalVideoToThumbnailView() {
         if (thumbnailVideoView.getVisibility() == View.GONE) {
             thumbnailVideoView.setVisibility(View.VISIBLE);
             recreateVideoTrackIfNeeded();
@@ -775,7 +778,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
             thumbnailVideoView.setMirror(cameraCapturerCompat.getCameraSource() ==
                     CameraSource.FRONT_CAMERA);
         }
-    }
+    }*/
 
     /*
      * Called when remote participant leaves the room
@@ -800,14 +803,15 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                 removeParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
             }
         }
-        moveLocalVideoToPrimaryView();
+        //moveLocalVideoToPrimaryView(); //AM-450
     }
 
     private void removeParticipantVideo(VideoTrack videoTrack) {
         videoTrack.removeRenderer(primaryVideoView);
     }
 
-    private void moveLocalVideoToPrimaryView() {
+    //AM-450 commented out for now
+    /*private void moveLocalVideoToPrimaryView() {
         if (thumbnailVideoView.getVisibility() == View.VISIBLE) {
             thumbnailVideoView.setVisibility(View.GONE);
             if (localVideoTrack != null) {
@@ -818,7 +822,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
             primaryVideoView.setMirror(cameraCapturerCompat.getCameraSource() ==
                     CameraSource.FRONT_CAMERA);
         }
-    }
+    }*/
 
     /*
      * Room events listener
@@ -871,7 +875,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                 // Only reinitialize the UI if disconnect was not called from onDestroy()
                 if (!disconnectedFromOnDestroy) {
                     intializeUI();
-                    moveLocalVideoToPrimaryView();
+                    //moveLocalVideoToPrimaryView(); //AM-450
                 }
             }
 
