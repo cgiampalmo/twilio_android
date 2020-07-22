@@ -1114,7 +1114,7 @@ public class NotificationService {
 				"Calls",
 				NotificationManager.IMPORTANCE_HIGH);
 		callsChannel.setShowBadge(true);
-		//Uri callUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE); //AM-447 
+		//Uri callUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE); //AM-447
 		Uri callUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"+ mXmppConnectionService.getPackageName() + "/" + R.raw.outgoing_ring);
 		callsChannel.setSound(callUri, new AudioAttributes.Builder()
 				.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
