@@ -290,6 +290,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 	public static Message createCallStatusMessage(Conversation conversation, int status) {
 		final Message separator = new Message(conversation);
 		separator.setType(Message.TYPE_STATUS);
+		separator.setStatus(status); //AM-439
 		if (status == Message.STATUS_CALL_RECEIVED) {
 			separator.body = "Call received";
 		} else if (status == Message.STATUS_CALL_SENT) {

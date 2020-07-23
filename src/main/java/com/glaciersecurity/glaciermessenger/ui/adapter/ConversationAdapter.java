@@ -158,6 +158,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 					message.getStatus() == Message.STATUS_CALL_SENT ||
 					message.getStatus() == Message.STATUS_CALL_MISSED) { //ALF AM-421
 				viewHolder.binding.senderName.setVisibility(View.GONE);
+				viewHolder.binding.conversationLastmsg.setTypeface(null, Typeface.ITALIC); //AM-439
 			} else if (message.getStatus() == Message.STATUS_RECEIVED) {
 				if (conversation.getMode() == Conversation.MODE_MULTI) {
 					viewHolder.binding.senderName.setVisibility(View.VISIBLE);
