@@ -255,6 +255,11 @@ public class NotificationService {
 		callIntent.putExtra("call_id", call.getCallId());
 		callIntent.putExtra("account", pushedAccountHash);
 
+		//ALF AM-453
+		if (isScreenOn) { //phone unlocked but not in app
+			callIntent.putExtra("ring", true);
+		}
+
 		//callIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		//callIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		PendingIntent pendingIntent = PendingIntent.getActivity(mXmppConnectionService, 6, callIntent,

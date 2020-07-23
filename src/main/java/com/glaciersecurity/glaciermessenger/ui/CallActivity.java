@@ -194,6 +194,12 @@ public class CallActivity extends XmppActivity {
 			call.setCaller(intent.getStringExtra("caller"));
 			call.setStatus(intent.getStringExtra("status"));
 			currentTwilioCall = call;
+
+			//AM-453
+			if (intent.getBooleanExtra("ring", false)) {
+				SoundPoolManager.getInstance(CallActivity.this).playRinging();
+			}
+
 			this.onIncomingCall();
 		} else if (CallActivity.ACTION_OUTGOING_CALL.equals(action)) {
 			TwilioCall call = new TwilioCall(null);
