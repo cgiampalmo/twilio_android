@@ -684,6 +684,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 			return view;
 		} else if (type == CALL_STATUS) { //ALF AM-421
 			viewHolder.status_message.setText(message.getBody());
+			viewHolder.status_message.setTypeface(null, Typeface.ITALIC); //AM-439
 			viewHolder.message_box.setBackgroundResource(activity.isDarkTheme() ? R.drawable.date_bubble_grey : R.drawable.date_bubble_white);
 			String formattedTime = UIHelper.readableTimeDifferenceFull(getContext(), message.getMergedTimeSent());
 			viewHolder.time.setText(formattedTime);
