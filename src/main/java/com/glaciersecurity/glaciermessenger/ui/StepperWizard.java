@@ -52,7 +52,7 @@ public class StepperWizard extends AppCompatActivity {
     };
 
     private int color_array[] = {
-            R.color.off_white,
+            R.color.black_accent,
             R.color.blue_grey_800,
             R.color.blue_grey_700,
             R.color.blue_grey_900
@@ -65,7 +65,7 @@ public class StepperWizard extends AppCompatActivity {
             "Glacier uses strong cryptography to ensure your conversations stay private. Even we are unable to read you messages.",
     };
     private int about_images_array[] = {
-            R.drawable.twitter_photo,
+            R.mipmap.android_icon_white_foreground,
             R.drawable.step2_howitworks2,
             R.drawable.step3_foryoureyes2,
             R.drawable.step4_talkopenly2
@@ -101,7 +101,12 @@ public class StepperWizard extends AppCompatActivity {
         btn_got_it.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showConfirmDialog();
+                if(!hasAllPermissionGranted()){
+                    showConfirmDialog();
+                } else {
+                    Intent intent = new Intent(getApplicationContext(), EditAccountActivity.class);
+                    startActivity(intent);
+                }
 
             }
         });
@@ -109,11 +114,23 @@ public class StepperWizard extends AppCompatActivity {
         ((Button) findViewById(R.id.btn_skip)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showConfirmDialog();
-
+                if(!hasAllPermissionGranted()){
+                    showConfirmDialog();
+                } else {
+                    Intent intent = new Intent(getApplicationContext(), EditAccountActivity.class);
+                    startActivity(intent);
+                }
             }
         });
 
+    }
+    public boolean hasAllPermissionGranted() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+                    checkSelfPermission(Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS) == PackageManager.PERMISSION_GRANTED &&
+                    checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        }
+        return false;
     }
     private void bottomProgressDots(int current_index) {
         LinearLayout dotsLayout = (LinearLayout) findViewById(R.id.layoutDots);
@@ -214,8 +231,8 @@ public class StepperWizard extends AppCompatActivity {
         builder.setNegativeButton(R.string.NOT_NOW, new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                setResult(RESULT_OK);
-                finish();
+                Intent intent = new Intent(getApplicationContext(), EditAccountActivity.class);
+                startActivity(intent);
             }
         });
         builder.show();
@@ -292,8 +309,8 @@ public class StepperWizard extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         // restore accounts from file if exists
         //I think this ONLY works for single sign on so probably irrelevant for us
-        setResult(RESULT_OK);
-        finish();
+        Intent intent = new Intent(getApplicationContext(), EditAccountActivity.class);
+        startActivity(intent);
     }
 
 }

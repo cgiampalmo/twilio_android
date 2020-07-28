@@ -195,10 +195,10 @@
         <activity
             android:name=".ui.ChooseContactActivity"
             android:label="@string/title_activity_choose_contact"/>
-<!--        <activity-->
-<!--            android:name=".ui.StepperWizard"-->
-<!--            android:label="@string/title_activity_permissions_wizard"-->
-<!--            android:screenOrientation="portrait" />-->
+        <activity
+            android:name=".ui.StepperWizard"
+            android:label="@string/title_activity_permissions_wizard"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.BlocklistActivity"
             android:label="@string/title_activity_block_list"/>

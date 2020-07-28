@@ -10,6 +10,7 @@ import com.glaciersecurity.glaciermessenger.ui.ConversationsActivity;
 import com.glaciersecurity.glaciermessenger.ui.EditAccountActivity;
 import com.glaciersecurity.glaciermessenger.ui.ManageAccountActivity;
 import com.glaciersecurity.glaciermessenger.ui.StartConversationActivity;
+import com.glaciersecurity.glaciermessenger.ui.StepperWizard;
 import com.glaciersecurity.glaciermessenger.ui.WelcomeActivity;
 
 public class SignupUtils {
@@ -36,7 +37,9 @@ public class SignupUtils {
                 } else if (Config.MAGIC_CREATE_DOMAIN != null) {
                     intent = getSignUpIntent(activity); } */
                 else {
-                    intent = new Intent(activity, EditAccountActivity.class);
+                    //intent = new Intent(activity, EditAccountActivity.class);
+                    //CMG AM-427
+                    intent = new Intent(activity, StepperWizard.class);
                 }
             } else {
                 //CMG AM-215

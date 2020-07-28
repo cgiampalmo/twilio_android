@@ -471,7 +471,7 @@ public abstract class XmppActivity extends PinActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		askForPermissions(); //CMG AM-120
+		//askForPermissions(); //CMG AM-120
 		setVolumeControlStream(AudioManager.STREAM_NOTIFICATION);
 		metrics = getResources().getDisplayMetrics();
 		ExceptionHelper.init(getApplicationContext());
