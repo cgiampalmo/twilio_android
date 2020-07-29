@@ -2383,7 +2383,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 			} else {
 				closeWaitDialog();
-				showDialogMessage(getString(R.string.signin_fail_title), getString(R.string.login_error_message));
+				//
+				// showDialogMessage(getString(R.string.signin_fail_title), getString(R.string.login_error_message));
 
 				//ALF AM-143 log out of cognito
 				logOut();
