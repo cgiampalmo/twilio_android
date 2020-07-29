@@ -44,10 +44,11 @@ public class StepperWizard extends AppCompatActivity {
     private TextView title;
     private TextView description;
     private Button btn_got_it;
+    private Button btn_next;
     private String title_array[] = {
             "Welcome to Glacier",
             "How it works",
-            "For you eyes only",
+            "For your eyes only",
             "Talk openly"
     };
 
@@ -60,9 +61,9 @@ public class StepperWizard extends AppCompatActivity {
 
     private String description_array[] = {
             "We’re building the world’s most human secure communications company.",
-            "Launch a private, obfuscated, and encrypted communications network to protect your devices and secure your teams most sensitive conversations.",
+            "Launch a private, obfuscated, and encrypted communications network to protect your devices and secure your team's most sensitive conversations.",
             "A secure communications platform built for protecting your team’s messages, calls, devices, and data from outside threats.",
-            "Glacier uses strong cryptography to ensure your conversations stay private. Even we are unable to read you messages.",
+            "Glacier uses strong cryptography to ensure your conversations stay private. Even we are unable to read your messages.",
     };
     private int about_images_array[] = {
             R.mipmap.android_icon_white_foreground,
@@ -89,6 +90,7 @@ public class StepperWizard extends AppCompatActivity {
 
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         btn_got_it = (Button) findViewById(R.id.btn_got_it);
+        btn_next =  (Button) findViewById(R.id.btn_next);
 
         // adding bottom dots
         bottomProgressDots(0);
@@ -111,6 +113,14 @@ public class StepperWizard extends AppCompatActivity {
             }
         });
 
+        btn_next.setVisibility(View.VISIBLE);
+        btn_next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewPager.setCurrentItem(getItem(+1), true);
+            }
+        });
+
         ((Button) findViewById(R.id.btn_skip)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,6 +134,10 @@ public class StepperWizard extends AppCompatActivity {
         });
 
     }
+    private int getItem(int i) {
+        return viewPager.getCurrentItem() + i;
+    }
+
     public boolean hasAllPermissionGranted() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
@@ -162,8 +176,10 @@ public class StepperWizard extends AppCompatActivity {
             bottomProgressDots(position);
             if (position == title_array.length - 1) {
                 btn_got_it.setVisibility(View.VISIBLE);
+                btn_next.setVisibility(View.GONE);
             } else {
                 btn_got_it.setVisibility(View.GONE);
+                btn_next.setVisibility(View.VISIBLE);
             }
         }
 
@@ -205,6 +221,7 @@ public class StepperWizard extends AppCompatActivity {
         public int getCount() {
             return title_array.length;
         }
+
 
         @Override
         public boolean isViewFromObject(View view, Object obj) {

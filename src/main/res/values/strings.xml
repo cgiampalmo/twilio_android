@@ -330,7 +330,7 @@
     <string name="account_already_exists">This account already exists</string>
     <string name="next">Next</string>
     <string name="server_info_session_established">Current session established</string>
-    <string name="skip">Skip</string>
+    <string name="skip">Skip To Login</string>
     <string name="disable_notifications">Disable notifications</string>
     <string name="enable">Enable</string>
     <string name="conference_requires_password">Group chat requires password</string>
