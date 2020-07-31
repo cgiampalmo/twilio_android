@@ -242,7 +242,8 @@ public class StepperWizard extends AppCompatActivity {
         builder.setPositiveButton(R.string.CONTINUE, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                askForPermissions();
+                setContentView(R.layout.activity_stepper_permission_ex);
+
             }
         });
         builder.setNegativeButton(R.string.NOT_NOW, new DialogInterface.OnClickListener(){

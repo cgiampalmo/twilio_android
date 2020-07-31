@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/black_accent"
+    android:fitsSystemWindows="false"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingBottom="?attr/actionBarSize"
+        android:layout_margin="@dimen/fab_margin">
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:padding="@dimen/spacing_large"
+            android:src="@drawable/ic_notification"
+            android:tint="@android:color/white"
+            android:layout_margin="@dimen/fab_margin"/>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Glacier Chat requires the following permissions:"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="@dimen/fab_margin">
+
+         <ImageView
+             android:layout_width="@dimen/spacing_xlarge"
+             android:layout_height="@dimen/spacing_xlarge"
+             app:srcCompat="@drawable/ic_perm_phone_msg_black_24dp"
+             android:layout_margin="@dimen/fab_margin"
+             android:layout_gravity="center"
+            />
+            <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_middle"
+            android:text="Allow Glacier to record audio (Microphone) - Required for voice/video calls and for recording and sending voice memos."
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textColor="@color/grey_20" />
+        </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="@dimen/spacing_xmedium">
+
+        <ImageView
+            android:layout_width="@dimen/spacing_xlarge"
+            android:layout_height="@dimen/spacing_xlarge"
+            app:srcCompat="@drawable/ic_perm_camera_mic_black_24dp"
+            android:layout_margin="@dimen/fab_margin"
+            android:layout_gravity="center"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_middle"
+            android:text="Allow Glacier to take pictures and record video - Required for video calls and for taking pictures or video to send to a contact."
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textColor="@color/grey_20" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="@dimen/spacing_xmedium">
+
+        <ImageView
+            android:layout_width="@dimen/spacing_xlarge"
+            android:layout_height="@dimen/spacing_xlarge"
+            app:srcCompat="@drawable/ic_perm_media_black_24dp"
+            android:layout_margin="@dimen/fab_margin"
+            android:layout_gravity="center"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_middle"
+            android:text="Allow Glacier to access photos, media, and files on your device - Required for selecting an avatar, media, or files to send or upload."
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textColor="@color/grey_20" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="@dimen/spacing_xmedium">
+
+        <ImageView
+            android:layout_width="@dimen/spacing_xlarge"
+            android:layout_height="@dimen/spacing_xlarge"
+            app:srcCompat="@drawable/ic_my_location"
+            android:layout_margin="@dimen/fab_margin"
+            android:layout_gravity="center"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_middle"
+            android:text="Allow Glacier to access this device’s location - Only requested if you choose to send your current location to a contact."
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+
+            android:textColor="@color/grey_20" />
+    </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:layout_marginBottom="?attr/actionBarSize"
+            android:gravity="center"
+            android:orientation="horizontal"
+            >
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+            <Button
+                android:id="@+id/not_now"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/btn_rounded_accent_300"
+                android:text="@string/NOT_NOW"
+                android:textColor="@color/grey_80"
+                android:textStyle="bold"
+                android:layout_weight="1"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/btn_got_it"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/btn_rounded_accent_300"
+                android:text="@string/continue_button_label"
+                android:textColor="@color/grey_80"
+                android:textStyle="bold"
+                android:layout_weight="1"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+
+
+</RelativeLayout>
