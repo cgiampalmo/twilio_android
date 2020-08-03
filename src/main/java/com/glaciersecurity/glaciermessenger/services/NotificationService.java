@@ -84,6 +84,7 @@ public class NotificationService {
 	static final int FOREGROUND_NOTIFICATION_ID = NOTIFICATION_ID_MULTIPLIER * 4;
 	public static final int ERROR_NOTIFICATION_ID = NOTIFICATION_ID_MULTIPLIER * 6;
 	public static final int CALL_NOTIFICATION_ID = 5 * NOTIFICATION_ID; //ALF AM-410
+	public static final int CALL_MISSED_NOTIFICATION_ID = 7 * NOTIFICATION_ID; //ALF AM-468
 
 	private Conversation mOpenConversation;
 	private boolean mIsInForeground;
@@ -288,6 +289,33 @@ public class NotificationService {
 		notify(CALL_NOTIFICATION_ID, mBuilder.build());
 
 		return true;
+	}
+
+	//ALF AM-468
+	public void notifyMissedCall(final Conversation conversation) {
+
+		String ctext = "Missed Call from " + conversation.getName();
+		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, "messages");
+		mBuilder.setContentTitle(conversation.getName())
+				.setContentText(ctext)
+				.setCategory(Notification.CATEGORY_CALL)
+				.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+				.setWhen(System.currentTimeMillis())
+				.setAutoCancel(true)
+				.setShowWhen(true)
+				.setSmallIcon(R.drawable.ic_notification)
+				.setPriority(NotificationCompat.PRIORITY_HIGH);
+
+		if (conversation != null) {
+			mBuilder.setContentIntent(createContentIntent(conversation));
+		}
+		mBuilder.setDeleteIntent(createDeleteIntent(conversation));
+
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			mBuilder.setCategory(Notification.CATEGORY_EVENT);
+		}
+
+		notify(CALL_MISSED_NOTIFICATION_ID, mBuilder.build());
 	}
 
 	void dismissCallNotification() {
