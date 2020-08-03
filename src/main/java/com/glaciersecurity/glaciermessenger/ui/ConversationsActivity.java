@@ -1181,12 +1181,12 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		clearCachedFiles();
 
 		// login screen
-//		Intent editAccount = new Intent(this, EditAccountActivity.class);
-//		startActivity(editAccount);
+		Intent editAccount = new Intent(this, EditAccountActivity.class);
+		startActivity(editAccount);
 
-		// CMG AM-427
-		Intent stepperWizard = new Intent(this, StepperWizard.class);
-		startActivity(stepperWizard);
+//		// CMG AM-427
+//		Intent stepperWizard = new Intent(this, StepperWizard.class);
+//		startActivity(stepperWizard);
 	}
 
 	/**

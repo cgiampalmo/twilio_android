@@ -168,6 +168,14 @@ public class StepperWizard extends AppCompatActivity {
         }
     }
 
+    public void continuePerm(View view) {
+        askForPermissions();
+    }
+
+    public void notNowPerm(View view) {
+        Intent intent = new Intent(getApplicationContext(), EditAccountActivity.class);
+        startActivity(intent);
+    }
     //  viewpager change listener
     ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
 
