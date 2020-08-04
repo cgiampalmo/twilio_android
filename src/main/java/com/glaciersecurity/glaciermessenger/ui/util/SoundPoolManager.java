@@ -26,6 +26,10 @@ public class SoundPoolManager {
     private int disconnectSoundId;
     private int joingSoundId;
 
+    //AM-441
+    private boolean speaker = false;
+    private int audioMode;
+
     Ringtone ringtone; //ALF AM-447
 
     private static SoundPoolManager instance;
@@ -101,12 +105,31 @@ public class SoundPoolManager {
             soundPool.play(disconnectSoundId, volume, volume, 1, 0, 1f);
             playing = false;
         }
+        setSpeakerOn(false); //AM-441
     }
+
     public void playJoin() {
         if (loaded && !playing) {
             soundPool.play(joingSoundId, volume, volume, 1, 0, 1f);
             playing = false;
         }
+    }
+
+    //AM-441 (next four)
+    public void setSpeakerOn(boolean on) {
+        speaker = on;
+    }
+
+    public boolean getSpeakerOn() {
+        return speaker;
+    }
+
+    public void setPreviousAudioMode(int mode) {
+        audioMode = mode;
+    }
+
+    public int getPreviousAudioMode() {
+        return audioMode;
     }
 
     public void release() {

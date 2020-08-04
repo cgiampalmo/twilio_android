@@ -340,7 +340,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
 
             if (cameraAndMicPermissionGranted) {
                 createAudioAndVideoTracks();
-                //setAccessToken();
             } else {
                 Toast.makeText(this,
                         R.string.permissions_needed,
@@ -530,7 +529,11 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
 
         //ALF AM-446
         setVolumeControlStream(savedVolumeControlStream);
-        audioManager.setMode(previousAudioMode);
+        //audioManager.setMode(previousAudioMode);
+
+        //AM-441
+        SoundPoolManager.getInstance(VideoActivity.this).setSpeakerOn(false);
+        audioManager.setMode(SoundPoolManager.getInstance(VideoActivity.this).getPreviousAudioMode());
 
         super.onDestroy();
     }
@@ -572,26 +575,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                 (CameraSource.FRONT_CAMERA) :
                 (CameraSource.BACK_CAMERA);
     }
-
-//    private void setAccessToken() {
-//        if (!BuildConfig.USE_TOKEN_SERVER) {
-//            /*
-//             * OPTION 1 - Generate an access token from the getting started portal
-//             * https://www.twilio.com/console/video/dev-tools/testing-tools and add
-//             * the variable TWILIO_ACCESS_TOKEN setting it equal to the access token
-//             * string in your local.properties file.
-//             */
-//            this.accessToken = TWILIO_ACCESS_TOKEN;
-//        } else {
-//            /*
-//             * OPTION 2 - Retrieve an access token from your own web app.
-//             * Add the variable ACCESS_TOKEN_SERVER assigning it to the url of your
-//             * token server and the variable USE_TOKEN_SERVER=true to your
-//             * local.properties file.
-//             */
-//            retrieveAccessTokenfromServer();
-//        }
-//    }
 
     private void connectToRoom(String roomName) {
         configureAudio(true);
@@ -936,8 +919,18 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
             audioManager.setMicrophoneMute(false);
 
             audioDeviceSelector.start((audioDevices, audioDevice) -> Unit.INSTANCE); //AM-440
-            updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
 
+            //AM-441
+            if (SoundPoolManager.getInstance(VideoActivity.this).getSpeakerOn()) {
+                List<AudioDevice> availableAudioDevices = audioDeviceSelector.getAvailableAudioDevices();
+                for (AudioDevice a : availableAudioDevices) {
+                    if (a instanceof AudioDevice.Speakerphone) {
+                        audioDeviceSelector.selectDevice(a);
+                    }
+                }
+            }
+
+            updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { //ALF AM-446
                 audioManager.abandonAudioFocusRequest(focusRequest);
@@ -1446,22 +1439,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
             }
         };
     }
-
-//    private void retrieveAccessTokenfromServer() {
-//        Ion.with(this)
-//                .load(String.format("%s?identity=%s", ACCESS_TOKEN_SERVER,
-//                        UUID.randomUUID().toString()))
-//                .asString()
-//                .setCallback((e, token) -> {
-//                    if (e == null) {
-//                        VideoActivity.this.accessToken = token;
-//                    } else {
-//                        Toast.makeText(VideoActivity.this,
-//                                R.string.error_retrieving_access_token, Toast.LENGTH_LONG)
-//                                .show();
-//                    }
-//                });
-//    }
 
     @Override
     protected void onBackendConnected() {

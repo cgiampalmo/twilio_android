@@ -298,7 +298,7 @@ public class NotificationService {
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, "messages");
 		mBuilder.setContentTitle(conversation.getName())
 				.setContentText(ctext)
-				.setCategory(Notification.CATEGORY_CALL)
+				.setCategory(Notification.CATEGORY_MESSAGE)
 				.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 				.setWhen(System.currentTimeMillis())
 				.setAutoCancel(true)
@@ -310,10 +310,6 @@ public class NotificationService {
 			mBuilder.setContentIntent(createContentIntent(conversation));
 		}
 		mBuilder.setDeleteIntent(createDeleteIntent(conversation));
-
-		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			mBuilder.setCategory(Notification.CATEGORY_EVENT);
-		}
 
 		notify(CALL_MISSED_NOTIFICATION_ID, mBuilder.build());
 	}
