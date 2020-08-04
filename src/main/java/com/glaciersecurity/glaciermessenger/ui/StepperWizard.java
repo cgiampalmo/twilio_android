@@ -104,7 +104,7 @@ public class StepperWizard extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(!hasAllPermissionGranted()){
-                    showConfirmDialog();
+                    setContentView(R.layout.activity_stepper_permission_ex);
                 } else {
                     Intent intent = new Intent(getApplicationContext(), EditAccountActivity.class);
                     startActivity(intent);
@@ -125,7 +125,7 @@ public class StepperWizard extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(!hasAllPermissionGranted()){
-                    showConfirmDialog();
+                    setContentView(R.layout.activity_stepper_permission_ex);
                 } else {
                     Intent intent = new Intent(getApplicationContext(), EditAccountActivity.class);
                     startActivity(intent);
@@ -172,10 +172,7 @@ public class StepperWizard extends AppCompatActivity {
         askForPermissions();
     }
 
-    public void notNowPerm(View view) {
-        Intent intent = new Intent(getApplicationContext(), EditAccountActivity.class);
-        startActivity(intent);
-    }
+
     //  viewpager change listener
     ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
 
@@ -244,27 +241,6 @@ public class StepperWizard extends AppCompatActivity {
         }
     }
 
-    private void showConfirmDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(R.string.permission_need_req);
-        builder.setPositiveButton(R.string.CONTINUE, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                setContentView(R.layout.activity_stepper_permission_ex);
-
-            }
-        });
-        builder.setNegativeButton(R.string.NOT_NOW, new DialogInterface.OnClickListener(){
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Intent intent = new Intent(getApplicationContext(), EditAccountActivity.class);
-                startActivity(intent);
-            }
-        });
-        builder.show();
-    }
-
-
 
     /**
      * GOOBER PERMISSIONS - Ask for permissions
@@ -280,10 +256,12 @@ public class StepperWizard extends AppCompatActivity {
             final List<String> permissionsList = new ArrayList<String>();
             // GOOBER - added WRITE_EXTERNAL_STORAGE permission ahead of time so that it doesn't ask
             // when time comes which inevitably fails at that point.
-            if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
-                permissionsNeeded.add("Write Storage");
+            if (!addPermission(permissionsList, Manifest.permission.RECORD_AUDIO))
+                permissionsNeeded.add("RECORD_AUDIO");
             if (!addPermission(permissionsList, Manifest.permission.CAMERA))
                 permissionsNeeded.add("Camera");
+            if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+                permissionsNeeded.add("Write Storage");
             if (!addPermission(permissionsList, Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS))
                 permissionsNeeded.add("Ignore Battery Optimizations");
             if (permissionsList.size() > 0) {
