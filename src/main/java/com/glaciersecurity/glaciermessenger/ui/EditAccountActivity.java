@@ -791,6 +791,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	@Override
+	public void onResume() {
+		super.onResume();
+
+	}
+	@Override
 	protected void onStart() {
 		super.onStart();
 		final Intent intent = getIntent();
@@ -2383,7 +2388,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 			} else {
 				closeWaitDialog();
-
 				//ALF AM-143 log out of cognito
 				logOut();
 			}
