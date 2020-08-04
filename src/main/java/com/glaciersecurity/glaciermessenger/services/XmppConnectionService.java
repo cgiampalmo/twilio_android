@@ -754,6 +754,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								final Conversation c = findConversationByUuid(uuid);
 								if (currentTwilioCall != null && c != null) {
 									Message msg = Message.createCallStatusMessage(c, Message.STATUS_CALL_MISSED);
+									getNotificationService().notifyMissedCall(c); //ALF AM-468
 									c.add(msg);
 									databaseBackend.createMessage(msg);
 								}
@@ -946,6 +947,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						Conversation c = find(getConversations(), account, Jid.of(call.getCaller()));
 						if (c != null) {
 							Message msg = Message.createCallStatusMessage(c, Message.STATUS_CALL_MISSED);
+							getNotificationService().notifyMissedCall(c); //ALF AM-468
 							c.add(msg);
 							databaseBackend.createMessage(msg);
 						}
@@ -4833,6 +4835,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						Conversation c = find(getConversations(), account, Jid.of(call.getCaller()));
 						if (c != null) {
 							Message msg = Message.createCallStatusMessage(c, Message.STATUS_CALL_MISSED);
+							getNotificationService().notifyMissedCall(c); //ALF AM-468
 							c.add(msg);
 							databaseBackend.createMessage(msg);
 						}
