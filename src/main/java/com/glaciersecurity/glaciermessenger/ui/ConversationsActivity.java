@@ -1185,8 +1185,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		startActivity(editAccount);
 
 //		// CMG AM-427
-//		Intent stepperWizard = new Intent(this, StepperWizard.class);
-//		startActivity(stepperWizard);
+		Intent stepperWizard = new Intent(this, StepperWizard.class);
+		startActivity(stepperWizard);
 	}
 
 	/**

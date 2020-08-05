@@ -791,11 +791,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-
-	}
-	@Override
 	protected void onStart() {
 		super.onStart();
 		final Intent intent = getIntent();
