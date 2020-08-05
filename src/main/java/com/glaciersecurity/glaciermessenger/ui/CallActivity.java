@@ -146,6 +146,9 @@ public class CallActivity extends XmppActivity {
 		this.audioBtn = findViewById(R.id.audio_image_button);
 		this.audioBtnOff = findViewById(R.id.audio_image_button_off);
 		this.audioBtnOff.setEnabled(false);
+		this.audioBtnOff.setClickable(false);
+		this.audioBtn.setClickable(false);
+
 		/*audioBtnOff.setOnClickListener(v -> {
 			audioManager.setMicrophoneMute(true);
 			audioBtn.setVisibility(View.VISIBLE);
