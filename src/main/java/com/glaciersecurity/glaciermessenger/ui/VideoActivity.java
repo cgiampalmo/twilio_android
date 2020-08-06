@@ -167,7 +167,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
     private FloatingActionButton speakerPhoneActionFab;
     private RelativeLayout callBar;
 
-    private ProgressBar reconnectingProgressBar;
+    private LinearLayout reconnectingProgressBar;
     private LinearLayout noVideoView;
     private RoundedImageView avatar;
     private AlertDialog connectDialog;
@@ -208,7 +208,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
 
         primaryVideoView = findViewById(R.id.primary_video_view);
         thumbnailVideoView = findViewById(R.id.thumbnail_video_view);
-        reconnectingProgressBar = findViewById(R.id.reconnecting_progress_bar);
+        reconnectingProgressBar = findViewById(R.id.reconnecting_progress_bar_layout);
         noVideoView = findViewById(R.id.no_video_view);
         avatar = findViewById(R.id.no_video_view_avatar);
         avatar.setImageResource(R.drawable.avatar_default);
@@ -323,6 +323,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
         }
 
         if (room == null || room.getState() == Room.State.DISCONNECTED) {
+            reconnectingProgressBar.setVisibility(View.VISIBLE);
             connectToRoom(roomname);
         }
     }
@@ -819,6 +820,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                 setTitle(room.getName());
                 audioDeviceSelector.activate(); //AM-440
                 updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
+                reconnectingProgressBar.setVisibility(View.GONE);
+
 
                 for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
                     addRemoteParticipant(remoteParticipant);
