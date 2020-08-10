@@ -154,7 +154,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	public static final int ATTACHMENT_CHOICE_INVALID = 0x0306;
 	public static final int ATTACHMENT_CHOICE_RECORD_VIDEO = 0x0307;
 
-	private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
+	private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 0x0308;
 
 
 	public static final String RECENTLY_USED_QUICK_ACTION = "recently_used_quick_action";

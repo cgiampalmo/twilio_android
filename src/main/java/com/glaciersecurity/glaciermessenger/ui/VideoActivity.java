@@ -620,6 +620,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
         connectOptionsBuilder.enableAutomaticSubscription(enableAutomaticSubscription);
 
         room = Video.connect(this, connectOptionsBuilder.build(), roomListener());
+        reconnectingProgressBar.setVisibility(View.GONE);
     }
 
     /*
@@ -868,6 +869,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
             @Override
             public void onParticipantConnected(Room room, RemoteParticipant remoteParticipant) {
                 addRemoteParticipant(remoteParticipant);
+                reconnectingProgressBar.setVisibility(View.GONE);
 
             }
 
@@ -877,7 +879,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                 room.disconnect();
                 //CMG disconnect when remote leaves
                 localParticipant = null;
-                //  reconnectingProgressBar.setVisibility(View.GONE);
+              //  reconnectingProgressBar.setVisibility(View.GONE);
                 VideoActivity.this.room = null;
                 handleDisconnect(); //ALF AM-420
                 finish();
@@ -1362,6 +1364,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                 if (expectedSpeakerPhoneState) {
                     icon = R.drawable.ic_volume_up_white_24dp;
                     speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
+
 
                 } else {
                     icon = R.drawable.ic_volume_off_gray_24dp;

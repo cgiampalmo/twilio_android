@@ -41,6 +41,8 @@ import com.twilio.audioswitch.selection.AudioDeviceSelector;
 import kotlin.Unit;
 import rocks.xmpp.addr.Jid;
 
+import static com.glaciersecurity.glaciermessenger.utils.PermissionUtils.allGranted;
+
 //CMG AM-410
 public class CallActivity extends XmppActivity {
 
@@ -115,17 +117,7 @@ public class CallActivity extends XmppActivity {
 		});
 		this.rejectCallBtn= findViewById(R.id.reject_call_button);
 		rejectCallBtn.setOnClickListener(v -> {
-			SoundPoolManager.getInstance(CallActivity.this).stopRinging();
-
-			//AM-441
-			SoundPoolManager.getInstance(CallActivity.this).setSpeakerOn(false);
-			//audioManager.setSpeakerphoneOn(false);
-			//audioManager.setMode(SoundPoolManager.getInstance(CallActivity.this).getPreviousAudioMode());
-
-			//needs access to XmppConnectionService
-			final Intent intent = new Intent(this, XmppConnectionService.class);
-			intent.setAction(XmppConnectionService.ACTION_REJECT_CALL_REQUEST);
-			Compatibility.startService(this, intent);
+			endCall();
 		});
 
 
@@ -181,6 +173,20 @@ public class CallActivity extends XmppActivity {
 			speakerBtnOff.setVisibility(View.VISIBLE);
 		});
 
+	}
+
+	public void endCall(){
+		SoundPoolManager.getInstance(CallActivity.this).stopRinging();
+
+		//AM-441
+		SoundPoolManager.getInstance(CallActivity.this).setSpeakerOn(false);
+		//audioManager.setSpeakerphoneOn(false);
+		//audioManager.setMode(SoundPoolManager.getInstance(CallActivity.this).getPreviousAudioMode());
+
+		//needs access to XmppConnectionService
+		final Intent intent = new Intent(this, XmppConnectionService.class);
+		intent.setAction(XmppConnectionService.ACTION_REJECT_CALL_REQUEST);
+		Compatibility.startService(this, intent);
 	}
 
 	public void acceptCall(){
@@ -313,12 +319,12 @@ public class CallActivity extends XmppActivity {
 										   @NonNull final String[] permissions,
 										   @NonNull final int[] grantResults) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		for (int i = 0; i < grantResults.length; i++) {
-			if (Manifest.permission.RECORD_AUDIO.equals(permissions[i]) ||
-					Manifest.permission.CAMERA.equals(permissions[i])) {
-				if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-					acceptCall();
+		if (grantResults.length > 0) {
+			if (allGranted(grantResults)) {
+				acceptCall();
 				}
+			 else {
+				endCall();
 			}
 		}
 	}
