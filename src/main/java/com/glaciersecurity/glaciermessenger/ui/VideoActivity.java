@@ -167,7 +167,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
     private FloatingActionButton speakerPhoneActionFab;
     private RelativeLayout callBar;
 
-    private ProgressBar reconnectingProgressBar;
+    private LinearLayout reconnectingProgressBar;
     private LinearLayout noVideoView;
     private RoundedImageView avatar;
     private AlertDialog connectDialog;
@@ -208,7 +208,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
 
         primaryVideoView = findViewById(R.id.primary_video_view);
         thumbnailVideoView = findViewById(R.id.thumbnail_video_view);
-        reconnectingProgressBar = findViewById(R.id.reconnecting_progress_bar);
+        reconnectingProgressBar = findViewById(R.id.reconnecting_progress_bar_layout);
         noVideoView = findViewById(R.id.no_video_view);
         avatar = findViewById(R.id.no_video_view_avatar);
         avatar.setImageResource(R.drawable.avatar_default);
@@ -323,6 +323,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
         }
 
         if (room == null || room.getState() == Room.State.DISCONNECTED) {
+            reconnectingProgressBar.setVisibility(View.VISIBLE);
             connectToRoom(roomname);
         }
     }
@@ -819,6 +820,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                 setTitle(room.getName());
                 audioDeviceSelector.activate(); //AM-440
                 updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
+                reconnectingProgressBar.setVisibility(View.GONE);
+
 
                 for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
                     addRemoteParticipant(remoteParticipant);
@@ -1323,6 +1326,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
                     icon = R.drawable.ic_videocam_white_24dp;
                     localVideoActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
                     switchCameraActionFab.show();
+
                     enableSpeakerPhone(true);
                     recreateVideoTrackIfNeeded();
                     isVideoMuted = false;
@@ -1393,22 +1397,25 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
     }
     private void enableSpeakerPhone(boolean expectedSpeakerPhoneState){
         if (audioManager != null) {
-
-            audioManager.setSpeakerphoneOn(expectedSpeakerPhoneState);
-            isSpeakerPhoneEnabled = expectedSpeakerPhoneState;
-
-            int icon;
-            if (expectedSpeakerPhoneState) {
-                icon = R.drawable.ic_volume_up_white_24dp;
-                speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
-
+            //CMG AM-463
+            if (audioDeviceSelector.getSelectedAudioDevice()  instanceof AudioDevice.BluetoothHeadset) {
             } else {
-                icon = R.drawable.ic_volume_off_gray_24dp;
-                speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+                audioManager.setSpeakerphoneOn(expectedSpeakerPhoneState);
+                isSpeakerPhoneEnabled = expectedSpeakerPhoneState;
 
+                int icon;
+                if (expectedSpeakerPhoneState) {
+                    icon = R.drawable.ic_volume_up_white_24dp;
+                    speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
+
+                } else {
+                    icon = R.drawable.ic_volume_off_gray_24dp;
+                    speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+
+                }
+                speakerPhoneActionFab.setImageDrawable(
+                        ContextCompat.getDrawable(VideoActivity.this, icon));
             }
-            speakerPhoneActionFab.setImageDrawable(
-                    ContextCompat.getDrawable(VideoActivity.this, icon));
         }
 
     }

@@ -146,6 +146,9 @@ public class CallActivity extends XmppActivity {
 		this.audioBtn = findViewById(R.id.audio_image_button);
 		this.audioBtnOff = findViewById(R.id.audio_image_button_off);
 		this.audioBtnOff.setEnabled(false);
+		this.audioBtnOff.setClickable(false);
+		this.audioBtn.setClickable(false);
+
 		/*audioBtnOff.setOnClickListener(v -> {
 			audioManager.setMicrophoneMute(true);
 			audioBtn.setVisibility(View.VISIBLE);
@@ -330,18 +333,19 @@ public class CallActivity extends XmppActivity {
 	}
 
 	private void requestPermissionForCameraAndMicrophone() {
-		if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA) ||
-				ActivityCompat.shouldShowRequestPermissionRationale(this,
-						Manifest.permission.RECORD_AUDIO)) {
-			Toast.makeText(this,
-					R.string.permissions_needed,
-					Toast.LENGTH_LONG).show();
-		} else {
+//		if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA) ||
+//				ActivityCompat.shouldShowRequestPermissionRationale(this,
+//						Manifest.permission.RECORD_AUDIO)) {
+//			Toast.makeText(this,
+//					R.string.permissions_needed,
+//					Toast.LENGTH_LONG).show();
+//		} else {
+		//CMG AM-471
 			ActivityCompat.requestPermissions(
 					this,
 					new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
 					CAMERA_MIC_PERMISSION_REQUEST_CODE);
-		}
+	//	}
 	}
 
 
