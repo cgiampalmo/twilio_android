@@ -751,7 +751,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								this.getNotificationService().dismissCallNotification();
 
 								//ALF AM-421
-								final Conversation c = findConversationByUuid(uuid);
+								//final Conversation c = findConversationByUuid(uuid); // DJF DJF AM-438
+								final Conversation c = findOrCreateConversation(acct, Jid.of(call.getCaller()), false, true);
 								if (currentTwilioCall != null && c != null) {
 									Message msg = Message.createCallStatusMessage(c, Message.STATUS_CALL_MISSED);
 									getNotificationService().notifyMissedCall(c); //ALF AM-468
@@ -944,7 +945,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 					//ALF AM-421
 					if (call.getCaller() != null) {
-						Conversation c = find(getConversations(), account, Jid.of(call.getCaller()));
+						//Conversation c = find(getConversations(), account, Jid.of(call.getCaller())); //DJF DJF AM-438
+						Conversation c = findOrCreateConversation(account, Jid.of(call.getCaller()), false, true);
 						if (c != null) {
 							Message msg = Message.createCallStatusMessage(c, Message.STATUS_CALL_MISSED);
 							getNotificationService().notifyMissedCall(c); //ALF AM-468
@@ -4743,7 +4745,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					getNotificationService().dismissCallNotification();
 
 					//ALF AM-421
-					Conversation c = find(getConversations(), account, Jid.of(call.getCaller()));
+					//Conversation c = find(getConversations(), account, Jid.of(call.getCaller())); //DJF DJF AM-438
+					Conversation c = findOrCreateConversation(account, Jid.of(call.getCaller()), false, true);
 					if (c != null) {
 						Message msg = Message.createCallStatusMessage(c, Message.STATUS_CALL_RECEIVED);
 						c.add(msg);
@@ -4832,7 +4835,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						call.setStatus("busy");
 
 						//ALF AM-421
-						Conversation c = find(getConversations(), account, Jid.of(call.getCaller()));
+						//Conversation c = find(getConversations(), account, Jid.of(call.getCaller())); //DJF DJF AM-438
+						Conversation c = findOrCreateConversation(account, Jid.of(call.getCaller()), false, true);
 						if (c != null) {
 							Message msg = Message.createCallStatusMessage(c, Message.STATUS_CALL_MISSED);
 							getNotificationService().notifyMissedCall(c); //ALF AM-468
