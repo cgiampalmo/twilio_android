@@ -30,6 +30,7 @@ import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
+import com.glaciersecurity.glaciermessenger.services.PhonecallReceiver;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.ui.util.SoundPoolManager;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
@@ -42,13 +43,14 @@ import kotlin.Unit;
 import rocks.xmpp.addr.Jid;
 
 //CMG AM-410
-public class CallActivity extends XmppActivity {
+public class CallActivity extends XmppActivity implements PhonecallReceiver.PhonecallReceiverListener{
 
 	public static final String ACTION_INCOMING_CALL = "incoming_call";
 	public static final String ACTION_OUTGOING_CALL = "outgoing_code";
 	public static final String ACTION_ACCEPTED_CALL = "call_accepted";
 
 	private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
+	public static final int MY_PERMISSIONS_REQUEST_READ_PHONE_STATE = 0; //AM-474
 
 	private AudioManager audioManager;
 
@@ -70,6 +72,8 @@ public class CallActivity extends XmppActivity {
 	private String conversationUuid;
 	private Handler handler = new Handler();
 
+	private PhonecallReceiver phonecallReceiver; //ALF AM-474
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +89,17 @@ public class CallActivity extends XmppActivity {
 			this.setTurnScreenOn(true);
 			this.setShowWhenLocked(true);
 		}
+
+		//ALF AM-474
+		if (ContextCompat.checkSelfPermission(CallActivity.this,
+				Manifest.permission.READ_PHONE_STATE)
+				!= PackageManager.PERMISSION_GRANTED) {
+			// We do not have this permission. Let's ask the user
+			ActivityCompat.requestPermissions(CallActivity.this,
+					new String[]{Manifest.permission.READ_PHONE_STATE},
+					MY_PERMISSIONS_REQUEST_READ_PHONE_STATE);
+		}
+		phonecallReceiver = new PhonecallReceiver(this);
 
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
 				| WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
@@ -223,6 +238,8 @@ public class CallActivity extends XmppActivity {
 			currentTwilioCall = call;
 			this.onOutgoingCall();
 		}
+
+		registerReceiver(phonecallReceiver, new IntentFilter("android.intent.action.PHONE_STATE")); //ALF AM-474
 	}
 
 	private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -239,6 +256,7 @@ public class CallActivity extends XmppActivity {
 		SoundPoolManager.getInstance(CallActivity.this).stopRinging();
 		handler.removeCallbacksAndMessages(null);
 		unregisterReceiver(mMessageReceiver);
+		unregisterReceiver(phonecallReceiver); //ALF AM-474
 	}
 
 	@Override
@@ -313,6 +331,13 @@ public class CallActivity extends XmppActivity {
 										   @NonNull final String[] permissions,
 										   @NonNull final int[] grantResults) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+		//ALF AM-474
+		if (requestCode == MY_PERMISSIONS_REQUEST_READ_PHONE_STATE) {
+			// do nothing
+			return;
+		}
+
 		for (int i = 0; i < grantResults.length; i++) {
 			if (Manifest.permission.RECORD_AUDIO.equals(permissions[i]) ||
 					Manifest.permission.CAMERA.equals(permissions[i])) {
@@ -348,5 +373,19 @@ public class CallActivity extends XmppActivity {
 	//	}
 	}
 
+	//ALF AM-474
+	@Override
+	public void onIncomingNativeCallAnswered() {
+		//cancel any current call
+		SoundPoolManager.getInstance(CallActivity.this).stopRinging();
+		SoundPoolManager.getInstance(CallActivity.this).setSpeakerOn(false);
+		final Intent intent = new Intent(this, XmppConnectionService.class);
 
+		if (incomingCallLayout.getVisibility() == View.VISIBLE) {
+			intent.setAction(XmppConnectionService.ACTION_REJECT_CALL_REQUEST); //incoming
+		} else {
+			intent.setAction(XmppConnectionService.ACTION_CANCEL_CALL_REQUEST); //outgoing?
+		}
+		Compatibility.startService(this, intent);
+	}
 }

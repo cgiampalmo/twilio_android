@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -42,6 +43,7 @@ import androidx.core.content.ContextCompat;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
+import com.glaciersecurity.glaciermessenger.services.PhonecallReceiver;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.ui.util.CameraCapturerCompat;
 import com.glaciersecurity.glaciermessenger.ui.util.SoundPoolManager;
@@ -90,7 +92,7 @@ import java.util.List;
 import kotlin.Unit; //AM-440
 
 
-public class VideoActivity extends XmppActivity implements SensorEventListener {
+public class VideoActivity extends XmppActivity implements SensorEventListener, PhonecallReceiver.PhonecallReceiverListener {
     private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
     private static final String TAG = "VideoActivity";
 
@@ -201,6 +203,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
     private boolean disconnectedFromOnDestroy;
     private boolean enableAutomaticSubscription;
 
+    private PhonecallReceiver phonecallReceiver; //ALF AM-474
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -212,6 +216,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
         noVideoView = findViewById(R.id.no_video_view);
         avatar = findViewById(R.id.no_video_view_avatar);
         avatar.setImageResource(R.drawable.avatar_default);
+
+        phonecallReceiver = new PhonecallReceiver(this); //ALF AM-474
 
 
         connectActionFab = findViewById(R.id.connect_action_fab);
@@ -326,6 +332,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
             reconnectingProgressBar.setVisibility(View.VISIBLE);
             connectToRoom(roomname);
         }
+
+        registerReceiver(phonecallReceiver, new IntentFilter("android.intent.action.PHONE_STATE")); //ALF AM-474
     }
 
     @Override
@@ -535,6 +543,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
         //AM-441
         SoundPoolManager.getInstance(VideoActivity.this).setSpeakerOn(false);
         audioManager.setMode(SoundPoolManager.getInstance(VideoActivity.this).getPreviousAudioMode());
+
+        unregisterReceiver(phonecallReceiver); //ALF AM-474
 
         super.onDestroy();
     }
@@ -1464,5 +1474,16 @@ public class VideoActivity extends XmppActivity implements SensorEventListener {
 
     @Override
     public void onBackPressed() {
+    }
+
+    //ALF AM-474
+    @Override
+    public void onIncomingNativeCallAnswered() {
+        //cancel any current call
+        if (room != null) {
+            room.disconnect();
+        }
+        handleDisconnect();
+        finish();
     }
 }
