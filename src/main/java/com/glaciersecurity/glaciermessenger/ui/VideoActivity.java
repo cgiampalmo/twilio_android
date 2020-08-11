@@ -323,13 +323,13 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         /*
          * Update reconnecting UI
          */
-        if (room != null) {
-            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ? View.GONE :
-                    View.VISIBLE);
-        }
+//        if (room != null) {
+//            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ? View.GONE :
+//                    View.VISIBLE);
+//        }
+        reconnectingProgressBar.setVisibility(View.VISIBLE);
 
         if (room == null || room.getState() == Room.State.DISCONNECTED) {
-            reconnectingProgressBar.setVisibility(View.VISIBLE);
             connectToRoom(roomname);
         }
 
@@ -409,11 +409,11 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         /*
          * Update reconnecting UI
          */
-        if (room != null) {
-            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
-                    View.GONE :
-                    View.VISIBLE);
-        }
+//        if (room != null) {
+//            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
+//                    View.GONE :
+//                    View.VISIBLE);
+//        }
     }
 
     private void recreateVideoTrackIfNeeded() {
@@ -630,7 +630,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         connectOptionsBuilder.enableAutomaticSubscription(enableAutomaticSubscription);
 
         room = Video.connect(this, connectOptionsBuilder.build(), roomListener());
-        reconnectingProgressBar.setVisibility(View.GONE);
     }
 
     /*
@@ -648,6 +647,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         muteActionFab.setOnClickListener(muteClickListener());
         speakerPhoneActionFab.show();
         speakerPhoneActionFab.setOnClickListener(speakerPhoneClickListener());
+
     }
 
 
@@ -831,7 +831,10 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 setTitle(room.getName());
                 audioDeviceSelector.activate(); //AM-440
                 updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
-                reconnectingProgressBar.setVisibility(View.GONE);
+
+                if (!room.getRemoteParticipants().isEmpty()){
+                    reconnectingProgressBar.setVisibility(View.GONE);
+                }
 
 
                 for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
@@ -865,7 +868,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             @Override
             public void onDisconnected(Room room, TwilioException e) {
                 localParticipant = null;
-                reconnectingProgressBar.setVisibility(View.GONE);
                 VideoActivity.this.room = null;
                 configureAudio(false);
                 audioDeviceSelector.deactivate(); //AM-440
@@ -889,7 +891,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 room.disconnect();
                 //CMG disconnect when remote leaves
                 localParticipant = null;
-              //  reconnectingProgressBar.setVisibility(View.GONE);
+                reconnectingProgressBar.setVisibility(View.VISIBLE);
                 VideoActivity.this.room = null;
                 handleDisconnect(); //ALF AM-420
                 finish();
