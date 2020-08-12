@@ -61,6 +61,7 @@ import com.glaciersecurity.glaciermessenger.ui.CallActivity;
 import com.glaciersecurity.glaciermessenger.ui.ConversationsActivity;
 import com.glaciersecurity.glaciermessenger.ui.EditAccountActivity;
 import com.glaciersecurity.glaciermessenger.ui.TimePreference;
+import com.glaciersecurity.glaciermessenger.ui.util.SoundPoolManager;
 import com.glaciersecurity.glaciermessenger.utils.AccountUtils;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.utils.GeoHelper;
@@ -265,6 +266,8 @@ public class NotificationService {
 		//callIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		PendingIntent pendingIntent = PendingIntent.getActivity(mXmppConnectionService, 6, callIntent,
 				PendingIntent.FLAG_UPDATE_CURRENT);
+
+		SoundPoolManager.getInstance(mXmppConnectionService).vibrateIfNeeded();  //AM-475
 
 		String ctext = "Call from " + call.getCaller();
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, "gcalls");

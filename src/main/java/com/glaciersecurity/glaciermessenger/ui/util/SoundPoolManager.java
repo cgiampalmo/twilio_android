@@ -9,10 +9,13 @@ import android.media.SoundPool;
 import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 
 import com.glaciersecurity.glaciermessenger.R;
 
 import static android.content.Context.AUDIO_SERVICE;
+import static android.content.Context.VIBRATOR_SERVICE;
 
 public class SoundPoolManager {
 
@@ -34,12 +37,18 @@ public class SoundPoolManager {
 
     private static SoundPoolManager instance;
 
+    //AM-475
+    private AudioManager audioManager;
+    private Vibrator vibrator;
+
     private SoundPoolManager(Context context) {
         // AudioManager audio settings for adjusting the volume
-        AudioManager audioManager = (AudioManager) context.getSystemService(AUDIO_SERVICE);
+        audioManager = (AudioManager) context.getSystemService(AUDIO_SERVICE);
         float actualVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         volume = actualVolume / maxVolume;
+
+        vibrator = (Vibrator) context.getSystemService(VIBRATOR_SERVICE); //AM-475
 
         //AM-447
         Uri soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"+ context.getPackageName() + "/" + R.raw.outgoing_ring);
@@ -83,6 +92,7 @@ public class SoundPoolManager {
         if (loaded && !playing) {
             //ringingStreamId = soundPool.play(ringingSoundId, volume, volume, 1, -1, 1f);
             ringtone.play(); //AM-447
+            vibrateIfNeeded(); //AM-475
 
             playing = true;
         } else {
@@ -90,7 +100,21 @@ public class SoundPoolManager {
         }
     }
 
+    //AM-475
+    public void vibrateIfNeeded() {
+        if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE) {
+            // Start without a delay, Vibrate for 1000 milliseconds, Sleep for 1000 milliseconds
+            long[] pattern = {0, 1000, 1000};
+            if (Build.VERSION.SDK_INT >= 26) {
+                vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0));
+            } else {
+                vibrator.vibrate(pattern, 0);
+            }
+        }
+    }
+
     public void stopRinging() {
+        vibrator.cancel(); //AM-475
         if (playing) {
             soundPool.stop(ringingStreamId);
             if (ringtone != null) { //ALF AM-447, probably don't need above line anymore
