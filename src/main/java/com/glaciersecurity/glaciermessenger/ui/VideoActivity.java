@@ -832,11 +832,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 audioDeviceSelector.activate(); //AM-440
                 updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
 
-                if (!room.getRemoteParticipants().isEmpty()){
-                    reconnectingProgressBar.setVisibility(View.GONE);
-                }
-
-
                 for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
                     addRemoteParticipant(remoteParticipant);
                     String other = remoteParticipant.getIdentity();
@@ -845,6 +840,9 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                     }
                     primaryTitle.setText(other);
                     break;
+                }
+                if (!room.getRemoteParticipants().isEmpty()){
+                    reconnectingProgressBar.setVisibility(View.GONE);
                 }
             }
 
@@ -855,7 +853,9 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
             @Override
             public void onReconnected(@NonNull Room room) {
-                reconnectingProgressBar.setVisibility(View.GONE);
+                if (!room.getRemoteParticipants().isEmpty()){
+                    reconnectingProgressBar.setVisibility(View.GONE);
+                }
             }
 
             @Override
@@ -891,7 +891,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 room.disconnect();
                 //CMG disconnect when remote leaves
                 localParticipant = null;
-                reconnectingProgressBar.setVisibility(View.VISIBLE);
                 VideoActivity.this.room = null;
                 handleDisconnect(); //ALF AM-420
                 finish();
