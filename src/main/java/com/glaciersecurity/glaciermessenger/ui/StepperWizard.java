@@ -140,7 +140,7 @@ public class StepperWizard extends AppCompatActivity {
 
     public boolean hasAllPermissionGranted() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+            return checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
                     checkSelfPermission(Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS) == PackageManager.PERMISSION_GRANTED &&
                     checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
         }
@@ -262,6 +262,8 @@ public class StepperWizard extends AppCompatActivity {
                 permissionsNeeded.add("Camera");
             if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
                 permissionsNeeded.add("Write Storage");
+            if (!addPermission(permissionsList, Manifest.permission.READ_PHONE_STATE))
+                permissionsNeeded.add("Read Phone State");
             if (!addPermission(permissionsList, Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS))
                 permissionsNeeded.add("Ignore Battery Optimizations");
             if (permissionsList.size() > 0) {

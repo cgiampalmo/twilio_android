@@ -50,7 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_middle"
-            android:text="Allow Glacier to record audio (Microphone) - Required for voice/video calls and for recording and sending voice memos."
+            android:text="Allow Glacier to record audio (Microphone) - Required for voice/video calls and sending voice memos."
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:textColor="@color/grey_20" />
@@ -73,7 +73,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_middle"
-            android:text="Allow Glacier to take pictures and record video - Required for video calls and for taking pictures or video to send to a contact."
+            android:text="Allow Glacier to take pictures and record video - Required for video calls and taking pictures/videos to send."
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:textColor="@color/grey_20" />
@@ -95,11 +95,33 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_middle"
-            android:text="Allow Glacier to access photos, media, and files on your device - Required for logging in, and for selecting an avatar, media, or files to send or upload"
+            android:text="Allow Glacier to access photos, media, and files on your device - Required for selecting an avatar, media, or files to send or upload."
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:textColor="@color/grey_20" />
     </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="@dimen/spacing_medium">
+
+            <ImageView
+                android:layout_width="@dimen/spacing_xlarge"
+                android:layout_height="@dimen/spacing_xlarge"
+                app:srcCompat="@drawable/ic_call"
+                android:layout_margin="@dimen/fab_margin"
+                android:layout_gravity="center"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_middle"
+                android:text="Allow Glacier to make and manage phone calls - Required for avoiding conflicts with native phone calls."
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:textColor="@color/grey_20" />
+        </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -117,7 +139,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_middle"
-            android:text="Allow Glacier to access this device’s location - Only requested if you choose to send your current location to a contact."
+            android:text="Allow Glacier to access this device’s location - Only requested if sending your current location to a contact."
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
 
