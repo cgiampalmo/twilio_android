@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Build;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Base64;
@@ -1030,11 +1031,23 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getWritableDatabase();
 		String[] args = {account.getUuid()};
 		final int rows = db.delete(Account.TABLENAME, Account.UUID + "=?", args);
+		deleteCognitoAccount(account);
 		return rows == 1;
 	}
 
 	//ALF AM-487
+	private void deleteCognitoAccount(Account account) {
+		String args[] = {account.getUuid()};
+		this.getWritableDatabase().delete(CognitoAccount.TABLENAME, CognitoAccount.ACCOUNT + "=?", args);
+		CognitoAccount.deleteAccountInfo(dbcontext);
+	}
+
+	//ALF AM-487
 	private void updateCognitoAccounts(SQLiteDatabase db) {
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+			return;
+		}
 
 		Cursor cursor = db.rawQuery("select * from " + CognitoAccount.TABLENAME, new String[0]);
 		while (cursor.moveToNext()) {

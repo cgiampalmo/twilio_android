@@ -13,7 +13,7 @@ import com.glaciersecurity.glaciermessenger.Config;
 
 import androidx.annotation.RequiresApi;
 
-//AM-487
+//AM-487 and all encryption related functions below
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
 
@@ -62,7 +62,11 @@ public class CognitoAccount extends AbstractEntity {
     public ContentValues getContentValues() {
         ContentValues values = new ContentValues();
         values.put(USERNAME, this.username);
-        values.put(PASSWORD, "gibberish"); //store this in database
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            values.put(PASSWORD, "gibberish"); //store this in database and use encryptedSharedPreferences
+        } else {
+            values.put(PASSWORD, this.password);
+        }
         values.put(ACCOUNT, this.account);
         values.put(UUID, uuid);
         return values;
@@ -100,12 +104,25 @@ public class CognitoAccount extends AbstractEntity {
 
     private static void updateSharedPreferences(final String uuid,
                                                 final String password, Context context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return;
+        }
+
         try {
             SharedPreferences spref = getEncryptedSharedPreferences(context);
             SharedPreferences.Editor editor = spref.edit();
             editor.putString(uuid, password);
             editor.apply();
             editor.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteAccountInfo(Context context) {
+        try {
+            SharedPreferences spref = getEncryptedSharedPreferences(context);
+            spref.edit().clear().commit();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -164,10 +181,9 @@ public class CognitoAccount extends AbstractEntity {
             } catch (Exception e) {
                 Log.e(Config.LOGTAG, "Error on getting encrypted shared preferences", e);
             }
-        } else {
+        } else { //warning...this is using non-encrypted shared preferences for < API 23.
             return context.getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
         }
         return null;
     }
-    //returnValue = Base64.getEncoder().encodeToString(securePassword);
 }
