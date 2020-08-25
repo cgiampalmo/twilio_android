@@ -19,7 +19,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
-import com.glaciersecurity.glaciermessenger.crypto.PgpDecryptionService;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.XmppAxolotlSession;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
@@ -89,13 +88,13 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 		return getRoster().getContact(jid);
 	}
 
-	public boolean hasPendingPgpIntent(Conversation conversation) {
+	/*public boolean hasPendingPgpIntent(Conversation conversation) {
 		return pgpDecryptionService != null && pgpDecryptionService.hasPendingIntent(conversation);
 	}
 
 	public boolean isPgpDecryptionServiceConnected() {
 		return pgpDecryptionService != null && pgpDecryptionService.isConnected();
-	}
+	}*/
 
 	public boolean setShowErrorNotification(boolean newValue) {
 		boolean oldValue = showErrorNotification();
@@ -228,8 +227,8 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 	public List<Conversation> pendingConferenceJoins = new CopyOnWriteArrayList<>();
 	public List<Conversation> pendingConferenceLeaves = new CopyOnWriteArrayList<>();
 
-	private static final String KEY_PGP_SIGNATURE = "pgp_signature";
-	private static final String KEY_PGP_ID = "pgp_id";
+	//private static final String KEY_PGP_SIGNATURE = "pgp_signature";
+	//private static final String KEY_PGP_ID = "pgp_id";
 
 	protected Jid jid;
 	protected String password;
@@ -246,7 +245,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 	protected int timer; //ALF AM-53
 	protected boolean online = false;
 	private AxolotlService axolotlService = null;
-	private PgpDecryptionService pgpDecryptionService = null;
+	//private PgpDecryptionService pgpDecryptionService = null;
 	private XmppConnection xmppConnection = null;
 	private long mEndGracePeriod = 0L;
 	private final Roster roster = new Roster(this);
@@ -523,15 +522,15 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 
 	public void initAccountServices(final XmppConnectionService context) {
 		this.axolotlService = new AxolotlService(this, context);
-		this.pgpDecryptionService = new PgpDecryptionService(context);
+		//this.pgpDecryptionService = new PgpDecryptionService(context);
 		if (xmppConnection != null) {
 			xmppConnection.addOnAdvancedStreamFeaturesAvailableListener(axolotlService);
 		}
 	}
 
-	public PgpDecryptionService getPgpDecryptionService() {
+	/*public PgpDecryptionService getPgpDecryptionService() {
 		return this.pgpDecryptionService;
-	}
+	}*/
 
 	public XmppConnection getXmppConnection() {
 		return this.xmppConnection;
@@ -557,7 +556,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 		return this.getSelfContact().getPresences().size();
 	}
 
-	public String getPgpSignature() {
+	/*public String getPgpSignature() {
 		return getKey(KEY_PGP_SIGNATURE);
 	}
 
@@ -598,7 +597,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 			}
 			return true;
 		}
-	}
+	}*/
 
 	public Roster getRoster() {
 		return this.roster;

@@ -63,7 +63,7 @@ import com.glaciersecurity.glaciermessenger.entities.PresenceTemplate;
 import com.glaciersecurity.glaciermessenger.lollipin.lib.PinActivity;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
-import com.glaciersecurity.glaciermessenger.crypto.PgpEngine;
+//import com.glaciersecurity.glaciermessenger.crypto.PgpEngine;
 import com.glaciersecurity.glaciermessenger.databinding.DialogQuickeditBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Contact;
@@ -112,7 +112,7 @@ public abstract class XmppActivity extends PinActivity {
 	protected int mTheme;
 	protected boolean mUsingEnterKey = false;
 	protected Toast mToast;
-	public Runnable onOpenPGPKeyPublished = () -> Toast.makeText(XmppActivity.this, R.string.openpgp_has_been_published, Toast.LENGTH_SHORT).show();
+	//public Runnable onOpenPGPKeyPublished = () -> Toast.makeText(XmppActivity.this, R.string.openpgp_has_been_published, Toast.LENGTH_SHORT).show();
 	protected ConferenceInvite mPendingConferenceInvite = null;
 	protected ServiceConnection mConnection = new ServiceConnection() {
 
@@ -252,7 +252,7 @@ public abstract class XmppActivity extends PinActivity {
 	}
 
 
-	public boolean hasPgp() {
+	/*public boolean hasPgp() {
 		return xmppConnectionService.getPgpEngine() != null;
 	}
 
@@ -293,7 +293,7 @@ public abstract class XmppActivity extends PinActivity {
 					finish();
 				});
 		builder.create().show();
-	}
+	}*/
 
 	abstract void onBackendConnected();
 
@@ -636,7 +636,7 @@ public abstract class XmppActivity extends PinActivity {
 		startActivityForResult(ChooseContactActivity.create(this,conversation), REQUEST_INVITE_TO_CONVERSATION);
 	}
 
-	protected void announcePgp(final Account account, final Conversation conversation, Intent intent, final Runnable onSuccess) {
+	/*protected void announcePgp(final Account account, final Conversation conversation, Intent intent, final Runnable onSuccess) {
 		if (account.getPgpId() == 0) {
 			choosePgpSignId(account);
 		} else {
@@ -685,7 +685,7 @@ public abstract class XmppActivity extends PinActivity {
 				}
 			});
 		}
-	}
+	}*/
 
 	@SuppressWarnings("deprecation")
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -698,7 +698,7 @@ public abstract class XmppActivity extends PinActivity {
 		}
 	}
 
-	protected void choosePgpSignId(Account account) {
+	/*protected void choosePgpSignId(Account account) {
 		xmppConnectionService.getPgpEngine().chooseKey(account, new UiCallback<Account>() {
 			@Override
 			public void success(Account account1) {
@@ -718,7 +718,7 @@ public abstract class XmppActivity extends PinActivity {
 				}
 			}
 		});
-	}
+	}*/
 
 	protected void displayErrorDialog(final int errorCode) {
 		runOnUiThread(() -> {
@@ -900,14 +900,14 @@ public abstract class XmppActivity extends PinActivity {
 	}
 
 	protected void launchOpenKeyChain(long keyId) {
-		PgpEngine pgp = XmppActivity.this.xmppConnectionService.getPgpEngine();
+		/*PgpEngine pgp = XmppActivity.this.xmppConnectionService.getPgpEngine();
 		try {
 			startIntentSenderForResult(
 					pgp.getIntentForKey(keyId).getIntentSender(), 0, null, 0,
 					0, 0);
 		} catch (Throwable e) {
 			Toast.makeText(XmppActivity.this, R.string.openpgp_error, Toast.LENGTH_SHORT).show();
-		}
+		}*/
 	}
 
 	@Override

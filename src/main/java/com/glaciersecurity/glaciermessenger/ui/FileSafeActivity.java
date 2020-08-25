@@ -1053,11 +1053,11 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
         builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
             PresenceTemplate template = new PresenceTemplate(getAvailabilityRadioButton(binding), binding.statusMessage.getText().toString().trim());
             //CMG AM-218
-            if (fragAccount.getPgpId() != 0 && hasPgp()) {
-                generateSignature(null, template, fragAccount);
-            } else {
+            //if (fragAccount.getPgpId() != 0 && hasPgp()) {
+            //    generateSignature(null, template, fragAccount);
+            //} else {
                 xmppConnectionService.changeStatus(fragAccount, template, null);
-            }
+            //}
             if (template.getStatus().equals(Presence.Status.OFFLINE)){
                 disableAccount(fragAccount);
             } else {
@@ -1072,7 +1072,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
     }
 
 
-    private void generateSignature(Intent intent, PresenceTemplate template, Account fragAccount) {
+    /*private void generateSignature(Intent intent, PresenceTemplate template, Account fragAccount) {
         xmppConnectionService.getPgpEngine().generateSignature(intent, fragAccount, template.getStatusMessage(), new UiCallback<String>() {
             @Override
             public void success(String signature) {
@@ -1093,7 +1093,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
                 }
             }
         });
-    }
+    }*/
 
     private static final int REQUEST_CHANGE_STATUS = 0xee11;
     private final PendingItem<PresenceTemplate> mPendingPresenceTemplate = new PendingItem<>();

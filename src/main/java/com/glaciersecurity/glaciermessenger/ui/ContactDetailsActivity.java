@@ -24,7 +24,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.openintents.openpgp.util.OpenPgpUtils;
+//import org.openintents.openpgp.util.OpenPgpUtils;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -503,7 +503,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         //if (hasKeys) {
         //    binding.scanButton.setOnClickListener((v) -> ScanActivity.scan(this));
         //}
-        if (Config.supportOpenPgp() && contact.getPgpKeyId() != 0) {
+        /*if (Config.supportOpenPgp() && contact.getPgpKeyId() != 0) {
             hasKeys = true;
             View view = inflater.inflate(R.layout.contact_key, binding.detailsContactKeys, false);
             TextView key = (TextView) view.findViewById(R.id.key);
@@ -518,7 +518,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             key.setOnClickListener(openKey);
             keyType.setOnClickListener(openKey);
             binding.detailsContactKeys.addView(view);
-        }
+        }*/
         binding.keysWrapper.setVisibility(hasKeys ? View.VISIBLE : View.GONE);
 
         List<ListItem.Tag> tagList = contact.getTags(this);

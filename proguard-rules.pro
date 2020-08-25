@@ -10,7 +10,7 @@
 
 -keep class com.google.android.gms.**
 
--keep class org.openintents.openpgp.*
+#-keep class org.openintents.openpgp.*
 
 -dontwarn org.bouncycastle.mail.**
 -dontwarn org.bouncycastle.x509.util.LDAPStoreHelper
@@ -18,6 +18,7 @@
 -dontwarn org.bouncycastle.cert.dane.**
 -dontwarn rocks.xmpp.addr.**
 -dontwarn com.google.firebase.analytics.connector.AnalyticsConnector
+-dontwarn com.google.errorprone.annotations.**
 
 # Class names are needed in reflection
 -keepnames class com.amazonaws.**

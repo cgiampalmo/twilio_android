@@ -92,7 +92,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.openintents.openpgp.util.OpenPgpApi;
+//import org.openintents.openpgp.util.OpenPgpApi;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -527,7 +527,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				if (conversation == null) {
 					break;
 				}
-				conversation.getAccount().getPgpDecryptionService().giveUpCurrentDecryption();
+				//conversation.getAccount().getPgpDecryptionService().giveUpCurrentDecryption();
 				break;
 			case REQUEST_BATTERY_OP:
 				setNeverAskForBatteryOptimizationsAgain();
@@ -549,24 +549,24 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		}
 		switch (requestCode) {
 			case REQUEST_DECRYPT_PGP:
-				conversation.getAccount().getPgpDecryptionService().continueDecryption(data);
+				//conversation.getAccount().getPgpDecryptionService().continueDecryption(data);
 				break;
 			case REQUEST_CHOOSE_PGP_ID:
-				long id = data.getLongExtra(OpenPgpApi.EXTRA_SIGN_KEY_ID, 0);
+				/*long id = data.getLongExtra(OpenPgpApi.EXTRA_SIGN_KEY_ID, 0);
 				if (id != 0) {
 					conversation.getAccount().setPgpSignId(id);
 					announcePgp(conversation.getAccount(), null, null, onOpenPGPKeyPublished);
 				} else {
 					choosePgpSignId(conversation.getAccount());
-				}
+				}*/
 				break;
 			case REQUEST_ANNOUNCE_PGP:
-				announcePgp(conversation.getAccount(), conversation, data, onOpenPGPKeyPublished);
+				//announcePgp(conversation.getAccount(), conversation, data, onOpenPGPKeyPublished);
 				break;
 			case REQUEST_CHANGE_STATUS: {
 				PresenceTemplate template = mPendingPresenceTemplate.pop();
 				if (template != null) {
-					generateSignature(data, template);
+					//generateSignature(data, template);
 				}
 				break;
 			}
@@ -846,11 +846,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
 			PresenceTemplate template = new PresenceTemplate(getAvailabilityRadioButton(binding), binding.statusMessage.getText().toString().trim());
 			//CMG AM-218
-			if (mAccount.getPgpId() != 0 && hasPgp()) {
-				generateSignature(null, template);
-			} else {
+			//if (mAccount.getPgpId() != 0 && hasPgp()) {
+			//	generateSignature(null, template);
+			//} else {
 				xmppConnectionService.changeStatus(mAccount, template, null);
-			}
+			//}
 			if (template.getStatus().equals(Presence.Status.OFFLINE)){
 				disableAccount(mAccount);
 			} else {
@@ -866,7 +866,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	}
 
 
-	private void generateSignature(Intent intent, PresenceTemplate template) {
+	/*private void generateSignature(Intent intent, PresenceTemplate template) {
 		xmppConnectionService.getPgpEngine().generateSignature(intent, mAccount, template.getStatusMessage(), new UiCallback<String>() {
 			@Override
 			public void success(String signature) {
@@ -887,7 +887,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				}
 			}
 		});
-	}
+	}*/
 
 	private static void setAvailabilityRadioButton(Presence.Status status, DialogPresenceBinding binding) {
 		if (status == null) {
@@ -1589,11 +1589,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 							enableAccount(account);
 						}
 						PresenceTemplate template = new PresenceTemplate(Presence.Status.ONLINE, account.getPresenceStatusMessage());
-						if (account.getPgpId() != 0 && hasPgp()) {
-							generateSignature(null, template);
-						} else {
+						//if (account.getPgpId() != 0 && hasPgp()) {
+						//	generateSignature(null, template);
+						//} else {
 							xmppConnectionService.changeStatus(account, template, null);
-						}
+						//}
 					}
 					/*
 				     Case 1b. PRESENCE) "_____: tap to set to Available"

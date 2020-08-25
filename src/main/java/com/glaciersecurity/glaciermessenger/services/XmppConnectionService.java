@@ -19,8 +19,6 @@ import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
 import android.media.ToneGenerator;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -49,9 +47,8 @@ import android.util.LruCache;
 import android.util.Pair;
 
 import org.conscrypt.Conscrypt;
-import org.openintents.openpgp.IOpenPgpService2;
-import org.openintents.openpgp.util.OpenPgpApi;
-import org.openintents.openpgp.util.OpenPgpServiceConnection;
+//import org.openintents.openpgp.util.OpenPgpApi;
+//import org.openintents.openpgp.util.OpenPgpServiceConnection;
 import org.whispersystems.libsignal.state.PreKeyRecord;
 
 import java.io.File;
@@ -85,8 +82,7 @@ import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.android.JabberIdContact;
 import com.glaciersecurity.glaciermessenger.crypto.OmemoSetting;
-import com.glaciersecurity.glaciermessenger.crypto.PgpDecryptionService;
-import com.glaciersecurity.glaciermessenger.crypto.PgpEngine;
+//import com.glaciersecurity.glaciermessenger.crypto.PgpEngine;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.FingerprintStatus;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.XmppAxolotlMessage;
@@ -121,7 +117,6 @@ import com.glaciersecurity.glaciermessenger.ui.ChooseAccountForProfilePictureAct
 import com.glaciersecurity.glaciermessenger.ui.SettingsActivity;
 import com.glaciersecurity.glaciermessenger.ui.UiCallback;
 import com.glaciersecurity.glaciermessenger.ui.VideoActivity;
-import com.glaciersecurity.glaciermessenger.ui.XmppActivity;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnAvatarPublication;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnMediaLoaded;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnSearchResultsAvailable;
@@ -443,8 +438,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			getNotificationService().updateErrorNotification();
 		}
 	};
-	private OpenPgpServiceConnection pgpServiceConnection;
-	private PgpEngine mPgpEngine = null;
+	//private OpenPgpServiceConnection pgpServiceConnection;
+	//private PgpEngine mPgpEngine = null;
 	private WakeLock wakeLock;
 	private PowerManager pm;
 	private LruCache<String, Bitmap> mBitmapCache;
@@ -483,7 +478,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		return this.restoredFromDatabaseLatch.getCount() == 0;
 	}
 
-	public PgpEngine getPgpEngine() {
+	/*public PgpEngine getPgpEngine() {
 		if (!Config.supportOpenPgp()) {
 			return null;
 		} else if (pgpServiceConnection != null && pgpServiceConnection.isBound()) {
@@ -507,7 +502,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		} else {
 			return null;
 		}
-	}
+	}*/
 
 	public FileBackend getFileBackend() {
 		return this.fileBackend;
@@ -526,12 +521,12 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		if (conversation.getNextCounterpart() != null) {
 			message.setCounterpart(conversation.getNextCounterpart());
 		}
-		if (encryption == Message.ENCRYPTION_DECRYPTED) {
-			getPgpEngine().encrypt(message, callback);
-		} else {
+		//if (encryption == Message.ENCRYPTION_DECRYPTED) {
+		//	getPgpEngine().encrypt(message, callback);
+		//} else {
 			sendMessage(message);
 			callback.success(message);
-		}
+		//}
 	}
 
 	public void attachFileToConversation(final Conversation conversation, final Uri uri, final String type, final UiCallback<Message> callback) {
@@ -596,17 +591,17 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		mFileAddingExecutor.execute(() -> {
 			try {
 				getFileBackend().copyImageToPrivateStorage(message, uri);
-				if (conversation.getNextEncryption() == Message.ENCRYPTION_PGP) {
+				/*if (conversation.getNextEncryption() == Message.ENCRYPTION_PGP) {
 					final PgpEngine pgpEngine = getPgpEngine();
 					if (pgpEngine != null) {
 						pgpEngine.encrypt(message, callback);
 					} else if (callback != null) {
 						callback.error(R.string.unable_to_connect_to_keychain, null);
 					}
-				} else {
+				} else {*/
 					sendMessage(message);
 					callback.success(message);
-				}
+				//}
 			} catch (final FileBackend.FileCopyException e) {
 				callback.error(e.getResId(), message);
 			}
@@ -1091,7 +1086,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	private void directReply(Conversation conversation, String body, final boolean dismissAfterReply) {
 		Message message = new Message(conversation, body, conversation.getNextEncryption());
 		message.markUnread();
-		if (message.getEncryption() == Message.ENCRYPTION_PGP) {
+		/*if (message.getEncryption() == Message.ENCRYPTION_PGP) {
 			getPgpEngine().encrypt(message, new UiCallback<Message>() {
 				@Override
 				public void success(Message message) {
@@ -1112,14 +1107,14 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 				}
 			});
-		} else {
+		} else {*/
 			sendMessage(message);
 			if (dismissAfterReply) {
 				markRead(conversation, true);
 			} else {
 				mNotificationService.pushFromDirectReply(message);
 			}
-		}
+		//}
 	}
 
 	private boolean dndOnSilentMode() {
@@ -1311,7 +1306,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			mFileAddingExecutor.execute(this.fileObserver::startWatching);
 			mFileAddingExecutor.execute(this::checkForDeletedFiles);
 		}
-		if (Config.supportOpenPgp()) {
+		/*if (Config.supportOpenPgp()) {
 			this.pgpServiceConnection = new OpenPgpServiceConnection(this, "org.sufficientlysecure.keychain", new OpenPgpServiceConnection.OnBound() {
 				@Override
 				public void onBound(IOpenPgpService2 service) {
@@ -1328,7 +1323,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				}
 			});
 			this.pgpServiceConnection.bindToService();
-		}
+		}*/
 
 		this.pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 		this.wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "XmppConnectionService");
@@ -1648,7 +1643,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					break;
 				case Message.ENCRYPTION_PGP:
 				case Message.ENCRYPTION_DECRYPTED:
-					if (message.needsUploading()) {
+					/*if (message.needsUploading()) {
 						if (account.httpUploadAvailable(fileBackend.getFile(message, false).getSize())
 								|| conversation.getMode() == Conversation.MODE_MULTI
 								|| message.fixCounterpart()) {
@@ -1658,7 +1653,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						}
 					} else {
 						packet = mMessageGenerator.generatePgpChat(message);
-					}
+					}*/
 					break;
 				case Message.ENCRYPTION_AXOLOTL:
 					message.setFingerprint(account.getAxolotlService().getOwnFingerprint());
@@ -1692,7 +1687,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		} else {
 			switch (message.getEncryption()) {
 				case Message.ENCRYPTION_DECRYPTED:
-					if (!message.needsUploading()) {
+					/*if (!message.needsUploading()) {
 						String pgpBody = message.getEncryptedBody();
 						String decryptedBody = message.getBody();
 						message.setBody(pgpBody); //TODO might throw NPE
@@ -1711,7 +1706,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							message.setBody(decryptedBody);
 							message.setEncryption(Message.ENCRYPTION_DECRYPTED);
 						}
-					}
+					}*/
 					break;
 				case Message.ENCRYPTION_AXOLOTL:
 					message.setFingerprint(account.getAxolotlService().getOwnFingerprint());
@@ -3028,11 +3023,11 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			packet.setTo(joinJid);
 			packet.setFrom(conversation.getAccount().getJid());
 
-			String sig = account.getPgpSignature();
+			/*String sig = account.getPgpSignature();
 			if (sig != null) {
 				packet.addChild("status").setContent("online");
 				packet.addChild("x", "jabber:x:signed").setContent(sig);
-			}
+			}*/
 			sendPresencePacket(account, packet);
 		} else {
 			conversation.setContactJid(joinJid);
@@ -5002,7 +4997,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		if (!template.getStatusMessage().isEmpty()) {
 			databaseBackend.insertPresenceTemplate(template);
 		}
-		account.setPgpSignature(signature);
+		//account.setPgpSignature(signature);
 		account.setPresenceStatus(template.getStatus());
 		account.setPresenceStatusMessage(template.getStatusMessage());
 		databaseBackend.updateAccount(account);

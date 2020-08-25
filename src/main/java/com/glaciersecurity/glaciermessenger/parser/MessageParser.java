@@ -451,11 +451,11 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 			if (xP1S3url != null) {
 				message = new Message(conversation, xP1S3url.toString(), Message.ENCRYPTION_NONE, status);
 				message.setOob(true);
-				if (CryptoHelper.isPgpEncryptedUrl(xP1S3url.toString())) {
-					message.setEncryption(Message.ENCRYPTION_DECRYPTED);
-				}
-			} else if (pgpEncrypted != null && Config.supportOpenPgp()) {
-				message = new Message(conversation, pgpEncrypted, Message.ENCRYPTION_PGP, status);
+				//if (CryptoHelper.isPgpEncryptedUrl(xP1S3url.toString())) {
+				//	message.setEncryption(Message.ENCRYPTION_DECRYPTED);
+				//}
+			//} else if (pgpEncrypted != null && Config.supportOpenPgp()) {
+			//	message = new Message(conversation, pgpEncrypted, Message.ENCRYPTION_PGP, status);
 			} else if (axolotlEncrypted != null && Config.supportOmemo()) {
 				Jid origin;
 				Set<Jid> fallbacksBySourceId = Collections.emptySet();
@@ -615,10 +615,10 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 									&& !isTypeGroupChat) {
 								processMessageReceipts(account, packet, query);
 							}
-							if (replacedMessage.getEncryption() == Message.ENCRYPTION_PGP) {
+							/*if (replacedMessage.getEncryption() == Message.ENCRYPTION_PGP) {
 								conversation.getAccount().getPgpDecryptionService().discard(replacedMessage);
 								conversation.getAccount().getPgpDecryptionService().decrypt(replacedMessage, false);
-							}
+							}*/
 						}
 						mXmppConnectionService.getNotificationService().updateNotification();
 						return;
@@ -683,7 +683,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 			}
 
 			if (message.getEncryption() == Message.ENCRYPTION_PGP) {
-				notify = conversation.getAccount().getPgpDecryptionService().decrypt(message, notify);
+				//notify = conversation.getAccount().getPgpDecryptionService().decrypt(message, notify);
 			} else if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE || message.getEncryption() == Message.ENCRYPTION_AXOLOTL_FAILED) {
 				notify = false;
 			}

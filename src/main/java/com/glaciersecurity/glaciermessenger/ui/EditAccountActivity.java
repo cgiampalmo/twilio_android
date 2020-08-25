@@ -101,7 +101,7 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.openintents.openpgp.util.OpenPgpUtils;
+//import org.openintents.openpgp.util.OpenPgpUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -477,11 +477,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 		else if (requestCode == REQUEST_CHANGE_STATUS) {
 			PresenceTemplate template = mPendingPresenceTemplate.pop();
-			if (template != null && resultCode == Activity.RESULT_OK) {
-				generateSignature(data, template);
-			} else {
+			//if (template != null && resultCode == Activity.RESULT_OK) {
+			//	generateSignature(data, template);
+			//} else {
 				Log.d(Config.LOGTAG, "pgp result not ok");
-			}
+			//}
 		} else if (requestCode == ICS_OPENVPN_PERMISSION) { //HONEYBADGER AM-76
 			if (resultCode == Activity.RESULT_OK) {
 				try {
@@ -1083,16 +1083,16 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
 			PresenceTemplate template = new PresenceTemplate(getAvailabilityRadioButton(binding), binding.statusMessage.getText().toString().trim());
-			if (mAccount.getPgpId() != 0 && hasPgp()) {
-				generateSignature(null, template);
-			} else {
+			//if (mAccount.getPgpId() != 0 && hasPgp()) {
+				//generateSignature(null, template);
+			//} else {
 				xmppConnectionService.changeStatus(mAccount, template, null);
-			}
+			//}
 		});
 		builder.create().show();
 	}
 
-	private void generateSignature(Intent intent, PresenceTemplate template) {
+	/*private void generateSignature(Intent intent, PresenceTemplate template) {
 		xmppConnectionService.getPgpEngine().generateSignature(intent, mAccount, template.getStatusMessage(), new UiCallback<String>() {
 			@Override
 			public void success(String signature) {
@@ -1113,7 +1113,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				}
 			}
 		});
-	}
+	}*/
 
 	private static void setAvailabilityRadioButton(Presence.Status status, DialogPresenceBinding binding) {
 		if (status == null) {
@@ -1282,7 +1282,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			} else {
 				this.binding.serverInfoPush.setText(R.string.server_info_unavailable);
 			}
-			final long pgpKeyId = this.mAccount.getPgpId();
+			/*final long pgpKeyId = this.mAccount.getPgpId();
 			if (pgpKeyId != 0 && Config.supportOpenPgp()) {
 				OnClickListener openPgp = view -> launchOpenKeyChain(pgpKeyId);
 				OnClickListener delete = view -> showDeletePgpDialog();
@@ -1294,9 +1294,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				}
 				this.getmPgpFingerprintDesc.setOnClickListener(openPgp);
 				this.mPgpDeleteFingerprintButton.setOnClickListener(delete);
-			} else {
+			} else {*/
 				this.mPgpFingerprintBox.setVisibility(View.GONE);
-			}
+			//}
 			final String ownAxolotlFingerprint = this.mAccount.getAxolotlService().getOwnFingerprint();
 			if (ownAxolotlFingerprint != null && Config.supportOmemo()) {
 				this.mAxolotlFingerprintBox.setVisibility(VISIBLE);
@@ -1395,7 +1395,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 	}
 
-	private void showDeletePgpDialog() {
+	/*private void showDeletePgpDialog() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.unpublish_pgp);
 		builder.setMessage(R.string.unpublish_pgp_message);
@@ -1408,7 +1408,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			refreshUiReal();
 		});
 		builder.create().show();
-	}
+	}*/
 
 	private void showOsOptimizationWarning(boolean showBatteryWarning, boolean showDataSaverWarning) {
 		this.binding.osOptimization.setVisibility(showBatteryWarning || showDataSaverWarning ? VISIBLE : View.GONE);
@@ -2701,7 +2701,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			xmppConnectionService.createAccount(mAccount, true);
 
 			//ALF AM-388
-			CognitoAccount cacct = new CognitoAccount(cognitoUsername, cognitoPassword, mAccount.getUuid());
+			CognitoAccount cacct = new CognitoAccount(cognitoUsername, cognitoPassword, mAccount.getUuid(), getApplicationContext());
 			xmppConnectionService.databaseBackend.createCognitoAccount(cacct);
 		}
 		mHostnameLayout.setError(null);

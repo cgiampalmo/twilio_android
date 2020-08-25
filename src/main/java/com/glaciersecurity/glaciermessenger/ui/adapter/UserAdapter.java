@@ -12,10 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.openintents.openpgp.util.OpenPgpUtils;
+//import org.openintents.openpgp.util.OpenPgpUtils;
 
 import com.glaciersecurity.glaciermessenger.R;
-import com.glaciersecurity.glaciermessenger.crypto.PgpEngine;
+//import com.glaciersecurity.glaciermessenger.crypto.PgpEngine;
 import com.glaciersecurity.glaciermessenger.databinding.ContactBinding;
 import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.MucOptions;
@@ -95,7 +95,7 @@ public class UserAdapter extends ListAdapter<MucOptions.User, UserAdapter.ViewHo
             viewHolder.binding.contactDisplayName.setText(name == null ? "" : name);
             viewHolder.binding.contactJid.setText(ConferenceDetailsActivity.getStatus(viewHolder.binding.getRoot().getContext(), user, advancedMode));
         }
-        if (advancedMode && user.getPgpKeyId() != 0) {
+        /*if (advancedMode && user.getPgpKeyId() != 0) {
             viewHolder.binding.key.setVisibility(View.VISIBLE);
             viewHolder.binding.key.setOnClickListener(v -> {
                 final XmppActivity activity = XmppActivity.find(v);
@@ -113,7 +113,7 @@ public class UserAdapter extends ListAdapter<MucOptions.User, UserAdapter.ViewHo
                 }
             });
             viewHolder.binding.key.setText(OpenPgpUtils.convertKeyIdToHex(user.getPgpKeyId()));
-        }
+        }*/
 
 
     }

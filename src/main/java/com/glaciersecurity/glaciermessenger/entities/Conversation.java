@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.crypto.OmemoSetting;
-import com.glaciersecurity.glaciermessenger.crypto.PgpDecryptionService;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.FingerprintStatus;
 import com.glaciersecurity.glaciermessenger.persistance.DatabaseBackend;
@@ -230,15 +229,15 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
 	public boolean markAsDeleted(final List<String> uuids) {
 		boolean deleted = false;
-		final PgpDecryptionService pgpDecryptionService = account.getPgpDecryptionService();
+		//final PgpDecryptionService pgpDecryptionService = account.getPgpDecryptionService();
 		synchronized (this.messages) {
 			for(Message message : this.messages) {
 				if (uuids.contains(message.getUuid())) {
 					message.setDeleted(true);
 					deleted = true;
-					if (message.getEncryption() == Message.ENCRYPTION_PGP && pgpDecryptionService != null) {
+					/*if (message.getEncryption() == Message.ENCRYPTION_PGP && pgpDecryptionService != null) {
 						pgpDecryptionService.discard(message);
-					}
+					}*/
 				}
 			}
 		}
@@ -247,16 +246,16 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
 	public boolean markAsChanged(final List<DatabaseBackend.FilePathInfo> files) {
 		boolean changed = false;
-		final PgpDecryptionService pgpDecryptionService = account.getPgpDecryptionService();
+		//final PgpDecryptionService pgpDecryptionService = account.getPgpDecryptionService();
 		synchronized (this.messages) {
 			for(Message message : this.messages) {
 				for(final DatabaseBackend.FilePathInfo file : files)
 					if (file.uuid.toString().equals(message.getUuid())) {
 						message.setDeleted(file.deleted);
 						changed = true;
-						if (file.deleted && message.getEncryption() == Message.ENCRYPTION_PGP && pgpDecryptionService != null) {
+						/*if (file.deleted && message.getEncryption() == Message.ENCRYPTION_PGP && pgpDecryptionService != null) {
 							pgpDecryptionService.discard(message);
-						}
+						}*/
 					}
 			}
 		}
@@ -301,10 +300,10 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 			final int maxsize = Config.PAGE_SIZE * Config.MAX_NUM_PAGES;
 			if (size > maxsize) {
 				List<Message> discards = this.messages.subList(0, size - maxsize);
-				final PgpDecryptionService pgpDecryptionService = account.getPgpDecryptionService();
+				/*final PgpDecryptionService pgpDecryptionService = account.getPgpDecryptionService();
 				if (pgpDecryptionService != null) {
 					pgpDecryptionService.discard(discards);
-				}
+				}*/
 				discards.clear();
 				untieMessages();
 			}
@@ -1005,7 +1004,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 		synchronized (this.messages) {
 			this.messages.addAll(index, messages);
 		}
-		account.getPgpDecryptionService().decrypt(messages);
+		//account.getPgpDecryptionService().decrypt(messages);
 	}
 
 	public void expireOldMessages(long timestamp) {

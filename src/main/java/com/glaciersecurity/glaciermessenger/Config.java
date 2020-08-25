@@ -21,7 +21,7 @@ public final class Config {
 	}
 
 	public static boolean supportOpenPgp() {
-		return (ENCRYPTION_MASK & OPENPGP) != 0;
+		return false; //(ENCRYPTION_MASK & OPENPGP) != 0;
 	}
 
 	public static boolean supportOmemo() {

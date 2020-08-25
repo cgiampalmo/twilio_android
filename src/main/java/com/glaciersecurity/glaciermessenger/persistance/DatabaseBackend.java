@@ -65,8 +65,9 @@ import rocks.xmpp.addr.Jid;
 public class DatabaseBackend extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "history";
-	private static final int DATABASE_VERSION = 46; //ALF AM-388 changed to 45, AM-422 to 46
+	private static final int DATABASE_VERSION = 47; //ALF AM-388 changed to 45, AM-422 to 46, AM-487 to 47
 	private static DatabaseBackend instance = null;
+	private static Context dbcontext = null; //AM-487
 	private static String CREATE_CONTATCS_STATEMENT = "create table "
 			+ Contact.TABLENAME + "(" + Contact.ACCOUNT + " TEXT, "
 			+ Contact.SERVERNAME + " TEXT, " + Contact.SYSTEMNAME + " TEXT,"
@@ -197,6 +198,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 	public static synchronized DatabaseBackend getInstance(Context context) {
 		if (instance == null) {
 			instance = new DatabaseBackend(context);
+			dbcontext = context; //AM-487
 		}
 		return instance;
 	}
@@ -395,7 +397,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 		if (oldVersion < 21 && newVersion >= 21) {
 			List<Account> accounts = getAccounts(db);
 			for (Account account : accounts) {
-				account.unsetPgpSignature();
+				//account.unsetPgpSignature();
 				db.update(Account.TABLENAME, account.getContentValues(), Account.UUID
 						+ "=?", new String[]{account.getUuid()});
 			}
@@ -572,6 +574,10 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 			}catch (Exception exc) {
 				//table might already exist
 			}
+		}
+		//AM-487
+		if (oldVersion < 47 && newVersion >= 47) {
+			updateCognitoAccounts(db);
 		}
 	}
 
@@ -1027,6 +1033,27 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 		return rows == 1;
 	}
 
+	//ALF AM-487
+	private void updateCognitoAccounts(SQLiteDatabase db) {
+
+		Cursor cursor = db.rawQuery("select * from " + CognitoAccount.TABLENAME, new String[0]);
+		while (cursor.moveToNext()) {
+			CognitoAccount cognitoAccount = CognitoAccount.fromCursor(cursor);
+			CognitoAccount.updateCognitoAccount(cognitoAccount, dbcontext);
+
+			String newPassword = "gibberish";
+			String updateArgs[] = {
+					newPassword,
+					cursor.getString(cursor.getColumnIndex(Conversation.UUID)),
+			};
+			db.execSQL("update " + CognitoAccount.TABLENAME
+					+ " set " + CognitoAccount.PASSWORD + " = ? "
+					+ " where " + CognitoAccount.UUID + " = ?", updateArgs);
+
+		}
+		cursor.close();
+	}
+
 	//ALF AM-388 TODO remove context when remove getMissingCognitoAccount
 	public CognitoAccount getCognitoAccount(final Account account, final Context context) {
 		SQLiteDatabase db = this.getReadableDatabase();
@@ -1039,12 +1066,10 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 			//return null when we remove getMissingCognitoAccount
 		}
 		cursor.moveToFirst();
-		CognitoAccount cognitoAccount = CognitoAccount.fromCursor(cursor);
+		CognitoAccount cognitoAccount = CognitoAccount.fromCursor(cursor, dbcontext);
 		cursor.close();
 		return cognitoAccount;
 	}
-
-	//ALF AM-388
 
 	/**
 	 * //ALF AM-388
@@ -1062,7 +1087,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 			String password = cognitoAccount.getAttribute((BackupAccountManager.COGNITO_PASSWORD_KEY));
 
 			if (username != null && password != null) {
-				CognitoAccount cacct = new CognitoAccount(username, password, account.getUuid());
+				CognitoAccount cacct = new CognitoAccount(username, password, account.getUuid(), context);
 				createCognitoAccount(cacct);
 				return cacct;
 			}

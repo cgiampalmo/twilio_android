@@ -410,7 +410,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 
 		@Override
 		public void onClick(View v) {
-			PendingIntent pendingIntent = conversation.getAccount().getPgpDecryptionService().getPendingIntent();
+			/*PendingIntent pendingIntent = conversation.getAccount().getPgpDecryptionService().getPendingIntent();
 			if (pendingIntent != null) {
 				try {
 					getActivity().startIntentSenderForResult(pendingIntent.getIntentSender(),
@@ -423,7 +423,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 					Toast.makeText(getActivity(), R.string.unable_to_connect_to_keychain, Toast.LENGTH_SHORT).show();
 					conversation.getAccount().getPgpDecryptionService().continueDecryption(true);
 				}
-			}
+			}*/
 			updateSnackBar(conversation);
 		}
 	};
@@ -839,7 +839,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		}
 		switch (conversation.getNextEncryption()) {
 			case Message.ENCRYPTION_PGP:
-				sendPgpMessage(message);
+				//sendPgpMessage(message);
 				break;
 			default:
 				sendMessage(message);
@@ -1375,7 +1375,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			MenuItem copyMessage = menu.findItem(R.id.copy_message);
 			MenuItem copyLink = menu.findItem(R.id.copy_link);
 			MenuItem quoteMessage = menu.findItem(R.id.quote_message);
-			MenuItem retryDecryption = menu.findItem(R.id.retry_decryption);
+			//MenuItem retryDecryption = menu.findItem(R.id.retry_decryption);
 			MenuItem correctMessage = menu.findItem(R.id.correct_message);
 			MenuItem shareWith = menu.findItem(R.id.share_with);
 			MenuItem sendAgain = menu.findItem(R.id.send_again);
@@ -1396,9 +1396,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 					copyLink.setVisible(true);
 				}
 			}
-			if (m.getEncryption() == Message.ENCRYPTION_DECRYPTION_FAILED && !deleted) {
+			/*if (m.getEncryption() == Message.ENCRYPTION_DECRYPTION_FAILED && !deleted) {
 				retryDecryption.setVisible(true);
-			}
+			}*/
 			if (!showError
 					&& relevantForCorrection.getType() == Message.TYPE_TEXT
 					&& !m.isGeoUri()
@@ -1477,7 +1477,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				cancelTransmission(selectedMessage);
 				return true;
 			case R.id.retry_decryption:
-				retryDecryption(selectedMessage);
+				//retryDecryption(selectedMessage);
 				return true;
 			case R.id.delete_file:
 				deleteFile(selectedMessage);
@@ -1665,7 +1665,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		final int encryption = conversation.getNextEncryption();
 		final int mode = conversation.getMode();
 		if (encryption == Message.ENCRYPTION_PGP) {
-			if (activity.hasPgp()) {
+			/*if (activity.hasPgp()) {
 				if (mode == Conversation.MODE_SINGLE && conversation.getContact().getPgpKeyId() != 0) {
 					activity.xmppConnectionService.getPgpEngine().hasKey(
 							conversation.getContact(),
@@ -1702,7 +1702,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				}
 			} else {
 				activity.showInstallPgpDialog();
-			}
+			}*/
 		} else {
 			selectPresenceToAttachFile(attachmentChoice);
 		}
@@ -2223,12 +2223,12 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		}
 	}
 
-	private void retryDecryption(Message message) {
+	/*private void retryDecryption(Message message) {
 		message.setEncryption(Message.ENCRYPTION_PGP);
 		activity.onConversationsListItemUpdated();
 		refresh();
 		conversation.getAccount().getPgpDecryptionService().decrypt(message, false);
-	}
+	}*/
 
 	public void privateMessageWith(final Jid counterpart) {
 		if (conversation.setOutgoingChatState(Config.DEFAULT_CHATSTATE)) {
@@ -2747,8 +2747,8 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 					hideSnackbar();
 					break;
 			}
-		} else if (account.hasPendingPgpIntent(conversation)) {
-			showSnackbar(R.string.openpgp_messages_found, R.string.decrypt, clickToDecryptListener);
+		//} else if (account.hasPendingPgpIntent(conversation)) {
+		//	showSnackbar(R.string.openpgp_messages_found, R.string.decrypt, clickToDecryptListener);
 		} else if (connection != null
 				&& connection.getFeatures().blocking()
 				&& conversation.countMessages() != 0
@@ -3093,7 +3093,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		messageSent();
 	}
 
-	protected void sendPgpMessage(final Message message) {
+	/*protected void sendPgpMessage(final Message message) {
 		final XmppConnectionService xmppService = activity.xmppConnectionService;
 		final Contact contact = message.getConversation().getContact();
 		if (!activity.hasPgp()) {
@@ -3203,7 +3203,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		builder.setNegativeButton(getString(R.string.cancel), null);
 		builder.setPositiveButton(getString(R.string.send_unencrypted), listener);
 		builder.create().show();
-	}
+	}*/
 
 	public void appendText(String text, final boolean doNotAppend) {
 		if (text == null) {

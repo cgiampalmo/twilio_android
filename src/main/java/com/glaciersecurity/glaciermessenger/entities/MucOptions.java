@@ -532,7 +532,7 @@ public class MucOptions {
 		}
 	}
 
-	public long[] getPgpKeyIds() {
+	/*public long[] getPgpKeyIds() {
 		List<Long> ids = new ArrayList<>();
 		for (User user : this.users) {
 			if (user.getPgpKeyId() != 0) {
@@ -545,9 +545,9 @@ public class MucOptions {
 			primitiveLongArray[i] = ids.get(i);
 		}
 		return primitiveLongArray;
-	}
+	}*/
 
-	public boolean pgpKeysInUse() {
+	/*public boolean pgpKeysInUse() {
 		synchronized (users) {
 			for (User user : users) {
 				if (user.getPgpKeyId() != 0) {
@@ -556,9 +556,9 @@ public class MucOptions {
 			}
 		}
 		return false;
-	}
+	}*/
 
-	public boolean everybodyHasKeys() {
+	/*public boolean everybodyHasKeys() {
 		synchronized (users) {
 			for (User user : users) {
 				if (user.getPgpKeyId() == 0) {
@@ -567,7 +567,7 @@ public class MucOptions {
 			}
 		}
 		return true;
-	}
+	}*/
 
 	public Jid createJoinJid(String nick) {
 		try {

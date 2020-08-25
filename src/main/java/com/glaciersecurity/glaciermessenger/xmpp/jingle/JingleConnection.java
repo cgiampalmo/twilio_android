@@ -119,12 +119,12 @@ public class JingleConnection implements Transferable {
 				mXmppConnectionService.markMessage(message,Message.STATUS_RECEIVED);
 				if (acceptedAutomatically) {
 					message.markUnread();
-					if (message.getEncryption() == Message.ENCRYPTION_PGP) {
+					/*if (message.getEncryption() == Message.ENCRYPTION_PGP) {
 						account.getPgpDecryptionService().decrypt(message, true);
-					} else {
+					} else {*/
 						mXmppConnectionService.getFileBackend().updateMediaScanner(file, () -> JingleConnection.this.mXmppConnectionService.getNotificationService().push(message));
 
-					}
+					//}
 					Log.d(Config.LOGTAG,"successfully transmitted file:" + file.getAbsolutePath()+" ("+ CryptoHelper.bytesToHex(file.getSha1Sum())+")");
 					return;
 				}
@@ -132,9 +132,9 @@ public class JingleConnection implements Transferable {
 				if (ftVersion == Content.Version.FT_5) { //older Conversations will break when receiving a session-info
 					sendHash();
 				}
-				if (message.getEncryption() == Message.ENCRYPTION_PGP) {
+				/*if (message.getEncryption() == Message.ENCRYPTION_PGP) {
 					account.getPgpDecryptionService().decrypt(message, false);
-				}
+				}*/
 				if (message.getEncryption() == Message.ENCRYPTION_PGP || message.getEncryption() == Message.ENCRYPTION_DECRYPTED) {
 					file.delete();
 				}

@@ -44,7 +44,7 @@
         android:name="android.permission.READ_PHONE_STATE"/> <!-- ALF AM-474
         tools:node="remove"/> -->
 
-    <uses-sdk tools:overrideLibrary="net.ypresto.androidtranscoder"/>
+    <uses-sdk tools:overrideLibrary="net.ypresto.androidtranscoder, androidx.security"/>
 
     <uses-feature
         android:name="android.hardware.camera"

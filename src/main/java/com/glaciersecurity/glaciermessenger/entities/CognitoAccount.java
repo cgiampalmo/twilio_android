@@ -1,7 +1,21 @@
 package com.glaciersecurity.glaciermessenger.entities;
 
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.Build;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
+import android.util.Log;
+
+import com.glaciersecurity.glaciermessenger.Config;
+
+import androidx.annotation.RequiresApi;
+
+//AM-487
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
 
 //ALF AM-388
 public class CognitoAccount extends AbstractEntity {
@@ -10,16 +24,34 @@ public class CognitoAccount extends AbstractEntity {
     public static final String PASSWORD = "password";
     public static final String ACCOUNT = "account";
 
+    //AM-487
+    final private static String GLACIER_KEY_ALIAS = "_androidx_security_master_key_";
+    final private static int KEY_SIZE = 256;
+
     protected String username;
     protected String password;
     protected String account;
 
-    public CognitoAccount(final String name, final String password, final String account) {
-        this(java.util.UUID.randomUUID().toString(), name, password, account);
+    private Context cacontext;
+
+    public CognitoAccount(final String name, final String password, final String account, Context context) {
+        this(java.util.UUID.randomUUID().toString(), name, password, account, context);
     }
 
     private CognitoAccount(final String uuid, final String name,
-                    final String password, final String account) {
+                           final String password, final String account) {
+        this.uuid = uuid;
+        this.username = name;
+        this.password = password;
+        this.account = account;
+    }
+
+    //AM-487
+    private CognitoAccount(final String uuid, final String name,
+                    final String password, final String account, Context context) {
+        this.cacontext = context;
+        updateSharedPreferences(uuid, password, context);
+
         this.uuid = uuid;
         this.username = name;
         this.password = password;
@@ -30,7 +62,7 @@ public class CognitoAccount extends AbstractEntity {
     public ContentValues getContentValues() {
         ContentValues values = new ContentValues();
         values.put(USERNAME, this.username);
-        values.put(PASSWORD, this.password);
+        values.put(PASSWORD, "gibberish"); //store this in database
         values.put(ACCOUNT, this.account);
         values.put(UUID, uuid);
         return values;
@@ -43,11 +75,99 @@ public class CognitoAccount extends AbstractEntity {
                 cursor.getString(cursor.getColumnIndex(ACCOUNT)));
     }
 
+    //AM-487
+    public static CognitoAccount fromCursor(Cursor cursor, Context context) {
+        String cauuid = cursor.getString(cursor.getColumnIndex(UUID));
+        String capass = cursor.getString(cursor.getColumnIndex(PASSWORD));
+
+        try {
+            SharedPreferences spref = getEncryptedSharedPreferences(context);
+            capass = spref.getString(cauuid, capass);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return new CognitoAccount(cauuid,
+                cursor.getString(cursor.getColumnIndex(USERNAME)),
+                capass,
+                cursor.getString(cursor.getColumnIndex(ACCOUNT)));
+    }
+
+    public static void updateCognitoAccount(CognitoAccount account, Context context) {
+        updateSharedPreferences(account.getUuid(), account.getPassword(), context);
+    }
+
+    private static void updateSharedPreferences(final String uuid,
+                                                final String password, Context context) {
+        try {
+            SharedPreferences spref = getEncryptedSharedPreferences(context);
+            SharedPreferences.Editor editor = spref.edit();
+            editor.putString(uuid, password);
+            editor.apply();
+            editor.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public String getUserName() {
         return username;
     }
 
     public String getPassword() {
-        return password;
+        if (password != null) {
+            return password;
+        }
+
+        //AM-487
+        String capassword = "gibberish";
+        if (cacontext != null) {
+            SharedPreferences spref = getEncryptedSharedPreferences(cacontext);
+            capassword = spref.getString(uuid, password);
+        }
+
+        return capassword;
     }
+
+    //AM-487 (next two)
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private static MasterKey getMasterKey(Context context) {
+        try {
+            KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(
+                    GLACIER_KEY_ALIAS,
+                    KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                    .setKeySize(KEY_SIZE)
+                    .build();
+
+            return new MasterKey.Builder(context)
+                    .setKeyGenParameterSpec(spec)
+                    .build();
+        } catch (Exception e) {
+            Log.e(Config.LOGTAG, "Error on getting master key", e);
+        }
+        return null;
+    }
+
+    private static SharedPreferences getEncryptedSharedPreferences(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            try {
+                return EncryptedSharedPreferences.create(
+                        context,
+                        "secret_shared_prefs",
+                        getMasterKey(context), // calling the method above for creating MasterKey
+                        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+                );
+            } catch (Exception e) {
+                Log.e(Config.LOGTAG, "Error on getting encrypted shared preferences", e);
+            }
+        } else {
+            return context.getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
+        }
+        return null;
+    }
+    //returnValue = Base64.getEncoder().encodeToString(securePassword);
 }

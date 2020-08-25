@@ -30,6 +30,10 @@ buildscript {
     ]
 }
 
+plugins {
+    id "nebula.lint" version "16.9.0"
+}
+
 apply plugin: 'com.android.application'
 apply plugin: 'com.amazonaws.appsync'
 apply plugin: 'com.google.gms.google-services'
@@ -41,6 +45,11 @@ repositories {
 }
 
 allprojects {
+    apply plugin :"nebula.lint"
+    gradleLint {
+        rules=['unused-dependency']
+    }
+
     repositories {
         google()  // Google's Maven repository
         jcenter()
@@ -51,11 +60,8 @@ allprojects {
 }
 
 configurations {
-    playstoreImplementation
     compatImplementation
     messengerFreeCompatImplementation
-    quicksyFreeCompatImplementation
-    quicksyImplementation
 }
 
 ext {
@@ -69,12 +75,12 @@ dependencies {
         exclude group: 'com.google.firebase', module: 'firebase-analytics'
         exclude group: 'com.google.firebase', module: 'firebase-measurement-connector'
     }
-    implementation 'org.sufficientlysecure:openpgp-api:10.0'
+    //implementation 'org.sufficientlysecure:openpgp-api:10.0' //AM-487 removed all pgp ref
     implementation('com.theartofdev.edmodo:android-image-cropper:2.7.0') {
         exclude group: 'com.android.support', module: 'appcompat-v7'
         exclude group: 'com.android.support', module: 'exifinterface'
     }
-    //implementation 'com.google.firebase:firebase-analytics:17.2.2'
+
     implementation 'androidx.legacy:legacy-support-v13:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'androidx.exifinterface:exifinterface:1.0.0'
@@ -83,7 +89,6 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
     compatImplementation 'androidx.emoji:emoji-appcompat:1.0.0'
     messengerFreeCompatImplementation 'androidx.emoji:emoji-bundled:1.0.0'
-    quicksyFreeCompatImplementation 'androidx.emoji:emoji-bundled:1.0.0'
     implementation 'org.bouncycastle:bcmail-jdk15on:1.58'
     implementation 'com.google.zxing:core:3.3.3'
     implementation 'de.measite.minidns:minidns-hla:0.2.4'
@@ -98,26 +103,7 @@ dependencies {
     implementation 'org.conscrypt:conscrypt-android:1.3.0'
     implementation 'me.drakeet.support:toastcompat:1.1.0'
     implementation 'com.leinardi.android:speed-dial:2.0.1'
-    quicksyImplementation 'io.michaelrocks:libphonenumber-android:8.10.1'
     implementation 'uk.me.lewisdeane.ldialogs:ldialogs:1.2.0@aar'
-
-    //RippleView
-
-    //implementation 'com.github.traex.rippleeffect:ripple:1.3.1-OG'
-
-    //TypefaceView
-
-    //implementation 'com.github.omadahealth.typefaceview:typefaceview:1.3.0@aar'
-
-    //Compat
-
-    //implementation 'com.google.code.gson:gson:2.7'
-
-    //implementation 'com.android.support:support-v4:26.+'
-
-    //implementation 'com.android.support:appcompat-v7:26.+'
-
-    // GOOBER PIN
 
     //RippleView
     implementation 'com.github.traex.rippleeffect:ripple:1.3.1-OG'
@@ -125,22 +111,9 @@ dependencies {
     //TypefaceView
     implementation 'com.github.omadahealth.typefaceview:typefaceview:1.5.0@aar'
 
-    // GOOBER COGNITO - S3
-    //implementation 'com.amazonaws:aws-android-sdk-s3:2.7.+'
     //ALF AM-313, AM-346
     implementation 'com.amazonaws:aws-android-sdk-s3:2.14.2'
 
-    // GOOBER COGNITO - Demo
-
-    //implementation 'com.android.support:appcompat-v7:26.0.0'
-
-    //implementation 'com.android.support:design:26.0.0'
-
-    //implementation 'com.android.support:cardview-v7:26.0.0'
-
-    //implementation 'com.android.support:recyclerview-v7:28.0.0' //ALF test
-//    implementation 'com.android.support.constraint:constraint-layout:1.0.0-beta3'
-    //implementation 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.6.8'
     //ALF AM-313, AM-346
     implementation 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.14.2'
 
@@ -160,8 +133,6 @@ dependencies {
     implementation 'com.amazonaws:aws-android-sdk-core:2.16.3'
     //AppSync SDK
     implementation 'com.amazonaws:aws-android-sdk-appsync:3.0.0'
-    //implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0'
-    //implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
 
     implementation "com.twilio:video-android:${versions.videoAndroid}"
     //AM-440
@@ -173,6 +144,7 @@ dependencies {
     implementation "com.android.support:design:${versions.supportLibrary}"
     implementation "androidx.coordinatorlayout:coordinatorlayout:1.1.0"
 
+    implementation "androidx.security:security-crypto:1.1.0-alpha02" //AM-388
 }
 
 
@@ -214,51 +186,19 @@ android {
     }
     flavorDimensions("mode", "distribution", "emoji")
     productFlavors {
-        quicksy {
-            dimension "mode"
-            applicationId = "im.quicksy.client"
-            resValue "string", "app_name", "Quicksy"
-            resValue "string", "applicationId", applicationId
-            buildConfigField "String", "LOGTAG", "\"quicksy\""
-        }
-
         messenger {
             dimension "mode"
         }
 
-        playstore {
-            dimension "distribution"
-        }
         free {
             dimension "distribution"
         }
-        system {
-            dimension "emoji"
-        }
+
         compat {
             dimension "emoji"
         }
     }
     sourceSets {
-        quicksyFreeCompat {
-            java {
-                srcDirs 'src/freeCompat/java'
-            }
-        }
-        quicksyPlaystoreCompat {
-            java {
-                srcDirs 'src/playstoreCompat/java'
-            }
-            res {
-                srcDir 'src/playstoreCompat/res'
-                srcDir 'src/quicksyPlaystore/res'
-            }
-        }
-        quicksyPlaystoreSystem {
-            res {
-                srcDir 'src/quicksyPlaystore/res'
-            }
-        }
         messengerFreeCompat {
             java {
                 srcDir 'src/messenger/java'  //ALF AM-410
@@ -266,20 +206,6 @@ android {
             }
             res {
                 srcDir 'src/messenger/res' //ALF AM-410
-            }
-        }
-        messengerPlaystoreCompat {
-            java {
-                srcDirs 'src/playstoreCompat/java'
-            }
-            res {
-                srcDir 'src/playstoreCompat/res'
-                srcDir 'src/messengerPlaystore/res'
-            }
-        }
-        messengerPlaystoreSystem {
-            res {
-                srcDir 'src/messengerPlaystore/res'
             }
         }
     }
@@ -311,7 +237,6 @@ android {
     }
     lintOptions {
         disable 'ExtraTranslation', 'MissingTranslation', 'InvalidPackage', 'MissingQuantity', 'AppCompatResource'
-        // checkReleaseBuilds false
         // Or, if you prefer, you can continue to check for errors in release builds,
         // but continue the build even when errors are found:
         abortOnError false

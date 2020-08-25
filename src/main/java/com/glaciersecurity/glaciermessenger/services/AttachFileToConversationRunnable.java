@@ -19,7 +19,7 @@ import java.util.concurrent.Future;
 
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
-import com.glaciersecurity.glaciermessenger.crypto.PgpEngine;
+//import com.glaciersecurity.glaciermessenger.crypto.PgpEngine;
 import com.glaciersecurity.glaciermessenger.entities.DownloadableFile;
 import com.glaciersecurity.glaciermessenger.entities.Message;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
@@ -60,23 +60,23 @@ public class AttachFileToConversationRunnable implements Runnable, MediaTranscod
 		if (path != null && !FileBackend.isPathBlacklisted(path)) {
 			message.setRelativeFilePath(path);
 			mXmppConnectionService.getFileBackend().updateFileParams(message);
-			if (message.getEncryption() == Message.ENCRYPTION_DECRYPTED) {
+			/*if (message.getEncryption() == Message.ENCRYPTION_DECRYPTED) {
 				mXmppConnectionService.getPgpEngine().encrypt(message, callback);
-			} else {
+			} else {*/
 				mXmppConnectionService.sendMessage(message);
 				callback.success(message);
-			}
+			//}
 		} else {
 			try {
 				mXmppConnectionService.getFileBackend().copyFileToPrivateStorage(message, uri, type);
 				mXmppConnectionService.getFileBackend().updateFileParams(message);
 				if (message.getEncryption() == Message.ENCRYPTION_DECRYPTED) {
-					final PgpEngine pgpEngine = mXmppConnectionService.getPgpEngine();
+					/*final PgpEngine pgpEngine = mXmppConnectionService.getPgpEngine();
 					if (pgpEngine != null) {
 						pgpEngine.encrypt(message, callback);
-					} else if (callback != null) {
+					} else if (callback != null) {*/
 						callback.error(R.string.unable_to_connect_to_keychain, null);
-					}
+					//}
 				} else {
 					mXmppConnectionService.sendMessage(message);
 					callback.success(message);
@@ -142,12 +142,12 @@ public class AttachFileToConversationRunnable implements Runnable, MediaTranscod
 			}
 		}
 		mXmppConnectionService.getFileBackend().updateFileParams(message);
-		if (message.getEncryption() == Message.ENCRYPTION_DECRYPTED) {
+		/*if (message.getEncryption() == Message.ENCRYPTION_DECRYPTED) {
 			mXmppConnectionService.getPgpEngine().encrypt(message, callback);
-		} else {
+		} else {*/
 			mXmppConnectionService.sendMessage(message);
 			callback.success(message);
-		}
+		//}
 	}
 
 	@Override

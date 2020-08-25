@@ -24,7 +24,7 @@ import rocks.xmpp.addr.Jid;
 
 public class MessageGenerator extends AbstractGenerator {
 	private static final String GLACIER_FALLBACK_MESSAGE = "I sent you an Glacier encrypted message but your client doesn’t seem to support that. Find more information on www.glaciersecurity.com";
-	private static final String PGP_FALLBACK_MESSAGE = "I sent you a PGP encrypted message but your client doesn’t seem to support that.";
+	//private static final String PGP_FALLBACK_MESSAGE = "I sent you a PGP encrypted message but your client doesn’t seem to support that.";
 
 	public MessageGenerator(XmppConnectionService service) {
 		super(service);
@@ -125,7 +125,7 @@ public class MessageGenerator extends AbstractGenerator {
 		return packet;
 	}
 
-	public MessagePacket generatePgpChat(Message message) {
+	/*public MessagePacket generatePgpChat(Message message) {
 		MessagePacket packet = preparePacket(message);
 		if (message.hasFileOnRemoteHost()) {
 			Message.FileParams fileParams = message.getFileParams();
@@ -152,7 +152,7 @@ public class MessageGenerator extends AbstractGenerator {
 					.setAttribute("namespace", "jabber:x:encrypted");
 		}
 		return packet;
-	}
+	}*/
 
 	public MessagePacket generateChatState(Conversation conversation) {
 		final Account account = conversation.getAccount();

@@ -8,7 +8,7 @@ import java.util.List;
 
 
 import com.glaciersecurity.glaciermessenger.Config;
-import com.glaciersecurity.glaciermessenger.crypto.PgpEngine;
+//import com.glaciersecurity.glaciermessenger.crypto.PgpEngine;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Bookmark;
@@ -102,7 +102,7 @@ public class PresenceParser extends AbstractParser implements
 									IqGenerator.defaultGroupChatConfiguration(),
 									null);
 						}
-						if (mXmppConnectionService.getPgpEngine() != null) {
+						/*if (mXmppConnectionService.getPgpEngine() != null) {
 							Element signed = packet.findChild("x", "jabber:x:signed");
 							if (signed != null) {
 								Element status = packet.findChild("status");
@@ -112,7 +112,7 @@ public class PresenceParser extends AbstractParser implements
 									user.setPgpKeyId(keyId);
 								}
 							}
-						}
+						}*/
 						if (avatar != null) {
 							avatar.owner = from;
 							if (mXmppConnectionService.getFileBackend().isAvatarCached(avatar)) {
@@ -331,7 +331,7 @@ public class PresenceParser extends AbstractParser implements
 				}
 			}
 
-			PgpEngine pgp = mXmppConnectionService.getPgpEngine();
+			/*PgpEngine pgp = mXmppConnectionService.getPgpEngine();
 			Element x = packet.findChild("x", "jabber:x:signed");
 			if (pgp != null && x != null) {
 				Element status = packet.findChild("status");
@@ -339,7 +339,7 @@ public class PresenceParser extends AbstractParser implements
 				if (contact.setPgpKeyId(pgp.fetchKeyId(account, msg, x.getContent()))) {
 					mXmppConnectionService.syncRoster(account);
 				}
-			}
+			}*/
 			boolean online = sizeBefore < contact.getPresences().size();
 			mXmppConnectionService.onContactStatusChanged.onContactStatusChanged(contact, online);
 		} else if (type.equals("unavailable")) {

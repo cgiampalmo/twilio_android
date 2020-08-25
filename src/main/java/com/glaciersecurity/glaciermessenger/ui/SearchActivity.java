@@ -371,11 +371,11 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 							enableAccount(account);
 						}
 						PresenceTemplate template = new PresenceTemplate(Presence.Status.ONLINE, account.getPresenceStatusMessage());
-						if (account.getPgpId() != 0 && hasPgp()) {
-							generateSignature(null, template, account);
-						} else {
+						//if (account.getPgpId() != 0 && hasPgp()) {
+						//	generateSignature(null, template, account);
+						//} else {
 							xmppConnectionService.changeStatus(account, template, null);
-						}
+						//}
 					}
 					/*
 				     Case 1b. PRESENCE) "_____: tap to set to Available"
@@ -566,11 +566,11 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 		builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
 			PresenceTemplate template = new PresenceTemplate(getAvailabilityRadioButton(binding), binding.statusMessage.getText().toString().trim());
 			//CMG AM-218
-			if (fragAccount.getPgpId() != 0 && hasPgp()) {
-				generateSignature(null, template, fragAccount);
-			} else {
+			//if (fragAccount.getPgpId() != 0 && hasPgp()) {
+			//	generateSignature(null, template, fragAccount);
+			//} else {
 				xmppConnectionService.changeStatus(fragAccount, template, null);
-			}
+			//}
 			if (template.getStatus().equals(Presence.Status.OFFLINE)){
 				disableAccount(fragAccount);
 			} else {
@@ -585,7 +585,7 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 	}
 
 
-	private void generateSignature(Intent intent, PresenceTemplate template, Account fragAccount) {
+	/*private void generateSignature(Intent intent, PresenceTemplate template, Account fragAccount) {
 		xmppConnectionService.getPgpEngine().generateSignature(intent, fragAccount, template.getStatusMessage(), new UiCallback<String>() {
 			@Override
 			public void success(String signature) {
@@ -606,7 +606,7 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 				}
 			}
 		});
-	}
+	}*/
 
 	private static final int REQUEST_CHANGE_STATUS = 0xee11;
 	private final PendingItem<PresenceTemplate> mPendingPresenceTemplate = new PendingItem<>();

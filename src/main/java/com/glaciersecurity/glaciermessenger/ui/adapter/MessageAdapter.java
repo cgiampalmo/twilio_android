@@ -773,7 +773,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 				displayOpenableMessage(viewHolder, message);
 			}
 		} else if (message.getEncryption() == Message.ENCRYPTION_PGP) {
-			if (account.isPgpDecryptionServiceConnected()) {
+			/*if (account.isPgpDecryptionServiceConnected()) {
 				if (conversation instanceof Conversation && !account.hasPendingPgpIntent((Conversation) conversation)) {
 					displayInfoMessage(viewHolder, activity.getString(R.string.message_decrypting), darkBackground);
 				} else {
@@ -783,7 +783,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 				displayInfoMessage(viewHolder, activity.getString(R.string.install_openkeychain), darkBackground);
 				viewHolder.message_box.setOnClickListener(this::promptOpenKeychainInstall);
 				viewHolder.messageBody.setOnClickListener(this::promptOpenKeychainInstall);
-			}
+			}*/
 		} else if (message.getEncryption() == Message.ENCRYPTION_DECRYPTION_FAILED) {
 			displayInfoMessage(viewHolder, activity.getString(R.string.decryption_failed), darkBackground);
 		} else if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL_NOT_FOR_THIS_DEVICE) {
@@ -857,9 +857,9 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 		return view;
 	}
 
-	private void promptOpenKeychainInstall(View view) {
+	/*private void promptOpenKeychainInstall(View view) {
 		activity.showInstallPgpDialog();
-	}
+	}*/
 
 	@Override
 	public void notifyDataSetChanged() {

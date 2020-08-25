@@ -18,7 +18,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import org.openintents.openpgp.util.OpenPgpApi;
+//import org.openintents.openpgp.util.OpenPgpApi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -422,13 +422,13 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
         }
     }
 
-    private void publishOpenPGPPublicKey(Account account) {
+    /*private void publishOpenPGPPublicKey(Account account) {
         if (ManageAccountActivity.this.hasPgp()) {
             announcePgp(selectedAccount, null, null, onOpenPGPKeyPublished);
         } else {
             this.showInstallPgpDialog();
         }
-    }
+    }*/
 
     private void deleteAccount(final Account account) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -452,7 +452,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (xmppConnectionServiceBound) {
-                if (requestCode == REQUEST_CHOOSE_PGP_ID) {
+                /*if (requestCode == REQUEST_CHOOSE_PGP_ID) {
                     if (data.getExtras().containsKey(OpenPgpApi.EXTRA_SIGN_KEY_ID)) {
                         selectedAccount.setPgpSignId(data.getExtras().getLong(OpenPgpApi.EXTRA_SIGN_KEY_ID));
                         announcePgp(selectedAccount, null, null, onOpenPGPKeyPublished);
@@ -461,7 +461,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
                     }
                 } else if (requestCode == REQUEST_ANNOUNCE_PGP) {
                     announcePgp(selectedAccount, null, data, onOpenPGPKeyPublished);
-                }
+                }*/
                 this.mPostponedActivityResult = null;
             } else {
                 this.mPostponedActivityResult = new Pair<>(requestCode, data);
