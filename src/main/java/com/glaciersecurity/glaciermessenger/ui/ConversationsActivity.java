@@ -984,7 +984,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		statusIcon.setVisibility(View.GONE);
 		downArrow.setVisibility(View.VISIBLE);
 		toolbar = (Toolbar) findViewById(R.id.toolbar_with_icon_status);
-		toolbar.setOnClickListener(conversationFragment.clickToContactDetails);
+		//CMG AM-368
+		if (conversationFragment != null) {
+			toolbar.setOnClickListener(conversationFragment.clickToContactDetails);
+		}
 		toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back_black_24dp));
 		toolbar.setNavigationOnClickListener(new View.OnClickListener() {
 			@Override
