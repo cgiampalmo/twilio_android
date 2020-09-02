@@ -447,6 +447,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
 
         //CMG AM-260
         binding.detailsContactjid.setText(contact.getDisplayName());
+        binding.jidText.setText(contact.getJid().asBareJid().getEscapedLocal());
         String account;
         if (Config.DOMAIN_LOCK != null) {
             account = contact.getAccount().getJid().getLocal();

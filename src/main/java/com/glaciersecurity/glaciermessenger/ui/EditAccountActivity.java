@@ -279,6 +279,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private XmppUri pendingUri = null;
 	private Button mEditDisplayNameButton;
 	private TextView mDisplayName;
+	private TextView mFullJid;
 	private boolean mUseTor;
 	private ActivityEditAccountBinding binding;
 
@@ -615,6 +616,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		//CMG AM-
 		this.mEditDisplayNameButton = (Button) findViewById(R.id.edit_displayname_name_button);
 		this.mDisplayName = (TextView) findViewById(R.id.displayname_text);
+		this.mFullJid = (TextView) findViewById(R.id.jid_text);
 		this.mDisplayName.addTextChangedListener(mTextWatcher);
 		//CMG AM-318
 		this.mEditDisplayNameButton.setOnClickListener(v -> quickEdit(this.getDisplayName(),
@@ -836,10 +838,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 				if (this.mDisplayName != null){
 					mDisplayName.setText(getDisplayName());
-
-
-
 				}
+
+
 			} else {
 //				this.binding.displayname.setVisibility(View.GONE); //CMG AM-323
 //				this.mAvatar.setVisibility(View.GONE);
@@ -903,6 +904,13 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 
+	private String getFullJid(){
+		if(mAccount != null){
+			return mAccount.getUsername();
+		}
+		return "";
+
+	}
 
 	private String getDisplayName(){
 		if(mAccount != null){
@@ -1198,6 +1206,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			this.binding.acctdetails.setVisibility(VISIBLE); //ALF AM-206
 			this.mAvatar.setImageBitmap(avatarService().get(this.mAccount, (int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
 			this.mDisplayName.setText(getDisplayName());
+			this.mFullJid.setText(getFullJid());
 
 		} else {
 			this.binding.acctdetails.setVisibility(View.GONE); //ALF AM-206
