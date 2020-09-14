@@ -315,10 +315,10 @@
     <string name="contacts_have_read_up_to_this_point">%s have read up to this point</string>
     <string name="contacts_and_n_more_have_read_up_to_this_point">%1$s +%2$d more have read up to this point</string>
     <string name="everyone_has_read_up_to_this_point">Everyone has read up to this point</string>
-    <string name="publish">Publish</string>
+    <string name="publish">Save</string>
     <string name="touch_to_choose_picture">Touch avatar to select picture from gallery</string>
-    <string name="publishing">Publishing…</string>
-    <string name="error_publish_avatar_server_reject">The server rejected your publication</string>
+    <string name="publishing">Save…</string>
+    <string name="error_publish_avatar_server_reject">Something went wrong while saving your picture</string>
     <string name="error_publish_avatar_converting">Something went wrong while converting your picture</string>
     <string name="error_saving_avatar">Could not save avatar to disk</string>
     <string name="or_long_press_for_default">(Or long press to bring back default)</string>

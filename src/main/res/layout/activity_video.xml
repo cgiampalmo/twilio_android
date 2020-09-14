@@ -38,9 +38,12 @@
             android:orientation="horizontal" >
 
             <View
+                android:id="@+id/switch_camera_action_space"
+
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:visibility="gone"/>
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/switch_camera_action_fab"
             android:layout_width="wrap_content"
@@ -51,7 +54,8 @@
             android:layout_marginTop="@dimen/fab_margin"
             app:fabSize="normal"
             app:srcCompat="@drawable/ic_flip_camera"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            />
 
         <View
             android:layout_width="0dp"

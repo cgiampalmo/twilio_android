@@ -403,8 +403,9 @@
 	<color name="colorJ">#ffa645</color>
 	<color name="colorK">#3eb5c0</color>
 	<color name="colorL">#96c11f</color>
-
+	<color name="link">#0066CC</color>
 	<color name="lobbyMediaControls">#CC9B9B9B</color>
+
 	<color name="lobbyHangup">#CC2B33</color>
 
 
