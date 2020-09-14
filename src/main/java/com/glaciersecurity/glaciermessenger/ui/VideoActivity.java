@@ -164,6 +164,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private LocalVideoTrack localVideoTrack;
     private FloatingActionButton connectActionFab;
     private FloatingActionButton switchCameraActionFab;
+    private View switchCameraActionSpace;
     private FloatingActionButton localVideoActionFab;
     private FloatingActionButton muteActionFab;
     private FloatingActionButton speakerPhoneActionFab;
@@ -222,6 +223,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
         connectActionFab = findViewById(R.id.connect_action_fab);
         switchCameraActionFab = findViewById(R.id.switch_camera_action_fab);
+        switchCameraActionSpace = findViewById(R.id.switch_camera_action_space);
+
         localVideoActionFab = findViewById(R.id.local_video_action_fab);
         speakerPhoneActionFab = findViewById(R.id.speaker_phone_action_fab);
         muteActionFab = findViewById(R.id.mute_action_fab);
@@ -409,6 +412,9 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         /*
          * Update reconnecting UI
          */
+        if (!room.getRemoteParticipants().isEmpty()){
+            reconnectingProgressBar.setVisibility(View.GONE);
+        }
 //        if (room != null) {
 //            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
 //                    View.GONE :
@@ -1339,6 +1345,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                     icon = R.drawable.ic_videocam_white_24dp;
                     localVideoActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
                     switchCameraActionFab.show();
+                    switchCameraActionSpace.setVisibility(View.VISIBLE);
+
 
                     enableSpeakerPhone(true);
                     recreateVideoTrackIfNeeded();
@@ -1349,6 +1357,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                     icon = R.drawable.ic_videocam_off_gray_24px;
                     localVideoActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
                     switchCameraActionFab.hide();
+                    switchCameraActionSpace.setVisibility(View.GONE);
                     enableSpeakerPhone(false);
                     isVideoMuted = true;
                     thumbnailVideoView.setVisibility(View.GONE);
