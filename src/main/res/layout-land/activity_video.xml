@@ -60,21 +60,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/speaker_phone_action_fab"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="@dimen/fab_margin"
-                android:layout_marginTop="@dimen/fab_margin"
-                app:backgroundTint="@color/lobbyMediaControls"
-                app:fabSize="normal"
-                app:srcCompat="@drawable/ic_volume_up_white_24dp" />
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/local_video_action_fab"
@@ -86,6 +72,22 @@
                 app:backgroundTint="@color/white"
                 app:fabSize="normal"
                 app:srcCompat="@drawable/ic_videocam_off_gray_24px" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/speaker_phone_action_fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="@dimen/fab_margin"
+                android:layout_marginTop="@dimen/fab_margin"
+                app:backgroundTint="@color/lobbyMediaControls"
+                app:fabSize="normal"
+                app:srcCompat="@drawable/ic_volume_up_white_24dp" />
 
             <View
                 android:layout_width="0dp"

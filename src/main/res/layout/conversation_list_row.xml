@@ -117,7 +117,7 @@
                             android:layout_marginBottom="1dp"
                             android:visibility="gone"
                             android:layout_alignParentRight="true"
-                            app:backgroundColor="?attr/unread_count" />
+                            app:backgroundColor="?attr/colorAccent" />
 
                     </RelativeLayout>
 

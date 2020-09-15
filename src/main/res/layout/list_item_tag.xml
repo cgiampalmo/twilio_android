@@ -8,6 +8,6 @@
           android:paddingLeft="4dp"
           android:paddingRight="4dp"
           android:paddingTop="1dp"
-          android:textAllCaps="true"
-          android:textAppearance="@style/TextAppearance.Conversations.Tag"
+          android:textAllCaps="false"
+          android:textAppearance="@style/TextAppearance.Conversations.Body1"
     />

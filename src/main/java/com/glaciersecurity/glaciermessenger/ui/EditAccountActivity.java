@@ -1172,7 +1172,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 	}
 
-	private int linkcolor = -8211969;
 
 	private void  updateAccountInformation(boolean init) {
 		if (init) {
@@ -1373,14 +1372,13 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				if (otherDevices == null || otherDevices.isEmpty()) {
 					mClearDevicesButton.setEnabled(false);
 					mClearDevicesButton.setClickable(false);
-					linkcolor = mClearDevicesButton.getCurrentTextColor();
 					mClearDevicesButton.setTextColor(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
 
 
 				} else {
 					mClearDevicesButton.setEnabled(true);
 					mClearDevicesButton.setClickable(true);
-					mClearDevicesButton.setTextColor(linkcolor);
+					mClearDevicesButton.setTextColor(mEditDisplayNameButton.getCurrentTextColor());
 
 
 				}

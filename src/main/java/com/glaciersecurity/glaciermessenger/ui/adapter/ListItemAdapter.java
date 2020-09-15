@@ -38,7 +38,7 @@ import rocks.xmpp.addr.Jid;
 public class ListItemAdapter extends ArrayAdapter<ListItem> {
 
 	protected XmppActivity activity;
-	private boolean showDynamicTags = true;
+	private boolean showDynamicTags = false;
 	private OnTagClickedListener mOnTagClickedListener = null;
 	private View.OnClickListener onTagTvClick = view -> {
 		if (view instanceof TextView && mOnTagClickedListener != null){
@@ -77,7 +77,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 
 	public void refreshSettings() {
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
-		this.showDynamicTags = preferences.getBoolean(SettingsActivity.SHOW_DYNAMIC_TAGS, true);
+		this.showDynamicTags = preferences.getBoolean(SettingsActivity.SHOW_DYNAMIC_TAGS, false);
 	}
 
 	@Override
