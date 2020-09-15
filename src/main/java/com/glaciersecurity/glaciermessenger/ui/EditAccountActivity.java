@@ -18,6 +18,8 @@ import android.content.pm.PackageManager;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
+
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -49,6 +51,9 @@ import com.apollographql.apollo.GraphQLCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
+import com.glaciersecurity.glaciermessenger.entities.Contact;
+import com.glaciersecurity.glaciermessenger.entities.ListItem;
+import com.glaciersecurity.glaciermessenger.xml.Tag;
 import com.google.android.material.textfield.TextInputLayout;
 import androidx.appcompat.app.ActionBar;
 //import android.support.v7.app.AlertDialog;
@@ -116,6 +121,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -157,6 +163,8 @@ import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection.Features;
 import com.glaciersecurity.glaciermessenger.xmpp.forms.Data;
 import com.glaciersecurity.glaciermessenger.xmpp.pep.Avatar;
+
+import org.json.JSONException;
 
 import javax.annotation.Nonnull;
 
@@ -841,6 +849,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				}
 
 
+
+
 			} else {
 //				this.binding.displayname.setVisibility(View.GONE); //CMG AM-323
 //				this.mAvatar.setVisibility(View.GONE);
@@ -1162,6 +1172,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 	}
 
+	private int linkcolor = -8211969;
+
 	private void  updateAccountInformation(boolean init) {
 		if (init) {
 			if (mUsernameMode) {
@@ -1202,11 +1214,35 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 
 		if (!mInitMode) {
+			final LayoutInflater inflater = getLayoutInflater();
 			this.binding.editor.setVisibility(View.GONE);
 			this.binding.acctdetails.setVisibility(VISIBLE); //ALF AM-206
 			this.mAvatar.setImageBitmap(avatarService().get(this.mAccount, (int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
 			this.mDisplayName.setText(getDisplayName());
 			this.mFullJid.setText(getFullJid());
+
+			List<Contact> contactsAll = mAccount.getRoster().getContacts();
+			Set<String> tagList = new HashSet<>();
+
+					for (Contact c : contactsAll){
+						List<ListItem.Tag> groups = c.getTags(this);
+						for (int i = 0; i < groups.size(); ++i) {
+							tagList.add(groups.get(i).getName());
+						}
+					}
+
+			if (tagList.size() == 0) {
+				binding.tags.setVisibility(View.GONE);
+			} else {
+				binding.tags.setVisibility(View.VISIBLE);
+				binding.tags.removeAllViewsInLayout();
+				for (final String tagName: tagList) {
+					final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, binding.tags, false);
+					tv.setText(tagName);
+					//tv.setBackgroundColor(tag.getColor());
+					binding.tags.addView(tv);
+				}
+			}
 
 		} else {
 			this.binding.acctdetails.setVisibility(View.GONE); //ALF AM-206
@@ -1335,9 +1371,18 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				this.binding.otherDeviceKeysCard.setVisibility(VISIBLE);
 				Set<Integer> otherDevices = mAccount.getAxolotlService().getOwnDeviceIds();
 				if (otherDevices == null || otherDevices.isEmpty()) {
-					mClearDevicesButton.setVisibility(View.GONE);
+					mClearDevicesButton.setEnabled(false);
+					mClearDevicesButton.setClickable(false);
+					linkcolor = mClearDevicesButton.getCurrentTextColor();
+					mClearDevicesButton.setTextColor(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
+
+
 				} else {
-					mClearDevicesButton.setVisibility(VISIBLE);
+					mClearDevicesButton.setEnabled(true);
+					mClearDevicesButton.setClickable(true);
+					mClearDevicesButton.setTextColor(linkcolor);
+
+
 				}
 			} else {
 				this.binding.otherDeviceKeysCard.setVisibility(View.GONE);
@@ -1605,6 +1650,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			startActivity(intent);
 		}
 	}
+
+//	public void resetDefaultAvatar(View view) {
+//		if (mAccount != null) {
+//
+//		}
+//	}
 	/**
 	 * *********** GOOBER COGNITO MODIFICATIONS **************
 	 */

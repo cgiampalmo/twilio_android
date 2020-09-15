@@ -503,25 +503,25 @@
                             android:textColor="?colorAccent"
                             android:drawableLeft="@drawable/ic_phonelink_erase_white_20dp"/>
                         </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <Button
-                            android:id="@+id/reset_avatar"
-                            android:onClick="resetDefaultAvatarAvatar"
-                            android:text="\tReset Default Avatar"
-                            android:gravity="start|center_vertical"
-                            android:textAlignment="textStart"
-                            style="@style/Widget.Conversations.Button.Borderless"
-                            android:layout_width="0px"
-                            android:layout_weight=".5"
-                            android:layout_height="@dimen/spacing_xxlarge"
-                            android:textAppearance="@style/TextAppearance.Conversations.Body1"
-                            android:textColor="?colorAccent"
-                            android:drawableLeft="@drawable/ic_refresh_white_24dp"
-                            />
-                    </LinearLayout>
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:orientation="horizontal">-->
+<!--                        <Button-->
+<!--                            android:id="@+id/reset_avatar"-->
+<!--                            android:onClick="resetDefaultAvatarAvatar"-->
+<!--                            android:text="\tReset Default Avatar"-->
+<!--                            android:gravity="start|center_vertical"-->
+<!--                            android:textAlignment="textStart"-->
+<!--                            style="@style/Widget.Conversations.Button.Borderless"-->
+<!--                            android:layout_width="0px"-->
+<!--                            android:layout_weight=".5"-->
+<!--                            android:layout_height="@dimen/spacing_xxlarge"-->
+<!--                            android:textAppearance="@style/TextAppearance.Conversations.Body1"-->
+<!--                            android:textColor="?colorAccent"-->
+<!--                            android:drawableLeft="@drawable/ic_refresh_white_24dp"-->
+<!--                            />-->
+<!--                    </LinearLayout>-->
                     </LinearLayout>
 
 
