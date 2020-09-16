@@ -8,6 +8,7 @@
         <item name="colorPrimary">@color/primary600</item>
         <item name="colorPrimaryDark">@color/primary800</item>
         <item name="colorAccent">@color/blue_a200</item>
+        <item name="colorAccent2">@color/blue_message_dot_light</item>
         <item name="popupOverlayStyle">@style/ThemeOverlay.AppCompat.Light</item>
 
         <item name="color_background_primary">@color/grey50</item>
@@ -129,6 +130,7 @@
         <item name="colorPrimary">@color/primary800</item>
         <item name="colorPrimaryDark">@color/primary900</item>
         <item name="colorAccent">@color/blue_a100</item>
+        <item name="colorAccent2">@color/blue_message_dot_dark</item>
         <item name="popupOverlayStyle">@style/ThemeOverlay.AppCompat.Dark</item>
 
         <!--HONEYBADGER AM-120 Dark mode conversations view should be black like the actual conversation, not grey-->

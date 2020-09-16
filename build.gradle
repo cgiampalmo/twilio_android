@@ -160,8 +160,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 29
-        versionCode 446
-        versionName "3.0.5-RC7"
+        versionCode 448
+        versionName "3.0.5-RC8"
 
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
@@ -221,16 +221,17 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    if (new File("signing.properties").exists()) {
-        Properties props = new Properties()
-        props.load(new FileInputStream(file("signing.properties")))
+    def keystorePropertiesFile = rootProject.file("signing.properties")
+    if (keystorePropertiesFile.exists()) {
+        def props = new Properties()
+        props.load(new FileInputStream(keystorePropertiesFile))
 
         signingConfigs {
             release {
-                storeFile file(props['keystore'])
-                storePassword props['keystore.password']
-                keyAlias props['keystore.alias']
-                keyPassword props['keystore.password']
+                storeFile file(props['storeFile'])
+                storePassword props['storePassword']
+                keyAlias props['keyAlias']
+                keyPassword props['keyPassword']
             }
         }
         buildTypes.release.signingConfig = signingConfigs.release

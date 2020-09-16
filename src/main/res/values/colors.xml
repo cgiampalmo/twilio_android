@@ -63,6 +63,7 @@
 	<color name="colorPrimaryDark">#1565C0</color>
 	<color name="colorPrimaryLight">#1E88E5</color>
 	<color name="colorAccent">#FF4081</color>
+	<color name="colorAccent2">#FF4081</color>
 	<color name="colorAccentDark">#F50057</color>
 	<color name="colorAccentLight">#FF80AB</color>
 
@@ -124,6 +125,9 @@
 	<color name="deep_purple_A200">#7C4DFF</color>
 	<color name="deep_purple_A400">#651FFF</color>
 	<color name="deep_purple_A700">#6200EA</color>
+
+	<color name="blue_message_dot_light">#16a9db</color>
+	<color name="blue_message_dot_dark">#2495bc</color>
 
 	<color name="light_blue_50">#E1F5FE</color>
 	<color name="light_blue_100">#B3E5FC</color>
@@ -304,6 +308,7 @@
 	<color name="blue_100">#BBDEFB</color>
 	<color name="blue_200">#90CAF9</color>
 	<color name="blue_300">#64B5F6</color>
+	<color name="blue_stuff">#27a1cb</color>
 	<color name="blue_400">#42A5F5</color>
 	<color name="blue_500">#2196F3</color>
 	<color name="blue_600">#1E88E5</color>
