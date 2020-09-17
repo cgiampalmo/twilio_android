@@ -29,7 +29,7 @@ import rocks.xmpp.addr.Jid;
 public class ListItemSelectAdapter extends ArrayAdapter<ListItem> {
 
 	protected XmppActivity activity;
-	private boolean showDynamicTags = true;
+	private boolean showDynamicTags = false; // DJF changed from true to false for AM-491
 	private OnTagClickedListener mOnTagClickedListener = null;
 	private View.OnClickListener onTagTvClick = view -> {
 		if (view instanceof TextView && mOnTagClickedListener != null){
