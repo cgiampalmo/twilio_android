@@ -64,6 +64,7 @@
 	<color name="colorPrimaryLight">#1E88E5</color>
 	<color name="colorAccent">#FF4081</color>
 	<color name="colorAccent2">#FF4081</color>
+	<color name="colorAccent3">#FF4081</color>
 	<color name="colorAccentDark">#F50057</color>
 	<color name="colorAccentLight">#FF80AB</color>
 
@@ -128,6 +129,9 @@
 
 	<color name="blue_message_dot_light">#16a9db</color>
 	<color name="blue_message_dot_dark">#2495bc</color>
+
+	<color name="blue_accent3_light">#69818A</color>
+	<color name="blue_accent3_dark">#7192A5</color>
 
 	<color name="light_blue_50">#E1F5FE</color>
 	<color name="light_blue_100">#B3E5FC</color>
