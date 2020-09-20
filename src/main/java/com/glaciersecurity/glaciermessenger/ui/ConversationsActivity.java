@@ -831,6 +831,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 						binding.statusMessage.setEnabled(false);
 						break;
 					case R.id.custom:
+						binding.statusMessage.setText(Presence.StatusMessage.CUSTOM.toShowString());
 						binding.statusMessage.setEnabled(true);
 						break;
 					default:

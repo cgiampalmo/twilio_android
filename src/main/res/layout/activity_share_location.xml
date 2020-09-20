@@ -37,7 +37,7 @@
                     app:elevation="4dp"
                     android:contentDescription="@string/action_unfix_from_location"
                     android:src="?attr/icon_gps_fixed"
-                    app:backgroundTint="?colorPrimary" />
+                    app:backgroundTint="?colorNewPrimary" />
 
             </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

@@ -220,7 +220,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             recreate();
         } else {
             final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            this.showDynamicTags = preferences.getBoolean(SettingsActivity.SHOW_DYNAMIC_TAGS, false);
+            this.showDynamicTags = preferences.getBoolean(SettingsActivity.SHOW_DYNAMIC_TAGS, true);
             this.showLastSeen = preferences.getBoolean("last_activity", false);
         }
         binding.mediaWrapper.setVisibility(Compatibility.hasStoragePermission(this) ? View.VISIBLE : View.GONE);
@@ -314,14 +314,18 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
     private void setStatusIconandText(Contact contact) {
         ImageView statusIcon = (ImageView) findViewById(R.id.details_contactpresence_icon);
         TextView statusText = (TextView) findViewById(R.id.details_contactpresence_string);
-//        TextView statusMessageText = (TextView) findViewById(R.id.details_contactpresencestatus_message);
-//        List<String> statusMessage = contact.getPresences().getStatusMessages();
-//        if (!statusMessage.isEmpty()){
-//            statusMessageText.setText(statusMessage.get(0));
-//        }else {
-//            statusMessageText.setText("----");
-//
-//        }
+
+//        TextView statusMessageText = (TextView) findViewById(R.id.status_message);
+
+//        statusMessageText.setText(contact.getAccount().getPresenceStatusMessage());
+
+        //List<String> statusMessage = contact.getPresences().getStatusMessages();
+        //if (!statusMessage.isEmpty()){
+        //    statusMessageText.setText(statusMessage.get(0));
+        //}else {
+        //    statusMessageText.setText("----");
+        //}
+
         //CMG AM-218 orange circle to grey
         statusIcon.setImageResource(contact.getShownStatus().getStatusIcon());
         statusText.setText(contact.getShownStatus().toDisplayString());
@@ -360,7 +364,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             return;
         }
         invalidateOptionsMenu();
-        setTitle(contact.getDisplayName());
+        setTitle(R.string.contact_details_title);  // DJF - changed from contact.getDisplayName()
         setStatusIconandText(contact);
         if (contact.showInRoster()) {
             //HONEYBADGER commented out these and below
@@ -531,7 +535,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             for (final ListItem.Tag tag : tagList) {
                 final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, binding.tags, false);
                 tv.setText(tag.getName());
-                tv.setBackgroundColor(tag.getColor());
+                // tv.setBackgroundColor(tag.getColor());
                 binding.tags.addView(tv);
             }
         }

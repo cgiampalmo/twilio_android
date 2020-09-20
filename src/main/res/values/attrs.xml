@@ -18,6 +18,7 @@
 
     <attr name="IconSize" format="dimension"/>
 
+    <attr name="color_background_button" format="reference|color"/>
     <attr name="color_background_tertiary" format="reference|color"/>
     <attr name="color_background_secondary" format="reference|color"/>
     <attr name="color_background_primary" format="reference|color"/>
@@ -29,6 +30,11 @@
     <attr name="colorAccent2" format="reference|color"/>
     <attr name="colorAccent3" format="reference|color"/>
     <attr name="colorAccent4" format="reference|color"/>
+
+    <attr name="colorNewPrimary" format="reference|color"/>
+
+    <attr name="activity_filesafe" format="reference"/>
+    <attr name="divider2" format="reference"/>
 
     <attr name="activity_background_search" format="reference"/>
     <attr name="activity_background_no_results" format="reference"/>

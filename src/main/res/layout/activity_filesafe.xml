@@ -2,22 +2,25 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <RelativeLayout
+        android:background="?attr/color_background_primary"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/color_background_secondary">
+        android:layout_height="wrap_content">
 
         <include android:id="@+id/toolbar" layout="@layout/toolbar"/>
 
-        <androidx.cardview.widget.CardView
+        <LinearLayout
+            android:background="?attr/color_background_primary"
+            android:id="@+id/main_filesafe_layout"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/toolbar"
-            android:layout_above="@id/button_bar"
+            android:layout_above="@id/filesafe_layout_border"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin">
 
             <LinearLayout
+                android:background="?attr/color_background_primary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
@@ -45,7 +48,6 @@
                         android:text="@string/offline_statusBar"/>
                 </LinearLayout>
 
-
                 <FrameLayout
                     android:id="@+id/filesafe_image_wrapper"
                     android:layout_width="wrap_content"
@@ -57,7 +59,7 @@
                         android:id="@+id/filesafe_image"
                         android:layout_width="@dimen/publish_filesafe_size"
                         android:layout_height="@dimen/publish_filesafe_size"
-                        android:src="@drawable/filesafe_black_48dp"/>
+                        android:src="?attr/activity_filesafe"/>
                 </FrameLayout>
 
                 <TextView
@@ -99,9 +101,38 @@
                     android:textAppearance="@style/TextAppearance.Conversations.Body1"/>
 
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </LinearLayout>
 
         <LinearLayout
+            android:background="?attr/color_background_primary"
+            android:id="@+id/filesafe_layout_border"
+            android:layout_width="fill_parent"
+            android:layout_height="10dp"
+            android:layout_above="@id/button_bar"
+            android:layout_marginBottom="@dimen/activity_margin_0"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin">
+
+            <LinearLayout
+                android:background="?attr/color_background_primary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:layout_gravity="bottom"
+                android:orientation="vertical">
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="0dp"
+                    android:layout_marginTop="0dp"
+                    android:background="?attr/divider"/>
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:background="?attr/color_background_button"
             android:id="@+id/button_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -110,6 +141,7 @@
             android:layout_alignParentRight="true">
 
             <Button
+                android:background="?attr/color_background_button"
                 android:id="@+id/cancel_button"
                 style="@style/Widget.Conversations.Button.Borderless"
                 android:layout_width="0dp"
@@ -125,6 +157,7 @@
                 android:background="?attr/divider"/>
 
             <Button
+                android:background="?attr/color_background_button"
                 android:id="@+id/upload_button"
                 style="@style/Widget.Conversations.Button.Borderless"
                 android:layout_width="0dp"
@@ -133,6 +166,5 @@
                 android:enabled="false"
                 android:text="@string/upload"/>
         </LinearLayout>
-
     </RelativeLayout>
 </layout>

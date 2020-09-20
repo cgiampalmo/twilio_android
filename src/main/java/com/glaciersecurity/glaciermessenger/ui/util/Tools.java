@@ -46,7 +46,7 @@ public class Tools {
             Window window = act.getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(act.getResources().getColor(R.color.colorPrimaryDark));
+            window.setStatusBarColor(act.getResources().getColor(R.color.newprimarybg));
         }
     }
 
@@ -89,7 +89,7 @@ public class Tools {
     public static void clearSystemBarLight(Activity act) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Window window = act.getWindow();
-            window.setStatusBarColor(ContextCompat.getColor(act, R.color.colorPrimaryDark));
+            window.setStatusBarColor(ContextCompat.getColor(act, R.color.newprimarybg));
         }
     }
 

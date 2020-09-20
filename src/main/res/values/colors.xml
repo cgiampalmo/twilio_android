@@ -1,22 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<color name="primary500">#28373e</color>
-	<color name="primary600">#182125</color>
-	<color name="primary700">#182125</color>
-	<color name="primary800">#182125</color>
-	<color name="primary900">#182125</color>
+	<color name="primary600">#DE000000</color> <!-- #182125 -->
+	<color name="primary700">#DE000000</color> <!-- #182125 -->
+	<color name="primary800">#DE000000</color> <!-- #182125 -->
+	<color name="primary900">#DE000000</color> <!-- #182125 -->
 	<color name="accent">#ff0091ea</color>
 	<color name="accent2">#ff24a2cc</color>
 
+	<color name="newprimarybg">#DE000000</color>
+	<color name="grey850">#77252525</color>
 
-	<color name="black">#ff000000</color>
+	<color name="black">#ff1b1b1b</color>
 	<color name="black87">#de000000</color>
 	<color name="black54">#8a000000</color>
+	<color name="black38">#66000000</color>
 	<color name="black26">#42000000</color>
 	<color name="black12">#1f000000</color>
 	<color name="white">#ffffffff</color>
 	<color name="white87">#deffffff</color>
 	<color name="white70">#b2ffffff</color>
+	<color name="white50">#6fffffff</color>
 	<color name="white12">#1fffffff</color>
 	<color name="grey50">#fffafafa</color>
 	<color name="grey200">#ffeeeeee</color>

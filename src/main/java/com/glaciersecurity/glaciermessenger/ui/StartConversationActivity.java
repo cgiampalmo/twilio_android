@@ -1688,6 +1688,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 						binding.statusMessage.setEnabled(false);
 						break;
 					case R.id.custom:
+						binding.statusMessage.setText(Presence.StatusMessage.CUSTOM.toShowString());
 						binding.statusMessage.setEnabled(true);
 						break;
 					default:

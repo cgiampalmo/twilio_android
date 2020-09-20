@@ -104,6 +104,8 @@ public class Presence implements Comparable {
 	public enum StatusMessage {
 		IN_MEETING, ON_TRAVEL, OUT_SICK, VACATION, CUSTOM;
 
+		public Account mAccount;
+
 		public final static int meetingIcon = 0x1F4C5;
 		public final static int travelIcon = 0x1F6EB;
 		public final static int sickIcon = 0x1F912;
@@ -115,7 +117,8 @@ public class Presence implements Comparable {
 				case IN_MEETING: return getEmojiByUnicode(meetingIcon)+"\tIn a meeting";
 				case ON_TRAVEL: return getEmojiByUnicode(travelIcon)+"\tOn travel";
 				case OUT_SICK:   return  getEmojiByUnicode(sickIcon)+"\tOut sick";
-				case VACATION:  return getEmojiByUnicode(vacationIcon)+ "\tVacation" ;
+				case VACATION:  return getEmojiByUnicode(vacationIcon)+ "\tVacation";
+				case CUSTOM:  return getEmojiByUnicode(customIcon)+ "\t" + mAccount.getPresenceStatusMessage();
 			}
 			return "";
 		}

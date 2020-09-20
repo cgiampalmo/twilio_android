@@ -551,6 +551,7 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 						binding.statusMessage.setEnabled(false);
 						break;
 					case R.id.custom:
+						binding.statusMessage.setText(Presence.StatusMessage.CUSTOM.toShowString());
 						binding.statusMessage.setEnabled(true);
 						break;
 					default:

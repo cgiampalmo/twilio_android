@@ -46,7 +46,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:padding="4dp"
-            android:background="#27a1cb"
+            android:background="?attr/colorNewPrimary"
             android:visibility="gone">
 
             <TextView
