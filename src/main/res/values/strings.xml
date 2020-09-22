@@ -236,6 +236,9 @@
     <string name="account_settings_example_jabber_id">Username</string>
     <string name="password">Password</string>
     <string name="orgid">Org ID</string>
+    <string name="use_quote">Topic: \ </string>
+    <string name="use_quote1">\" </string>
+    <string name="use_quote2"> \"</string>
     <string name="invalid_jid">This is not a valid group name</string> <!-- ALF AM-119 -->
     <string name="error_out_of_memory">Out of memory. Image is too large</string>
     <string name="add_phone_book_text">Do you want to add %s to your address book?</string>
