@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -42,12 +43,21 @@ public class CallConnectionService extends Service implements ServiceConnection,
     }
 
     @Override
+    public void onCreate(){
+        super.onCreate();
+
+        //Register room / participant listeners
+
+    }
+
+    @Override
     public IBinder onBind(Intent intent) {
         return binder;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
         //TODO do something useful
         return Service.START_NOT_STICKY;
     }
@@ -59,7 +69,7 @@ public class CallConnectionService extends Service implements ServiceConnection,
 
     @Override
     public void onServiceDisconnected(ComponentName className) {
-
+        stopSelf();
     }
 
     @Override
@@ -68,6 +78,7 @@ public class CallConnectionService extends Service implements ServiceConnection,
 
         return true;
     }
+
 
 //    @SuppressLint("SetTextI18n")
 //    private Room.Listener roomListener() {
