@@ -2,6 +2,7 @@ package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
@@ -43,6 +45,7 @@ import androidx.core.content.ContextCompat;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
+import com.glaciersecurity.glaciermessenger.services.CallConnectionService;
 import com.glaciersecurity.glaciermessenger.services.PhonecallReceiver;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.ui.util.CameraCapturerCompat;
@@ -131,7 +134,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private Boolean isAudioMuted = false;
     private Boolean isVideoMuted = true;
 
-
     /*
      * AudioCodec and VideoCodec represent the preferred codec for encoding and decoding audio and
      * video.
@@ -205,6 +207,11 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private boolean enableAutomaticSubscription;
 
     private PhonecallReceiver phonecallReceiver; //ALF AM-474
+
+    private Boolean callConnectionBound = false;
+
+    //CMG AM-478
+    private CallConnectionService mCallConnectionService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -824,6 +831,27 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                     CameraSource.FRONT_CAMERA);
         }
     }*/
+
+    //CMG AM-478
+    /** Defines call
+     * backs for service binding, passed to bindService() */
+    private CallConnectionService connection = new CallConnectionService() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            CallConnectionBinder callConnectionBinder = (CallConnectionBinder) service;
+            mCallConnectionService = callConnectionBinder.getService();
+            callConnectionBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            callConnectionBound = false;
+        }
+    };
+
 
     /*
      * Room events listener

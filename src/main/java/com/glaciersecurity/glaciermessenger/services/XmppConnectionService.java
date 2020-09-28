@@ -254,7 +254,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	private QuickConversationsService mQuickConversationsService = new QuickConversationsService(this);
 
 
-	private CallConnectionService mCallConnectionServicre = new CallConnectionService(); //CMG AM-478;
+	private CallConnectionService mCallConnectionService = new CallConnectionService(); //CMG AM-478;
 
 
 	private final ConversationsFileObserver fileObserver = new ConversationsFileObserver(
@@ -641,6 +641,17 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		mVPNConnectionService = null;
 	}*/
 
+	//CMG AM-478
+	public void startCallConnectionService(){
+		bindService(new Intent(this, CallConnectionService.class), mCallConnectionService, Context.BIND_AUTO_CREATE);
+	}
+
+	public void stopCallConnectionService(){
+		unbindService(mCallConnectionService);
+	}
+
+
+
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		final String action = intent == null ? null : intent.getAction();
@@ -794,6 +805,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							} else {
 								currentTwilioCall = call;
 								if (!getNotificationService().pushForCall(call, pushedAccountHash)) {
+
+									//CMG AM-478
+									startCallConnectionService();
+
 									//ALF AM-447, no notification in this case because app is open, so manually play ringtone
 									SoundPoolManager.getInstance(XmppConnectionService.this).playRinging();
 
