@@ -4599,6 +4599,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	//ALF AM-410 (next 3) //receiver is bare jid of receiver
 	public void sendCallRequest(TwilioCall call) {
+		//CMG AM-478
+		startCallConnectionService();
 		final String deviceId = PhoneHelper.getAndroidId(this);
 		currentTwilioCall = null;
 
@@ -4682,7 +4684,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public void acceptCall(TwilioCall call) {
-
 		final String deviceId = PhoneHelper.getAndroidId(this);
 		int callid = call.getCallId();
 
@@ -4788,6 +4789,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public void rejectCall(TwilioCall call, boolean isBusy) {
+		//CMG AM-478
+		stopCallConnectionService();
 		final String deviceId = PhoneHelper.getAndroidId(this);
 
 		final IqPacket request = new IqPacket(IqPacket.TYPE.SET);
@@ -4874,6 +4877,9 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public void cancelCall(TwilioCall call) {
+		//CMG AM-478
+		startCallConnectionService();
+
 		if (call == null) {
 			Intent intent1 = new Intent("callActivityFinish");
 			sendBroadcast(intent1);
