@@ -252,6 +252,11 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	//private VPNConnectionService mVPNConnectionService = new VPNConnectionService(); //ALF AM-57 placeholder
 	private PushManagementService mPushManagementService = new PushManagementService(this);
 	private QuickConversationsService mQuickConversationsService = new QuickConversationsService(this);
+
+
+	private CallConnectionService mCallConnectionServicre = new CallConnectionService(); //CMG AM-478;
+
+
 	private final ConversationsFileObserver fileObserver = new ConversationsFileObserver(
 			Environment.getExternalStorageDirectory().getAbsolutePath()
 	) {
