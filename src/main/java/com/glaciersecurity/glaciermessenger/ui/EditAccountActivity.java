@@ -170,6 +170,13 @@ import javax.annotation.Nonnull;
 
 import rocks.xmpp.addr.Jid;
 
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.customIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.meetingIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.sickIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.travelIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.vacationIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.getEmojiByUnicode;
+
 import static android.view.View.VISIBLE;
 
 public class EditAccountActivity extends OmemoActivity implements OnAccountUpdate, OnUpdateBlocklist,
@@ -290,6 +297,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private TextView mFullJid;
 	private boolean mUseTor;
 	private ActivityEditAccountBinding binding;
+
+	// DJF
+	private ImageView statusIcon;
+	private TextView statusText;
+    private TextView statusMessageText;
+    private String presenceStatusMessage;
 
 	public static final int REQUEST_PERMISSION_EXTERNAL_STORAGE = 1;
 
@@ -601,7 +614,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.mSupportButton = (Button) findViewById(R.id.account_support);
 
 
-		this.mAvatar = (ImageView) findViewById(R.id.avater);
+		this.mAvatar = (ImageView) findViewById(R.id.avatar);
 		this.mAvatar.setOnClickListener(this.mAvatarClickListener);
 		this.mDisableOsOptimizationsButton = (Button) findViewById(R.id.os_optimization_disable);
 		this.getmDisableOsOptimizationsBody = (TextView) findViewById(R.id.os_optimization_body);
@@ -626,6 +639,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.mDisplayName = (TextView) findViewById(R.id.displayname_text);
 		this.mFullJid = (TextView) findViewById(R.id.jid_text);
 		this.mDisplayName.addTextChangedListener(mTextWatcher);
+
+		// DJF Add for Status on My Profile page
+		this.statusIcon = (ImageView) findViewById(R.id.details_contactpresence_icon);
+		this.statusText = (TextView) findViewById(R.id.details_contactpresence_string);
+        this.statusMessageText = (TextView) findViewById(R.id.profile_status_message);
+
 		//CMG AM-318
 		this.mEditDisplayNameButton.setOnClickListener(v -> quickEdit(this.getDisplayName(),
 				R.string.pref_display_name,
@@ -742,7 +761,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	private void refreshAvatar() {
-		AvatarWorkerTask.loadAvatar(mAccount, binding.avater, R.dimen.avatar_on_details_screen_size);
+		AvatarWorkerTask.loadAvatar(mAccount, binding.avatar, R.dimen.avatar_on_details_screen_size);
 	}
 
 //	@Override
@@ -848,9 +867,22 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					mDisplayName.setText(getDisplayName());
 				}
 
+				// DJF Add for Status on My Profile page
+				if(mAccount != null) {
+					invalidateOptionsMenu();
+					statusIcon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
+					statusText.setText(mAccount.getPresenceStatus().toDisplayString());
+                    this.presenceStatusMessage = mAccount.getPresenceStatusMessage();
 
-
-
+                    if (presenceStatusMessage != null) {
+                        if (isDefaultStatus(presenceStatusMessage)){
+							statusMessageText.setText(presenceStatusMessage);
+                        } else {
+                            String customStr = getEmojiByUnicode(customIcon)+"\t" + presenceStatusMessage ;
+							statusMessageText.setText(customStr);
+                        }
+                    }
+				}
 			} else {
 //				this.binding.displayname.setVisibility(View.GONE); //CMG AM-323
 //				this.mAvatar.setVisibility(View.GONE);
@@ -879,6 +911,21 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		// GOOBER CORE integration
 		mHandler = new Handler(this);
 		bindService();
+	}
+
+	private boolean isDefaultStatus(String statusMessage){
+		if (statusMessage.equals(getEmojiByUnicode(meetingIcon)+"\tIn a meeting")) {
+			return true;
+		} else if (statusMessage.equals(getEmojiByUnicode(travelIcon)+"\tOn travel")) {
+			return true;
+		} else if (statusMessage.equals(getEmojiByUnicode(sickIcon)+"\tOut sick")) {
+			return true;
+		} else if (statusMessage.equals(getEmojiByUnicode(vacationIcon)+"\tVacation")) {
+			return true;
+		} else if (statusMessage.isEmpty()) {
+			return true;
+		}
+		return false;
 	}
 
 	//ALF AM-190
@@ -980,6 +1027,21 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				mPendingFingerprintVerificationUri = null;
 			}
 			updateAccountInformation(init);
+
+			// DJF Add for Status on My Profile page
+			invalidateOptionsMenu();
+            statusIcon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
+            statusText.setText(mAccount.getPresenceStatus().toDisplayString());
+            this.presenceStatusMessage = mAccount.getPresenceStatusMessage();
+
+            if (presenceStatusMessage != null) {
+                if (isDefaultStatus(presenceStatusMessage)){
+					statusMessageText.setText(presenceStatusMessage);
+                } else {
+                    String customStr = getEmojiByUnicode(customIcon)+"\t" + presenceStatusMessage ;
+					statusMessageText.setText(customStr);
+                }
+            }
 		}
 
 		if (pendingUri != null) {
@@ -1219,6 +1281,23 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			this.mAvatar.setImageBitmap(avatarService().get(this.mAccount, (int) getResources().getDimension(R.dimen.avatar_on_details_screen_size)));
 			this.mDisplayName.setText(getDisplayName());
 			this.mFullJid.setText(getFullJid());
+
+			// DJF Add for Status on My Profile page
+			if(mAccount != null) {
+				invalidateOptionsMenu();
+				statusIcon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
+				statusText.setText(mAccount.getPresenceStatus().toDisplayString());
+                this.presenceStatusMessage = mAccount.getPresenceStatusMessage();
+
+                if (presenceStatusMessage != null) {
+                    if (isDefaultStatus(presenceStatusMessage)){
+						statusMessageText.setText(presenceStatusMessage);
+                    } else {
+                        String customStr = getEmojiByUnicode(customIcon)+"\t" + presenceStatusMessage ;
+						statusMessageText.setText(customStr);
+                    }
+                }
+			}
 
 			List<Contact> contactsAll = mAccount.getRoster().getContacts();
 			Set<String> tagList = new HashSet<>();
@@ -3035,4 +3114,5 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	public void onNetworkConnectionChanged(boolean isConnected) {
 
 	}
+
 }

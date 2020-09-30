@@ -12,7 +12,7 @@
             android:layout_below="@id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorNewPrimary"
+            android:background="?attr/colorToolbar"
             android:minHeight="?attr/actionBarSize"
             android:elevation="@dimen/toolbar_elevation"
             app:tabMode="fixed"

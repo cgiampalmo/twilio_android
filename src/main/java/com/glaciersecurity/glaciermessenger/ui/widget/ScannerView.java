@@ -61,7 +61,7 @@ public class ScannerView extends View {
 
         final Resources res = getResources();
         maskColor = res.getColor(R.color.black54);
-        maskResultColor = res.getColor(R.color.black87);
+        maskResultColor = res.getColor(R.color.almost_black);
         laserColor = res.getColor(R.color.red500);
         dotColor = res.getColor(R.color.orange500);
         dotResultColor = res.getColor(R.color.scan_result_dots);

@@ -55,7 +55,8 @@ public class Tools {
             Window window = act.getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(act.getResources().getColor(color));
+            window.setStatusBarColor(act.getResources().getColor(R.color.newprimarybg));
+            //window.setStatusBarColor(act.getResources().getColor(color));
         }
     }
 
@@ -64,7 +65,8 @@ public class Tools {
             Window window = dialog.getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(act.getResources().getColor(color));
+            window.setStatusBarColor(act.getResources().getColor(R.color.newprimarybg));
+//            window.setStatusBarColor(act.getResources().getColor(color));
         }
     }
 

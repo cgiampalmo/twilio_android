@@ -27,6 +27,7 @@
         android:layout_alignParentBottom="true"
         android:layout_toRightOf="@+id/message_photo"
         android:background="@drawable/message_bubble_received"
+        android:backgroundTint="?attr/message_rcvd_bubble_color"
         android:minHeight="53dp"
         android:layout_marginTop="-2dp"
         android:layout_marginRight="-4dp"

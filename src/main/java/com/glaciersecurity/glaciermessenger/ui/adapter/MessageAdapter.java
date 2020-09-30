@@ -167,7 +167,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 		if (onDark) {
 			return ContextCompat.getColor(activity, primary ? R.color.white : R.color.white70);
 		} else {
-			return ContextCompat.getColor(activity, primary ? R.color.black87 : R.color.black54);
+			return ContextCompat.getColor(activity, primary ? R.color.almost_black : R.color.black54);
 		}
 	}
 

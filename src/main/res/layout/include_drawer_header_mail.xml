@@ -10,10 +10,9 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#0F89D1"
+        android:background="?attr/color_background_menu_logo"
         android:scaleType="centerCrop"
-        android:src="@drawable/glacier_background" />
-
+        android:src="@drawable/glacier_menu_logo" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -22,19 +21,28 @@
             android:layout_margin="@dimen/spacing_large"
             android:orientation="vertical">
 
-            <com.makeramen.roundedimageview.RoundedImageView
-                android:id="@+id/nav_avatar"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_marginBottom="4dp"
-                android:contentDescription="@string/account_image_description"
-                app:riv_corner_radius="40dip" />
+            <LinearLayout
+                android:id="@+id/details_contact_stuff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:padding="1dp"
+                android:orientation="vertical">
+
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/nav_avatar"
+                    android:layout_width="@dimen/avatar_on_menu_size"
+                    android:layout_height="@dimen/avatar_on_menu_size"
+                    android:contentDescription="@string/account_image_description"
+                    app:riv_corner_radius="40dip" />
+            </LinearLayout>
 
             <Button
                 android:id="@+id/nav_name"
                 android:layout_width="match_parent"
                 android:layout_height="24dp"
                 android:layout_gravity="center|start"
+                android:layout_marginTop="@dimen/activity_vertical_margin_half"
                 android:background="@color/transparent"
                 android:gravity="left|center"
                 android:text=""
@@ -62,7 +70,6 @@
                     android:gravity="center|left"
                     android:layout_marginLeft="@dimen/spacing_medium"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
-
 
             </LinearLayout>
 

@@ -6,7 +6,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/color_background_secondary">
+        android:background="?attr/color_background_primary">
 
         <ListView
             android:id="@+id/messages_view"
@@ -15,7 +15,7 @@
             android:layout_above="@+id/snackbar"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:background="?attr/color_background_secondary"
+            android:background="?attr/color_background_primary"
             android:divider="@null"
             android:dividerHeight="0dp"
             android:listSelector="@android:color/transparent"
@@ -32,8 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignBottom="@+id/messages_view"
-            android:alpha="0.85"
-            app:backgroundTint="?attr/color_background_primary"
+            app:backgroundTint="?attr/color_message_scroll"
             android:src="?attr/icon_scroll_down"
             app:fabSize="mini"
             android:visibility="gone"
@@ -149,8 +148,9 @@
                     android:layout_width="@dimen/spacing_xxlarge"
                     android:layout_height="@dimen/spacing_xxlarge"
                     android:background="?attr/selectableItemBackgroundBorderless"
+                    android:tint="?attr/send_msg_button"
                     android:clickable="true"
-                    android:padding="@dimen/spacing_large"
+                    android:padding="@dimen/spacing_midlarge2"
                     app:srcCompat="@drawable/ic_send" />
 
             </LinearLayout>
@@ -203,7 +203,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentStart="true"
-            android:background="?attr/color_background_primary"
+            android:background="?attr/color_background_secondary"
             android:layout_alignParentLeft="true">
 
             <LinearLayout

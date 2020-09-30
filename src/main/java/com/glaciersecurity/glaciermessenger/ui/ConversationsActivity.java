@@ -139,6 +139,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 
 import rocks.xmpp.addr.Jid;
 
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.customIcon;
 import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.meetingIcon;
 import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.sickIcon;
 import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.travelIcon;
@@ -679,7 +680,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					status_message.setOnClickListener(mPresenceClickListener);
 					String presenceStatusMessage = mAccount.getPresenceStatusMessage();
 					if (presenceStatusMessage != null) {
-						status_message.setText(presenceStatusMessage);
+						//status_message.setText(presenceStatusMessage);
+						if (isDefaultStatus(presenceStatusMessage)){
+								status_message.setText(presenceStatusMessage);
+							} else {
+								String customStr = getEmojiByUnicode(customIcon)+"\t" + presenceStatusMessage ;
+								status_message.setText(customStr);
+							}
 					}
 				}
 				super.onDrawerOpened(drawerView);
@@ -720,6 +727,21 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				return true;
 			}
 		});
+	}
+
+	private boolean isDefaultStatus(String statusMessage){
+		if (statusMessage.equals(getEmojiByUnicode(meetingIcon)+"\tIn a meeting")) {
+				return true;
+			} else if (statusMessage.equals(getEmojiByUnicode(travelIcon)+"\tOn travel")) {
+				return true;
+			} else if (statusMessage.equals(getEmojiByUnicode(sickIcon)+"\tOut sick")) {
+				return true;
+			} else if (statusMessage.equals(getEmojiByUnicode(vacationIcon)+"\tVacation")) {
+				return true;
+			} else if (statusMessage.isEmpty()) {
+				return true;
+			}
+		return false;
 	}
 
 	private boolean dndOnSilentMode() {
@@ -831,7 +853,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 						binding.statusMessage.setEnabled(false);
 						break;
 					case R.id.custom:
-						binding.statusMessage.setText(Presence.StatusMessage.CUSTOM.toShowString());
 						binding.statusMessage.setEnabled(true);
 						break;
 					default:
@@ -1781,14 +1802,17 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		if (this.drawer.isDrawerOpen(GravityCompat.START)){
 			Button status_text = (Button) findViewById(R.id.nav_status_text);
 			ImageView status_icon = (ImageView) findViewById(R.id.nav_status_icon);
-			if (ConnectivityReceiver.isConnected(getApplicationContext())) {
-				status_text.setText(mAccount.getPresenceStatus().toDisplayString());
-				status_icon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
-			} else {
-				status_text.setText(Presence.Status.OFFLINE.toDisplayString());
-				status_icon.setImageResource(Presence.Status.OFFLINE.getStatusIcon());
-			}
+			try {
+				if (ConnectivityReceiver.isConnected(getApplicationContext())) {
+					status_text.setText(mAccount.getPresenceStatus().toDisplayString());
+					status_icon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
+				} else {
+					status_text.setText(Presence.Status.OFFLINE.toDisplayString());
+					status_icon.setImageResource(Presence.Status.OFFLINE.getStatusIcon());
+				}
+			} catch (Exception e) {
 
+			}
 		}
 	}
 	private void initializeFragments() {

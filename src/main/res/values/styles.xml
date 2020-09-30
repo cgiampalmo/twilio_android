@@ -87,7 +87,7 @@
     <style name="EditText.Grey" parent="@style/AppTheme">
         <item name="colorControlActivated">@color/grey_60</item>
         <item name="colorControlHighlight">@color/grey_60</item>
-        <item name="colorControlNormal">@color/grey_40</item>
+        <item name="colorControlNormal">@color/grey_20</item>
     </style>
 
     <style name="InputLabel" parent="TextAppearance.Conversations.Caption">

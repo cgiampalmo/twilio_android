@@ -5,7 +5,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/color_background_secondary"
+        android:background="?attr/color_background_primary"
         android:orientation="vertical">
 
         <include
@@ -42,7 +42,7 @@
                         android:layout_height="wrap_content"
                         android:text="GROUP"
                         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                        android:textColor="?attr/colorAccent3"
+                        android:textColor="?attr/colorAccent1"
                         app:fontFamily="sans-serif-medium" />
                 </LinearLayout>
 
@@ -58,20 +58,31 @@
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:layout_marginBottom="@dimen/activity_margin_0">
 
-                    <com.makeramen.roundedimageview.RoundedImageView
-                        android:id="@+id/your_photo"
-                        android:layout_width="@dimen/avatar_on_contact_details_screen_size"
-                        android:layout_height="@dimen/avatar_on_contact_details_screen_size"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentLeft="true"
-                        app:riv_corner_radius="15dip"/>
+                    <LinearLayout
+                        android:id="@+id/details_contact_stuff"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/layout_shadow_border_square"
+                        android:padding="1dp"
+                        android:orientation="vertical">
+
+                        <com.makeramen.roundedimageview.RoundedImageView
+                            android:id="@+id/your_photo"
+                            android:layout_width="@dimen/avatar_on_contact_details_screen_size"
+                            android:layout_height="@dimen/avatar_on_contact_details_screen_size"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentLeft="true"
+                            app:riv_corner_radius="15dip"/>
+
+                    </LinearLayout>
 
                     <LinearLayout
                         android:id="@+id/details_groupbox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/activity_margin_20"
-                        android:layout_toRightOf="@+id/your_photo"
+                        android:layout_toRightOf="@+id/details_contact_stuff"
                         android:orientation="vertical">
 
                         <RelativeLayout
@@ -154,6 +165,7 @@
                                 <com.google.android.material.textfield.TextInputLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
+                                    android:textColor="?attr/colorAccent1"
                                     app:errorTextAppearance="@style/TextAppearance.Conversations.Design.Error"
                                     app:hintTextAppearance="@style/TextAppearance.Conversations.Design.Hint">
 
@@ -184,12 +196,11 @@
 
                 </RelativeLayout>
 
-
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/spacing_large" />
 
-
+                <!-- Group Type & Info -->
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -233,7 +244,10 @@
                                 android:layout_gravity="center_horizontal"
                                 android:alpha="?attr/icon_alpha"
                                 android:background="?attr/selectableItemBackgroundBorderless"
-                                android:padding="@dimen/image_button_padding"
+                                android:paddingTop="@dimen/image_button_padding"
+                                android:paddingLeft="@dimen/image_button_padding"
+                                android:paddingRight="@dimen/image_button_padding"
+                                android:paddingBottom="@dimen/image_button_padding"
                                 android:src="?attr/icon_settings"
                                 android:layout_alignParentRight="true" />
                         </RelativeLayout>
@@ -277,11 +291,155 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
-                        android:layout_marginTop="32dp"
+                        android:layout_marginTop="3dp"
                         android:textAppearance="@style/TextAppearance.Conversations.Caption"/>
 
                 </RelativeLayout>
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/spacing_large" />
+
+                <!-- Active Participants -->
+                <LinearLayout
+                    android:id="@+id/users_wrapper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="@dimen/activity_margin_0"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:layout_marginBottom="@dimen/activity_margin_0">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ACTIVE PARTICIPANTS"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                        android:textColor="?attr/colorAccent1"
+                        app:fontFamily="sans-serif-medium" />
+
+                    <!-- Active Participants -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/no_users_hints"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingTop="@dimen/card_padding_regular"
+                            android:paddingEnd="@dimen/card_padding_regular"
+                            android:paddingStart="@dimen/card_padding_regular"
+                            android:text="@string/no_users_hint_channel"
+                            android:textAppearance="@style/TextAppearance.Conversations.Body2"/>
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/users"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingEnd="@dimen/card_padding_regular"
+                            android:paddingStart="@dimen/card_padding_regular"
+                            android:paddingTop="@dimen/card_padding_regular"
+                            android:paddingBottom="@dimen/activity_margin_0"
+                            android:layout_marginStart="-2dp"
+                            android:layout_marginEnd="-2dp"/>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:layout_gravity="end">
+
+                            <Button
+                                android:id="@+id/invite"
+                                style="@style/Widget.Conversations.Button.Borderless"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:minWidth="0dp"
+                                android:paddingTop="@dimen/activity_margin_0"
+                                android:paddingLeft="@dimen/card_padding_regular"
+                                android:paddingRight="@dimen/card_padding_regular"
+                                android:paddingBottom="@dimen/activity_margin_0"
+                                android:text="@string/invite"
+                                android:textColor="?attr/colorAccent5" />
+
+                            <Button
+                                android:id="@+id/show_users"
+                                style="@style/Widget.Conversations.Button.Borderless"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:minWidth="0dp"
+                                android:paddingTop="@dimen/activity_margin_0"
+                                android:paddingLeft="@dimen/card_padding_regular"
+                                android:paddingRight="@dimen/card_padding_regular"
+                                android:paddingBottom="@dimen/activity_margin_0"
+                                android:text="@string/view_users"
+                                android:textColor="?attr/colorAccent5" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/spacing_small" />
+
+                <!-- Shared Media -->
+                <LinearLayout
+                    android:id="@+id/media_wrapper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="@dimen/activity_margin_0"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:layout_marginBottom="@dimen/activity_margin_0">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="SHARED MEDIA"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                        android:textColor="?attr/colorAccent1"
+                        app:fontFamily="sans-serif-medium" />
+
+                    <!-- Shared Media -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/media"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingEnd="@dimen/card_padding_regular"
+                        android:paddingStart="@dimen/card_padding_regular"
+                        android:paddingTop="@dimen/card_padding_regular"
+                        android:paddingBottom="@dimen/activity_margin_0"
+                        android:layout_marginStart="-2dp"
+                        android:layout_marginEnd="-2dp"/>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_gravity="end">
+
+                        <Button
+                            android:id="@+id/show_media"
+                            style="@style/Widget.Conversations.Button.Borderless"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minWidth="0dp"
+                            android:paddingTop="@dimen/activity_margin_0"
+                            android:paddingLeft="@dimen/card_padding_regular"
+                            android:paddingRight="@dimen/card_padding_regular"
+                            android:paddingBottom="@dimen/activity_margin_0"
+                            android:text="@string/view_media"
+                            android:textColor="?attr/colorAccent5" />
+                    </LinearLayout>
+
+                </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
@@ -303,7 +461,7 @@
                         android:layout_height="wrap_content"
                         android:text="MY SETTINGS FOR THIS GROUP"
                         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                        android:textColor="?attr/colorAccent3"
+                        android:textColor="?attr/colorAccent1"
                         app:fontFamily="sans-serif-medium" />
 
                     <!-- My Group Settings -->
@@ -393,151 +551,6 @@
                             android:layout_marginTop="32dp"
                             android:text="@string/using_account"
                             android:textAppearance="@style/TextAppearance.Conversations.Caption"/> CMG? -->
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/spacing_small" />
-
-                <!-- Active Participants -->
-                <LinearLayout
-                    android:id="@+id/users_wrapper"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginTop="@dimen/activity_margin_0"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginBottom="@dimen/activity_margin_0">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="ACTIVE PARTICIPANTS"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                        android:textColor="?attr/colorAccent3"
-                        app:fontFamily="sans-serif-medium" />
-
-                    <!-- Active Participants -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/no_users_hints"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingTop="@dimen/card_padding_regular"
-                            android:paddingEnd="@dimen/card_padding_regular"
-                            android:paddingStart="@dimen/card_padding_regular"
-                            android:text="@string/no_users_hint_channel"
-                            android:textAppearance="@style/TextAppearance.Conversations.Body2"/>
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/users"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingEnd="@dimen/card_padding_regular"
-                            android:paddingStart="@dimen/card_padding_regular"
-                            android:paddingTop="@dimen/card_padding_regular"
-                            android:paddingBottom="@dimen/activity_margin_0"
-                            android:layout_marginStart="-2dp"
-                            android:layout_marginEnd="-2dp"/>
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:orientation="horizontal"
-                            android:layout_gravity="end">
-
-                            <Button
-                                android:id="@+id/invite"
-                                style="@style/Widget.Conversations.Button.Borderless"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:minWidth="0dp"
-                                android:paddingTop="@dimen/activity_margin_0"
-                                android:paddingLeft="@dimen/card_padding_regular"
-                                android:paddingRight="@dimen/card_padding_regular"
-                                android:paddingBottom="@dimen/activity_margin_0"
-                                android:text="@string/invite"
-                                android:textColor="?attr/colorAccent" />
-
-                            <Button
-                                android:id="@+id/show_users"
-                                style="@style/Widget.Conversations.Button.Borderless"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:minWidth="0dp"
-                                android:paddingTop="@dimen/activity_margin_0"
-                                android:paddingLeft="@dimen/card_padding_regular"
-                                android:paddingRight="@dimen/card_padding_regular"
-                                android:paddingBottom="@dimen/activity_margin_0"
-                                android:text="@string/view_users"
-                                android:textColor="?attr/colorAccent" />
-                        </LinearLayout>
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/spacing_small" />
-
-                <!-- Shared Media -->
-                <LinearLayout
-                    android:id="@+id/media_wrapper"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginTop="@dimen/activity_margin_0"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:layout_marginBottom="@dimen/activity_margin_0">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="SHARED MEDIA"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                        android:textColor="?attr/colorAccent3"
-                        app:fontFamily="sans-serif-medium" />
-
-                    <!-- Shared Media -->
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/media"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingEnd="@dimen/card_padding_regular"
-                        android:paddingStart="@dimen/card_padding_regular"
-                        android:paddingTop="@dimen/card_padding_regular"
-                        android:paddingBottom="@dimen/activity_margin_0"
-                        android:layout_marginStart="-2dp"
-                        android:layout_marginEnd="-2dp"/>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_gravity="end">
-
-                        <Button
-                            android:id="@+id/show_media"
-                            style="@style/Widget.Conversations.Button.Borderless"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:minWidth="0dp"
-                            android:paddingTop="@dimen/activity_margin_0"
-                            android:paddingLeft="@dimen/card_padding_regular"
-                            android:paddingRight="@dimen/card_padding_regular"
-                            android:paddingBottom="@dimen/activity_margin_0"
-                            android:text="@string/view_media"
-                            android:textColor="?attr/colorAccent" />
                     </LinearLayout>
 
                 </LinearLayout>

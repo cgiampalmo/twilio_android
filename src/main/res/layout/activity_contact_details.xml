@@ -5,7 +5,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/color_background_secondary"
+        android:background="?attr/color_background_primary"
         android:orientation="vertical">
 
         <include
@@ -42,7 +42,7 @@
                         android:layout_height="wrap_content"
                         android:text="CONTACT"
                         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                        android:textColor="?attr/colorAccent3"
+                        android:textColor="?attr/colorAccent1"
                         app:fontFamily="sans-serif-medium" />
                 </LinearLayout>
 
@@ -58,21 +58,31 @@
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:layout_marginBottom="@dimen/activity_margin_0">
 
-                    <com.makeramen.roundedimageview.RoundedImageView
-                        android:id="@+id/details_contact_badge"
-                        android:layout_width="@dimen/avatar_on_contact_details_screen_size"
-                        android:layout_height="@dimen/avatar_on_contact_details_screen_size"
+
+                    <LinearLayout
+                        android:id="@+id/details_contact_stuff"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
-                        android:layout_alignParentTop="true"
-                        app:riv_corner_radius="15dip"
-                        android:scaleType="centerCrop"/>
+                        android:background="@drawable/layout_shadow_border_square"
+                        android:padding="1dp"
+                        android:orientation="vertical">
+
+                        <com.makeramen.roundedimageview.RoundedImageView
+                            android:id="@+id/details_contact_badge"
+                            android:layout_width="@dimen/avatar_on_contact_details_screen_size"
+                            android:layout_height="@dimen/avatar_on_contact_details_screen_size"
+                            app:riv_corner_radius="15dip"
+                            android:scaleType="centerCrop"/>
+
+                    </LinearLayout>
 
                     <LinearLayout
                         android:id="@+id/details_jidbox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/activity_margin_20"
-                        android:layout_toRightOf="@+id/details_contact_badge"
+                        android:layout_toRightOf="@+id/details_contact_stuff"
                         android:orientation="vertical">
 
                         <TextView
@@ -95,7 +105,7 @@
                                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
                                 android:textStyle="italic"
                                 android:text="@"
-                                android:textColor="?attr/colorAccent3"
+                                android:textColor="?attr/colorAccent1"
                                 app:fontFamily="sans-serif-medium"/>
 
                             <TextView
@@ -105,7 +115,7 @@
                                 android:layout_alignParentLeft="true"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
                                 android:textStyle="italic"
-                                android:textColor="?attr/colorAccent3"
+                                android:textColor="?attr/colorAccent1"
                                 app:fontFamily="sans-serif-medium"/>
                         </LinearLayout>
 
@@ -136,7 +146,7 @@
                         </LinearLayout>
 
                         <TextView
-                            android:id="@+id/status_message"
+                            android:id="@+id/contact_status_message"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/activity_margin_2"
@@ -180,7 +190,7 @@
                         android:layout_height="wrap_content"
                         android:text="SHARED TEAMS"
                         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                        android:textColor="?attr/colorAccent3"
+                        android:textColor="?attr/colorAccent1"
                         app:fontFamily="sans-serif-medium" />
 
                     <com.wefika.flowlayout.FlowLayout
@@ -188,7 +198,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/activity_vertical_margin"
-                        android:layout_marginLeft="@dimen/activity_vertical_margin"
+                        android:layout_marginLeft="@dimen/activity_horizontal_margin"
                         android:layout_marginBottom="@dimen/activity_vertical_margin_half"
                         android:orientation="horizontal">
                     </com.wefika.flowlayout.FlowLayout>
@@ -214,7 +224,7 @@
                         android:layout_height="wrap_content"
                         android:text="SHARED MEDIA"
                         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                        android:textColor="?attr/colorAccent3"
+                        android:textColor="?attr/colorAccent1"
                         app:fontFamily="sans-serif-medium" />
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -266,7 +276,7 @@
                         android:layout_height="wrap_content"
                         android:text="DEVICES"
                         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                        android:textColor="?attr/colorAccent3"
+                        android:textColor="?attr/colorAccent1"
                         app:fontFamily="sans-serif-medium" />
 
                     <LinearLayout

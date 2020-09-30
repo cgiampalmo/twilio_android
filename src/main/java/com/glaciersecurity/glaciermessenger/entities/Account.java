@@ -60,6 +60,8 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 	public static final int OPTION_UNVERIFIED = 8;
 	public final HashSet<Pair<String, String>> inProgressDiscoFetches = new HashSet<>();
 
+	private final Presences presences = new Presences();
+
 	public boolean httpUploadAvailable(long filesize) {
 		return xmppConnection != null && (xmppConnection.getFeatures().httpUpload(filesize) || xmppConnection.getFeatures().p1S3FileTransfer());
 	}
@@ -747,4 +749,9 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 	public boolean isOnlineAndConnected() {
 		return this.getStatus() == State.ONLINE && this.getXmppConnection() != null;
 	}
+
+//	public Presence.Status getShownStatus() {
+//		return this.presences.getShownStatus();
+//	}
+
 }

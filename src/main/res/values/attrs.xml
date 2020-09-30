@@ -18,20 +18,28 @@
 
     <attr name="IconSize" format="dimension"/>
 
+    <attr name="color_background_menu_logo" format="reference|color"/>
+    <attr name="color_background_menu" format="reference|color"/>
     <attr name="color_background_button" format="reference|color"/>
     <attr name="color_background_tertiary" format="reference|color"/>
     <attr name="color_background_secondary" format="reference|color"/>
     <attr name="color_background_primary" format="reference|color"/>
+    <attr name="color_background_primary2" format="reference|color"/>
     <attr name="color_background_overlay" format="reference|color"/>
     <attr name="edit_text_color" format="reference|color"/>
     <attr name="color_warning" format="reference|color"/>
     <attr name="EmojiColor" format="reference|color"/>
 
+    <attr name="colorAccent1" format="reference|color"/>
     <attr name="colorAccent2" format="reference|color"/>
     <attr name="colorAccent3" format="reference|color"/>
     <attr name="colorAccent4" format="reference|color"/>
+    <attr name="colorAccent5" format="reference|color"/>
 
     <attr name="colorNewPrimary" format="reference|color"/>
+    <attr name="colorToolbar" format="reference|color"/>
+
+    <attr name="color_message_scroll" format="reference|color"/>
 
     <attr name="activity_filesafe" format="reference"/>
     <attr name="divider2" format="reference"/>
@@ -45,6 +53,8 @@
 
     <attr name="TextColorOnline" format="reference|color"/>
     <attr name="TextColorError" format="reference|color"/>
+
+    <attr name="send_msg_button" format="reference"/>
 
     <attr name="ic_send_cancel_offline" format="reference"/>
     <attr name="ic_send_location_offline" format="reference"/>
@@ -64,6 +74,15 @@
     <attr name="message_bubble_received_monochrome" format="reference"/>
     <attr name="message_bubble_sent" format="reference"/>
     <attr name="message_bubble_received_green" format="reference"/>
+
+    <attr name="message_sent_text_color" format="reference|color"/>
+    <attr name="message_rcvd_text_color" format="reference|color"/>
+    <attr name="message_sent_bubble_color" format="reference|color"/>
+    <attr name="message_rcvd_bubble_color" format="reference|color"/>
+
+    <attr name="status_bubble_color" format="reference|color"/>
+    <attr name="date_bubble_color" format="reference|color"/>
+    <attr name="call_bubble_color" format="reference|color"/>
 
     <attr name="unread_count" format="reference|color"/>
 

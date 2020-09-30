@@ -19,6 +19,10 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import android.transition.Slide;
+import android.transition.TransitionManager;
+import android.view.Gravity;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.PagerAdapter;
@@ -35,6 +39,8 @@ import java.util.List;
 
 //CMG AM-427
 public class StepperWizard extends AppCompatActivity {
+
+    RelativeLayout relativeLayout;
 
     private static final int MAX_STEP = 4;
 
@@ -53,10 +59,10 @@ public class StepperWizard extends AppCompatActivity {
     };
 
     private int color_array[] = {
-            R.color.black_accent,
-            R.color.blue_grey_800,
-            R.color.blue_grey_700,
-            R.color.blue_grey_900
+            R.color.newprimarybg,   // black_accent, grey950
+            R.color.grey965,  // blue_grey_800, grey900
+            R.color.grey880,  // blue_grey_700, grey851
+            R.color.grey825   // blue_grey_900, grey800
     };
 
     private String description_array[] = {
@@ -104,7 +110,16 @@ public class StepperWizard extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(!hasAllPermissionGranted()){
+
                     setContentView(R.layout.activity_stepper_permission_ex);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        relativeLayout = findViewById(R.id.relativeLayout);
+                        Slide slide = new Slide();
+                        slide.setSlideEdge(Gravity.START);
+                        TransitionManager.beginDelayedTransition(relativeLayout, slide);
+                    } else {
+                        setContentView(R.layout.activity_stepper_permission_ex);
+                    }
                 } else {
                     Intent intent = new Intent(getApplicationContext(), EditAccountActivity.class);
                     startActivity(intent);
@@ -126,6 +141,16 @@ public class StepperWizard extends AppCompatActivity {
             public void onClick(View v) {
                 if(!hasAllPermissionGranted()){
                     setContentView(R.layout.activity_stepper_permission_ex);
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        relativeLayout = findViewById(R.id.relativeLayout);
+                        Slide slide = new Slide();
+                        slide.setSlideEdge(Gravity.START);
+                        TransitionManager.beginDelayedTransition(relativeLayout, slide);
+                    } else {
+                        setContentView(R.layout.activity_stepper_permission_ex);
+                    }
+
                 } else {
                     Intent intent = new Intent(getApplicationContext(), EditAccountActivity.class);
                     startActivity(intent);
@@ -164,7 +189,7 @@ public class StepperWizard extends AppCompatActivity {
 
         if (dots.length > 0) {
             dots[current_index].setImageResource(R.drawable.shape_circle);
-            dots[current_index].setColorFilter(getResources().getColor(R.color.black), PorterDuff.Mode.SRC_IN);
+            dots[current_index].setColorFilter(getResources().getColor(R.color.accent2), PorterDuff.Mode.SRC_IN);
         }
     }
 

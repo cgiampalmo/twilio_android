@@ -109,8 +109,8 @@
         <activity
             android:name=".ui.ConversationActivity"
             android:configChanges="orientation|screenSize"
-            android:minHeight="300dp"
-            android:minWidth="300dp"
+            android:minHeight="400dp"
+            android:minWidth="400dp"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

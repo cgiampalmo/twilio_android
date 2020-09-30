@@ -36,6 +36,7 @@
 	<dimen name="avatar">48dp</dimen>
 	<dimen name="avatar_on_details_screen_size">56dp</dimen>
 	<dimen name="avatar_on_contact_details_screen_size">56dp</dimen>
+	<dimen name="avatar_on_menu_size">62dp</dimen>
 	<dimen name="avatar_on_conversation_overview">56dp</dimen>
 	<dimen name="avatar_on_incoming_call_screen_size">150dp</dimen>
 	<dimen name="avatar_on_horizontal_call_screen_size">100dp</dimen>
@@ -85,11 +86,14 @@
 	<dimen name="viewpager_margin_overlap_payment">-30dp</dimen>
 
 	<!--genaral spacing-->
+	<dimen name="spacing_xxsmall">1dp</dimen>
 	<dimen name="spacing_xsmall">2dp</dimen>
 	<dimen name="spacing_small">3dp</dimen>
 	<dimen name="spacing_medium">5dp</dimen>
 	<dimen name="spacing_xmedium">7dp</dimen>
 	<dimen name="spacing_middle">10dp</dimen>
+	<dimen name="spacing_midlarge">12dp</dimen>
+	<dimen name="spacing_midlarge2">13dp</dimen>
 	<dimen name="spacing_large">15dp</dimen>
 	<dimen name="spacing_slarge">16dp</dimen>
 	<dimen name="spacing_smlarge">18dp</dimen>

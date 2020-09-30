@@ -7,8 +7,8 @@
     <string name="action_end_conversation">Close Chat</string>
     <string name="action_leave_group">Leave Group</string> <!-- ALF AM-122 -->
     <string name="action_contact_details">Contact Details</string>
-    <string name="action_muc_details">Group details</string>
-    <string name="channel_details">Group details</string>
+    <string name="action_muc_details">Group Details</string>
+    <string name="channel_details">Group Details</string>
     <string name="action_secure">Secure chat</string>
     <string name="action_add_account">Add account</string>
     <string name="action_edit_contact">Edit name</string>

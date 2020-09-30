@@ -18,14 +18,15 @@
             android:id="@+id/app_bar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="?colorAccent4"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-
+            <!--DJF-->
             <include layout="@layout/toolbar_with_icon_status" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        
-        <include layout="@layout/activity_conversations"  />
+
+        <include layout="@layout/activity_conversations" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -33,6 +34,7 @@
     <!--navigation drawer menu-->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
+        android:background="?attr/color_background_menu"
         android:layout_width="230dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"

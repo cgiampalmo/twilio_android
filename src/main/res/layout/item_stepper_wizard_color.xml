@@ -3,7 +3,7 @@
     android:id="@+id/lyt_parent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/grey_60"
+    android:background="@color/newprimarybg"
     android:padding="@dimen/spacing_xlarge">
 
     <LinearLayout
@@ -35,9 +35,9 @@
             android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_middle"
+            android:layout_marginTop="@dimen/spacing_large"
             android:text="We’re building the world’s most human secure communications company."
-            android:textAlignment="center"
+            android:gravity="center_horizontal"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:textColor="@color/grey_20" />
 

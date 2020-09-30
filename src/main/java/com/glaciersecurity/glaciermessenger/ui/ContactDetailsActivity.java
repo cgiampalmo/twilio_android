@@ -56,6 +56,13 @@ import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 import rocks.xmpp.addr.Jid;
 
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.customIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.meetingIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.sickIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.travelIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.vacationIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.getEmojiByUnicode;
+
 public class ContactDetailsActivity extends OmemoActivity implements OnAccountUpdate, OnRosterUpdate, OnUpdateBlocklist, OnKeyStatusUpdated, OnMediaLoaded {
     public static final String ACTION_VIEW_CONTACT = "view_contact";
     ActivityContactDetailsBinding binding;
@@ -103,6 +110,12 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
     private boolean showLastSeen = false;
     private boolean showInactiveOmemo = false;
     private String messageFingerprint;
+
+    // DJF
+    private ImageView statusIcon;
+    private TextView statusText;
+    private TextView statusMessageText;
+    private String presenceStatusMessage;
 
     private DialogInterface.OnClickListener addToPhonebook = new DialogInterface.OnClickListener() {
 
@@ -311,9 +324,45 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
     }
     //CMG AM-218
 
-    private void setStatusIconandText(Contact contact) {
-        ImageView statusIcon = (ImageView) findViewById(R.id.details_contactpresence_icon);
-        TextView statusText = (TextView) findViewById(R.id.details_contactpresence_string);
+//    private void setStatusIconandText(Contact contact) {
+//        // DJF Add for Status on My Profile page
+//        this.statusIcon = (ImageView) findViewById(R.id.details_contactpresence_icon);
+//        this.statusText = (TextView) findViewById(R.id.details_contactpresence_string);
+//        this.statusMessageText = (TextView) findViewById(R.id.contact_status_message);
+//
+//        statusIcon.setImageResource(contact.getShownStatus().getStatusIcon());
+//        statusText.setText(contact.getShownStatus().toDisplayString());
+//        this.presenceStatusMessage = contact.getShownStatusMessage();
+//
+//        if (presenceStatusMessage != null) {
+//            if (isDefaultStatus(presenceStatusMessage)){
+//                statusMessageText.setText(presenceStatusMessage);
+//            } else {
+//                String customStr = getEmojiByUnicode(customIcon)+"\t" + presenceStatusMessage ;
+//                statusMessageText.setText(customStr);
+//            }
+//        }
+//    }
+
+    private boolean isDefaultStatus(String statusMessage){
+        if (statusMessage.equals(getEmojiByUnicode(meetingIcon)+"\tIn a meeting")) {
+            return true;
+        } else if (statusMessage.equals(getEmojiByUnicode(travelIcon)+"\tOn travel")) {
+            return true;
+        } else if (statusMessage.equals(getEmojiByUnicode(sickIcon)+"\tOut sick")) {
+            return true;
+        } else if (statusMessage.equals(getEmojiByUnicode(vacationIcon)+"\tVacation")) {
+            return true;
+        } else if (statusMessage.isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+
+
+    //      private void setStatusIconandText(Contact contact) {
+  //      ImageView statusIcon = (ImageView) findViewById(R.id.details_contactpresence_icon);
+  //      TextView statusText = (TextView) findViewById(R.id.details_contactpresence_string);
 
 //        TextView statusMessageText = (TextView) findViewById(R.id.status_message);
 
@@ -327,8 +376,8 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         //}
 
         //CMG AM-218 orange circle to grey
-        statusIcon.setImageResource(contact.getShownStatus().getStatusIcon());
-        statusText.setText(contact.getShownStatus().toDisplayString());
+  //      statusIcon.setImageResource(contact.getShownStatus().getStatusIcon());
+  //      statusText.setText(contact.getShownStatus().toDisplayString());
 //        switch (contact.getShownStatus()) {
 //
 //            case CHAT:
@@ -357,7 +406,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
 //                break;
 //
 //        }
-    }
+//    }
 
     private void populateView() {
         if (contact == null) {
@@ -365,7 +414,15 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         }
         invalidateOptionsMenu();
         setTitle(R.string.contact_details_title);  // DJF - changed from contact.getDisplayName()
-        setStatusIconandText(contact);
+
+        // DJF Add for Status on My Profile page
+        this.statusIcon = (ImageView) findViewById(R.id.details_contactpresence_icon);
+        this.statusText = (TextView) findViewById(R.id.details_contactpresence_string);
+        this.statusMessageText = (TextView) findViewById(R.id.contact_status_message);
+
+        statusIcon.setImageResource(contact.getShownStatus().getStatusIcon());
+        statusText.setText(contact.getShownStatus().toDisplayString());
+
         if (contact.showInRoster()) {
             //HONEYBADGER commented out these and below
             //binding.detailsSendPresence.setVisibility(View.VISIBLE);
@@ -376,10 +433,10 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
 
             List<String> statusMessages = contact.getPresences().getStatusMessages();
             if (statusMessages.size() == 0) {
-                binding.statusMessage.setVisibility(View.GONE);
+                binding.contactStatusMessage.setVisibility(View.GONE);
             } else {
                 StringBuilder builder = new StringBuilder();
-                binding.statusMessage.setVisibility(View.VISIBLE);
+                binding.contactStatusMessage.setVisibility(View.VISIBLE);
                 int s = statusMessages.size();
                 for (int i = 0; i < s; ++i) {
                     if (s > 1) {
@@ -390,7 +447,18 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                         builder.append("\n");
                     }
                 }
-                binding.statusMessage.setText(builder);
+                binding.contactStatusMessage.setText(builder);
+
+                presenceStatusMessage = binding.contactStatusMessage.getText().toString();
+                if (presenceStatusMessage != null) {
+                    if (isDefaultStatus(presenceStatusMessage)){
+                        statusMessageText.setText(presenceStatusMessage);
+                    } else {
+                        String customStr = getEmojiByUnicode(customIcon)+"\t" + presenceStatusMessage ;
+                        statusMessageText.setText(customStr);
+                    }
+                }
+
             }
 
             /*if (contact.getOption(Contact.Options.FROM)) {
@@ -431,7 +499,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             binding.addContactButton.setVisibility(View.VISIBLE);
             //binding.detailsSendPresence.setVisibility(View.GONE);
             //binding.detailsReceivePresence.setVisibility(View.GONE);
-            binding.statusMessage.setVisibility(View.GONE);
+            binding.contactStatusMessage.setVisibility(View.GONE);
         }
 
         if (contact.isBlocked() && !this.showDynamicTags) {
