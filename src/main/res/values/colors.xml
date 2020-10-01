@@ -77,7 +77,8 @@
 	<color name="grey_50">#FAFAFA</color>
 	<color name="grey_100">#F5F5F5</color>
 	<color name="grey_200">#EEEEEE</color>
-	<color name="grey_300">#E0E0E0</color>
+	<color name="grey_300">#DFDFDF</color>
+	<color name="grey_350">#CECECE</color>
 	<color name="grey_400">#BDBDBD</color>
 	<color name="grey_500">#9E9E9E</color>
 	<color name="grey_600">#757575</color>
@@ -101,10 +102,12 @@
 	<color name="blue_gray_650">#4b636f</color>
 	<color name="blue_gray_640">#4a636f</color>
 	<color name="blue_grey_700">#455A64</color>
+	<color name="blue_grey_750">#41505a</color>
 	<color name="blue_grey_800">#37474F</color>
 	<color name="blue_grey_850">#2c373d</color>
 	<color name="blue_grey_875">#28373e</color>
 	<color name="blue_grey_900">#263238</color>
+	<color name="blue_grey_925">#243134</color>
 	<color name="blue_grey_950">#22292f</color>
 
 	<color name="bluer_grey_100">#86b3ff</color>
