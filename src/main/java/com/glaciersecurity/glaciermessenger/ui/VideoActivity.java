@@ -45,9 +45,11 @@ import androidx.core.content.ContextCompat;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
-import com.glaciersecurity.glaciermessenger.services.CallConnectionService;
+//import com.glaciersecurity.glaciermessenger.services.CallConnectionService;
+import com.glaciersecurity.glaciermessenger.services.CallManager;
 import com.glaciersecurity.glaciermessenger.services.PhonecallReceiver;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
+import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
 import com.glaciersecurity.glaciermessenger.ui.util.CameraCapturerCompat;
 import com.glaciersecurity.glaciermessenger.ui.util.SoundPoolManager;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
@@ -95,13 +97,14 @@ import java.util.List;
 import kotlin.Unit; //AM-440
 
 
-public class VideoActivity extends XmppActivity implements SensorEventListener, PhonecallReceiver.PhonecallReceiverListener {
+public class VideoActivity extends XmppActivity implements SensorEventListener, PhonecallReceiver.PhonecallReceiverListener, TwilioCallListener {
     private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
     private static final String TAG = "VideoActivity";
 
     //CMG AM-419
     private SensorManager sensorManager;
     private Sensor proximity;
+    private CallManager callManager;
 
     /*
      * Audio and video tracks can be created with names. This feature is useful for categorizing
@@ -113,18 +116,11 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private static final String LOCAL_AUDIO_TRACK_NAME = "mic";
     private static final String LOCAL_VIDEO_TRACK_NAME = "camera";
 
-
-    /*
-     * Access token used to connect. This field will be set either from the console generated token
-     * or the request to the token server.
-     */
-    private String accessToken;
-
     /*
      * A Room represents communication between a local participant and one or more participants.
      */
-    private Room room;
-    private LocalParticipant localParticipant;
+    //private Room room;
+    //private LocalParticipant localParticipant;
     private AudioManager audioManager;
     //    private MenuItem turnSpeakerOnMenuItem;
 //    private MenuItem turnSpeakerOffMenuItem;
@@ -135,28 +131,11 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private Boolean isVideoMuted = true;
 
     /*
-     * AudioCodec and VideoCodec represent the preferred codec for encoding and decoding audio and
-     * video.
-     */
-    private AudioCodec audioCodec;
-    private VideoCodec videoCodec;
-
-    /*
-     * Encoding parameters represent the sender side bandwidth constraints.
-     */
-    private EncodingParameters encodingParameters;
-
-    /*
      * A VideoView receives frames from a local or remote video track and renders them
      * to an associated view.
      */
     private VideoView primaryVideoView;
     private VideoView thumbnailVideoView;
-
-    /*
-     * Android shared preferences used for settings
-     */
-    private SharedPreferences preferences;
 
     /*
      * Android application UI elements
@@ -179,18 +158,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private String remoteParticipantIdentity;
     private TextView primaryTitle;
 
-    public static final String PREF_AUDIO_CODEC = "audio_codec";
-    public static final String PREF_AUDIO_CODEC_DEFAULT = OpusCodec.NAME;
-    public static final String PREF_VIDEO_CODEC = "video_codec";
-    public static final String PREF_VIDEO_CODEC_DEFAULT = Vp8Codec.NAME;
-    public static final String PREF_SENDER_MAX_AUDIO_BITRATE = "sender_max_audio_bitrate";
-    public static final String PREF_SENDER_MAX_AUDIO_BITRATE_DEFAULT = "0";
-    public static final String PREF_SENDER_MAX_VIDEO_BITRATE = "sender_max_video_bitrate";
-    public static final String PREF_SENDER_MAX_VIDEO_BITRATE_DEFAULT = "0";
-    public static final String PREF_VP8_SIMULCAST = "vp8_simulcast";
-    public static final String PREF_ENABLE_AUTOMATIC_SUBSCRIPTION = "enable_automatic_subscription";
-    public static final boolean PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT = true;
-    public static final boolean PREF_VP8_SIMULCAST_DEFAULT = false;
     private static final String IS_AUDIO_MUTED = "IS_AUDIO_MUTED";
     private static final String IS_VIDEO_MUTED = "IS_VIDEO_MUTED";
 
@@ -204,14 +171,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
     private VideoRenderer localVideoView;
     private boolean disconnectedFromOnDestroy;
-    private boolean enableAutomaticSubscription;
 
     private PhonecallReceiver phonecallReceiver; //ALF AM-474
-
-    private Boolean callConnectionBound = false;
-
-    //CMG AM-478
-    private CallConnectionService mCallConnectionService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -248,11 +209,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                 | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        /*
-         * Get shared preferences to read settings
-         */
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
         if (savedInstanceState != null) {
             isAudioMuted = savedInstanceState.getBoolean(IS_AUDIO_MUTED);
             isVideoMuted = savedInstanceState.getBoolean(IS_VIDEO_MUTED);
@@ -284,8 +240,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
     }
 
-
-    private int callid;
     private String caller;
     private String roomname;
     private String receiver;
@@ -303,46 +257,18 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
         if (CallActivity.ACTION_ACCEPTED_CALL.equals(action)) {
             caller = intent.getStringExtra("caller");
-            callid = intent.getIntExtra("call_id", 0);
-            accessToken = intent.getStringExtra("token");
             roomname = intent.getStringExtra("roomname");
             receiver = intent.getStringExtra("receiver");
         }
-
-
-        audioCodec = getAudioCodecPreference(PREF_AUDIO_CODEC,
-                PREF_AUDIO_CODEC_DEFAULT);
-        videoCodec = getVideoCodecPreference(PREF_VIDEO_CODEC,
-                PREF_VIDEO_CODEC_DEFAULT);
-        enableAutomaticSubscription = getAutomaticSubscriptionPreference(PREF_ENABLE_AUTOMATIC_SUBSCRIPTION,
-                PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT);
-        /*
-         * Get latest encoding parameters
-         */
-        final EncodingParameters newEncodingParameters = getEncodingParameters();
-
-        /*
-         * Update encoding parameters
-         */
-        encodingParameters = newEncodingParameters;
 
         /*
          * Route audio through cached value.
          */
         audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
 
-        /*
-         * Update reconnecting UI
-         */
-//        if (room != null) {
-//            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ? View.GONE :
-//                    View.VISIBLE);
-//        }
-//        reconnectingProgressBar.setVisibility(View.VISIBLE);
-
-        if (room == null || room.getState() == Room.State.DISCONNECTED) {
+        /*if (room == null || room.getState() == Room.State.DISCONNECTED) {
             connectToRoom(roomname);
-        }
+        }*/ //AM-478
 
         registerReceiver(phonecallReceiver, new IntentFilter("android.intent.action.PHONE_STATE")); //ALF AM-474
     }
@@ -373,21 +299,10 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     public void onResume() {
         super.onResume();
 
-        /*
-         * Update preferred audio and video codec in case changed in settings
-         */
-        audioCodec = getAudioCodecPreference(PREF_AUDIO_CODEC,
-                PREF_AUDIO_CODEC_DEFAULT);
-        videoCodec = getVideoCodecPreference(PREF_VIDEO_CODEC,
-                PREF_VIDEO_CODEC_DEFAULT);
-        enableAutomaticSubscription = getAutomaticSubscriptionPreference(PREF_ENABLE_AUTOMATIC_SUBSCRIPTION,
-                PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT);
-
-        // AM-507
-        recreateVideoTrackIfNeeded();
-        if(!isVideoMuted) {
-            localVideoTrack.enable(true);
-        }
+        //recreateVideoTrackIfNeeded();
+        //if(!isVideoMuted) {
+        //    localVideoTrack.enable(true);
+        //}
 
         /*
          * Route audio through cached value.
@@ -404,36 +319,18 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         muteActionFab.setImageDrawable(ContextCompat.getDrawable(
                 VideoActivity.this, muteIcon));
 
-
-
-//        int speakerIcon = isSpeakerPhoneEnabled ?
-//                R.drawable.ic_volume_up_white_24dp : R.drawable.ic_volume_off_gray_24dp;
-//        if (isSpeakerPhoneEnabled) {
-//            speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
-//
-//        } else {
-//            speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
-//        }
-//        speakerPhoneActionFab.setImageDrawable(ContextCompat.getDrawable(
-//                VideoActivity.this, speakerIcon));
-
         sensorManager.registerListener(this, proximity, SensorManager.SENSOR_DELAY_NORMAL);
 
         /*
          * Update reconnecting UI
          */
-        if (!room.getRemoteParticipants().isEmpty()){
-            reconnectingProgressBar.setVisibility(View.GONE);
-        }
-//        if (room != null) {
-//            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ?
-//                    View.GONE :
-//                    View.VISIBLE);
-//        }
+        //if (!room.getRemoteParticipants().isEmpty()){ //AM-478 for now
+        //    reconnectingProgressBar.setVisibility(View.GONE);
+        //}
     }
 
     private void recreateVideoTrackIfNeeded() {
-        final EncodingParameters newEncodingParameters = getEncodingParameters();
+        final EncodingParameters newEncodingParameters = callManager.getEncodingParameters();
         /*
          * If the local video track was released when the app was put in the background, recreate.
          */
@@ -447,22 +344,11 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             /*
              * If connected to a Room then share the local video track.
              */
-            if (localParticipant != null) {
-                localParticipant.publishTrack(localVideoTrack);
-
-                /*
-                 * Update encoding parameters if they have changed.
-                 */
-                if (!newEncodingParameters.equals(encodingParameters)) {
-                    localParticipant.setEncodingParameters(newEncodingParameters);
-                }
+            if (callManager != null && callManager.getLocalParticipant() != null) {
+                callManager.getLocalParticipant().publishTrack(localVideoTrack);
+                callManager.getLocalParticipant().setEncodingParameters(newEncodingParameters);
             }
         }
-
-        /*
-         * Update encoding parameters
-         */
-        encodingParameters = newEncodingParameters;
     }
 
     @Override
@@ -479,8 +365,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
              * releasing the video track. Participants will be notified that the track has been
              * unpublished.
              */
-            if (localParticipant != null) {
-                localParticipant.unpublishTrack(localVideoTrack);
+            if (callManager != null && callManager.getLocalParticipant() != null) {
+                callManager.getLocalParticipant().unpublishTrack(localVideoTrack);
             }
 
             localVideoTrack.release();
@@ -530,10 +416,10 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
          * Always disconnect from the room before leaving the Activity to
          * ensure any memory allocated to the Room resource is freed.
          */
-        if (room != null && room.getState() != Room.State.DISCONNECTED) {
+        /*if (room != null && room.getState() != Room.State.DISCONNECTED) {
             room.disconnect();
             disconnectedFromOnDestroy = true;
-        }
+        }*/ //AM-478
 
         /*
          * Release the local audio and video tracks ensuring any memory allocated to audio
@@ -556,11 +442,15 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         setVolumeControlStream(savedVolumeControlStream);
         //audioManager.setMode(previousAudioMode);
 
-        //AM-441
-        SoundPoolManager.getInstance(VideoActivity.this).setSpeakerOn(false);
-        audioManager.setMode(SoundPoolManager.getInstance(VideoActivity.this).getPreviousAudioMode());
+        //AM-441   //AM-478 handled in Disconnect for now
+        //SoundPoolManager.getInstance(VideoActivity.this).setSpeakerOn(false);
+        //audioManager.setMode(SoundPoolManager.getInstance(VideoActivity.this).getPreviousAudioMode());
 
         unregisterReceiver(phonecallReceiver); //ALF AM-474
+
+        if (callManager != null) {
+            callManager.setCallListener(null); //AM-478
+        }
 
         super.onDestroy();
     }
@@ -603,51 +493,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 (CameraSource.BACK_CAMERA);
     }
 
-    private void connectToRoom(String roomName) {
-        configureAudio(true);
-        ConnectOptions.Builder connectOptionsBuilder = new ConnectOptions.Builder(accessToken)
-                .roomName(roomName);
-
-        /*
-         * Add local audio track to connect options to share with participants.
-         */
-        if (localAudioTrack != null) {
-            connectOptionsBuilder
-                    .audioTracks(Collections.singletonList(localAudioTrack));
-        }
-
-        /*
-         * Add local video track to connect options to share with participants.
-         */
-        if (localVideoTrack != null) {
-            connectOptionsBuilder.videoTracks(Collections.singletonList(localVideoTrack));
-        }
-
-        /*
-         * Set the preferred audio and video codec for media.
-         */
-        connectOptionsBuilder.preferAudioCodecs(Collections.singletonList(audioCodec));
-        connectOptionsBuilder.preferVideoCodecs(Collections.singletonList(videoCodec));
-        connectOptionsBuilder.enableIceGatheringOnAnyAddressPorts(true);
-
-        /*
-         * Set the sender side encoding parameters.
-         */
-        encodingParameters = getEncodingParameters();
-        connectOptionsBuilder.encodingParameters(encodingParameters);
-
-        /*
-         * Toggles automatic track subscription. If set to false, the LocalParticipant will receive
-         * notifications of track publish events, but will not automatically subscribe to them. If
-         * set to true, the LocalParticipant will automatically subscribe to tracks as they are
-         * published. If unset, the default is true. Note: This feature is only available for Group
-         * Rooms. Toggling the flag in a P2P room does not modify subscription behavior.
-         */
-        connectOptionsBuilder.enableAutomaticSubscription(enableAutomaticSubscription);
-
-        room = Video.connect(this, connectOptionsBuilder.build(), roomListener());
-    }
-
     /*
      * The initial state when there is no active room.
      */
@@ -663,68 +508,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         muteActionFab.setOnClickListener(muteClickListener());
         speakerPhoneActionFab.show();
         speakerPhoneActionFab.setOnClickListener(speakerPhoneClickListener());
-
     }
 
-
-    /*
-     * Get the preferred audio codec from shared preferences
-     */
-    private AudioCodec getAudioCodecPreference(String key, String defaultValue) {
-        final String audioCodecName = preferences.getString(key, defaultValue);
-
-        switch (audioCodecName) {
-            case IsacCodec.NAME:
-                return new IsacCodec();
-            case OpusCodec.NAME:
-                return new OpusCodec();
-            case PcmaCodec.NAME:
-                return new PcmaCodec();
-            case PcmuCodec.NAME:
-                return new PcmuCodec();
-            case G722Codec.NAME:
-                return new G722Codec();
-            default:
-                return new OpusCodec();
-        }
-    }
-
-    /*
-     * Get the preferred video codec from shared preferences
-     */
-    private VideoCodec getVideoCodecPreference(String key, String defaultValue) {
-        final String videoCodecName = preferences.getString(key, defaultValue);
-        if(Build.MODEL == "Pixel 3" || Build.MODEL == "Pixel 4" ){ //using a plugin to detect mobile model
-            return new H264Codec();
-        }
-        switch (videoCodecName) {
-            case Vp8Codec.NAME:
-                boolean simulcast = preferences.getBoolean(PREF_VP8_SIMULCAST,
-                        PREF_VP8_SIMULCAST_DEFAULT);
-                return new Vp8Codec(simulcast);
-            case H264Codec.NAME:
-                return new H264Codec();
-            case Vp9Codec.NAME:
-                return new Vp9Codec();
-            default:
-                return new Vp8Codec();
-        }
-    }
-
-    private boolean getAutomaticSubscriptionPreference(String key, boolean defaultValue) {
-        return preferences.getBoolean(key, defaultValue);
-    }
-
-    private EncodingParameters getEncodingParameters() {
-        final int maxAudioBitrate = Integer.parseInt(
-                preferences.getString(PREF_SENDER_MAX_AUDIO_BITRATE,
-                        PREF_SENDER_MAX_AUDIO_BITRATE_DEFAULT));
-        final int maxVideoBitrate = Integer.parseInt(
-                preferences.getString(PREF_SENDER_MAX_VIDEO_BITRATE,
-                        PREF_SENDER_MAX_VIDEO_BITRATE_DEFAULT));
-
-        return new EncodingParameters(maxAudioBitrate, maxVideoBitrate);
-    }
 
     /*
      * Called when remote participant joins the room
@@ -766,30 +551,16 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         /*
          * Start listening for participant events
          */
-        remoteParticipant.setListener(remoteParticipantListener());
+        //remoteParticipant.setListener(remoteParticipantListener()); //AM-478
     }
 
     /*
      * Set primary view as renderer for participant video track
      */
     private void addRemoteParticipantVideo(VideoTrack videoTrack) {
-        //moveLocalVideoToThumbnailView(); //AM-450
         primaryVideoView.setMirror(false);
         videoTrack.addRenderer(primaryVideoView);
     }
-
-    //AM-450 commented out
-    /*private void moveLocalVideoToThumbnailView() {
-        if (thumbnailVideoView.getVisibility() == View.GONE) {
-            thumbnailVideoView.setVisibility(View.VISIBLE);
-            recreateVideoTrackIfNeeded();
-            localVideoTrack.removeRenderer(primaryVideoView);
-            localVideoTrack.addRenderer(thumbnailVideoView);
-            localVideoView = thumbnailVideoView;
-            thumbnailVideoView.setMirror(cameraCapturerCompat.getCameraSource() ==
-                    CameraSource.FRONT_CAMERA);
-        }
-    }*/
 
     /*
      * Called when remote participant leaves the room
@@ -814,143 +585,10 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 removeParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
             }
         }
-        //moveLocalVideoToPrimaryView(); //AM-450
     }
 
     private void removeParticipantVideo(VideoTrack videoTrack) {
         videoTrack.removeRenderer(primaryVideoView);
-    }
-
-    //AM-450 commented out for now
-    /*private void moveLocalVideoToPrimaryView() {
-        if (thumbnailVideoView.getVisibility() == View.VISIBLE) {
-            thumbnailVideoView.setVisibility(View.GONE);
-            if (localVideoTrack != null) {
-                localVideoTrack.removeRenderer(thumbnailVideoView);
-                localVideoTrack.addRenderer(primaryVideoView);
-            }
-            localVideoView = primaryVideoView;
-            primaryVideoView.setMirror(cameraCapturerCompat.getCameraSource() ==
-                    CameraSource.FRONT_CAMERA);
-        }
-    }*/
-
-    //CMG AM-478
-    /** Defines call
-     * backs for service binding, passed to bindService() */
-    private CallConnectionService connection = new CallConnectionService() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            CallConnectionBinder callConnectionBinder = (CallConnectionBinder) service;
-            mCallConnectionService = callConnectionBinder.getService();
-            callConnectionBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            callConnectionBound = false;
-        }
-    };
-
-
-    /*
-     * Room events listener
-     */
-    @SuppressLint("SetTextI18n")
-    private Room.Listener roomListener() {
-        return new Room.Listener() {
-            @Override
-            public void onConnected(Room room) {
-                localParticipant = room.getLocalParticipant();
-                setTitle(room.getName());
-                audioDeviceSelector.activate(); //AM-440
-                updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
-
-                for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
-                    addRemoteParticipant(remoteParticipant);
-                    String other = remoteParticipant.getIdentity();
-                    if (other.contains("@")){
-                        other = other.substring(0, other.indexOf("@"));
-                    }
-                    primaryTitle.setText(other);
-                    break;
-                }
-                if (!room.getRemoteParticipants().isEmpty()){
-                    reconnectingProgressBar.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            public void onReconnecting(@NonNull Room room, @NonNull TwilioException twilioException) {
-                reconnectingProgressBar.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onReconnected(@NonNull Room room) {
-                if (!room.getRemoteParticipants().isEmpty()){
-                    reconnectingProgressBar.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            public void onConnectFailure(Room room, TwilioException e) {
-                configureAudio(false);
-                audioDeviceSelector.deactivate(); //AM-440
-                intializeUI();
-            }
-
-            @Override
-            public void onDisconnected(Room room, TwilioException e) {
-                localParticipant = null;
-                VideoActivity.this.room = null;
-                configureAudio(false);
-                audioDeviceSelector.deactivate(); //AM-440
-                // Only reinitialize the UI if disconnect was not called from onDestroy()
-                if (!disconnectedFromOnDestroy) {
-                    intializeUI();
-                    //moveLocalVideoToPrimaryView(); //AM-450
-                }
-            }
-
-            @Override
-            public void onParticipantConnected(Room room, RemoteParticipant remoteParticipant) {
-                addRemoteParticipant(remoteParticipant);
-                reconnectingProgressBar.setVisibility(View.GONE);
-
-            }
-
-            @Override
-            public void onParticipantDisconnected(Room room, RemoteParticipant remoteParticipant) {
-                removeRemoteParticipant(remoteParticipant);
-                room.disconnect();
-                //CMG disconnect when remote leaves
-                localParticipant = null;
-                VideoActivity.this.room = null;
-                handleDisconnect(); //ALF AM-420
-                finish();
-            }
-
-            @Override
-            public void onRecordingStarted(Room room) {
-                /*
-                 * Indicates when media shared to a Room is being recorded. Note that
-                 * recording is only available in our Group Rooms developer preview.
-                 */
-                Log.d(TAG, "onRecordingStarted");
-            }
-
-            @Override
-            public void onRecordingStopped(Room room) {
-                /*
-                 * Indicates when media shared to a Room is no longer being recorded. Note that
-                 * recording is only available in our Group Rooms developer preview.
-                 */
-                Log.d(TAG, "onRecordingStopped");
-            }
-        };
     }
 
     private void configureAudio(boolean enable) {
@@ -1074,259 +712,15 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 ContextCompat.getDrawable(VideoActivity.this, audioDeviceIcon));
     }
 
-
-
-    @SuppressLint("SetTextI18n")
-    private RemoteParticipant.Listener remoteParticipantListener() {
-        return new RemoteParticipant.Listener() {
-            @Override
-            public void onAudioTrackPublished(RemoteParticipant remoteParticipant,
-                                              RemoteAudioTrackPublication remoteAudioTrackPublication) {
-                Log.i(TAG, String.format("onAudioTrackPublished: " +
-                                "[RemoteParticipant: identity=%s], " +
-                                "[RemoteAudioTrackPublication: sid=%s, enabled=%b, " +
-                                "subscribed=%b, name=%s]",
-                        remoteParticipant.getIdentity(),
-                        remoteAudioTrackPublication.getTrackSid(),
-                        remoteAudioTrackPublication.isTrackEnabled(),
-                        remoteAudioTrackPublication.isTrackSubscribed(),
-                        remoteAudioTrackPublication.getTrackName()));
-            }
-
-            @Override
-            public void onAudioTrackUnpublished(RemoteParticipant remoteParticipant,
-                                                RemoteAudioTrackPublication remoteAudioTrackPublication) {
-                Log.i(TAG, String.format("onAudioTrackUnpublished: " +
-                                "[RemoteParticipant: identity=%s], " +
-                                "[RemoteAudioTrackPublication: sid=%s, enabled=%b, " +
-                                "subscribed=%b, name=%s]",
-                        remoteParticipant.getIdentity(),
-                        remoteAudioTrackPublication.getTrackSid(),
-                        remoteAudioTrackPublication.isTrackEnabled(),
-                        remoteAudioTrackPublication.isTrackSubscribed(),
-                        remoteAudioTrackPublication.getTrackName()));
-            }
-
-            @Override
-            public void onDataTrackPublished(RemoteParticipant remoteParticipant,
-                                             RemoteDataTrackPublication remoteDataTrackPublication) {
-                Log.i(TAG, String.format("onDataTrackPublished: " +
-                                "[RemoteParticipant: identity=%s], " +
-                                "[RemoteDataTrackPublication: sid=%s, enabled=%b, " +
-                                "subscribed=%b, name=%s]",
-                        remoteParticipant.getIdentity(),
-                        remoteDataTrackPublication.getTrackSid(),
-                        remoteDataTrackPublication.isTrackEnabled(),
-                        remoteDataTrackPublication.isTrackSubscribed(),
-                        remoteDataTrackPublication.getTrackName()));
-            }
-
-            @Override
-            public void onDataTrackUnpublished(RemoteParticipant remoteParticipant,
-                                               RemoteDataTrackPublication remoteDataTrackPublication) {
-                Log.i(TAG, String.format("onDataTrackUnpublished: " +
-                                "[RemoteParticipant: identity=%s], " +
-                                "[RemoteDataTrackPublication: sid=%s, enabled=%b, " +
-                                "subscribed=%b, name=%s]",
-                        remoteParticipant.getIdentity(),
-                        remoteDataTrackPublication.getTrackSid(),
-                        remoteDataTrackPublication.isTrackEnabled(),
-                        remoteDataTrackPublication.isTrackSubscribed(),
-                        remoteDataTrackPublication.getTrackName()));
-            }
-
-            @Override
-            public void onVideoTrackPublished(RemoteParticipant remoteParticipant,
-                                              RemoteVideoTrackPublication remoteVideoTrackPublication) {
-                Log.i(TAG, String.format("onVideoTrackPublished: " +
-                                "[RemoteParticipant: identity=%s], " +
-                                "[RemoteVideoTrackPublication: sid=%s, enabled=%b, " +
-                                "subscribed=%b, name=%s]",
-                        remoteParticipant.getIdentity(),
-                        remoteVideoTrackPublication.getTrackSid(),
-                        remoteVideoTrackPublication.isTrackEnabled(),
-                        remoteVideoTrackPublication.isTrackSubscribed(),
-                        remoteVideoTrackPublication.getTrackName()));
-            }
-
-            @Override
-            public void onVideoTrackUnpublished(RemoteParticipant remoteParticipant,
-                                                RemoteVideoTrackPublication remoteVideoTrackPublication) {
-                Log.i(TAG, String.format("onVideoTrackUnpublished: " +
-                                "[RemoteParticipant: identity=%s], " +
-                                "[RemoteVideoTrackPublication: sid=%s, enabled=%b, " +
-                                "subscribed=%b, name=%s]",
-                        remoteParticipant.getIdentity(),
-                        remoteVideoTrackPublication.getTrackSid(),
-                        remoteVideoTrackPublication.isTrackEnabled(),
-                        remoteVideoTrackPublication.isTrackSubscribed(),
-                        remoteVideoTrackPublication.getTrackName()));
-            }
-
-            @Override
-            public void onAudioTrackSubscribed(RemoteParticipant remoteParticipant,
-                                               RemoteAudioTrackPublication remoteAudioTrackPublication,
-                                               RemoteAudioTrack remoteAudioTrack) {
-                Log.i(TAG, String.format("onAudioTrackSubscribed: " +
-                                "[RemoteParticipant: identity=%s], " +
-                                "[RemoteAudioTrack: enabled=%b, playbackEnabled=%b, name=%s]",
-                        remoteParticipant.getIdentity(),
-                        remoteAudioTrack.isEnabled(),
-                        remoteAudioTrack.isPlaybackEnabled(),
-                        remoteAudioTrack.getName()));
-            }
-
-            @Override
-            public void onAudioTrackUnsubscribed(RemoteParticipant remoteParticipant,
-                                                 RemoteAudioTrackPublication remoteAudioTrackPublication,
-                                                 RemoteAudioTrack remoteAudioTrack) {
-                Log.i(TAG, String.format("onAudioTrackUnsubscribed: " +
-                                "[RemoteParticipant: identity=%s], " +
-                                "[RemoteAudioTrack: enabled=%b, playbackEnabled=%b, name=%s]",
-                        remoteParticipant.getIdentity(),
-                        remoteAudioTrack.isEnabled(),
-                        remoteAudioTrack.isPlaybackEnabled(),
-                        remoteAudioTrack.getName()));
-            }
-
-            @Override
-            public void onAudioTrackSubscriptionFailed(RemoteParticipant remoteParticipant,
-                                                       RemoteAudioTrackPublication remoteAudioTrackPublication,
-                                                       TwilioException twilioException) {
-                Log.i(TAG, String.format("onAudioTrackSubscriptionFailed: " +
-                                "[RemoteParticipant: identity=%s], " +
-                                "[RemoteAudioTrackPublication: sid=%b, name=%s]" +
-                                "[TwilioException: code=%d, message=%s]",
-                        remoteParticipant.getIdentity(),
-                        remoteAudioTrackPublication.getTrackSid(),
-                        remoteAudioTrackPublication.getTrackName(),
-                        twilioException.getCode(),
-                        twilioException.getMessage()));
-            }
-
-            @Override
-            public void onDataTrackSubscribed(RemoteParticipant remoteParticipant,
-                                              RemoteDataTrackPublication remoteDataTrackPublication,
-                                              RemoteDataTrack remoteDataTrack) {
-                Log.i(TAG, String.format("onDataTrackSubscribed: " +
-                                "[RemoteParticipant: identity=%s], " +
-                                "[RemoteDataTrack: enabled=%b, name=%s]",
-                        remoteParticipant.getIdentity(),
-                        remoteDataTrack.isEnabled(),
-                        remoteDataTrack.getName()));
-            }
-
-            @Override
-            public void onDataTrackUnsubscribed(RemoteParticipant remoteParticipant,
-                                                RemoteDataTrackPublication remoteDataTrackPublication,
-                                                RemoteDataTrack remoteDataTrack) {
-                Log.i(TAG, String.format("onDataTrackUnsubscribed: " +
-                                "[RemoteParticipant: identity=%s], " +
-                                "[RemoteDataTrack: enabled=%b, name=%s]",
-                        remoteParticipant.getIdentity(),
-                        remoteDataTrack.isEnabled(),
-                        remoteDataTrack.getName()));
-            }
-
-            @Override
-            public void onDataTrackSubscriptionFailed(RemoteParticipant remoteParticipant,
-                                                      RemoteDataTrackPublication remoteDataTrackPublication,
-                                                      TwilioException twilioException) {
-                Log.i(TAG, String.format("onDataTrackSubscriptionFailed: " +
-                                "[RemoteParticipant: identity=%s], " +
-                                "[RemoteDataTrackPublication: sid=%b, name=%s]" +
-                                "[TwilioException: code=%d, message=%s]",
-                        remoteParticipant.getIdentity(),
-                        remoteDataTrackPublication.getTrackSid(),
-                        remoteDataTrackPublication.getTrackName(),
-                        twilioException.getCode(),
-                        twilioException.getMessage()));
-            }
-
-            @Override
-            public void onVideoTrackSubscribed(RemoteParticipant remoteParticipant,
-                                               RemoteVideoTrackPublication remoteVideoTrackPublication,
-                                               RemoteVideoTrack remoteVideoTrack) {
-                Log.i(TAG, String.format("onVideoTrackSubscribed: " +
-                                "[RemoteParticipant: identity=%s], " +
-                                "[RemoteVideoTrack: enabled=%b, name=%s]",
-                        remoteParticipant.getIdentity(),
-                        remoteVideoTrack.isEnabled(),
-                        remoteVideoTrack.getName()));
-                addRemoteParticipantVideo(remoteVideoTrack);
-            }
-
-            @Override
-            public void onVideoTrackUnsubscribed(RemoteParticipant remoteParticipant,
-                                                 RemoteVideoTrackPublication remoteVideoTrackPublication,
-                                                 RemoteVideoTrack remoteVideoTrack) {
-                Log.i(TAG, String.format("onVideoTrackUnsubscribed: " +
-                                "[RemoteParticipant: identity=%s], " +
-                                "[RemoteVideoTrack: enabled=%b, name=%s]",
-                        remoteParticipant.getIdentity(),
-                        remoteVideoTrack.isEnabled(),
-                        remoteVideoTrack.getName()));
-                removeParticipantVideo(remoteVideoTrack);
-            }
-
-            @Override
-            public void onVideoTrackSubscriptionFailed(RemoteParticipant remoteParticipant,
-                                                       RemoteVideoTrackPublication remoteVideoTrackPublication,
-                                                       TwilioException twilioException) {
-                Log.i(TAG, String.format("onVideoTrackSubscriptionFailed: " +
-                                "[RemoteParticipant: identity=%s], " +
-                                "[RemoteVideoTrackPublication: sid=%b, name=%s]" +
-                                "[TwilioException: code=%d, message=%s]",
-                        remoteParticipant.getIdentity(),
-                        remoteVideoTrackPublication.getTrackSid(),
-                        remoteVideoTrackPublication.getTrackName(),
-                        twilioException.getCode(),
-                        twilioException.getMessage()));
-                Snackbar.make(connectActionFab,
-                        String.format("Failed to subscribe to %s video track",
-                                remoteParticipant.getIdentity()),
-                        Snackbar.LENGTH_LONG)
-                        .show();
-            }
-
-            @Override
-            public void onAudioTrackEnabled(RemoteParticipant remoteParticipant,
-                                            RemoteAudioTrackPublication remoteAudioTrackPublication) {
-
-            }
-
-            @Override
-            public void onAudioTrackDisabled(RemoteParticipant remoteParticipant,
-                                             RemoteAudioTrackPublication remoteAudioTrackPublication) {
-
-            }
-
-            @Override
-            public void onVideoTrackEnabled(RemoteParticipant remoteParticipant,
-                                            RemoteVideoTrackPublication remoteVideoTrackPublication) {
-                noVideoView.setVisibility(View.GONE);
-                primaryVideoView.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onVideoTrackDisabled(RemoteParticipant remoteParticipant,
-                                             RemoteVideoTrackPublication remoteVideoTrackPublication) {
-                noVideoView.setVisibility(View.VISIBLE);
-                primaryVideoView.setVisibility(View.GONE);
-            }
-        };
-    }
-
     private View.OnClickListener disconnectClickListener() {
         return v -> {
             /*
              * Disconnect from room
              */
-            if (room != null) {
-                room.disconnect();
+            if (callManager != null) {
+                callManager.handleDisconnect();
             }
             handleDisconnect(); //ALF AM-420
-            finish();
         };
     }
 
@@ -1336,18 +730,13 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         final Intent intent = new Intent(this, XmppConnectionService.class);
         intent.setAction(XmppConnectionService.ACTION_FINISH_CALL);
         Compatibility.startService(this, intent);
-    }
 
-//    private View.OnClickListener connectActionClickListener() {
-//        return v -> showConnectDialog();
-//    }
-//
-//    private DialogInterface.OnClickListener cancelConnectDialogClickListener() {
-//        return (dialog, which) -> {
-//            intializeUI();
-//            connectDialog.dismiss();
-//        };
-//    }
+        //AM-441
+        SoundPoolManager.getInstance(this).setSpeakerOn(false);
+        audioManager.setMode(SoundPoolManager.getInstance(this).getPreviousAudioMode());
+
+        endListening();
+    }
 
     private View.OnClickListener switchCameraClickListener() {
         return v -> {
@@ -1404,7 +793,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             //AM-440
             List<AudioDevice> availableAudioDevices = audioDeviceSelector.getAvailableAudioDevices();
             if (availableAudioDevices.size()>2){
-            showAudioDevices();
+                showAudioDevices();
             }else{
                 boolean expectedSpeakerPhoneState = !audioManager.isSpeakerphoneOn();
 
@@ -1425,28 +814,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 speakerPhoneActionFab.setImageDrawable(
                         ContextCompat.getDrawable(VideoActivity.this, icon));
             }
-            /*
-             * Enable/disable the speakerphone
-             */
-            /*if (audioManager != null) {
-                boolean expectedSpeakerPhoneState = !audioManager.isSpeakerphoneOn();
-
-                audioManager.setSpeakerphoneOn(expectedSpeakerPhoneState);
-                isSpeakerPhoneEnabled = expectedSpeakerPhoneState;
-
-                int icon;
-                if (expectedSpeakerPhoneState) {
-                    icon = R.drawable.ic_volume_up_white_24dp;
-                    speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
-
-                } else {
-                    icon = R.drawable.ic_volume_off_gray_24dp;
-                    speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
-
-                }
-                speakerPhoneActionFab.setImageDrawable(
-                        ContextCompat.getDrawable(VideoActivity.this, icon));
-            }*/
         };
     }
     private void enableSpeakerPhone(boolean expectedSpeakerPhoneState){
@@ -1473,9 +840,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         }
 
     }
-    private void disableSpeakerPhone(){
 
-    }
     private View.OnClickListener muteClickListener() {
         return v -> {
             /*
@@ -1504,8 +869,17 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     @Override
     protected void onBackendConnected() {
         try {
-            if (xmppConnectionService != null) {
-                //getCallingActivity().
+            if (xmppConnectionService != null && callManager == null) {
+                //AM-478
+                configureAudio(true);
+                callManager = xmppConnectionService.getCallManager();
+                callManager.setCallListener(this);
+                callManager.readyToConnect();
+
+                recreateVideoTrackIfNeeded();
+                if(!isVideoMuted) {
+                    localVideoTrack.enable(true);
+                }
             }
         } catch (Exception e){
 
@@ -1523,11 +897,86 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     //ALF AM-474
     @Override
     public void onIncomingNativeCallAnswered() {
-        //cancel any current call
-        if (room != null) {
-            room.disconnect();
-        }
+        callManager.handleDisconnect();
         handleDisconnect();
+    }
+
+    //AM-478 start TwilioCallListener
+    public void handleParticipantConnected(RemoteParticipant remoteParticipant) {
+        addRemoteParticipant(remoteParticipant);
+        reconnectingProgressBar.setVisibility(View.GONE);
+    }
+
+    public void handleParticipantDisconnected(RemoteParticipant remoteParticipant) {
+        removeRemoteParticipant(remoteParticipant);
+        handleDisconnect(); //ALF AM-420
+    }
+
+    public void handleAddRemoteParticipantVideo(RemoteVideoTrack videoTrack){
+        primaryVideoView.setMirror(false);
+        videoTrack.addRenderer(primaryVideoView);
+    }
+    public void handleRemoveRemoteParticipantVideo(RemoteVideoTrack videoTrack){
+        videoTrack.removeRenderer(primaryVideoView);
+    }
+
+    public void handleVideoTrackEnabled(){
+        noVideoView.setVisibility(View.GONE);
+        primaryVideoView.setVisibility(View.VISIBLE);
+    }
+
+    public void handleVideoTrackDisabled(){
+        noVideoView.setVisibility(View.VISIBLE);
+        primaryVideoView.setVisibility(View.GONE);
+    }
+
+    public void handleConnected(Room room){
+        setTitle(room.getName());
+        audioDeviceSelector.activate(); //AM-440
+        updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
+
+        for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
+            addRemoteParticipant(remoteParticipant);
+            String other = remoteParticipant.getIdentity();
+            if (other.contains("@")){
+                other = other.substring(0, other.indexOf("@"));
+            }
+            primaryTitle.setText(other);
+            break;
+        }
+        if (!room.getRemoteParticipants().isEmpty()){
+            reconnectingProgressBar.setVisibility(View.GONE);
+        }
+    }
+
+    public void handleReconnecting(boolean reconnecting){
+        if (reconnecting) {
+            reconnectingProgressBar.setVisibility(View.VISIBLE);
+        } else {
+            reconnectingProgressBar.setVisibility(View.GONE);
+        }
+    }
+
+    public void handleConnectFailure(){
+        configureAudio(false);
+        audioDeviceSelector.deactivate(); //AM-440
+        intializeUI();
+    }
+
+    public void endListening(){
+        reconnectingProgressBar.setVisibility(View.GONE);
+        configureAudio(false);
+        audioDeviceSelector.deactivate(); //AM-440
+        callManager.setCallListener(null);
+        callManager = null;
         finish();
+    }
+
+    public LocalAudioTrack getLocalAudioTrack() {
+        return localAudioTrack;
+    }
+
+    public LocalVideoTrack getLocalVideoTrack() {
+        return localVideoTrack;
     }
 }

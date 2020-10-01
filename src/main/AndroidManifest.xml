@@ -83,7 +83,6 @@
             android:resource="@xml/automotive_app_desc"/> -->
 
         <service android:name=".services.XmppConnectionService"/>
-        <service android:name=".services.CallConnectionService"/>
 
         <receiver android:name=".services.EventReceiver">
             <intent-filter>
@@ -322,6 +321,11 @@
         <service
             android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
             android:enabled="true" />
+
+        <!-- AM-478 -->
+        <!-- <service
+            android:foregroundServiceType="phoneCall"
+            android:name=".services.CallConnectionService"/> -->
 
         <provider
             android:name="androidx.core.content.FileProvider"
