@@ -254,7 +254,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	private QuickConversationsService mQuickConversationsService = new QuickConversationsService(this);
 
 
-	private CallConnectionService mCallConnectionService = new CallConnectionService(); //CMG AM-478;
+	//private CallConnectionService mCallConnectionService = new CallConnectionService(); //CMG AM-478;
+	private CallManager callManager = new CallManager(this);
 
 
 	private final ConversationsFileObserver fileObserver = new ConversationsFileObserver(
@@ -517,6 +518,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		return this.mAvatarService;
 	}
 
+	public CallManager getCallManager() {
+		return this.callManager;
+	} //AM-478
+
 	public void attachLocationToConversation(final Conversation conversation, final Uri uri, final UiCallback<Message> callback) {
 		int encryption = conversation.getNextEncryption();
 		if (encryption == Message.ENCRYPTION_PGP) {
@@ -642,13 +647,13 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}*/
 
 	//CMG AM-478
-	public void startCallConnectionService(){
+	/*public void startCallConnectionService(){
 		bindService(new Intent(this, CallConnectionService.class), mCallConnectionService, Context.BIND_AUTO_CREATE);
 	}
 
 	public void stopCallConnectionService(){
 		unbindService(mCallConnectionService);
-	}
+	}*/
 
 
 
@@ -807,7 +812,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								if (!getNotificationService().pushForCall(call, pushedAccountHash)) {
 
 									//CMG AM-478
-									startCallConnectionService();
+									//startCallConnectionService();
+									callManager.initCall(call);
 
 									//ALF AM-447, no notification in this case because app is open, so manually play ringtone
 									SoundPoolManager.getInstance(XmppConnectionService.this).playRinging();
@@ -4600,7 +4606,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	//ALF AM-410 (next 3) //receiver is bare jid of receiver
 	public void sendCallRequest(TwilioCall call) {
 		//CMG AM-478
-		startCallConnectionService();
+		//startCallConnectionService();
 		final String deviceId = PhoneHelper.getAndroidId(this);
 		currentTwilioCall = null;
 
@@ -4790,7 +4796,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	public void rejectCall(TwilioCall call, boolean isBusy) {
 		//CMG AM-478
-		stopCallConnectionService();
+		//stopCallConnectionService();
 		final String deviceId = PhoneHelper.getAndroidId(this);
 
 		final IqPacket request = new IqPacket(IqPacket.TYPE.SET);
@@ -4878,7 +4884,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	public void cancelCall(TwilioCall call) {
 		//CMG AM-478
-		startCallConnectionService();
+		//startCallConnectionService();
 
 		if (call == null) {
 			Intent intent1 = new Intent("callActivityFinish");
