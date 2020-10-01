@@ -163,7 +163,7 @@
                 android:background="@drawable/btn_rounded_accent_300"
                 android:text="Create Account"
                 android:textAllCaps="false"
-                android:textColor="@color/blue_grey_300" />
+                android:textColor="@color/almost_white" />
 
 
         </LinearLayout>

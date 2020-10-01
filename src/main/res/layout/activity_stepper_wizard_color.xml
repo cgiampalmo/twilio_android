@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/newprimarybg"
+    android:background="@color/primary_bg_color"
     android:fitsSystemWindows="false"
     android:orientation="vertical">
 
@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/btn_rounded_accent_300"
             android:text="@string/continue_button_label"
-            android:textColor="@color/grey_80"
+            android:textColor="@color/blue_grey_800"
             android:textStyle="bold" />
 
         <Button
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/btn_rounded_accent_300"
             android:text="@string/next"
-            android:textColor="@color/grey_80"
+            android:textColor="@color/blue_grey_800"
             android:textStyle="bold" />
 
         <LinearLayout

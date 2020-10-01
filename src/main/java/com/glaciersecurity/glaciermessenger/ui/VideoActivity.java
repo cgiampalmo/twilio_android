@@ -375,8 +375,10 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         enableAutomaticSubscription = getAutomaticSubscriptionPreference(PREF_ENABLE_AUTOMATIC_SUBSCRIPTION,
                 PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT);
 
+        // AM-507
+        recreateVideoTrackIfNeeded();
         if(!isVideoMuted) {
-            recreateVideoTrackIfNeeded();
+            localVideoTrack.enable(true);
         }
 
         /*

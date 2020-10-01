@@ -13,7 +13,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/primary800">
+            android:background="@color/primary_bg_color">
 
             <LinearLayout
                 android:id="@+id/linearLayout"
@@ -68,7 +68,7 @@
                 <!-- CMG AM-209 -->
                 <ImageView
                     android:layout_width="match_parent"
-                    android:layout_height="300dp"
+                    android:layout_height="350dp"
                     android:layout_centerHorizontal="true"
                     android:layout_centerVertical="true"
                     android:adjustViewBounds="true"

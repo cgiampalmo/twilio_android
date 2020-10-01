@@ -478,7 +478,7 @@ public abstract class XmppActivity extends PinActivity {
 		new EmojiService(this).init();
 		this.isCameraFeatureAvailable = getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
 
-		mColorRed = ContextCompat.getColor(this, R.color.red800);
+		mColorRed = ContextCompat.getColor(this, R.color.red_800);
 
 		this.mTheme = findTheme();
 		setTheme(this.mTheme);

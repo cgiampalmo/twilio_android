@@ -59,7 +59,7 @@ public class StepperWizard extends AppCompatActivity {
     };
 
     private int color_array[] = {
-            R.color.newprimarybg,   // black_accent, grey950
+            R.color.primary_bg_color,   // black_accent, grey950
             R.color.grey965,  // blue_grey_800, grey900
             R.color.grey880,  // blue_grey_700, grey851
             R.color.grey825   // blue_grey_900, grey800
@@ -89,7 +89,7 @@ public class StepperWizard extends AppCompatActivity {
 
         initComponent();
 
-        Tools.setSystemBarColor(this, R.color.primary800);
+        Tools.setSystemBarColor(this, R.color.primary_bg_color);
     }
 
     private void initComponent() {
@@ -189,7 +189,7 @@ public class StepperWizard extends AppCompatActivity {
 
         if (dots.length > 0) {
             dots[current_index].setImageResource(R.drawable.shape_circle);
-            dots[current_index].setColorFilter(getResources().getColor(R.color.accent2), PorterDuff.Mode.SRC_IN);
+            dots[current_index].setColorFilter(getResources().getColor(R.color.blue_palette_bright_hex2), PorterDuff.Mode.SRC_IN);
         }
     }
 

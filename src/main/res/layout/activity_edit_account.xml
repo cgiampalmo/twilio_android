@@ -27,7 +27,7 @@
                 android:layout_gravity="center_horizontal"
                 app:srcCompat="@drawable/ic_updated_glacier_icon"
                 android:padding="5dp"
-                android:textColor="@color/accent" />
+                android:textColor="@color/light_blue_A700" />
 
             <View
                 android:layout_width="0dp"
@@ -121,7 +121,7 @@
                 android:background="@drawable/btn_rounded_accent_300"
                 android:text="Login"
                 android:textAllCaps="false"
-                android:textColor="@color/blue_grey_300" />
+                android:textColor="@color/almost_white" />
 
             <View
                 android:layout_width="0dp"
@@ -156,7 +156,7 @@
                 android:textAlignment="center"
                 android:paddingRight="@dimen/spacing_mlarge"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-                android:textColor="@color/accent2"
+                android:textColor="@color/blue_palette_bright_hex2"
                 android:textStyle="bold" />
 
             <TextView
@@ -177,7 +177,7 @@
                 android:textAlignment="center"
                 android:paddingLeft="@dimen/spacing_mlarge"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-                android:textColor="@color/accent2"
+                android:textColor="@color/blue_palette_bright_hex2"
                 android:textStyle="bold" />
 
         </LinearLayout>

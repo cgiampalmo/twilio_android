@@ -3,15 +3,15 @@
 
     <style name="ConversationsTheme" parent="Theme.AppCompat.Light.NoActionBar">
 
-        <item name="colorNewPrimary">@color/newprimarybg</item>
+        <item name="colorNewPrimary">@color/primary_bg_color</item>
         <item name="colorToolbar">@color/grey750</item>
 
-        <item name="colorPrimary">@color/newprimarybg</item>
-        <item name="colorPrimaryDark">@color/newprimarybg</item>
+        <item name="colorPrimary">@color/primary_bg_color</item>
+        <item name="colorPrimaryDark">@color/primary_bg_color</item>
         <item name="colorAccent">@color/blue_a200</item>
         <item name="colorAccent1">@color/blue_a250</item>
-        <item name="colorAccent2">@color/blue_message_dot_light</item>
-        <item name="colorAccent3">@color/blue_accent_light</item>
+        <item name="colorAccent2">@color/blue_palette_bright_hex1</item>
+        <item name="colorAccent3">@color/blue_grey_451</item>
         <item name="colorAccent4">@color/grey860</item>
         <item name="colorAccent5">@color/blue_a200</item>
 
@@ -22,16 +22,16 @@
         <item name="color_background_secondary">@color/grey200</item>
         <item name="color_background_tertiary">@color/grey300</item>
 
-        <item name="color_background_menu_logo">@color/blue_menu_header_light</item>
+        <item name="color_background_menu_logo">@color/blue_grey_850</item>
         <item name="color_background_menu">@color/grey50</item>
         <item name="color_background_button">@color/grey250</item>
 
         <item name="color_message_scroll">@color/grey200</item>
 
         <item name="unread_count">@color/blue_palette_hex1</item>
-        <item name="send_msg_button">@color/blue_send_button_light_theme</item>
+        <item name="send_msg_button">@color/blue_palette_hex2</item>
 
-        <item name="message_sent_bubble_color">@color/blue_sent_light_theme</item>
+        <item name="message_sent_bubble_color">@color/blue_palette_color4</item>
         <item name="message_sent_text_color">@color/almost_black</item>
         <item name="message_rcvd_bubble_color">@color/grey300</item>
         <item name="message_rcvd_text_color">@color/almost_black</item>
@@ -44,14 +44,14 @@
         <item type="reference" name="message_bubble_received_green">@drawable/message_bubble_received</item>
 
         <item name="color_background_overlay">@color/black12</item>
-        <item name="color_warning">@color/red_a700</item>
+        <item name="color_warning">@color/red_A700</item>
 
         <item name="activity_filesafe">@drawable/filesafe_black_48dp</item>
 
         <!-- GOOBER
-        <item name="TextColorOnline">@color/green600</item> -->
-        <item name="TextColorOnline">@color/newprimarybg</item>
-        <item name="TextColorError">@color/red800</item>
+        <item name="TextColorOnline">@color/green_600</item> -->
+        <item name="TextColorOnline">@color/primary_bg_color</item>
+        <item name="TextColorError">@color/red_800</item>
         <item name="edit_text_color">@color/almost_black</item>
 
         <item name="activity_background_search">@drawable/search_background_light</item>
@@ -92,8 +92,8 @@
         <item type="reference" name="ic_attach_record">@drawable/ic_attach_record</item>
 
         <!-- GOOBER
-        <item name="conversations_overview_background">@color/green700</item> -->
-        <item name="conversations_overview_background">@color/newprimarybg</item>
+        <item name="conversations_overview_background">@color/green_700</item> -->
+        <item name="conversations_overview_background">@color/primary_bg_color</item>
 
         <item type="float" name="icon_alpha">0.54</item>
         <item type="float" name="delete_icon_alpha">0.70</item>
@@ -152,41 +152,41 @@
 
     <style name="ConversationsTheme.Dark.Base" parent="Theme.AppCompat.NoActionBar">
 
-        <item name="colorNewPrimary">@color/newprimarybg</item>
-        <item name="colorToolbar">@color/newprimarybg</item>
+        <item name="colorNewPrimary">@color/primary_bg_color</item>
+        <item name="colorToolbar">@color/primary_bg_color</item>
 
-        <item name="colorPrimary">@color/newprimarybg</item>
-        <item name="colorPrimaryDark">@color/newprimarybg</item>
+        <item name="colorPrimary">@color/primary_bg_color</item>
+        <item name="colorPrimaryDark">@color/primary_bg_color</item>
         <item name="colorAccent">@color/blue_a100</item>
         <item name="colorAccent1">@color/blue_a150</item>
-        <item name="colorAccent2">@color/blue_message_dot_dark</item>
-        <item name="colorAccent3">@color/blue_accent_dark</item>
+        <item name="colorAccent2">@color/blue_palette_hex3</item>
+        <item name="colorAccent3">@color/blue_grey_449</item>
         <item name="colorAccent4">@color/grey300</item>
         <item name="colorAccent5">@color/blue_a50</item>
 
         <item name="popupOverlayStyle">@style/ThemeOverlay.AppCompat.Dark</item>
 
-        <item name="color_background_primary2">@color/newprimarybg</item>
-        <item name="color_background_primary">@color/newprimarybg</item>
-        <item name="color_background_secondary">@color/newprimarybg</item>  <!-- black54 -->
+        <item name="color_background_primary2">@color/primary_bg_color</item>
+        <item name="color_background_primary">@color/primary_bg_color</item>
+        <item name="color_background_secondary">@color/primary_bg_color</item>  <!-- black54 -->
         <item name="color_background_tertiary">@color/almost_black</item>
 
-        <item name="color_background_menu_logo">@color/blue_menu_header_dark</item>
+        <item name="color_background_menu_logo">@color/blue_grey_950</item>
         <item name="color_background_menu">@color/grey875</item>
         <item name="color_background_button">@color/grey850</item>
 
         <item name="color_message_scroll">@color/grey825</item>
 
-        <item name="unread_count">@color/blue_palette_hex2</item>
-        <item name="send_msg_button">@color/blue_send_button_dark_theme</item>
+        <item name="unread_count">@color/blue_palette_hex4</item>
+        <item name="send_msg_button">@color/blue_palette_hex2</item>
 
-        <item name="message_sent_bubble_color">@color/blue_sent_dark_theme</item>
+        <item name="message_sent_bubble_color">@color/blue_palette_hex2</item>
         <item name="message_sent_text_color">@color/almost_black</item>
         <item name="message_rcvd_bubble_color">@color/grey925</item>
         <item name="message_rcvd_text_color">@color/white</item>
         <item name="status_bubble_color">@color/grey925</item>
-        <item name="date_bubble_color">@color/newprimarybg</item>
-        <item name="call_bubble_color">@color/newprimarybg</item>
+        <item name="date_bubble_color">@color/primary_bg_color</item>
+        <item name="call_bubble_color">@color/primary_bg_color</item>
 
         <item type="reference" name="message_bubble_received_monochrome">@drawable/message_bubble_received_grey</item>
         <item type="reference" name="message_bubble_sent">@drawable/message_bubble_sent_grey</item>
@@ -199,14 +199,14 @@
         <item name="activity_background_search">@drawable/search_background_dark</item>
         <item name="activity_background_no_results">@drawable/no_results_background_dark</item>
         <item name="list_item_background">@drawable/list_item_background_dark</item>
-        <item name="color_warning">@color/red_a100</item>
+        <item name="color_warning">@color/red_A100</item>
 
         <item name="activity_filesafe">@drawable/filesafe_white_48dp</item>
 
         <!-- GOOBER
-        <item name="TextColorOnline">@color/green500</item> -->
-        <item name="TextColorOnline">@color/primary500</item>
-        <item name="TextColorError">@color/red500</item>
+        <item name="TextColorOnline">@color/green_500</item> -->
+        <item name="TextColorOnline">@color/blue_grey_875</item>
+        <item name="TextColorError">@color/red_500</item>
         <item name="edit_text_color">@color/white</item>
 
         <item name="EmojiColor">@color/white</item>
@@ -242,8 +242,8 @@
         <item type="reference" name="ic_attach_record">@drawable/ic_attach_record_white</item>
 
         <!-- GOOBER
-        <item name="conversations_overview_background">@color/green900</item> -->
-        <item name="conversations_overview_background">@color/newprimarybg</item>
+        <item name="conversations_overview_background">@color/green_900</item> -->
+        <item name="conversations_overview_background">@color/primary_bg_color</item>
 
         <item type="float" name="icon_alpha">0.7</item>
         <item type="float" name="delete_icon_alpha">0.7</item>
@@ -343,8 +343,8 @@
     </style>
 
     <style name="ConversationsTheme.FullScreen" parent="@style/Theme.AppCompat.Light">
-        <item name="colorPrimary">@color/green600</item>
-        <item name="colorPrimaryDark">@color/green700</item>
+        <item name="colorPrimary">@color/green_600</item>
+        <item name="colorPrimaryDark">@color/green_700</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
         <item name="android:windowFullscreen">true</item>
@@ -353,13 +353,13 @@
     </style>
 
     <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="colorPrimaryDark">@color/newprimarybg</item>
+        <item name="colorPrimaryDark">@color/primary_bg_color</item>
         <item name="android:windowBackground">@drawable/background</item>
     </style>
 
     <style name="ConversationsTheme.Dialog" parent="@style/Theme.AppCompat.Light.Dialog">
-        <item name="colorPrimary">@color/green600</item>
-        <item name="colorPrimaryDark">@color/green700</item>
+        <item name="colorPrimary">@color/green_600</item>
+        <item name="colorPrimaryDark">@color/green_700</item>
         <item name="colorAccent">@color/blue_a200</item>
         <item name="color_background_primary">@color/grey50</item>
         <item name="divider">@color/black12</item>
@@ -370,8 +370,8 @@
     </style>
 
     <style name="ConversationsTheme.Dark.Dialog" parent="@style/Theme.AppCompat.Dialog">
-        <item name="colorPrimary">@color/green800</item>
-        <item name="colorPrimaryDark">@color/green900</item>
+        <item name="colorPrimary">@color/green_800</item>
+        <item name="colorPrimaryDark">@color/green_900</item>
         <item name="colorAccent">@color/blue_a100</item>
         <item name="color_background_primary">@color/grey800</item>
         <item name="divider">@color/white12</item>

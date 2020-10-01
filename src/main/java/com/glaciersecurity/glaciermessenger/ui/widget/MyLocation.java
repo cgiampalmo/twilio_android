@@ -27,7 +27,7 @@ public class MyLocation extends SimpleLocationOverlay {
 		super(icon);
 		this.mapCenterPoint = new Point();
 		this.fill = new Paint(Paint.ANTI_ALIAS_FLAG);
-		final int accent = ContextCompat.getColor(ctx,R.color.blue500);
+		final int accent = ContextCompat.getColor(ctx,R.color.blue_500);
 		fill.setColor(accent);
 		fill.setStyle(Paint.Style.FILL);
 		this.outline = new Paint(Paint.ANTI_ALIAS_FLAG);

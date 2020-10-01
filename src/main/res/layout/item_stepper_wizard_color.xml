@@ -3,7 +3,7 @@
     android:id="@+id/lyt_parent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/newprimarybg"
+    android:background="@color/primary_bg_color"
     android:padding="@dimen/spacing_xlarge">
 
     <LinearLayout

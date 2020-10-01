@@ -362,7 +362,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 			body.setSpan(new DividerSpan(false), end, end + 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
 		int color = darkBackground ? this.getMessageTextColor(darkBackground, false)
-				: ContextCompat.getColor(activity, R.color.green700_desaturated);
+				: ContextCompat.getColor(activity, R.color.green_685);
 		DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
 		body.setSpan(new QuoteSpan(color, metrics), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	}

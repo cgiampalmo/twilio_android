@@ -85,8 +85,8 @@
     </style>
 
     <style name="EditText.Grey" parent="@style/AppTheme">
-        <item name="colorControlActivated">@color/grey_60</item>
-        <item name="colorControlHighlight">@color/grey_60</item>
+        <item name="colorControlActivated">@color/grey_725</item>
+        <item name="colorControlHighlight">@color/grey_725</item>
         <item name="colorControlNormal">@color/grey_20</item>
     </style>
 
@@ -113,7 +113,7 @@
     </style>
 
     <style name="TextAppearance.Conversations.Caption.Warning" parent="TextAppearance.Conversations.Caption">
-        <item name="android:textColor">@color/red800</item>
+        <item name="android:textColor">@color/red_800</item>
     </style>
 
     <style name="TextAppearance.Conversations.Caption.Highlight" parent="TextAppearance.Conversations.Caption">
