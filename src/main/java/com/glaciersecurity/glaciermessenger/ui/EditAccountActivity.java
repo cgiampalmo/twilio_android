@@ -1306,6 +1306,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						List<ListItem.Tag> groups = c.getTags(this);
 						for (int i = 0; i < groups.size(); ++i) {
 							tagList.add(groups.get(i).getName());
+							//tagList.add(" " + groups.get(i).getName() + " ");
 						}
 					}
 
@@ -1317,7 +1318,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				for (final String tagName: tagList) {
 					final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, binding.tags, false);
 					tv.setText(tagName);
-					//tv.setBackgroundColor(tag.getColor());
+					//tv.setBackgroundColor(getResources().getColor(R.color.grey_700));   // DJF Tag Color
 					binding.tags.addView(tv);
 				}
 			}

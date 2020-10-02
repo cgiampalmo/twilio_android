@@ -95,10 +95,10 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		if (Build.VERSION.SDK_INT >= 16) {
 			view.setBackground(StyledAttributes.getDrawable(view.getContext(), R.attr.list_item_background));
 		}
+
 		List<ListItem.Tag> tags = item.getTags(activity);
 		if (tags.size() == 0 || !this.showDynamicTags) {
 			viewHolder.tags.setVisibility(View.GONE);
-
 		} else {
 			viewHolder.tags.setVisibility(View.VISIBLE);
 			viewHolder.tags.removeAllViewsInLayout();
