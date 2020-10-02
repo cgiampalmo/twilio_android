@@ -116,7 +116,16 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private static final String LOCAL_AUDIO_TRACK_NAME = "mic";
     private static final String LOCAL_VIDEO_TRACK_NAME = "camera";
 
-
+    /*
+     * A Room represents communication between a local participant and one or more participants.
+     */
+    //private Room room;
+    //private LocalParticipant localParticipant;
+    private AudioManager audioManager;
+    //    private MenuItem turnSpeakerOnMenuItem;
+//    private MenuItem turnSpeakerOffMenuItem;
+    private int previousAudioMode;
+    private boolean previousMicrophoneMute;
     private boolean isSpeakerPhoneEnabled = false;
     private Boolean isAudioMuted = false;
     private Boolean isVideoMuted = true;
@@ -127,11 +136,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
      */
     private VideoView primaryVideoView;
     private VideoView thumbnailVideoView;
-
-    /*
-     * Android shared preferences used for settings
-     */
-    private SharedPreferences preferences;
 
     /*
      * Android application UI elements
@@ -150,21 +154,10 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private LinearLayout reconnectingProgressBar;
     private LinearLayout noVideoView;
     private RoundedImageView avatar;
+    private AlertDialog connectDialog;
     private String remoteParticipantIdentity;
     private TextView primaryTitle;
 
-    public static final String PREF_AUDIO_CODEC = "audio_codec";
-    public static final String PREF_AUDIO_CODEC_DEFAULT = OpusCodec.NAME;
-    public static final String PREF_VIDEO_CODEC = "video_codec";
-    public static final String PREF_VIDEO_CODEC_DEFAULT = Vp8Codec.NAME;
-    public static final String PREF_SENDER_MAX_AUDIO_BITRATE = "sender_max_audio_bitrate";
-    public static final String PREF_SENDER_MAX_AUDIO_BITRATE_DEFAULT = "0";
-    public static final String PREF_SENDER_MAX_VIDEO_BITRATE = "sender_max_video_bitrate";
-    public static final String PREF_SENDER_MAX_VIDEO_BITRATE_DEFAULT = "0";
-    public static final String PREF_VP8_SIMULCAST = "vp8_simulcast";
-    public static final String PREF_ENABLE_AUTOMATIC_SUBSCRIPTION = "enable_automatic_subscription";
-    public static final boolean PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT = true;
-    public static final boolean PREF_VP8_SIMULCAST_DEFAULT = false;
     private static final String IS_AUDIO_MUTED = "IS_AUDIO_MUTED";
     private static final String IS_VIDEO_MUTED = "IS_VIDEO_MUTED";
 
@@ -172,10 +165,14 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
      * Audio management
      */
     private int savedVolumeControlStream;
+    private AudioDeviceSelector audioDeviceSelector; //AM-440 Audio device mgmt
+
+    private AudioFocusRequest focusRequest; //ALF AM-446
 
     private VideoRenderer localVideoView;
     private boolean disconnectedFromOnDestroy;
-    private boolean enableAutomaticSubscription;
+
+    private PhonecallReceiver phonecallReceiver; //ALF AM-474
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -188,6 +185,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         noVideoView = findViewById(R.id.no_video_view);
         avatar = findViewById(R.id.no_video_view_avatar);
         avatar.setImageResource(R.drawable.avatar_default);
+
+        phonecallReceiver = new PhonecallReceiver(this); //ALF AM-474
 
 
         connectActionFab = findViewById(R.id.connect_action_fab);
@@ -210,11 +209,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                 | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        /*
-         * Get shared preferences to read settings
-         */
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
         if (savedInstanceState != null) {
             isAudioMuted = savedInstanceState.getBoolean(IS_AUDIO_MUTED);
             isVideoMuted = savedInstanceState.getBoolean(IS_VIDEO_MUTED);
@@ -223,9 +217,13 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         /*
          * Setup audio management and set the volume control stream
          */
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        //audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
         savedVolumeControlStream = getVolumeControlStream();
         setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
 
+        //AM-440 Setup audio device management
+        audioDeviceSelector = new AudioDeviceSelector(getApplicationContext());
 
         //CMG AM-419
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -241,6 +239,10 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
     }
 
+    private String caller;
+    private String roomname;
+    private String receiver;
+
 
     @Override
     public void onStart() {
@@ -253,9 +255,26 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         final String action = intent.getAction();
 
         if (CallActivity.ACTION_ACCEPTED_CALL.equals(action)) {
-            //
+            caller = intent.getStringExtra("caller");
+            roomname = intent.getStringExtra("roomname");
+            receiver = intent.getStringExtra("receiver");
         }
 
+        /*
+         * Route audio through cached value.
+         */
+        audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
+
+        /*
+         * Update reconnecting UI
+         */
+        reconnectingProgressBar.setVisibility(View.VISIBLE);
+
+        /*if (room == null || room.getState() == Room.State.DISCONNECTED) {
+            connectToRoom(roomname);
+        }*/ //AM-478
+
+        registerReceiver(phonecallReceiver, new IntentFilter("android.intent.action.PHONE_STATE")); //ALF AM-474
     }
 
     @Override
@@ -284,18 +303,19 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     public void onResume() {
         super.onResume();
 
-        if(!isVideoMuted) {
-            recreateVideoTrackIfNeeded();
-        }
+        //recreateVideoTrackIfNeeded();
+        //if(!isVideoMuted) {
+        //    localVideoTrack.enable(true);
+        //}
 
         /*
          * Route audio through cached value.
          */
-        callManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
+        audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
 
-        int muteIcon = !callManager.isMicrophoneMute() ?
+        int muteIcon = !audioManager.isMicrophoneMute() ?
                 R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_gray_24dp;
-        if (!callManager.isMicrophoneMute()){
+        if (!audioManager.isMicrophoneMute()){
             muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
         } else {
             muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
@@ -308,12 +328,13 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         /*
          * Update reconnecting UI
          */
-        if (!room.getRemoteParticipants().isEmpty()){
-            reconnectingProgressBar.setVisibility(View.GONE);
-        }
+        //if (!room.getRemoteParticipants().isEmpty()){ //AM-478 for now
+        //    reconnectingProgressBar.setVisibility(View.GONE);
+        //}
     }
 
     private void recreateVideoTrackIfNeeded() {
+        final EncodingParameters newEncodingParameters = callManager.getEncodingParameters();
         /*
          * If the local video track was released when the app was put in the background, recreate.
          */
@@ -327,8 +348,9 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             /*
              * If connected to a Room then share the local video track.
              */
-            if (callManager != null) {
-                callManager.publishVideoTrack(localVideoTrack);
+            if (callManager != null && callManager.getLocalParticipant() != null) {
+                callManager.getLocalParticipant().publishTrack(localVideoTrack);
+                callManager.getLocalParticipant().setEncodingParameters(newEncodingParameters);
             }
         }
     }
@@ -347,8 +369,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
              * releasing the video track. Participants will be notified that the track has been
              * unpublished.
              */
-            if (callManager != null) {
-                callManager.unpublishVideoTrack(localVideoTrack);
+            if (callManager != null && callManager.getLocalParticipant() != null) {
+                callManager.getLocalParticipant().unpublishTrack(localVideoTrack);
             }
 
             localVideoTrack.release();
@@ -395,6 +417,15 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     protected void onDestroy() {
 
         /*
+         * Always disconnect from the room before leaving the Activity to
+         * ensure any memory allocated to the Room resource is freed.
+         */
+        /*if (room != null && room.getState() != Room.State.DISCONNECTED) {
+            room.disconnect();
+            disconnectedFromOnDestroy = true;
+        }*/ //AM-478
+
+        /*
          * Release the local audio and video tracks ensuring any memory allocated to audio
          * or video is freed.
          */
@@ -409,10 +440,21 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             localVideoTrack = null;
         }
 
+        audioDeviceSelector.stop(); //AM-440
+
         //ALF AM-446
         setVolumeControlStream(savedVolumeControlStream);
+        //audioManager.setMode(previousAudioMode);
 
-        xmppConnectionService.getCallManager().setCallListener(null);
+        //AM-441   //AM-478 handled in Disconnect for now
+        //SoundPoolManager.getInstance(VideoActivity.this).setSpeakerOn(false);
+        //audioManager.setMode(SoundPoolManager.getInstance(VideoActivity.this).getPreviousAudioMode());
+
+        unregisterReceiver(phonecallReceiver); //ALF AM-474
+
+        if (callManager != null) {
+            callManager.setCallListener(null); //AM-478
+        }
 
         super.onDestroy();
     }
@@ -447,7 +489,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         localVideoView = thumbnailVideoView;
         thumbnailVideoView.setMirror(cameraCapturerCompat.getCameraSource() ==
                 CameraSource.FRONT_CAMERA);
-        callManager.setLocalVideo(localVideoTrack);
     }
 
     private CameraSource getAvailableCameraSource() {
@@ -471,9 +512,153 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         muteActionFab.setOnClickListener(muteClickListener());
         speakerPhoneActionFab.show();
         speakerPhoneActionFab.setOnClickListener(speakerPhoneClickListener());
-
     }
 
+
+    /*
+     * Called when remote participant joins the room
+     */
+    @SuppressLint("SetTextI18n")
+    private void addRemoteParticipant(RemoteParticipant remoteParticipant) {
+        /*
+         * This app only displays video for one additional participant per Room
+         */
+        if (thumbnailVideoView.getVisibility() == View.VISIBLE) {
+            Snackbar.make(connectActionFab,
+                    "Multiple participants are not currently support in this UI",
+                    Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+            return;
+        }
+        remoteParticipantIdentity = remoteParticipant.getIdentity();
+        String other = remoteParticipant.getIdentity();
+        if (other.contains("@")){
+            other = other.substring(0, other.indexOf("@"));
+        }
+        primaryTitle.setText(other);
+
+        /*
+         * Add remote participant renderer
+         */
+        if (remoteParticipant.getRemoteVideoTracks().size() > 0) {
+            RemoteVideoTrackPublication remoteVideoTrackPublication =
+                    remoteParticipant.getRemoteVideoTracks().get(0);
+
+            /*
+             * Only render video tracks that are subscribed to
+             */
+            if (remoteVideoTrackPublication.isTrackSubscribed()) {
+                addRemoteParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
+            }
+        }
+
+        /*
+         * Start listening for participant events
+         */
+        //remoteParticipant.setListener(remoteParticipantListener()); //AM-478
+    }
+
+    /*
+     * Set primary view as renderer for participant video track
+     */
+    private void addRemoteParticipantVideo(VideoTrack videoTrack) {
+        primaryVideoView.setMirror(false);
+        videoTrack.addRenderer(primaryVideoView);
+    }
+
+    /*
+     * Called when remote participant leaves the room
+     */
+    @SuppressLint("SetTextI18n")
+    private void removeRemoteParticipant(RemoteParticipant remoteParticipant) {
+        if (!remoteParticipant.getIdentity().equals(remoteParticipantIdentity)) {
+            return;
+        }
+
+        /*
+         * Remove remote participant renderer
+         */
+        if (!remoteParticipant.getRemoteVideoTracks().isEmpty()) {
+            RemoteVideoTrackPublication remoteVideoTrackPublication =
+                    remoteParticipant.getRemoteVideoTracks().get(0);
+
+            /*
+             * Remove video only if subscribed to participant track
+             */
+            if (remoteVideoTrackPublication.isTrackSubscribed()) {
+                removeParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
+            }
+        }
+    }
+
+    private void removeParticipantVideo(VideoTrack videoTrack) {
+        videoTrack.removeRenderer(primaryVideoView);
+    }
+
+    private void configureAudio(boolean enable) {
+        if (enable) {
+            previousAudioMode = audioManager.getMode();
+            // Request audio focus before making any device switch
+            requestAudioFocus();
+            /*
+             * Use MODE_IN_COMMUNICATION as the default audio mode. It is required
+             * to be in this mode when playout and/or recording starts for the best
+             * possible VoIP performance. Some devices have difficulties with
+             * speaker mode if this is not set.
+             */
+            audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+            /*
+             * Always disable microphone mute during a WebRTC call.
+             */
+            previousMicrophoneMute = audioManager.isMicrophoneMute();
+            audioManager.setMicrophoneMute(false);
+
+            audioDeviceSelector.start((audioDevices, audioDevice) -> Unit.INSTANCE); //AM-440
+
+            //AM-441
+            if (SoundPoolManager.getInstance(VideoActivity.this).getSpeakerOn()) {
+                List<AudioDevice> availableAudioDevices = audioDeviceSelector.getAvailableAudioDevices();
+                for (AudioDevice a : availableAudioDevices) {
+                    if (a instanceof AudioDevice.Speakerphone) {
+                        audioDeviceSelector.selectDevice(a);
+                    }
+                }
+            }
+
+            updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { //ALF AM-446
+                audioManager.abandonAudioFocusRequest(focusRequest);
+            } else {
+                audioManager.abandonAudioFocus(null);
+            }
+            audioManager.setMicrophoneMute(previousMicrophoneMute);
+            audioManager.setMode(previousAudioMode);
+        }
+    }
+
+    private void requestAudioFocus() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (focusRequest == null) { //ALF AM-446
+                AudioAttributes playbackAttributes = new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                        .build();
+                focusRequest =
+                        new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                                .setAudioAttributes(playbackAttributes)
+                                .setAcceptsDelayedFocusGain(true)
+                                .setOnAudioFocusChangeListener(
+                                        i -> {
+                                        })
+                                .build();
+            }
+            audioManager.requestAudioFocus(focusRequest);
+        } else {
+            audioManager.requestAudioFocus(null, AudioManager.STREAM_VOICE_CALL,
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+        }
+    }
 
     //AM-440 and next method
     /*
@@ -533,11 +718,28 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
     private View.OnClickListener disconnectClickListener() {
         return v -> {
-            if (xmppConnectionService != null) {
-                xmppConnectionService.getCallManager().disconnectCall();
+            /*
+             * Disconnect from room
+             */
+            if (callManager != null) {
+                callManager.handleDisconnect();
             }
-            finish();
+            handleDisconnect(); //ALF AM-420
         };
+    }
+
+    //ALF AM-420
+    private void handleDisconnect() {
+        SoundPoolManager.getInstance(VideoActivity.this).playDisconnect();
+        final Intent intent = new Intent(this, XmppConnectionService.class);
+        intent.setAction(XmppConnectionService.ACTION_FINISH_CALL);
+        Compatibility.startService(this, intent);
+
+        //AM-441
+        SoundPoolManager.getInstance(this).setSpeakerOn(false);
+        audioManager.setMode(SoundPoolManager.getInstance(this).getPreviousAudioMode());
+
+        endListening();
     }
 
     private View.OnClickListener switchCameraClickListener() {
@@ -593,13 +795,13 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private View.OnClickListener speakerPhoneClickListener() {
         return v -> {
             //AM-440
-            List<AudioDevice> availableAudioDevices = xmppConnectionService.getCallManager().getAvailableAudioDevices();
-
+            List<AudioDevice> availableAudioDevices = audioDeviceSelector.getAvailableAudioDevices();
             if (availableAudioDevices.size()>2){
                 showAudioDevices();
             }else{
-                boolean expectedSpeakerPhoneState = !callManager.isSpeakerphoneOn();
-                callManager.setSpeakerphoneOn(expectedSpeakerPhoneState);
+                boolean expectedSpeakerPhoneState = !audioManager.isSpeakerphoneOn();
+
+                audioManager.setSpeakerphoneOn(expectedSpeakerPhoneState);
                 isSpeakerPhoneEnabled = expectedSpeakerPhoneState;
 
                 int icon;
@@ -618,7 +820,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             }
         };
     }
-
     private void enableSpeakerPhone(boolean expectedSpeakerPhoneState){
         if (audioManager != null) {
             //CMG AM-463
@@ -651,10 +852,12 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
              * signaled to other Participants in the same Room. When an audio track is
              * disabled, the audio is muted.
              */
-            if (callManager != null) {
-                boolean enable = callManager.handleMuteClick();
+            if (localAudioTrack != null) {
+                boolean enable = !localAudioTrack.isEnabled();
+                localAudioTrack.enable(enable);
                 int icon = enable ?
                         R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_gray_24dp;
+
 
                 if (enable){
                     muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
@@ -670,11 +873,17 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     @Override
     protected void onBackendConnected() {
         try {
-            if (xmppConnectionService != null) {
-                //getCallingActivity().
+            if (xmppConnectionService != null && callManager == null) {
                 //AM-478
+                configureAudio(true);
                 callManager = xmppConnectionService.getCallManager();
                 callManager.setCallListener(this);
+                callManager.readyToConnect();
+
+                recreateVideoTrackIfNeeded();
+                if(!isVideoMuted) {
+                    localVideoTrack.enable(true);
+                }
             }
         } catch (Exception e){
 
@@ -689,24 +898,22 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     public void onBackPressed() {
     }
 
+    //ALF AM-474
+    @Override
+    public void onIncomingNativeCallAnswered() {
+        callManager.handleDisconnect();
+        handleDisconnect();
+    }
+
     //AM-478 start TwilioCallListener
-    public void handleAddRemoteParticipant(RemoteParticipant remoteParticipant) {
-        /*
-         * This app only displays video for one additional participant per Room
-         */
-        if (thumbnailVideoView.getVisibility() == View.VISIBLE) {
-            Snackbar.make(connectActionFab,
-                    "Multiple participants are not currently support in this UI",
-                    Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
-            return;
-        }
-        remoteParticipantIdentity = remoteParticipant.getIdentity();
-        String other = remoteParticipant.getIdentity();
-        if (other.contains("@")){
-            other = other.substring(0, other.indexOf("@"));
-        }
-        primaryTitle.setText(other);
+    public void handleParticipantConnected(RemoteParticipant remoteParticipant) {
+        addRemoteParticipant(remoteParticipant);
+        reconnectingProgressBar.setVisibility(View.GONE);
+    }
+
+    public void handleParticipantDisconnected(RemoteParticipant remoteParticipant) {
+        removeRemoteParticipant(remoteParticipant);
+        handleDisconnect(); //ALF AM-420
     }
 
     public void handleAddRemoteParticipantVideo(RemoteVideoTrack videoTrack){
@@ -727,12 +934,13 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         primaryVideoView.setVisibility(View.GONE);
     }
 
-    public void handleConnected(Room room, AudioDevice audioDevice){
+    public void handleConnected(Room room){
         setTitle(room.getName());
-        //audioDeviceSelector.activate(); //AM-440
-        updateAudioDeviceIcon(audioDevice);
+        audioDeviceSelector.activate(); //AM-440
+        updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
 
         for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
+            addRemoteParticipant(remoteParticipant);
             String other = remoteParticipant.getIdentity();
             if (other.contains("@")){
                 other = other.substring(0, other.indexOf("@"));
@@ -754,15 +962,25 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     }
 
     public void handleConnectFailure(){
+        configureAudio(false);
+        audioDeviceSelector.deactivate(); //AM-440
         intializeUI();
     }
 
     public void endListening(){
+        reconnectingProgressBar.setVisibility(View.GONE);
+        configureAudio(false);
+        audioDeviceSelector.deactivate(); //AM-440
+        callManager.setCallListener(null);
         callManager = null;
         finish();
     }
 
-    public void handleSelectedAudioDevice(AudioDevice audioDevice) {
-        updateAudioDeviceIcon(audioDevice);
+    public LocalAudioTrack getLocalAudioTrack() {
+        return localAudioTrack;
+    }
+
+    public LocalVideoTrack getLocalVideoTrack() {
+        return localVideoTrack;
     }
 }

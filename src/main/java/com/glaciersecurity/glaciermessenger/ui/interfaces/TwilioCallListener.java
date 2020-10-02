@@ -1,21 +1,24 @@
 package com.glaciersecurity.glaciermessenger.ui.interfaces;
 
-import com.twilio.audioswitch.selection.AudioDevice;
+import com.twilio.video.LocalAudioTrack;
+import com.twilio.video.LocalVideoTrack;
 import com.twilio.video.RemoteParticipant;
 import com.twilio.video.RemoteVideoTrack;
 import com.twilio.video.Room;
 
 public interface TwilioCallListener {
-    public void handleAddRemoteParticipant(RemoteParticipant remoteParticipant);
-    public void handleAddRemoteParticipantVideo(RemoteVideoTrack videoTrack);
-    public void handleRemoveRemoteParticipantVideo(RemoteVideoTrack videoTrack);
-    public void handleVideoTrackEnabled();
-    public void handleVideoTrackDisabled();
+    void handleParticipantConnected(RemoteParticipant remoteParticipant);
+    void handleParticipantDisconnected(RemoteParticipant remoteParticipant);
+    void handleAddRemoteParticipantVideo(RemoteVideoTrack videoTrack);
+    void handleRemoveRemoteParticipantVideo(RemoteVideoTrack videoTrack);
+    void handleVideoTrackEnabled();
+    void handleVideoTrackDisabled();
 
-    public void handleConnected(Room room, AudioDevice audioDevice);
-    public void handleReconnecting(boolean reconnecting);
-    public void handleConnectFailure();
-    public void endListening();
+    void handleConnected(Room room);
+    void handleReconnecting(boolean reconnecting);
+    void handleConnectFailure();
+    void endListening();
 
-    public void handleSelectedAudioDevice(AudioDevice audioDevice);
+    LocalAudioTrack getLocalAudioTrack();
+    LocalVideoTrack getLocalVideoTrack();
 }
