@@ -1,36 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingBottom="3dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:paddingTop="3dp">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="3dp"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp"
+    android:paddingBottom="5dp">
 
-    <com.makeramen.roundedimageview.RoundedImageView
-        android:id="@+id/message_photo"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:scaleType="fitXY"
-        app:riv_corner_radius="30dip" />
-        <!-- GOOBER - circle/round profile image
-        app:riv_corner_radius="2dp" /> -->
+    <LinearLayout
+        android:id="@+id/message_photo_box"
+        android:orientation="vertical"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true">
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/message_photo"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:scaleType="fitXY"
+            app:riv_corner_radius="30dip" />
+
+        <View
+            android:id="@+id/placeholder"
+            android:layout_height="2dp"
+            android:layout_width="48dp" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/message_box"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/message_photo"
-        android:background="@drawable/message_bubble_received"
-        android:backgroundTint="?attr/message_rcvd_bubble_color"
+        android:layout_toRightOf="@+id/message_photo_box"
+
+        android:background="@drawable/layout_message_bubbles_rcvd"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="7dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginBottom="1dp"
+
+        android:paddingTop="4dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="2dp"
+
         android:minHeight="53dp"
-        android:layout_marginTop="-2dp"
-        android:layout_marginRight="-4dp"
         android:longClickable="true">
 
         <LinearLayout
@@ -47,6 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
                 android:orientation="horizontal"
+                android:paddingTop="1dp"
                 android:paddingBottom="2dp">
 
                 <TextView

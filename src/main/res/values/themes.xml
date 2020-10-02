@@ -38,9 +38,10 @@
         <item name="message_sent_text_color">@color/almost_black</item>
         <item name="message_rcvd_bubble_color">@color/grey300</item>
         <item name="message_rcvd_text_color">@color/almost_black</item>
+
         <item name="status_bubble_color">@color/grey50</item>
-        <item name="date_bubble_color">@color/grey200</item>
-        <item name="call_bubble_color">@color/grey200</item>
+        <item name="date_bubble_color">@color/grey100</item>
+        <item name="call_bubble_color">@color/grey100</item>
 
         <item type="reference" name="message_bubble_received_monochrome">@drawable/message_bubble_received_white</item>
         <item type="reference" name="message_bubble_sent">@drawable/message_bubble_sent</item>

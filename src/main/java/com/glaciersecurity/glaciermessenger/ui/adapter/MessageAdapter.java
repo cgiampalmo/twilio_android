@@ -823,23 +823,23 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 
 		if (type == RECEIVED) {
 			if (isInValidSession) {
-				int bubble;
-				if (!mUseGreenBackground) {
-					bubble = activity.getThemeResource(R.attr.message_bubble_received_monochrome, R.drawable.message_bubble_received_white);
-				} else {
-					bubble = activity.getThemeResource(R.attr.message_bubble_received_green, R.drawable.message_bubble_received);
-				}
-				viewHolder.message_box.setBackgroundResource(bubble);
+//				int bubble;
+//				if (!mUseGreenBackground) {
+//					bubble = activity.getThemeResource(R.attr.message_bubble_received_monochrome, R.drawable.message_bubble_received_white);
+//				} else {
+//					bubble = activity.getThemeResource(R.attr.message_bubble_received_green, R.drawable.message_bubble_received);
+//				}
+//				viewHolder.message_box.setBackgroundResource(bubble);
 				viewHolder.encryption.setVisibility(View.GONE);
 			} else {
 				//ALF AM-96 added the following section and commented out below
-				int bubble;
-				if (!mUseGreenBackground) {
-					bubble = activity.getThemeResource(R.attr.message_bubble_received_monochrome, R.drawable.message_bubble_received_white);
-				} else {
-					bubble = activity.getThemeResource(R.attr.message_bubble_received_green, R.drawable.message_bubble_received);
-				}
-				viewHolder.message_box.setBackgroundResource(bubble);
+//				int bubble;
+//				if (!mUseGreenBackground) {
+//					bubble = activity.getThemeResource(R.attr.message_bubble_received_monochrome, R.drawable.message_bubble_received_white);
+//				} else {
+//					bubble = activity.getThemeResource(R.attr.message_bubble_received_green, R.drawable.message_bubble_received);
+//				}
+//				viewHolder.message_box.setBackgroundResource(bubble);
 				viewHolder.encryption.setVisibility(View.GONE);
 
 				//viewHolder.message_box.setBackgroundResource(R.drawable.message_bubble_received_warning);
