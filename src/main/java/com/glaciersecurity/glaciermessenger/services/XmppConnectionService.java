@@ -791,7 +791,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 							if (currentTwilioCall != null) {
 								//open RoomActivity
-								Intent callIntent = new Intent(getApplicationContext(), VideoActivity.class);
+								/*Intent callIntent = new Intent(getApplicationContext(), VideoActivity.class);
 								callIntent.setAction(CallActivity.ACTION_ACCEPTED_CALL);
 								callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 								callIntent.putExtra("call_id", currentTwilioCall.getCallId());
@@ -799,7 +799,9 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								callIntent.putExtra("roomname", currentTwilioCall.getRoomName());
 								callIntent.putExtra("caller", currentTwilioCall.getCaller());
 								callIntent.putExtra("receiver", currentTwilioCall.getReceiver());
-								this.startActivity(callIntent);
+								this.startActivity(callIntent);*/
+
+								callManager.initCall(currentTwilioCall); //AM-478
 							}
 						} else {
 							call.setCaller(intent.getStringExtra("caller"));
@@ -813,7 +815,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 									//CMG AM-478
 									//startCallConnectionService();
-									callManager.initCall(call);
+									callManager.initCall(currentTwilioCall);
 
 									//ALF AM-447, no notification in this case because app is open, so manually play ringtone
 									SoundPoolManager.getInstance(XmppConnectionService.this).playRinging();
@@ -991,7 +993,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 				if (currentTwilioCall != null) {
 					//open RoomActivity
-					Intent callIntent = new Intent(getApplicationContext(), VideoActivity.class);
+					/*Intent callIntent = new Intent(getApplicationContext(), VideoActivity.class);
 					callIntent.setAction(CallActivity.ACTION_ACCEPTED_CALL);
 					callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					callIntent.putExtra("call_id", currentTwilioCall.getCallId());
@@ -999,7 +1001,9 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					callIntent.putExtra("roomname", currentTwilioCall.getRoomName());
 					callIntent.putExtra("caller", currentTwilioCall.getCaller());
 					callIntent.putExtra("receiver", currentTwilioCall.getReceiver());
-					this.startActivity(callIntent);
+					this.startActivity(callIntent);*/
+
+					callManager.initCall(currentTwilioCall); //AM-478
 				}
 			}
 		}
@@ -4056,7 +4060,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 	}
 
-	private SharedPreferences getPreferences() {
+	public SharedPreferences getPreferences() {
 		return PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 	}
 
@@ -4776,7 +4780,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					}
 
 					//open RoomActivity with callToken/info
-					Intent callIntent = new Intent(getApplicationContext(), VideoActivity.class);
+					/*Intent callIntent = new Intent(getApplicationContext(), VideoActivity.class);
 					callIntent.setAction(CallActivity.ACTION_ACCEPTED_CALL);
 					callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					callIntent.putExtra("call_id", call.getCallId());
@@ -4785,7 +4789,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					callIntent.putExtra("caller", call.getCaller());
 					callIntent.putExtra("receiver", call.getReceiver());
 
-					startActivity(callIntent);
+					startActivity(callIntent);*/
+					callManager.initCall(call); //AM-478
 				} else {
 					//callback.informUser("Something bad"); //TODO ALERT USER
 					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": could not create call");

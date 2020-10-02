@@ -31,6 +31,7 @@ import android.widget.Toast;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
 import com.glaciersecurity.glaciermessenger.ui.CallActivity;
+import com.glaciersecurity.glaciermessenger.ui.VideoActivity;
 import com.glaciersecurity.glaciermessenger.ui.XmppActivity;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
 import com.glaciersecurity.glaciermessenger.ui.util.CameraCapturerCompat;
@@ -83,19 +84,8 @@ import androidx.core.content.ContextCompat;
 import kotlin.Unit;
 
 //ALF AM-478
-public class CallManager implements PhonecallReceiver.PhonecallReceiverListener {
+public class CallManager {
     private static final String TAG = "CallManager";
-
-    /*
-     * Audio and video tracks can be created with names. This feature is useful for categorizing
-     * tracks of participants. For example, if one participant publishes a video track with
-     * ScreenCapturer and CameraCapturer with the names "screen" and "camera" respectively then
-     * other participants can use RemoteVideoTrack#getName to determine which video track is
-     * produced from the other participant's screen or camera.
-     */
-    private static final String LOCAL_AUDIO_TRACK_NAME = "mic";
-    private static final String LOCAL_VIDEO_TRACK_NAME = "camera";
-
 
     private String accessToken;
     private int callid;
@@ -105,17 +95,12 @@ public class CallManager implements PhonecallReceiver.PhonecallReceiverListener 
 
     private TwilioCallListener twilioCallListener;
 
-    private AudioFocusRequest focusRequest; //ALF AM-446
-
     /*
      * A Room represents communication between a local participant and one or more participants.
      */
     private Room room;
     private LocalParticipant localParticipant;
     private AudioManager audioManager;
-    private int previousAudioMode;
-    private boolean previousMicrophoneMute;
-    private boolean isSpeakerPhoneEnabled = false;
 
     /*
      * AudioCodec and VideoCodec represent the preferred codec for encoding and decoding audio and
@@ -134,16 +119,6 @@ public class CallManager implements PhonecallReceiver.PhonecallReceiverListener 
      */
     private SharedPreferences preferences;
 
-    /*
-     * Android application UI elements
-     */
-    private CameraCapturerCompat cameraCapturerCompat;
-    private LocalAudioTrack localAudioTrack;
-    private LocalVideoTrack localVideoTrack;
-
-    private String remoteParticipantIdentity;
-    private TextView primaryTitle;
-
     public static final String PREF_AUDIO_CODEC = "audio_codec";
     public static final String PREF_AUDIO_CODEC_DEFAULT = OpusCodec.NAME;
     public static final String PREF_VIDEO_CODEC = "video_codec";
@@ -153,23 +128,49 @@ public class CallManager implements PhonecallReceiver.PhonecallReceiverListener 
     public static final String PREF_SENDER_MAX_VIDEO_BITRATE = "sender_max_video_bitrate";
     public static final String PREF_SENDER_MAX_VIDEO_BITRATE_DEFAULT = "0";
     public static final String PREF_VP8_SIMULCAST = "vp8_simulcast";
+    public static final boolean PREF_VP8_SIMULCAST_DEFAULT = false;
     public static final String PREF_ENABLE_AUTOMATIC_SUBSCRIPTION = "enable_automatic_subscription";
     public static final boolean PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT = true;
-    public static final boolean PREF_VP8_SIMULCAST_DEFAULT = false;
-
-    private boolean disconnectedFromOnDestroy;
     private boolean enableAutomaticSubscription;
 
-    private PhonecallReceiver phonecallReceiver; //ALF AM-474
-    private AudioDeviceSelector audioDeviceSelector; //AM-440 Audio device mgmt
-    private Context context;
+    protected XmppConnectionService mXmppConnectionService;
 
-    public CallManager(Context m) {
-        context = m;
+    public CallManager(XmppConnectionService service) {
+        mXmppConnectionService = service;
+        //audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+    }
 
-        //AM-440 Setup audio device management
-        audioDeviceSelector = new AudioDeviceSelector(context);
-        phonecallReceiver = new PhonecallReceiver(this); //ALF AM-474
+    public void initCall(TwilioCall call) {
+
+        if (audioCodec == null) {
+            initPreferences();
+        }
+
+        callid = call.getCallId();
+        accessToken = call.getToken();
+        roomname = call.getRoomName();
+        caller = call.getCaller();
+        receiver = call.getReceiver();
+
+        Intent callIntent = new Intent(mXmppConnectionService, VideoActivity.class);
+        callIntent.setAction(CallActivity.ACTION_ACCEPTED_CALL);
+        callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        callIntent.putExtra("roomname", roomname);
+        callIntent.putExtra("caller", caller);
+        callIntent.putExtra("receiver", receiver);
+        mXmppConnectionService.startActivity(callIntent);
+
+        //if (room == null || room.getState() == Room.State.DISCONNECTED) {
+        //    connectToRoom(roomname);
+        //}
+    }
+
+    private void initPreferences() {
+        /*
+         * Get shared preferences to read settings
+         */
+        //preferences = mXmppConnectionService.getPreferences();
+        preferences = PreferenceManager.getDefaultSharedPreferences(mXmppConnectionService);
 
         audioCodec = getAudioCodecPreference(PREF_AUDIO_CODEC,
                 PREF_AUDIO_CODEC_DEFAULT);
@@ -178,99 +179,59 @@ public class CallManager implements PhonecallReceiver.PhonecallReceiverListener 
         enableAutomaticSubscription = getAutomaticSubscriptionPreference(PREF_ENABLE_AUTOMATIC_SUBSCRIPTION,
                 PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT);
 
-        encodingParameters = getEncodingParameters();
-
-        audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
-        preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        /*
+         * Get latest encoding parameters
+         */
+        encodingParameters = initEncodingParameters();
     }
 
-    public void initCall(TwilioCall call) {
-
-        callid = call.getCallId();
-        accessToken = call.getToken();
-        roomname = call.getRoomName();
-        caller = call.getCaller();
-        receiver = call.getReceiver();
-
-        createAudioTrack();
-        createAudioAndVideoTracks();
-
+    //the UI listener will call this
+    public void readyToConnect() {
         if (room == null || room.getState() == Room.State.DISCONNECTED) {
             connectToRoom(roomname);
         }
-
-        context.registerReceiver(phonecallReceiver, new IntentFilter("android.intent.action.PHONE_STATE")); //ALF AM-474
     }
 
     public void setCallListener(TwilioCallListener listener) {
         twilioCallListener = listener;
     }
 
-    public void setSpeakerphoneOn(boolean speakerOn) {
-        audioManager.setSpeakerphoneOn(speakerOn);
+    private boolean getAutomaticSubscriptionPreference(String key, boolean defaultValue) {
+        return preferences.getBoolean(key, defaultValue);
     }
 
-    public boolean isSpeakerphoneOn() {
-        return audioManager.isSpeakerphoneOn();
+    private EncodingParameters initEncodingParameters() {
+        final int maxAudioBitrate = Integer.parseInt(
+                preferences.getString(PREF_SENDER_MAX_AUDIO_BITRATE,
+                        PREF_SENDER_MAX_AUDIO_BITRATE_DEFAULT));
+        final int maxVideoBitrate = Integer.parseInt(
+                preferences.getString(PREF_SENDER_MAX_VIDEO_BITRATE,
+                        PREF_SENDER_MAX_VIDEO_BITRATE_DEFAULT));
+
+        return new EncodingParameters(maxAudioBitrate, maxVideoBitrate);
     }
 
-    public boolean handleMuteClick() {
-        if (localAudioTrack != null) {
-            boolean enable = !localAudioTrack.isEnabled();
-            localAudioTrack.enable(enable);
-            return enable;
-        }
-
-        return false;
-    }
-
-    public boolean isMicrophoneMute() {
-        return audioManager.isMicrophoneMute();
-    }
-
-    public void setLocalVideo(LocalVideoTrack videoTrack) {
-        localVideoTrack = videoTrack;
-    }
-
-    public void publishVideoTrack(LocalVideoTrack localVideoTrack) {
-        /*
-         * If connected to a Room then share the local video track.
-         */
-        if (localParticipant != null) {
-            localParticipant.publishTrack(localVideoTrack);
-        }
-    }
-
-    public void unpublishVideoTrack(LocalVideoTrack localVideoTrack) {
-        if (localParticipant != null) {
-            localParticipant.unpublishTrack(localVideoTrack);
-        }
-    }
-
-    private void createAudioTrack() {
-        // Share your microphone
-        localAudioTrack = LocalAudioTrack.create(context, true, LOCAL_AUDIO_TRACK_NAME);
+    public EncodingParameters getEncodingParameters() {
+        return encodingParameters;
     }
 
     private void connectToRoom(String roomName) {
-        configureAudio(true);
         ConnectOptions.Builder connectOptionsBuilder = new ConnectOptions.Builder(accessToken)
                 .roomName(roomName);
 
         /*
          * Add local audio track to connect options to share with participants.
          */
-        if (localAudioTrack != null) {
+        if (twilioCallListener != null && twilioCallListener.getLocalAudioTrack() != null) {
             connectOptionsBuilder
-                    .audioTracks(Collections.singletonList(localAudioTrack));
+                    .audioTracks(Collections.singletonList(twilioCallListener.getLocalAudioTrack()));
         }
 
         /*
          * Add local video track to connect options to share with participants.
          */
-        if (localVideoTrack != null) {
-            connectOptionsBuilder.videoTracks(Collections.singletonList(localVideoTrack));
+        if (twilioCallListener != null && twilioCallListener.getLocalVideoTrack() != null) {
+            connectOptionsBuilder.videoTracks(Collections.singletonList(twilioCallListener.getLocalVideoTrack()));
         }
 
         /*
@@ -294,7 +255,7 @@ public class CallManager implements PhonecallReceiver.PhonecallReceiverListener 
          */
         connectOptionsBuilder.enableAutomaticSubscription(enableAutomaticSubscription);
 
-        room = Video.connect(context, connectOptionsBuilder.build(), roomListener());
+        room = Video.connect(mXmppConnectionService, connectOptionsBuilder.build(), roomListener());
     }
 
 
@@ -342,78 +303,8 @@ public class CallManager implements PhonecallReceiver.PhonecallReceiverListener 
         }
     }
 
-    private boolean getAutomaticSubscriptionPreference(String key, boolean defaultValue) {
-        return preferences.getBoolean(key, defaultValue);
-    }
-
-    private EncodingParameters getEncodingParameters() {
-        final int maxAudioBitrate = Integer.parseInt(
-                preferences.getString(PREF_SENDER_MAX_AUDIO_BITRATE,
-                        PREF_SENDER_MAX_AUDIO_BITRATE_DEFAULT));
-        final int maxVideoBitrate = Integer.parseInt(
-                preferences.getString(PREF_SENDER_MAX_VIDEO_BITRATE,
-                        PREF_SENDER_MAX_VIDEO_BITRATE_DEFAULT));
-
-        return new EncodingParameters(maxAudioBitrate, maxVideoBitrate);
-    }
-
-    /*
-     * Called when remote participant joins the room
-     */
-    @SuppressLint("SetTextI18n")
-    private void addRemoteParticipant(RemoteParticipant remoteParticipant) {
-        if (twilioCallListener != null) {
-            twilioCallListener.handleAddRemoteParticipant(remoteParticipant);
-        }
-
-        /*
-         * Add remote participant renderer
-         */
-        if (remoteParticipant.getRemoteVideoTracks().size() > 0) {
-            RemoteVideoTrackPublication remoteVideoTrackPublication =
-                    remoteParticipant.getRemoteVideoTracks().get(0);
-
-            /*
-             * Only render video tracks that are subscribed to
-             */
-            if (remoteVideoTrackPublication.isTrackSubscribed()) {
-                if (twilioCallListener != null) {
-                    twilioCallListener.handleAddRemoteParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
-                }
-            }
-        }
-
-        /*
-         * Start listening for participant events
-         */
-        remoteParticipant.setListener(remoteParticipantListener());
-    }
-
-    /*
-     * Called when remote participant leaves the room
-     */
-    @SuppressLint("SetTextI18n")
-    private void removeRemoteParticipant(RemoteParticipant remoteParticipant) {
-        if (!remoteParticipant.getIdentity().equals(remoteParticipantIdentity)) {
-            return;
-        }
-
-        /*
-         * Remove remote participant renderer
-         */
-        if (!remoteParticipant.getRemoteVideoTracks().isEmpty()) {
-            RemoteVideoTrackPublication remoteVideoTrackPublication =
-                    remoteParticipant.getRemoteVideoTracks().get(0);
-
-            /*
-             * Remove video only if subscribed to participant track
-             */
-            if (remoteVideoTrackPublication.isTrackSubscribed()) {
-                if (twilioCallListener != null) {
-                    twilioCallListener.handleRemoveRemoteParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
-                }
-            }
-        }
+    public LocalParticipant getLocalParticipant() {
+        return localParticipant;
     }
 
     /*
@@ -426,16 +317,12 @@ public class CallManager implements PhonecallReceiver.PhonecallReceiverListener 
             public void onConnected(Room room) {
                 localParticipant = room.getLocalParticipant();
 
-                audioDeviceSelector.activate(); //AM-440
-
                 if (twilioCallListener != null) {
-                    twilioCallListener.handleConnected(room, audioDeviceSelector.getSelectedAudioDevice());
+                    twilioCallListener.handleConnected(room);
                 }
 
                 for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
-                    if (twilioCallListener != null) {
-                        twilioCallListener.handleAddRemoteParticipant(remoteParticipant);
-                    }
+                    remoteParticipant.setListener(remoteParticipantListener());
                     break;
                 }
             }
@@ -458,9 +345,6 @@ public class CallManager implements PhonecallReceiver.PhonecallReceiverListener 
 
             @Override
             public void onConnectFailure(Room room, TwilioException e) {
-                configureAudio(false);
-                audioDeviceSelector.deactivate(); //AM-440
-
                 if (twilioCallListener != null) {
                     twilioCallListener.handleConnectFailure();
                 }
@@ -470,8 +354,6 @@ public class CallManager implements PhonecallReceiver.PhonecallReceiverListener 
             public void onDisconnected(Room room, TwilioException e) {
                 localParticipant = null;
                 CallManager.this.room = null;
-                configureAudio(false);
-                audioDeviceSelector.deactivate(); //AM-440
                 // Only reinitialize the UI if disconnect was not called from onDestroy()
                 if (twilioCallListener != null) {
                     twilioCallListener.endListening();
@@ -480,22 +362,23 @@ public class CallManager implements PhonecallReceiver.PhonecallReceiverListener 
 
             @Override
             public void onParticipantConnected(Room room, RemoteParticipant remoteParticipant) {
-                addRemoteParticipant(remoteParticipant);
                 if (twilioCallListener != null) {
-                    twilioCallListener.handleReconnecting(false);
+                    twilioCallListener.handleParticipantConnected(remoteParticipant);
                 }
-
+                /*
+                 * Start listening for participant events
+                 */
+                remoteParticipant.setListener(remoteParticipantListener());
             }
 
             @Override
             public void onParticipantDisconnected(Room room, RemoteParticipant remoteParticipant) {
-                removeRemoteParticipant(remoteParticipant);
                 //CMG disconnect when remote leaves
-                handleDisconnect(); //ALF AM-420
                 localParticipant = null;
                 if (twilioCallListener != null) {
-                    twilioCallListener.endListening();
+                    twilioCallListener.handleParticipantDisconnected(remoteParticipant);
                 }
+                handleDisconnect(); //ALF AM-420
             }
 
             @Override
@@ -516,77 +399,6 @@ public class CallManager implements PhonecallReceiver.PhonecallReceiverListener 
                 Log.d(TAG, "onRecordingStopped");
             }
         };
-    }
-
-    public List<AudioDevice> getAvailableAudioDevices() {
-        return audioDeviceSelector.getAvailableAudioDevices();
-    }
-
-    private void configureAudio(boolean enable) {
-        if (enable) {
-            previousAudioMode = audioManager.getMode();
-            // Request audio focus before making any device switch
-            requestAudioFocus();
-            /*
-             * Use MODE_IN_COMMUNICATION as the default audio mode. It is required
-             * to be in this mode when playout and/or recording starts for the best
-             * possible VoIP performance. Some devices have difficulties with
-             * speaker mode if this is not set.
-             */
-            audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
-            /*
-             * Always disable microphone mute during a WebRTC call.
-             */
-            previousMicrophoneMute = audioManager.isMicrophoneMute();
-            audioManager.setMicrophoneMute(false);
-
-            audioDeviceSelector.start((audioDevices, audioDevice) -> Unit.INSTANCE); //AM-440
-
-            //AM-441
-            if (SoundPoolManager.getInstance(context).getSpeakerOn()) {
-                List<AudioDevice> availableAudioDevices = audioDeviceSelector.getAvailableAudioDevices();
-                for (AudioDevice a : availableAudioDevices) {
-                    if (a instanceof AudioDevice.Speakerphone) {
-                        audioDeviceSelector.selectDevice(a);
-                    }
-                }
-            }
-
-            if (twilioCallListener != null) {
-                twilioCallListener.handleSelectedAudioDevice(audioDeviceSelector.getSelectedAudioDevice());
-            }
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { //ALF AM-446
-                audioManager.abandonAudioFocusRequest(focusRequest);
-            } else {
-                audioManager.abandonAudioFocus(null);
-            }
-            audioManager.setMicrophoneMute(previousMicrophoneMute);
-            audioManager.setMode(previousAudioMode);
-        }
-    }
-
-    private void requestAudioFocus() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (focusRequest == null) { //ALF AM-446
-                AudioAttributes playbackAttributes = new AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                        .build();
-                focusRequest =
-                        new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
-                                .setAudioAttributes(playbackAttributes)
-                                .setAcceptsDelayedFocusGain(true)
-                                .setOnAudioFocusChangeListener(
-                                        i -> {
-                                        })
-                                .build();
-            }
-            audioManager.requestAudioFocus(focusRequest);
-        } else {
-            audioManager.requestAudioFocus(null, AudioManager.STREAM_VOICE_CALL,
-                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
-        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -836,49 +648,13 @@ public class CallManager implements PhonecallReceiver.PhonecallReceiverListener 
         };
     }
 
-    public void disconnectCall() {
-        handleDisconnect(); //ALF AM-420
-
-        if (localAudioTrack != null) {
-            localAudioTrack.release();
-            localAudioTrack = null;
-        }
-        if (localVideoTrack != null) {
-            localVideoTrack.release();
-            localVideoTrack = null;
-        }
-
-        audioDeviceSelector.stop(); //AM-440
-
-        //AM-441
-        SoundPoolManager.getInstance(context).setSpeakerOn(false);
-        audioManager.setMode(SoundPoolManager.getInstance(context).getPreviousAudioMode());
-    }
-
     //ALF AM-420
-    private void handleDisconnect() {
+    public void handleDisconnect() {
         if (room != null) {
             room.disconnect();
         }
 
-        SoundPoolManager.getInstance(context).playDisconnect();
-        final Intent intent = new Intent(context, XmppConnectionService.class);
-        intent.setAction(XmppConnectionService.ACTION_FINISH_CALL);
-        Compatibility.startService(context, intent);
-
-        context.unregisterReceiver(phonecallReceiver); //ALF AM-474
-
         CallManager.this.room = null;
-    }
-
-    //ALF AM-474
-    @Override
-    public void onIncomingNativeCallAnswered() {
-        //cancel any current call
-        handleDisconnect();
-        if (twilioCallListener != null) {
-            twilioCallListener.endListening();
-        }
     }
 }
 
