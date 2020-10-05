@@ -815,7 +815,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 									//CMG AM-478
 									//startCallConnectionService();
-									callManager.initCall(currentTwilioCall);
 
 									//ALF AM-447, no notification in this case because app is open, so manually play ringtone
 									SoundPoolManager.getInstance(XmppConnectionService.this).playRinging();
