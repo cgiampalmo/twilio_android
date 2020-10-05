@@ -265,6 +265,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         //CMG AM-419
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         proximity = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        reconnectingProgressBar.setVisibility(View.VISIBLE); //AM-478 moved from onStart
 
         createAudioAndVideoTracks();
 
@@ -330,7 +331,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 //            reconnectingProgressBar.setVisibility((room.getState() != Room.State.RECONNECTING) ? View.GONE :
 //                    View.VISIBLE);
 //        }
-        reconnectingProgressBar.setVisibility(View.VISIBLE);
+//        reconnectingProgressBar.setVisibility(View.VISIBLE);
 
         if (room == null || room.getState() == Room.State.DISCONNECTED) {
             connectToRoom(roomname);
