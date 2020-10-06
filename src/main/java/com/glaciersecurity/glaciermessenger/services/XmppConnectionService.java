@@ -795,6 +795,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							call.setCaller(intent.getStringExtra("caller"));
 
 							//ALF AM-420 if is already in call, respond with busy
+							//AM-480 if already in native call...
+							//if (currentTwilioCall != null || isInNativeCall()) { //in call
 							if (currentTwilioCall != null) { //in call
 								rejectCall(call, true);
 							} else {
