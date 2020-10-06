@@ -802,6 +802,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								//AM-492 if cancelled already
 								if (cancelledCall == currentTwilioCall.getCallId()) {
 									Log.d(Config.LOGTAG, "push message arrived for cancelled call");
+									currentTwilioCall = null;
 								} else if (!getNotificationService().pushForCall(call, pushedAccountHash)) {
 									//ALF AM-447, no notification in this case because app is open, so manually play ringtone
 									SoundPoolManager.getInstance(XmppConnectionService.this).playRinging();
