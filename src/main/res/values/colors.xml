@@ -8,20 +8,16 @@
 	<color name="grey_sent_light_theme">#ffafafaf</color>
 	<color name="grey_sent_dark_theme">#ff353535</color>
 
-	<!--
-			msg_rvcd_light_theme	grey300
-			msg_rcvd_dark_theme		grey925
-			grey_sent_light_theme	grey425
-			grey_sent_dark_theme	grey700
-			msg_sent_light_theme	blue_palette_color4
-			msg_sent_dark_theme		blue_palette_hex2
-	-->
-
 	<!-- Main Colors -->
 	<color name="primary_bg_color">#ff060606</color>
+	<color name="secondary_bg_color">#ff202020</color>
+
 	<color name="primary_color">#808080</color>
 
 	<color name="black">#ff000000</color>
+	<color name="mostly_black">#ff030303</color>
+	<color name="almost_black">#ff060606</color>
+
 	<color name="black87">#de000000</color>
 	<color name="black54">#8a000000</color>
 	<color name="black38">#66000000</color>
@@ -65,7 +61,7 @@
 	<color name="grey975">#ff191919</color>
 	<color name="grey1000">#ff161616</color>
 	<color name="grey1050">#ff111111</color>
-	<color name="almost_black">#ff060606</color>
+	<color name="grey1100">#ff060606</color>
 
 	<color name="grey_2">#f0f6f9</color>
 	<color name="grey_3">#f7f7f7</color>

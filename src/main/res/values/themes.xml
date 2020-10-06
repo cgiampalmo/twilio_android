@@ -173,10 +173,24 @@
 
         <item name="popupOverlayStyle">@style/ThemeOverlay.AppCompat.Dark</item>
 
-        <item name="color_background_primary2">@color/primary_bg_color</item>
-        <item name="color_background_primary">@color/primary_bg_color</item>
-        <item name="color_background_secondary">@color/primary_bg_color</item>  <!-- black54 -->
-        <item name="color_background_tertiary">@color/almost_black</item>
+        <item name="color_background_primary2">@color/mostly_black</item>       <!-- ff030303 -->
+        <item name="color_background_primary">@color/almost_black</item>        <!-- ff060606 -->
+        <item name="color_background_secondary">@color/almost_black</item>      <!-- ff060606 -->
+        <item name="color_background_tertiary">@color/almost_black</item>       <!-- ff060606 -->
+
+        <!--        R.color.primary_bg_color,   // black_accent, grey950        ff060606 -->
+        <!--        R.color.grey965,  // blue_grey_800, grey900                 ff202020 -->
+        <!--        R.color.grey880,  // blue_grey_700, grey851                 ff303030 -->
+        <!--        R.color.grey825   // blue_grey_900, grey800                 ff404040 -->
+
+        <!--        <item name="color_background_primary2">@color/mostly_black</item>       &lt;!&ndash; ff030303 &ndash;&gt;-->
+        <!--        <item name="color_background_primary">@color/grey1000</item>        &lt;!&ndash; ff060606 &ndash;&gt;-->
+        <!--        <item name="color_background_secondary">@color/grey965</item>      &lt;!&ndash; ff060606 &ndash;&gt;-->
+        <!--        <item name="color_background_tertiary">@color/grey900</item>       &lt;!&ndash; ff060606 &ndash;&gt;-->
+
+        <!--        <item name="color_background_primary">@color/grey800</item>-->
+        <!--        <item name="color_background_secondary">@color/grey900</item>-->
+        <!--        <item name="color_background_tertiary">@color/grey700</item>-->
 
         <item name="color_background_menu_logo">@color/blue_grey_950</item>
         <item name="color_background_menu">@color/grey875</item>
@@ -199,9 +213,6 @@
         <item type="reference" name="message_bubble_sent">@drawable/message_bubble_sent_grey</item>
         <item type="reference" name="message_bubble_received_green">@drawable/message_bubble_received_dark</item>
 
-        <!--<item name="color_background_primary">@color/grey800</item>-->
-        <!--<item name="color_background_secondary">@color/grey900</item>-->
-        <!--<item name="color_background_tertiary">@color/grey700</item>-->
         <item name="color_background_overlay">@color/black26</item>
         <item name="activity_background_search">@drawable/search_background_dark</item>
         <item name="activity_background_no_results">@drawable/no_results_background_dark</item>
