@@ -253,10 +253,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	private PushManagementService mPushManagementService = new PushManagementService(this);
 	private QuickConversationsService mQuickConversationsService = new QuickConversationsService(this);
 
-
-	//private CallConnectionService mCallConnectionService = new CallConnectionService(); //CMG AM-478;
-	private CallManager callManager = new CallManager(this);
-
+	private CallManager callManager = new CallManager(this); //ALF AM-478;
 
 	private final ConversationsFileObserver fileObserver = new ConversationsFileObserver(
 			Environment.getExternalStorageDirectory().getAbsolutePath()
@@ -646,17 +643,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	public void onServiceDisconnected(ComponentName className) {
 		mVPNConnectionService = null;
 	}*/
-
-	//CMG AM-478
-	/*public void startCallConnectionService(){
-		bindService(new Intent(this, CallConnectionService.class), mCallConnectionService, Context.BIND_AUTO_CREATE);
-	}
-
-	public void stopCallConnectionService(){
-		unbindService(mCallConnectionService);
-	}*/
-
-
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -4615,8 +4601,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	//ALF AM-410 (next 3) //receiver is bare jid of receiver
 	public void sendCallRequest(TwilioCall call) {
-		//CMG AM-478
-		//startCallConnectionService();
 		final String deviceId = PhoneHelper.getAndroidId(this);
 		currentTwilioCall = null;
 
@@ -4806,8 +4790,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public void rejectCall(TwilioCall call, boolean isBusy) {
-		//CMG AM-478
-		//stopCallConnectionService();
 		final String deviceId = PhoneHelper.getAndroidId(this);
 
 		final IqPacket request = new IqPacket(IqPacket.TYPE.SET);
@@ -4894,8 +4876,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public void cancelCall(TwilioCall call) {
-		//CMG AM-478
-		//startCallConnectionService();
 
 		if (call == null) {
 			Intent intent1 = new Intent("callActivityFinish");

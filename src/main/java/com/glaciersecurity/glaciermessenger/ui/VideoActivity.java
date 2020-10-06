@@ -2,15 +2,11 @@ package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -20,32 +16,18 @@ import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.preference.PreferenceManager;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.glaciersecurity.glaciermessenger.R;
-import com.glaciersecurity.glaciermessenger.entities.Account;
-import com.glaciersecurity.glaciermessenger.entities.Conversation;
-//import com.glaciersecurity.glaciermessenger.services.CallConnectionService;
 import com.glaciersecurity.glaciermessenger.services.CallManager;
 import com.glaciersecurity.glaciermessenger.services.PhonecallReceiver;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
@@ -58,40 +40,20 @@ import com.google.android.material.snackbar.Snackbar;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.twilio.audioswitch.selection.AudioDevice;
 import com.twilio.audioswitch.selection.AudioDeviceSelector;
-import com.twilio.video.AudioCodec;
-import com.twilio.video.Camera2Capturer;
 import com.twilio.video.CameraCapturer;
 import com.twilio.video.CameraCapturer.CameraSource;
-import com.twilio.video.ConnectOptions;
 import com.twilio.video.EncodingParameters;
-import com.twilio.video.G722Codec;
-import com.twilio.video.H264Codec;
-import com.twilio.video.IsacCodec;
 import com.twilio.video.LocalAudioTrack;
-import com.twilio.video.LocalParticipant;
 import com.twilio.video.LocalVideoTrack;
-import com.twilio.video.OpusCodec;
-import com.twilio.video.PcmaCodec;
-import com.twilio.video.PcmuCodec;
-import com.twilio.video.RemoteAudioTrack;
-import com.twilio.video.RemoteAudioTrackPublication;
-import com.twilio.video.RemoteDataTrack;
-import com.twilio.video.RemoteDataTrackPublication;
 import com.twilio.video.RemoteParticipant;
 import com.twilio.video.RemoteVideoTrack;
 import com.twilio.video.RemoteVideoTrackPublication;
 import com.twilio.video.Room;
-import com.twilio.video.TwilioException;
-import com.twilio.video.Video;
-import com.twilio.video.VideoCodec;
 import com.twilio.video.VideoRenderer;
 import com.twilio.video.VideoTrack;
 import com.twilio.video.VideoView;
-import com.twilio.video.Vp8Codec;
-import com.twilio.video.Vp9Codec;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import kotlin.Unit; //AM-440
@@ -266,10 +228,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
          */
         audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
 
-        /*if (room == null || room.getState() == Room.State.DISCONNECTED) {
-            connectToRoom(roomname);
-        }*/ //AM-478
-
         registerReceiver(phonecallReceiver, new IntentFilter("android.intent.action.PHONE_STATE")); //ALF AM-474
     }
 
@@ -413,15 +371,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     protected void onDestroy() {
 
         /*
-         * Always disconnect from the room before leaving the Activity to
-         * ensure any memory allocated to the Room resource is freed.
-         */
-        /*if (room != null && room.getState() != Room.State.DISCONNECTED) {
-            room.disconnect();
-            disconnectedFromOnDestroy = true;
-        }*/ //AM-478
-
-        /*
          * Release the local audio and video tracks ensuring any memory allocated to audio
          * or video is freed.
          */
@@ -547,11 +496,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 addRemoteParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
             }
         }
-
-        /*
-         * Start listening for participant events
-         */
-        //remoteParticipant.setListener(remoteParticipantListener()); //AM-478
     }
 
     /*

@@ -1,59 +1,24 @@
 package com.glaciersecurity.glaciermessenger.services;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.media.AudioAttributes;
-import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
-import android.os.Bundle;
-import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
 import com.glaciersecurity.glaciermessenger.ui.CallActivity;
 import com.glaciersecurity.glaciermessenger.ui.VideoActivity;
-import com.glaciersecurity.glaciermessenger.ui.XmppActivity;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
-import com.glaciersecurity.glaciermessenger.ui.util.CameraCapturerCompat;
-import com.glaciersecurity.glaciermessenger.ui.util.SoundPoolManager;
-import com.glaciersecurity.glaciermessenger.services.PhonecallReceiver;
-import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
-import com.glaciersecurity.glaciermessenger.utils.Compatibility;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.makeramen.roundedimageview.RoundedImageView;
-import com.twilio.audioswitch.selection.AudioDevice;
-import com.twilio.audioswitch.selection.AudioDeviceSelector;
 import com.twilio.video.AudioCodec;
-import com.twilio.video.CameraCapturer;
 import com.twilio.video.ConnectOptions;
 import com.twilio.video.EncodingParameters;
 import com.twilio.video.G722Codec;
 import com.twilio.video.H264Codec;
 import com.twilio.video.IsacCodec;
-import com.twilio.video.LocalAudioTrack;
 import com.twilio.video.LocalParticipant;
-import com.twilio.video.LocalVideoTrack;
 import com.twilio.video.OpusCodec;
 import com.twilio.video.PcmaCodec;
 import com.twilio.video.PcmuCodec;
@@ -68,20 +33,12 @@ import com.twilio.video.Room;
 import com.twilio.video.TwilioException;
 import com.twilio.video.Video;
 import com.twilio.video.VideoCodec;
-import com.twilio.video.VideoRenderer;
-import com.twilio.video.VideoTrack;
-import com.twilio.video.VideoView;
 import com.twilio.video.Vp8Codec;
 import com.twilio.video.Vp9Codec;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
-import kotlin.Unit;
 
 //ALF AM-478
 public class CallManager {
