@@ -799,10 +799,9 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								rejectCall(call, true);
 							} else {
 								currentTwilioCall = call;
-								//AM-492 if cancelled already
+								//AM-492 if cancelled already don't post notification
 								if (cancelledCall == currentTwilioCall.getCallId()) {
 									Log.d(Config.LOGTAG, "push message arrived for cancelled call");
-									currentTwilioCall = null;
 								} else if (!getNotificationService().pushForCall(call, pushedAccountHash)) {
 									//ALF AM-447, no notification in this case because app is open, so manually play ringtone
 									SoundPoolManager.getInstance(XmppConnectionService.this).playRinging();
@@ -823,6 +822,11 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 										currentTwilioCall = null;
 										callHandler.removeCallbacksAndMessages(null);
 									}, 30000);
+								}
+
+								//AM-502 if cancelled, nullify current call so we don't get busy signal on next call
+								if (currentTwilioCall != null && cancelledCall == currentTwilioCall.getCallId()) {
+									currentTwilioCall = null;
 								}
 							}
 						}
