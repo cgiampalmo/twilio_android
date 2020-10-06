@@ -16,6 +16,8 @@ import android.media.AudioAttributes;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import androidx.core.app.NotificationCompat;
@@ -262,6 +264,11 @@ public class NotificationService {
 			callIntent.putExtra("ring", true);
 		}
 
+		//AM-492
+		if (mXmppConnectionService.getCancelledCall() == call.getCallId()) {
+			return true;
+		}
+
 		//callIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		//callIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		PendingIntent pendingIntent = PendingIntent.getActivity(mXmppConnectionService, 6, callIntent,
@@ -319,6 +326,10 @@ public class NotificationService {
 
 	void dismissCallNotification() {
 		cancel(CALL_NOTIFICATION_ID);
+		//AM-492 Handler
+		new Handler(Looper.getMainLooper()).postDelayed(() -> {
+			cancel(CALL_NOTIFICATION_ID);
+		}, 1000);
 	}
 
 	public void clear() {

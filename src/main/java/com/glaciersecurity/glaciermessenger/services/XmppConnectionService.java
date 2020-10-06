@@ -298,6 +298,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	private TwilioCall currentTwilioCall;
 	private Handler callHandler = new Handler();
 	private Handler busyHandler = new Handler(); //ALF AM-420
+	private int cancelledCall = -1; //AM-492
 
 	//Ui callback listeners
 	private final Set<OnConversationUpdate> mOnConversationUpdates = Collections.newSetFromMap(new WeakHashMap<OnConversationUpdate, Boolean>());
@@ -764,6 +765,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							//TODO: notify user of rejection from other party if reject
 
 							if (call.getStatus().equalsIgnoreCase("cancel")) {
+								cancelledCall = call.getCallId(); //AM-492
 								this.getNotificationService().dismissCallNotification();
 
 								//ALF AM-421
@@ -811,11 +813,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								rejectCall(call, true);
 							} else {
 								currentTwilioCall = call;
-								if (!getNotificationService().pushForCall(call, pushedAccountHash)) {
-
-									//CMG AM-478
-									//startCallConnectionService();
-
+								//AM-492 if cancelled already
+								if (cancelledCall == currentTwilioCall.getCallId()) {
+									Log.d(Config.LOGTAG, "push message arrived for cancelled call");
+								} else if (!getNotificationService().pushForCall(call, pushedAccountHash)) {
 									//ALF AM-447, no notification in this case because app is open, so manually play ringtone
 									SoundPoolManager.getInstance(XmppConnectionService.this).playRinging();
 
@@ -950,6 +951,11 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		return START_STICKY;
 	}
 
+	//AM-492
+	public int getCancelledCall() {
+		return cancelledCall;
+	}
+
 	//ALF AM-431
 	public void handleCallSetupMessage(Account account, TwilioCall call) {
 		if (account != null && call != null) {
@@ -963,6 +969,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				//TODO: notify user of rejection from other party if reject
 
 				if (call.getStatus().equalsIgnoreCase("cancel")) {
+					cancelledCall = call.getCallId(); //AM-492
 					this.getNotificationService().dismissCallNotification();
 
 					//ALF AM-421
