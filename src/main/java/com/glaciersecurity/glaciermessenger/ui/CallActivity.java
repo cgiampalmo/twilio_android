@@ -292,6 +292,7 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 		outgoingCallLayout.setVisibility(View.GONE);
 
 		handler.postDelayed(() -> {
+			handler.removeCallbacksAndMessages(null);
 			SoundPoolManager.getInstance(CallActivity.this).stopRinging(); //ALF AM-444
 			Log.d(Config.LOGTAG, "CallActivity - Cancelling call after 30 sec");
 			final Intent intent = new Intent(this, XmppConnectionService.class);
@@ -392,5 +393,11 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 			intent.setAction(XmppConnectionService.ACTION_CANCEL_CALL_REQUEST); //outgoing?
 		}
 		Compatibility.startService(this, intent);
+	}
+
+	//ALF AM-498
+	@Override
+	public void onIncomingNativeCallRinging() {
+		Toast.makeText(this, R.string.native_ringing, Toast.LENGTH_LONG).show();
 	}
 }

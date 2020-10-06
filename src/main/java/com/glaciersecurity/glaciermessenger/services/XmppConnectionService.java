@@ -4813,6 +4813,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	public void rejectCall(TwilioCall call, boolean isBusy) {
 		final String deviceId = PhoneHelper.getAndroidId(this);
 
+		if (call == null) {
+			return;
+		}
+
 		final IqPacket request = new IqPacket(IqPacket.TYPE.SET);
 		request.setTo(Jid.of("p2.glaciersec.cc"));
 		request.setAttribute("from",call.getAccount().getJid().toString());

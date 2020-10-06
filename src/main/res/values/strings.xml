@@ -1112,6 +1112,7 @@
     <string name="error_retrieving_access_token">Error retrieving token</string>
     <string name="permissions_needed">Camera and Microphone permissions needed. Please allow in App Settings for additional functionality.</string>
     <string name="settings">Settings</string>
+    <string name="native_ringing">Answering native call will also end Glacier call.</string>
 
     <!-- Strings related to Settings -->
 

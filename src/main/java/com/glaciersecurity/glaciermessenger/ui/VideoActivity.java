@@ -845,6 +845,12 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         handleDisconnect();
     }
 
+    //ALF AM-498
+    @Override
+    public void onIncomingNativeCallRinging() {
+        Toast.makeText(this, R.string.native_ringing, Toast.LENGTH_LONG).show();
+    }
+
     //AM-478 start TwilioCallListener
     public void handleParticipantConnected(RemoteParticipant remoteParticipant) {
         addRemoteParticipant(remoteParticipant);

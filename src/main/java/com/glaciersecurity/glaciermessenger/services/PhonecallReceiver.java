@@ -36,6 +36,7 @@ public class PhonecallReceiver extends BroadcastReceiver {
 
     public interface PhonecallReceiverListener {
         void onIncomingNativeCallAnswered();
+        void onIncomingNativeCallRinging();
     }
 
     //Incoming call-  goes from IDLE to RINGING when it rings, to OFFHOOK when it's answered, to IDLE when its hung up
@@ -46,6 +47,9 @@ public class PhonecallReceiver extends BroadcastReceiver {
         }
         switch (state) {
             case TelephonyManager.CALL_STATE_RINGING:
+                if (phonecallReceiverListener != null) { //AM-498
+                    phonecallReceiverListener.onIncomingNativeCallRinging();
+                }
                 break;
             case TelephonyManager.CALL_STATE_OFFHOOK:
                 //Transition of ringing->offhook are pickups of incoming calls.
