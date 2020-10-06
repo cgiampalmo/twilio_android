@@ -40,6 +40,8 @@ import androidx.annotation.BoolRes;
 import androidx.annotation.IntegerRes;
 import androidx.core.app.RemoteInput;
 import androidx.core.content.ContextCompat;
+
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -795,9 +797,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							call.setCaller(intent.getStringExtra("caller"));
 
 							//ALF AM-420 if is already in call, respond with busy
-							//AM-480 if already in native call...
-							//if (currentTwilioCall != null || isInNativeCall()) { //in call
-							if (currentTwilioCall != null) { //in call
+							//AM-480 include native call...
+							if (currentTwilioCall != null|| isInNativeCall()) {
 								rejectCall(call, true);
 							} else {
 								currentTwilioCall = call;
@@ -942,6 +943,19 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			expireOldMessages();
 		}
 		return START_STICKY;
+	}
+
+	//AM-480
+	private boolean isInNativeCall() {
+		try {
+			final TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+			if (tm.getCallState() != TelephonyManager.CALL_STATE_IDLE) {
+				return true;
+			}
+		} catch (Exception e) {
+			Log.d(Config.LOGTAG, "Failed getting Telephony service ");
+		}
+		return false;
 	}
 
 	//AM-492
