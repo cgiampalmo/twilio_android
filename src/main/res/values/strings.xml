@@ -1128,7 +1128,6 @@
     <string name="Video">Video</string>
     <string name="turn_speaker_on">Speaker ON</string>
     <string name="turn_speaker_off">Speaker OFF</string>
-
-
+    <string name= "tap_to_return_to_call">TAP TO RETURN TO CALL</string>
 
 </resources>

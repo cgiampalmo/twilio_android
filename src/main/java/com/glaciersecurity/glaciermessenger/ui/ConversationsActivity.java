@@ -70,6 +70,7 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.Authentic
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GetDetailsHandler;
 import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
+import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
 import com.google.android.material.navigation.NavigationView;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -136,6 +137,11 @@ import com.glaciersecurity.glaciermessenger.utils.XmppUri;
 import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
 import com.glaciersecurity.glaciermessenger.xmpp.OnKeyStatusUpdated; //ALF AM-60
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
+import com.twilio.video.LocalAudioTrack;
+import com.twilio.video.LocalVideoTrack;
+import com.twilio.video.RemoteParticipant;
+import com.twilio.video.RemoteVideoTrack;
+import com.twilio.video.Room;
 
 import rocks.xmpp.addr.Jid;
 
@@ -147,7 +153,7 @@ import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessa
 import static com.glaciersecurity.glaciermessenger.entities.Presence.getEmojiByUnicode;
 import static com.glaciersecurity.glaciermessenger.ui.ConversationFragment.REQUEST_DECRYPT_PGP;
 
-public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, OnKeyStatusUpdated, LogoutListener, ConnectivityReceiver.ConnectivityReceiverListener {
+public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, OnKeyStatusUpdated, LogoutListener, ConnectivityReceiver.ConnectivityReceiverListener, TwilioCallListener {
 
 	public static final String ACTION_VIEW_CONVERSATION = "com.glaciersecurity.glaciermessenger.action.VIEW";
 	public static final String EXTRA_CONVERSATION = "conversationUuid";
@@ -1962,5 +1968,56 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	@Override
 	public void onShowErrorToast(int resId) {
 		runOnUiThread(() -> Toast.makeText(this, resId, Toast.LENGTH_SHORT).show());
+	}
+
+	@Override
+	public void handleParticipantConnected(RemoteParticipant remoteParticipant){
+
+	}
+	@Override
+	public void handleParticipantDisconnected(RemoteParticipant remoteParticipant){
+
+	}
+	@Override
+	public void handleAddRemoteParticipantVideo(RemoteVideoTrack videoTrack){
+
+	}
+	@Override
+	public void handleRemoveRemoteParticipantVideo(RemoteVideoTrack videoTrack){
+
+	}
+	@Override
+	public void handleVideoTrackEnabled(){
+
+	}
+	@Override
+	public void handleVideoTrackDisabled(){
+
+	}
+
+	@Override
+	public void handleConnected(Room room){
+
+	}
+	@Override
+	public void handleReconnecting(boolean reconnecting){
+
+	}
+	@Override
+	public void handleConnectFailure(){
+
+	}
+	@Override
+	public void endListening(){
+
+	}
+
+	@Override
+	public LocalAudioTrack getLocalAudioTrack(){
+		return null;
+	}
+	@Override
+	public LocalVideoTrack getLocalVideoTrack(){
+		return null;
 	}
 }
