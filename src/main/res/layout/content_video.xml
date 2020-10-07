@@ -13,8 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:orientation="vertical"
-        >
+        android:orientation="vertical">
+
         <com.twilio.video.VideoView
             android:id="@+id/thumbnail_video_view"
             app:tviOverlaySurface="true"
@@ -26,58 +26,55 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"/>
 
-    <com.twilio.video.VideoView
-        android:id="@+id/primary_video_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"/>
+        <com.twilio.video.VideoView
+            android:id="@+id/primary_video_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"/>
 
-    <LinearLayout
-        android:id="@+id/no_video_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:orientation="vertical"
-        >
+        <LinearLayout
+            android:id="@+id/no_video_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:orientation="vertical">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-
-        <com.makeramen.roundedimageview.RoundedImageView
-            android:id="@+id/no_video_view_avatar"
-            android:layout_width="240dp"
-            android:layout_height="240dp"
-            android:layout_centerInParent="true"
-            app:riv_corner_radius="100dip"
-            app:srcCompat="@drawable/avatar_default" />
-    </RelativeLayout>
-    </LinearLayout>
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/no_video_view_avatar"
+                    android:layout_width="240dp"
+                    android:layout_height="240dp"
+                    android:layout_centerInParent="true"
+                    app:riv_corner_radius="100dip"
+                    app:srcCompat="@drawable/avatar_default" />
+            </RelativeLayout>
+        </LinearLayout>
 
     </RelativeLayout>
-
 
     <LinearLayout
         android:id="@+id/reconnecting_progress_bar_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:orientation="vertical"
-        >
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/connecting"
-        android:textAppearance="@style/TextAppearance.AppCompat.Light.SearchResult.Subtitle"
-        />
-    <ProgressBar
-        android:id="@+id/reconnecting_progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:indeterminate="true"
-        style="?android:attr/progressBarStyleLarge"
-        />
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/connecting"
+            android:textAppearance="@style/TextAppearance.AppCompat.Light.SearchResult.Subtitle"/>
+
+        <ProgressBar
+            android:id="@+id/reconnecting_progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            style="?android:attr/progressBarStyleLarge"/>
+
     </LinearLayout>
 </merge>

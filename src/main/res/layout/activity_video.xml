@@ -9,7 +9,6 @@
     android:fitsSystemWindows="true"
     tools:context=".ui.VideoActivity">
 
-
     <include layout="@layout/content_video" />
     <TextView
         android:id="@+id/primary_video_title"

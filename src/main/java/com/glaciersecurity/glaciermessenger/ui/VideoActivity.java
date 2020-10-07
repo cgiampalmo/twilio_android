@@ -16,6 +16,7 @@ import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
@@ -845,10 +846,36 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         handleDisconnect();
     }
 
+    View activityView;
+    public Snackbar snackbar = null;
+
     //ALF AM-498
     @Override
-    public void onIncomingNativeCallRinging() {
-        Toast.makeText(this, R.string.native_ringing, Toast.LENGTH_LONG).show();
+    public void onIncomingNativeCallRinging(int call_act) {
+        activityView = this.primaryVideoView;
+        if (call_act == 0) {
+            snackbar.dismiss();
+        } else {
+            if (activityView != null) {
+                snackbar = Snackbar.make(activityView, R.string.native_ringing, Snackbar.LENGTH_INDEFINITE);
+
+                View mView = snackbar.getView();
+                TextView mTextView = (TextView) mView.findViewById(R.id.snackbar_text);
+                mTextView.setGravity(Gravity.CENTER_HORIZONTAL);
+                mTextView.setBackgroundColor(getResources().getColor(R.color.blue_palette_hex1));
+                mTextView.setTextColor(getResources().getColor(R.color.almost_black));
+
+                snackbar.show();
+            } else {
+                Toast.makeText(this, R.string.native_ringing, Toast.LENGTH_LONG).show();
+
+                // AlertDialog.Builder alert = new AlertDialog.Builder(CallActivity.this);
+                // alert.setTitle(R.string.native_ring_alert_title);
+                // alert.setMessage(R.string.native_ringing);
+                // alert.setPositiveButton("OK",null);
+                // alert.show();
+            }
+        }
     }
 
     //AM-478 start TwilioCallListener

@@ -154,11 +154,13 @@
 	<color name="light_blue_A700">#0091EA</color>
 
 	<!-- Colors based on Hex # specified in Glacier Color Standards -->
+	<color name="blue_palette_hex0">#ff29aad7</color>
 	<color name="blue_palette_hex1">#ff27a1cb</color>
-	<color name="blue_palette_hex2">#ff2598Bf</color>
+	<color name="blue_palette_hex2">#ff2598bf</color>
 	<color name="blue_palette_hex3">#ff2493b9</color>
 	<color name="blue_palette_hex4">#ff238EB3</color>
 	<color name="blue_palette_hex5">#ff2183a5</color>
+	<color name="blue_palette_bright_hex0">#ff10a9db</color>
 	<color name="blue_palette_bright_hex1">#ff16a9db</color>
 	<color name="blue_palette_bright_hex2">#ff24a2cc</color>
 	<color name="blue_palette_bright_hex3">#ff29aad7</color>
@@ -261,6 +263,7 @@
 	<color name="red_A200">#FF5252</color>
 	<color name="red_A400">#FF1744</color>
 	<color name="red_A700">#D50000</color>
+	<color name="red_pure">#FF0000</color>
 
 	<color name="deep_orange_50">#FBE9E7</color>
 	<color name="deep_orange_100">#FFCCBC</color>

@@ -4,16 +4,18 @@
     <style name="ConversationsTheme" parent="Theme.AppCompat.Light.NoActionBar">
 
         <item name="colorNewPrimary">@color/primary_bg_color</item>
-        <item name="colorToolbar">@color/grey750</item>
-
         <item name="colorPrimary">@color/primary_bg_color</item>
         <item name="colorPrimaryDark">@color/primary_bg_color</item>
+
+        <item name="colorToolbar">@color/grey750</item>
+
         <item name="colorAccent">@color/blue_a200</item>
         <item name="colorAccent1">@color/blue_a250</item>
         <item name="colorAccent2">@color/blue_palette_bright_hex1</item>
         <item name="colorAccent3">@color/blue_grey_451</item>
         <item name="colorAccent4">@color/grey860</item>
         <item name="colorAccent5">@color/blue_a200</item>
+        <item name="colorAccent6">@color/grey400</item>
 
         <item name="colorAvatarBorder">@color/grey_300</item>
         <item name="colorAvatarBorderMenu">@color/blue_grey_800</item>
@@ -157,16 +159,18 @@
     <style name="ConversationsTheme.Dark.Base" parent="Theme.AppCompat.NoActionBar">
 
         <item name="colorNewPrimary">@color/primary_bg_color</item>
-        <item name="colorToolbar">@color/primary_bg_color</item>
-
         <item name="colorPrimary">@color/primary_bg_color</item>
         <item name="colorPrimaryDark">@color/primary_bg_color</item>
+
+        <item name="colorToolbar">@color/primary_bg_color</item>
+
         <item name="colorAccent">@color/blue_a100</item>
         <item name="colorAccent1">@color/blue_a150</item>
         <item name="colorAccent2">@color/blue_palette_hex3</item>
         <item name="colorAccent3">@color/blue_grey_449</item>
         <item name="colorAccent4">@color/grey300</item>
         <item name="colorAccent5">@color/blue_a50</item>
+        <item name="colorAccent6">@color/almost_black</item>
 
         <item name="colorAvatarBorder">@color/grey900</item>
         <item name="colorAvatarBorderMenu">@color/blue_grey_900</item>
