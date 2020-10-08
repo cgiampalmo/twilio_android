@@ -146,6 +146,11 @@ public class CallManager {
     public void readyToConnect() {
         if (room == null || room.getState() == Room.State.DISCONNECTED) {
             connectToRoom(roomname);
+        } else if (room.getState() == Room.State.CONNECTED) {
+            if (twilioCallListener != null) { //AM-404
+                //twilioCallListener.handleReconnecting(false);
+                twilioCallListener.handleConnected(room);
+            }
         }
     }
 

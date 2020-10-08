@@ -36,7 +36,7 @@ public class PhonecallReceiver extends BroadcastReceiver {
 
     public interface PhonecallReceiverListener {
         void onIncomingNativeCallAnswered();
-        void onIncomingNativeCallRinging();
+        void onIncomingNativeCallRinging(); //AM-498
     }
 
     //Incoming call-  goes from IDLE to RINGING when it rings, to OFFHOOK when it's answered, to IDLE when its hung up

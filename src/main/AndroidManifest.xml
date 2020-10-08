@@ -71,10 +71,7 @@
         android:gravity="top|center"
         android:minHeight="450dp"
         android:minWidth="300dp"
-        android:resizeableActivity="false"
         tools:targetApi="o">
-
-
 
 
     <!--  GOOBER - Commented out so it would go through Playstore
