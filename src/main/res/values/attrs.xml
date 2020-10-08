@@ -35,6 +35,7 @@
     <attr name="colorAccent3" format="reference|color"/>
     <attr name="colorAccent4" format="reference|color"/>
     <attr name="colorAccent5" format="reference|color"/>
+    <attr name="colorAccent6" format="reference|color"/>
 
     <attr name="colorAvatarBorder" format="reference|color"/>
     <attr name="colorAvatarBorderMenu" format="reference|color"/>

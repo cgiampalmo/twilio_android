@@ -8,20 +8,16 @@
 	<color name="grey_sent_light_theme">#ffafafaf</color>
 	<color name="grey_sent_dark_theme">#ff353535</color>
 
-	<!--
-			msg_rvcd_light_theme	grey300
-			msg_rcvd_dark_theme		grey925
-			grey_sent_light_theme	grey425
-			grey_sent_dark_theme	grey700
-			msg_sent_light_theme	blue_palette_color4
-			msg_sent_dark_theme		blue_palette_hex2
-	-->
-
 	<!-- Main Colors -->
 	<color name="primary_bg_color">#ff060606</color>
+	<color name="secondary_bg_color">#ff202020</color>
+
 	<color name="primary_color">#808080</color>
 
 	<color name="black">#ff000000</color>
+	<color name="mostly_black">#ff030303</color>
+	<color name="almost_black">#ff060606</color>
+
 	<color name="black87">#de000000</color>
 	<color name="black54">#8a000000</color>
 	<color name="black38">#66000000</color>
@@ -65,7 +61,7 @@
 	<color name="grey975">#ff191919</color>
 	<color name="grey1000">#ff161616</color>
 	<color name="grey1050">#ff111111</color>
-	<color name="almost_black">#ff060606</color>
+	<color name="grey1100">#ff060606</color>
 
 	<color name="grey_2">#f0f6f9</color>
 	<color name="grey_3">#f7f7f7</color>
@@ -158,11 +154,13 @@
 	<color name="light_blue_A700">#0091EA</color>
 
 	<!-- Colors based on Hex # specified in Glacier Color Standards -->
+	<color name="blue_palette_hex0">#ff29aad7</color>
 	<color name="blue_palette_hex1">#ff27a1cb</color>
-	<color name="blue_palette_hex2">#ff2598Bf</color>
+	<color name="blue_palette_hex2">#ff2598bf</color>
 	<color name="blue_palette_hex3">#ff2493b9</color>
 	<color name="blue_palette_hex4">#ff238EB3</color>
 	<color name="blue_palette_hex5">#ff2183a5</color>
+	<color name="blue_palette_bright_hex0">#ff10a9db</color>
 	<color name="blue_palette_bright_hex1">#ff16a9db</color>
 	<color name="blue_palette_bright_hex2">#ff24a2cc</color>
 	<color name="blue_palette_bright_hex3">#ff29aad7</color>
@@ -265,6 +263,7 @@
 	<color name="red_A200">#FF5252</color>
 	<color name="red_A400">#FF1744</color>
 	<color name="red_A700">#D50000</color>
+	<color name="red_pure">#FF0000</color>
 
 	<color name="deep_orange_50">#FBE9E7</color>
 	<color name="deep_orange_100">#FFCCBC</color>

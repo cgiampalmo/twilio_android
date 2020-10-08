@@ -16,6 +16,7 @@ import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
@@ -112,6 +113,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private FloatingActionButton muteActionFab;
     private FloatingActionButton speakerPhoneActionFab;
     private RelativeLayout callBar;
+    private int currentVideoIcon; //AM-404
 
     private LinearLayout reconnectingProgressBar;
     private LinearLayout noVideoView;
@@ -122,6 +124,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
     private static final String IS_AUDIO_MUTED = "IS_AUDIO_MUTED";
     private static final String IS_VIDEO_MUTED = "IS_VIDEO_MUTED";
+    private static final String IS_SPEAKERPHONE_ENABLED = "IS_SPEAKERPHONE_ENABLED";
 
     /*
      * Audio management
@@ -160,6 +163,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         muteActionFab = findViewById(R.id.mute_action_fab);
         this.primaryTitle  = findViewById(R.id.primary_video_title);
         callBar = findViewById(R.id.call_action_bar);
+        this.currentVideoIcon = R.drawable.ic_videocam_off_gray_24px; //AM-404
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -174,6 +178,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         if (savedInstanceState != null) {
             isAudioMuted = savedInstanceState.getBoolean(IS_AUDIO_MUTED);
             isVideoMuted = savedInstanceState.getBoolean(IS_VIDEO_MUTED);
+            isSpeakerPhoneEnabled = savedInstanceState.getBoolean(IS_SPEAKERPHONE_ENABLED);
         }
 
         /*
@@ -202,11 +207,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
     }
 
-    private String caller;
-    private String roomname;
-    private String receiver;
-
-
     @Override
     public void onStart() {
         super.onStart();
@@ -216,12 +216,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         }
 
         final String action = intent.getAction();
-
-        if (CallActivity.ACTION_ACCEPTED_CALL.equals(action)) {
-            caller = intent.getStringExtra("caller");
-            roomname = intent.getStringExtra("roomname");
-            receiver = intent.getStringExtra("receiver");
-        }
 
         /*
          * Route audio through cached value.
@@ -257,10 +251,16 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     public void onResume() {
         super.onResume();
 
-        //recreateVideoTrackIfNeeded();
-        //if(!isVideoMuted) {
-        //    localVideoTrack.enable(true);
-        //}
+        recreateVideoTrackIfNeeded();
+        if(!isVideoMuted) {
+            if (currentVideoIcon == R.drawable.ic_videocam_off_gray_24px) {
+                localVideoActionFab.callOnClick();
+            } else {
+                localVideoTrack.enable(true);
+            }
+
+            //localVideoTrack.enable(true);
+        }
 
         /*
          * Route audio through cached value.
@@ -288,7 +288,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     }
 
     private void recreateVideoTrackIfNeeded() {
-        final EncodingParameters newEncodingParameters = callManager.getEncodingParameters();
         /*
          * If the local video track was released when the app was put in the background, recreate.
          */
@@ -304,7 +303,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
              */
             if (callManager != null && callManager.getLocalParticipant() != null) {
                 callManager.getLocalParticipant().publishTrack(localVideoTrack);
-                callManager.getLocalParticipant().setEncodingParameters(newEncodingParameters);
+                callManager.getLocalParticipant().setEncodingParameters(callManager.getEncodingParameters());
             }
         }
     }
@@ -339,6 +338,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putBoolean(IS_AUDIO_MUTED, isAudioMuted);
         outState.putBoolean(IS_VIDEO_MUTED, isVideoMuted);
+        outState.putBoolean(IS_SPEAKERPHONE_ENABLED, isSpeakerPhoneEnabled);
         super.onSaveInstanceState(outState);
     }
 
@@ -375,12 +375,10 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
          * or video is freed.
          */
         if (localAudioTrack != null) {
-            //localAudioTrack.enable(false); //ALF test
             localAudioTrack.release();
             localAudioTrack = null;
         }
         if (localVideoTrack != null) {
-            //localVideoTrack.enable(false); //ALF test
             localVideoTrack.release();
             localVideoTrack = null;
         }
@@ -468,13 +466,13 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         /*
          * This app only displays video for one additional participant per Room
          */
-        if (thumbnailVideoView.getVisibility() == View.VISIBLE) {
+        /*if (thumbnailVideoView.getVisibility() == View.VISIBLE) {
             Snackbar.make(connectActionFab,
                     "Multiple participants are not currently support in this UI",
                     Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
             return;
-        }
+        }*/
         remoteParticipantIdentity = remoteParticipant.getIdentity();
         String other = remoteParticipant.getIdentity();
         if (other.contains("@")){
@@ -504,6 +502,10 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private void addRemoteParticipantVideo(VideoTrack videoTrack) {
         primaryVideoView.setMirror(false);
         videoTrack.addRenderer(primaryVideoView);
+
+        if (videoTrack.isEnabled()) { //AM-404
+            handleVideoTrackEnabled();
+        }
     }
 
     /*
@@ -640,15 +642,19 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         if (selectedAudioDevice instanceof AudioDevice.BluetoothHeadset) {
             speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
             audioDeviceIcon = R.drawable.ic_bluetooth_white_24dp;
+            SoundPoolManager.getInstance(VideoActivity.this).setSpeakerOn(false);
         } else if (selectedAudioDevice instanceof AudioDevice.WiredHeadset) {
             speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
             audioDeviceIcon = R.drawable.ic_headset_mic_white_24dp;
+            SoundPoolManager.getInstance(VideoActivity.this).setSpeakerOn(false);
         } else if (selectedAudioDevice instanceof AudioDevice.Earpiece) {
             audioDeviceIcon = R.drawable.ic_volume_off_gray_24dp;
             speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+            SoundPoolManager.getInstance(VideoActivity.this).setSpeakerOn(false);
         } else if (selectedAudioDevice instanceof AudioDevice.Speakerphone) {
             speakerPhoneActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
             audioDeviceIcon = R.drawable.ic_volume_up_white_24dp;
+            SoundPoolManager.getInstance(VideoActivity.this).setSpeakerOn(true);
         }
 
 
@@ -704,9 +710,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             if (localVideoTrack != null) {
                 boolean enable = !localVideoTrack.isEnabled();
                 localVideoTrack.enable(enable);
-                int icon;
                 if (enable) {
-                    icon = R.drawable.ic_videocam_white_24dp;
+                    currentVideoIcon = R.drawable.ic_videocam_white_24dp;
                     localVideoActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
                     switchCameraActionFab.show();
                     switchCameraActionSpace.setVisibility(View.VISIBLE);
@@ -718,7 +723,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                     thumbnailVideoView.setVisibility(View.VISIBLE);
 
                 } else {
-                    icon = R.drawable.ic_videocam_off_gray_24px;
+                    currentVideoIcon = R.drawable.ic_videocam_off_gray_24px;
                     localVideoActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
                     switchCameraActionFab.hide();
                     switchCameraActionSpace.setVisibility(View.GONE);
@@ -727,7 +732,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                     thumbnailVideoView.setVisibility(View.GONE);
                 }
                 localVideoActionFab.setImageDrawable(
-                        ContextCompat.getDrawable(VideoActivity.this, icon));
+                        ContextCompat.getDrawable(VideoActivity.this, currentVideoIcon));
             }
         };
     }
@@ -743,6 +748,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
                 audioManager.setSpeakerphoneOn(expectedSpeakerPhoneState);
                 isSpeakerPhoneEnabled = expectedSpeakerPhoneState;
+                SoundPoolManager.getInstance(VideoActivity.this).setSpeakerOn(expectedSpeakerPhoneState);
 
                 int icon;
                 if (expectedSpeakerPhoneState) {
@@ -767,6 +773,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             } else {
                 audioManager.setSpeakerphoneOn(expectedSpeakerPhoneState);
                 isSpeakerPhoneEnabled = expectedSpeakerPhoneState;
+                SoundPoolManager.getInstance(VideoActivity.this).setSpeakerOn(expectedSpeakerPhoneState);
 
                 int icon;
                 if (expectedSpeakerPhoneState) {
@@ -795,6 +802,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             if (localAudioTrack != null) {
                 boolean enable = !localAudioTrack.isEnabled();
                 localAudioTrack.enable(enable);
+                isAudioMuted = !enable; //AM-404
                 int icon = enable ?
                         R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_gray_24dp;
 
@@ -820,10 +828,17 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 callManager.setCallListener(this);
                 callManager.readyToConnect();
 
-                recreateVideoTrackIfNeeded();
-                if(!isVideoMuted) {
-                    localVideoTrack.enable(true);
+                //recreateVideoTrackIfNeeded();
+                //AM-404
+                if (callManager.getLocalParticipant() != null) {
+                    callManager.getLocalParticipant().publishTrack(localVideoTrack);
+                    callManager.getLocalParticipant().setEncodingParameters(callManager.getEncodingParameters());
+                    callManager.getLocalParticipant().publishTrack(localAudioTrack);
                 }
+                if (isAudioMuted) { //AM-404
+                    muteActionFab.callOnClick();
+                }
+
             }
         } catch (Exception e){
 
@@ -845,10 +860,36 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         handleDisconnect();
     }
 
+    View activityView;
+    public Snackbar snackbar = null;
+
     //ALF AM-498
     @Override
-    public void onIncomingNativeCallRinging() {
-        Toast.makeText(this, R.string.native_ringing, Toast.LENGTH_LONG).show();
+    public void onIncomingNativeCallRinging(int call_act) {
+        activityView = this.primaryVideoView;
+        if (call_act == 0) {
+            snackbar.dismiss();
+        } else {
+            if (activityView != null) {
+                snackbar = Snackbar.make(activityView, R.string.native_ringing, Snackbar.LENGTH_INDEFINITE);
+
+                View mView = snackbar.getView();
+                TextView mTextView = (TextView) mView.findViewById(R.id.snackbar_text);
+                mTextView.setGravity(Gravity.CENTER_HORIZONTAL);
+                mTextView.setBackgroundColor(getResources().getColor(R.color.blue_palette_hex1));
+                mTextView.setTextColor(getResources().getColor(R.color.almost_black));
+
+                snackbar.show();
+            } else {
+                Toast.makeText(this, R.string.native_ringing, Toast.LENGTH_LONG).show();
+
+                // AlertDialog.Builder alert = new AlertDialog.Builder(CallActivity.this);
+                // alert.setTitle(R.string.native_ring_alert_title);
+                // alert.setMessage(R.string.native_ringing);
+                // alert.setPositiveButton("OK",null);
+                // alert.show();
+            }
+        }
     }
 
     //AM-478 start TwilioCallListener

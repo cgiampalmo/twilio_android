@@ -29,7 +29,7 @@
             android:layout_margin="16dp"
             android:contentDescription="@string/action_unfix_from_location"
             android:src="?attr/icon_directions"
-            app:backgroundTint="?colorNewPrimary"
+            app:backgroundTint="?colorToolbar"
             app:tint="@color/white" />
     </RelativeLayout>
 </layout>

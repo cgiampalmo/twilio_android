@@ -36,23 +36,26 @@ public class PhonecallReceiver extends BroadcastReceiver {
 
     public interface PhonecallReceiverListener {
         void onIncomingNativeCallAnswered();
-        void onIncomingNativeCallRinging();
+        void onIncomingNativeCallRinging(int call_act);
     }
 
     //Incoming call-  goes from IDLE to RINGING when it rings, to OFFHOOK when it's answered, to IDLE when its hung up
     //Outgoing call-  goes from IDLE to OFFHOOK when it dials out, to IDLE when hung up
     public void onCallStateChanged(Context context, int state, String number) {
+        int call_act;
         if(lastState == state){
             return;
         }
         switch (state) {
             case TelephonyManager.CALL_STATE_RINGING:
+                //Transition of idle -> ringing = starting to ring for an incoming call.
+                call_act = 1;
                 if (phonecallReceiverListener != null) { //AM-498
-                    phonecallReceiverListener.onIncomingNativeCallRinging();
+                    phonecallReceiverListener.onIncomingNativeCallRinging(call_act);
                 }
                 break;
             case TelephonyManager.CALL_STATE_OFFHOOK:
-                //Transition of ringing->offhook are pickups of incoming calls.
+                //Transition of ringing -> offhook = answering an incoming call.
                 if(lastState == TelephonyManager.CALL_STATE_RINGING){
                     //onIncomingCallAnswered(context);
                     if (phonecallReceiverListener != null) {
@@ -61,7 +64,14 @@ public class PhonecallReceiver extends BroadcastReceiver {
                 }
                 break;
             case TelephonyManager.CALL_STATE_IDLE:
-                //Went to idle-  this is the end of a call.  What type depends on previous state(s)
+                //Transition of offhook -> idle = hanging up at the end of a call.
+                //Transition of ringing -> idle = rejecting an incoming call.
+                call_act = 0;
+                if(lastState == TelephonyManager.CALL_STATE_RINGING) {
+                    if (phonecallReceiverListener != null) { //AM-498
+                        phonecallReceiverListener.onIncomingNativeCallRinging(call_act);
+                    }
+                }
                 break;
         }
         lastState = state;

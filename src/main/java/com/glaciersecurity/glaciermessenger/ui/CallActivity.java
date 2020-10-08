@@ -2,8 +2,10 @@ package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -11,7 +13,10 @@ import android.os.Build;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -36,6 +41,7 @@ import com.glaciersecurity.glaciermessenger.ui.util.SoundPoolManager;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.PhoneHelper;
+import com.google.android.material.snackbar.Snackbar;
 import com.twilio.audioswitch.selection.AudioDevice;
 import com.twilio.audioswitch.selection.AudioDeviceSelector;
 
@@ -395,9 +401,36 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 		Compatibility.startService(this, intent);
 	}
 
+
+	View activityView;
+	public Snackbar snackbar = null;
+
 	//ALF AM-498
 	@Override
-	public void onIncomingNativeCallRinging() {
-		Toast.makeText(this, R.string.native_ringing, Toast.LENGTH_LONG).show();
+	public void onIncomingNativeCallRinging(int call_act) {
+		activityView = this.getCurrentFocus();
+		if (call_act == 0) {
+			snackbar.dismiss();
+		} else {
+			if (activityView != null) {
+				snackbar = Snackbar.make(activityView,R.string.native_ringing, Snackbar.LENGTH_INDEFINITE);
+
+				View mView = snackbar.getView();
+				TextView mTextView = (TextView) mView.findViewById(R.id.snackbar_text);
+				mTextView.setGravity(Gravity.CENTER_HORIZONTAL);
+				mTextView.setBackgroundColor(getResources().getColor(R.color.blue_palette_hex1));
+				mTextView.setTextColor(getResources().getColor(R.color.almost_black));
+
+				snackbar.show();
+			} else {
+				Toast.makeText(this, R.string.native_ringing, Toast.LENGTH_LONG).show();
+
+				// AlertDialog.Builder alert = new AlertDialog.Builder(CallActivity.this);
+				// alert.setTitle(R.string.native_ring_alert_title);
+				// alert.setMessage(R.string.native_ringing);
+				// alert.setPositiveButton("OK",null);
+				// alert.show();
+			}
+		}
 	}
 }
