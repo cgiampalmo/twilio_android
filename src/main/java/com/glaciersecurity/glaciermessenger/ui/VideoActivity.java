@@ -400,6 +400,9 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             callManager.setCallListener(null); //AM-478
         }
 
+        // DJF - AM-512
+        configureAudio(false);
+
         super.onDestroy();
     }
 
