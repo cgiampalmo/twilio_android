@@ -32,7 +32,7 @@
         android:adjustViewBounds="true"
         android:clickable="false"
         android:layout_margin="16dp"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentLeft="true"
         android:background="@drawable/ic_expand" />
     </RelativeLayout>
     <RelativeLayout

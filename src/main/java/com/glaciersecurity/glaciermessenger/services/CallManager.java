@@ -1,6 +1,7 @@
 package com.glaciersecurity.glaciermessenger.services;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
@@ -152,6 +153,17 @@ public class CallManager {
                 twilioCallListener.handleConnected(room);
             }
         }
+    }
+
+    public boolean isOnCall(){
+        if (room == null || room.getState() == Room.State.DISCONNECTED) {
+            return false;
+        } else if (room.getState() == Room.State.CONNECTED) {
+            if (twilioCallListener != null) { //AM-404
+                return true;
+            }
+        }
+            return false;
     }
 
     public void setCallListener(TwilioCallListener listener) {

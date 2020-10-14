@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -121,6 +122,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private AlertDialog connectDialog;
     private String remoteParticipantIdentity;
     private TextView primaryTitle;
+    private ImageButton minimizeVideo;
 
     private static final String IS_AUDIO_MUTED = "IS_AUDIO_MUTED";
     private static final String IS_VIDEO_MUTED = "IS_VIDEO_MUTED";
@@ -164,6 +166,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         this.primaryTitle  = findViewById(R.id.primary_video_title);
         callBar = findViewById(R.id.call_action_bar);
         this.currentVideoIcon = R.drawable.ic_videocam_off_gray_24px; //AM-404
+        minimizeVideo = findViewById(R.id.down_arrow);
+        minimizeVideo.setOnClickListener(minimizeCall());
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -395,9 +399,10 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
         unregisterReceiver(phonecallReceiver); //ALF AM-474
 
-        if (callManager != null) {
-            callManager.setCallListener(null); //AM-478
-        }
+        //CMG AM-469
+//        if (callManager != null) {
+//            callManager.setCallListener(null); //AM-478
+//        }
 
         super.onDestroy();
     }
@@ -686,6 +691,13 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         audioManager.setMode(SoundPoolManager.getInstance(this).getPreviousAudioMode());
 
         endListening();
+    }
+
+    private View.OnClickListener minimizeCall() {
+        return v -> {
+            Intent chatsActivity = new Intent(getApplicationContext(), ConversationsActivity.class);
+            startActivity(chatsActivity);
+        };
     }
 
     private View.OnClickListener switchCameraClickListener() {

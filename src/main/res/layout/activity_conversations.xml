@@ -38,7 +38,8 @@
             layout="@layout/toolbar_with_icon_status" />
 
         <include android:id="@+id/toolbar_in_call"
-            layout="@layout/toolbar_in_call" />
+            layout="@layout/toolbar_in_call"
+            android:visibility="gone"/>
 
         <LinearLayout
             android:id="@+id/offline_layout"

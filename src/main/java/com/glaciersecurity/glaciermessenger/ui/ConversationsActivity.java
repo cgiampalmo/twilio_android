@@ -70,6 +70,8 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.Authentic
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GetDetailsHandler;
 import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
+import com.glaciersecurity.glaciermessenger.services.CallManager;
+import com.glaciersecurity.glaciermessenger.services.NotificationService;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
 import com.google.android.material.navigation.NavigationView;
 import androidx.core.content.ContextCompat;
@@ -81,6 +83,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceManager;
 
+import android.service.notification.NotificationListenerService;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -139,9 +142,15 @@ import com.glaciersecurity.glaciermessenger.xmpp.OnKeyStatusUpdated; //ALF AM-60
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 import com.twilio.video.LocalAudioTrack;
 import com.twilio.video.LocalVideoTrack;
+import com.twilio.video.RemoteAudioTrack;
+import com.twilio.video.RemoteAudioTrackPublication;
+import com.twilio.video.RemoteDataTrack;
+import com.twilio.video.RemoteDataTrackPublication;
 import com.twilio.video.RemoteParticipant;
 import com.twilio.video.RemoteVideoTrack;
+import com.twilio.video.RemoteVideoTrackPublication;
 import com.twilio.video.Room;
+import com.twilio.video.TwilioException;
 
 import rocks.xmpp.addr.Jid;
 
@@ -153,7 +162,7 @@ import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessa
 import static com.glaciersecurity.glaciermessenger.entities.Presence.getEmojiByUnicode;
 import static com.glaciersecurity.glaciermessenger.ui.ConversationFragment.REQUEST_DECRYPT_PGP;
 
-public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, OnKeyStatusUpdated, LogoutListener, ConnectivityReceiver.ConnectivityReceiverListener, TwilioCallListener {
+public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, OnKeyStatusUpdated, LogoutListener, ConnectivityReceiver.ConnectivityReceiverListener{
 
 	public static final String ACTION_VIEW_CONVERSATION = "com.glaciersecurity.glaciermessenger.action.VIEW";
 	public static final String EXTRA_CONVERSATION = "conversationUuid";
@@ -177,11 +186,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	private String mSavedInstanceAccount;
 
-
 	//CMG AM-285
 	private ImageView avatar;
 	private Account mAccount;
 	private final PendingItem<PresenceTemplate> mPendingPresenceTemplate = new PendingItem<>();
+	private CallManager mCallManager;
 
 
 
@@ -197,6 +206,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	private boolean initialConnect = true; //ALF AM-78
 	private ConnectivityReceiver connectivityReceiver; //CMG AM-41
 	protected LinearLayout offlineLayout;
+	private Toolbar returnToCall;
 
 	public ConversationsActivity() {
 	}
@@ -256,6 +266,81 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		}
 
 		invalidateActionBarTitle();
+
+		if (xmppConnectionService != null){
+			mCallManager = xmppConnectionService.getCallManager();
+			if (mCallManager != null && mCallManager.isOnCall()){
+				returnToCall.setVisibility(View.VISIBLE);
+			} else {
+				returnToCall.setVisibility(View.GONE);
+			}
+			mCallManager.setCallListener(new TwilioCallListener() {
+				@Override
+				public void handleParticipantConnected(RemoteParticipant remoteParticipant) {
+
+				}
+
+				@Override
+				public void handleParticipantDisconnected(RemoteParticipant remoteParticipant) {
+					returnToCall.setVisibility(View.GONE);
+
+				}
+
+				@Override
+				public void handleAddRemoteParticipantVideo(RemoteVideoTrack videoTrack) {
+
+				}
+
+				@Override
+				public void handleRemoveRemoteParticipantVideo(RemoteVideoTrack videoTrack) {
+					returnToCall.setVisibility(View.GONE);
+
+				}
+
+				@Override
+				public void handleVideoTrackEnabled() {
+
+				}
+
+				@Override
+				public void handleVideoTrackDisabled() {
+					returnToCall.setVisibility(View.GONE);
+
+				}
+
+				@Override
+				public void handleConnected(Room room) {
+
+				}
+
+				@Override
+				public void handleReconnecting(boolean reconnecting) {
+
+				}
+
+				@Override
+				public void handleConnectFailure() {
+					returnToCall.setVisibility(View.GONE);
+
+				}
+
+				@Override
+				public void endListening() {
+					returnToCall.setVisibility(View.GONE);
+
+				}
+
+				@Override
+				public LocalAudioTrack getLocalAudioTrack() {
+					return null;
+				}
+
+				@Override
+				public LocalVideoTrack getLocalVideoTrack() {
+					return null;
+				}
+			});
+		}
 		if (binding.secondaryFragment != null && ConversationFragment.getConversation(this) == null) {
 			Conversation conversation = ConversationsOverviewFragment.getSuggestion(this);
 			if (conversation != null) {
@@ -624,7 +709,22 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		checkNetworkStatus();
 		updateOfflineStatusBar();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+		//CMG AM-469
+		returnToCall = findViewById(R.id.toolbar_in_call);
+		returnToCall.setOnClickListener(returnToCall());
+
 	}
+
+	private View.OnClickListener returnToCall() {
+		return v -> {
+				Intent chatsActivity = new Intent(getApplicationContext(), VideoActivity.class);
+				startActivity(chatsActivity);
+
+		};
+	}
+
+
 
 	private void initToolbar() {
 		toolbar = (Toolbar) findViewById(R.id.toolbar_with_icon_status);
@@ -1970,54 +2070,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		runOnUiThread(() -> Toast.makeText(this, resId, Toast.LENGTH_SHORT).show());
 	}
 
-	@Override
-	public void handleParticipantConnected(RemoteParticipant remoteParticipant){
 
-	}
-	@Override
-	public void handleParticipantDisconnected(RemoteParticipant remoteParticipant){
 
-	}
-	@Override
-	public void handleAddRemoteParticipantVideo(RemoteVideoTrack videoTrack){
-
-	}
-	@Override
-	public void handleRemoveRemoteParticipantVideo(RemoteVideoTrack videoTrack){
-
-	}
-	@Override
-	public void handleVideoTrackEnabled(){
-
-	}
-	@Override
-	public void handleVideoTrackDisabled(){
-
-	}
-
-	@Override
-	public void handleConnected(Room room){
-
-	}
-	@Override
-	public void handleReconnecting(boolean reconnecting){
-
-	}
-	@Override
-	public void handleConnectFailure(){
-
-	}
-	@Override
-	public void endListening(){
-
-	}
-
-	@Override
-	public LocalAudioTrack getLocalAudioTrack(){
-		return null;
-	}
-	@Override
-	public LocalVideoTrack getLocalVideoTrack(){
-		return null;
-	}
 }

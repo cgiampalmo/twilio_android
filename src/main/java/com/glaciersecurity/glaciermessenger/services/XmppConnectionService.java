@@ -5263,6 +5263,12 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		void onPushFailed();
 	}
 
+	public interface OnCallStateChanged {
+		void onCallConnected();
+
+		void onCallEnded();
+	}
+
 	public interface OnShowErrorToast {
 		void onShowErrorToast(int resId);
 	}

@@ -11,15 +11,31 @@
 
 
     <include layout="@layout/content_video" />
-    <TextView
-        android:id="@+id/primary_video_title"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:layout_gravity="top|left"
-        android:textColor="?attr/edit_text_color"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        app:fontFamily="sans-serif-medium" />
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/primary_video_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:textColor="?attr/edit_text_color"
+            android:layout_centerInParent="true"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            app:fontFamily="sans-serif-medium"
+            />
+
+        <ImageButton
+            android:id="@+id/down_arrow"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:adjustViewBounds="true"
+            android:clickable="false"
+            android:layout_margin="16dp"
+            android:layout_alignParentLeft="true"
+            android:background="@drawable/ic_expand" />
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/call_action_bar"
