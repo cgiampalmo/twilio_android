@@ -285,7 +285,7 @@ public abstract class XmppActivity extends PinActivity {
 					if (infos.size() > 0) {
 						startActivity(marketIntent);
 					} else {
-						uri = Uri.parse("http://www.openkeychain.org/");
+						uri = Uri.parse("https://www.openkeychain.org/");
 						Intent browserIntent = new Intent(
 								Intent.ACTION_VIEW, uri);
 						startActivity(browserIntent);

@@ -1717,7 +1717,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	public void forgotPassword(View view) {
 		Intent intent = new Intent(Intent.ACTION_VIEW);
-		intent.setData(Uri.parse("http://console.glaciersec.cc/forget-password"));
+		intent.setData(Uri.parse("https://console.glaciersec.cc/forget-password"));
 		startActivity(intent);
 	}
 

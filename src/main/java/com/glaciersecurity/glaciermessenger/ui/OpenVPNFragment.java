@@ -620,7 +620,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
      */
     public void launchPlayStoreCore(){
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("glacier_core_https"));
+        intent.setData(Uri.parse(getString(R.string.glacier_core_https)));
         startActivity(intent);
     }
 
