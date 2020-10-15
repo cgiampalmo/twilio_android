@@ -73,6 +73,7 @@ import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
 import com.glaciersecurity.glaciermessenger.services.CallManager;
 import com.glaciersecurity.glaciermessenger.services.NotificationService;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
+import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.google.android.material.navigation.NavigationView;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -162,7 +163,7 @@ import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessa
 import static com.glaciersecurity.glaciermessenger.entities.Presence.getEmojiByUnicode;
 import static com.glaciersecurity.glaciermessenger.ui.ConversationFragment.REQUEST_DECRYPT_PGP;
 
-public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, OnKeyStatusUpdated, LogoutListener, ConnectivityReceiver.ConnectivityReceiverListener{
+public class ConversationsActivity extends XmppActivity implements OnConversationSelected, OnConversationArchived, OnConversationsListItemUpdated, OnConversationRead, XmppConnectionService.OnAccountUpdate, XmppConnectionService.OnConversationUpdate, XmppConnectionService.OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnAffiliationChanged, OnKeyStatusUpdated, LogoutListener, ConnectivityReceiver.ConnectivityReceiverListener, TwilioCallListener{
 
 	public static final String ACTION_VIEW_CONVERSATION = "com.glaciersecurity.glaciermessenger.action.VIEW";
 	public static final String EXTRA_CONVERSATION = "conversationUuid";
@@ -271,75 +272,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			mCallManager = xmppConnectionService.getCallManager();
 			if (mCallManager != null && mCallManager.isOnCall()){
 				returnToCall.setVisibility(View.VISIBLE);
+				mCallManager.setCallListener(this);
 			} else {
 				returnToCall.setVisibility(View.GONE);
 			}
-			mCallManager.setCallListener(new TwilioCallListener() {
-				@Override
-				public void handleParticipantConnected(RemoteParticipant remoteParticipant) {
 
-				}
-
-				@Override
-				public void handleParticipantDisconnected(RemoteParticipant remoteParticipant) {
-					returnToCall.setVisibility(View.GONE);
-
-				}
-
-				@Override
-				public void handleAddRemoteParticipantVideo(RemoteVideoTrack videoTrack) {
-
-				}
-
-				@Override
-				public void handleRemoveRemoteParticipantVideo(RemoteVideoTrack videoTrack) {
-					returnToCall.setVisibility(View.GONE);
-
-				}
-
-				@Override
-				public void handleVideoTrackEnabled() {
-
-				}
-
-				@Override
-				public void handleVideoTrackDisabled() {
-					returnToCall.setVisibility(View.GONE);
-
-				}
-
-				@Override
-				public void handleConnected(Room room) {
-
-				}
-
-				@Override
-				public void handleReconnecting(boolean reconnecting) {
-
-				}
-
-				@Override
-				public void handleConnectFailure() {
-					returnToCall.setVisibility(View.GONE);
-
-				}
-
-				@Override
-				public void endListening() {
-					returnToCall.setVisibility(View.GONE);
-
-				}
-
-				@Override
-				public LocalAudioTrack getLocalAudioTrack() {
-					return null;
-				}
-
-				@Override
-				public LocalVideoTrack getLocalVideoTrack() {
-					return null;
-				}
-			});
 		}
 		if (binding.secondaryFragment != null && ConversationFragment.getConversation(this) == null) {
 			Conversation conversation = ConversationsOverviewFragment.getSuggestion(this);
@@ -718,8 +655,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	private View.OnClickListener returnToCall() {
 		return v -> {
-				Intent chatsActivity = new Intent(getApplicationContext(), VideoActivity.class);
-				startActivity(chatsActivity);
+			//CMG AM-469
+			if (mCallManager != null) {
+				mCallManager.setCallListener(null); //AM-478
+			}
+
+			Intent chatsActivity = new Intent(getApplicationContext(), VideoActivity.class);
+			startActivity(chatsActivity);
 
 		};
 	}
@@ -1677,6 +1619,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		}
 		mRedirectInProcess.set(false);
 		registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
+
 		super.onStart();
 	}
 
@@ -2068,6 +2012,77 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	@Override
 	public void onShowErrorToast(int resId) {
 		runOnUiThread(() -> Toast.makeText(this, resId, Toast.LENGTH_SHORT).show());
+	}
+
+	@Override
+	public void handleParticipantConnected(RemoteParticipant remoteParticipant) {
+
+	}
+
+	@Override
+	public void handleParticipantDisconnected(RemoteParticipant remoteParticipant) {
+		returnToCall.setVisibility(View.GONE);
+
+		final Intent intent = new Intent(this, XmppConnectionService.class);
+		intent.setAction(XmppConnectionService.ACTION_FINISH_CALL);
+		Compatibility.startService(this, intent);
+		mCallManager.handleDisconnect();
+		mCallManager.setCallListener(null);
+
+	}
+
+	@Override
+	public void handleAddRemoteParticipantVideo(RemoteVideoTrack videoTrack) {
+
+	}
+
+	@Override
+	public void handleRemoveRemoteParticipantVideo(RemoteVideoTrack videoTrack) {
+
+	}
+
+	@Override
+	public void handleVideoTrackEnabled() {
+
+	}
+
+	@Override
+	public void handleVideoTrackDisabled() {
+
+	}
+
+	@Override
+	public void handleConnected(Room room) {
+
+	}
+
+	@Override
+	public void handleReconnecting(boolean reconnecting) {
+
+	}
+
+	@Override
+	public void handleConnectFailure() {
+		returnToCall.setVisibility(View.GONE);
+
+	}
+
+	@Override
+	public void endListening() {
+		returnToCall.setVisibility(View.GONE);
+		mCallManager.handleDisconnect();
+		mCallManager.setCallListener(null);
+
+	}
+
+	@Override
+	public LocalAudioTrack getLocalAudioTrack() {
+		return null;
+	}
+
+	@Override
+	public LocalVideoTrack getLocalVideoTrack() {
+		return null;
 	}
 
 
