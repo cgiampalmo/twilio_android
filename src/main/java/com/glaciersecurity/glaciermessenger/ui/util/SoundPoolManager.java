@@ -102,7 +102,8 @@ public class SoundPoolManager {
 
     //AM-475
     public void vibrateIfNeeded() {
-        if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE) {
+        if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE ||
+            audioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
             // Start without a delay, Vibrate for 1000 milliseconds, Sleep for 1000 milliseconds
             long[] pattern = {0, 1000, 1000};
             if (Build.VERSION.SDK_INT >= 26) {

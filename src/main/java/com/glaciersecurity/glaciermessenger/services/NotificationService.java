@@ -236,10 +236,23 @@ public class NotificationService {
 			pushToStack(message);
 			final Conversational conversation = message.getConversation();
 			final Account account = conversation.getAccount();
-			final boolean doNotify = (!(this.mIsInForeground && this.mOpenConversation == null) || !isScreenOn)
-					&& !account.inGracePeriod()
-					&& !this.inMiniGracePeriod(account);
-			updateNotification(doNotify, Collections.singletonList(conversation.getUuid()));
+
+			final boolean nForeground = this.mIsInForeground;
+			final boolean nScreenOn = mXmppConnectionService.isInteractive();
+			final boolean nSameChat = (this.mOpenConversation == message.getConversation());
+			final boolean nChatOpen = (this.mOpenConversation != null);
+			final boolean nGracePeriod = account.inGracePeriod();
+			final boolean nMiniGracePeriod = this.inMiniGracePeriod(account);
+
+			boolean showNotification = true;
+			if (nGracePeriod || nMiniGracePeriod || (nForeground && nScreenOn && nChatOpen && nSameChat)) showNotification = false;
+
+			updateNotification(showNotification, Collections.singletonList(conversation.getUuid()));
+
+//			final boolean doNotify = (!(this.mIsInForeground && this.mOpenConversation == null) || !isScreenOn)
+//					&& !account.inGracePeriod()
+//					&& !this.inMiniGracePeriod(account);
+//			updateNotification(doNotify, Collections.singletonList(conversation.getUuid()));
 		}
 	}
 

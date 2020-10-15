@@ -32,6 +32,7 @@ public class PushMessageReceiver extends FirebaseMessagingService {
 			intent.putExtra("roomname", data.get("roomname"));
 			intent.putExtra("status", data.get("status"));
 			intent.putExtra("token", data.get("token"));
+			intent.putExtra("calltime", data.get("calltime")); //AM-492
 		} else {
 			intent.setAction(XmppConnectionService.ACTION_FCM_MESSAGE_RECEIVED);
 		}

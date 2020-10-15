@@ -271,9 +271,10 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
          */
         audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
 
-        int muteIcon = !audioManager.isMicrophoneMute() ?
+        //AM-478 changed from audioManager.isMicrophoneMute to isAudioMuted
+        int muteIcon = !isAudioMuted ?
                 R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_gray_24dp;
-        if (!audioManager.isMicrophoneMute()){
+        if (!isAudioMuted){
             muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
         } else {
             muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
@@ -403,6 +404,9 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 //        if (callManager != null) {
 //            callManager.setCallListener(null); //AM-478
 //        }
+
+        // DJF - AM-512
+        configureAudio(false);
 
         super.onDestroy();
     }
