@@ -638,7 +638,11 @@ public class XmppConnection implements Runnable {
 					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": resumption failed");
 				}
 				resetStreamId();
-				sendBindRequest(false); //ALF AM-395 added false
+				if (account.getGlacierBindAvailable()) { //ALF AM-527
+					sendBindRequest(true);
+				} else {
+					sendBindRequest(false); //ALF AM-395 added false
+				}
 			} else if (nextTag.isStart("iq")) {
 				processIq(nextTag);
 			} else if (nextTag.isStart("message")) {
@@ -1045,6 +1049,7 @@ public class XmppConnection implements Runnable {
 		final IqPacket iq = new IqPacket(IqPacket.TYPE.SET);
 		final String resource = Config.USE_RANDOM_RESOURCE_ON_EVERY_BIND ? nextRandomId() : account.getResource();
 		if (glacierbind) {
+			account.setGlacierBindAvailable(true); //AM-527
 			iq.addChild("bind", Namespace.GLACIER_BIND).addChild("resource").setContent(resource);
 		} else {
 			iq.addChild("bind", Namespace.BIND).addChild("resource").setContent(resource);
@@ -1378,10 +1383,10 @@ public class XmppConnection implements Runnable {
 		} else if (streamError.hasChild("host-unknown")) {
 			throw new StateChangingException(Account.State.HOST_UNKNOWN);
 		} else if (streamError.hasChild("policy-violation")) {
-            final String text = streamError.findChildContent("text");
-            if (text != null) {
-                Log.d(Config.LOGTAG,account.getJid().asBareJid()+": policy violation. "+text);
-            }
+			final String text = streamError.findChildContent("text");
+			if (text != null) {
+				Log.d(Config.LOGTAG,account.getJid().asBareJid()+": policy violation. "+text);
+			}
 			throw new StateChangingException(Account.State.POLICY_VIOLATION);
 		} else {
 			Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": stream error " + streamError.toString());

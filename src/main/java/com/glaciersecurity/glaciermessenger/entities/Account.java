@@ -256,6 +256,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 	private final Collection<Jid> blocklist = new CopyOnWriteArraySet<>();
 	private Presence.Status presenceStatus = Presence.Status.ONLINE;
 	private String presenceStatusMessage;
+	private boolean glacierBindAvailable = false; //AM-527
 
 	public Account(final Jid jid, final String password) {
 		this(java.util.UUID.randomUUID().toString(), jid,
@@ -264,9 +265,9 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 	}
 
 	private Account(final String uuid, final Jid jid,
-	                final String password, final int options, final String rosterVersion, final String keys,
-	                final String avatar, String displayName, String hostname, int port, int timer,
-	                final Presence.Status status, String statusMessage) {
+					final String password, final int options, final String rosterVersion, final String keys,
+					final String avatar, String displayName, String hostname, int port, int timer,
+					final Presence.Status status, String statusMessage) {
 		this.uuid = uuid;
 		this.jid = jid;
 		this.password = password;
@@ -313,6 +314,15 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 				cursor.getInt(cursor.getColumnIndex(TIMER)), //ALF AM-53
 				Presence.Status.fromShowString(cursor.getString(cursor.getColumnIndex(STATUS))),
 				cursor.getString(cursor.getColumnIndex(STATUS_MESSAGE)));
+	}
+
+	//AM-527
+	public boolean getGlacierBindAvailable() {
+		return glacierBindAvailable;
+	}
+
+	public void setGlacierBindAvailable(boolean available) {
+		glacierBindAvailable = available;
 	}
 
 	public boolean isOptionSet(final int option) {

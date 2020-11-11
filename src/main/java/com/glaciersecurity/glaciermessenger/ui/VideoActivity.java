@@ -974,7 +974,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         reconnectingProgressBar.setVisibility(View.GONE);
         configureAudio(false);
         audioDeviceSelector.deactivate(); //AM-440
-        if (callBar != null) { //AM-469
+        if (callManager != null) { //AM-469
             callManager.setCallListener(null);
             callManager = null;
         }
