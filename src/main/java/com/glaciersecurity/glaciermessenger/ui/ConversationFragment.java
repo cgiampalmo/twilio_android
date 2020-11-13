@@ -1186,6 +1186,19 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	@Override
 	public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		this.binding = DataBindingUtil.inflate(inflater, R.layout.fragment_conversation, container, false);
+
+		// DJF - AM-531
+		if (conversation != null) {
+			if (conversation.getMode() != Conversation.MODE_MULTI) {
+				binding.attachLocation1.setVisibility(View.GONE);
+				binding.actionDisapearMessages.setVisibility(View.VISIBLE);
+			} else
+			{
+				binding.actionDisapearMessages.setVisibility(View.GONE);
+				binding.attachLocation1.setVisibility(View.VISIBLE);
+			}
+		}
+
 		binding.getRoot().setOnClickListener(null); //TODO why the heck did we do this?
 
 		binding.textinput.addTextChangedListener(new StylingHelper.MessageEditorStyler(binding.textinput));
@@ -1206,7 +1219,13 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			@Override
 			public void onClick(View v) {
 				attachFile(ATTACHMENT_CHOICE_LOCATION);
-
+			}
+		});
+		// DJF - AM-532
+		binding.attachLocation1.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				attachFile(ATTACHMENT_CHOICE_LOCATION);
 			}
 		});
 		binding.attachTakePicture.setOnClickListener(new OnClickListener() {
@@ -1219,7 +1238,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			@Override
 			public void onClick(View v) {
 				attachFile(ATTACHMENT_CHOICE_CHOOSE_FILE);
-
 			}
 		});
 		binding.actionDisapearMessages.setOnClickListener(new OnClickListener() {
@@ -1246,47 +1264,62 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				}
 			}
 		});
+		// DJF - AM-532
 		binding.actionShowSecondary.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				binding.actionShowPrimary.setVisibility(View.VISIBLE);
-				binding.attachRecordVoice.setVisibility(View.VISIBLE);
-				binding.attachLocation.setVisibility(View.VISIBLE);
-				binding.attachRecordVideo.setVisibility(View.VISIBLE);
-
-				binding.actionShowSecondary.setVisibility(View.GONE);
 				binding.attachChooseFile.setVisibility(View.GONE);
 				binding.attachTakePicture.setVisibility(View.GONE);
 				binding.attachChoosePicture.setVisibility(View.GONE);
+				binding.attachRecordVideo.setVisibility(View.GONE);
+				binding.attachRecordVoice.setVisibility(View.GONE);
+				binding.attachLocation.setVisibility(View.GONE);
+				binding.attachChooseFileSpacer.setVisibility(View.GONE);
 				binding.actionDisapearMessages.setVisibility(View.GONE);
+				binding.attachLocation1.setVisibility(View.GONE);
+				binding.actionDisapearMessagesSpacer.setVisibility(View.GONE);
+				binding.actionShowSecondary.setVisibility(View.GONE);
+				binding.actionShowPrimary.setVisibility(View.GONE);
 
+				binding.attachTakePicture.setVisibility(View.VISIBLE);
+				binding.attachRecordVideo.setVisibility(View.VISIBLE);
 				if (conversation != null) {
-					if (conversation.getMode() == Conversation.MODE_MULTI) {
-						binding.attachRecordVoice.setVisibility(View.GONE);
-					}
+					if (conversation.getMode() != Conversation.MODE_MULTI)
+						{ binding.attachLocation.setVisibility(View.VISIBLE); }
+					else
+						{ binding.attachChooseFileSpacer.setVisibility(View.VISIBLE); }
 				}
+				binding.actionDisapearMessagesSpacer.setVisibility(View.VISIBLE);
+				binding.actionShowPrimary.setVisibility(View.VISIBLE);
 			}
 		});
+		// DJF - AM-532
 		binding.actionShowPrimary.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				binding.actionShowPrimary.setVisibility(View.GONE);
+				binding.attachChooseFile.setVisibility(View.GONE);
+				binding.attachTakePicture.setVisibility(View.GONE);
+				binding.attachChoosePicture.setVisibility(View.GONE);
+				binding.attachRecordVideo.setVisibility(View.GONE);
 				binding.attachRecordVoice.setVisibility(View.GONE);
 				binding.attachLocation.setVisibility(View.GONE);
-				binding.attachRecordVideo.setVisibility(View.GONE);
+				binding.attachChooseFileSpacer.setVisibility(View.GONE);
+				binding.actionDisapearMessages.setVisibility(View.GONE);
+				binding.attachLocation1.setVisibility(View.GONE);
+				binding.actionDisapearMessagesSpacer.setVisibility(View.GONE);
+				binding.actionShowSecondary.setVisibility(View.GONE);
+				binding.actionShowPrimary.setVisibility(View.GONE);
 
-				binding.actionShowSecondary.setVisibility(View.VISIBLE);
 				binding.attachChooseFile.setVisibility(View.VISIBLE);
-				binding.attachTakePicture.setVisibility(View.VISIBLE);
 				binding.attachChoosePicture.setVisibility(View.VISIBLE);
-				binding.actionDisapearMessages.setVisibility(View.VISIBLE);
-
+				binding.attachRecordVoice.setVisibility(View.VISIBLE);
 				if (conversation != null) {
-					if (conversation.getMode() == Conversation.MODE_MULTI) {
-						binding.actionDisapearMessages.setVisibility(View.GONE);
-						binding.attachRecordVoice.setVisibility(View.VISIBLE);
-					}
+					if (conversation.getMode() != Conversation.MODE_MULTI)
+						{ binding.actionDisapearMessages.setVisibility(View.VISIBLE); }
+					else
+						{ binding.attachLocation1.setVisibility(View.VISIBLE); }
 				}
+				binding.actionShowSecondary.setVisibility(View.VISIBLE);
 			}
 		});
 

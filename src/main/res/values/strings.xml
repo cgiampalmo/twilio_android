@@ -483,7 +483,7 @@
     <string name="one_week">1 week</string>
     <string name="conversation_message_timer">Disappearing messages</string>
     <string name="pref_global_message_timer">Global disappearing messages</string>
-    <string name="pref_global_message_timer_description">Set messages to be deleted locally and on any receiving client after configured time</string>
+    <string name="pref_global_message_timer_description">Set future 1-to-1 messages to be deleted locally and on any receiving clients after a selected duration of time. Group messages are not affected.</string>
     <!-- ALF AM-53 end -->
     <string name="never">Never</string>
     <string name="until_further_notice">Until further notice</string>
@@ -823,8 +823,8 @@
     <string name="small">Small</string>
     <string name="medium">Medium</string>
     <string name="large">Large</string>
-    <string name="not_encrypted_for_this_device">Message was not encrypted for this device.</string>
-    <string name="omemo_decryption_failed">Message was not encrypted for this device.</string>
+    <string name="not_encrypted_for_this_device">Message cannot be decrypted.</string>
+    <string name="omemo_decryption_failed">Message cannot be decrypted.</string>
     <string name="undo">undo</string>
     <string name="location_disabled">Location sharing is disabled</string>
     <string name="action_fix_to_location">Fix position</string>
