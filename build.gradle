@@ -9,6 +9,8 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.3.1'
         classpath 'com.amazonaws:aws-android-sdk-appsync-gradle-plugin:2.9.0'
         classpath 'com.google.gms:google-services:4.3.3'
+        classpath 'com.android.support:multidex:1.0.3'
+
     }
     ext.kotlin_version = '1.3.61'
     ext.versions = [
@@ -145,6 +147,7 @@ dependencies {
     implementation "androidx.coordinatorlayout:coordinatorlayout:1.1.0"
 
     implementation "androidx.security:security-crypto:1.1.0-alpha02" //AM-388
+    implementation 'com.android.support:multidex:1.0.3'
 }
 
 
@@ -160,8 +163,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 29
-        versionCode 471
-        versionName "3.1.2"
+        versionCode 477
+        versionName "3.1.2_alt_os_c"
 
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
@@ -171,6 +174,8 @@ android {
         buildConfigField "String", "LOGTAG", "\"messenger\""
 
         vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
+
     }
     dataBinding {
         enabled true
@@ -222,18 +227,20 @@ android {
         }
     }
     def keystorePropertiesFile = rootProject.file("signing.properties")
-    def keystoreProperties = new Properties()
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    if (keystorePropertiesFile.exists()) {
+        def props = new Properties()
+        props.load(new FileInputStream(keystorePropertiesFile))
 
-    signingConfigs {
-        release {
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
+        signingConfigs {
+            release {
+                storeFile file(props['storeFile'])
+                storePassword props['storePassword']
+                keyAlias props['keyAlias']
+                keyPassword props['keyPassword']
+            }
         }
+        buildTypes.release.signingConfig = signingConfigs.release
     }
-    buildTypes.release.signingConfig = signingConfigs.release
     lintOptions {
         disable 'ExtraTranslation', 'MissingTranslation', 'InvalidPackage', 'MissingQuantity', 'AppCompatResource'
         // Or, if you prefer, you can continue to check for errors in release builds,

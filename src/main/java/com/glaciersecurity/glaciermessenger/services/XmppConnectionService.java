@@ -4715,6 +4715,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public void acceptCall(TwilioCall call) {
+		//CMG AM-541
+		if (call == null ){
+			return ;
+		}
 		final String deviceId = PhoneHelper.getAndroidId(this);
 		int callid = call.getCallId();
 

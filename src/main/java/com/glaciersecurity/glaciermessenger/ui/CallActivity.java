@@ -351,13 +351,13 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 			return;
 		}
 
-		if (grantResults.length > 0) {
-			if (allGranted(grantResults)) {
-				acceptCall();
-			} else {
-				endCall();
-			}
-		}
+//		if (grantResults.length > 0) {
+//			if (allGranted(grantResults)) {
+//				acceptCall();
+//			} else {
+//				endCall();
+//			}
+//		}
 	}
 
 
