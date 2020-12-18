@@ -239,7 +239,7 @@
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".ui.CallActivity"
-            android:label="@string/upload_filesafe_title"
+            android:label="@string/call_activity_title"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".ui.ConferenceDetailsActivity"

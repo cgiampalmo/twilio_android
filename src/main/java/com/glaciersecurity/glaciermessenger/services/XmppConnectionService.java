@@ -47,6 +47,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
 import android.util.Pair;
+import android.widget.Toast;
 
 import org.conscrypt.Conscrypt;
 //import org.openintents.openpgp.util.OpenPgpApi;
@@ -4717,6 +4718,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	public void acceptCall(TwilioCall call) {
 		//CMG AM-541
 		if (call == null ){
+			Toast.makeText(this, R.string.call_nolonger_exisits, Toast.LENGTH_LONG).show();
+			Intent intent1 = new Intent("callActivityFinish");
+			sendBroadcast(intent1);
+			getNotificationService().dismissCallNotification();
 			return ;
 		}
 		final String deviceId = PhoneHelper.getAndroidId(this);
@@ -4828,8 +4833,13 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		final String deviceId = PhoneHelper.getAndroidId(this);
 
 		if (call == null) {
+			//Close CallActivity
+			Intent intent1 = new Intent("callActivityFinish");
+			sendBroadcast(intent1);
+			getNotificationService().dismissCallNotification();
 			return;
 		}
+
 
 		final IqPacket request = new IqPacket(IqPacket.TYPE.SET);
 		request.setTo(Jid.of("p2.glaciersec.cc"));
