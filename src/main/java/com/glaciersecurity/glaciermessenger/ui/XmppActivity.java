@@ -99,7 +99,6 @@ public abstract class XmppActivity extends PinActivity {
 	protected static final String CORE_APK_PACKAGE = "com.glaciersecurity.glaciercore";
 	public XmppConnectionService xmppConnectionService;
 	public boolean xmppConnectionServiceBound = false;
-	public boolean xmppConnectionServiceBindStarted = false; //ALF AM-541 test
 
 	private final PendingItem<PresenceTemplate> mPendingPresenceTemplate = new PendingItem<>();
 
@@ -240,14 +239,12 @@ public abstract class XmppActivity extends PinActivity {
 			Log.w(Config.LOGTAG,"unable to start service from "+getClass().getSimpleName());
 		}
 		bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-		xmppConnectionServiceBindStarted = true; //ALF AM-541
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
-		//if (xmppConnectionServiceBound) {
-		if (xmppConnectionServiceBindStarted) { //ALF AM-541 test
+		if (xmppConnectionServiceBound) {
 			this.unregisterListeners();
 			unbindService(mConnection);
 			xmppConnectionServiceBound = false;
@@ -775,10 +772,10 @@ public abstract class XmppActivity extends PinActivity {
 
 	@SuppressLint("InflateParams")
 	private void quickEdit(final String previousValue,
-						   final OnValueEdited callback,
-						   final @StringRes int hint,
-						   boolean password,
-						   boolean permitEmpty) {
+	                       final OnValueEdited callback,
+	                       final @StringRes int hint,
+	                       boolean password,
+	                       boolean permitEmpty) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		DialogQuickeditBinding binding = DataBindingUtil.inflate(getLayoutInflater(),R.layout.dialog_quickedit, null, false);
 		if (password) {
@@ -817,7 +814,7 @@ public abstract class XmppActivity extends PinActivity {
 		dialog.setCanceledOnTouchOutside(false);
 		dialog.setOnDismissListener(dialog1 -> {
 			SoftKeyboardUtils.hideSoftKeyboard(binding.inputEditText);
-		});
+        });
 	}
 
 	protected boolean hasStoragePermission(int requestCode) {
@@ -1023,9 +1020,9 @@ public abstract class XmppActivity extends PinActivity {
 		}
 
 		//ALF AM-51
-		public List<Jid> getJids() {
-			return jids;
-		}
+        public List<Jid> getJids() {
+		    return jids;
+        }
 
 		public boolean execute(XmppActivity activity) {
 			XmppConnectionService service = activity.xmppConnectionService;
@@ -1125,17 +1122,17 @@ public abstract class XmppActivity extends PinActivity {
 			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "StartConversationActivity::askForPermissions-1");
 			List<String> permissionsNeeded = new ArrayList<String>();
 
-			final List<String> permissionsList = new ArrayList<String>();
-			// GOOBER - added WRITE_EXTERNAL_STORAGE permission ahead of time so that it doesn't ask
-			// when time comes which inevitably fails at that point.
-			if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
-				permissionsNeeded.add("Write Storage");
-			if (!addPermission(permissionsList, Manifest.permission.CAMERA))
-				permissionsNeeded.add("Camera");
+				final List<String> permissionsList = new ArrayList<String>();
+				// GOOBER - added WRITE_EXTERNAL_STORAGE permission ahead of time so that it doesn't ask
+				// when time comes which inevitably fails at that point.
+				if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+					permissionsNeeded.add("Write Storage");
+				if (!addPermission(permissionsList, Manifest.permission.CAMERA))
+					permissionsNeeded.add("Camera");
 			if (!addPermission(permissionsList, Manifest.permission.RECORD_AUDIO))
 				permissionsNeeded.add("Record Audio");
-			if (!addPermission(permissionsList, Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS))
-				permissionsNeeded.add("Ignore Battery Optimizations");
+				if (!addPermission(permissionsList, Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS))
+					permissionsNeeded.add("Ignore Battery Optimizations");
 
 
 
