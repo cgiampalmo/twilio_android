@@ -3,6 +3,7 @@ package com.glaciersecurity.glaciermessenger.cognito;
 import android.content.Context;
 import android.os.Environment;
 
+import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.io.BufferedInputStream;
@@ -239,7 +240,7 @@ public class BackupAccountManager {
             }
             return accountInfo;
         } else {
-            Log.d("GOOBER", "No configuration found.");
+            Log.d(Config.LOGTAG, "No configuration found.");
         }
         return null;
     }

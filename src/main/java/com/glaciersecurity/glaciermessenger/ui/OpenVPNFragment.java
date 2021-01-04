@@ -28,6 +28,7 @@ import android.widget.TextView;
 import com.glaciersecurity.glaciercore.api.APIVpnProfile;
 import com.glaciersecurity.glaciercore.api.IOpenVPNAPIService;
 import com.glaciersecurity.glaciercore.api.IOpenVPNStatusCallback;
+import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 import com.glaciersecurity.glaciermessenger.utils.Log;
@@ -523,9 +524,9 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                             try {
                                 prepareStartProfile(START_PROFILE_BYUUID);
                             } catch (RemoteException e) {
-                                //CMG AM-240
-                                Log.d("RemoteException", "at prepareStartProfile");
-                                e.printStackTrace();
+//                                //CMG AM-240
+//                                Log.d("RemoteException", "at prepareStartProfile");
+//                                e.printStackTrace();
                             }
                         }
                     });
@@ -534,20 +535,20 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                     try {
                         prepareStartProfile(START_PROFILE_BYUUID);
                     } catch (RemoteException e) {
-                        //CMG AM-240
-                        Log.d("RemoteException", "at prepareStartProfile");
-                        e.printStackTrace();
+//                        //CMG AM-240
+//                        Log.d("RemoteException", "at prepareStartProfile");
+//                        e.printStackTrace();
                     }
                 }
                 break;
             case R.id.disconnect:
-                Log.d("RemoteExample", "DAVID Disconnect");
+//                Log.d("RemoteExample", "DAVID Disconnect");
                 try {
                     mService.disconnect();
                 } catch (RemoteException e) {
-                    //CMG AM-240
-                    Log.d("RemoteException", "at mService.disconnect");
-                    e.printStackTrace();
+//                    //CMG AM-240
+//                    Log.d("RemoteException", "at mService.disconnect");
+//                    e.printStackTrace();
                 }
                 isDisconnected_EnableConnect();
                 disconnectClicked = true;
@@ -558,8 +559,8 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 try {
                     showImportProfileVPNDialogFragment();
                 } catch (Exception e){
-                    Log.d("Exception", "at showImportProfileVPNDialogFragment");
-                    e.printStackTrace();
+//                    Log.d("Exception", "at showImportProfileVPNDialogFragment");
+//                    e.printStackTrace();
                 }
             /* case R.id.getMyIP:
                 Log.d("RemoteExample", "DAVID getMyIP");
@@ -690,8 +691,8 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                         mService.startProfile(mStartUUID);
                     }
                 } catch (RemoteException e) {
-                    Log.d("RemoteException", "at start profile byuuid");
-                    e.printStackTrace();
+//                    Log.d("RemoteException", "at start profile byuuid");
+//                    e.printStackTrace();
                 }
             if (requestCode == ICS_OPENVPN_PERMISSION) {
 
@@ -709,7 +710,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 try {
                     mService.registerStatusCallback(mCallback);
                 } catch (RemoteException | SecurityException e) { //ALF AM-194 added Security
-                    Log.d("RemoteException or Security Exception", "register status callback");
+                    Log.d(Config.LOGTAG, "RemoteException or Security Exception register status callback");
                     e.printStackTrace();
                 }
 
@@ -743,7 +744,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 
     @Override
     public boolean handleMessage(Message msg) {
-        Log.d("GOOBER", "OpenVPNFragment::handleMessage(): " + msg.obj.toString() + "::What = " + msg.what);
+        //Log.d("GOOBER", "OpenVPNFragment::handleMessage(): " + msg.obj.toString() + "::What = " + msg.what);
 
         //Log.d("GOOBER", "** UPDATED MESSAGE: " + ((CharSequence) msg.obj).subSequence(0, ((CharSequence) msg.obj).length() - 1) + "**" + msg.obj.toString());
         if(msg.what == MSG_UPDATE_STATE) {

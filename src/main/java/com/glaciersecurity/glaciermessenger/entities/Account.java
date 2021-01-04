@@ -760,6 +760,21 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 		return this.getStatus() == State.ONLINE && this.getXmppConnection() != null;
 	}
 
+	//CMG AM-
+	public String getLogJid() {
+		StringBuilder logJidBuilder = new StringBuilder();
+		logJidBuilder.append(jid.getLocal().charAt(0));
+		for (int i = 1; i < jid.getLocal().length(); i++) {
+			logJidBuilder.append("*");
+		}
+		logJidBuilder.append("@");
+		logJidBuilder.append(jid.getDomain().charAt(0));
+		for (int i = 1; i < jid.getDomain().length(); i++) {
+			logJidBuilder.append("*");
+		}
+		return logJidBuilder.toString();
+	}
+
 //	public Presence.Status getShownStatus() {
 //		return this.presences.getShownStatus();
 //	}

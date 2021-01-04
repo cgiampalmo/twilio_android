@@ -63,7 +63,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d("GOOBER", "AppLockActivity::onCreate");
+        //Log.d("GOOBER", "AppLockActivity::onCreate");
         setContentView(getContentView());
         initLayout(getIntent());
     }
@@ -74,14 +74,14 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        Log.d("GOOBER", "AppLockActivity::onNewIntent");
+        //Log.d("GOOBER", "AppLockActivity::onNewIntent");
         initLayout(intent);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("GOOBER", "AppLockActivity::onResume");
+        //Log.d("GOOBER", "AppLockActivity::onResume");
         //Init layout for Fingerprint
         initLayoutForFingerprint();
     }
@@ -89,7 +89,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
     @Override
     protected void onPause() {
         super.onPause();
-        Log.d("GOOBER", "AppLockActivity::onPause");
+        //Log.d("GOOBER", "AppLockActivity::onPause");
         if (mFingerprintUiHelper != null) {
             mFingerprintUiHelper.stopListening();
         }
@@ -99,7 +99,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
      * Init completely the layout, depending of the extra {@link AppLock#EXTRA_TYPE}
      */
     private void initLayout(Intent intent) {
-        Log.d("GOOBER", "AppLockActivity::initLayout");
+        //Log.d("GOOBER", "AppLockActivity::initLayout");
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
             //Animate if greater than 2.3.3
             overridePendingTransition(R.anim.nothing, R.anim.nothing);
@@ -142,7 +142,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
      * and {@link FingerprintManager#isHardwareDetected()}.
      */
     private void initLayoutForFingerprint() {
-        Log.d("GOOBER", "AppLockActivity::initLayoutForFingerprint");
+        //Log.d("GOOBER", "AppLockActivity::initLayoutForFingerprint");
         mFingerprintImageView = (ImageView) this.findViewById(R.id.pin_code_fingerprint_imageview);
         mFingerprintTextView = (TextView) this.findViewById(R.id.pin_code_fingerprint_textview);
         if (mType == AppLock.UNLOCK_PIN && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -175,7 +175,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
      */
     @SuppressWarnings("unchecked")
     private void enableAppLockerIfDoesNotExist() {
-        Log.d("GOOBER", "AppLockActivity::enableAppLockerIfDoesNotExist");
+        //Log.d("GOOBER", "AppLockActivity::enableAppLockerIfDoesNotExist");
         try {
             if (mLockManager.getAppLock() == null) {
                 Log.d("GOOBER", "AppLockActivity::enableAppLockerIfDoesNotExist - mLockManager.getAppLock() == null");
@@ -193,7 +193,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
      * Init the {@link #mStepTextView} based on {@link #mType}
      */
     private void setStepText() {
-        Log.d("GOOBER", "AppLockActivity::setStepText");
+        //Log.d("GOOBER", "AppLockActivity::setStepText");
         mStepTextView.setText(getStepText(mType));
     }
 
@@ -204,7 +204,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
      * @return The {@link String} for the {@link AppLockActivity}
      */
     public String getStepText(int reason) {
-        Log.d("GOOBER", "AppLockActivity::getStepText");
+        //Log.d("GOOBER", "AppLockActivity::getStepText");
         String msg = null;
         switch (reason) {
             case AppLock.DISABLE_PINLOCK:
@@ -227,7 +227,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
     }
 
     public String getForgotText() {
-        Log.d("GOOBER", "AppLockActivity::getForgotText");
+        //Log.d("GOOBER", "AppLockActivity::getForgotText");
         return getString(R.string.pin_code_forgot_text);
     }
 
@@ -237,7 +237,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
     @Override
     public void finish() {
         super.finish();
-        Log.d("GOOBER", "AppLockActivity::finish");
+        //Log.d("GOOBER", "AppLockActivity::finish");
         //If code successful, reset the timer
         if (isCodeSuccessful) {
             if (mLockManager != null) {
@@ -260,7 +260,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
      */
     @Override
     public void onKeyboardClick(KeyboardButtonEnum keyboardButtonEnum) {
-        Log.d("GOOBER", "AppLockActivity::onKeyboardClick");
+        //Log.d("GOOBER", "AppLockActivity::onKeyboardClick");
         if (mPinCode.length() < this.getPinLength()) {
             int value = keyboardButtonEnum.getButtonValue();
 
@@ -282,7 +282,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
      */
     @Override
     public void onRippleAnimationEnd() {
-        Log.d("GOOBER", "AppLockActivity::onRippleAnimationEnd");
+        //Log.d("GOOBER", "AppLockActivity::onRippleAnimationEnd");
         if (mPinCode.length() == this.getPinLength()) {
             onPinCodeInputed();
         }
@@ -292,10 +292,10 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
      * Switch over the {@link #mType} to determine if the password is ok, if we should pass to the next step etc...
      */
     protected void onPinCodeInputed() {
-        Log.d("GOOBER", "AppLockActivity::onPinCodeInputed");
+        //Log.d("GOOBER", "AppLockActivity::onPinCodeInputed");
         switch (mType) {
             case AppLock.DISABLE_PINLOCK:
-                Log.d("GOOBER","AppLockActivity::onPinCodeInputed- DISABLE_PINLOCK");
+                //Log.d("GOOBER","AppLockActivity::onPinCodeInputed- DISABLE_PINLOCK");
                 if (mLockManager.getAppLock().checkPasscode(mPinCode)) {
                     setResult(RESULT_OK);
                     mLockManager.getAppLock().setPasscode(null);
@@ -306,14 +306,14 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
                 }
                 break;
             case AppLock.ENABLE_PINLOCK:
-                Log.d("GOOBER","AppLockActivity::onPinCodeInputed- ENABLE_PINLOCK");
+                //Log.d("GOOBER","AppLockActivity::onPinCodeInputed- ENABLE_PINLOCK");
                 mOldPinCode = mPinCode;
                 setPinCode("");
                 mType = AppLock.CONFIRM_PIN;
                 setStepText();
                 break;
             case AppLock.CONFIRM_PIN:
-                Log.d("GOOBER","AppLockActivity::onPinCodeInputed- CONFIRM_PINLOCK");
+                //Log.d("GOOBER","AppLockActivity::onPinCodeInputed- CONFIRM_PINLOCK");
                 if (mPinCode.equals(mOldPinCode)) {
                     setResult(RESULT_OK);
                     mLockManager.getAppLock().setPasscode(mPinCode);
@@ -328,7 +328,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
                 }
                 break;
             case AppLock.CHANGE_PIN:
-                Log.d("GOOBER","AppLockActivity::onPinCodeInputed - CHANGE_PIN");
+                //Log.d("GOOBER","AppLockActivity::onPinCodeInputed - CHANGE_PIN");
                 if (mLockManager.getAppLock().checkPasscode(mPinCode)) {
                     mType = AppLock.ENABLE_PINLOCK;
                     setStepText();
@@ -339,7 +339,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
                 }
                 break;
             case AppLock.UNLOCK_PIN:
-                Log.d("GOOBER","AppLockActivity::onPinCodeInputed - UNLOCK_PIN");
+                //Log.d("GOOBER","AppLockActivity::onPinCodeInputed - UNLOCK_PIN");
                 if (mLockManager.getAppLock().checkPasscode(mPinCode)) {
                     setResult(RESULT_OK);
                     onPinCodeSuccess();
@@ -358,7 +358,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
      */
     @Override
     public void onBackPressed() {
-        Log.d("GOOBER", "AppLockActivity::onBackPressed: " + mType);
+        //Log.d("GOOBER", "AppLockActivity::onBackPressed: " + mType);
         if (getBackableTypes().contains(mType)) {
             if (AppLock.UNLOCK_PIN == getType()) {
                 mLockManager.getAppLock().setPinChallengeCancelled(true);
@@ -372,8 +372,8 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
 
     @Override
     public void onAuthenticated() {
-        Log.d("GOOBER", "AppLockActivity::onAuthenticated");
-        Log.e(TAG, "Fingerprint READ!!!");
+        //Log.d("GOOBER", "AppLockActivity::onAuthenticated");
+        //Log.e(TAG, "Fingerprint READ!!!");
         setResult(RESULT_OK);
         onPinCodeSuccess();
         finish();
@@ -381,8 +381,8 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
 
     @Override
     public void onError() {
-        Log.d("GOOBER", "AppLockActivity::onError");
-        Log.e(TAG, "Fingerprint READ ERROR!!!");
+        //Log.d("GOOBER", "AppLockActivity::onError");
+        //Log.e(TAG, "Fingerprint READ ERROR!!!");
     }
 
     /**
@@ -392,7 +392,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
      * @return an {@link List<Integer>} of {@link AppLock} types which are backable
      */
     public List<Integer> getBackableTypes() {
-        Log.d("GOOBER", "AppLockActivity::getBackableTypes");
+        //Log.d("GOOBER", "AppLockActivity::getBackableTypes");
 
         // GOOBER - allows "onBackPress" for the following conditions
         return Arrays.asList(AppLock.CHANGE_PIN);
@@ -409,7 +409,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
      * Run a shake animation when the password is not valid.
      */
     protected void onPinCodeError() {
-        Log.d("GOOBER", "AppLockActivity::onPinCodeError");
+        //Log.d("GOOBER", "AppLockActivity::onPinCodeError");
         onPinFailure(mAttempts++);
         Thread thread = new Thread() {
             public void run() {
@@ -424,7 +424,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
     }
 
     protected void onPinCodeSuccess() {
-        Log.d("GOOBER", "AppLockActivity::onPinCodeSuccess");
+        //Log.d("GOOBER", "AppLockActivity::onPinCodeSuccess");
         isCodeSuccessful = true;
         onPinSuccess(mAttempts);
         mAttempts = 1;
@@ -434,7 +434,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
      * Set the pincode and refreshes the {@link PinCodeRoundView}
      */
     public void setPinCode(String pinCode) {
-        Log.d("GOOBER", "AppLockActivity::setPinCode");
+        //Log.d("GOOBER", "AppLockActivity::setPinCode");
         mPinCode = pinCode;
         mPinCodeRoundView.refresh(mPinCode.length());
     }
@@ -444,7 +444,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
      * Returns the type of this {@link AppLockActivity}
      */
     public int getType() {
-        Log.d("GOOBER", "AppLockActivity::getType");
+        //Log.d("GOOBER", "AppLockActivity::getType");
         return mType;
     }
 
@@ -456,7 +456,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
      */
     @Override
     public void onClick(View view) {
-        Log.d("GOOBER", "AppLockActivity::onClick");
+        //Log.d("GOOBER", "AppLockActivity::onClick");
         showForgotDialog();
     }
 
@@ -485,7 +485,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
      * @return the resource id to the {@link View}
      */
     public int getContentView() {
-        Log.d("GOOBER", "AppLockActivity::getContentView");
+        //Log.d("GOOBER", "AppLockActivity::getContentView");
         return R.layout.activity_pin_code;
     }
 
@@ -496,7 +496,7 @@ public abstract class AppLockActivity extends PinActivity implements KeyboardBut
      * @return the number of digits in the PIN
      */
     public int getPinLength() {
-        Log.d("GOOBER", "AppLockActivity::getPinLength");
+        //Log.d("GOOBER", "AppLockActivity::getPinLength");
         return AppLockActivity.DEFAULT_PIN_LENGTH;
     }
 

@@ -56,7 +56,7 @@ public class PinActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("GOOBER", "PIN onCreate()");
+        //Log.d("GOOBER", "PIN onCreate()");
         IntentFilter filter = new IntentFilter(AppLockActivity.ACTION_CANCEL);
         LocalBroadcastManager.getInstance(this).registerReceiver(mPinCancelledReceiver, filter);
 
@@ -103,7 +103,7 @@ public class PinActivity extends ActionBarActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.d("GOOBER", "PIN onDestroy()");
+        //Log.d("GOOBER", "PIN onDestroy()");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mPinCancelledReceiver);
 
         // GOOBER

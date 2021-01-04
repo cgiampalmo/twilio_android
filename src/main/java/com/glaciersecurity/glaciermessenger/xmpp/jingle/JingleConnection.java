@@ -111,7 +111,7 @@ public class JingleConnection implements Transferable {
 		public void onFileTransmitted(DownloadableFile file) {
 			if (responding()) {
 				if (expectedHash.length > 0 && !Arrays.equals(expectedHash,file.getSha1Sum())) {
-					Log.d(Config.LOGTAG,account.getJid().asBareJid()+": hashes did not match");
+					Log.d(Config.LOGTAG, account.getLogJid()+": hashes did not match");
 				}
 				sendSuccess();
 				mXmppConnectionService.getFileBackend().updateFileParams(message);
@@ -496,7 +496,7 @@ public class JingleConnection implements Transferable {
 				@Override
 				public void onIqPacketReceived(Account account, IqPacket packet) {
 					if (packet.getType() == IqPacket.TYPE.RESULT) {
-						Log.d(Config.LOGTAG,account.getJid().asBareJid()+": other party received offer");
+						Log.d(Config.LOGTAG, account.getLogJid()+": other party received offer");
 						if (mJingleStatus == JINGLE_STATUS_OFFERED) {
 							mJingleStatus = JINGLE_STATUS_INITIATED;
 							mXmppConnectionService.markMessage(message, Message.STATUS_OFFERED);
@@ -678,7 +678,7 @@ public class JingleConnection implements Transferable {
 				if (connection.getCandidate().isOurs()) {
 					final String sid;
 					if (ftVersion == Content.Version.FT_3) {
-						Log.d(Config.LOGTAG,account.getJid().asBareJid()+": use session ID instead of transport ID to activate proxy");
+						Log.d(Config.LOGTAG, account.getLogJid()+": use session ID instead of transport ID to activate proxy");
 						sid = getSessionId();
 					} else {
 						sid = getTransportId();
@@ -774,7 +774,7 @@ public class JingleConnection implements Transferable {
 	}
 
 	private void sendFallbackToIbb() {
-		Log.d(Config.LOGTAG, account.getJid().asBareJid()+": sending fallback to ibb");
+		Log.d(Config.LOGTAG, account.getLogJid()+": sending fallback to ibb");
 		JinglePacket packet = this.bootstrapPacket("transport-replace");
 		Content content = new Content(this.contentCreator, this.contentName);
 		this.transportId = this.mJingleConnectionManager.nextRandomId();
@@ -822,7 +822,7 @@ public class JingleConnection implements Transferable {
 				@Override
 				public void onIqPacketReceived(Account account, IqPacket packet) {
 					if (packet.getType() == IqPacket.TYPE.RESULT) {
-						Log.d(Config.LOGTAG, account.getJid().asBareJid() + " recipient ACKed our transport-accept. creating ibb");
+						Log.d(Config.LOGTAG, account.getLogJid() + " recipient ACKed our transport-accept. creating ibb");
 						transport.connect(onIbbTransportConnected);
 					}
 				}
@@ -869,7 +869,7 @@ public class JingleConnection implements Transferable {
 			this.message.setTransferable(null);
 			this.mJingleConnectionManager.finishConnection(this);
 		} else {
-			Log.d(Config.LOGTAG,account.getJid().asBareJid()+": received session-terminate/success while responding");
+			Log.d(Config.LOGTAG, account.getLogJid()+": received session-terminate/success while responding");
 		}
 	}
 	@Override

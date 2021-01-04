@@ -203,7 +203,7 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
 			FingerprintStatus status = getFingerprintStatus(fingerprint);
 			if (status == null) {
 				if (mXmppConnectionService.blindTrustBeforeVerification() && !account.getAxolotlService().hasVerifiedKeys(address.getName())) {
-					Log.d(Config.LOGTAG,account.getJid().asBareJid()+": blindly trusted "+fingerprint+" of "+address.getName());
+					Log.d(Config.LOGTAG, account.getLogJid()+": blindly trusted "+fingerprint+" of "+address.getName());
 					status = FingerprintStatus.createActiveTrusted();
 				} else {
 					status = FingerprintStatus.createActiveUndecided();
@@ -397,7 +397,8 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
 	 */
 	@Override
 	public void removePreKey(int preKeyId) {
-		Log.d(Config.LOGTAG,"mark prekey for removal "+preKeyId);
+		Log.d(Config.LOGTAG,"mark prekey for removal");
+		//Log.d(Config.LOGTAG,"mark prekey for removal "+preKeyId);
 		synchronized (preKeysMarkedForRemoval) {
 			preKeysMarkedForRemoval.add(preKeyId);
 		}

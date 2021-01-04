@@ -117,7 +117,7 @@ public class XmppAxolotlSession implements Comparable<XmppAxolotlSession> {
 							plaintext = cipher.decrypt(signalMessage);
 						} catch (InvalidMessageException | NoSessionException e) {
 							if (iterator.hasNext()) {
-								Log.w(Config.LOGTAG,account.getJid().asBareJid()+": ignoring crypto exception because possible keys left to try",e);
+								Log.w(Config.LOGTAG, account.getLogJid()+": ignoring crypto exception because possible keys left to try",e);
 								continue;
 							}
 							throw new BrokenSessionException(this.remoteAddress, e);
@@ -126,7 +126,7 @@ public class XmppAxolotlSession implements Comparable<XmppAxolotlSession> {
 					}
 				} catch (InvalidVersionException | InvalidKeyException | LegacyMessageException | InvalidMessageException | DuplicateMessageException | InvalidKeyIdException | UntrustedIdentityException e) {
 					if (iterator.hasNext()) {
-						Log.w(Config.LOGTAG,account.getJid().asBareJid()+": ignoring crypto exception because possible keys left to try",e);
+						Log.w(Config.LOGTAG, account.getLogJid()+": ignoring crypto exception because possible keys left to try",e);
 						continue;
 					}
 					throw new CryptoFailedException("Error decrypting SignalMessage", e);

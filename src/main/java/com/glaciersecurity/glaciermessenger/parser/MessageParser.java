@@ -238,9 +238,9 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 				final Element i = items.findChild("item");
 				final Element storage = i == null ? null : i.findChild("storage", Namespace.BOOKMARKS);
 				mXmppConnectionService.processBookmarks(account, storage, true);
-				Log.d(Config.LOGTAG,account.getJid().asBareJid()+": processing bookmark PEP event");
+				Log.d(Config.LOGTAG, account.getLogJid()+": processing bookmark PEP event");
 			} else {
-				Log.d(Config.LOGTAG,account.getJid().asBareJid()+": ignoring bookmark PEP event because bookmark conversion was not detected");
+				Log.d(Config.LOGTAG, account.getLogJid()+": ignoring bookmark PEP event because bookmark conversion was not detected");
 			}
 		}
 	}
@@ -315,7 +315,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 			serverMsgId = result.getAttribute("id");
 			query.incrementMessageCount();
 		} else if (query != null) {
-			Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": received mam result from invalid sender");
+			Log.d(Config.LOGTAG, account.getLogJid() + ": received mam result from invalid sender");
 			return;
 		} else if (original.fromServer(account)) {
 			Pair<MessagePacket, Long> f;
@@ -386,7 +386,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 
 		boolean isTypeGroupChat = packet.getType() == MessagePacket.TYPE_GROUPCHAT;
 		if (query != null && !query.muc() && isTypeGroupChat) {
-			Log.e(Config.LOGTAG, account.getJid().asBareJid() + ": received groupchat (" + from + ") message on regular MAM request. skipping");
+			Log.e(Config.LOGTAG, account.getLogJid() + ": received groupchat (" + from + ") message on regular MAM request. skipping");
 			return;
 		}
 		boolean isMucStatusMessage = InvalidJid.hasValidFrom(packet) && from.isBareJid() && mucUserElement != null && mucUserElement.hasChild("status");
@@ -485,7 +485,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 					for (Jid fallback : fallbacksBySourceId) {
 						trial = parseAxolotlChat(axolotlEncrypted, fallback, conversation, status, checkedForDuplicates && fallbacksBySourceId.size() == 1, query != null);
 						if (trial != null) {
-							Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": decoded muc message using fallback");
+							Log.d(Config.LOGTAG, account.getLogJid() + ": decoded muc message using fallback");
 							origin = fallback;
 							break;
 						}
@@ -501,7 +501,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 						if (previouslySent != null && previouslySent.getServerMsgId() == null && serverMsgId != null) {
 							previouslySent.setServerMsgId(serverMsgId);
 							mXmppConnectionService.databaseBackend.updateMessage(previouslySent, false);
-							Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": encountered previously sent OMEMO message without serverId. updating...");
+							Log.d(Config.LOGTAG, account.getLogJid() + ": encountered previously sent OMEMO message without serverId. updating...");
 						}
 					}
 					return;
@@ -623,14 +623,14 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 						mXmppConnectionService.getNotificationService().updateNotification();
 						return;
 					} else {
-						Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": received message correction but verification didn't check out");
+						Log.d(Config.LOGTAG, account.getLogJid() + ": received message correction but verification didn't check out");
 					}
 				}
 			}
 
 			long deletionDate = mXmppConnectionService.getAutomaticMessageDeletionDate();
 			if (deletionDate != 0 && message.getTimeSent() < deletionDate) {
-				Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": skipping message from " + message.getCounterpart().toString() + " because it was sent prior to our deletion date");
+				Log.d(Config.LOGTAG, account.getLogJid() + ": skipping message from " + message.getCounterpart().toString() + " because it was sent prior to our deletion date");
 				return;
 			}
 
@@ -733,9 +733,9 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 				try {
 					final XmppAxolotlMessage xmppAxolotlMessage = XmppAxolotlMessage.fromElement(axolotlEncrypted, origin.asBareJid());
 					account.getAxolotlService().processReceivingKeyTransportMessage(xmppAxolotlMessage, query != null);
-					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": omemo key transport message received from " + origin);
+					Log.d(Config.LOGTAG, account.getLogJid() + ": omemo key transport message received from " + origin);
 				} catch (Exception e) {
-					Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": invalid omemo key transport message received " + e.getMessage());
+					Log.d(Config.LOGTAG, account.getLogJid() + ": invalid omemo key transport message received " + e.getMessage());
 					return;
 				}
 			}
@@ -784,7 +784,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 								Jid jid = user.getRealJid();
 								List<Jid> cryptoTargets = conversation.getAcceptedCryptoTargets();
 								if (cryptoTargets.remove(user.getRealJid())) {
-									Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": removed " + jid + " from crypto targets of " + conversation.getName());
+									Log.d(Config.LOGTAG, account.getLogJid() + ": removed " + jid + " from crypto targets of " + conversation.getName());
 									conversation.setAcceptedCryptoTargets(cryptoTargets);
 									mXmppConnectionService.updateConversation(conversation);
 								}
@@ -836,7 +836,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 						} else if (!counterpart.isBareJid() && trueJid != null) {
 							ReadByMarker readByMarker = ReadByMarker.from(counterpart, trueJid);
 							if (message.addReadByMarker(readByMarker)) {
-								Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": added read by (" + readByMarker.getRealJid() + ") to message '" + message.getBody() + "'");
+								Log.d(Config.LOGTAG, account.getLogJid() + ": added read by (" + readByMarker.getRealJid() + ") to message '" + message.getBody() + "'");
 								mXmppConnectionService.updateMessage(message, false);
 							}
 						}
@@ -905,7 +905,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 
 	private void activateGracePeriod(Account account) {
 		long duration = mXmppConnectionService.getLongPreference("grace_period_length", R.integer.grace_period) * 1000;
-		Log.d(Config.LOGTAG, account.getJid().asBareJid() + ": activating grace period till " + TIME_FORMAT.format(new Date(System.currentTimeMillis() + duration)));
+		Log.d(Config.LOGTAG, account.getLogJid() + ": activating grace period till " + TIME_FORMAT.format(new Date(System.currentTimeMillis() + duration)));
 		account.activateGracePeriod(duration);
 	}
 

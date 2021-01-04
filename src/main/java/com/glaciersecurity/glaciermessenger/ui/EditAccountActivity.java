@@ -1832,7 +1832,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	AuthenticationHandler authenticationHandler = new AuthenticationHandler() {
 		@Override
 		public void onSuccess(CognitoUserSession cognitoUserSession, CognitoDevice device) {
-			Log.d("GOOBER", " -- Auth Success");
+			Log.d(Config.LOGTAG, " -- Auth Success");
 			AppHelper.setCurrSession(cognitoUserSession);
 			AppHelper.newDevice(device);
 
