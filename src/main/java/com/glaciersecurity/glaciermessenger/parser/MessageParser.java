@@ -115,7 +115,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 		try {
 			xmppAxolotlMessage = XmppAxolotlMessage.fromElement(axolotlMessage, from.asBareJid());
 		} catch (Exception e) {
-			Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": invalid omemo message received " + e.getMessage());
+			Log.d(Config.LOGTAG, conversation.getAccount().getLogJid() + ": invalid omemo message received " + e.getMessage());
 			return null;
 		}
 		if (xmppAxolotlMessage.hasPayload()) {
@@ -157,7 +157,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 				}
 			}
 		} else {
-			Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": received OMEMO key transport message");
+			Log.d(Config.LOGTAG, conversation.getAccount().getLogJid()+ ": received OMEMO key transport message");
 			service.processReceivingKeyTransportMessage(xmppAxolotlMessage, postpone);
 		}
 		return null;

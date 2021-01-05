@@ -94,7 +94,7 @@ public class PresenceParser extends AbstractParser implements
 							axolotlService.fetchDeviceIds(user.getRealJid());
 						}
 						if (codes.contains(MucOptions.STATUS_CODE_ROOM_CREATED) && mucOptions.autoPushConfiguration()) {
-							Log.d(Config.LOGTAG,mucOptions.getAccount().getJid().asBareJid()
+							Log.d(Config.LOGTAG,mucOptions.getAccount().getLogJid()
 									+": room '"
 									+mucOptions.getConversation().getJid().asBareJid()
 									+"' created. pushing default configuration");
@@ -140,7 +140,7 @@ public class PresenceParser extends AbstractParser implements
 					final Jid alternate = destroy == null ? null : InvalidJid.getNullForInvalid(destroy.getAttributeAsJid("jid"));
 					mucOptions.setError(MucOptions.Error.DESTROYED);
 					if (alternate != null) {
-						Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": muc destroyed. alternate location " + alternate);
+						Log.d(Config.LOGTAG, conversation.getAccount().getLogJid() + ": muc destroyed. alternate location " + alternate);
 					}
 				} else if (codes.contains(MucOptions.STATUS_CODE_SHUTDOWN) && fullJidMatches) {
 					mucOptions.setError(MucOptions.Error.SHUTDOWN);
@@ -213,7 +213,7 @@ public class PresenceParser extends AbstractParser implements
 					}
 					mucOptions.setError(MucOptions.Error.DESTROYED);
 					if (alternate != null) {
-						Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": muc destroyed. alternate location " + alternate);
+						Log.d(Config.LOGTAG, conversation.getAccount().getLogJid() + ": muc destroyed. alternate location " + alternate);
 					}
 				} else {
 					final String text = error.findChildContent("text");

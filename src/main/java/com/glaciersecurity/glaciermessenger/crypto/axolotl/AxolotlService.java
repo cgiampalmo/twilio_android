@@ -291,7 +291,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 	}
 
 	public static String getLogprefix(Account account) {
-		return LOGPREFIX + " (" + account.getJid().asBareJid().toString() + "): ";
+		return LOGPREFIX + " (" + account.getLogJid() + "): ";
 	}
 
 	public AxolotlService(Account account, XmppConnectionService connectionService) {

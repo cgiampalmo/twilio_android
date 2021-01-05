@@ -242,7 +242,7 @@ public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
 				} else if (p.getType() == IqPacket.TYPE.RESULT && query.isLegacy()) {
 					//do nothing
 				} else {
-					Log.d(Config.LOGTAG, a.getJid().asBareJid().toString() + ": error executing mam: " + p.toString());
+					Log.d(Config.LOGTAG, a.getLogJid() + ": error executing mam: " + p.toString());
 					finalizeQuery(query, true);
 				}
 			});
@@ -354,7 +354,7 @@ public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
 			done = done || (query.getActualMessageCount() == 0 && !query.isCatchup());
 			this.finalizeQuery(query, done);
 
-			Log.d(Config.LOGTAG, query.getAccount().getJid().asBareJid() + ": finished mam after " + query.getTotalCount() + "(" + query.getActualMessageCount() + ") messages. messages left=" + Boolean.toString(!done) + " count=" + count);
+			Log.d(Config.LOGTAG, query.getAccount().getLogJid() + ": finished mam after " + query.getTotalCount() + "(" + query.getActualMessageCount() + ") messages. messages left=" + Boolean.toString(!done) + " count=" + count);
 			if (query.isCatchup() && query.getActualMessageCount() > 0) {
 				mXmppConnectionService.getNotificationService().finishBacklog(true, query.getAccount());
 			}
@@ -389,7 +389,7 @@ public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
 	}
 
 	private void kill(Query query) {
-		Log.d(Config.LOGTAG, query.getAccount().getJid().asBareJid() + ": killing mam query prematurely");
+		Log.d(Config.LOGTAG, query.getAccount().getLogJid() + ": killing mam query prematurely");
 		query.callback = null;
 		this.finalizeQuery(query, false);
 		if (query.isCatchup() && query.getActualMessageCount() > 0) {
@@ -401,7 +401,7 @@ public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
 	private void processPostponed(Query query) {
 		query.account.getAxolotlService().processPostponed();
 		query.pendingReceiptRequests.removeAll(query.receiptRequests);
-		Log.d(Config.LOGTAG, query.getAccount().getJid().asBareJid() + ": found " + query.pendingReceiptRequests.size() + " pending receipt requests");
+		Log.d(Config.LOGTAG, query.getAccount().getLogJid() + ": found " + query.pendingReceiptRequests.size() + " pending receipt requests");
 		Iterator<ReceiptRequest> iterator = query.pendingReceiptRequests.iterator();
 		while (iterator.hasNext()) {
 			ReceiptRequest rr = iterator.next();

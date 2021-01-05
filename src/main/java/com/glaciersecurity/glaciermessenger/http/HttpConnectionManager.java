@@ -47,7 +47,7 @@ public class HttpConnectionManager extends AbstractConnectionManager {
 		synchronized (this.downloadConnections) {
 			for(HttpDownloadConnection connection : this.downloadConnections) {
 				if (connection.getMessage() == message) {
-					Log.d(Config.LOGTAG, message.getConversation().getAccount().getJid().asBareJid() + ": download already in progress");
+					Log.d(Config.LOGTAG, message.getConversation().getAccount().getLogJid() + ": download already in progress");
 					return;
 				}
 			}
@@ -61,7 +61,7 @@ public class HttpConnectionManager extends AbstractConnectionManager {
 		synchronized (this.uploadConnections) {
 			for (HttpUploadConnection connection : this.uploadConnections) {
 				if (connection.getMessage() == message) {
-					Log.d(Config.LOGTAG, message.getConversation().getAccount().getJid().asBareJid() + ": upload already in progress");
+					Log.d(Config.LOGTAG, message.getConversation().getAccount().getLogJid() + ": upload already in progress");
 					return;
 				}
 			}

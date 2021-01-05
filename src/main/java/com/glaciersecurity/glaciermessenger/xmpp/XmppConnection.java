@@ -910,7 +910,7 @@ public class XmppConnection implements Runnable {
 						"). Possible downgrade attack?");
 				throw new StateChangingException(Account.State.DOWNGRADE_ATTACK);
 			}
-			Log.d(Config.LOGTAG, account.getJid().toString() + ": Authenticating with " + saslMechanism.getMechanism());
+			Log.d(Config.LOGTAG, account.getLogJid() + ": Authenticating with " + saslMechanism.getMechanism());
 			auth.setAttribute("mechanism", saslMechanism.getMechanism());
 			if (!saslMechanism.getClientFirstMessage().isEmpty()) {
 				auth.setContent(saslMechanism.getClientFirstMessage());
