@@ -1,5 +1,8 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+
+    android:background="?attr/color_background_primary"
     xmlns:tools="http://schemas.android.com/tools">
 
 
@@ -20,10 +23,20 @@
                 android:layout_above="@+id/button_bar"
                 android:layout_below="@id/toolbar">
 
-                <org.osmdroid.views.MapView
-                    android:id="@+id/map"
+<!--                <org.osmdroid.views.MapView-->
+<!--                    android:id="@+id/map"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:visibility="gone"/>-->
+
+
+                <com.mapbox.mapboxsdk.maps.MapView
+                    android:id="@+id/mapView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    mapbox:mapbox_cameraTargetLat="36.16266"
+                    mapbox:mapbox_cameraTargetLng="-86.78160"
+                    mapbox:mapbox_cameraZoom="12"/>
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/fab"
@@ -37,7 +50,7 @@
                     app:elevation="4dp"
                     android:contentDescription="@string/action_unfix_from_location"
                     android:src="?attr/icon_gps_fixed"
-                    app:backgroundTint="?colorAccent6" />
+                    app:backgroundTint="#27a1cb" />
 
             </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

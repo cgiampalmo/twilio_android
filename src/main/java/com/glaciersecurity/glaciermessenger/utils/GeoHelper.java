@@ -27,6 +27,8 @@ public class GeoHelper {
 
 	private static final String SHARE_LOCATION_PACKAGE_NAME = "eu.siacs.conversations.location.request";
 	private static final String SHOW_LOCATION_PACKAGE_NAME = "eu.siacs.conversations.location.show";
+	public static final String ACTION_SHOW_LOCATION = "show_location";
+
 
 	public static Pattern GEO_URI = Pattern.compile("geo:(-?\\d+(?:\\.\\d+)?),(-?\\d+(?:\\.\\d+)?)(?:,-?\\d+(?:\\.\\d+)?)?(?:;crs=[\\w-]+)?(?:;u=\\d+(?:\\.\\d+)?)?(?:;[\\w-]+=(?:[\\w-_.!~*'()]|%[\\da-f][\\da-f])+)*", Pattern.CASE_INSENSITIVE);
 
@@ -48,7 +50,7 @@ public class GeoHelper {
 		}
 	}
 
-	private static GeoPoint parseGeoPoint(String body) throws IllegalArgumentException {
+	public static GeoPoint parseGeoPoint(String body) throws IllegalArgumentException {
 		Matcher matcher = GEO_URI.matcher(body);
 		if (!matcher.matches()) {
 			throw new IllegalArgumentException("Invalid geo uri");
@@ -82,7 +84,7 @@ public class GeoHelper {
 		final String label = getLabel(context, message);
 
 		if (isLocationPluginInstalledAndDesired(context)) {
-			Intent locationPluginIntent = new Intent(SHOW_LOCATION_PACKAGE_NAME);
+			Intent locationPluginIntent = new Intent(ACTION_SHOW_LOCATION);
 			locationPluginIntent.putExtra("latitude", geoPoint.getLatitude());
 			locationPluginIntent.putExtra("longitude", geoPoint.getLongitude());
 			if (message.getStatus() != Message.STATUS_RECEIVED) {
@@ -110,9 +112,10 @@ public class GeoHelper {
 
 		intents.add(geoIntent(geoPoint, label));
 
-		Intent httpIntent = new Intent(Intent.ACTION_VIEW);
-		httpIntent.setData(Uri.parse("https://maps.google.com/maps?q=loc:"+String.valueOf(geoPoint.getLatitude()) + "," + String.valueOf(geoPoint.getLongitude()) +label));
-		intents.add(httpIntent);
+//		Intent locationIntent = new Intent(ACTION_SHOW_LOCATION);
+//		locationIntent.putExtra("latitude", geoPoint.getLatitude());
+//		locationIntent.putExtra("longitude", geoPoint.getLongitude());
+//		intents.add(locationIntent);
 		return intents;
 	}
 
@@ -124,7 +127,9 @@ public class GeoHelper {
 
 	private static Intent geoIntent(GeoPoint geoPoint, String label) {
 		Intent geoIntent = new Intent(Intent.ACTION_VIEW);
-		geoIntent.setData(Uri.parse("geo:" + String.valueOf(geoPoint.getLatitude()) + "," + String.valueOf(geoPoint.getLongitude()) + "?q=" + String.valueOf(geoPoint.getLatitude()) + "," + String.valueOf(geoPoint.getLongitude()) + "("+ label+")"));
+		geoIntent.putExtra("latitude", geoPoint.getLatitude());
+		geoIntent.putExtra("longitude", geoPoint.getLongitude());
+		//geoIntent.setData(Uri.parse("geo:" + String.valueOf(geoPoint.getLatitude()) + "," + String.valueOf(geoPoint.getLongitude()) + "?q=" + String.valueOf(geoPoint.getLatitude()) + "," + String.valueOf(geoPoint.getLongitude()) + "("+ label+")"));
 		return geoIntent;
 	}
 

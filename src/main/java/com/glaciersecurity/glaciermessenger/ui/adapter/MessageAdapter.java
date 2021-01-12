@@ -51,8 +51,10 @@ import com.glaciersecurity.glaciermessenger.http.P1S3UrlStreamHandler;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
 import com.glaciersecurity.glaciermessenger.services.MessageArchiveService;
 import com.glaciersecurity.glaciermessenger.services.NotificationService;
+import com.glaciersecurity.glaciermessenger.ui.CallActivity;
 import com.glaciersecurity.glaciermessenger.ui.ConversationFragment;
 import com.glaciersecurity.glaciermessenger.ui.ConversationsActivity;
+import com.glaciersecurity.glaciermessenger.ui.ShowLocationActivity;
 import com.glaciersecurity.glaciermessenger.ui.XmppActivity;
 import com.glaciersecurity.glaciermessenger.ui.service.AudioPlayer;
 import com.glaciersecurity.glaciermessenger.ui.text.DividerSpan;
@@ -69,6 +71,12 @@ import com.glaciersecurity.glaciermessenger.utils.GeoHelper;
 import com.glaciersecurity.glaciermessenger.utils.StylingHelper;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.mam.MamReference;
+
+import org.osmdroid.util.GeoPoint;
+
+import static com.glaciersecurity.glaciermessenger.ui.ShowLocationActivity.ACTION_SHOW_LOCATION;
+import static com.glaciersecurity.glaciermessenger.utils.GeoHelper.isLocationPluginInstalledAndDesired;
+import static com.glaciersecurity.glaciermessenger.utils.GeoHelper.parseGeoPoint;
 
 public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextView.CopyHandler {
 
@@ -926,13 +934,27 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 	}
 
 	private void showLocation(Message message) {
-		for (Intent intent : GeoHelper.createGeoIntentsFromMessage(activity, message)) {
-			if (intent.resolveActivity(getContext().getPackageManager()) != null) {
-				getContext().startActivity(intent);
-				return;
-			}
+
+		final GeoPoint geoPoint;
+		try {
+			geoPoint = parseGeoPoint(message.getBody());
+			Intent locationPluginIntent = new Intent(getContext(), ShowLocationActivity.class);
+			locationPluginIntent.setAction(ShowLocationActivity.ACTION_SHOW_LOCATION);
+				locationPluginIntent.putExtra("latitude", geoPoint.getLatitude());
+				locationPluginIntent.putExtra("longitude", geoPoint.getLongitude());
+				activity.startActivity(locationPluginIntent);
+
+		} catch (IllegalArgumentException e) {
+			return;
 		}
-		Toast.makeText(activity, R.string.no_application_found_to_display_location, Toast.LENGTH_SHORT).show();
+
+//		for (Intent intent : GeoHelper.createGeoIntentsFromMessage(activity, message)) {
+//			if (intent.resolveActivity(getContext().getPackageManager()) != null) {
+//				getContext().startActivity(intent);
+//				return;
+//			}
+//		}
+//		Toast.makeText(activity, R.string.no_application_found_to_display_location, Toast.LENGTH_SHORT).show();
 	}
 
 	public void updatePreferences() {

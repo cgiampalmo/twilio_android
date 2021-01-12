@@ -44,6 +44,7 @@ repositories {
     google()
     jcenter()
     mavenCentral()
+
 }
 
 allprojects {
@@ -57,6 +58,19 @@ allprojects {
         jcenter()
         maven{
             url "https://github.com/omadahealth/omada-nexus/raw/master/release"
+        }
+        maven {
+            url 'https://api.mapbox.com/downloads/v2/releases/maven'
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                // Do not change the username below.
+                // This should always be `mapbox` (not your username).
+                username = 'mapbox'
+                // Use the secret token you stored in gradle.properties as the password
+                password = project.properties['MAPBOX_DOWNLOADS_TOKEN'] ?: ""
+            }
         }
     }
 }
@@ -148,6 +162,8 @@ dependencies {
 
     implementation "androidx.security:security-crypto:1.1.0-alpha02" //AM-388
     implementation 'com.android.support:multidex:1.0.3'
+
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:9.5.0' //AM-261
 }
 
 
@@ -163,8 +179,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 29
-        versionCode 482
-        versionName "3.1.2_alt_os_g"
+        versionCode 490
+        versionName "3.1.3_RC2"
 
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
