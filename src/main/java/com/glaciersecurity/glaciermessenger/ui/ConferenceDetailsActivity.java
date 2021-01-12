@@ -211,8 +211,8 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         });
         this.binding.editMucNameButton.setOnClickListener(this::onMucEditButtonClicked);
         this.binding.mucEditTitle.addTextChangedListener(this);
-        this.binding.mucEditSubject.addTextChangedListener(this);
-        this.binding.mucEditSubject.addTextChangedListener(new StylingHelper.MessageEditorStyler(this.binding.mucEditSubject));
+        //this.binding.mucEditSubject.addTextChangedListener(this); //AM-540 remove all references...just comment out for now
+        //this.binding.mucEditSubject.addTextChangedListener(new StylingHelper.MessageEditorStyler(this.binding.mucEditSubject));
         this.mMediaAdapter = new MediaAdapter(this, R.dimen.media_size);
         this.mUserPreviewAdapter = new UserPreviewAdapter();
         this.binding.media.setAdapter(mMediaAdapter);
@@ -300,19 +300,20 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
                 this.binding.mucEditTitle.setVisibility(View.GONE);
             }
             this.binding.mucEditTitle.setEnabled(owner);
-            final String subject = mucOptions.getSubject();
-            this.binding.mucEditSubject.setText("");
-            if (subject != null) {
-                this.binding.mucEditSubject.append(subject);
-            }
-            this.binding.mucEditSubject.setEnabled(mucOptions.canChangeSubject());
-            if (!owner) {
-                this.binding.mucEditSubject.requestFocus();
-            }
+            //final String subject = mucOptions.getSubject(); //AM-540 remove...comment out for now
+            //this.binding.mucEditSubject.setText("");
+            //if (subject != null) {
+            //    this.binding.mucEditSubject.append(subject);
+            //}
+            //this.binding.mucEditSubject.setEnabled(mucOptions.canChangeSubject());
+            //if (!owner) {
+            //    this.binding.mucEditSubject.requestFocus();
+            //}
         } else {
-            String subject = this.binding.mucEditSubject.isEnabled() ? this.binding.mucEditSubject.getEditableText().toString().trim() : null;
+            //AM-540 subject commented out
+            //String subject = this.binding.mucEditSubject.isEnabled() ? this.binding.mucEditSubject.getEditableText().toString().trim() : null;
             String name = this.binding.mucEditTitle.isEnabled() ? this.binding.mucEditTitle.getEditableText().toString().trim() : null;
-            onMucInfoUpdated(subject, name);
+            onMucInfoUpdated(null, name); //subject, name);
             SoftKeyboardUtils.hideSoftKeyboard(this);
             hideEditor();
         }
@@ -326,9 +327,10 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
 
     private void onMucInfoUpdated(String subject, String name) {
         final MucOptions mucOptions = mConversation.getMucOptions();
-        if (mucOptions.canChangeSubject() && changed(mucOptions.getSubject(), subject)) {
-            xmppConnectionService.pushSubjectToConference(mConversation, subject);
-        }
+        //AM-540 subject commented out
+        //if (mucOptions.canChangeSubject() && changed(mucOptions.getSubject(), subject)) {
+        //    xmppConnectionService.pushSubjectToConference(mConversation, subject);
+        //}
         if (mucOptions.getSelf().getAffiliation().ranks(MucOptions.Affiliation.OWNER) && changed(mucOptions.getName(), name)) {
             Bundle options = new Bundle();
             options.putString("muc#roomconfig_persistentroom", "1");
@@ -465,7 +467,9 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             account = mConversation.getAccount().getJid().asBareJid().toString();
         }
         setTitle(mucOptions.isPrivateAndNonAnonymous() ? R.string.action_muc_details : R.string.channel_details);
-        this.binding.editMucNameButton.setVisibility((self.getAffiliation().ranks(MucOptions.Affiliation.OWNER) || mucOptions.canChangeSubject()) ? View.VISIBLE : View.GONE);
+        //this.binding.editMucNameButton.setVisibility((self.getAffiliation().ranks(MucOptions.Affiliation.OWNER) || mucOptions.canChangeSubject()) ? View.VISIBLE : View.GONE);
+        //AM-540 removed canChangeSubject
+        this.binding.editMucNameButton.setVisibility((self.getAffiliation().ranks(MucOptions.Affiliation.OWNER)) ? View.VISIBLE : View.GONE);
         //this.binding.detailsAccount.setText(getString(R.string.using_account, account)); //HONEYBADGER AM-120
         //this.binding.jid.setText(mConversation.getJid().asBareJid().toEscapedString()); //ALF AM-49
         AvatarWorkerTask.loadAvatar(mConversation, binding.yourPhoto, R.dimen.avatar_on_details_screen_size);
@@ -489,7 +493,8 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             hasTitle = true;
             this.binding.mucTitle.setVisibility(View.VISIBLE);
         }
-        if (printableValue(subject)) {
+        //AM-540 commented out subject
+        /*if (printableValue(subject)) {
             SpannableStringBuilder spannable = new SpannableStringBuilder(subject);
             StylingHelper.format(spannable, this.binding.mucSubject.getCurrentTextColor());
             MyLinkify.addLinks(spannable, false);
@@ -499,7 +504,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             this.binding.mucSubject.setVisibility(View.VISIBLE);
         } else {
             this.binding.mucSubject.setVisibility(View.GONE);
-        }
+        }*/
         this.binding.mucYourNick.setText(mucOptions.getActualNick());
         if (mucOptions.online()) {
             this.binding.usersWrapper.setVisibility(View.VISIBLE);
@@ -528,7 +533,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             //if (self.getAffiliation().ranks(MucOptions.Affiliation.OWNER)) {
             //    this.binding.changeConferenceButton.setVisibility(View.VISIBLE);
             //} else {
-                this.binding.changeConferenceButton.setVisibility(View.GONE); //HONEYBADGER invisible to GONE
+            this.binding.changeConferenceButton.setVisibility(View.GONE); //HONEYBADGER invisible to GONE
             //}
         } else {
             this.binding.usersWrapper.setVisibility(View.GONE);
@@ -654,7 +659,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         }
         final MucOptions mucOptions = mConversation.getMucOptions();
         if (this.binding.mucEditor.getVisibility() == View.VISIBLE) {
-            boolean subjectChanged = changed(binding.mucEditSubject.getEditableText().toString(), mucOptions.getSubject());
+            boolean subjectChanged = false;//changed(binding.mucEditSubject.getEditableText().toString(), mucOptions.getSubject());
             boolean nameChanged = changed(binding.mucEditTitle.getEditableText().toString(), mucOptions.getName());
             if (subjectChanged || nameChanged) {
                 this.binding.editMucNameButton.setImageResource(getThemeResource(R.attr.icon_save, R.drawable.ic_save_black_24dp));

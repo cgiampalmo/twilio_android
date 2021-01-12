@@ -85,11 +85,13 @@ public class MucConfiguration {
                 builder.append(context.getString(R.string.owners_can_invite_others));
             }
             builder.append(' ');
-            if (mucOptions.participantsCanChangeSubject()) {
+            //AM-540 removed subject, only owners can edit group name
+            builder.append(context.getString(R.string.owners_can_edit_name));
+            /*if (mucOptions.participantsCanChangeSubject()) {
                 builder.append(context.getString(R.string.anyone_can_edit_subject));
             } else {
-                builder.append(context.getString(R.string.owners_can_edit_subject));
-            }
+                builder.append(context.getString(R.string.owners_can_edit_subject)); //owners_can_edit_name
+            }*/
         } else {
             if (mucOptions.nonanonymous()) {
                 builder.append(context.getString(R.string.jabber_ids_are_visible_to_anyone));

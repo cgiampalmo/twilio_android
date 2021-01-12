@@ -201,7 +201,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 					intent.putExtra("uuid", conversation.getUuid());
 					startActivity(intent);
 				} else {
-						activity.switchToContactDetails(conversation.getContact());
+					activity.switchToContactDetails(conversation.getContact());
 				}
 			}
 		}
@@ -707,20 +707,20 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		compressDialog.show(); // Display Progress Dialog
 
 		new Thread(() -> {
-				try {
-					while (compressDialog != null && (compressDialog.getProgress() <= compressDialog
-							.getMax())) {
-						Thread.sleep(200);
-						compressDialog.setProgress(activity.xmppConnectionService.getCompressionPercent());
+			try {
+				while (compressDialog != null && (compressDialog.getProgress() <= compressDialog
+						.getMax())) {
+					Thread.sleep(200);
+					compressDialog.setProgress(activity.xmppConnectionService.getCompressionPercent());
 
-						if (compressDialog != null && compressDialog.isShowing() &&
-								(compressDialog.getProgress() >= compressDialog.getMax() -1)) {
-							compressDialog.dismiss();
-						}
+					if (compressDialog != null && compressDialog.isShowing() &&
+							(compressDialog.getProgress() >= compressDialog.getMax() -1)) {
+						compressDialog.dismiss();
 					}
-				} catch (Exception e) {
-					e.printStackTrace();
 				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}).start();
 	}
 
@@ -1177,10 +1177,10 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	}
 
 	private void requestPermissionForCameraAndMicrophone() {
-			ActivityCompat.requestPermissions(
-					activity,
-					new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
-					CAMERA_MIC_PERMISSION_REQUEST_CODE);
+		ActivityCompat.requestPermissions(
+				activity,
+				new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
+				CAMERA_MIC_PERMISSION_REQUEST_CODE);
 	}
 
 	@Override
@@ -1190,15 +1190,26 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		// DJF - AM-531
 		if (conversation != null) {
 			if (conversation.getMode() != Conversation.MODE_MULTI) {
-				binding.attachLocation1.setVisibility(View.GONE);
+				binding.actionDisapearMessagesSpacer.setVisibility(View.GONE);
 				binding.actionDisapearMessages.setVisibility(View.VISIBLE);
 			} else
 			{
 				binding.actionDisapearMessages.setVisibility(View.GONE);
-				binding.attachLocation1.setVisibility(View.VISIBLE);
+				binding.actionDisapearMessagesSpacer.setVisibility(View.VISIBLE);
 			}
 		}
 
+//		if (conversation != null) {
+//			if (conversation.getMode() != Conversation.MODE_MULTI) {
+//				binding.attachRecordVoice.setVisibility(View.GONE);
+//				binding.actionDisapearMessages.setVisibility(View.VISIBLE);
+//			} else
+//			{
+//				binding.actionDisapearMessages.setVisibility(View.GONE);
+//				binding.attachRecordVoice.setVisibility(View.VISIBLE);
+//			}
+//		}
+//
 		binding.getRoot().setOnClickListener(null); //TODO why the heck did we do this?
 
 		binding.textinput.addTextChangedListener(new StylingHelper.MessageEditorStyler(binding.textinput));
@@ -1281,15 +1292,10 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				binding.actionShowSecondary.setVisibility(View.GONE);
 				binding.actionShowPrimary.setVisibility(View.GONE);
 
-				binding.attachTakePicture.setVisibility(View.VISIBLE);
-				binding.attachRecordVideo.setVisibility(View.VISIBLE);
-				if (conversation != null) {
-					if (conversation.getMode() != Conversation.MODE_MULTI)
-						{ binding.attachLocation.setVisibility(View.VISIBLE); }
-					else
-						{ binding.attachChooseFileSpacer.setVisibility(View.VISIBLE); }
-				}
 				binding.actionDisapearMessagesSpacer.setVisibility(View.VISIBLE);
+				binding.attachRecordVideo.setVisibility(View.VISIBLE);
+				binding.attachLocation.setVisibility(View.VISIBLE);
+				binding.attachRecordVoice.setVisibility(View.VISIBLE);
 				binding.actionShowPrimary.setVisibility(View.VISIBLE);
 			}
 		});
@@ -1310,15 +1316,15 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				binding.actionShowSecondary.setVisibility(View.GONE);
 				binding.actionShowPrimary.setVisibility(View.GONE);
 
-				binding.attachChooseFile.setVisibility(View.VISIBLE);
-				binding.attachChoosePicture.setVisibility(View.VISIBLE);
-				binding.attachRecordVoice.setVisibility(View.VISIBLE);
 				if (conversation != null) {
 					if (conversation.getMode() != Conversation.MODE_MULTI)
-						{ binding.actionDisapearMessages.setVisibility(View.VISIBLE); }
+					{ binding.actionDisapearMessages.setVisibility(View.VISIBLE); }
 					else
-						{ binding.attachLocation1.setVisibility(View.VISIBLE); }
+					{ binding.actionDisapearMessagesSpacer.setVisibility(View.VISIBLE); }
 				}
+				binding.attachTakePicture.setVisibility(View.VISIBLE);
+				binding.attachChoosePicture.setVisibility(View.VISIBLE);
+				binding.attachChooseFile.setVisibility(View.VISIBLE);
 				binding.actionShowSecondary.setVisibility(View.VISIBLE);
 			}
 		});
@@ -1857,7 +1863,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			String groupname =nameBox.getText().toString().trim();
 			groupname = groupname.replaceAll(" ","");
 			Intent intent = ChooseContactActivity.create(activity, conversation);
-            intent.putExtra(ChooseContactActivity.EXTRA_GROUP_CHAT_NAME, groupname);
+			intent.putExtra(ChooseContactActivity.EXTRA_GROUP_CHAT_NAME, groupname);
 			startActivityForResult(intent, REQUEST_INVITE_TO_CONVERSATION);
 		});
 		//builder.create().show();
@@ -2716,7 +2722,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 //		if (account.getStatus() == Account.State.DISABLED) {
 //			showSnackbar(R.string.this_account_is_disabled, R.string.enable, this.mEnableAccountListener);
 //		} else
-			if (conversation.isBlocked()) {
+		if (conversation.isBlocked()) {
 			showSnackbar(R.string.contact_blocked, R.string.unblock, this.mUnblockClickListener);
 		} else if (contact != null && !contact.showInRoster() && contact.getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST)) {
 			showSnackbar(R.string.contact_added_you, R.string.add_back, this.mAddBackClickListener, this.mLongPressBlockListener);
@@ -2768,7 +2774,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 					showSnackbar(R.string.invalid_muc_nick, R.string.edit, clickToMuc);
 				case SHUTDOWN:
 					//showSnackbar(R.string.conference_shutdown, R.string.try_again, joinMuc);
-                    showSnackbar(R.string.conference_shutdown, R.string.leave, leaveMuc); //ALF AM-112
+					showSnackbar(R.string.conference_shutdown, R.string.leave, leaveMuc); //ALF AM-112
 					break;
 				case DESTROYED:
 					showSnackbar(R.string.conference_destroyed, R.string.leave, leaveMuc);
@@ -2780,8 +2786,8 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 					hideSnackbar();
 					break;
 			}
-		//} else if (account.hasPendingPgpIntent(conversation)) {
-		//	showSnackbar(R.string.openpgp_messages_found, R.string.decrypt, clickToDecryptListener);
+			//} else if (account.hasPendingPgpIntent(conversation)) {
+			//	showSnackbar(R.string.openpgp_messages_found, R.string.decrypt, clickToDecryptListener);
 		} else if (connection != null
 				&& connection.getFeatures().blocking()
 				&& conversation.countMessages() != 0
@@ -2976,18 +2982,18 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 					this.messageList.add(Message.createStatusMessage(conversation, getString(R.string.contact_has_stopped_typing, conversation.getName())));
 				} else {
 					for (int i = this.messageList.size() - 1; i >= 0; --i) {
-                        final Message message = this.messageList.get(i);
-                        if (message.getType() != Message.TYPE_STATUS) {
-                            if (message.getStatus() == Message.STATUS_RECEIVED) {
-                                return;
-                            } else {
-                                if (message.getStatus() == Message.STATUS_SEND_DISPLAYED) {
-                                    this.messageList.add(i + 1,
-                                            Message.createStatusMessage(conversation, getString(R.string.contact_has_read_up_to_this_point, conversation.getName())));
-                                    return;
-                                }
-                            }
-                        }
+						final Message message = this.messageList.get(i);
+						if (message.getType() != Message.TYPE_STATUS) {
+							if (message.getStatus() == Message.STATUS_RECEIVED) {
+								return;
+							} else {
+								if (message.getStatus() == Message.STATUS_SEND_DISPLAYED) {
+									this.messageList.add(i + 1,
+											Message.createStatusMessage(conversation, getString(R.string.contact_has_read_up_to_this_point, conversation.getName())));
+									return;
+								}
+							}
+						}
 					}
 				}
 			} else {

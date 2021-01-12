@@ -106,35 +106,37 @@
                                     android:layout_height="wrap_content"
                                     android:textAppearance="@style/TextAppearance.Conversations.Title"/>
 
-                                <LinearLayout
+                                <!-- <LinearLayout
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:gravity="top"
                                     android:layout_marginTop="@dimen/activity_margin_3"
-                                    android:orientation="horizontal">
-<!--
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_alignParentLeft="true"
-                                        android:layout_alignParentTop="true"
-                                        android:text="@string/use_quote1"
-                                        android:textAppearance="@style/TextAppearance.Conversations.Subhead"/>
--->
-                                    <TextView
-                                        android:id="@+id/muc_subject"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:autoLink="web"
-                                        android:textAppearance="@style/TextAppearance.Conversations.Subhead"/>
-<!--
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/use_quote2"
-                                        android:textAppearance="@style/TextAppearance.Conversations.Subhead"/>
--->
-                                </LinearLayout>
+                                    android:orientation="horizontal"> -->
+                                <!-- AM-540 commented out -->
+                                <!--
+                                                                    <TextView
+                                                                        android:layout_width="wrap_content"
+                                                                        android:layout_height="wrap_content"
+                                                                        android:layout_alignParentLeft="true"
+                                                                        android:layout_alignParentTop="true"
+                                                                        android:text="@string/use_quote1"
+                                                                        android:textAppearance="@style/TextAppearance.Conversations.Subhead"/>
+                                -->
+                                <!-- <TextView
+                                    android:id="@+id/muc_subject"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:autoLink="web"
+                                    android:textAppearance="@style/TextAppearance.Conversations.Subhead"/> -->
+                                <!-- AM-540 commented out -->
+                                <!--
+                                                                    <TextView
+                                                                        android:layout_width="wrap_content"
+                                                                        android:layout_height="wrap_content"
+                                                                        android:text="@string/use_quote2"
+                                                                        android:textAppearance="@style/TextAppearance.Conversations.Subhead"/>
+                                -->
+                                <!-- </LinearLayout> --> <!-- AM-540 commented out -->
                             </LinearLayout>
 
                             <LinearLayout
@@ -162,7 +164,7 @@
                                         android:textAppearance="@style/Widget.Conversations.EditText"/>
                                 </com.google.android.material.textfield.TextInputLayout>
 
-                                <com.google.android.material.textfield.TextInputLayout
+                                <!-- <com.google.android.material.textfield.TextInputLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:textColor="?attr/colorAccent1"
@@ -175,7 +177,7 @@
                                         android:layout_height="wrap_content"
                                         android:hint="@string/topic"
                                         android:textAppearance="@style/Widget.Conversations.EditText"/>
-                                </com.google.android.material.textfield.TextInputLayout>
+                                </com.google.android.material.textfield.TextInputLayout> --> <!-- AM-540 -->
 
                             </LinearLayout>
 

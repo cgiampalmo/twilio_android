@@ -484,8 +484,7 @@
     <string name="one_week">1 week</string>
     <string name="conversation_message_timer">Disappearing messages</string>
     <string name="pref_global_message_timer">Global disappearing messages</string>
-    <string name="pref_global_message_timer_description">Set future 1-to-1 messages to be deleted locally and on any receiving clients after a selected duration of time. Group messages are not affected.</string>
-    <!-- ALF AM-53 end -->
+    <string name="pref_global_message_timer_description">Set 1-to-1 messages to disappear after a selected duration of time. Group messages are not affected.</string>    <!-- ALF AM-53 end -->
     <string name="never">Never</string>
     <string name="until_further_notice">Until further notice</string>
     <string name="snooze">Snooze</string>
@@ -1135,4 +1134,6 @@
     <!--    CMG AM-261-->
     <string name= "mapbox_token">pk.eyJ1IjoiYWxmcmllZG1hbiIsImEiOiJjaXp5YWJxZDQwM2FqMzJxcm9scGh3N3U5In0.NoRKK6Uf4BZz54sZJXwDlA</string>
     <string name="current_location">Current Location</string>
+
+    <string name="owners_can_edit_name">Owners can edit the group name.</string>
 </resources>
