@@ -1136,4 +1136,17 @@
     <string name="current_location">Current Location</string>
 
     <string name="owners_can_edit_name">Owners can edit the group name.</string>
+
+    <!--    CMG AM-517-->
+    <string name="contact_link">https://glacier.chat/contact</string>
+    <string name="enable_core_connection">Enabling Core Connection adds an additional layer of encryption and anonymity to all data exiting your device.\n\nWhen enabling Core Connect for the first time, Glacier will request permission to install a profile.  This permission enables Glacier to protect your identity and corporate data.\n\nGlacier does not allow your admin to see browsing history.  Learn more how Glacier protects you.</string>
+    <string name="no_vpn_connection">You are not connected to server.  Enable Core for an additional layer of encryption and anonymity</string>
+    <string name="no_vpn_profiles">No profiles found. Please contact your system administrator for assistance</string>
+    <string name="core_link">https://glacier.chat/core</string>
+    <string name="use_vpn">Use Secure Core</string>
+    <string name="core_profile">Core Profile</string>
+    <string name="change_vpn_profile">Do you want to connect to </string>
+    <string name="connect_button_label">Connect</string>
+
+
 </resources>

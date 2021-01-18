@@ -1,5 +1,6 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
@@ -16,14 +17,24 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.Spinner;
+import android.widget.CheckedTextView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.glaciersecurity.glaciercore.api.APIVpnProfile;
 import com.glaciersecurity.glaciercore.api.IOpenVPNAPIService;
@@ -31,6 +42,7 @@ import com.glaciersecurity.glaciercore.api.IOpenVPNStatusCallback;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
+import com.glaciersecurity.glaciermessenger.ui.adapter.ProfileSelectListAdapter;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.io.BufferedReader;
@@ -42,6 +54,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -50,30 +64,53 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     final static String EMERGENCY_PROFILE_TAG = "emerg";
     static final int PROFILE_DIALOG_REQUEST_CODE = 8;
     static final String PROFILE_SELECTED = "PROFILE_SELECTED";
+    static final String USE_CORE_CONNECT = "use_core_connect";
+
 
     private ConnectivityReceiver connectivityReceiver; //CMG AM-41
 
-    private TextView mHelloWorld;
-    private Button mStartVpn;
-    private Button mDisconnect;
     private TextView mMyIp;
     private TextView mStatus;
+    private TextView mVpnConnectionStatus;
+    private RelativeLayout mVpnStatusBar;
     private TextView mProfile;
     private CheckBox enableEmergConnectCheckBox;
     private GlacierProfile emergencyProfile;
-    private Spinner profileSpinner;
-    private ArrayAdapter<GlacierProfile> spinnerAdapter;
+    private Switch mUseVpnToggle;
+    private Button mDisconnectVpn;
+    private TextView mCoreLink;
+    private LinearLayout mDisableVpnView;
+    private LinearLayout mNoVpnProfilesView;
+    private ListView profileSpinner;
+    private ProfileSelectListAdapter<GlacierProfile> spinnerAdapter;
 
     // variables used for random profile retries upon failure
-    private boolean connectClicked = false;
-    private boolean disconnectClicked = false;
     private boolean randomProfileSelected = false;
     private List<String> excludeProfileList = new ArrayList<String>();
+    private OpenVPNActivity activity;
+
+    //TODO getConnectedProf
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (activity instanceof OpenVPNActivity) {
+            this.activity = (OpenVPNActivity) activity;
+
+        } else {
+            throw new IllegalStateException("Trying to attach fragment to activity that is not the ConversationsActivity");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.openvpn_fragment, container, false);
-        v.findViewById(R.id.disconnect).setOnClickListener(this);
         /* GOOBER CORE - Remove emergency profile enableEmergConnectCheckBox = (CheckBox) v.findViewById(R.id.enable_emergconnect);
         enableEmergConnectCheckBox.setChecked(false);
         enableEmergConnectCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -98,19 +135,36 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 }
             }
         }); */
-        //v.findViewById(R.id.getMyIP).setOnClickListener(this);
-        //v.findViewById(R.id.startembedded).setOnClickListener(this);
         v.findViewById(R.id.addNewProfile).setOnClickListener(this);
         //mHelloWorld = (TextView) v.findViewById(R.id.helloworld);
-        mStartVpn = (Button) v.findViewById(R.id.startVPN);
-        mDisconnect = (Button) v.findViewById(R.id.disconnect);
         mStatus = (TextView) v.findViewById(R.id.status);
         mProfile = (TextView) v.findViewById(R.id.currentProfile);
+        mVpnConnectionStatus = (TextView) v.findViewById(R.id.vpn_connection_status);
+        mVpnStatusBar = (RelativeLayout) v.findViewById(R.id.vpn_status);
+        mDisableVpnView = (LinearLayout) v.findViewById(R.id.disabled_vpn_layout);
+        mCoreLink = (TextView) v.findViewById(R.id.glacier_chat_core_link);
+        mNoVpnProfilesView = (LinearLayout) v.findViewById(R.id.no_vpn_profiles_layout);
+        mDisconnectVpn= (Button) v.findViewById(R.id.disconnet_button);
+        v.findViewById(R.id.disconnet_button).setOnClickListener(mOnDisconnectListener);
+
+
+        // mMyIp = (TextView) v.findViewById(R.id.MyIpText);
+        v.findViewById(R.id.glacier_chat_core_link).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(getString(R.string.core_link)));
+                startActivity(intent);
+            }
+        });
+
+        mProfile = (TextView) v.findViewById(R.id.currentProfile);
+        mUseVpnToggle = (Switch) v.findViewById(R.id.use_vpn_status_toggle);
+        v.findViewById(R.id.use_vpn_status_toggle).setOnClickListener(mOnToggleSwitchListener);
+
+
         // mMyIp = (TextView) v.findViewById(R.id.MyIpText);
         addItemsOnProfileSpinner(v);
-
-        mStartVpn.setEnabled(true); //DJF 08-27 Start on, and then toggle off depending on conditions
-        mDisconnect.setEnabled(true); //DJF 08-27 Start on, and then toggle off depending on conditions
 
 //        //CMG AM-41
 //        offlineLayout = (LinearLayout) v.findViewById(R.id.offline_layout);
@@ -118,8 +172,27 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 //        offlineLayout.setOnClickListener(mRefreshNetworkClickListener);
 //        checkNetworkStatus();
 
+        boolean isCoreConnectUsed = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("USE_CORE_CONNECT", getResources().getBoolean(R.bool.use_core_connect));
+            if(isCoreConnectUsed){
+                profileSpinner.setVisibility(View.VISIBLE);
+                mVpnStatusBar.setVisibility(View.VISIBLE);
+                mDisableVpnView.setVisibility(View.GONE);
+                mUseVpnToggle.setChecked(true);
+            } else {
+                mUseVpnToggle.setChecked(false);
+                mDisableVpnView.setVisibility(View.VISIBLE);
+                profileSpinner.setVisibility(View.GONE);
+                mVpnStatusBar.setVisibility(View.GONE);
+            }
+
         return v;
 
+    }
+
+
+
+    private void setUseCoreConnect (boolean bool) {
+        activity.getPreferences().edit().putBoolean(USE_CORE_CONNECT, bool).apply();
     }
 
     private static final int MSG_UPDATE_STATE = 0;
@@ -128,6 +201,46 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     private static final int START_PROFILE_BYUUID = 3;
     private static final int ICS_OPENVPN_PERMISSION = 7;
     private static final int PROFILE_ADD_NEW = 8;
+
+    private View.OnClickListener mOnToggleSwitchListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            setUseCoreConnect(true);
+            if(mUseVpnToggle.isChecked()){
+                profileSpinner.setVisibility(View.VISIBLE);
+                mVpnStatusBar.setVisibility(View.VISIBLE);
+                mDisableVpnView.setVisibility(View.GONE);
+
+            } else {
+                disconnectVpn();
+                mDisableVpnView.setVisibility(View.VISIBLE);
+                profileSpinner.setVisibility(View.GONE);
+                mVpnStatusBar.setVisibility(View.GONE);
+
+            }
+        }
+    };
+
+    private View.OnClickListener mOnDisconnectListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mDisconnectVpn.setVisibility(View.GONE);
+            disconnectVpn();
+
+        }
+    };
+
+
+
+    private void disconnectVpn(){
+        try {
+            mService.disconnect();
+        } catch (RemoteException e) {
+            //CMG AM-240
+            Log.d("RemoteException", "at mService.disconnect");
+            e.printStackTrace();
+        }
+    }
 
 
 //    //CMG AM-41
@@ -193,20 +306,6 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     protected IOpenVPNAPIService mService=null;
     private Handler mHandler;
 
-    /**
-     * GOOBER - Display no emergency profile exist
-     */
-    private void displayNoEmergencyProfile() {
-        AlertDialog.Builder d = new AlertDialog.Builder(this.getActivity());
-
-        d.setIconAttribute(android.R.attr.alertDialogIcon);
-        d.setTitle("Emergency Profile");
-        d.setMessage("Cannot enable Emergency Profile.  No such profile exists!!");
-        d.setPositiveButton(android.R.string.ok, null);
-        d.show();
-
-    }
-
     private void startEmbeddedProfile(boolean addNew)
     {
         try {
@@ -246,8 +345,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
                 startActivity(intent);
-            }
-            catch(Exception e2){
+            } catch (Exception e2) {
                 e2.printStackTrace();
             }
         });
@@ -255,6 +353,8 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
     }
+
+
 
     @Override
     public void onStart() {
@@ -312,7 +412,10 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 
         if (index >= 0) {
             GlacierProfile gp = (GlacierProfile) profileSpinner.getItemAtPosition(index);
-            return gp.getName();
+            //TODO CHECK
+//            profileSpinner.setItemChecked(index, true);
+            return gp.getParcedName();
+ //           return gp.getName();
         } else if (uuid.compareTo(emergencyProfile.getUuid()) == 0) {
             return emergencyProfile.getName();
         }
@@ -336,6 +439,13 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             if (tmpUuid != null){
                 // compare lower cases
                 if (uuid.toLowerCase().compareTo(tmpUuid.toLowerCase()) == 0) {
+                    //TODO CHECK
+                    if (profileSpinner != null  && profileSpinner.getChildCount()>0) {
+                        View v = profileSpinner.getChildAt(i);
+                        spinnerAdapter.select(v);
+                        profileSpinner.setItemChecked(i, true);
+                    }
+
                     break;
                 }
             }
@@ -355,13 +465,23 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
      * @param v
      */
     private void addItemsOnProfileSpinner(View v) {
-        profileSpinner = (Spinner) v.findViewById(R.id.profileSpinner);
-        List<String> list = new ArrayList<String>();
-        list.add("No Profiles Found");
+        profileSpinner = (ListView) v.findViewById(R.id.profileSpinner);
+        List<GlacierProfile> gp = new ArrayList<GlacierProfile>();
 
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this.getActivity(),android.R.layout.simple_spinner_item, list);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerAdapter = new ProfileSelectListAdapter<GlacierProfile>(this.getActivity(),R.layout.radio, gp);
         profileSpinner.setAdapter(spinnerAdapter);
+        profileSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,final int position, long id) {
+                //TODO CHECK
+                spinnerAdapter.select(position, view, parent);
+                GlacierProfile glacierProfile = (GlacierProfile) parent.getItemAtPosition(position);
+                confirmProfileSelection(position, glacierProfile);
+                //spinnerAdapter.notifyDataSetChanged();
+
+            }
+
+        });
         spinnerAdapter.notifyDataSetChanged();
     }
 
@@ -433,6 +553,12 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                     emergencyProfile = new GlacierProfile(list.get(j).mName, list.get(j).mUUID);
                 }
             }
+            Collections.sort(nameList, new Comparator<GlacierProfile>() {
+                @Override
+                public int compare(GlacierProfile glacierProfile, GlacierProfile t1) {
+                    return glacierProfile.name.compareTo(t1.name);
+                }
+            });
 
             // create random "profile" if there's enough in the list to randomize
             // we have to account for emergency profile since list contains everything
@@ -448,17 +574,33 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 nameList.add(emergencyProfile);
             }*/
 
-            spinnerAdapter = new ArrayAdapter<GlacierProfile>(this.getActivity(),android.R.layout.simple_spinner_item, nameList);
-            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+            spinnerAdapter = new ProfileSelectListAdapter<GlacierProfile>(this.getActivity(),R.layout.radio, nameList);
+            //spinnerAdapter.setDropDownViewResource(R.layout.radio);
             profileSpinner.setAdapter(spinnerAdapter);
+            spinnerAdapter.notifyDataSetChanged();
+            spinnerAdapter.setOnItemClickListener(new ProfileSelectListAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(View view, GlacierProfile glacierProfile, int position) {
+                    profileSpinner.setSelection(position);
+                    profileSpinner.setItemChecked(position, true);
+                    confirmProfileSelection(position, glacierProfile);
+                    //TODO CHECK
+                }
+
+            });
 
             if(list.size()> 0) {
-                Button b = mStartVpn;
-                b.setOnClickListener(this);
-                b.setVisibility(View.VISIBLE);
-                // b.setText("Submit");
-                mStartUUID = list.get(0).mUUID;
+                mUseVpnToggle.setEnabled(true);
+                mNoVpnProfilesView.setVisibility(View.GONE);
+
+            } else {
+                mUseVpnToggle.setEnabled(false);
+                profileSpinner.setVisibility(View.GONE);
+                mVpnStatusBar.setVisibility(View.GONE);
+                mNoVpnProfilesView.setVisibility(View.VISIBLE);
             }
+
             /* GOOBER CORE - Remove emergency profile
             enableEmergConnectCheckBox.setChecked(false);
              */
@@ -470,6 +612,23 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
         }
     }
 
+    private void confirmProfileSelection(int position, GlacierProfile glacierProfile){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(getString(R.string.core_profile));
+        builder.setMessage(getText(R.string.change_vpn_profile)+" "+ glacierProfile.getParcedName() +"?");
+        builder.setNegativeButton(getString(R.string.cancel), null);
+        builder.setPositiveButton(getString(R.string.connect_button_label),
+                (dialog, which) -> {
+                    selectProfile(position, glacierProfile);
+                });
+        builder.create().show();
+    }
+    private void selectProfile(int position, GlacierProfile glacierProfile){
+        //clearSelectedVpn();
+        //selectedVpn(position);
+        mDisconnectVpn.setVisibility(View.VISIBLE);
+        startVpn(glacierProfile);
+    }
     private void unbindService() {
         getActivity().unbindService(mConnection);
     }
@@ -485,82 +644,74 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             if (name.toLowerCase().contains(EMERGENCY_PROFILE_TAG))
                 return true;
         }
-            return false;
+        return false;
+    }
+
+    private void startVpn(GlacierProfile glacierProfile){
+        mStartUUID = glacierProfile.getUuid();
+
+        // GOOBER retrieve previous profile selected
+        SharedPreferences sp = this.getActivity().getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
+        sp.edit().putString("last_spinner_profile", mStartUUID).commit();
+        // Log.d("GOOBER", "This is uuid set: " + mStartUUID);
+
+        // see if random profile selected
+        if (mStartUUID.compareTo("random") == 0) {
+            excludeProfileList.clear();
+            randomProfileSelected = true;
+            mStartUUID = getRandomUuid();
+        }
+
+        if (isEmergencyProfile(glacierProfile.getName())) {
+            AlertDialog.Builder d = new AlertDialog.Builder(this.getActivity());
+
+            d.setIconAttribute(android.R.attr.alertDialogIcon);
+            d.setTitle("Emergency Profile");
+            d.setMessage("This is an emergency profile.  Are you sure you want to continue?");
+            d.setNegativeButton(getString(R.string.cancel), null);
+            d.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    try {
+                        prepareStartProfile(START_PROFILE_BYUUID);
+                    } catch (RemoteException e) {
+                        //CMG AM-240
+                        Log.d("RemoteException", "at prepareStartProfile");
+                        e.printStackTrace();
+                    }
+                }
+            });
+            d.show();
+        } else {
+            try {
+                prepareStartProfile(START_PROFILE_BYUUID);
+            } catch (RemoteException e) {
+                //CMG AM-240
+                Log.d("RemoteException", "at prepareStartProfile");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public String parseVpnName(String name){
+        try {
+            String [] splitname = name.split("_");
+            return splitname[1];
+        } catch (Exception e){
+        }
+        return name;
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.startVPN:
-                isConnected_EnableDisconnect();
-                disconnectClicked = false;
-                // GOOBER
-                GlacierProfile glacierProfile = (GlacierProfile) profileSpinner.getSelectedItem();
-                mStartUUID = glacierProfile.getUuid();
-
-                // GOOBER retrieve previous profile selected
-                SharedPreferences sp = this.getActivity().getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
-                sp.edit().putString("last_spinner_profile", mStartUUID).commit();
-                // Log.d("GOOBER", "This is uuid set: " + mStartUUID);
-
-                // see if random profile selected
-                if (mStartUUID.compareTo("random") == 0) {
-                    excludeProfileList.clear();
-                    randomProfileSelected = true;
-                    connectClicked = true;
-                    mStartUUID = getRandomUuid();
-                }
-
-                if (isEmergencyProfile(glacierProfile.getName())) {
-                    AlertDialog.Builder d = new AlertDialog.Builder(this.getActivity());
-
-                    d.setIconAttribute(android.R.attr.alertDialogIcon);
-                    d.setTitle("Emergency Profile");
-                    d.setMessage("This is an emergency profile.  Are you sure you want to continue?");
-                    d.setNegativeButton(getString(R.string.cancel), null);
-                    d.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            try {
-                                prepareStartProfile(START_PROFILE_BYUUID);
-                            } catch (RemoteException e) {
-//                                //CMG AM-240
-//                                Log.d("RemoteException", "at prepareStartProfile");
-//                                e.printStackTrace();
-                            }
-                        }
-                    });
-                    d.show();
-                } else {
-                    try {
-                        prepareStartProfile(START_PROFILE_BYUUID);
-                    } catch (RemoteException e) {
-//                        //CMG AM-240
-//                        Log.d("RemoteException", "at prepareStartProfile");
-//                        e.printStackTrace();
-                    }
-                }
-                break;
-            case R.id.disconnect:
-//                Log.d("RemoteExample", "DAVID Disconnect");
-                try {
-                    mService.disconnect();
-                } catch (RemoteException e) {
-//                    //CMG AM-240
-//                    Log.d("RemoteException", "at mService.disconnect");
-//                    e.printStackTrace();
-                }
-                isDisconnected_EnableConnect();
-                disconnectClicked = true;
-
-                break;
             case R.id.addNewProfile:
                 // CMG AM-240
                 try {
                     showImportProfileVPNDialogFragment();
                 } catch (Exception e){
-//                    Log.d("Exception", "at showImportProfileVPNDialogFragment");
-//                    e.printStackTrace();
+                    Log.d("Exception", "at showImportProfileVPNDialogFragment");
+                    e.printStackTrace();
                 }
             /* case R.id.getMyIP:
                 Log.d("RemoteExample", "DAVID getMyIP");
@@ -582,40 +733,30 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 }.start();
 
                 break;*/
-            /** case R.id.startembedded:
-             Log.d("RemoteExample", "DAVID StartEmbedded");
-             try {
-             prepareStartProfile(START_PROFILE_EMBEDDED);
-             } catch (RemoteException e) {
-             // TODO Auto-generated catch block
-             e.printStackTrace();
-             }
-             break;
+                /** case R.id.startembedded:
+                 Log.d("RemoteExample", "DAVID StartEmbedded");
+                 try {
+                 prepareStartProfile(START_PROFILE_EMBEDDED);
+                 } catch (RemoteException e) {
+                 // TODO Auto-generated catch block
+                 e.printStackTrace();
+                 }
+                 break;
 
-             case R.id.addNewProfile:
-             Log.d("RemoteExample", "addNewProfile");
-             try {
-             prepareStartProfile(PROFILE_ADD_NEW);
-             } catch (RemoteException e) {
-             // TODO Auto-generated catch block
-             e.printStackTrace();
-             }*/
+                 case R.id.addNewProfile:
+                 Log.d("RemoteExample", "addNewProfile");
+                 try {
+                 prepareStartProfile(PROFILE_ADD_NEW);
+                 } catch (RemoteException e) {
+                 // TODO Auto-generated catch block
+                 e.printStackTrace();
+                 }*/
             default:
                 break;
         }
 
     }
 
-    public void isConnected_EnableDisconnect(){
-        mDisconnect.setEnabled(true);
-        mStartVpn.setEnabled(false);
-
-    }
-    public void isDisconnected_EnableConnect(){
-        mDisconnect.setEnabled(false);
-        mStartVpn.setEnabled(true);
-
-    }
     /**
      * HONEYBADGER AM-76
      */
@@ -691,8 +832,8 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                         mService.startProfile(mStartUUID);
                     }
                 } catch (RemoteException e) {
-//                    Log.d("RemoteException", "at start profile byuuid");
-//                    e.printStackTrace();
+                    Log.d("RemoteException", "at start profile byuuid");
+                    e.printStackTrace();
                 }
             if (requestCode == ICS_OPENVPN_PERMISSION) {
 
@@ -744,18 +885,17 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 
     @Override
     public boolean handleMessage(Message msg) {
-        //Log.d("GOOBER", "OpenVPNFragment::handleMessage(): " + msg.obj.toString() + "::What = " + msg.what);
-
+        Log.d(Config.LOGTAG, "OpenVPNFragment::handleMessage(): " + msg.obj.toString() + "::What = " + msg.what);
+        //TODO use message to update connection status
         //Log.d("GOOBER", "** UPDATED MESSAGE: " + ((CharSequence) msg.obj).subSequence(0, ((CharSequence) msg.obj).length() - 1) + "**" + msg.obj.toString());
         if(msg.what == MSG_UPDATE_STATE) {
             // GOOBER - check for NOPROCESS string and change it to NOT CONNECTED
             if (msg.obj.toString().startsWith("NOPROCESS")) {
                 mStatus.setText("NOT CONNECTED");
+                mVpnConnectionStatus.setText("Not Connected");
 
                 // DJF 08-27
                 //if (profileSpinner == null) {
-                mStartVpn.setEnabled(true);
-                mDisconnect.setEnabled(false);
                 //} else {
                 //    mStartVpn.setEnabled(false);
                 //    mDisconnect.setEnabled(false);
@@ -763,52 +903,50 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 //Log.d("GOOBER", "NOT CONNECTED: connectClicked = " + connectClicked + "::randomProfileSelected = " + randomProfileSelected);
 
                 // check if this is a start of trying random profiles and it failed
-                if (disconnectClicked != true) {
-                    if ((connectClicked) && (randomProfileSelected)) {
-                        mStartUUID = getRandomUuid();
-                        if (mStartUUID != null) {
-                            try {
-                                //Log.d("GOOBER", "Attempting to start UUID: " + mStartUUID);
-                                prepareStartProfile(START_PROFILE_BYUUID);
-                            } catch (RemoteException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            //Log.d("GOOBER", "Exhausted all ids = Done trying, reset flags-1");
-                            // reset flags b/c done trying all profiles
-                            randomProfileSelected = false;
-                            connectClicked = false;
-                            excludeProfileList.clear();
+
+                if ((randomProfileSelected)) {
+                    mStartUUID = getRandomUuid();
+                    if (mStartUUID != null) {
+                        try {
+                            //Log.d("GOOBER", "Attempting to start UUID: " + mStartUUID);
+                            prepareStartProfile(START_PROFILE_BYUUID);
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
                         }
+                    } else {
+                        //Log.d("GOOBER", "Exhausted all ids = Done trying, reset flags-1");
+                        // reset flags b/c done trying all profiles
+                        randomProfileSelected = false;
+                        excludeProfileList.clear();
                     }
                 }
+
             } else {
                 // found profile that works, so reset variables
                 //Log.d("GOOBER", "Done trying, reset flags-2");
                 if (msg.obj.toString().startsWith("CONNECTED")) {
                     //Log.d("GOOBER", "CONNECTED: connectClicked: Says we're connected");
                     randomProfileSelected = false;
-                    connectClicked = false;
-                    disconnectClicked = false;
-                    excludeProfileList.clear();
-                    mStartVpn.setEnabled(false);
-                    mDisconnect.setEnabled(true); // DJF 08-27
+//                    excludeProfileList.clear();
+//                    mStartVpn.setEnabled(false);
+//                    mDisconnect.setEnabled(true); // DJF 08-27
                     // GOOBER - Generally don't want stuff after text when CONNECTED
                     mStatus.setText("CONNECTED");
+                    mVpnConnectionStatus.setText("Connected");
                 } else if ((msg.obj.toString().startsWith("NONETWORK")) || (msg.obj.toString().startsWith("AUTH_FAILED")) || (msg.obj.toString().startsWith("EXITING"))) {
                     randomProfileSelected = false;
-                    connectClicked = false;
-                    disconnectClicked = false;
                     excludeProfileList.clear();
-                    mStartVpn.setEnabled(true);
-                    mDisconnect.setEnabled(false); // DJF 08-27
+//                    mStartVpn.setEnabled(true);
+//                    mDisconnect.setEnabled(false); // DJF 08-27
                     // GOOBER - get rid of pipe ("|") from end of message
                     mStatus.setText(((CharSequence) msg.obj).subSequence(0, ((CharSequence) msg.obj).length() - 1));
+                    mVpnConnectionStatus.setText("Connection failed");
                 } else { // all other messages are in-process messages so disable "Connect" button
-                    mStartVpn.setEnabled(false);
-                    mDisconnect.setEnabled(false); // DJF 08-27
+//                    mStartVpn.setEnabled(false);
+//                    mDisconnect.setEnabled(false); // DJF 08-27
                     // GOOBER - get rid of pipe ("|") from end of message
                     mStatus.setText(((CharSequence) msg.obj).subSequence(0, ((CharSequence) msg.obj).length() - 1));
+                    mVpnConnectionStatus.setText("Configuring connection...");
                 }
             }
         } else if (msg.what == MSG_UPDATE_MYIP) {
@@ -840,10 +978,22 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             return uuid;
         }
 
+        public String getParcedName(){
+            try {
+                String [] splitname = name.split("_");
+                return splitname[1];
+            } catch (Exception e){
+            }
+            return name;
+
+        }
+
         @Override
         public String toString() {
             return getName();
         }
+
+
     }
 
     /**

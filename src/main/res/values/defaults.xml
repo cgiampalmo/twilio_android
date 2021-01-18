@@ -46,4 +46,5 @@
     <bool name="use_share_location_plugin">false</bool>
     <bool name="start_searching">false</bool>
     <string name="video_compression">360</string>
+    <bool name="use_core_connect">false</bool>  <!-- CMG AM-517-->
 </resources>
