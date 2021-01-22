@@ -3,6 +3,7 @@ package com.glaciersecurity.glaciermessenger.ui;
 
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
@@ -21,13 +22,18 @@ public class OpenVPNActivity extends XmppActivity {
         //tb.setTitle(R.string.action_glaciervpn);
         setSupportActionBar(tb);
         configureActionBar(getSupportActionBar());
+        if (savedInstanceState != null){
+            Fragment frag = getSupportFragmentManager().findFragmentByTag("openVpnFragment");
+
+
+        }
         if (savedInstanceState == null) {
             openVPNFragment = new OpenVPNFragment();
-            getFragmentManager().beginTransaction()
-                    .add(R.id.container, openVPNFragment)
-                    .commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.container, openVPNFragment).commit();
 
-
+        } else {
+            openVPNFragment = (OpenVPNFragment) getSupportFragmentManager()
+                    .findFragmentByTag("openVpnFragment");
         }
        // connectivityReceiver = new ConnectivityReceiver(this);
 
@@ -40,6 +46,14 @@ public class OpenVPNActivity extends XmppActivity {
 //        getMenuInflater().inflate(R.menu.vpn_connection, menu);
 //        return true;
 //    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        //Save the fragment's instance
+        getSupportFragmentManager().putFragment(outState, "openVpnFragment", openVPNFragment);
+    }
 @Override
 protected void onStart() {
     super.onStart();

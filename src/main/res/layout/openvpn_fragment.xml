@@ -226,8 +226,7 @@
                                     android:layout_below="@+id/connectionStatusTitle"
                                     android:layout_alignParentLeft="true"
                                     android:layout_centerVertical="true"
-                                    android:text="@string/no_status_yet"
-                                    android:visibility="gone"/>
+                                    android:text="@string/no_status_yet"/>
 
 
                                 <TextView
@@ -237,8 +236,7 @@
                                     android:layout_below="@+id/currentProfileTitle"
                                     android:layout_alignParentLeft="true"
                                     android:layout_centerVertical="true"
-                                    android:text="@string/no_profile_yet"
-                                    android:visibility="gone"/>
+                                    android:text="@string/no_profile_yet"/>
 
                                 <ListView
                                     android:id="@+id/profileSpinner"

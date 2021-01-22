@@ -2,7 +2,6 @@ package com.glaciersecurity.glaciermessenger.ui;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -23,6 +22,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import androidx.fragment.app.DialogFragment;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;

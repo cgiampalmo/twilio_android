@@ -311,7 +311,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			if (activity instanceof OnConversationSelected) {
 				((OnConversationSelected) activity).onConversationSelected(conversation);
 			} else {
-				Log.w(ConversationsOverviewFragment.class.getCanonicalName(), "Activity does not implement OnConversationSelected");
+				Log.w(Config.LOGTAG, "Activity does not implement OnConversationSelected");
 			}
 		});
 		this.binding.list.setAdapter(this.conversationsAdapter);
