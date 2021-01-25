@@ -105,11 +105,13 @@
         android:orderInCategory="35"
         app:showAsAction="never"
         android:title="@string/edit_status"/>
+    <!--        CMG AM-544-->
     <item
         android:id="@+id/action_invite"
         android:orderInCategory="45"
         app:showAsAction="never"
-        android:title="@string/invite_contact"/>
+        android:title="@string/invite_contact"
+        android:visible="false"/>
     <!-- ALF AM-53 -->
     <!--<item-->
     <!--android:id="@+id/action_conversation_timer"-->
