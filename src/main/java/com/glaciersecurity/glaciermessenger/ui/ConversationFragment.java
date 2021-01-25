@@ -1138,7 +1138,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 //				menuContactDetails.setVisible(!this.conversation.withSelf());
 //				menuMucDetails.setVisible(false);
 				final XmppConnectionService service = activity.xmppConnectionService;
-				menuInviteContact.setVisible(service != null && service.findConferenceServer(conversation.getAccount()) != null);
+				//CMG AM-544
+				menuInviteContact.setVisible(false);
+//				menuInviteContact.setVisible(service != null && service.findConferenceServer(conversation.getAccount()) != null);
 				//menuConversationTimer.setVisible(true); //ALF AM-53
 				menuLeaveGroup.setVisible(false); //ALF AM-122 (and next line)
 				menuEndConversation.setVisible(true);

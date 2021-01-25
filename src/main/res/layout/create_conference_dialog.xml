@@ -23,6 +23,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"/> -->
 
+
         <!-- AM-88 next 4 -->
         <TextView
             style="@style/InputLabel"
@@ -30,12 +31,14 @@
             android:layout_height="wrap_content"
             android:text="@string/invite_only_desc"/>
 
-        <TextView
+        <!--        CMG AM-544-->
+<!--        <TextView
             style="@style/InputLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/open_group_desc"/>
+            android:text="@string/open_group_desc"/>-->
 
+        <!--        CMG AM-544-->
         <CheckBox
             android:id="@+id/invite_only"
             style="@style/Widget.Conversations.CheckBox"
@@ -43,7 +46,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:checked="true"
-            android:text="@string/invite_only"/>
+            android:text="@string/invite_only"
+            android:visibility="gone"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
