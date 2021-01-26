@@ -76,6 +76,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     private TextView mStatus;
     private TextView mVpnConnectionStatus;
     private RelativeLayout mVpnStatusBar;
+    private Button mImportVpn;
     private TextView mProfile;
     private CheckBox enableEmergConnectCheckBox;
     private GlacierProfile emergencyProfile;
@@ -91,6 +92,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     private boolean randomProfileSelected = false;
     private List<String> excludeProfileList = new ArrayList<String>();
     private OpenVPNActivity activity;
+    private boolean isCoreConnectUsed = false;
 
     //TODO getConnectedProf
 
@@ -99,6 +101,8 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
         super.onAttach(activity);
         if (activity instanceof OpenVPNActivity) {
             this.activity = (OpenVPNActivity) activity;
+            boolean is_using_core = this.activity.getPreferences().getBoolean(USE_CORE_CONNECT, false);
+            Log.d(Config.LOGTAG, is_using_core + " ");
 
         } else {
             throw new IllegalStateException("Trying to attach fragment to activity that is not the ConversationsActivity");
@@ -114,12 +118,13 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
-
+            String str = savedInstanceState.getString("my_prof");
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+       outState.putString("my_prof", mProfile.getText().toString());
         super.onSaveInstanceState(outState);
 
     }
@@ -154,6 +159,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
         }); */
         v.findViewById(R.id.addNewProfile).setOnClickListener(this);
         //mHelloWorld = (TextView) v.findViewById(R.id.helloworld);
+        mImportVpn = (Button) v.findViewById(R.id.addNewProfile);
         mStatus = (TextView) v.findViewById(R.id.status);
         mProfile = (TextView) v.findViewById(R.id.currentProfile);
         mVpnConnectionStatus = (TextView) v.findViewById(R.id.vpn_connection_status);
@@ -188,20 +194,30 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 //        networkStatus = (TextView) v.findViewById(R.id.network_status);
 //        offlineLayout.setOnClickListener(mRefreshNetworkClickListener);
 //        checkNetworkStatus();
-        //TODO
-            mUseVpnToggle.setChecked(true);
-            if(mUseVpnToggle.isChecked()){
+
+        isCoreConnectUsed = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(USE_CORE_CONNECT, false);
+            if(isCoreConnectUsed){
                 profileSpinner.setVisibility(View.VISIBLE);
                 mVpnStatusBar.setVisibility(View.VISIBLE);
                 mDisableVpnView.setVisibility(View.GONE);
+                mImportVpn.setVisibility(View.VISIBLE);
+                mUseVpnToggle.setChecked(true);
            } else {
+                mUseVpnToggle.setChecked(false);
                 mDisableVpnView.setVisibility(View.VISIBLE);
                 profileSpinner.setVisibility(View.GONE);
                 mVpnStatusBar.setVisibility(View.GONE);
+                mImportVpn.setVisibility(View.GONE);
             }
 
         return v;
 
+    }
+
+
+
+    private void setUseCoreConnect (boolean bool) {
+        activity.getPreferences().edit().putBoolean(USE_CORE_CONNECT, bool).apply();
     }
 
     private static final int MSG_UPDATE_STATE = 0;
@@ -214,16 +230,22 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     private View.OnClickListener mOnToggleSwitchListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+
             if(mUseVpnToggle.isChecked()){
+                setUseCoreConnect(true);
                 mVpnStatusBar.setVisibility(View.VISIBLE);
                 mDisableVpnView.setVisibility(View.GONE);
                 profileSpinner.setVisibility(View.VISIBLE);
+                mImportVpn.setVisibility(View.VISIBLE);
 
             } else {
+                setUseCoreConnect(false);
                 disconnectVpn();
-                mDisableVpnView.setVisibility(View.VISIBLE);
                 profileSpinner.setVisibility(View.GONE);
                 mVpnStatusBar.setVisibility(View.GONE);
+                mImportVpn.setVisibility(View.GONE);
+                mDisableVpnView.setVisibility(View.VISIBLE);
+
             }
         }
     };
@@ -333,9 +355,6 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             }
             if (uuid != null){
                 profileSpinner.setSelection(getSpinnerIndex(uuid));
-            }
-            if (state != null){
-                handleStatusMessage(state);
             }
 
             /*if (index >= 0) {
@@ -549,7 +568,9 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             } else {
                 profileSpinner.setVisibility(View.GONE);
                 mVpnStatusBar.setVisibility(View.GONE);
-                mNoVpnProfilesView.setVisibility(View.VISIBLE);
+                if (isCoreConnectUsed){
+                    mNoVpnProfilesView.setVisibility(View.VISIBLE);
+                }
             }
 
             /* GOOBER CORE - Remove emergency profile
@@ -850,7 +871,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             return;
         }
         else {
-            mVpnConnectionStatus.setText("Configuring connection...");
+            mVpnConnectionStatus.setText("Connecting");
             mDisconnectVpn.setVisibility(VISIBLE);
             return;
         }
@@ -860,12 +881,11 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
         Log.d(Config.LOGTAG, "OpenVPNFragment::handleMessage(): " + msg.obj.toString() + "::What = " + msg.what);
         //TODO use message to update connection status
         //Log.d("GOOBER", "** UPDATED MESSAGE: " + ((CharSequence) msg.obj).subSequence(0, ((CharSequence) msg.obj).length() - 1) + "**" + msg.obj.toString());
-        handleStatusMessage(msg.obj.toString());
         if(msg.what == MSG_UPDATE_STATE) {
             // GOOBER - check for NOPROCESS string and change it to NOT CONNECTED
             if (msg.obj.toString().startsWith("NOPROCESS")) {
                 mStatus.setText("NOT CONNECTED");
-
+                handleStatusMessage(msg.obj.toString());
                 // DJF 08-27
                 //if (profileSpinner == null) {
                 //} else {
@@ -904,6 +924,8 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 //                    mDisconnect.setEnabled(true); // DJF 08-27
                     // GOOBER - Generally don't want stuff after text when CONNECTED
                     mStatus.setText("CONNECTED");
+                    handleStatusMessage(msg.obj.toString());
+
                 } else if ((msg.obj.toString().startsWith("NONETWORK")) || (msg.obj.toString().startsWith("AUTH_FAILED")) || (msg.obj.toString().startsWith("EXITING"))) {
                     randomProfileSelected = false;
                     excludeProfileList.clear();
@@ -911,11 +933,15 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 //                    mDisconnect.setEnabled(false); // DJF 08-27
                     // GOOBER - get rid of pipe ("|") from end of message
                     mStatus.setText(((CharSequence) msg.obj).subSequence(0, ((CharSequence) msg.obj).length() - 1));
+                    handleStatusMessage(msg.obj.toString());
+
                 } else { // all other messages are in-process messages so disable "Connect" button
 //                    mStartVpn.setEnabled(false);
 //                    mDisconnect.setEnabled(false); // DJF 08-27
                     // GOOBER - get rid of pipe ("|") from end of message
                     mStatus.setText(((CharSequence) msg.obj).subSequence(0, ((CharSequence) msg.obj).length() - 1));
+                    handleStatusMessage(msg.obj.toString());
+
                 }
             }
         } else if (msg.what == MSG_UPDATE_MYIP) {

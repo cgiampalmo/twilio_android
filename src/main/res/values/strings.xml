@@ -995,8 +995,8 @@
     <string name="account_logout_confirmation">Do you really want to logout of Glacier?\n\nAll conversation and media history will be unrecoverable.</string> <!-- ALF AM-228 modified -->
 
     <string name="select_vpn_profile_dialog_message">Select VPN you want to add</string>
-    <string name="no_vpn_profile_dialog_message">No VPN profile to add</string> <!-- ALF AM-76 -->
-    <string name="load_vpn_profile_dialog_message">Loading VPN list....</string>
+    <string name="no_vpn_profile_dialog_message">Secure Core is not available for this account</string> <!-- ALF AM-76 -->
+    <string name="load_vpn_profile_dialog_message">Updating....</string>
     <string name="add_button_text">Add</string>
     <string name="core_connection_import_profile">Import Core Profiles</string>
 
@@ -1138,10 +1138,9 @@
     <string name="owners_can_edit_name">Owners can edit the group name.</string>
 
     <!--    CMG AM-517-->
-    <string name="contact_link">https://glacier.chat/contact</string>
     <string name="enable_core_connection">Enabling Core Connection adds an additional layer of encryption and anonymity to all data exiting your device.\n\nWhen enabling Core Connect for the first time, Glacier will request permission to install a profile.  This permission enables Glacier to protect your identity and corporate data.\n\nGlacier does not allow your admin to see browsing history.  Learn more how Glacier protects you.</string>
     <string name="no_vpn_connection">You are not connected to server.  Enable Core for an additional layer of encryption and anonymity</string>
-    <string name="no_vpn_profiles">No profiles found. Please contact your system administrator for assistance</string>
+    <string name="no_vpn_profiles">No profiles found. Please contact your organization admin for assistance.</string>
     <string name="core_link">https://glacier.chat/core</string>
     <string name="use_vpn">Use Secure Core</string>
     <string name="core_profile">Core Profile</string>

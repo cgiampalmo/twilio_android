@@ -2,6 +2,10 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+
+        <ScrollView android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -66,7 +70,7 @@
                             android:id="@+id/vpn_status"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:padding="13dp"
+                            android:padding="15dp"
                             android:background="#27a1cb"
                             android:layout_alignParentTop="true"
                             >
@@ -78,9 +82,8 @@
                                     android:layout_alignParentLeft="true"
                                     android:gravity="center_vertical"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                                    android:paddingLeft="40dp"
-                                    android:layout_centerVertical="true"
-                                    android:text="Connected"/>
+                                    android:paddingLeft="16dp"
+                                    android:layout_centerVertical="true"/>
 
 
                                 <Button
@@ -137,8 +140,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center|center_vertical"
                             android:gravity="center"
-                            android:orientation="vertical"
-                            android:visibility="gone">
+                            android:orientation="vertical">
 
                                 <ImageView
                                     android:layout_width="50dp"
@@ -204,13 +206,6 @@
                                     android:textAlignment="gravity"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_gravity="center"
-                                    android:text="@string/contact_link"
-                                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                                    android:autoLink="web"/>
                         </LinearLayout>
 
                         <LinearLayout
@@ -226,7 +221,8 @@
                                     android:layout_below="@+id/connectionStatusTitle"
                                     android:layout_alignParentLeft="true"
                                     android:layout_centerVertical="true"
-                                    android:text="@string/no_status_yet"/>
+                                    android:text="@string/no_status_yet"
+                                    android:visibility="gone"/>
 
 
                                 <TextView
@@ -236,7 +232,8 @@
                                     android:layout_below="@+id/currentProfileTitle"
                                     android:layout_alignParentLeft="true"
                                     android:layout_centerVertical="true"
-                                    android:text="@string/no_profile_yet"/>
+                                    android:text="@string/no_profile_yet"
+                                    android:visibility="gone"/>
 
                                 <ListView
                                     android:id="@+id/profileSpinner"
@@ -246,17 +243,18 @@
                                     android:layout_alignParentStart="true"
                                     android:layout_alignParentLeft="true" />
 
+
                                 <Button
                                     android:id="@+id/addNewProfile"
-                                    style="?android:attr/buttonStyleSmall"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:padding="@dimen/fab_margin"
+                                    android:background="@drawable/btn_rounded_white_outline"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
                                     android:layout_below="@+id/profileSpinner"
                                     android:layout_alignLeft="@+id/connectionStatusTitle"
-                                    android:layout_marginLeft="1dp"
                                     android:layout_marginTop="38dp"
                                     android:layout_gravity="center"
-
                                     android:text="@string/core_connection_import_profile" />
 
                                 <!-- <Button
@@ -283,4 +281,5 @@
                     android:textSize="20dp"/> -->
 
         </RelativeLayout>
+        </ScrollView>
 </layout>
