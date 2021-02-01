@@ -85,6 +85,7 @@ public class ProfileSelectListAdapter<GlacierProfile> extends ArrayAdapter<Glaci
             CheckedTextView checkedTextView = view.findViewById(R.id.profname);
             checkedTextView.setChecked(true);
         }
+
     }
 
 

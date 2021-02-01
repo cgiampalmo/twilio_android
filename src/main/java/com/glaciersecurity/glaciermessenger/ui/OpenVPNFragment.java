@@ -233,18 +233,18 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 
             if(mUseVpnToggle.isChecked()){
                 setUseCoreConnect(true);
+                profileSpinner.setVisibility(View.VISIBLE);
                 mVpnStatusBar.setVisibility(View.VISIBLE);
                 mDisableVpnView.setVisibility(View.GONE);
-                profileSpinner.setVisibility(View.VISIBLE);
                 mImportVpn.setVisibility(View.VISIBLE);
 
             } else {
                 setUseCoreConnect(false);
                 disconnectVpn();
+                mDisableVpnView.setVisibility(View.VISIBLE);
                 profileSpinner.setVisibility(View.GONE);
                 mVpnStatusBar.setVisibility(View.GONE);
                 mImportVpn.setVisibility(View.GONE);
-                mDisableVpnView.setVisibility(View.VISIBLE);
 
             }
         }
@@ -353,9 +353,9 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             if (profileName != null) {
                 mProfile.setText(profileName);
             }
-            if (uuid != null){
-                profileSpinner.setSelection(getSpinnerIndex(uuid));
-            }
+//            if (uuid != null){
+//                profileSpinner.setSelection(getSpinnerIndex(uuid));
+//            }
 
             /*if (index >= 0) {
 
@@ -411,12 +411,6 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             if (tmpUuid != null){
                 // compare lower cases
                 if (uuid.toLowerCase().compareTo(tmpUuid.toLowerCase()) == 0) {
-                    //TODO CHECK
-                    if (profileSpinner != null  && profileSpinner.getChildCount()>0) {
-                        View v = profileSpinner.getChildAt(i);
-                        spinnerAdapter.select(v);
-                        profileSpinner.setItemChecked(i, true);
-                    }
 
                     break;
                 }
@@ -454,7 +448,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             }
 
         });
-        spinnerAdapter.notifyDataSetChanged();
+//        spinnerAdapter.notifyDataSetChanged();
     }
 
 
@@ -554,10 +548,15 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             spinnerAdapter.setOnItemClickListener(new ProfileSelectListAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, GlacierProfile glacierProfile, int position) {
-                    profileSpinner.setSelection(position);
-                    profileSpinner.setItemChecked(position, true);
+                    //spinnerAdapter.select(view);
+                    spinnerAdapter.select(position,view,profileSpinner);
+
                     confirmProfileSelection(position, glacierProfile);
-                    //TODO CHECK
+
+//                    spinnerAdapter.select(position, view, parent);
+//                    GlacierProfile glacierProfile = (GlacierProfile) parent.getItemAtPosition(position);
+//                    confirmProfileSelection(position, glacierProfile);
+//                    //TODO CHECK
                 }
 
             });
@@ -818,7 +817,6 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 if (lastSelectedProfile != null) {
                     spinnerIndex = getSpinnerIndex(lastSelectedProfile);
                 }
-                profileSpinner.setSelection(spinnerIndex);
 
                 try {
                     mService.registerStatusCallback(mCallback);
@@ -866,7 +864,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             mDisconnectVpn.setVisibility(VISIBLE);
             return;
         } else if ((status.startsWith("NONETWORK")) || (status.startsWith("AUTH_FAILED")) || (status.startsWith("EXITING"))) {
-            mVpnConnectionStatus.setText("Connection failed");
+            mVpnConnectionStatus.setText("Not Connected");
             mDisconnectVpn.setVisibility(View.GONE);
             return;
         }
@@ -885,7 +883,8 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             // GOOBER - check for NOPROCESS string and change it to NOT CONNECTED
             if (msg.obj.toString().startsWith("NOPROCESS")) {
                 mStatus.setText("NOT CONNECTED");
-                handleStatusMessage(msg.obj.toString());
+                mVpnConnectionStatus.setText("Not Connected");
+                mDisconnectVpn.setVisibility(View.GONE);
                 // DJF 08-27
                 //if (profileSpinner == null) {
                 //} else {
@@ -924,8 +923,8 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 //                    mDisconnect.setEnabled(true); // DJF 08-27
                     // GOOBER - Generally don't want stuff after text when CONNECTED
                     mStatus.setText("CONNECTED");
-                    handleStatusMessage(msg.obj.toString());
-
+                    mVpnConnectionStatus.setText("Connected");
+                    mDisconnectVpn.setVisibility(VISIBLE);
                 } else if ((msg.obj.toString().startsWith("NONETWORK")) || (msg.obj.toString().startsWith("AUTH_FAILED")) || (msg.obj.toString().startsWith("EXITING"))) {
                     randomProfileSelected = false;
                     excludeProfileList.clear();
@@ -933,14 +932,16 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 //                    mDisconnect.setEnabled(false); // DJF 08-27
                     // GOOBER - get rid of pipe ("|") from end of message
                     mStatus.setText(((CharSequence) msg.obj).subSequence(0, ((CharSequence) msg.obj).length() - 1));
-                    handleStatusMessage(msg.obj.toString());
+                    mVpnConnectionStatus.setText("Connection failed");
+                    mDisconnectVpn.setVisibility(View.GONE);
 
                 } else { // all other messages are in-process messages so disable "Connect" button
 //                    mStartVpn.setEnabled(false);
 //                    mDisconnect.setEnabled(false); // DJF 08-27
                     // GOOBER - get rid of pipe ("|") from end of message
                     mStatus.setText(((CharSequence) msg.obj).subSequence(0, ((CharSequence) msg.obj).length() - 1));
-                    handleStatusMessage(msg.obj.toString());
+                    mVpnConnectionStatus.setText("Configuring Connection");
+                    mDisconnectVpn.setVisibility(VISIBLE);
 
                 }
             }
