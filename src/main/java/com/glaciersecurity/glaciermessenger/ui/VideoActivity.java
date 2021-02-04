@@ -221,6 +221,12 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
         final String action = intent.getAction();
 
+        //ALF AM-558
+        final String title = intent.getStringExtra("roomtitle");
+        if (title != null) {
+            setTitle(title);
+        }
+
         /*
          * Route audio through cached value.
          */
@@ -940,7 +946,10 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     }
 
     public void handleConnected(Room room){
-        setTitle(room.getName()); //AM-558 this should be title
+        if (getTitle() == null || getTitle().length() == 0) {
+            setTitle(room.getName()); //AM-558 this should be title sent with call data
+        }
+
         audioDeviceSelector.activate(); //AM-440
         updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
 
