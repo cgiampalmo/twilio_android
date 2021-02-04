@@ -3,6 +3,7 @@ package com.glaciersecurity.glaciermessenger.entities;
 import android.annotation.SuppressLint;
 import android.util.Log;
 
+import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
 import com.twilio.video.RemoteAudioTrack;
 import com.twilio.video.RemoteAudioTrackPublication;
 import com.twilio.video.RemoteDataTrack;
@@ -16,6 +17,7 @@ public class TwilioCallParticipant {
     private static final String TAG = "TwilioCallParticipant";
 
     RemoteParticipant remoteParticipant;
+    TwilioCallListener twilioCallListener;
 
     public TwilioCallParticipant(RemoteParticipant participant) {
         remoteParticipant = participant;
@@ -27,6 +29,10 @@ public class TwilioCallParticipant {
 
     public RemoteParticipant.Listener getRemoteParticipantListener() {
         return remoteParticipantListener();
+    }
+
+    public void setCallListener(TwilioCallListener listener) {
+        twilioCallListener = listener;
     }
 
     public boolean equals(String id) {
