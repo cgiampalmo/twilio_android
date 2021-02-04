@@ -38,7 +38,9 @@ import com.twilio.video.VideoCodec;
 import com.twilio.video.Vp8Codec;
 import com.twilio.video.Vp9Codec;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -102,6 +104,7 @@ public class CallManager {
     public CallManager(XmppConnectionService service) {
         mXmppConnectionService = service;
         //audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        callParticipants = new ArrayList<TwilioCallParticipant>(); //ALF AM-558
     }
 
     public void initCall(TwilioCall call) {
@@ -289,6 +292,9 @@ public class CallManager {
         return localParticipant;
     }
 
+    //ALF AM-558
+    public List<TwilioCallParticipant> getRemoteParticipants() { return callParticipants; }
+
     /*
      * Room events listener
      */
@@ -299,17 +305,18 @@ public class CallManager {
             public void onConnected(Room room) {
                 localParticipant = room.getLocalParticipant();
 
-                if (twilioCallListener != null) {
-                    twilioCallListener.handleConnected(room);
-                }
-
                 for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
                     //ALF AM-558 create TwilioCallParticipant and set as listener - *** this will break things until we are fully setup
                     TwilioCallParticipant tcallParticipant = new TwilioCallParticipant(remoteParticipant);
                     remoteParticipant.setListener(tcallParticipant.getRemoteParticipantListener());
+                    callParticipants.add(tcallParticipant);
 
                     //remoteParticipant.setListener(remoteParticipantListener());
                     break;
+                }
+
+                if (twilioCallListener != null) {
+                    twilioCallListener.handleConnected(room); //ALF AM-558 moved below adding participants
                 }
             }
 
@@ -351,6 +358,7 @@ public class CallManager {
                 //ALF AM-558 create TwilioCallParticipant and set as listener - *** this will break things until we are fully setup
                 TwilioCallParticipant tcallParticipant = new TwilioCallParticipant(remoteParticipant);
                 remoteParticipant.setListener(tcallParticipant.getRemoteParticipantListener());
+                callParticipants.add(tcallParticipant);
 
                 if (twilioCallListener != null) {
                     twilioCallListener.handleParticipantConnected(tcallParticipant);
@@ -366,16 +374,29 @@ public class CallManager {
             public void onParticipantDisconnected(Room room, RemoteParticipant remoteParticipant) {
                 //CMG disconnect when remote leaves
 
+                //AM-558 remove from callParticipantsList
+                //something like a hashtable instead of a list using the Identity would make this easier
+                Iterator<TwilioCallParticipant> iterator = callParticipants.iterator();
+                while (iterator.hasNext()) {
+                    TwilioCallParticipant party = iterator.next();
+                    if (party.getRemoteParticipant().getIdentity().equals(remoteParticipant.getIdentity())) {
+                        iterator.remove();
+                    }
+                }
+                if (callParticipants.size() != room.getRemoteParticipants().size()) {
+                    Log.d(TAG, "onParticipantDisconnected we have sync issues");
+                }
+
+                if (twilioCallListener != null) {
+                    twilioCallListener.handleParticipantDisconnected(remoteParticipant);
+                }
+
                 //ALF AM-558 should not disconnect ourselves if still participants in room
                 if (room.getRemoteParticipants().size() > 0) {
-                    //still need to alert and reconfigure UI
                     return;
                 }
 
                 localParticipant = null;
-                if (twilioCallListener != null) {
-                    twilioCallListener.handleParticipantDisconnected(remoteParticipant);
-                }
                 handleDisconnect(); //ALF AM-420
             }
 

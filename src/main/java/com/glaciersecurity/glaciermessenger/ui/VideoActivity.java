@@ -30,6 +30,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
 import com.glaciersecurity.glaciermessenger.services.CallManager;
 import com.glaciersecurity.glaciermessenger.services.PhonecallReceiver;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
@@ -478,7 +479,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
      * Called when remote participant joins the room
      */
     @SuppressLint("SetTextI18n")
-    private void addRemoteParticipant(RemoteParticipant remoteParticipant) {
+    private void addRemoteParticipant(TwilioCallParticipant remoteCallParticipant) {
         /*
          * This app only displays video for one additional participant per Room
          */
@@ -489,6 +490,12 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                     .setAction("Action", null).show();
             return;
         }*/
+
+        //AM-558 the rest after this should initialize a new view for this specific user, not for
+        //VideoActivity as a whole
+        RemoteParticipant remoteParticipant = remoteCallParticipant.getRemoteParticipant();
+
+
         remoteParticipantIdentity = remoteParticipant.getIdentity();
         /*String other = remoteParticipant.getIdentity();
         if (other.contains("@")){
@@ -530,6 +537,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     @SuppressLint("SetTextI18n")
     private void removeRemoteParticipant(RemoteParticipant remoteParticipant) {
         //ALF AM-558 this should be checking against a list rather than a single participant
+        // need to get the specific instance...
         if (!remoteParticipant.getIdentity().equals(remoteParticipantIdentity)) {
             return;
         }
@@ -917,15 +925,18 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     }
 
     //AM-478 start TwilioCallListener
-    public void handleParticipantConnected(RemoteParticipant remoteParticipant) {
-        addRemoteParticipant(remoteParticipant);
+    public void handleParticipantConnected(TwilioCallParticipant remoteCallParticipant) {
+        addRemoteParticipant(remoteCallParticipant);
         reconnectingProgressBar.setVisibility(View.GONE);
     }
 
     public void handleParticipantDisconnected(RemoteParticipant remoteParticipant) {
         //ALF AM-558 this shouldn't handle disconnect unless no other participants
         removeRemoteParticipant(remoteParticipant);
-        handleDisconnect(); //ALF AM-420
+
+        if (callManager.getRemoteParticipants().size() == 0) { //ALF AM-558
+            handleDisconnect(); //ALF AM-420
+        }
     }
 
     public void handleAddRemoteParticipantVideo(RemoteVideoTrack videoTrack){
@@ -947,15 +958,14 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     }
 
     public void handleConnected(Room room){
-        if (getTitle() == null || getTitle().length() == 0) {
-            setTitle(room.getName()); //AM-558 this should be title sent with call data
-        }
+        setTitle(room.getName()); //ALF AM-558 should this be title sent with call data? Or doesn't matter?
 
         audioDeviceSelector.activate(); //AM-440
         updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
 
-        //AM-558 this was already here and explains why we get the flickering
-        for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
+        //AM-558 Note: handling all participants was already here and explains why we get the flickering
+        //for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
+        for (TwilioCallParticipant remoteParticipant : callManager.getRemoteParticipants()) {
             addRemoteParticipant(remoteParticipant);
             /*String other = remoteParticipant.getIdentity();
             if (other.contains("@")){

@@ -70,6 +70,7 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.Authentic
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GetDetailsHandler;
 import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
+import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
 import com.glaciersecurity.glaciermessenger.services.CallManager;
 import com.glaciersecurity.glaciermessenger.services.NotificationService;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
@@ -2015,12 +2016,16 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	}
 
 	@Override
-	public void handleParticipantConnected(RemoteParticipant remoteParticipant) {
+	public void handleParticipantConnected(TwilioCallParticipant remoteCallParticipant) {
 
 	}
 
 	@Override
 	public void handleParticipantDisconnected(RemoteParticipant remoteParticipant) {
+		if (mCallManager.getRemoteParticipants().size() > 0) { //ALF AM-558
+			return; //still in call with other members
+		}
+
 		returnToCall.setVisibility(View.GONE);
 
 		final Intent intent = new Intent(this, XmppConnectionService.class);

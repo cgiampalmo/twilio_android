@@ -1,13 +1,16 @@
 package com.glaciersecurity.glaciermessenger.ui.interfaces;
 
+import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
 import com.twilio.video.LocalAudioTrack;
 import com.twilio.video.LocalVideoTrack;
 import com.twilio.video.RemoteParticipant;
 import com.twilio.video.RemoteVideoTrack;
 import com.twilio.video.Room;
 
+import java.util.List;
+
 public interface TwilioCallListener {
-    void handleParticipantConnected(RemoteParticipant remoteParticipant);
+    void handleParticipantConnected(TwilioCallParticipant remoteCallParticipant);
     void handleParticipantDisconnected(RemoteParticipant remoteParticipant);
     void handleAddRemoteParticipantVideo(RemoteVideoTrack videoTrack);
     void handleRemoveRemoteParticipantVideo(RemoteVideoTrack videoTrack);

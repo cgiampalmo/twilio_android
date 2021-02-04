@@ -29,6 +29,18 @@ public class TwilioCallParticipant {
         return remoteParticipantListener();
     }
 
+    public boolean equals(String id) {
+        return remoteParticipant.getIdentity().equals(id);
+    }
+
+    public boolean equals(RemoteParticipant participant) {
+        return remoteParticipant.getIdentity().equals(participant.getIdentity());
+    }
+
+    public boolean equals(TwilioCallParticipant participant) {
+        return remoteParticipant.getIdentity().equals(participant.getRemoteParticipant().getIdentity());
+    }
+
     @SuppressLint("SetTextI18n")
     private RemoteParticipant.Listener remoteParticipantListener() {
         return new RemoteParticipant.Listener() {
