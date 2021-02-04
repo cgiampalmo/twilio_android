@@ -8,6 +8,7 @@ import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
@@ -1121,7 +1122,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 
 
 		if (conversation != null) {
-
+			menuPhoneCall.setVisible(true); //AM-558
 			if (conversation.getMode() == Conversation.MODE_MULTI) {
 				//menuPhoneCall.setVisible(false);
 				//disappearingMessages.setVisible(false);
@@ -1130,10 +1131,10 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				//menuConversationTimer.setVisible(false); //ALF AM-53
 				menuLeaveGroup.setVisible(true); //ALF AM-122 (and next line)
 				menuEndConversation.setVisible(false);
-				menuPhoneCall.setVisible(false);
+				//menuPhoneCall.setVisible(false); //AM-558
 				//menuMucDetails.setTitle(conversation.getMucOptions().isPrivateAndNonAnonymous() ? R.string.action_muc_details : R.string.channel_details);
 			} else {
-				menuPhoneCall.setVisible(true);
+				//menuPhoneCall.setVisible(true); //AM-558
 				//disappearingMessages.setVisible(true);
 //				menuContactDetails.setVisible(!this.conversation.withSelf());
 //				menuMucDetails.setVisible(false);
@@ -1752,13 +1753,33 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	private void makeCall(){
 		final Account account = conversation.getAccount();
 		TwilioCall call = new TwilioCall(account);
-		call.setReceiver(conversation.getJid().asBareJid().toString());
+		//ALF AM-558 this should be an array of receivers. group will otherwise be groupjid
+		if (conversation.getMode() == Conversation.MODE_MULTI) {
+			StringBuilder receivers = new StringBuilder();
+			List<Jid> groupies = conversation.getAcceptedCryptoTargets();
+			for (Jid receiver : groupies) {
+				receivers.append(receiver.asBareJid().toString()).append(",");
+			}
+			if(receivers.length() > 0 ) {
+				receivers.deleteCharAt(receivers.length() - 1);
+			}
+			//call.setReceiver(String.join(",", receivers)); //better but requires API 26
+			call.setReceiver(receivers.toString());
+			String title = conversation.getMucOptions().getName();
+			call.setRoomTitle("#"+title);
+		} else {
+			call.setReceiver(conversation.getJid().asBareJid().toString());
+			call.setRoomTitle(String.valueOf(conversation.getName()));
+		}
+
+		//call.setReceiver(conversation.getJid().asBareJid().toString());
 		activity.xmppConnectionService.sendCallRequest(call);
 		Intent callActivity = new Intent(getContext(), CallActivity.class);
 		callActivity.setAction(CallActivity.ACTION_OUTGOING_CALL);
 		callActivity.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 		callActivity.putExtra("receiver", call.getReceiver());
 		callActivity.putExtra("uuid", conversation.getUuid());
+		callActivity.putExtra("calltitle", call.getRoomTitle()); //ALF AM-558
 		startActivity(callActivity);
 
 		//ALF AM-421

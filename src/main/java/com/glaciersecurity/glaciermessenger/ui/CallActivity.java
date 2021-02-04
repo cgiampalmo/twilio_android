@@ -78,6 +78,7 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 	private TwilioCall currentTwilioCall;
 	private Jid contactJid;
 	private String conversationUuid;
+	private String calltitle; //ALF AM-558
 	private Handler handler = new Handler();
 
 	private PhonecallReceiver phonecallReceiver; //ALF AM-474
@@ -124,6 +125,7 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 			try {
 				this.contactJid = Jid.of(getIntent().getExtras().getString("receiver"));
 				this.conversationUuid = getIntent().getExtras().getString("uuid");
+				this.calltitle = getIntent().getExtras().getString("calltitle");
 
 			} catch (final IllegalArgumentException ignored) {
 			}
@@ -247,6 +249,7 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 		} else if (CallActivity.ACTION_OUTGOING_CALL.equals(action)) {
 			TwilioCall call = new TwilioCall(null);
 			call.setReceiver(intent.getStringExtra("receiver"));
+			call.setRoomTitle(intent.getStringExtra("calltitle")); //ALF AM-558
 			currentTwilioCall = call;
 			this.onOutgoingCall();
 		}

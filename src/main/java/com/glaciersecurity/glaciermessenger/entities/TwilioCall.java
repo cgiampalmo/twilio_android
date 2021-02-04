@@ -8,6 +8,7 @@ public class TwilioCall {
     protected String treceiver;
     protected String ttoken;
     protected String troomname;
+    protected String troomtitle; //AM-558 (and roomtitle below)
     protected String tstatus;
     protected int tcallid;
 
@@ -49,6 +50,14 @@ public class TwilioCall {
 
     public void setRoomName(String roomname) {
         troomname = roomname;
+    }
+
+    public String getRoomTitle() {
+        return troomtitle;
+    }
+
+    public void setRoomTitle(String roomtitle) {
+        troomtitle = roomtitle;
     }
 
     public String getStatus() {

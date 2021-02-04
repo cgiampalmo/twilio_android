@@ -137,7 +137,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private AudioFocusRequest focusRequest; //ALF AM-446
 
     private VideoRenderer localVideoView;
-    private boolean disconnectedFromOnDestroy;
+    //private boolean disconnectedFromOnDestroy;
 
     private PhonecallReceiver phonecallReceiver; //ALF AM-474
 
@@ -522,6 +522,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
      */
     @SuppressLint("SetTextI18n")
     private void removeRemoteParticipant(RemoteParticipant remoteParticipant) {
+        //ALF AM-558 this should be checking against a list rather than a single participant
         if (!remoteParticipant.getIdentity().equals(remoteParticipantIdentity)) {
             return;
         }
@@ -915,6 +916,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     }
 
     public void handleParticipantDisconnected(RemoteParticipant remoteParticipant) {
+        //ALF AM-558 this shouldn't handle disconnect unless no other participants
         removeRemoteParticipant(remoteParticipant);
         handleDisconnect(); //ALF AM-420
     }
@@ -938,10 +940,11 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     }
 
     public void handleConnected(Room room){
-        setTitle(room.getName());
+        setTitle(room.getName()); //AM-558 this should be title
         audioDeviceSelector.activate(); //AM-440
         updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
 
+        //AM-558 this was already here and explains why we get the flickering
         for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
             addRemoteParticipant(remoteParticipant);
             String other = remoteParticipant.getIdentity();

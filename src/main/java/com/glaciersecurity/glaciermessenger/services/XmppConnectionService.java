@@ -746,8 +746,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 						call.setStatus(intent.getStringExtra("status"));
 
+						//AM-558 is this whole section irrelevant now since we don't use notifications to send these?
 						if (call.getStatus().equalsIgnoreCase("reject") || call.getStatus().equalsIgnoreCase("cancel")) {
 							//stop CallActivity
+							//AM-558 handle this if one party rejects when we've called a group
 							Intent intent1 = new Intent("callActivityFinish");
 							sendBroadcast(intent1);
 							callHandler.removeCallbacksAndMessages(null);
@@ -979,30 +981,38 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		if (account != null && call != null) {
 			SoundPoolManager.getInstance(XmppConnectionService.this).stopRinging();
 
-			if (call.getStatus().equalsIgnoreCase("reject") || call.getStatus().equalsIgnoreCase("cancel")) {
+			if (call.getStatus().equalsIgnoreCase("reject")) {
 				//stop CallActivity
+				//AM-558 should not stop call activity yet if it was a group call in case others accept
+				if (currentTwilioCall != null && currentTwilioCall.getRoomTitle().startsWith("#")) {
+					return;
+				}
+
 				Intent intent1 = new Intent("callActivityFinish");
 				sendBroadcast(intent1);
 				callHandler.removeCallbacksAndMessages(null);
-				//TODO: notify user of rejection from other party if reject
+				//TODO: notify user of rejection from other party
 
-				if (call.getStatus().equalsIgnoreCase("cancel")) {
-					cancelledCall = call.getCallId(); //AM-492
-					this.getNotificationService().dismissCallNotification();
+				currentTwilioCall = null;
+			} else if (call.getStatus().equalsIgnoreCase("cancel")) {
+				Intent intent1 = new Intent("callActivityFinish");
+				sendBroadcast(intent1);
+				callHandler.removeCallbacksAndMessages(null);
 
-					//ALF AM-421
-					if (call.getCaller() != null) {
-						//Conversation c = find(getConversations(), account, Jid.of(call.getCaller())); //DJF DJF AM-438
-						Conversation c = findOrCreateConversation(account, Jid.of(call.getCaller()), false, true);
-						if (c != null) {
-							Message msg = Message.createCallStatusMessage(c, Message.STATUS_CALL_MISSED);
-							getNotificationService().notifyMissedCall(c); //ALF AM-468
-							c.add(msg);
-							databaseBackend.createMessage(msg);
-						}
+				cancelledCall = call.getCallId(); //AM-492
+				this.getNotificationService().dismissCallNotification();
+
+				//ALF AM-421
+				if (call.getCaller() != null) {
+					//Conversation c = find(getConversations(), account, Jid.of(call.getCaller())); //DJF DJF AM-438
+					Conversation c = findOrCreateConversation(account, Jid.of(call.getCaller()), false, true);
+					if (c != null) {
+						Message msg = Message.createCallStatusMessage(c, Message.STATUS_CALL_MISSED);
+						getNotificationService().notifyMissedCall(c); //ALF AM-468
+						c.add(msg);
+						databaseBackend.createMessage(msg);
 					}
 				}
-
 				currentTwilioCall = null;
 			} else if (call.getStatus().equalsIgnoreCase("busy")) { //ALF AM-420
 				//just play busy tone but do nothing else. Up to them to cancel
@@ -4664,9 +4674,16 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 		final Element receiver = x.addChild("field");
 		receiver.setAttribute("var", "receiver");
-		Element receiverval = new Element("value");
-		receiverval.setContent(call.getReceiver());
-		receiver.addChild(receiverval);
+		//AM-558
+		final String[] receivers = call.getReceiver().split(",");
+		for (String receiverstr : receivers){
+			Element receiverval = new Element("value");
+			receiverval.setContent(receiverstr);
+			receiver.addChild(receiverval);
+		}
+		//Element receiverval = new Element("value");
+		//receiverval.setContent(call.getReceiver());
+		//receiver.addChild(receiverval);
 
 		Log.d(Config.LOGTAG, call.getAccount().getJid().asBareJid() + ": making call request to " + call.getReceiver());
 		sendIqPacket(call.getAccount(), request, new OnIqPacketReceived() {
@@ -4694,6 +4711,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								call.setReceiver(item.findChild("value").getContent());
 							} else if (item.getAttribute("var").equals("room_name")) {
 								call.setRoomName(item.findChild("value").getContent());
+							} else if (item.getAttribute("var").equals("title")) { //ALF AM-558
+								call.setRoomTitle(item.findChild("value").getContent());
 							} else if (item.getAttribute("var").equals("token")) {
 								call.setToken(item.findChild("value").getContent());
 							} else if (item.getAttribute("var").equals("call_id")) {
@@ -4749,11 +4768,11 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		deviceval.setContent(deviceId);
 		receiverdevice.addChild(deviceval);
 
-		final Element migratedfield = x.addChild("field");
+		/*final Element migratedfield = x.addChild("field");
 		migratedfield.setAttribute("var", "migrated");
 		Element migratedval = new Element("value");
 		migratedval.setContent("true");
-		migratedfield.addChild(migratedval);
+		migratedfield.addChild(migratedval);*/ //ALF AM-558
 
 		Log.d(Config.LOGTAG, call.getAccount().getJid().asBareJid() + ": accepting call from " + call.getCaller());
 		sendIqPacket(call.getAccount(), request, new OnIqPacketReceived() {
@@ -4787,6 +4806,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								call.setCaller(item.findChild("value").getContent());
 							} else if (item.getAttribute("var").equals("receiver")) {
 								call.setReceiver(item.findChild("value").getContent());
+							} else if (item.getAttribute("var").equals("title")) { //ALF AM-558
+								call.setRoomTitle(item.findChild("value").getContent());
 							}
 						}
 					}
@@ -4802,7 +4823,21 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 					//ALF AM-421
 					//Conversation c = find(getConversations(), account, Jid.of(call.getCaller())); //DJF DJF AM-438
-					Conversation c = findOrCreateConversation(account, Jid.of(call.getCaller()), false, true);
+
+					//AM-558 accept message already sent...this should be the group conversation if group
+					Conversation c = null;
+					if (call.getRoomTitle().startsWith("#")) {
+						String server = findConferenceServer(account);
+						String name = call.getRoomTitle().substring(1);
+						try {
+							final Jid roomjid = Jid.of(name + "@" + server);
+							c = findOrCreateConversation(account, roomjid, true, true);
+						} catch (Exception re) {}
+					} else {
+						c = findOrCreateConversation(account, Jid.of(call.getCaller()), false, true);
+					}
+					//Conversation c = findOrCreateConversation(account, Jid.of(call.getCaller()), false, true);
+
 					if (c != null) {
 						Message msg = Message.createCallStatusMessage(c, Message.STATUS_CALL_RECEIVED);
 						c.add(msg);
@@ -4893,6 +4928,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								}
 							} else if (item.getAttribute("var").equals("caller")) {
 								call.setCaller(item.findChild("value").getContent());
+							} else if (item.getAttribute("var").equals("title")) { //ALF AM-558
+								call.setRoomTitle(item.findChild("value").getContent());
 							}
 						}
 					}
@@ -4902,7 +4939,21 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 						//ALF AM-421
 						//Conversation c = find(getConversations(), account, Jid.of(call.getCaller())); //DJF DJF AM-438
-						Conversation c = findOrCreateConversation(account, Jid.of(call.getCaller()), false, true);
+
+						//AM-558 accept message already sent...this should be the group conversation if group
+						Conversation c = null;
+						if (call.getRoomTitle().startsWith("#")) {
+							String server = findConferenceServer(account);
+							String name = call.getRoomTitle().substring(1);
+							try {
+								final Jid roomjid = Jid.of(name + "@" + server);
+								c = findOrCreateConversation(account, roomjid, true, true);
+							} catch (Exception re) {}
+						} else {
+							c = findOrCreateConversation(account, Jid.of(call.getCaller()), false, true);
+						}
+						//Conversation c = findOrCreateConversation(account, Jid.of(call.getCaller()), false, true);
+
 						if (c != null) {
 							Message msg = Message.createCallStatusMessage(c, Message.STATUS_CALL_MISSED);
 							getNotificationService().notifyMissedCall(c); //ALF AM-468

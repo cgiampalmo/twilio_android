@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
+import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
 import com.glaciersecurity.glaciermessenger.ui.CallActivity;
 import com.glaciersecurity.glaciermessenger.ui.VideoActivity;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
@@ -38,6 +39,7 @@ import com.twilio.video.Vp8Codec;
 import com.twilio.video.Vp9Codec;
 
 import java.util.Collections;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 
@@ -50,6 +52,10 @@ public class CallManager {
     private String caller;
     private String roomname;
     private String receiver;
+
+    //ALF AM-558
+    private String roomtitle;
+    private List<TwilioCallParticipant> callParticipants;
 
     private TwilioCallListener twilioCallListener;
 
@@ -109,6 +115,7 @@ public class CallManager {
         roomname = call.getRoomName();
         caller = call.getCaller();
         receiver = call.getReceiver();
+        roomtitle = call.getRoomTitle(); //ALF AM-558
 
         Intent callIntent = new Intent(mXmppConnectionService, VideoActivity.class);
         callIntent.setAction(CallActivity.ACTION_ACCEPTED_CALL);
@@ -116,6 +123,7 @@ public class CallManager {
         callIntent.putExtra("roomname", roomname);
         callIntent.putExtra("caller", caller);
         callIntent.putExtra("receiver", receiver);
+        callIntent.putExtra("roomtitle", roomtitle); //ALF AM-558
         mXmppConnectionService.startActivity(callIntent);
 
         //if (room == null || room.getState() == Room.State.DISCONNECTED) {
@@ -296,7 +304,11 @@ public class CallManager {
                 }
 
                 for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
-                    remoteParticipant.setListener(remoteParticipantListener());
+                    //ALF AM-558 create TwilioCallParticipant and set as listener - *** this will break things until we are fully setup
+                    TwilioCallParticipant tcallParticipant = new TwilioCallParticipant(remoteParticipant);
+                    remoteParticipant.setListener(tcallParticipant.getRemoteParticipantListener());
+
+                    //remoteParticipant.setListener(remoteParticipantListener());
                     break;
                 }
             }
@@ -336,18 +348,30 @@ public class CallManager {
 
             @Override
             public void onParticipantConnected(Room room, RemoteParticipant remoteParticipant) {
+                //ALF AM-558 create TwilioCallParticipant and set as listener - *** this will break things until we are fully setup
+                TwilioCallParticipant tcallParticipant = new TwilioCallParticipant(remoteParticipant);
+                remoteParticipant.setListener(tcallParticipant.getRemoteParticipantListener());
+
                 if (twilioCallListener != null) {
-                    twilioCallListener.handleParticipantConnected(remoteParticipant);
+                    twilioCallListener.handleParticipantConnected(tcallParticipant);
+                    //twilioCallListener.handleParticipantConnected(remoteParticipant);
                 }
                 /*
                  * Start listening for participant events
                  */
-                remoteParticipant.setListener(remoteParticipantListener());
+                //remoteParticipant.setListener(remoteParticipantListener());
             }
 
             @Override
             public void onParticipantDisconnected(Room room, RemoteParticipant remoteParticipant) {
                 //CMG disconnect when remote leaves
+
+                //ALF AM-558 should not disconnect ourselves if still participants in room
+                if (room.getRemoteParticipants().size() > 0) {
+                    //still need to alert and reconfigure UI
+                    return;
+                }
+
                 localParticipant = null;
                 if (twilioCallListener != null) {
                     twilioCallListener.handleParticipantDisconnected(remoteParticipant);
@@ -375,6 +399,7 @@ public class CallManager {
         };
     }
 
+    /*
     @SuppressLint("SetTextI18n")
     private RemoteParticipant.Listener remoteParticipantListener() {
         return new RemoteParticipant.Listener() {
@@ -585,11 +610,11 @@ public class CallManager {
                         remoteVideoTrackPublication.getTrackName(),
                         twilioException.getCode(),
                         twilioException.getMessage()));
-                /*Snackbar.make(connectActionFab,
-                        String.format("Failed to subscribe to %s video track",
-                                remoteParticipant.getIdentity()),
-                        Snackbar.LENGTH_LONG)
-                        .show();*/
+                //Snackbar.make(connectActionFab,
+                        //String.format("Failed to subscribe to %s video track",
+                        //        remoteParticipant.getIdentity()),
+                        //Snackbar.LENGTH_LONG)
+                        //.show();
             }
 
             @Override
@@ -620,7 +645,7 @@ public class CallManager {
                 }
             }
         };
-    }
+    }*/
 
     //ALF AM-420
     public void handleDisconnect() {
