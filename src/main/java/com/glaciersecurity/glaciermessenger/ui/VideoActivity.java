@@ -225,6 +225,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         final String title = intent.getStringExtra("roomtitle");
         if (title != null) {
             setTitle(title);
+            primaryTitle.setText(title);
         }
 
         /*
@@ -489,11 +490,11 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             return;
         }*/
         remoteParticipantIdentity = remoteParticipant.getIdentity();
-        String other = remoteParticipant.getIdentity();
+        /*String other = remoteParticipant.getIdentity();
         if (other.contains("@")){
             other = other.substring(0, other.indexOf("@"));
         }
-        primaryTitle.setText(other);
+        primaryTitle.setText(other);*/ //AM-558 maybe label each participant, but not yet
 
         /*
          * Add remote participant renderer
@@ -956,11 +957,11 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         //AM-558 this was already here and explains why we get the flickering
         for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
             addRemoteParticipant(remoteParticipant);
-            String other = remoteParticipant.getIdentity();
+            /*String other = remoteParticipant.getIdentity();
             if (other.contains("@")){
                 other = other.substring(0, other.indexOf("@"));
             }
-            primaryTitle.setText(other);
+            //primaryTitle.setText(other);*/ //AM-558 may want to set labels per user, but not yet
             break;
         }
         if (!room.getRemoteParticipants().isEmpty()){
