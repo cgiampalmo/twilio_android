@@ -1025,18 +1025,14 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				Intent intent1 = new Intent("callActivityFinish");
 				sendBroadcast(intent1);
 
-				if (currentTwilioCall != null) {
-					//open RoomActivity
-					/*Intent callIntent = new Intent(getApplicationContext(), VideoActivity.class);
-					callIntent.setAction(CallActivity.ACTION_ACCEPTED_CALL);
-					callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-					callIntent.putExtra("call_id", currentTwilioCall.getCallId());
-					callIntent.putExtra("token", currentTwilioCall.getToken());
-					callIntent.putExtra("roomname", currentTwilioCall.getRoomName());
-					callIntent.putExtra("caller", currentTwilioCall.getCaller());
-					callIntent.putExtra("receiver", currentTwilioCall.getReceiver());
-					this.startActivity(callIntent);*/
+				//ALF AM-558 if call is already active we don't want to initCall here
+				if (currentTwilioCall != null && call.getCallId() == currentTwilioCall.getCallId() &&
+						currentTwilioCall.getStatus().equals("inprogress")) {
+					return;
+				}
 
+				if (currentTwilioCall != null) {
+					currentTwilioCall.setStatus("inprogress"); //AM-558
 					callManager.initCall(currentTwilioCall); //AM-478
 				}
 			}
@@ -4725,6 +4721,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						}
 					}
 
+					call.setStatus("waiting"); //ALF AM-558
 					currentTwilioCall = call;
 				} else {
 					//callback.informUser("Something bad");
@@ -4855,6 +4852,9 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					callIntent.putExtra("receiver", call.getReceiver());
 
 					startActivity(callIntent);*/
+					if (currentTwilioCall != null) {
+						currentTwilioCall.setStatus("inprogress"); //ALF AM-558
+					}
 					callManager.initCall(call); //AM-478
 				} else {
 					//callback.informUser("Something bad"); //TODO ALERT USER

@@ -345,6 +345,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 				//ALF AM-421
 				if (call.getStatus().equalsIgnoreCase("cancel") && original.getFrom() != null) {
 					call.setCaller(original.getFrom().asBareJid().toString());
+					//AM-558 not sure if this value would be correct for groups
 				}
 
 				mXmppConnectionService.handleCallSetupMessage(account, call);
