@@ -1147,5 +1147,7 @@
     <string name="change_vpn_profile">Do you want to connect to </string>
     <string name="connect_button_label">Connect</string>
 
+    <string name="view_participants">View participants</string>
+
 
 </resources>

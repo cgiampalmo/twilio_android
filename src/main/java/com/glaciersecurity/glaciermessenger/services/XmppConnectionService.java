@@ -4823,7 +4823,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 					//AM-558 accept message already sent...this should be the group conversation if group
 					Conversation c = null;
-					if (call.getRoomTitle().startsWith("#")) {
+					if (call.getRoomTitle() == null){
+						c = findOrCreateConversation(account, Jid.of(call.getCaller()), false, true);
+					}
+					else if (call.getRoomTitle().startsWith("#")) {
 						String server = findConferenceServer(account);
 						String name = call.getRoomTitle().substring(1);
 						try {

@@ -32,6 +32,20 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"/>
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/call_screen_participants_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toTopOf="@id/primary_video_view"
+            app:reverseLayout="true"
+            tools:listitem="@layout/webrtc_call_participant_recycler_item" />
+
         <LinearLayout
             android:id="@+id/no_video_view"
             android:layout_width="match_parent"
