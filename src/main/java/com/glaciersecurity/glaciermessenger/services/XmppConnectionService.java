@@ -4670,7 +4670,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 		final Element receiver = x.addChild("field");
 		receiver.setAttribute("var", "receiver");
-		//AM-558
+		//AM-558 (and room title below)
 		final String[] receivers = call.getReceiver().split(",");
 		for (String receiverstr : receivers){
 			Element receiverval = new Element("value");
@@ -4680,6 +4680,13 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		//Element receiverval = new Element("value");
 		//receiverval.setContent(call.getReceiver());
 		//receiver.addChild(receiverval);
+		if (call.getRoomTitle() != null) {
+			final Element calltitle = x.addChild("field");
+			calltitle.setAttribute("var", "title");
+			Element titleval = new Element("value");
+			titleval.setContent(call.getRoomTitle());
+			calltitle.addChild(titleval);
+		}
 
 		Log.d(Config.LOGTAG, call.getAccount().getJid().asBareJid() + ": making call request to " + call.getReceiver());
 		sendIqPacket(call.getAccount(), request, new OnIqPacketReceived() {
