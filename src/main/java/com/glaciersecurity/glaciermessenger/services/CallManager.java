@@ -179,9 +179,10 @@ public class CallManager {
 
     public void setCallListener(TwilioCallListener listener) {
         twilioCallListener = listener;
-        for (TwilioCallParticipant callParticipant : callParticipants) {
-            callParticipant.setCallListener(twilioCallListener);
-        }
+        //AM-558
+        //for (TwilioCallParticipant callParticipant : callParticipants) {
+        //    callParticipant.setCallListener(twilioCallListener);
+        //}
     }
 
     private boolean getAutomaticSubscriptionPreference(String key, boolean defaultValue) {
@@ -312,7 +313,7 @@ public class CallManager {
                     //ALF AM-558 create TwilioCallParticipant and set as listener - *** this will break things until we are fully setup
                     TwilioCallParticipant tcallParticipant = new TwilioCallParticipant(remoteParticipant);
                     remoteParticipant.setListener(tcallParticipant.getRemoteParticipantListener());
-                    tcallParticipant.setCallListener(twilioCallListener);
+                    //tcallParticipant.setCallListener(twilioCallListener);
                     callParticipants.add(tcallParticipant);
 
                     //remoteParticipant.setListener(remoteParticipantListener());
@@ -362,7 +363,7 @@ public class CallManager {
                 //ALF AM-558 create TwilioCallParticipant and set as listener - *** this will break things until we are fully setup
                 TwilioCallParticipant tcallParticipant = new TwilioCallParticipant(remoteParticipant);
                 remoteParticipant.setListener(tcallParticipant.getRemoteParticipantListener());
-                tcallParticipant.setCallListener(twilioCallListener);
+                //tcallParticipant.setCallListener(twilioCallListener);
                 callParticipants.add(tcallParticipant);
 
                 if (twilioCallListener != null) {

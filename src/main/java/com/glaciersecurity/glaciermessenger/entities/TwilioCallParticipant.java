@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.util.Log;
 
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
+import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioRemoteParticipantListener;
 import com.twilio.video.RemoteAudioTrack;
 import com.twilio.video.RemoteAudioTrackPublication;
 import com.twilio.video.RemoteDataTrack;
@@ -17,7 +18,7 @@ public class TwilioCallParticipant {
     private static final String TAG = "TwilioCallParticipant";
 
     RemoteParticipant remoteParticipant;
-    TwilioCallListener twilioCallListener;
+    TwilioRemoteParticipantListener twilioRemoteParticipantListener;
 
     public TwilioCallParticipant(RemoteParticipant participant) {
         remoteParticipant = participant;
@@ -31,8 +32,8 @@ public class TwilioCallParticipant {
         return remoteParticipantListener();
     }
 
-    public void setCallListener(TwilioCallListener listener) {
-        twilioCallListener = listener;
+    public void setRemoteParticipantListener(TwilioRemoteParticipantListener listener) {
+        twilioRemoteParticipantListener = listener;
     }
 
     public boolean equals(String id) {
@@ -224,8 +225,8 @@ public class TwilioCallParticipant {
                         remoteParticipant.getIdentity(),
                         remoteVideoTrack.isEnabled(),
                         remoteVideoTrack.getName()));
-                if (twilioCallListener != null) {
-                    twilioCallListener.handleAddRemoteParticipantVideo(remoteVideoTrack);
+                if (twilioRemoteParticipantListener != null) {
+                    twilioRemoteParticipantListener.handleAddRemoteParticipantVideo(remoteVideoTrack);
                 }
             }
 
@@ -239,8 +240,8 @@ public class TwilioCallParticipant {
                         remoteParticipant.getIdentity(),
                         remoteVideoTrack.isEnabled(),
                         remoteVideoTrack.getName()));
-                if (twilioCallListener != null) {
-                    twilioCallListener.handleRemoveRemoteParticipantVideo(remoteVideoTrack);
+                if (twilioRemoteParticipantListener != null) {
+                    twilioRemoteParticipantListener.handleRemoveRemoteParticipantVideo(remoteVideoTrack);
                 }
             }
 
@@ -279,16 +280,16 @@ public class TwilioCallParticipant {
             @Override
             public void onVideoTrackEnabled(RemoteParticipant remoteParticipant,
                                             RemoteVideoTrackPublication remoteVideoTrackPublication) {
-                if (twilioCallListener != null) {
-                    twilioCallListener.handleVideoTrackEnabled();
+                if (twilioRemoteParticipantListener != null) {
+                    twilioRemoteParticipantListener.handleVideoTrackEnabled();
                 }
             }
 
             @Override
             public void onVideoTrackDisabled(RemoteParticipant remoteParticipant,
                                              RemoteVideoTrackPublication remoteVideoTrackPublication) {
-                if (twilioCallListener != null) {
-                    twilioCallListener.handleVideoTrackDisabled();
+                if (twilioRemoteParticipantListener != null) {
+                    twilioRemoteParticipantListener.handleVideoTrackDisabled();
                 }
             }
         };

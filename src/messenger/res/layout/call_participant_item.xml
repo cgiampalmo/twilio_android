@@ -1,45 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.glaciersecurity.glaciermessenger.ui.CallParticipantView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="?selectableItemBackground"
-    android:gravity="center_vertical"
-    android:paddingStart="16dp"
-    android:paddingTop="8dp"
-    android:paddingEnd="16dp"
-    android:paddingBottom="8dp">
-    <com.makeramen.roundedimageview.RoundedImageView
-        android:id="@+id/recipient_view_avatar"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_centerInParent="true"
-        app:riv_corner_radius="100dip"
-        app:srcCompat="@drawable/avatar_default" />
+    tools:layout_height="match_parent"
+    tools:layout_width="match_parent">
 
+    <com.twilio.video.VideoView
+        android:id="@+id/primary_video_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"/>
 
-    <TextView
-        android:id="@+id/recipient_view_name"
-        style="@style/TextAppearance.AppCompat.Body1"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:ellipsize="end"
-        android:singleLine="true"
-        android:textAlignment="viewStart"
-        tools:text="@tools:sample/full_names"
-        android:gravity="start" />
+    <LinearLayout
+        android:id="@+id/no_video_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:orientation="vertical">
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/call_participant_video_muted"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_videocam_off_gray_24px"
-        app:backgroundTint="@color/white"
-        />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/no_video_view_avatar"
+                android:layout_width="240dp"
+                android:layout_height="240dp"
+                android:layout_centerInParent="true"
+                app:riv_corner_radius="100dip"
+                app:srcCompat="@drawable/avatar_default" />
+        </RelativeLayout>
+    </LinearLayout>
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/call_participant_audio_muted"
@@ -50,4 +43,4 @@
         app:backgroundTint="@color/white"
         android:layout_marginLeft="12dp" />
 
-</LinearLayout>
+</com.glaciersecurity.glaciermessenger.ui.CallParticipantView>

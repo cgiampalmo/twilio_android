@@ -2036,7 +2036,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	}
 
-	@Override
+	//AM-558 moved
+	/*@Override
 	public void handleAddRemoteParticipantVideo(RemoteVideoTrack videoTrack) {
 
 	}
@@ -2054,7 +2055,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	@Override
 	public void handleVideoTrackDisabled() {
 
-	}
+	}*/
 
 	@Override
 	public void handleConnected(Room room) {

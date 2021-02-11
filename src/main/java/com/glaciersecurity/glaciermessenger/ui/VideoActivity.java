@@ -34,6 +34,8 @@ import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
 import com.glaciersecurity.glaciermessenger.services.CallManager;
 import com.glaciersecurity.glaciermessenger.services.PhonecallReceiver;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
+import com.glaciersecurity.glaciermessenger.ui.adapter.CallParticipantsPage;
+import com.glaciersecurity.glaciermessenger.ui.adapter.CallParticipantsPagerAdapter;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
 import com.glaciersecurity.glaciermessenger.ui.util.CameraCapturerCompat;
 import com.glaciersecurity.glaciermessenger.ui.util.SoundPoolManager;
@@ -58,6 +60,11 @@ import com.twilio.video.VideoView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+//AM-558
+import androidx.viewpager2.widget.ViewPager2;
+import androidx.viewpager2.widget.MarginPageTransformer;
+import android.content.res.Resources;
 
 import kotlin.Unit; //AM-440
 
@@ -101,6 +108,10 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
      */
     private VideoView primaryVideoView;
     private VideoView thumbnailVideoView;
+
+    //AM-558
+    private ViewPager2 callParticipantsPager;
+    private CallParticipantsPagerAdapter callParticipantsPagerAdapter;
 
     /*
      * Android application UI elements
@@ -147,12 +158,12 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video);
 
-        primaryVideoView = findViewById(R.id.primary_video_view);
+        //primaryVideoView = findViewById(R.id.primary_video_view);
         thumbnailVideoView = findViewById(R.id.thumbnail_video_view);
         reconnectingProgressBar = findViewById(R.id.reconnecting_progress_bar_layout);
-        noVideoView = findViewById(R.id.no_video_view);
-        avatar = findViewById(R.id.no_video_view_avatar);
-        avatar.setImageResource(R.drawable.avatar_default);
+        //noVideoView = findViewById(R.id.no_video_view);
+        //avatar = findViewById(R.id.no_video_view_avatar);
+        //avatar.setImageResource(R.drawable.avatar_default);
 
         phonecallReceiver = new PhonecallReceiver(this); //ALF AM-474
 
@@ -169,6 +180,12 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         this.currentVideoIcon = R.drawable.ic_videocam_off_gray_24px; //AM-404
         minimizeVideo = findViewById(R.id.down_arrow);
         minimizeVideo.setOnClickListener(minimizeCall());
+
+        //AM-558
+        callParticipantsPager = findViewById(R.id.call_screen_participants_pager);
+        callParticipantsPager.setPageTransformer(new MarginPageTransformer(dpToPx(4)));
+        callParticipantsPagerAdapter    = new CallParticipantsPagerAdapter(null);
+        callParticipantsPager.setAdapter(callParticipantsPagerAdapter);
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
@@ -210,6 +227,11 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         intializeUI();
 
 
+    }
+
+    //AM-558
+    public static int dpToPx(int dp) {
+        return Math.round(dp * Resources.getSystem().getDisplayMetrics().density);
     }
 
     @Override
@@ -491,9 +513,22 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             return;
         }*/
 
+        List<CallParticipantsPage> pages = new ArrayList<>(1);
+
+        //if (callManager.getRemoteParticipants().size() > 1) {
+            pages.add(CallParticipantsPage.forMultipleParticipants(callManager.getRemoteParticipants()));
+        //}
+
+        //if (state.getFocusedParticipant() != null && state.getAllRemoteParticipants().size() > 1) {
+        //    pages.add(CallParticipantsPage.forSingleParticipant(callManager.getRemoteParticipants()));
+        //}
+
         //AM-558 the rest after this should initialize a new view for this specific user, not for
         //VideoActivity as a whole
         RemoteParticipant remoteParticipant = remoteCallParticipant.getRemoteParticipant();
+        //should this be a list of pages/views or a list of TwilioCallParticipants?
+        callParticipantsPagerAdapter.submitList(pages);
+        //layout
 
 
         remoteParticipantIdentity = remoteParticipant.getIdentity();
@@ -506,61 +541,68 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         /*
          * Add remote participant renderer
          */
-        if (remoteParticipant.getRemoteVideoTracks().size() > 0) {
+        //AM-558 moved
+        /*if (remoteParticipant.getRemoteVideoTracks().size() > 0) {
             RemoteVideoTrackPublication remoteVideoTrackPublication =
                     remoteParticipant.getRemoteVideoTracks().get(0);
 
-            /*
-             * Only render video tracks that are subscribed to
-             */
+            //Only render video tracks that are subscribed to
             if (remoteVideoTrackPublication.isTrackSubscribed()) {
                 addRemoteParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
             }
-        }
+        }*/
     }
 
     /*
      * Set primary view as renderer for participant video track
      */
-    private void addRemoteParticipantVideo(VideoTrack videoTrack) {
+    /*private void addRemoteParticipantVideo(VideoTrack videoTrack) {
         primaryVideoView.setMirror(false);
         videoTrack.addRenderer(primaryVideoView);
 
         if (videoTrack.isEnabled()) { //AM-404
             handleVideoTrackEnabled();
         }
-    }
+    }*/
 
     /*
      * Called when remote participant leaves the room
      */
     @SuppressLint("SetTextI18n")
     private void removeRemoteParticipant(RemoteParticipant remoteParticipant) {
+        //if == 0, close out
+
+        List<CallParticipantsPage> pages = new ArrayList<>(1);
+        pages.add(CallParticipantsPage.forMultipleParticipants(callManager.getRemoteParticipants()));
+
         //ALF AM-558 this should be checking against a list rather than a single participant
         // need to get the specific instance...
-        if (!remoteParticipant.getIdentity().equals(remoteParticipantIdentity)) {
-            return;
-        }
+        callParticipantsPagerAdapter.submitList(pages);
+        //List<TwilioCallParticipant> participants = callManager.getRemoteParticipants();
+        //for (TwilioCallParticipant participant : participants) {
+            //if we don't find the current participant to remove, don't remove anything
+            //but honestlly I'm not sure this should happen here. We should resubmit the list
+        //}
 
-        /*
-         * Remove remote participant renderer
-         */
-        if (!remoteParticipant.getRemoteVideoTracks().isEmpty()) {
+        //if (!remoteParticipant.getIdentity().equals(remoteParticipantIdentity)) {
+        //    return;
+        //}
+
+        //Remove remote participant renderer
+        /*if (!remoteParticipant.getRemoteVideoTracks().isEmpty()) {
             RemoteVideoTrackPublication remoteVideoTrackPublication =
                     remoteParticipant.getRemoteVideoTracks().get(0);
 
-            /*
-             * Remove video only if subscribed to participant track
-             */
+            //Remove video only if subscribed to participant track
             if (remoteVideoTrackPublication.isTrackSubscribed()) {
                 removeParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
             }
-        }
+        }*/
     }
 
-    private void removeParticipantVideo(VideoTrack videoTrack) {
+    /*private void removeParticipantVideo(VideoTrack videoTrack) {
         videoTrack.removeRenderer(primaryVideoView);
-    }
+    }*/
 
     private void configureAudio(boolean enable) {
         if (enable) {
@@ -939,7 +981,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         }
     }
 
-    public void handleAddRemoteParticipantVideo(RemoteVideoTrack videoTrack){
+    //AM-558 move the following 4 to CallParticipantView
+    /*public void handleAddRemoteParticipantVideo(RemoteVideoTrack videoTrack){
         primaryVideoView.setMirror(false);
         videoTrack.addRenderer(primaryVideoView);
     }
@@ -955,7 +998,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     public void handleVideoTrackDisabled(){
         noVideoView.setVisibility(View.VISIBLE);
         primaryVideoView.setVisibility(View.GONE);
-    }
+    }*/
 
     public void handleConnected(Room room){
         setTitle(room.getName()); //ALF AM-558 should this be title sent with call data? Or doesn't matter?

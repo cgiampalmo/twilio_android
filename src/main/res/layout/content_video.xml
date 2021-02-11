@@ -26,7 +26,25 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"/>
 
-        <com.twilio.video.VideoView
+        <!-- AM-558 replace this with a ViewPager2 (which uses recyclerView) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/call_screen_participants_parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/call_screen_participants_pager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!--<com.twilio.video.VideoView
             android:id="@+id/primary_video_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -65,7 +83,7 @@
                     app:riv_corner_radius="100dip"
                     app:srcCompat="@drawable/avatar_default" />
             </RelativeLayout>
-        </LinearLayout>
+        </LinearLayout>-->
 
     </RelativeLayout>
 

@@ -1,5 +1,5 @@
 
-/*package com.glaciersecurity.glaciermessenger.ui.adapter;
+package com.glaciersecurity.glaciermessenger.ui.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,19 +10,25 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
+import com.glaciersecurity.glaciermessenger.ui.adapter.CallParticipantsPage;
+import com.glaciersecurity.glaciermessenger.ui.CallParticipantView;
 import com.glaciersecurity.glaciermessenger.ui.CallParticipantsLayout;
+import com.glaciersecurity.glaciermessenger.R;
+//AM-558
 
 
-class WebRtcCallParticipantsPagerAdapter extends ListAdapter<WebRtcCallParticipantsPage, WebRtcCallParticipantsPagerAdapter.ViewHolder> {
+public class CallParticipantsPagerAdapter extends ListAdapter<CallParticipantsPage, CallParticipantsPagerAdapter.ViewHolder> {
 
   private static final int VIEW_TYPE_MULTI  = 0;
   private static final int VIEW_TYPE_SINGLE = 1;
 
-  private final Runnable onPageClicked;
+  //private final Runnable onPageClicked;
 
-  WebRtcCallParticipantsPagerAdapter(@NonNull Runnable onPageClicked) {
+  public CallParticipantsPagerAdapter(@NonNull Runnable onPageClicked) {
     super(new DiffCallback());
-    this.onPageClicked = onPageClicked;
+    //null for now so commeted out below
+    //this.onPageClicked = onPageClicked;
   }
 
   @Override
@@ -52,7 +58,7 @@ class WebRtcCallParticipantsPagerAdapter extends ListAdapter<WebRtcCallParticipa
         throw new IllegalArgumentException("Unsupported viewType: " + viewType);
     }
 
-    viewHolder.itemView.setOnClickListener(unused -> onPageClicked.run());
+    //viewHolder.itemView.setOnClickListener(unused -> onPageClicked.run());
 
     return viewHolder;
   }
@@ -64,7 +70,7 @@ class WebRtcCallParticipantsPagerAdapter extends ListAdapter<WebRtcCallParticipa
 
   @Override
   public int getItemViewType(int position) {
-    return getItem(position).isSpeaker() ? VIEW_TYPE_SINGLE : VIEW_TYPE_MULTI;
+    return VIEW_TYPE_MULTI;
   }
 
   static abstract class ViewHolder extends RecyclerView.ViewHolder {
@@ -72,7 +78,7 @@ class WebRtcCallParticipantsPagerAdapter extends ListAdapter<WebRtcCallParticipa
       super(itemView);
     }
 
-    abstract void bind(WebRtcCallParticipantsPage page);
+    abstract void bind(CallParticipantsPage page);
   }
 
   private static class MultipleParticipantViewHolder extends ViewHolder {
@@ -85,8 +91,8 @@ class WebRtcCallParticipantsPagerAdapter extends ListAdapter<WebRtcCallParticipa
     }
 
     @Override
-    void bind(WebRtcCallParticipantsPage page) {
-      callParticipantsLayout.update(page.getCallParticipants(), page.getFocusedParticipant(), page.isRenderInPip());
+    void bind(CallParticipantsPage page) {
+      callParticipantsLayout.update(page.getCallParticipants());
     }
   }
 
@@ -108,23 +114,22 @@ class WebRtcCallParticipantsPagerAdapter extends ListAdapter<WebRtcCallParticipa
 
 
     @Override
-    void bind(WebRtcCallParticipantsPage page) {
+    void bind(CallParticipantsPage page) {
       callParticipantView.setCallParticipant(page.getCallParticipants().get(0));
-      callParticipantView.setRenderInPip(page.isRenderInPip());
+      //callParticipantView.setRenderInPip(page.isRenderInPip());
     }
   }
 
-  private static final class DiffCallback extends DiffUtil.ItemCallback<WebRtcCallParticipantsPage> {
+  private static final class DiffCallback extends DiffUtil.ItemCallback<CallParticipantsPage> {
     @Override
-    public boolean areItemsTheSame(@NonNull WebRtcCallParticipantsPage oldItem, @NonNull WebRtcCallParticipantsPage newItem) {
-      return oldItem.isSpeaker() == newItem.isSpeaker();
+    public boolean areItemsTheSame(@NonNull CallParticipantsPage oldItem, @NonNull CallParticipantsPage newItem) {
+      return oldItem.equals(newItem);
     }
 
     @Override
-    public boolean areContentsTheSame(@NonNull WebRtcCallParticipantsPage oldItem, @NonNull WebRtcCallParticipantsPage newItem) {
+    public boolean areContentsTheSame(@NonNull CallParticipantsPage oldItem, @NonNull CallParticipantsPage newItem) {
       return oldItem.equals(newItem);
     }
   }
 
 }
-*/
