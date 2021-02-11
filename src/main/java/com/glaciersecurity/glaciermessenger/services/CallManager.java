@@ -356,6 +356,7 @@ public class CallManager {
                 if (twilioCallListener != null) {
                     twilioCallListener.endListening();
                 }
+                //callPages.clear(); //AM-558
             }
 
             @Override

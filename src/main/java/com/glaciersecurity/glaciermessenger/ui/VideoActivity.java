@@ -34,7 +34,6 @@ import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
 import com.glaciersecurity.glaciermessenger.services.CallManager;
 import com.glaciersecurity.glaciermessenger.services.PhonecallReceiver;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
-import com.glaciersecurity.glaciermessenger.ui.adapter.CallParticipantsPage;
 import com.glaciersecurity.glaciermessenger.ui.adapter.CallParticipantsPagerAdapter;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
 import com.glaciersecurity.glaciermessenger.ui.util.CameraCapturerCompat;
@@ -513,22 +512,11 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             return;
         }*/
 
-        List<CallParticipantsPage> pages = new ArrayList<>(1);
-
-        //if (callManager.getRemoteParticipants().size() > 1) {
-            pages.add(CallParticipantsPage.forMultipleParticipants(callManager.getRemoteParticipants()));
-        //}
-
-        //if (state.getFocusedParticipant() != null && state.getAllRemoteParticipants().size() > 1) {
-        //    pages.add(CallParticipantsPage.forSingleParticipant(callManager.getRemoteParticipants()));
-        //}
+        callParticipantsPagerAdapter.submitList(callManager.getRemoteParticipants());
 
         //AM-558 the rest after this should initialize a new view for this specific user, not for
         //VideoActivity as a whole
         RemoteParticipant remoteParticipant = remoteCallParticipant.getRemoteParticipant();
-        //should this be a list of pages/views or a list of TwilioCallParticipants?
-        callParticipantsPagerAdapter.submitList(pages);
-        //layout
 
 
         remoteParticipantIdentity = remoteParticipant.getIdentity();
@@ -570,14 +558,11 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
      */
     @SuppressLint("SetTextI18n")
     private void removeRemoteParticipant(RemoteParticipant remoteParticipant) {
-        //if == 0, close out
-
-        List<CallParticipantsPage> pages = new ArrayList<>(1);
-        pages.add(CallParticipantsPage.forMultipleParticipants(callManager.getRemoteParticipants()));
-
-        //ALF AM-558 this should be checking against a list rather than a single participant
+        //ALF AM-558
         // need to get the specific instance...
-        callParticipantsPagerAdapter.submitList(pages);
+        //callParticipantsPagerAdapter.submitList(pages);
+        callParticipantsPagerAdapter.submitList(callManager.getRemoteParticipants());
+
         //List<TwilioCallParticipant> participants = callManager.getRemoteParticipants();
         //for (TwilioCallParticipant participant : participants) {
             //if we don't find the current participant to remove, don't remove anything
