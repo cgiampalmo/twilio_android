@@ -20,13 +20,13 @@ import java.util.List;
 //AM-558
 
 
-public class CallParticipantsPagerAdapter extends ListAdapter<TwilioCallParticipant, CallParticipantsPagerAdapter.ViewHolder> {
+public class CallParticipantsPagerAdapter extends ListAdapter<CallParticipantsPage, CallParticipantsPagerAdapter.ViewHolder> {
 
   private static final int VIEW_TYPE_MULTI  = 0;
   private static final int VIEW_TYPE_SINGLE = 1;
 
-  private static List<TwilioCallParticipant> callParticipantList;
-  private static CallParticipantsLayout callParticipantsLayout;
+  //private List<TwilioCallParticipant> callParticipantList;
+  //private CallParticipantsLayout callParticipantsLayout;
 
   //private final Runnable onPageClicked;
 
@@ -42,14 +42,14 @@ public class CallParticipantsPagerAdapter extends ListAdapter<TwilioCallParticip
     recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
   }
 
-  @Override
+  /*@Override
   public void submitList(@Nullable List<TwilioCallParticipant> list) {
     callParticipantList = list;
     super.submitList(list);
-    if (callParticipantsLayout != null) {
+    /*if (callParticipantsLayout != null) {
       callParticipantsLayout.update(callParticipantList);
-    }
-  }
+    }*/
+  //}
 
   @Override
   public @NonNull ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -63,11 +63,14 @@ public class CallParticipantsPagerAdapter extends ListAdapter<TwilioCallParticip
                 false));
         break;
       case VIEW_TYPE_MULTI:
-        callParticipantsLayout = (CallParticipantsLayout) LayoutInflater.from(parent.getContext())
+        //callParticipantsLayout = (CallParticipantsLayout) LayoutInflater.from(parent.getContext())
+        //        .inflate(R.layout.webrtc_call_participants_layout,
+        //                parent,
+        //                false);
+        viewHolder = new MultipleParticipantViewHolder((CallParticipantsLayout) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.webrtc_call_participants_layout,
                         parent,
-                        false);
-        viewHolder = new MultipleParticipantViewHolder(callParticipantsLayout);
+                        false));
         break;
       default:
         throw new IllegalArgumentException("Unsupported viewType: " + viewType);
@@ -88,30 +91,30 @@ public class CallParticipantsPagerAdapter extends ListAdapter<TwilioCallParticip
     return VIEW_TYPE_MULTI;
   }
 
-  static abstract class ViewHolder extends RecyclerView.ViewHolder {
+  abstract class ViewHolder extends RecyclerView.ViewHolder {
     public ViewHolder(@NonNull View itemView) {
       super(itemView);
     }
 
-    abstract void bind(TwilioCallParticipant page);
+    abstract void bind(CallParticipantsPage page);
   }
 
-  private static class MultipleParticipantViewHolder extends ViewHolder {
+  private class MultipleParticipantViewHolder extends ViewHolder {
 
-    //private final CallParticipantsLayout callParticipantsLayout;
+    private final CallParticipantsLayout callParticipantsLayout;
 
-    private MultipleParticipantViewHolder(@NonNull CallParticipantsLayout callParticipantsLayout) {
-      super(callParticipantsLayout);
-      //callParticipantsLayout = callParticipantsLayout;
+    private MultipleParticipantViewHolder(@NonNull CallParticipantsLayout callParticipantLayout) {
+      super(callParticipantLayout);
+      callParticipantsLayout = callParticipantLayout;
     }
 
     @Override
-    void bind(TwilioCallParticipant participant) {
-      callParticipantsLayout.update(callParticipantList);
+    void bind(CallParticipantsPage page) {
+      callParticipantsLayout.update(page.getCallParticipants());
     }
   }
 
-  private static class SingleParticipantViewHolder extends ViewHolder {
+  private class SingleParticipantViewHolder extends ViewHolder {
 
     private final CallParticipantView callParticipantView;
 
@@ -129,19 +132,19 @@ public class CallParticipantsPagerAdapter extends ListAdapter<TwilioCallParticip
 
 
     @Override
-    void bind(TwilioCallParticipant participant) {
-      callParticipantView.setCallParticipant(callParticipantList.get(0));
+    void bind(CallParticipantsPage page) {
+      callParticipantView.setCallParticipant(page.getCallParticipants().get(0));
     }
   }
 
-  private static final class DiffCallback extends DiffUtil.ItemCallback<TwilioCallParticipant> {
+  private static final class DiffCallback extends DiffUtil.ItemCallback<CallParticipantsPage> {
     @Override
-    public boolean areItemsTheSame(@NonNull TwilioCallParticipant oldItem, @NonNull TwilioCallParticipant newItem) {
+    public boolean areItemsTheSame(@NonNull CallParticipantsPage oldItem, @NonNull CallParticipantsPage newItem) {
       return oldItem.equals(newItem);
     }
 
     @Override
-    public boolean areContentsTheSame(@NonNull TwilioCallParticipant oldItem, @NonNull TwilioCallParticipant newItem) {
+    public boolean areContentsTheSame(@NonNull CallParticipantsPage oldItem, @NonNull CallParticipantsPage newItem) {
       return oldItem.equals(newItem);
     }
   }

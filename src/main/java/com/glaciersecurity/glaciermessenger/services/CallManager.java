@@ -297,7 +297,9 @@ public class CallManager {
     }
 
     //ALF AM-558
-    public List<TwilioCallParticipant> getRemoteParticipants() { return callParticipants; }
+    public List<TwilioCallParticipant> getRemoteParticipants() {
+        return callParticipants;
+    }
 
     /*
      * Room events listener
@@ -356,7 +358,7 @@ public class CallManager {
                 if (twilioCallListener != null) {
                     twilioCallListener.endListening();
                 }
-                //callPages.clear(); //AM-558
+                callParticipants.clear(); //AM-558
             }
 
             @Override

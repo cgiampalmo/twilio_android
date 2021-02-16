@@ -297,6 +297,9 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 		String incoming = getResources().getString(R.string.incoming_call);
 		callState.setText(incoming);
 		contactText.setText(currentTwilioCall.getCaller());
+		if (currentTwilioCall.getRoomTitle() != null) { //AM-558
+			contactText.setText(currentTwilioCall.getRoomTitle());
+		}
 		incomingCallLayout.setVisibility(View.VISIBLE);
 		outgoingCallLayout.setVisibility(View.GONE);
 
@@ -313,11 +316,14 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 	private void onOutgoingCall(){
 		SoundPoolManager.getInstance(CallActivity.this).playRinging();
 		callState.setText(getResources().getString(R.string.outgoing_call));
-		try {
-			contactText.setText(Jid.of(currentTwilioCall.getReceiver()).getEscapedLocal());
-		}
-		catch (final IllegalArgumentException ignored) {
-			contactText.setText(contactJid);
+		if (currentTwilioCall.getRoomTitle() != null) { //AM-558
+			contactText.setText(currentTwilioCall.getRoomTitle());
+		} else {
+			try {
+				contactText.setText(Jid.of(currentTwilioCall.getReceiver()).getEscapedLocal());
+			} catch (final IllegalArgumentException ignored) {
+				contactText.setText(contactJid);
+			}
 		}
 		incomingCallLayout.setVisibility(View.GONE);
 		outgoingCallLayout.setVisibility(View.VISIBLE);
