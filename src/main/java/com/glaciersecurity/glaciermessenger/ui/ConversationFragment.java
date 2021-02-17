@@ -1105,6 +1105,16 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			if (conversation == null){
 				return false;
 			}
+			//AM-558
+			if (conversation.getMode() == Conversation.MODE_MULTI && conversation.getMucOptions().getUserCount() > 5) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+				builder.setTitle(R.string.call_limit_alert_title);
+				builder.setMessage(R.string.call_limit_alert_msg);
+				builder.setPositiveButton(R.string.ok, null);
+				builder.create().show();
+				return false;
+			}
+
 			if(checkPermissionForCameraAndMicrophone()){
 				makeCall();
 			} else {

@@ -10,9 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 
-import com.glaciersecurity.glaciermessenger.cognito.Util;
 import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
-import com.glaciersecurity.glaciermessenger.ui.util.ViewUtil;
 import com.glaciersecurity.glaciermessenger.R;
 import com.google.android.flexbox.AlignItems;
 import com.google.android.flexbox.FlexboxLayout;
@@ -159,6 +157,14 @@ public class CallParticipantsLayout extends FlexboxLayout {
         params.setFlexBasisPercent(0.5f);
       }
     }
+
+    int height = this.getHeight();
+    if (childCount > 1 && height > 0) {
+      params.setMaxHeight(height/2);
+    } else {
+      params.setMaxHeight(height);
+    }
+
     child.setLayoutParams(params);
   }
 }

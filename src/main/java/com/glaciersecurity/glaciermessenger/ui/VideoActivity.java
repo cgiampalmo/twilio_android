@@ -34,8 +34,6 @@ import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
 import com.glaciersecurity.glaciermessenger.services.CallManager;
 import com.glaciersecurity.glaciermessenger.services.PhonecallReceiver;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
-import com.glaciersecurity.glaciermessenger.ui.adapter.CallParticipantsPage;
-import com.glaciersecurity.glaciermessenger.ui.adapter.CallParticipantsPagerAdapter;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
 import com.glaciersecurity.glaciermessenger.ui.util.CameraCapturerCompat;
 import com.glaciersecurity.glaciermessenger.ui.util.SoundPoolManager;
@@ -59,13 +57,7 @@ import com.twilio.video.VideoTrack;
 import com.twilio.video.VideoView;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-
-//AM-558
-import androidx.viewpager2.widget.ViewPager2;
-import androidx.viewpager2.widget.MarginPageTransformer;
-import android.content.res.Resources;
 
 import kotlin.Unit; //AM-440
 
@@ -112,8 +104,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
     //AM-558
     private CallParticipantsLayout callParticipantsLayout;
-    //private ViewPager2 callParticipantsPager;
-    //private CallParticipantsPagerAdapter callParticipantsPagerAdapter;
 
     /*
      * Android application UI elements
@@ -184,10 +174,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         minimizeVideo.setOnClickListener(minimizeCall());
 
         //AM-558
-        //callParticipantsPager = findViewById(R.id.call_screen_participants_pager);
-        //callParticipantsPager.setPageTransformer(new MarginPageTransformer(dpToPx(4)));
-        //callParticipantsPagerAdapter    = new CallParticipantsPagerAdapter(null);
-        //callParticipantsPager.setAdapter(callParticipantsPagerAdapter);
         callParticipantsLayout = findViewById(R.id.call_screen_call_participants);
 
 
@@ -230,11 +216,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         intializeUI();
 
 
-    }
-
-    //AM-558
-    public static int dpToPx(int dp) {
-        return Math.round(dp * Resources.getSystem().getDisplayMetrics().density);
     }
 
     @Override
@@ -516,8 +497,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             return;
         }*/
 
-        //CallParticipantsPage page = CallParticipantsPage.forMultipleParticipants(callManager.getRemoteParticipants());
-        //callParticipantsPagerAdapter.submitList(Collections.singletonList(page)); //callManager.getRemoteParticipants());
         callParticipantsLayout.update(callManager.getRemoteParticipants());
 
         //AM-558 the rest after this should initialize a new view for this specific user, not for
@@ -565,10 +544,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     @SuppressLint("SetTextI18n")
     private void removeRemoteParticipant(RemoteParticipant remoteParticipant) {
         //ALF AM-558
-        // need to get the specific instance...
-        //CallParticipantsPage page = CallParticipantsPage.forMultipleParticipants(callManager.getRemoteParticipants());
-        //callParticipantsPagerAdapter.submitList(Collections.singletonList(page));
-        //callParticipantsPagerAdapter.submitList(callManager.getRemoteParticipants());
         callParticipantsLayout.update(callManager.getRemoteParticipants());
 
         //List<TwilioCallParticipant> participants = callManager.getRemoteParticipants();

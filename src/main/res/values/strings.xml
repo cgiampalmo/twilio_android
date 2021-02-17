@@ -1115,6 +1115,10 @@
     <string name="native_ring_alert_title">Incoming Call Alert</string>
     <string name="native_ringing"><b><i>Attention</i> --> Answering the incoming call\nwill automatically end your Glacier call.</b></string>
 
+    <!-- AM-558 -->
+    <string name="call_limit_alert_title">Unable to Call</string>
+    <string name="call_limit_alert_msg">Calls are limited to five participants.</string>
+
     <!-- Strings related to Settings -->
 
     <string name="codec_title">Set your preferred audio and video codec. Not all codecs are supported with Group rooms. The media server will fallback to OPUS or VP8 if a preferred codec is not supported.</string>

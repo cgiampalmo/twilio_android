@@ -23,7 +23,7 @@
             android:layout_width="96dp"
             android:layout_height="170dp"
             android:layout_margin="12dp"
-            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"/>
 
         <!-- AM-558 replace this with a ViewPager2 (which uses recyclerView) -->
@@ -32,15 +32,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!--<androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/call_screen_participants_pager"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" /> -->
             <com.glaciersecurity.glaciermessenger.ui.CallParticipantsLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/call_screen_call_participants"
@@ -60,20 +51,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/call_screen_participants_recycler"
-            android:layout_width="match_parent"
-            android:layout_height="72dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:orientation="horizontal"
-            android:visibility="gone"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toTopOf="@id/primary_video_view"
-            app:reverseLayout="true"
-            tools:listitem="@layout/webrtc_call_participant_recycler_item" />
 
         <LinearLayout
             android:id="@+id/no_video_view"
