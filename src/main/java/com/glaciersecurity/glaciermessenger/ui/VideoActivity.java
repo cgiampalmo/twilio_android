@@ -61,6 +61,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import kotlin.Unit; //AM-440
+import rocks.xmpp.addr.Jid;
 
 
 public class VideoActivity extends XmppActivity implements SensorEventListener, PhonecallReceiver.PhonecallReceiverListener, TwilioCallListener {
@@ -505,7 +506,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         RemoteParticipant remoteParticipant = remoteCallParticipant.getRemoteParticipant();
 
         remoteParticipantIdentity = remoteParticipant.getIdentity();
-        Contact remoteContact = callManager.getContactFromDisplayName(remoteParticipantIdentity);
+        Contact remoteContact = getRemoteContact(remoteParticipantIdentity);
         if(remoteContact != null){
             //Todo setAvatar
         }
@@ -543,6 +544,13 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         }
     }*/
 
+    public Contact getRemoteContact(String rcString){
+        if (rcString.contains("@")){
+            return xmppConnectionService.getAccounts().get(0).getRoster().getContact(Jid.of(rcString));
+        } else {
+            return callManager.getContactFromDisplayName(remoteParticipantIdentity);
+        }
+    }
     /*
      * Called when remote participant leaves the room
      */
