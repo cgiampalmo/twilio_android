@@ -30,6 +30,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
 import com.glaciersecurity.glaciermessenger.services.CallManager;
 import com.glaciersecurity.glaciermessenger.services.PhonecallReceiver;
@@ -503,8 +504,12 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         //VideoActivity as a whole
         RemoteParticipant remoteParticipant = remoteCallParticipant.getRemoteParticipant();
 
-
         remoteParticipantIdentity = remoteParticipant.getIdentity();
+        Contact remoteContact = callManager.getContactFromDisplayName(remoteParticipantIdentity);
+        if(remoteContact != null){
+            //Todo setAvatar
+        }
+
         /*String other = remoteParticipant.getIdentity();
         if (other.contains("@")){
             other = other.substring(0, other.indexOf("@"));
@@ -737,6 +742,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 cameraCapturerCompat.switchCamera();
                 if (thumbnailVideoView.getVisibility() == View.VISIBLE) {
                     thumbnailVideoView.setMirror(cameraSource == CameraSource.BACK_CAMERA);
+                    thumbnailVideoView.bringToFront();
                 } else {
                     primaryVideoView.setMirror(cameraSource == CameraSource.BACK_CAMERA);
                 }

@@ -9,6 +9,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
 import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
 import com.glaciersecurity.glaciermessenger.ui.CallActivity;
@@ -39,11 +40,15 @@ import com.twilio.video.Vp8Codec;
 import com.twilio.video.Vp9Codec;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+
+import rocks.xmpp.addr.Jid;
 
 //ALF AM-478
 public class CallManager {
@@ -98,6 +103,7 @@ public class CallManager {
     public static final String PREF_ENABLE_AUTOMATIC_SUBSCRIPTION = "enable_automatic_subscription";
     public static final boolean PREF_ENABLE_AUTOMATIC_SUBSCRIPTION_DEFAULT = true;
     private boolean enableAutomaticSubscription;
+    HashMap<String, Contact> contactByDisplayName = new HashMap<>();
 
     protected XmppConnectionService mXmppConnectionService;
 
@@ -105,6 +111,10 @@ public class CallManager {
         mXmppConnectionService = service;
         //audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         callParticipants = new ArrayList<TwilioCallParticipant>(); //ALF AM-558
+    }
+
+    public Contact getContactFromDisplayName(String displayName){
+        return contactByDisplayName.get(displayName);
     }
 
     public void initCall(TwilioCall call) {
@@ -129,9 +139,37 @@ public class CallManager {
         callIntent.putExtra("roomtitle", roomtitle); //ALF AM-558
         mXmppConnectionService.startActivity(callIntent);
 
+        getCaller();
+        getReceivers();
+
         //if (room == null || room.getState() == Room.State.DISCONNECTED) {
         //    connectToRoom(roomname);
         //}
+
+
+    }
+
+    public void getCaller(){
+        try {
+            Jid remoteJid = Jid.of(caller);
+            Contact contact = mXmppConnectionService.getAccounts().get(0).getRoster().getContact(remoteJid);
+            contactByDisplayName.put(contact.getDisplayName(), contact);
+        }catch (Exception e){
+
+        }
+    }
+    public void getReceivers(){
+        List<String> receiverJids = Arrays.asList(receiver.split(","));
+        for(String receiver: receiverJids) {
+            try {
+                Jid remoteJid = Jid.of(receiver);
+                Contact contact = mXmppConnectionService.getAccounts().get(0).getRoster().getContact(remoteJid);
+                contactByDisplayName.put(contact.getDisplayName(), contact);
+            }
+            catch (Exception e){
+
+            }
+        }
     }
 
     private void initPreferences() {
