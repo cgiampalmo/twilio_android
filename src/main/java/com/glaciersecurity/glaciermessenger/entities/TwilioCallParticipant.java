@@ -1,6 +1,7 @@
 package com.glaciersecurity.glaciermessenger.entities;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
@@ -19,6 +20,7 @@ public class TwilioCallParticipant {
 
     RemoteParticipant remoteParticipant;
     TwilioRemoteParticipantListener twilioRemoteParticipantListener;
+    Bitmap avatarBitmap;
 
     public TwilioCallParticipant(RemoteParticipant participant) {
         remoteParticipant = participant;
@@ -34,6 +36,11 @@ public class TwilioCallParticipant {
 
     public void setRemoteParticipantListener(TwilioRemoteParticipantListener listener) {
         twilioRemoteParticipantListener = listener;
+    }
+
+    //AM-558b
+    public void setAvatar(Bitmap avatar) {
+        avatarBitmap = avatar;
     }
 
     public boolean equals(String id) {

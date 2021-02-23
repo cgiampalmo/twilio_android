@@ -4,11 +4,13 @@ import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
 import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
@@ -115,6 +117,15 @@ public class CallManager {
 
     public Contact getContactFromDisplayName(String displayName){
         return contactByDisplayName.get(displayName);
+    }
+
+    //AM-558b
+    public Contact getRemoteContact(String rcString){
+        if (rcString.contains("@")){
+            return mXmppConnectionService.getAccounts().get(0).getRoster().getContact(Jid.of(rcString));
+        } else {
+            return getContactFromDisplayName(rcString);
+        }
     }
 
     public void initCall(TwilioCall call) {
@@ -354,6 +365,14 @@ public class CallManager {
                     TwilioCallParticipant tcallParticipant = new TwilioCallParticipant(remoteParticipant);
                     remoteParticipant.setListener(tcallParticipant.getRemoteParticipantListener());
                     //tcallParticipant.setCallListener(twilioCallListener);
+                    //AM-558b add avatar to TwilioCallParticipant
+                    //mXmppConnectionService.getAccounts().get(0).getRoster();//.getContact(Jid.of(rpIdentity))
+                    Contact c = getRemoteContact(remoteParticipant.getIdentity());
+                    if (c != null) {
+                        Bitmap av = mXmppConnectionService.getAvatarService().get(c, (int) mXmppConnectionService.getResources().getDimension(R.dimen.avatar_on_incoming_call_screen_size));
+                        tcallParticipant.setAvatar(av);
+                    }
+
                     callParticipants.add(tcallParticipant);
 
                     //remoteParticipant.setListener(remoteParticipantListener());
@@ -405,6 +424,14 @@ public class CallManager {
                 TwilioCallParticipant tcallParticipant = new TwilioCallParticipant(remoteParticipant);
                 remoteParticipant.setListener(tcallParticipant.getRemoteParticipantListener());
                 //tcallParticipant.setCallListener(twilioCallListener);
+                //AM-558b add avatar to TwilioCallParticipant
+                // if I am the caller, mine is display name and there are 3 JIDs in receiver
+                Contact c = getRemoteContact(remoteParticipant.getIdentity());
+                if (c != null) {
+                    Bitmap av = mXmppConnectionService.getAvatarService().get(c, (int) mXmppConnectionService.getResources().getDimension(R.dimen.avatar_on_incoming_call_screen_size));
+                    tcallParticipant.setAvatar(av);
+                }
+
                 callParticipants.add(tcallParticipant);
 
                 if (twilioCallListener != null) {
