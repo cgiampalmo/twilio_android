@@ -43,6 +43,10 @@ public class TwilioCallParticipant {
         avatarBitmap = avatar;
     }
 
+    public Bitmap getAvatar(){
+        return avatarBitmap;
+    }
+
     public boolean equals(String id) {
         return remoteParticipant.getIdentity().equals(id);
     }

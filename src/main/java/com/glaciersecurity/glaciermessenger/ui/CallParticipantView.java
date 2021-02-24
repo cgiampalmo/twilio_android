@@ -81,7 +81,8 @@ public class CallParticipantView extends ConstraintLayout implements TwilioRemot
         if (remoteParticipant.getRemoteVideoTracks().size() > 0) {
             RemoteVideoTrackPublication remoteVideoTrackPublication =
                     remoteParticipant.getRemoteVideoTracks().get(0);
-                //TODO setAvatar
+            //AM-558b add avatar to TwilioCallParticipant
+                avatar.setImageBitmap(participant.getAvatar());
 
 
             /*
