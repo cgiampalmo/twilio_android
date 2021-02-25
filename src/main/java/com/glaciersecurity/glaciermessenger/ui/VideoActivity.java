@@ -378,6 +378,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             connectActionFab.setClickable(false);
             localVideoActionFab.setClickable(false);
             muteActionFab.setClickable(false);
+            minimizeVideo.setClickable(false);
         } else {
             callBar.setClickable(true);
             speakerPhoneActionFab.setClickable(true);
@@ -385,6 +386,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             connectActionFab.setClickable(true);
             localVideoActionFab.setClickable(true);
             muteActionFab.setClickable(true);
+            minimizeVideo.setClickable(true);
         }
     }
 
