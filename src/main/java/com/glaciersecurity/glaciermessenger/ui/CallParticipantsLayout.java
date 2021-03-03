@@ -31,8 +31,6 @@ public class CallParticipantsLayout extends FlexboxLayout {
   private static final int CORNER_RADIUS                = dpToPx(10);
 
   private List<TwilioCallParticipant> callParticipants = Collections.emptyList();
-  //private TwilioCallParticipant       focusedParticipant = null;
-  //private boolean               shouldRenderInPip;
 
   public CallParticipantsLayout(@NonNull Context context) {
     super(context);
@@ -48,8 +46,6 @@ public class CallParticipantsLayout extends FlexboxLayout {
 
   public void update(@NonNull List<TwilioCallParticipant> callParticipants){//, @NonNull RemoteParticipant focusedParticipant), boolean shouldRenderInPip) {
     this.callParticipants   = callParticipants;
-    //this.focusedParticipant = focusedParticipant;
-    //this.shouldRenderInPip  = shouldRenderInPip;
     updateLayout();
   }
 
@@ -69,17 +65,12 @@ public class CallParticipantsLayout extends FlexboxLayout {
   private void updateLayout() {
     int previousChildCount = getChildCount();
 
-    //if (shouldRenderInPip && Util.hasItems(callParticipants)) {
-    //  updateChildrenCount(1);
-    //  update(0, 1, focusedParticipant);
-    //} else {
-      int count = callParticipants.size();
-      updateChildrenCount(count);
+    int count = callParticipants.size();
+    updateChildrenCount(count);
 
-      for (int i = 0; i < count; i++) {
-        update(i, count, callParticipants.get(i));
-      }
-    //}
+    for (int i = 0; i < count; i++) {
+      update(i, count, callParticipants.get(i));
+    }
 
     if (previousChildCount != getChildCount()) {
       updateMarginsForLayout();
@@ -118,7 +109,6 @@ public class CallParticipantsLayout extends FlexboxLayout {
     CallParticipantView callParticipantView = view.findViewById(R.id.group_call_participant);
 
     callParticipantView.setCallParticipant(participant);
-    //callParticipantView.setRenderInPip(shouldRenderInPip);
 
     if (count > 1) {
       view.setPadding(MULTIPLE_PARTICIPANT_SPACING, MULTIPLE_PARTICIPANT_SPACING, MULTIPLE_PARTICIPANT_SPACING, MULTIPLE_PARTICIPANT_SPACING);
@@ -127,12 +117,6 @@ public class CallParticipantsLayout extends FlexboxLayout {
       view.setPadding(0, 0, 0, 0);
       cardView.setRadius(0);
     }
-
-    /*if (count > 2) {
-      callParticipantView.useSmallAvatar();
-    } else {
-      callParticipantView.useLargeAvatar();
-    }*/
 
     setChildLayoutParams(view, index, getChildCount());
   }

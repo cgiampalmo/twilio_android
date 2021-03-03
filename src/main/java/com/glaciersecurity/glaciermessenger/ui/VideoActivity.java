@@ -490,16 +490,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
      */
     @SuppressLint("SetTextI18n")
     private void addRemoteParticipant(TwilioCallParticipant remoteCallParticipant) {
-        /*
-         * This app only displays video for one additional participant per Room
-         */
-        /*if (thumbnailVideoView.getVisibility() == View.VISIBLE) {
-            Snackbar.make(connectActionFab,
-                    "Multiple participants are not currently support in this UI",
-                    Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
-            return;
-        }*/
 
         callParticipantsLayout.update(callManager.getRemoteParticipants());
 
@@ -507,44 +497,13 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         //VideoActivity as a whole
         RemoteParticipant remoteParticipant = remoteCallParticipant.getRemoteParticipant();
 
+        //I don't think this is needed anymore
         remoteParticipantIdentity = remoteParticipant.getIdentity();
         Contact remoteContact = getRemoteContact(remoteParticipantIdentity);
         if(remoteContact != null){
             //Todo setAvatar
         }
-
-        /*String other = remoteParticipant.getIdentity();
-        if (other.contains("@")){
-            other = other.substring(0, other.indexOf("@"));
-        }
-        primaryTitle.setText(other);*/ //AM-558 maybe label each participant, but not yet
-
-        /*
-         * Add remote participant renderer
-         */
-        //AM-558 moved
-        /*if (remoteParticipant.getRemoteVideoTracks().size() > 0) {
-            RemoteVideoTrackPublication remoteVideoTrackPublication =
-                    remoteParticipant.getRemoteVideoTracks().get(0);
-
-            //Only render video tracks that are subscribed to
-            if (remoteVideoTrackPublication.isTrackSubscribed()) {
-                addRemoteParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
-            }
-        }*/
     }
-
-    /*
-     * Set primary view as renderer for participant video track
-     */
-    /*private void addRemoteParticipantVideo(VideoTrack videoTrack) {
-        primaryVideoView.setMirror(false);
-        videoTrack.addRenderer(primaryVideoView);
-
-        if (videoTrack.isEnabled()) { //AM-404
-            handleVideoTrackEnabled();
-        }
-    }*/
 
     public Contact getRemoteContact(String rcString){
         if (rcString.contains("@")){
@@ -560,32 +519,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private void removeRemoteParticipant(RemoteParticipant remoteParticipant) {
         //ALF AM-558
         callParticipantsLayout.update(callManager.getRemoteParticipants());
-
-        //List<TwilioCallParticipant> participants = callManager.getRemoteParticipants();
-        //for (TwilioCallParticipant participant : participants) {
-            //if we don't find the current participant to remove, don't remove anything
-            //but honestlly I'm not sure this should happen here. We should resubmit the list
-        //}
-
-        //if (!remoteParticipant.getIdentity().equals(remoteParticipantIdentity)) {
-        //    return;
-        //}
-
-        //Remove remote participant renderer
-        /*if (!remoteParticipant.getRemoteVideoTracks().isEmpty()) {
-            RemoteVideoTrackPublication remoteVideoTrackPublication =
-                    remoteParticipant.getRemoteVideoTracks().get(0);
-
-            //Remove video only if subscribed to participant track
-            if (remoteVideoTrackPublication.isTrackSubscribed()) {
-                removeParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
-            }
-        }*/
     }
-
-    /*private void removeParticipantVideo(VideoTrack videoTrack) {
-        videoTrack.removeRenderer(primaryVideoView);
-    }*/
 
     private void configureAudio(boolean enable) {
         if (enable) {
@@ -965,42 +899,15 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         }
     }
 
-    //AM-558 move the following 4 to CallParticipantView
-    /*public void handleAddRemoteParticipantVideo(RemoteVideoTrack videoTrack){
-        primaryVideoView.setMirror(false);
-        videoTrack.addRenderer(primaryVideoView);
-    }
-    public void handleRemoveRemoteParticipantVideo(RemoteVideoTrack videoTrack){
-        videoTrack.removeRenderer(primaryVideoView);
-    }
-
-    public void handleVideoTrackEnabled(){
-        noVideoView.setVisibility(View.GONE);
-        primaryVideoView.setVisibility(View.VISIBLE);
-    }
-
-    public void handleVideoTrackDisabled(){
-        noVideoView.setVisibility(View.VISIBLE);
-        primaryVideoView.setVisibility(View.GONE);
-    }*/
-
     public void handleConnected(Room room){
         setTitle(room.getName()); //ALF AM-558 should this be title sent with call data? Or doesn't matter?
 
         audioDeviceSelector.activate(); //AM-440
         updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
 
-        //AM-558 Note: handling all participants was already here and explains why we get the flickering
-        //for (RemoteParticipant remoteParticipant : room.getRemoteParticipants()) {
-        for (TwilioCallParticipant remoteParticipant : callManager.getRemoteParticipants()) {
-            addRemoteParticipant(remoteParticipant);
-            /*String other = remoteParticipant.getIdentity();
-            if (other.contains("@")){
-                other = other.substring(0, other.indexOf("@"));
-            }
-            //primaryTitle.setText(other);*/ //AM-558 may want to set labels per user, but not yet
-            break;
-        }
+        //AM-558
+        callParticipantsLayout.update(callManager.getRemoteParticipants());
+
         if (!room.getRemoteParticipants().isEmpty()){
             reconnectingProgressBar.setVisibility(View.GONE);
         }
