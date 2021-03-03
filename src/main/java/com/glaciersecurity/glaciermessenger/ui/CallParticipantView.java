@@ -9,6 +9,7 @@ import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioRemoteParticipantListener;
 import com.makeramen.roundedimageview.RoundedImageView;
+import com.twilio.video.RemoteAudioTrackPublication;
 import com.twilio.video.RemoteParticipant;
 import com.twilio.video.RemoteVideoTrack;
 import com.twilio.video.RemoteVideoTrackPublication;
@@ -16,6 +17,7 @@ import com.twilio.video.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 //AM-558
 
@@ -25,6 +27,7 @@ public class CallParticipantView extends ConstraintLayout implements TwilioRemot
     private String remoteParticipantIdentity;
     private VideoView primaryVideoView;
     private TwilioCallParticipant callParticipant;
+    private AppCompatImageView audioMuted;
 
     public CallParticipantView(@NonNull Context context) {
         super(context);
@@ -47,6 +50,7 @@ public class CallParticipantView extends ConstraintLayout implements TwilioRemot
         noVideoView = findViewById(R.id.no_video_view);
         avatar = findViewById(R.id.no_video_view_avatar);
         avatar.setImageResource(R.drawable.avatar_default);
+        audioMuted = findViewById(R.id.call_participant_audio_muted);
 
         /*backgroundAvatar = findViewById(R.id.call_participant_background_avatar);
         avatar           = findViewById(R.id.call_participant_item_avatar);
@@ -90,6 +94,14 @@ public class CallParticipantView extends ConstraintLayout implements TwilioRemot
              */
             if (remoteVideoTrackPublication.isTrackSubscribed()) {
                 handleAddRemoteParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
+            }
+        }
+
+        if (remoteParticipant.getRemoteAudioTracks().size() > 0) {
+            RemoteAudioTrackPublication remoteAudioTrackPublication =
+                    remoteParticipant.getRemoteAudioTracks().get(0);
+            if (remoteAudioTrackPublication.isTrackEnabled()) {
+                handleAudioTrackEnabled();
             }
         }
 
@@ -195,5 +207,13 @@ public class CallParticipantView extends ConstraintLayout implements TwilioRemot
     public void handleVideoTrackDisabled(){
         noVideoView.setVisibility(View.VISIBLE);
         primaryVideoView.setVisibility(View.GONE);
+    }
+
+    public void handleAudioTrackEnabled(){
+        audioMuted.setVisibility(View.GONE);
+    }
+
+    public void handleAudioTrackDisabled(){
+        audioMuted.setVisibility(View.VISIBLE);
     }
 }

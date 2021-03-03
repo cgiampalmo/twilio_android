@@ -279,13 +279,17 @@ public class TwilioCallParticipant {
             @Override
             public void onAudioTrackEnabled(RemoteParticipant remoteParticipant,
                                             RemoteAudioTrackPublication remoteAudioTrackPublication) {
-
+                if (twilioRemoteParticipantListener != null) {
+                    twilioRemoteParticipantListener.handleAudioTrackEnabled();
+                }
             }
 
             @Override
             public void onAudioTrackDisabled(RemoteParticipant remoteParticipant,
                                              RemoteAudioTrackPublication remoteAudioTrackPublication) {
-
+                if (twilioRemoteParticipantListener != null) {
+                    twilioRemoteParticipantListener.handleAudioTrackDisabled();
+                }
             }
 
             @Override

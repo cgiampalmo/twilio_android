@@ -7,4 +7,6 @@ public interface TwilioRemoteParticipantListener {
     void handleRemoveRemoteParticipantVideo(RemoteVideoTrack videoTrack);
     void handleVideoTrackEnabled();
     void handleVideoTrackDisabled();
+    void handleAudioTrackEnabled();
+    void handleAudioTrackDisabled();
 }
