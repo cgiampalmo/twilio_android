@@ -11,6 +11,7 @@ public class TwilioCall {
     protected String troomtitle; //AM-558 (and roomtitle below)
     protected String tstatus;
     protected int tcallid;
+    protected long tcalltime = 0;
 
     public TwilioCall(Account account) {
         taccount = account;
@@ -74,5 +75,26 @@ public class TwilioCall {
 
     public void setCallId(int callid) {
         tcallid = callid;
+    }
+
+    public long getCallTime() {
+        return tcalltime;
+    }
+
+    public void setCallTime(long calltime) {
+        tcalltime = calltime;
+    }
+
+    //AM-541
+    public TwilioCall getCopy() {
+        TwilioCall newcall = new TwilioCall(getAccount());
+        newcall.setCallId(getCallId());
+        newcall.setCaller(getCaller());
+        newcall.setReceiver(getReceiver());
+        newcall.setToken(getToken());
+        newcall.setRoomName(getRoomName());
+        newcall.setStatus(getStatus());
+        newcall.setCallTime(getCallTime());
+        return newcall;
     }
 }

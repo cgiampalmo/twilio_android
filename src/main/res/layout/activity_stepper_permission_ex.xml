@@ -7,7 +7,10 @@
     android:background="@color/grey1000"
     android:fitsSystemWindows="false"
     android:orientation="vertical">
-
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:fillViewport="true">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,6 +39,7 @@
             android:layout_marginRight="@dimen/spacing_xxxlarge"
             android:layout_marginBottom="@dimen/spacing_xmedium"
             android:textStyle="bold" />
+
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -149,6 +153,7 @@
 
             android:textColor="@color/grey_20" />
     </LinearLayout>
+
         <Button
             android:id="@+id/cont_perm"
             android:layout_width="wrap_content"
@@ -163,5 +168,5 @@
 
     </LinearLayout>
 
-
+    </ScrollView>
 </RelativeLayout>

@@ -42,9 +42,11 @@ import com.glaciersecurity.glaciercore.api.IOpenVPNAPIService;
 import com.glaciersecurity.glaciercore.api.IOpenVPNStatusCallback;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.entities.GlacierProfile;
 import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 import com.glaciersecurity.glaciermessenger.ui.adapter.ProfileSelectListAdapter;
 import com.glaciersecurity.glaciermessenger.utils.Log;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -76,7 +78,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     private TextView mStatus;
     private TextView mVpnConnectionStatus;
     private RelativeLayout mVpnStatusBar;
-    private Button mImportVpn;
+    private FloatingActionButton mImportVpn;
     private TextView mProfile;
     private CheckBox enableEmergConnectCheckBox;
     private GlacierProfile emergencyProfile;
@@ -117,18 +119,8 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
-            String str = savedInstanceState.getString("my_prof");
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-       outState.putString("my_prof", mProfile.getText().toString());
-        super.onSaveInstanceState(outState);
 
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -157,9 +149,9 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 }
             }
         }); */
-        v.findViewById(R.id.addNewProfile).setOnClickListener(this);
+        v.findViewById(R.id.fab_import).setOnClickListener(this);
         //mHelloWorld = (TextView) v.findViewById(R.id.helloworld);
-        mImportVpn = (Button) v.findViewById(R.id.addNewProfile);
+        mImportVpn = (FloatingActionButton) v.findViewById(R.id.fab_import);
         mStatus = (TextView) v.findViewById(R.id.status);
         mProfile = (TextView) v.findViewById(R.id.currentProfile);
         mVpnConnectionStatus = (TextView) v.findViewById(R.id.vpn_connection_status);
@@ -185,7 +177,6 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
         mUseVpnToggle = (Switch) v.findViewById(R.id.use_vpn_status_toggle);
         v.findViewById(R.id.use_vpn_status_toggle).setOnClickListener(mOnToggleSwitchListener);
 
-
         // mMyIp = (TextView) v.findViewById(R.id.MyIpText);
         addItemsOnProfileSpinner(v);
 
@@ -200,14 +191,16 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 profileSpinner.setVisibility(View.VISIBLE);
                 mVpnStatusBar.setVisibility(View.VISIBLE);
                 mDisableVpnView.setVisibility(View.GONE);
-                mImportVpn.setVisibility(View.VISIBLE);
+                mImportVpn.show();
+                mVpnStatusBar.setVisibility(VISIBLE);
                 mUseVpnToggle.setChecked(true);
            } else {
                 mUseVpnToggle.setChecked(false);
                 mDisableVpnView.setVisibility(View.VISIBLE);
+                mNoVpnProfilesView.setVisibility(View.GONE);
                 profileSpinner.setVisibility(View.GONE);
                 mVpnStatusBar.setVisibility(View.GONE);
-                mImportVpn.setVisibility(View.GONE);
+                mImportVpn.hide();
             }
 
         return v;
@@ -233,18 +226,22 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 
             if(mUseVpnToggle.isChecked()){
                 setUseCoreConnect(true);
-                profileSpinner.setVisibility(View.VISIBLE);
                 mVpnStatusBar.setVisibility(View.VISIBLE);
+                mImportVpn.show();
+                mVpnStatusBar.setVisibility(VISIBLE);
                 mDisableVpnView.setVisibility(View.GONE);
-                mImportVpn.setVisibility(View.VISIBLE);
+                mVpnStatusBar.setVisibility(VISIBLE);
+                listVPNs();
 
             } else {
                 setUseCoreConnect(false);
                 disconnectVpn();
                 mDisableVpnView.setVisibility(View.VISIBLE);
                 profileSpinner.setVisibility(View.GONE);
+                mNoVpnProfilesView.setVisibility(View.GONE);
                 mVpnStatusBar.setVisibility(View.GONE);
-                mImportVpn.setVisibility(View.GONE);
+                mDisableVpnView.setVisibility(VISIBLE);
+                mImportVpn.hide();
 
             }
         }
@@ -260,10 +257,12 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     };
 
 
-
     private void disconnectVpn(){
         try {
             mService.disconnect();
+            spinnerAdapter.clearSelections(profileSpinner);
+            SharedPreferences sp = this.getActivity().getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
+            sp.edit().putString("last_spinner_profile", "").commit();
         } catch (RemoteException e) {
             //CMG AM-240
             Log.d(Config.LOGTAG, "at mService.disconnect");
@@ -384,8 +383,6 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 
         if (index >= 0) {
             GlacierProfile gp = (GlacierProfile) profileSpinner.getItemAtPosition(index);
-            //TODO CHECK
-            profileSpinner.setItemChecked(index, true);
             return gp.getName();
  //           return gp.getName();
         } else if (uuid.compareTo(emergencyProfile.getUuid()) == 0) {
@@ -443,12 +440,10 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 spinnerAdapter.select(position, view, parent);
                 GlacierProfile glacierProfile = (GlacierProfile) parent.getItemAtPosition(position);
                 confirmProfileSelection(position, glacierProfile);
-                //spinnerAdapter.notifyDataSetChanged();
-
             }
 
         });
-//        spinnerAdapter.notifyDataSetChanged();
+        spinnerAdapter.notifyDataSetChanged();
     }
 
 
@@ -514,15 +509,15 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             for (int j = 0; j < list.size();j++) {
                 // do not add emergency profile yet
                 if (!isEmergencyProfile(list.get(j).mName.toLowerCase())) {
-                    nameList.add(new GlacierProfile(list.get(j).mName, list.get(j).mUUID));
+                    nameList.add(new GlacierProfile(parseVpnName(list.get(j).mName), list.get(j).mUUID));
                 } else {
-                    emergencyProfile = new GlacierProfile(list.get(j).mName, list.get(j).mUUID);
+                    emergencyProfile = new GlacierProfile(parseVpnName(list.get(j).mName), list.get(j).mUUID);
                 }
             }
             Collections.sort(nameList, new Comparator<GlacierProfile>() {
                 @Override
                 public int compare(GlacierProfile glacierProfile, GlacierProfile t1) {
-                    return glacierProfile.name.compareTo(t1.name);
+                    return glacierProfile.getName().compareTo(t1.getName());
                 }
             });
 
@@ -548,27 +543,33 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             spinnerAdapter.setOnItemClickListener(new ProfileSelectListAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, GlacierProfile glacierProfile, int position) {
-                    //spinnerAdapter.select(view);
                     spinnerAdapter.select(position,view,profileSpinner);
-
                     confirmProfileSelection(position, glacierProfile);
-
-//                    spinnerAdapter.select(position, view, parent);
-//                    GlacierProfile glacierProfile = (GlacierProfile) parent.getItemAtPosition(position);
-//                    confirmProfileSelection(position, glacierProfile);
-//                    //TODO CHECK
                 }
 
             });
+            spinnerAdapter.notifyDataSetChanged();
 
             if(list.size()> 0) {
                 mNoVpnProfilesView.setVisibility(View.GONE);
+                if (mUseVpnToggle.isChecked()){
+                    profileSpinner.setVisibility(View.VISIBLE);
+                    mVpnStatusBar.setVisibility(View.VISIBLE);
+                    // GOOBER retrieve previous profile selected
+                } else {
+                    profileSpinner.setVisibility(View.GONE);
+                    mVpnStatusBar.setVisibility(View.GONE);
+
+                }
+
 
             } else {
                 profileSpinner.setVisibility(View.GONE);
                 mVpnStatusBar.setVisibility(View.GONE);
-                if (isCoreConnectUsed){
+                if (mUseVpnToggle.isChecked()){
                     mNoVpnProfilesView.setVisibility(View.VISIBLE);
+                } else {
+                    mNoVpnProfilesView.setVisibility(View.GONE);
                 }
             }
 
@@ -586,7 +587,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     private void confirmProfileSelection(int position, GlacierProfile glacierProfile){
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(getString(R.string.core_profile));
-        builder.setMessage(getText(R.string.change_vpn_profile)+" "+ glacierProfile.getParcedName() +"?");
+        builder.setMessage(getText(R.string.change_vpn_profile)+" "+ glacierProfile.getName() +"?");
         builder.setNegativeButton(getString(R.string.cancel), null);
         builder.setPositiveButton(getString(R.string.connect_button_label),
                 (dialog, which) -> {
@@ -666,6 +667,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 
     public String parseVpnName(String name){
         try {
+            String result = "";
             String [] splitname = name.split("_");
             return splitname[1];
         } catch (Exception e){
@@ -676,7 +678,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.addNewProfile:
+            case R.id.fab_import:
                 // CMG AM-240
                 try {
                     showImportProfileVPNDialogFragment();
@@ -808,15 +810,8 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 }
             if (requestCode == ICS_OPENVPN_PERMISSION) {
 
-                listVPNs();
 
-                // GOOBER retrieve previous profile selected
-                SharedPreferences sp = this.getActivity().getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
-                String lastSelectedProfile = sp.getString("last_spinner_profile", null);
-                int spinnerIndex = 0;
-                if (lastSelectedProfile != null) {
-                    spinnerIndex = getSpinnerIndex(lastSelectedProfile);
-                }
+
 
                 try {
                     mService.registerStatusCallback(mCallback);
@@ -825,8 +820,10 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                     e.printStackTrace();
                 }
 
+                listVPNs();
             }
             if (requestCode == PROFILE_ADD_NEW) {
+                listVPNs();
                 startEmbeddedProfile(true);
             }
         }
@@ -950,46 +947,6 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             mMyIp.setText((CharSequence) msg.obj);
         }
         return true;
-    }
-
-
-
-    /**
-     * track glacier profile name and uuid pair
-     */
-    public class GlacierProfile {
-        private String name;
-        private String uuid;
-
-        public GlacierProfile(String name, String uuid) {
-            this.name = name;
-            this.uuid = uuid;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getUuid() {
-            return uuid;
-        }
-
-        public String getParcedName(){
-            try {
-                String [] splitname = name.split("_");
-                return splitname[1];
-            } catch (Exception e){
-            }
-            return name;
-
-        }
-
-        @Override
-        public String toString() {
-            return getName();
-        }
-
-
     }
 
     /**

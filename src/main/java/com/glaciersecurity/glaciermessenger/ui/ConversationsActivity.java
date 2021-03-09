@@ -1165,11 +1165,32 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					startActivity(intent);
 				} catch (java.lang.NullPointerException e) {
 					// If not installed, then download Voice from Play store
-					Intent intent = new Intent(Intent.ACTION_VIEW);
-					intent.setData(Uri.parse(
-							"https://play.google.com/store/apps/details?id=com.glaciersecurity.glaciervoice"));
-					intent.setPackage("com.android.vending");
-					startActivity(intent);
+					// DJF 02-02-2021 - Added try/catch so Copperhead OS does not crash if click to go to Glacier Dial
+					try {
+						Intent intent = new Intent(Intent.ACTION_VIEW);
+						intent.setData(Uri.parse(
+								"https://play.google.com/store/apps/details?id=com.glaciersecurity.glaciervoice"));
+						intent.setPackage("com.android.vending");
+						startActivity(intent);
+					} catch (java.lang.Exception ex) {
+						for (int i = 0; i < nav_view.getMenu().size(); i++) {
+							nav_view.getMenu().getItem(i).setChecked(false);
+						}
+						displayToast("Your device cannot access the Play Store. To use Glacier Dial, install the apk directly.");
+
+						FragmentManager fm2 = getFragmentManager();
+						if (fm2.getBackStackEntryCount() > 0) {
+							try {
+								fm2.popBackStack();
+							} catch (IllegalStateException exc) {
+								Log.w(Config.LOGTAG,"Unable to pop back stack after pressing home button");
+							}
+						}
+						Intent chatsActivity2 = new Intent(getApplicationContext(), ConversationsActivity.class);
+						startActivity(chatsActivity2);
+						break;
+
+					}
 				}
 				break;
 			}
@@ -1200,6 +1221,21 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				.setNegativeButton(android.R.string.no, null).show();
 	}
 
+//	/**
+//	 * Display confirmation window before making a call (AM-549)
+//	 * DJFDJF
+//	 */
+//	private void showCallingConfirmationDialog() {
+//		new android.app.AlertDialog.Builder(this)
+//				.setTitle("Call Confirmation")
+//				.setMessage("Please confirm that you want to make a Glacier call.")
+//				.setPositiveButton(R.string.continue_button_label, new DialogInterface.OnClickListener() {
+//					public void onClick(DialogInterface dialog, int whichButton) {
+//						makeCall();
+//					}})
+//				.setNegativeButton(R.string.cancel, null).show();
+//	}
+
 
 	//ALF AM-143
 	private void doLogout() {
@@ -1210,6 +1246,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	//ALF AM-143 here to end
 	@Override
 	public void onLogout() {
+		//AM-517
+		getPreferences().edit().putBoolean("use_core_connect", false).apply();
 
 		//ALF AM-228, AM-202 store account in memory in case using same account
 		//Account curAccount = xmppConnectionService.getAccounts().get(0);

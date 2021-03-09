@@ -59,6 +59,7 @@
         <item name="TextColorOnline">@color/primary_bg_color</item>
         <item name="TextColorError">@color/red_800</item>
         <item name="edit_text_color">@color/almost_black</item>
+        <item name="edit_text_color2">@color/grey750</item>
 
         <item name="activity_background_search">@drawable/search_background_light</item>
         <item name="activity_background_no_results">@drawable/no_results_background_light</item>
@@ -230,6 +231,8 @@
         <item name="TextColorOnline">@color/blue_grey_875</item>
         <item name="TextColorError">@color/red_500</item>
         <item name="edit_text_color">@color/white</item>
+        <item name="edit_text_color2">@color/grey750</item>
+
 
         <item name="EmojiColor">@color/white</item>
 

@@ -1,6 +1,8 @@
 package com.glaciersecurity.glaciermessenger.ui.adapter;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.renderscript.ScriptGroup;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,18 +21,23 @@ import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.databinding.ContactBinding;
 import com.glaciersecurity.glaciermessenger.databinding.RadioBinding;
-import com.glaciersecurity.glaciermessenger.ui.OpenVPNFragment;
+import com.glaciersecurity.glaciermessenger.entities.ListItem;
+import com.glaciersecurity.glaciermessenger.entities.GlacierProfile;
+import com.glaciersecurity.glaciermessenger.ui.util.StyledAttributes;
 import com.wefika.flowlayout.FlowLayout;
 
 import java.util.Comparator;
 import java.util.List;
 
-public class ProfileSelectListAdapter<GlacierProfile> extends ArrayAdapter<GlacierProfile> {
+public class ProfileSelectListAdapter<T> extends ArrayAdapter<GlacierProfile> {
     private OnItemClickListener mOnItemClickListener;
+    protected Context context;
+    protected String lastUUID;
 
     public interface OnItemClickListener {
-        void onItemClick(View view, OpenVPNFragment.GlacierProfile obj, int position);
+        void onItemClick(View view, GlacierProfile obj, int position);
     }
 
     public void setOnItemClickListener(final OnItemClickListener mItemClickListener) {
@@ -57,6 +64,9 @@ public class ProfileSelectListAdapter<GlacierProfile> extends ArrayAdapter<Glaci
 
     public ProfileSelectListAdapter(@NonNull Context context, int resource, @NonNull List<GlacierProfile> objects) {
         super(context, resource, objects);
+        this.context = context;
+        this.lastUUID = lastProfileUuid();
+
     }
 
     public ProfileSelectListAdapter(@NonNull Context context, int resource, int textViewResourceId, @NonNull List<GlacierProfile> objects) {
@@ -80,17 +90,20 @@ public class ProfileSelectListAdapter<GlacierProfile> extends ArrayAdapter<Glaci
         checkedTextView.setChecked(true);
     }
 
-    public void select(@Nullable View view){
-        if (view != null) {
-            CheckedTextView checkedTextView = view.findViewById(R.id.profname);
-            checkedTextView.setChecked(true);
-        }
+    private String lastProfileUuid(){
+        SharedPreferences sp = this.context.getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
+        return sp.getString("last_spinner_profile", null);
 
     }
 
+    public void clearSelections(@NonNull ViewGroup parent){
+        for(int i = 0; i< parent.getChildCount();i++){
+            View v =  parent.getChildAt(i);
+            CheckedTextView checkedTextView = v.findViewById(R.id.profname);
+            checkedTextView.setChecked(false);
 
-
-
+        }
+    }
 
     @Override
     public void sort(@NonNull Comparator comparator) {
@@ -110,6 +123,26 @@ public class ProfileSelectListAdapter<GlacierProfile> extends ArrayAdapter<Glaci
     @NonNull
     @Override
     public View getView(int position, @Nullable View view, @NonNull ViewGroup parent) {
+       LayoutInflater inflater = LayoutInflater.from(context);
+        GlacierProfile item = (GlacierProfile) getItem(position);
+        ViewHolder viewHolder;
+        if (view == null) {
+            RadioBinding binding = DataBindingUtil.inflate(inflater,R.layout.radio,parent,false);
+            viewHolder = ViewHolder.get(binding);
+            view = binding.getRoot();
+            viewHolder.checkedTextView.setText(item.getName());
+            if (item.getUuid().equals(lastUUID)){
+                viewHolder.checkedTextView.setChecked(true);
+            }
+
+
+        }
+        else {
+            viewHolder = (ViewHolder) view.getTag();
+        }
+//        if (Build.VERSION.SDK_INT >= 16) {
+//            view.setBackground(StyledAttributes.getDrawable(view.getContext(), R.attr.list_item_background));
+//        }
 //        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
 
 //        ViewHolder viewHolder;
@@ -117,8 +150,8 @@ public class ProfileSelectListAdapter<GlacierProfile> extends ArrayAdapter<Glaci
 //        viewHolder = ViewHolder.get(binding);
 //        viewHolder.checkedTextView = view.findViewById(R.id.profname);
 //
-//    return view;
-        return super.getView(position, view, parent);
+    return view;
+//        return super.getView(position, view, parent);
     }
 
 

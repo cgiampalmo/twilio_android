@@ -245,7 +245,8 @@ public class HttpDownloadConnection implements Transferable {
 		}
 
 		private void retrieveFailed(@Nullable Exception e) {
-			changeStatus(STATUS_OFFER_CHECK_FILESIZE);
+			//changeStatus(STATUS_OFFER_CHECK_FILESIZE);   // DJF commented out and added next line to auto check size when receiving
+			check();
 			if (interactive) {
 				if (e != null) {
 					showToastForException(e);

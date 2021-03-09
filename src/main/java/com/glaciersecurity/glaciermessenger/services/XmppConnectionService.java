@@ -300,6 +300,39 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	private Handler busyHandler = new Handler(); //ALF AM-420
 	private int cancelledCall = -1; //AM-492
 
+	//AM-541
+	private boolean glacierOwnerInForeground = true;
+	private TwilioCall waitingToStartCall = null;
+	private BroadcastReceiver mUserBroadcastReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent.getAction().equals(Intent.ACTION_USER_BACKGROUND)) {
+				glacierOwnerInForeground = false;
+			} else if (intent.getAction().equals(Intent.ACTION_USER_FOREGROUND)) {
+				glacierOwnerInForeground = true;
+
+				if (waitingToStartCall != null) {
+					callHandler.removeCallbacksAndMessages(null);
+					final Intent recallIntent = new Intent(getApplicationContext(), XmppConnectionService.class);
+
+					try {
+						recallIntent.setAction(XmppConnectionService.ACTION_REPLY_TO_CALL_REQUEST);
+						recallIntent.putExtra("call_id", Integer.toString(waitingToStartCall.getCallId()));
+						recallIntent.putExtra("caller", waitingToStartCall.getCaller());
+						recallIntent.putExtra("status", waitingToStartCall.getStatus());
+						recallIntent.putExtra("calltime", Long.toString(waitingToStartCall.getCallTime()));
+
+						onStartCommand(recallIntent,0,0);
+						Log.d(Config.LOGTAG, "*** XmppConnectionService - Entered foreground, resent call broadcast");
+					} catch (Exception nfe) {
+						Log.d(Config.LOGTAG, "*** XmppConnectionService - Error Resending call broadcast");
+						waitingToStartCall = null;
+					}
+				}
+			}
+		}
+	};
+
 	//Ui callback listeners
 	private final Set<OnConversationUpdate> mOnConversationUpdates = Collections.newSetFromMap(new WeakHashMap<OnConversationUpdate, Boolean>());
 	private final Set<OnShowErrorToast> mOnShowErrorToasts = Collections.newSetFromMap(new WeakHashMap<OnShowErrorToast, Boolean>());
@@ -535,8 +568,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		//if (encryption == Message.ENCRYPTION_DECRYPTED) {
 		//	getPgpEngine().encrypt(message, callback);
 		//} else {
-			sendMessage(message);
-			callback.success(message);
+		sendMessage(message);
+		callback.success(message);
 		//}
 	}
 
@@ -610,8 +643,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						callback.error(R.string.unable_to_connect_to_keychain, null);
 					}
 				} else {*/
-					sendMessage(message);
-					callback.success(message);
+				sendMessage(message);
+				callback.success(message);
 				//}
 			} catch (final FileBackend.FileCopyException e) {
 				callback.error(e.getResId(), message);
@@ -734,6 +767,12 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						}
 					}
 
+					//AM-541
+					if (waitingToStartCall != null && pushedAccountHash == null) {
+						acct = waitingToStartCall.getAccount();
+						waitingToStartCall = null;
+					}
+
 					if (acct != null) {
 						SoundPoolManager.getInstance(XmppConnectionService.this).stopRinging();
 
@@ -818,6 +857,19 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								//AM-492 if cancelled already don't post notification
 								if ((curtime - calltime) > 45000 || cancelledCall == currentTwilioCall.getCallId()) {
 									Log.d(Config.LOGTAG, "push message arrived for cancelled call");
+								} else if (!glacierOwnerInForeground) {  //ALF AM-541
+									Log.d(Config.LOGTAG, "XmppConnectionService - not glacierOwnerInForeground, holding call");
+									currentTwilioCall = null;
+									waitingToStartCall = call.getCopy();
+									SoundPoolManager.getInstance(XmppConnectionService.this).vibrateIfNeeded();
+									callHandler.postDelayed(() -> {
+										SoundPoolManager.getInstance(XmppConnectionService.this).stopRinging(); //ALF AM-444
+										Log.d(Config.LOGTAG, "XmppConnectionService - Cancelling background call after 30 sec");
+										rejectCall(waitingToStartCall, false);
+										waitingToStartCall = null;
+										currentTwilioCall = null;
+										callHandler.removeCallbacksAndMessages(null);
+									}, 30000);
 								} else if (!getNotificationService().pushForCall(call, pushedAccountHash)) {
 									//ALF AM-447, no notification in this case because app is open, so manually play ringtone
 									SoundPoolManager.getInstance(XmppConnectionService.this).playRinging();
@@ -1168,12 +1220,12 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				}
 			});
 		} else {*/
-			sendMessage(message);
-			if (dismissAfterReply) {
-				markRead(conversation, true);
-			} else {
-				mNotificationService.pushFromDirectReply(message);
-			}
+		sendMessage(message);
+		if (dismissAfterReply) {
+			markRead(conversation, true);
+		} else {
+			mNotificationService.pushFromDirectReply(message);
+		}
 		//}
 	}
 
@@ -1392,6 +1444,17 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		//twilioCallListener = this;
 		currentTwilioCall = null;
 
+		//AM-541
+		glacierOwnerInForeground = true;
+		try {
+			IntentFilter filter = new IntentFilter();
+			filter.addAction(Intent.ACTION_USER_BACKGROUND);
+			filter.addAction(Intent.ACTION_USER_FOREGROUND);
+			registerReceiver(mUserBroadcastReceiver, filter);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
 		//ALF AM-344
 		try {
 			mHandler = new Handler(this);
@@ -1472,6 +1535,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	public void onDestroy() {
 		try {
 			unregisterReceiver(this.mInternalEventReceiver);
+			unregisterReceiver(this.mInternalScreenEventReceiver);
+			unregisterReceiver(this.mUserBroadcastReceiver); //AM-541
 		} catch (IllegalArgumentException e) {
 			//ignored
 		}
@@ -5023,7 +5088,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 	//ALF AM-410 end TwilioCall stuff
 
-	
+
 	public void publishDisplayName(Account account) {
 		String displayName = account.getDisplayName();
 		final IqPacket request;
