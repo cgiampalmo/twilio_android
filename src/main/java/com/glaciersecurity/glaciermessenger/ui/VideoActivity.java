@@ -493,6 +493,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             localAudioTrack.release();
             localAudioTrack = null;
         }
+
         if (localVideoTrack != null && !minimizing) {
             localVideoTrack.release();
             localVideoTrack = null;
@@ -929,8 +930,14 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                     //AM-545
                     //callManager.getLocalParticipant().publishTrack(localVideoTrack);
                     if (callManager.getLocalParticipant().getLocalVideoTracks().size() > 0) {
-                        localVideoTrack = callManager.getLocalParticipant().getLocalVideoTracks().get(0).getLocalVideoTrack();
-                        setupLocalVideoTrack();
+                        LocalVideoTrack lvTrack = callManager.getLocalParticipant().getLocalVideoTracks().get(0).getLocalVideoTrack();
+                        boolean wasEnabled = lvTrack.isEnabled();
+                        callManager.getLocalParticipant().unpublishTrack(lvTrack);
+                        lvTrack.release();
+                        callManager.getLocalParticipant().publishTrack(localVideoTrack);
+                        if (wasEnabled) {
+                            localVideoActionFab.callOnClick();
+                        }
                     } else {
                         callManager.getLocalParticipant().publishTrack(localVideoTrack);
                     }
