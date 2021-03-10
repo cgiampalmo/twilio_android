@@ -218,9 +218,9 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:padding="@dimen/spacing_large"
-                    android:tint="@color/grey_40"
                     app:srcCompat="@drawable/ic_timer_black_24dp"
-                    android:visibility="visible"/>
+                    android:visibility="visible"
+                    app:tint="@color/grey_40" />
 
                 <ImageView
                     android:id="@+id/action_disapear_messages_spacer"

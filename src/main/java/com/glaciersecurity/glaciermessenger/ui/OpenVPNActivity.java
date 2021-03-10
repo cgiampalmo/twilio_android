@@ -22,11 +22,6 @@ public class OpenVPNActivity extends XmppActivity {
         //tb.setTitle(R.string.action_glaciervpn);
         setSupportActionBar(tb);
         configureActionBar(getSupportActionBar());
-        if (savedInstanceState != null){
-            Fragment frag = getSupportFragmentManager().findFragmentByTag("openVpnFragment");
-
-
-        }
         if (savedInstanceState == null) {
             openVPNFragment = new OpenVPNFragment();
             getSupportFragmentManager().beginTransaction().add(R.id.container, openVPNFragment).commit();

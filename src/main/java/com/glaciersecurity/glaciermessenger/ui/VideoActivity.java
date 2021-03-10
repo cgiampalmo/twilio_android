@@ -21,6 +21,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -119,12 +120,12 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private CameraCapturerCompat cameraCapturerCompat;
     private LocalAudioTrack localAudioTrack;
     private LocalVideoTrack localVideoTrack;
-    private FloatingActionButton connectActionFab;
-    private FloatingActionButton switchCameraActionFab;
+    private ImageView connectActionFab;
+    private ImageView switchCameraActionFab;
     private View switchCameraActionSpace;
-    private FloatingActionButton localVideoActionFab;
-    private FloatingActionButton muteActionFab;
-    private FloatingActionButton speakerPhoneActionFab;
+    private ImageView localVideoActionFab;
+    private ImageView muteActionFab;
+    private ImageView speakerPhoneActionFab;
     private RelativeLayout callBar;
     private int currentVideoIcon; //AM-404
 
@@ -437,7 +438,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 @Override
                 public void run() {
                     // Use reflection to trigger a method from 'StatusBarManager'
-                    Object statusBarService = getSystemService("statusbar");
+                    @SuppressLint("WrongConstant") Object statusBarService = getSystemService("statusbar");
                     Class<?> statusBarManager = null;
 
                     try {
@@ -576,14 +577,14 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private void intializeUI() {
         connectActionFab.setImageDrawable(ContextCompat.getDrawable(this,
                 R.drawable.ic_call_end_white_24px));
-        connectActionFab.show();
+        connectActionFab.setVisibility(View.VISIBLE);
         connectActionFab.setOnClickListener(disconnectClickListener());
         switchCameraActionFab.setOnClickListener(switchCameraClickListener());
-        localVideoActionFab.show();
+        localVideoActionFab.setVisibility(View.VISIBLE);
         localVideoActionFab.setOnClickListener(localVideoClickListener());
-        muteActionFab.show();
+        muteActionFab.setVisibility(View.VISIBLE);
         muteActionFab.setOnClickListener(muteClickListener());
-        speakerPhoneActionFab.show();
+        speakerPhoneActionFab.setVisibility(View.VISIBLE);
         speakerPhoneActionFab.setOnClickListener(speakerPhoneClickListener());
     }
 
@@ -809,7 +810,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 if (enable) {
                     currentVideoIcon = R.drawable.ic_videocam_white_24dp;
                     localVideoActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
-                    switchCameraActionFab.show();
+                    switchCameraActionFab.setVisibility(View.VISIBLE);
                     switchCameraActionSpace.setVisibility(View.VISIBLE);
 
 
@@ -821,7 +822,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 } else {
                     currentVideoIcon = R.drawable.ic_videocam_off_gray_24px;
                     localVideoActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
-                    switchCameraActionFab.hide();
+                    switchCameraActionFab.setVisibility(View.GONE);
                     switchCameraActionSpace.setVisibility(View.GONE);
                     enableSpeakerPhone(false);
                     isVideoMuted = true;
