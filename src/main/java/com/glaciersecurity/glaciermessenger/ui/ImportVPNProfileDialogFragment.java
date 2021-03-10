@@ -74,7 +74,7 @@ import java.util.Locale;
 /**
  * GOOBER - Added entire Dialog to add/import VPN into Core
  */
-public class ImportVPNProfileDialogFragment extends DialogFragment implements View.OnClickListener {
+public class ImportVPNProfileDialogFragment extends DialogFragment {
     private FileNotFoundException mException;
 
     private final String REPLACEMENT_ORG_ID = "<org_id>";
@@ -90,12 +90,12 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
 
     private AlertDialog alertDialog;
 
-    public Button cancelButton;
-    public Button okButton;
-    public TextView messageTextView;
+//    public Button cancelButton;
+//    public Button okButton;
+//    public TextView messageTextView;
 
     private Context context = null;
-    Spinner profileSpinner = null;
+    //Spinner profileSpinner = null;
 
     String username = null;
     String password = null;
@@ -109,7 +109,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
     protected IOpenVPNAPIService mService = null;
     private Handler mHandler;
 
-    private ProgressDialog waitDialog;
+    //private ProgressDialog waitDialog;
 
     static ImportVPNProfileDialogFragment newInstance(String profileNames) {
         ImportVPNProfileDialogFragment f = new ImportVPNProfileDialogFragment();
@@ -128,19 +128,19 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
 
         getDialog().setTitle(getString(R.string.open_vpn_profile_dialog_title));
         View v = inflater.inflate(R.layout.import_vpn_profile_dialog, container, false);
-        profileSpinner = (Spinner) v.findViewById(R.id.file_spinner);
-        profileSpinner.setVisibility(View.GONE);
+//        profileSpinner = (Spinner) v.findViewById(R.id.file_spinner);
+//        profileSpinner.setVisibility(View.GONE);
 
         //setUpTitleText(R.string.load_vpn_profile_dialog_message);
         // GOOBER CORE - set message title
-        messageTextView = (TextView) v.findViewById(R.id.message);
-        messageTextView.setText(getString(R.string.load_vpn_profile_dialog_message));
-
-        cancelButton = (Button) v.findViewById(R.id.cancel_button);
-        okButton = (Button) v.findViewById(R.id.ok_button);
-        cancelButton.setOnClickListener(this);
-        okButton.setOnClickListener(this);
-        okButton.setEnabled(false);
+//        messageTextView = (TextView) v.findViewById(R.id.message);
+//        messageTextView.setText(getString(R.string.load_vpn_profile_dialog_message));
+//
+//        cancelButton = (Button) v.findViewById(R.id.cancel_button);
+//        okButton = (Button) v.findViewById(R.id.ok_button);
+//        cancelButton.setOnClickListener(this);
+//        okButton.setOnClickListener(this);
+//        okButton.setEnabled(false);
 
         // retrieve Cognito credentials
         getCognitoInfo();
@@ -149,7 +149,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
         signInUser();
 
         // add spinner
-        profileSpinner = (Spinner) v.findViewById(R.id.file_spinner);
+        //profileSpinner = (Spinner) v.findViewById(R.id.file_spinner);
 
         // prevent dialog from disappearing before button press finish
         this.setCancelable(false);
@@ -226,6 +226,19 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
         }
     }
 
+    private void downloadAllVPNs(String prof){
+        String bucketName = Constants.BUCKET_NAME.replace(REPLACEMENT_ORG_ID,organization);
+        TransferUtility transferUtility = Util.getTransferUtility(getActivity(), bucketName);
+
+        // retrieve spinner value and add extension back on
+        String selectedProfile = (String) prof + ".ovpn";
+
+        // set where file is going on phone
+        File destFile = new File(Environment.getExternalStorageDirectory() + "/" + selectedProfile);
+
+        // start the transfer
+        TransferObserver observer = transferUtility.download( Constants.KEY_PREFIX + "/" + selectedProfile, destFile, new DownloadListener(selectedProfile));
+    }
     /**
      * Sign into Cognito
      */
@@ -261,46 +274,46 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
         }
     }
 
-    @Override
-    public void onClick(View view) {
-
-        Bundle bundle = new Bundle();
-        Intent intent = null;
-
-        switch (view.getId()) {
-            case R.id.ok_button:
-
-                String bucketName = Constants.BUCKET_NAME.replace(REPLACEMENT_ORG_ID,organization);
-                TransferUtility transferUtility = Util.getTransferUtility(getActivity(), bucketName);
-
-                // retrieve spinner value and add extension back on
-                String selectedProfile = (String) profileSpinner.getSelectedItem() + ".ovpn";
-
-                // set where file is going on phone
-                File destFile = new File(Environment.getExternalStorageDirectory() + "/" + selectedProfile);
-
-                // start the transfer
-                TransferObserver observer = transferUtility.download( Constants.KEY_PREFIX + "/" + selectedProfile, destFile, new DownloadListener(selectedProfile));
-
-                // send data back to calling fragment
-                /* bundle.putString(OpenVPNFragment.PROFILE_SELECTED, (String) profileSpinner.getSelectedItem());
-                intent = new Intent().putExtras(bundle);
-                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);*/
-
-                break;
-            case R.id.cancel_button:
-                // do nothing
-                logOut();
-                dismiss();
-
-                // send data back to calling fragment
-                bundle.putString(OpenVPNFragment.PROFILE_SELECTED, null);
-                intent = new Intent().putExtras(bundle);
-                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
-
-                break;
-        }
-    }
+//    @Override
+//    public void onClick(View view) {
+//
+//        Bundle bundle = new Bundle();
+//        Intent intent = null;
+//
+//        switch (view.getId()) {
+//            case R.id.ok_button:
+//
+//                String bucketName = Constants.BUCKET_NAME.replace(REPLACEMENT_ORG_ID,organization);
+//                TransferUtility transferUtility = Util.getTransferUtility(getActivity(), bucketName);
+//
+//                // retrieve spinner value and add extension back on
+//                String selectedProfile = (String) profileSpinner.getSelectedItem() + ".ovpn";
+//
+//                // set where file is going on phone
+//                File destFile = new File(Environment.getExternalStorageDirectory() + "/" + selectedProfile);
+//
+//                // start the transfer
+//                TransferObserver observer = transferUtility.download( Constants.KEY_PREFIX + "/" + selectedProfile, destFile, new DownloadListener(selectedProfile));
+//
+//                // send data back to calling fragment
+//                /* bundle.putString(OpenVPNFragment.PROFILE_SELECTED, (String) profileSpinner.getSelectedItem());
+//                intent = new Intent().putExtras(bundle);
+//                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);*/
+//
+//                break;
+//            case R.id.cancel_button:
+//                // do nothing
+//                logOut();
+//                dismiss();
+//
+//                // send data back to calling fragment
+//                bundle.putString(OpenVPNFragment.PROFILE_SELECTED, null);
+//                intent = new Intent().putExtras(bundle);
+//                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, intent);
+//
+//                break;
+//        }
+//    }
 
     /**
      * Check if S3 bucket exists
@@ -415,30 +428,39 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
                 listStr = downloadS3Files();
             }
 
-            // sort list
+            if (listStr.isEmpty()){
+                dismiss();
+            }
+
             Collections.sort(listStr);
-            profileSpinner.setVisibility(View.VISIBLE);
-            if (listStr.size() > 0) { //ALF AM-76 added if
-                messageTextView.setText(getString(R.string.select_vpn_profile_dialog_message));
-            } else {
-                messageTextView.setText(getString(R.string.no_vpn_profile_dialog_message));
-                profileSpinner.setVisibility(View.INVISIBLE);
+            for (String profileStr: listStr){
+                downloadAllVPNs(profileStr);
             }
-            // setUpTitleText(R.string.select_vpn_profile_dialog_message);
+            logOut();
+            // sort list
 
-            closeWaitDialog();
-
-            // add spinner
-            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_spinner_item, listStr);
-            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            profileSpinner.setAdapter(spinnerAdapter);
-            spinnerAdapter.notifyDataSetChanged();
-
-            if (listStr.size() > 0) { //ALF AM-76 added if
-                okButton.setEnabled(true);
-            }
+//            profileSpinner.setVisibility(View.VISIBLE);
+//            if (listStr.size() > 0) { //ALF AM-76 added if
+//                messageTextView.setText(getString(R.string.select_vpn_profile_dialog_message));
+//            } else {
+//                messageTextView.setText(getString(R.string.no_vpn_profile_dialog_message));
+//                profileSpinner.setVisibility(View.INVISIBLE);
+//            }
+//            // setUpTitleText(R.string.select_vpn_profile_dialog_message);
+//
+//            closeWaitDialog();
+//
+//            // add spinner
+//            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_spinner_item, listStr);
+//            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//            profileSpinner.setAdapter(spinnerAdapter);
+//            spinnerAdapter.notifyDataSetChanged();
+//
+//            if (listStr.size() > 0) { //ALF AM-76 added if
+//                okButton.setEnabled(true);
+//            }
         } else {
-            showFailedDialog("Failed to retrieve profile list(4)!");
+            showFailedDialog("Failed to retrieve profile list");
         }
     }
 
@@ -468,10 +490,12 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
 
                             // username/password is correct.  Now check if bucket exists
                             if (organization != null) {
-                                getBucketAndProfiles(); //ALF AM-388 to simplify this method
+                                //TODO here
+                                getBucketAndProfiles();
                             } else {
                                 // log out of cognito
                                 logOut();
+                                dismiss();
                             }
                         } else {
                             showFailedDialog("Something is missing from account information");
@@ -565,7 +589,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
             Log.d("GOOBER", "onStateChanged(" + key + "): " + id + "," + newState);
             if (newState == TransferState.COMPLETED) {
                 // logout of
-                logOut();
+
 
                 File tmpFile = new File(Environment.getExternalStorageDirectory() + "/" + key);
                 if (tmpFile.exists()) {
@@ -574,15 +598,14 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
                     Log.d("GOOBER", "File confirmed: " + Environment.getExternalStorageDirectory() + "/" + key);
                     moveFile(Environment.getExternalStorageDirectory().toString(), key, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString());
                     exportFile(key);
-                    showDialogMessage("VPN Download", "Successfully downloaded profile: " + key);
+                    //showDialogMessage("VPN Download", "Successfully downloaded profile: " + key);
                     dismiss();
 
                     Bundle bundle = new Bundle();
-                    bundle.putString(OpenVPNFragment.PROFILE_SELECTED, (String) profileSpinner.getSelectedItem());
+                    bundle.putString(OpenVPNFragment.PROFILE_SELECTED, (String) key);
                     Intent intent = new Intent().putExtras(bundle);
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
 
-                    //activity.onReturnValue((String) profileSpinner.getSelectedItem());
                 } else {
                     Log.d("GOOBER", "File unconfirmed: " + Environment.getExternalStorageDirectory() + "/" + key);
                 }
@@ -763,7 +786,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
     };
 
     private void showFailedDialog(String body) {
-        closeWaitDialog();
+        //closeWaitDialog();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(body)
                 .setTitle("Adding VPN Profile Error")
@@ -798,47 +821,47 @@ public class ImportVPNProfileDialogFragment extends DialogFragment implements Vi
      * @param title
      * @param body
      */
-    private void showDialogMessage(String title, String body) {
-        closeWaitDialog();
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(title).setMessage(body).setNeutralButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    alertDialog.dismiss();
-                } catch (Exception e) {
-                    // do nothing
-                }
-            }
-        });
-        alertDialog = builder.create();
-        alertDialog.show();
-    }
+//    private void showDialogMessage(String title, String body) {
+//        closeWaitDialog();
+//        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+//        builder.setTitle(title).setMessage(body).setNeutralButton("OK", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                try {
+//                    alertDialog.dismiss();
+//                } catch (Exception e) {
+//                    // do nothing
+//                }
+//            }
+//        });
+//        alertDialog = builder.create();
+//        alertDialog.show();
+//    }
 
     /**
      * Close progress dialog
      */
-    private void closeWaitDialog() {
-        if (waitDialog != null){
-            waitDialog.dismiss();
-        }
-    }
-
-    /**
-     * Display progress dialog
-     *
-     * @param message
-     */
-    public void showWaitDialog(String message) {
-        if (waitDialog != null) {
-            waitDialog.dismiss();
-        }
-        waitDialog = new ProgressDialog(context);
-        waitDialog.setMessage(message); // Setting Message
-        waitDialog.setTitle("Glacier Login"); // Setting Title
-        waitDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER); // Progress Dialog Style Spinner
-        waitDialog.show(); // Display Progress Dialog
-        waitDialog.setIndeterminate(true);
-        waitDialog.setCancelable(false);
-    }
+//    private void closeWaitDialog() {
+//        if (waitDialog != null){
+//            waitDialog.dismiss();
+//        }
+//    }
+//
+//    /**
+//     * Display progress dialog
+//     *
+//     * @param message
+//     */
+//    public void showWaitDialog(String message) {
+//        if (waitDialog != null) {
+//            waitDialog.dismiss();
+//        }
+//        waitDialog = new ProgressDialog(context);
+//        waitDialog.setMessage(message); // Setting Message
+//        waitDialog.setTitle("Glacier Login"); // Setting Title
+//        waitDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER); // Progress Dialog Style Spinner
+//        waitDialog.show(); // Display Progress Dialog
+//        waitDialog.setIndeterminate(true);
+//        waitDialog.setCancelable(false);
+//    }
 }

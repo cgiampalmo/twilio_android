@@ -379,7 +379,7 @@
     <string name="checking_x">Checking %s on HTTP host</string>
     <string name="not_connected_try_again">You are not connected. Try again later</string>
     <string name="check_x_filesize">Check %s size</string>
-    <string name="check_x_filesize_on_host">Check %1$s size on %2$s</string>
+    <string name="check_x_filesize_on_host">Check %1$s size on %2$s</string> <!-- DJF - remove host? -->
     <string name="message_options">Message options</string>
     <string name="quote">Quote</string>
     <string name="paste_as_quote">Paste as quote</string>
@@ -413,7 +413,7 @@
     <string name="preparing_file">Preparing file for transmission</string>
     <string name="x_file_offered_for_download">%s offered for download</string>
     <string name="cancel_transmission">Cancel transmission</string>
-    <string name="file_transmission_failed">file transmission failed</string>
+    <string name="file_transmission_failed">automatic file transmission failed, but %s is available for download</string> <!-- DJF added after comma -->
     <string name="file_deleted">The file has been deleted</string>
     <string name="no_application_found_to_open_file">No application found to open file</string>
     <string name="no_application_found_to_open_link">No application found to open link</string>
@@ -1142,9 +1142,9 @@
     <string name="owners_can_edit_name">Owners can edit the group name.</string>
 
     <!--    CMG AM-517-->
-    <string name="enable_core_connection">Enabling Core Connection adds an additional layer of encryption and anonymity to all data exiting your device.\n\nWhen enabling Core Connect for the first time, Glacier will request permission to install a profile.  This permission enables Glacier to protect your identity and corporate data.\n\nGlacier does not allow your admin to see browsing history.  Learn more how Glacier protects you.</string>
+    <string name="enable_core_connection">Enabling Core Connection adds an additional layer of encryption and anonymity to all data exiting your device.\n\nWhen enabling Core Connection for the first time, Glacier will request permission to install a profile.  This permission enables Glacier to protect your identity and corporate data.\n\nGlacier does not allow your admin to see browsing history.  Learn more how Glacier protects you.</string>
     <string name="no_vpn_connection">You are not connected to server.  Enable Core for an additional layer of encryption and anonymity</string>
-    <string name="no_vpn_profiles">No profiles found. Please contact your organization admin for assistance.</string>
+    <string name="no_vpn_profiles">No Profiles found.  Please click the button below to load your profiles.  If none appear, contact your organization admin for assistance</string>
     <string name="core_link">https://glacier.chat/core</string>
     <string name="use_vpn">Use Secure Core</string>
     <string name="core_profile">Core Profile</string>

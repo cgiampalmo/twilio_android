@@ -83,7 +83,6 @@ protected void onStart() {
     }
 
     public void refreshUiReal() {
-        //nothing to do. This Activity doesn't implement any listeners
     }
 
 }

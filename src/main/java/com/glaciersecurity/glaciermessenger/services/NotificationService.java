@@ -36,6 +36,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -300,10 +302,13 @@ public class NotificationService {
 				.setAutoCancel(true)
 				.setShowWhen(true)
 				.setOngoing(true)
-				.setSmallIcon(R.drawable.ic_notification)
+				.setSmallIcon(R.drawable.ic_gchat_icon)
 				.setPriority(NotificationCompat.PRIORITY_HIGH);
 		mBuilder.setFullScreenIntent(pendingIntent, true); // THIS HERE is the full-screen intent
 		//.setContentIntent(pendingIntent)
+
+		// DJF - Was .setSmallIcon(R.drawable.ic_notification)  above for orig Glacier icon
+		// DJF - Use  .setSmallIcon(R.drawable.ic_gchat_icon_blue)  above to update to new blue icon
 
 		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			mBuilder.setCategory(Notification.CATEGORY_CALL);
@@ -326,8 +331,11 @@ public class NotificationService {
 				.setWhen(System.currentTimeMillis())
 				.setAutoCancel(true)
 				.setShowWhen(true)
-				.setSmallIcon(R.drawable.ic_notification)
+				.setSmallIcon(R.drawable.ic_gchat_icon)
 				.setPriority(NotificationCompat.PRIORITY_HIGH);
+
+		// DJF - Was .setSmallIcon(R.drawable.ic_notification)  above for orig Glacier icon
+		// DJF - Use  .setSmallIcon(R.drawable.ic_gchat_icon_blue)  above to update to new blue icon
 
 		if (conversation != null) {
 			mBuilder.setContentIntent(createContentIntent(conversation));
@@ -532,9 +540,12 @@ public class NotificationService {
 		mBuilder.setGroupSummary(true);
 		mBuilder.setGroup(CONVERSATIONS_GROUP);
 		mBuilder.setDeleteIntent(createDeleteIntent(null));
-		mBuilder.setSmallIcon(R.drawable.ic_notification); //ALF AM-184 (changed this to a glacier icon)
+		mBuilder.setSmallIcon(R.drawable.ic_gchat_icon); //ALF AM-184 (changed this to a glacier icon)
 		return mBuilder;
 	}
+
+	// DJF - Was .setSmallIcon(R.drawable.ic_notification)  above for orig Glacier icon
+	// DJF - Use  .setSmallIcon(R.drawable.ic_gchat_icon_blue)  above to update to new blue icon
 
 	private Builder buildSingleConversations(final ArrayList<Message> messages, final boolean notify, final boolean quietHours) {
 		//ALF AM-90, AM-168 added channelid
@@ -628,7 +639,11 @@ public class NotificationService {
 				}
 			}
 			mBuilder.setWhen(conversation.getLatestMessage().getTimeSent());
-			mBuilder.setSmallIcon(R.drawable.ic_notification);
+
+			// DJF - Was .setSmallIcon(R.drawable.ic_notification)  for orig Glacier icon
+			// DJF - Use  .setSmallIcon(R.drawable.ic_gchat_icon_blue)  to update to new blue icon
+			mBuilder.setSmallIcon(R.drawable.ic_gchat_icon);
+
 			mBuilder.setDeleteIntent(createDeleteIntent(conversation));
 			mBuilder.setContentIntent(createContentIntent(conversation));
 		}
@@ -973,7 +988,14 @@ public class NotificationService {
 
 		//ALF AM-184
 		mBuilder.setPriority(NotificationCompat.PRIORITY_MIN);
-		mBuilder.setSmallIcon(R.drawable.ic_notification); //ALF AM-184 (changed this to a glacier icon)
+
+		// DJF - Was .setSmallIcon(R.drawable.ic_notification)  above for orig Glacier icon
+		// DJF - Use  .setSmallIcon(R.drawable.ic_gchat_icon_blue)  above to update to new blue icon
+		//mBuilder.setSmallIcon(R.drawable.ic_notification); //ALF AM-184 (changed this to a glacier icon)
+		mBuilder.setSmallIcon(R.drawable.ic_gchat_icon);
+
+		mBuilder.setColor(0xff27a1cb);  // DJF - Use if want Glacier blue notification icon in pull-down shade
+
 		mBuilder.setOngoing(true);
 
 		return mBuilder.build();

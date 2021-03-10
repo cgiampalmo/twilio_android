@@ -183,6 +183,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		OnKeyStatusUpdated, OnCaptchaRequested, KeyChainAliasCallback, XmppConnectionService.OnShowErrorToast, XmppConnectionService.OnMamPreferencesFetched, Handler.Callback, OpenVPNProfileListener, ConnectivityReceiver.ConnectivityReceiverListener{
 
 	public static final String EXTRA_OPENED_FROM_NOTIFICATION = "opened_from_notification";
+	private static final String USE_CORE_CONNECT = "use_core_connect";
 
 	private static final int REQUEST_DATA_SAVER = 0x37af244;
 	private static final int MSG_UPDATE_STATE = 0;
@@ -926,6 +927,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			return true;
 		}
 		return false;
+	}
+
+
+	private void setUseCoreConnect (boolean bool) {
+		getPreferences().edit().putBoolean(USE_CORE_CONNECT, bool).apply();
 	}
 
 	//ALF AM-190
@@ -2899,6 +2905,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				// start UUID if valid
 				if (mUUID != null) {
 					mService.startProfile(mUUID);
+					//AM-517
+					setUseCoreConnect(true);
 				}
 
 			} catch (RemoteException e) {

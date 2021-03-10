@@ -27,12 +27,12 @@
             android:title="FileSafe" />
         <item
             android:id="@+id/Core"
-            android:icon="@drawable/ic_wifi"
-            android:title="Core" />
+            android:icon="@drawable/ic_core_key_white_24dp"
+            android:title="Core Connection" />
         <item
             android:id="@+id/VoiceApp"
             android:icon="@drawable/dialer_back"
-            android:title="Voice"/>
+            android:title="Glacier Dial"/>
         <item
             android:id="@+id/Settings"
             android:icon="@drawable/ic_settings"
