@@ -16,6 +16,7 @@ import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -57,6 +58,8 @@ import com.twilio.video.VideoRenderer;
 import com.twilio.video.VideoTrack;
 import com.twilio.video.VideoView;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,6 +99,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private boolean isSpeakerPhoneEnabled = false;
     private Boolean isAudioMuted = false;
     private Boolean isVideoMuted = true;
+
+    private Boolean closeProximity = false; //AM-561
 
     /*
      * A VideoView receives frames from a local or remote video track and renders them
@@ -177,7 +182,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
         //AM-558
         callParticipantsLayout = findViewById(R.id.call_screen_call_participants);
-
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             this.setTurnScreenOn(true);
@@ -300,6 +304,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
         sensorManager.registerListener(this, proximity, SensorManager.SENSOR_DELAY_NORMAL);
 
+        isPaused = false; //AM-561
+
         /*
          * Update reconnecting UI
          */
@@ -352,6 +358,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         }
         sensorManager.unregisterListener(this);
 
+        isPaused = true; //AM-561
         super.onPause();
     }
 
@@ -372,6 +379,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     public final void onSensorChanged(SensorEvent event) {
         float distance = event.values[0];
         if (distance == 0f){
+            closeProximity = true; //AM-561
             callBar.setClickable(false);
             speakerPhoneActionFab.setClickable(false);
             switchCameraActionFab.setClickable(false);
@@ -380,6 +388,12 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             muteActionFab.setClickable(false);
             minimizeVideo.setClickable(false);
         } else {
+            //AM-561
+            closeProximity = false;
+            if (collapseNotificationHandler != null) {
+                collapseNotificationHandler.removeCallbacksAndMessages(null);
+            }
+
             callBar.setClickable(true);
             speakerPhoneActionFab.setClickable(true);
             switchCameraActionFab.setClickable(true);
@@ -387,6 +401,93 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             localVideoActionFab.setClickable(true);
             muteActionFab.setClickable(true);
             minimizeVideo.setClickable(true);
+        }
+    }
+
+    //AM-561
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        /*if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!hasFocus && closeProximity) {
+                Intent closeDialog = new Intent(Intent.                      );
+                sendBroadcast(closeDialog);
+
+                // Method that handles loss of window focus
+                new BlockStatusBar(this,false).collapseNow();
+            }
+        }*/
+
+        super.onWindowFocusChanged(hasFocus);
+        currentFocus = hasFocus;
+        if (!hasFocus && closeProximity && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            collapseNow();
+        }
+    }
+
+    //AM-561
+    boolean currentFocus; // To keep track of activity's window focus
+    boolean isPaused; // To keep track of activity's foreground/background status
+    Handler collapseNotificationHandler;
+    public void collapseNow() {
+
+        // Initialize 'collapseNotificationHandler'
+        if (collapseNotificationHandler == null) {
+            collapseNotificationHandler = new Handler();
+        }
+
+        // If window focus has been lost && activity is not in a paused state
+        // Its a valid check because showing of notification panel
+        // steals the focus from current activity's window, but does not
+        // 'pause' the activity
+        if (!currentFocus && !isPaused) {
+            // Post a Runnable with some delay - currently set to 300 ms
+            collapseNotificationHandler.postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    // Use reflection to trigger a method from 'StatusBarManager'
+                    Object statusBarService = getSystemService("statusbar");
+                    Class<?> statusBarManager = null;
+
+                    try {
+                        statusBarManager = Class.forName("android.app.StatusBarManager");
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                    Method collapseStatusBar = null;
+                    try {
+                        collapseStatusBar = statusBarManager.getMethod("collapsePanels");
+                    } catch (NoSuchMethodException e) {
+                        e.printStackTrace();
+                    }
+
+                    collapseStatusBar.setAccessible(true);
+
+                    try {
+                        collapseStatusBar.invoke(statusBarService);
+                    } catch (IllegalArgumentException e) {
+                        e.printStackTrace();
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+
+                    // Check if the window focus has been returned
+                    // If it hasn't been returned, post this Runnable again
+                    // Currently, the delay is 100 ms. You can change this
+                    // value to suit your needs.
+                    if (!currentFocus && !isPaused) {
+                        collapseNotificationHandler.postDelayed(this, 100L);
+                    }
+
+                    if (!currentFocus && isPaused) {
+                        collapseNotificationHandler.removeCallbacksAndMessages(null);
+                    }
+
+                }
+            }, 100L);
         }
     }
 
@@ -425,6 +526,12 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
         // DJF - AM-512
         configureAudio(false);
+
+        //AM-561
+        closeProximity = false;
+        if (collapseNotificationHandler != null) {
+            collapseNotificationHandler.removeCallbacksAndMessages(null);
+        }
 
         super.onDestroy();
     }

@@ -20,6 +20,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" /> <!-- AM-440 -->
+    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" /> <!-- AM-561 -->
 
     <!-- GOOBER COGNITO -->
     <uses-feature android:name="android.hardware.camera.autofocus"
