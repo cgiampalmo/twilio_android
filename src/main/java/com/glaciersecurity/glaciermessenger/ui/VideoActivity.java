@@ -101,6 +101,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private Boolean isVideoMuted = true;
 
     private Boolean closeProximity = false; //AM-561
+    private Boolean minimizing = false;
 
     /*
      * A VideoView receives frames from a local or remote video track and renders them
@@ -407,16 +408,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     //AM-561
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-        /*if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (!hasFocus && closeProximity) {
-                Intent closeDialog = new Intent(Intent.                      );
-                sendBroadcast(closeDialog);
-
-                // Method that handles loss of window focus
-                new BlockStatusBar(this,false).collapseNow();
-            }
-        }*/
-
         super.onWindowFocusChanged(hasFocus);
         currentFocus = hasFocus;
         if (!hasFocus && closeProximity && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -498,11 +489,11 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
          * Release the local audio and video tracks ensuring any memory allocated to audio
          * or video is freed.
          */
-        if (localAudioTrack != null) {
+        if (localAudioTrack != null && !minimizing) { //AM-545 added minimizing and all places below
             localAudioTrack.release();
             localAudioTrack = null;
         }
-        if (localVideoTrack != null) {
+        if (localVideoTrack != null && !minimizing) {
             localVideoTrack.release();
             localVideoTrack = null;
         }
@@ -510,7 +501,9 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         audioDeviceSelector.stop(); //AM-440
 
         //ALF AM-446
-        setVolumeControlStream(savedVolumeControlStream);
+        if (!minimizing) {
+            setVolumeControlStream(savedVolumeControlStream);
+        }
         //audioManager.setMode(previousAudioMode);
 
         //AM-441   //AM-478 handled in Disconnect for now
@@ -525,7 +518,9 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 //        }
 
         // DJF - AM-512
-        configureAudio(false);
+        if (!minimizing) {
+            configureAudio(false);
+        }
 
         //AM-561
         closeProximity = false;
@@ -781,6 +776,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
     private View.OnClickListener minimizeCall() {
         return v -> {
+            minimizing = true; //AM-545
             Intent chatsActivity = new Intent(getApplicationContext(), ConversationsActivity.class);
             startActivity(chatsActivity);
         };
@@ -930,9 +926,35 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 //recreateVideoTrackIfNeeded();
                 //AM-404
                 if (callManager.getLocalParticipant() != null) {
-                    callManager.getLocalParticipant().publishTrack(localVideoTrack);
+                    //AM-545
+                    //callManager.getLocalParticipant().publishTrack(localVideoTrack);
+                    if (callManager.getLocalParticipant().getLocalVideoTracks().size() > 0) {
+                        localVideoTrack = callManager.getLocalParticipant().getLocalVideoTracks().get(0).getLocalVideoTrack();
+                        setupLocalVideoTrack();
+                    } else {
+                        callManager.getLocalParticipant().publishTrack(localVideoTrack);
+                    }
+
                     callManager.getLocalParticipant().setEncodingParameters(callManager.getEncodingParameters());
-                    callManager.getLocalParticipant().publishTrack(localAudioTrack);
+
+                    //AM-545
+                    //callManager.getLocalParticipant().publishTrack(localAudioTrack);
+                    if (callManager.getLocalParticipant().getLocalAudioTracks().size() > 0) {
+                        localAudioTrack = callManager.getLocalParticipant().getLocalAudioTracks().get(0).getLocalAudioTrack();
+                        isAudioMuted = !localAudioTrack.isEnabled();
+                        int muteIcon = !isAudioMuted ?
+                                R.drawable.ic_mic_white_24dp : R.drawable.ic_mic_off_gray_24dp;
+                        if (!isAudioMuted){
+                            muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.lobbyMediaControls)));
+                        } else {
+                            muteActionFab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+                        }
+                        muteActionFab.setImageDrawable(ContextCompat.getDrawable(
+                                VideoActivity.this, muteIcon));
+                        return;
+                    } else {
+                        callManager.getLocalParticipant().publishTrack(localAudioTrack);
+                    }
                 }
                 if (isAudioMuted) { //AM-404
                     muteActionFab.callOnClick();
