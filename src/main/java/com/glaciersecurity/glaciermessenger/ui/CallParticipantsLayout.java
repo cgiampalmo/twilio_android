@@ -80,7 +80,7 @@ public class CallParticipantsLayout extends FlexboxLayout {
   private void updateMarginsForLayout() {
     MarginLayoutParams layoutParams = (MarginLayoutParams) getLayoutParams();
     if (callParticipants.size() > 1) { // && !shouldRenderInPip) {
-      layoutParams.setMargins(MULTIPLE_PARTICIPANT_SPACING, getStatusBarHeight(this), MULTIPLE_PARTICIPANT_SPACING, 0);
+      layoutParams.setMargins(MULTIPLE_PARTICIPANT_SPACING, 0, MULTIPLE_PARTICIPANT_SPACING, 0);
     } else {
       layoutParams.setMargins(0, 0, 0, 0);
     }

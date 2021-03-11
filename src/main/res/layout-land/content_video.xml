@@ -51,11 +51,12 @@
             app:tviOverlaySurface="true"
             app:tviMirror="true"
             android:visibility="gone"
-            android:layout_width="96dp"
-            android:layout_height="170dp"
-            android:layout_margin="12dp"
+            android:layout_width="65dp"
+            android:layout_height="110dp"
+            android:layout_margin="25dp"
             android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentRight="true"
+            />
     </RelativeLayout>
 
     <LinearLayout

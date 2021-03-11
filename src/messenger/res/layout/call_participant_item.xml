@@ -26,8 +26,8 @@
 
             <com.makeramen.roundedimageview.RoundedImageView
                 android:id="@+id/no_video_view_avatar"
-                android:layout_width="240dp"
-                android:layout_height="240dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:layout_centerInParent="true"
                 app:riv_corner_radius="100dip"
                 app:srcCompat="@drawable/avatar_default" />

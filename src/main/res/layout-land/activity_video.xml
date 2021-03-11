@@ -76,7 +76,7 @@
                     android:clickable="true"
                     android:padding="@dimen/spacing_large"
                     app:tint="@color/grey_40"
-                    app:srcCompat="@drawable/ic_videocam_24dp"
+                    app:srcCompat="@drawable/ic_videocam_off_gray_24px"
                     android:visibility="visible"/>
 
                 <View
