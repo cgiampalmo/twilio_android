@@ -39,6 +39,7 @@
 	<dimen name="avatar_on_menu_size">62dp</dimen>
 	<dimen name="avatar_on_conversation_overview">56dp</dimen>
 	<dimen name="avatar_on_incoming_call_screen_size">150dp</dimen>
+	<dimen name="avatar_on_call_screen_size">200dp</dimen>
 	<dimen name="avatar_on_horizontal_call_screen_size">100dp</dimen>
 
 

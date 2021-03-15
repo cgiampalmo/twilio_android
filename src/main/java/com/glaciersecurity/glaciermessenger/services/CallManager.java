@@ -363,7 +363,7 @@ public class CallManager {
                     //AM-558b add avatar to TwilioCallParticipant
                     Contact c = getRemoteContact(remoteParticipant.getIdentity());
                     if (c != null) {
-                        Bitmap av = mXmppConnectionService.getAvatarService().get(c, (int) mXmppConnectionService.getResources().getDimension(R.dimen.avatar_on_incoming_call_screen_size));
+                        Bitmap av = mXmppConnectionService.getAvatarService().get(c, (int) mXmppConnectionService.getResources().getDimension(R.dimen.avatar_on_call_screen_size));
                         tcallParticipant.setAvatar(av);
                     }
 
@@ -418,7 +418,7 @@ public class CallManager {
                 // if I am the caller, mine is display name and there are 3 JIDs in receiver
                 Contact c = getRemoteContact(remoteParticipant.getIdentity());
                 if (c != null) {
-                    Bitmap av = mXmppConnectionService.getAvatarService().get(c, (int) mXmppConnectionService.getResources().getDimension(R.dimen.avatar_on_incoming_call_screen_size));
+                    Bitmap av = mXmppConnectionService.getAvatarService().get(c, (int) mXmppConnectionService.getResources().getDimension(R.dimen.avatar_on_call_screen_size));
                     tcallParticipant.setAvatar(av);
                 }
 

@@ -183,8 +183,8 @@ android {
     defaultConfig {
         minSdkVersion 24
         targetSdkVersion 29
-        versionCode 494
-        versionName "3.3.0-RC2"
+        versionCode 495
+        versionName "3.3.0-RC6"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
 
