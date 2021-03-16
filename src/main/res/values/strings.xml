@@ -85,6 +85,7 @@
     <string name="contacts">Contacts</string>
     <string name="contact">Contact</string>
     <string name="cancel">Cancel</string>
+    <string name="call">Call</string>
     <string name="DISCARD">DISCARD</string>
     <string name="DISAGREE">DISAGREE</string>
     <string name="AGREE">AGREE</string>
@@ -1118,6 +1119,9 @@
     <!-- AM-558 -->
     <string name="call_limit_alert_title">Unable to Call</string>
     <string name="call_limit_alert_msg">Calls are limited to five participants.</string>
+
+    <!-- AM-549 -->
+    <string name="start_call">Start call?</string>
 
     <!-- Strings related to Settings -->
 
