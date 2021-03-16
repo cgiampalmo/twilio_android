@@ -1,5 +1,1 @@
-<<<<<<< HEAD
-[{"outputType":{"type":"APK"},"apkInfo":{"type":"MAIN","splits":[],"versionCode":490,"versionName":"3.3.0-RC1","enabled":true,"outputFile":"glacierMessenger-3.3.0-RC1-messenger-free-compat-release.apk","fullName":"messengerFreeCompatRelease","baseName":"messenger-free-compat-release"},"path":"glacierMessenger-3.3.0-RC1-messenger-free-compat-release.apk","properties":{}}]
-=======
-[{"outputType":{"type":"APK"},"apkInfo":{"type":"MAIN","splits":[],"versionCode":493,"versionName":"3.2-RC14","enabled":true,"outputFile":"glacierMessenger-3.2-RC14-messenger-free-compat-release.apk","fullName":"messengerFreeCompatRelease","baseName":"messenger-free-compat-release"},"path":"glacierMessenger-3.2-RC14-messenger-free-compat-release.apk","properties":{}}]
->>>>>>> 3.1.3
+[{"outputType":{"type":"APK"},"apkInfo":{"type":"MAIN","splits":[],"versionCode":495,"versionName":"3.3.0-RC6","enabled":true,"outputFile":"glacierMessenger-3.3.0-RC6-messenger-free-compat-release.apk","fullName":"messengerFreeCompatRelease","baseName":"messenger-free-compat-release"},"path":"glacierMessenger-3.3.0-RC6-messenger-free-compat-release.apk","properties":{}}]

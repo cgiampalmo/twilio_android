@@ -1116,7 +1116,14 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			}
 
 			if(checkPermissionForCameraAndMicrophone()){
-				makeCall();
+				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+				builder.setTitle(R.string.start_call);
+				builder.setNegativeButton(R.string.cancel, null);
+				builder.setPositiveButton(getString(R.string.call),
+						(dialog, which) -> {
+							makeCall();
+						});
+				builder.create().show();
 			} else {
 				requestPermissionForCameraAndMicrophone();
 			}
