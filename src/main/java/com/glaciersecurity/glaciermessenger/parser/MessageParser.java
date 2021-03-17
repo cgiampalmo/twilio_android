@@ -772,7 +772,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 						}
 					} else if ("item".equals(child.getName())) {
 						MucOptions.User user = AbstractParser.parseItem(conversation, child);
-						Log.d(Config.LOGTAG, account.getJid() + ": changing affiliation for "
+						Log.d(Config.LOGTAG, account.getLogJid() + ": changing affiliation for "
 								+ user.getRealJid() + " to " + user.getAffiliation() + " in "
 								+ conversation.getJid().asBareJid());
 						if (!user.realJidMatchesAccount()) {

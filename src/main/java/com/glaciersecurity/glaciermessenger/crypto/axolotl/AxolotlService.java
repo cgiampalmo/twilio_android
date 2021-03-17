@@ -45,6 +45,7 @@ import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.Message;
 import com.glaciersecurity.glaciermessenger.parser.IqParser;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
+import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.SerialSingleThreadExecutor;
 import com.glaciersecurity.glaciermessenger.xml.Element;
@@ -1203,7 +1204,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 	public Set<SignalProtocolAddress> findDevicesWithoutSession(final Conversation conversation) {
 		Set<SignalProtocolAddress> addresses = new HashSet<>();
 		for (Jid jid : getCryptoTargets(conversation)) {
-			Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Finding devices without session for " + jid);
+			Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Finding devices without session for " + Tools.logJid(jid));
 			final Set<Integer> ids = deviceIds.get(jid);
 			if (ids != null && !ids.isEmpty()) {
 				for (Integer foreignId : ids) {
@@ -1215,7 +1216,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 							XmppAxolotlSession session = new XmppAxolotlSession(account, axolotlStore, address, identityKey);
 							sessions.put(address, session);
 						} else {
-							Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Found device " + jid + ":" + foreignId);
+							Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Found device " + Tools.logJid(jid) + ":" + foreignId);
 							if (fetchStatusMap.get(address) != FetchStatus.ERROR) {
 								addresses.add(address);
 							} else {

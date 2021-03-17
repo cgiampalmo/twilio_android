@@ -387,7 +387,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			if (flexible && catchup && account.getXmppConnection().isMamPreferenceAlways()) {
 				sendIqPacket(account, mIqGenerator.purgeOfflineMessages(), (acc, packet) -> {
 					if (packet.getType() == IqPacket.TYPE.RESULT) {
-						Log.d(Config.LOGTAG, acc.getJid().asBareJid() + ": successfully purged offline messages");
+						Log.d(Config.LOGTAG, acc.getLogJid()+ ": successfully purged offline messages");
 					}
 				});
 			}

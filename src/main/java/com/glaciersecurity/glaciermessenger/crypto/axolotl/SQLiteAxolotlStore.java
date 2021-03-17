@@ -136,7 +136,7 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
 		if (prekeyIdString != null) {
 			prekey_id = Integer.valueOf(prekeyIdString);
 		} else {
-			Log.w(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Could not retrieve current prekey id for account " + account.getJid());
+			Log.w(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Could not retrieve current prekey id for account " + account.getLogJid());
 			prekey_id = 0;
 		}
 		return prekey_id;

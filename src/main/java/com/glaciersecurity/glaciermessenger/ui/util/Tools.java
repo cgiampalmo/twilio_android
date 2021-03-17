@@ -39,6 +39,8 @@ import com.google.android.gms.maps.GoogleMap;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import rocks.xmpp.addr.Jid;
+
 public class Tools {
 
     public static void setSystemBarColor(Activity act) {
@@ -48,6 +50,20 @@ public class Tools {
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             window.setStatusBarColor(act.getResources().getColor(R.color.primary_bg_color));
         }
+    }
+
+    public static String logJid(Jid jid){
+        StringBuilder logJidBuilder = new StringBuilder();
+        logJidBuilder.append(jid.getLocal().charAt(0));
+        for (int i = 1; i < jid.getLocal().length(); i++) {
+            logJidBuilder.append("*");
+        }
+        logJidBuilder.append("@");
+        logJidBuilder.append(jid.getDomain().charAt(0));
+        for (int i = 1; i < jid.getDomain().length(); i++) {
+            logJidBuilder.append("*");
+        }
+        return logJidBuilder.toString();
     }
 
     public static void setSystemBarColor(Activity act, @ColorRes int color) {
