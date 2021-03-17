@@ -62,6 +62,7 @@ import com.twilio.video.VideoView;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import kotlin.Unit; //AM-440
@@ -501,27 +502,15 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         }
 
         audioDeviceSelector.stop(); //AM-440
-
-        //ALF AM-446
-        if (!minimizing) {
-            setVolumeControlStream(savedVolumeControlStream);
-        }
-        //audioManager.setMode(previousAudioMode);
-
-        //AM-441   //AM-478 handled in Disconnect for now
-        //SoundPoolManager.getInstance(VideoActivity.this).setSpeakerOn(false);
-        //audioManager.setMode(SoundPoolManager.getInstance(VideoActivity.this).getPreviousAudioMode());
-
         unregisterReceiver(phonecallReceiver); //ALF AM-474
-
-        //CMG AM-469
-//        if (callManager != null) {
-//            callManager.setCallListener(null); //AM-478
-//        }
 
         // DJF - AM-512
         if (!minimizing) {
             configureAudio(false);
+            setVolumeControlStream(savedVolumeControlStream); //ALF AM-446
+        } else { //AM-545
+            //cleanup CallParticipant views when minimizing
+            callParticipantsLayout.update(Collections.emptyList());
         }
 
         //AM-561
@@ -923,7 +912,10 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 configureAudio(true);
                 callManager = xmppConnectionService.getCallManager();
                 callManager.setCallListener(this);
-                callManager.readyToConnect();
+
+                //AM-545 moved below
+                //callManager.readyToConnect();
+                boolean localAudioHandled = false;
 
                 //recreateVideoTrackIfNeeded();
                 //AM-404
@@ -959,15 +951,15 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                         }
                         muteActionFab.setImageDrawable(ContextCompat.getDrawable(
                                 VideoActivity.this, muteIcon));
-                        return;
+                        localAudioHandled = true;
                     } else {
                         callManager.getLocalParticipant().publishTrack(localAudioTrack);
                     }
                 }
-                if (isAudioMuted) { //AM-404
+                if (isAudioMuted && !localAudioHandled) { //AM-404
                     muteActionFab.callOnClick();
                 }
-
+                callManager.readyToConnect(); //AM-545 moved to see if timing matters for video
             }
         } catch (Exception e){
 
