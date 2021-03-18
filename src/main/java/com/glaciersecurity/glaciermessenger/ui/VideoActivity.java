@@ -102,8 +102,12 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private Boolean isAudioMuted = false;
     private Boolean isVideoMuted = true;
 
-    private Boolean closeProximity = false; //AM-561
-    private Boolean minimizing = false;
+    private boolean closeProximity = false; //AM-561
+
+    //AM-545
+    private boolean minimizing = false;
+    private Handler returningNotificationHandler;
+    private boolean returning = false;
 
     /*
      * A VideoView receives frames from a local or remote video track and renders them
@@ -182,6 +186,11 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         this.currentVideoIcon = R.drawable.ic_videocam_off_gray_24px; //AM-404
         minimizeVideo = findViewById(R.id.down_arrow);
         minimizeVideo.setOnClickListener(minimizeCall());
+
+        //AM-545
+        if (getIntent().getStringExtra("returning") != null) {
+            returning = true;
+        }
 
         //AM-558
         callParticipantsLayout = findViewById(R.id.call_screen_call_participants);
@@ -346,7 +355,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
          */
         //ALF AM-419 onPause gets called after open if the screen was locked causing video not to work
         //added remoteParticipantIdentity because this is set after the onPause call
-        if (localVideoTrack != null && remoteParticipantIdentity != null) {
+        if (localVideoTrack != null && remoteParticipantIdentity != null && !minimizing) {
             /*
              * If this local video track is being shared in a Room, unpublish from room before
              * releasing the video track. Participants will be notified that the track has been
@@ -511,12 +520,20 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         } else { //AM-545
             //cleanup CallParticipant views when minimizing
             callParticipantsLayout.update(Collections.emptyList());
+            if (localVideoTrack != null) {
+                localVideoTrack.removeRenderer(thumbnailVideoView);
+            }
         }
 
         //AM-561
         closeProximity = false;
         if (collapseNotificationHandler != null) {
             collapseNotificationHandler.removeCallbacksAndMessages(null);
+        }
+
+        //AM-545
+        if (returningNotificationHandler != null) {
+            returningNotificationHandler.removeCallbacksAndMessages(null);
         }
 
         super.onDestroy();
@@ -912,10 +929,8 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 configureAudio(true);
                 callManager = xmppConnectionService.getCallManager();
                 callManager.setCallListener(this);
-
-                //AM-545 moved below
-                //callManager.readyToConnect();
-                boolean localAudioHandled = false;
+                callManager.readyToConnect();
+                boolean localAudioHandled = false; //AM-545
 
                 //recreateVideoTrackIfNeeded();
                 //AM-404
@@ -959,7 +974,17 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 if (isAudioMuted && !localAudioHandled) { //AM-404
                     muteActionFab.callOnClick();
                 }
-                callManager.readyToConnect(); //AM-545 moved to see if timing matters for video
+
+                //AM-545
+                if (returning) {
+                    returningNotificationHandler = new Handler();
+                    returningNotificationHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            callParticipantsLayout.update(callManager.getRemoteParticipants());
+                        }
+                    }, 1000);
+                }
             }
         } catch (Exception e){
 

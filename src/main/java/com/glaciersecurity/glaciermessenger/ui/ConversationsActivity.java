@@ -661,8 +661,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				mCallManager.setCallListener(null); //AM-478
 			}
 
-			Intent chatsActivity = new Intent(getApplicationContext(), VideoActivity.class);
-			startActivity(chatsActivity);
+			Intent videoActivity = new Intent(getApplicationContext(), VideoActivity.class);
+			videoActivity.putExtra("returning", "true"); //AM-545
+			startActivity(videoActivity);
 
 		};
 	}

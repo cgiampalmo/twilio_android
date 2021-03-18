@@ -54,7 +54,7 @@ public class CallParticipantView extends ConstraintLayout implements TwilioRemot
         audioMuted = findViewById(R.id.call_participant_audio_muted);
     }
 
-    //AM-545 test
+    //AM-545
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
