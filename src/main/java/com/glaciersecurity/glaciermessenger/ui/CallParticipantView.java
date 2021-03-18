@@ -28,6 +28,7 @@ public class CallParticipantView extends ConstraintLayout implements TwilioRemot
     private VideoView primaryVideoView;
     private TwilioCallParticipant callParticipant;
     private AppCompatImageView audioMuted;
+    private boolean callParticipantUINeeded = false;
 
     public CallParticipantView(@NonNull Context context) {
         super(context);
@@ -53,6 +54,18 @@ public class CallParticipantView extends ConstraintLayout implements TwilioRemot
         audioMuted = findViewById(R.id.call_participant_audio_muted);
     }
 
+    //AM-545 test
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+
+        //AM-545
+        if (callParticipantUINeeded) {
+            setCallParticipantUI();
+            callParticipantUINeeded = false;
+        }
+    }
+
     void setMirror(boolean mirror) {
         primaryVideoView.setMirror(mirror);
     }
@@ -60,6 +73,11 @@ public class CallParticipantView extends ConstraintLayout implements TwilioRemot
     /*void setScalingType(@NonNull RendererCommon.ScalingType scalingType) {
         renderer.setScalingType(scalingType);
     }*/
+
+    //AM-545
+    public TwilioCallParticipant getCallParticipant() {
+        return callParticipant;
+    }
 
     public void setCallParticipant(@NonNull TwilioCallParticipant participant) {
         callParticipant = participant;
@@ -69,20 +87,19 @@ public class CallParticipantView extends ConstraintLayout implements TwilioRemot
         //infoMode    = participant.getRecipient().isBlocked() || isMissingMediaKeys(participant);
 
         RemoteParticipant remoteParticipant = callParticipant.getRemoteParticipant();
-        if (remoteParticipant.getRemoteVideoTracks().size() > 0) {
+        setCallParticipantUI(); //AM-545
+        /*if (remoteParticipant.getRemoteVideoTracks().size() > 0) {
             RemoteVideoTrackPublication remoteVideoTrackPublication =
                     remoteParticipant.getRemoteVideoTracks().get(0);
             //AM-558b add avatar to TwilioCallParticipant
                 avatar.setImageBitmap(participant.getAvatar());
 
 
-            /*
-             * Only render video tracks that are subscribed to
-             */
+            // Only render video tracks that are subscribed to
             if (remoteVideoTrackPublication.isTrackSubscribed()) {
                 handleAddRemoteParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
             }
-        }
+        }*/
 
         if (remoteParticipant.getRemoteAudioTracks().size() > 0) {
             RemoteAudioTrackPublication remoteAudioTrackPublication =
@@ -90,6 +107,29 @@ public class CallParticipantView extends ConstraintLayout implements TwilioRemot
             if (remoteAudioTrackPublication.isTrackEnabled()) {
                 handleAudioTrackEnabled();
             }
+        }
+    }
+
+    //AM-545
+    private void setCallParticipantUI() {
+        if (callParticipant != null && this.isAttachedToWindow()) {
+            RemoteParticipant remoteParticipant = callParticipant.getRemoteParticipant();
+            if (remoteParticipant.getRemoteVideoTracks().size() > 0) {
+                RemoteVideoTrackPublication remoteVideoTrackPublication =
+                        remoteParticipant.getRemoteVideoTracks().get(0);
+                //AM-558b add avatar to TwilioCallParticipant
+                avatar.setImageBitmap(callParticipant.getAvatar());
+
+
+                /*
+                 * Only render video tracks that are subscribed to
+                 */
+                if (remoteVideoTrackPublication.isTrackSubscribed()) {
+                    handleAddRemoteParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
+                }
+            }
+        } else {
+            callParticipantUINeeded = true;
         }
     }
 
@@ -106,16 +146,19 @@ public class CallParticipantView extends ConstraintLayout implements TwilioRemot
                 handleRemoveRemoteParticipantVideo(remoteVideoTrackPublication.getRemoteVideoTrack());
             }
         }
+
+        callParticipant.setRemoteParticipantListener(null); //AM-545 not sure if necessary
     }
 
     public void handleAddRemoteParticipantVideo(RemoteVideoTrack videoTrack){
-        primaryVideoView.setMirror(false);
+        setMirror(false);
         videoTrack.addRenderer(primaryVideoView);
 
         if (videoTrack.isEnabled()) { //AM-404
             handleVideoTrackEnabled();
         }
     }
+
     public void handleRemoveRemoteParticipantVideo(RemoteVideoTrack videoTrack){
         videoTrack.removeRenderer(primaryVideoView);
     }

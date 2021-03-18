@@ -88,19 +88,35 @@ public class CallParticipantsLayout extends FlexboxLayout {
   }
 
   private void updateChildrenCount(int count) {
-    int childCount = getChildCount();
-    if (childCount < count) {
-      for (int i = childCount; i < count; i++) {
-        addCallParticipantView();
+      int childCount = getChildCount();
+      if (childCount < count) {
+          for (int i = childCount; i < count; i++) {
+              addCallParticipantView();
+          }
+      } else if (childCount > count) {
+          /*for (int i = count; i < childCount; i++) {
+              CallParticipantView callParticipantView = getChildAt(count).findViewById(R.id.group_call_participant);
+              callParticipantView.cleanupCallParticipant();
+              //do some kind of reset
+              removeViewAt(count);
+          }*/  //AM-558b
+          for (int counter = childCount - 1; counter >= 0; counter--) {
+          //for (int i = childCount-1; i == 0; i--) {
+              CallParticipantView callParticipantView = getChildAt(counter).findViewById(R.id.group_call_participant);
+              TwilioCallParticipant callParticipant = callParticipantView.getCallParticipant();
+              boolean found = false;
+              for (int j = 0; j < callParticipants.size(); j++) {
+                  if (callParticipants.get(j).equals(callParticipant)) {
+                      found = true;
+                      break;
+                  }
+              }
+              if (!found) {
+                  callParticipantView.cleanupCallParticipant();
+                  removeViewAt(counter);
+              }
+          }
       }
-    } else if (childCount > count) {
-      for (int i = count; i < childCount; i++) {
-        CallParticipantView callParticipantView = getChildAt(count).findViewById(R.id.group_call_participant);
-        callParticipantView.cleanupCallParticipant();
-        //do some kind of reset
-        removeViewAt(count);
-      }
-    }
   }
 
   private void update(int index, int count, @NonNull TwilioCallParticipant participant) {
