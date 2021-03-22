@@ -11,6 +11,7 @@
 
     <include layout="@layout/content_video" />
     <RelativeLayout
+        android:id="@+id/call_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">

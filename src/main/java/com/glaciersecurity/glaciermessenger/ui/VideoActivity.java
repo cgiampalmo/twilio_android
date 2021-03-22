@@ -113,7 +113,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
      * A VideoView receives frames from a local or remote video track and renders them
      * to an associated view.
      */
-    private VideoView primaryVideoView;
     private VideoView thumbnailVideoView;
 
     //AM-558
@@ -128,6 +127,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private ImageView connectActionFab;
     private ImageView switchCameraActionFab;
     private View switchCameraActionSpace;
+    private RelativeLayout callView;
     private ImageView localVideoActionFab;
     private ImageView muteActionFab;
     private ImageView speakerPhoneActionFab;
@@ -135,8 +135,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private int currentVideoIcon; //AM-404
 
     private LinearLayout reconnectingProgressBar;
-    private LinearLayout noVideoView;
-    private RoundedImageView avatar;
+
     private AlertDialog connectDialog;
     private String remoteParticipantIdentity;
     private TextView primaryTitle;
@@ -164,12 +163,10 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video);
 
-        //primaryVideoView = findViewById(R.id.primary_video_view);
+
         thumbnailVideoView = findViewById(R.id.thumbnail_video_view);
         reconnectingProgressBar = findViewById(R.id.reconnecting_progress_bar_layout);
-        //noVideoView = findViewById(R.id.no_video_view);
-        //avatar = findViewById(R.id.no_video_view_avatar);
-        //avatar.setImageResource(R.drawable.avatar_default);
+
 
         phonecallReceiver = new PhonecallReceiver(this); //ALF AM-474
 
@@ -177,7 +174,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         connectActionFab = findViewById(R.id.connect_action_fab);
         switchCameraActionFab = findViewById(R.id.switch_camera_action_fab);
         switchCameraActionSpace = findViewById(R.id.switch_camera_action_space);
-
+        callView = findViewById(R.id.call_view);
         localVideoActionFab = findViewById(R.id.local_video_action_fab);
         speakerPhoneActionFab = findViewById(R.id.speaker_phone_action_fab);
         muteActionFab = findViewById(R.id.mute_action_fab);
@@ -798,8 +795,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 if (thumbnailVideoView.getVisibility() == View.VISIBLE) {
                     thumbnailVideoView.setMirror(cameraSource == CameraSource.BACK_CAMERA);
                     thumbnailVideoView.bringToFront();
-                } else {
-                    primaryVideoView.setMirror(cameraSource == CameraSource.BACK_CAMERA);
                 }
             }
         };
@@ -1012,7 +1007,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     //ALF AM-498
     @Override
     public void onIncomingNativeCallRinging(int call_act) {
-        activityView = this.primaryVideoView;
+        activityView = this.callView;
         if (call_act == 0) {
             snackbar.dismiss();
         } else {

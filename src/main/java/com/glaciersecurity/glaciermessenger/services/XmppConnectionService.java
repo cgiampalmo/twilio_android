@@ -919,6 +919,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					SoundPoolManager.getInstance(XmppConnectionService.this).playDisconnect();
 					cancelCall(currentTwilioCall);
 					currentTwilioCall = null;
+					callHandler.removeCallbacksAndMessages(null);
+
 					break;
 				case ACTION_FINISH_CALL: //ALF AM-420
 					currentTwilioCall = null;
