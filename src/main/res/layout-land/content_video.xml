@@ -55,7 +55,7 @@
             android:visibility="gone"
             android:layout_width="65dp"
             android:layout_height="110dp"
-            android:layout_margin="25dp"
+            android:layout_margin="15dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             />

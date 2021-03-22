@@ -604,19 +604,21 @@ public class NotificationService {
 					mBuilder.addAction(snoozeAction);
 					++addedActionsCount;
 				}
-				if (addedActionsCount < 3) {
-					final Message firstLocationMessage = getFirstLocationMessage(messages);
-					if (firstLocationMessage != null) {
-						String label = mXmppConnectionService.getResources().getString(R.string.show_location);
-						PendingIntent pendingShowLocationIntent = createShowLocationIntent(firstLocationMessage);
-						NotificationCompat.Action locationAction = new NotificationCompat.Action.Builder(
-								R.drawable.ic_room_white_24dp,
-								label,
-								pendingShowLocationIntent).build();
-						mBuilder.addAction(locationAction);
-						++addedActionsCount;
-					}
-				}
+
+				//AM-470
+//				if (addedActionsCount < 3) {
+//					final Message firstLocationMessage = getFirstLocationMessage(messages);
+//					if (firstLocationMessage != null) {
+//						String label = mXmppConnectionService.getResources().getString(R.string.show_location);
+//						PendingIntent pendingShowLocationIntent = createShowLocationIntent(firstLocationMessage);
+//						NotificationCompat.Action locationAction = new NotificationCompat.Action.Builder(
+//								R.drawable.ic_room_white_24dp,
+//								label,
+//								pendingShowLocationIntent).build();
+//						mBuilder.addAction(locationAction);
+//						++addedActionsCount;
+//					}
+//				}
 				if (addedActionsCount < 3) {
 					Message firstDownloadableMessage = getFirstDownloadableMessage(messages);
 					if (firstDownloadableMessage != null) {

@@ -2,8 +2,8 @@
 <com.glaciersecurity.glaciermessenger.ui.CallParticipantView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     tools:layout_height="match_parent"
     tools:layout_width="match_parent">
 
@@ -23,7 +23,9 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="@color/primary_bg_color"
+            >
 
             <com.makeramen.roundedimageview.RoundedImageView
                 android:id="@+id/no_video_view_avatar"
