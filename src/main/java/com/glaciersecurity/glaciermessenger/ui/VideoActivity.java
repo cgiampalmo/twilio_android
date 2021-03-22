@@ -1009,7 +1009,9 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     public void onIncomingNativeCallRinging(int call_act) {
         activityView = this.callView;
         if (call_act == 0) {
-            snackbar.dismiss();
+            if (snackbar != null) {
+                snackbar.dismiss();
+            }
         } else {
             if (activityView != null) {
                 snackbar = Snackbar.make(activityView, R.string.native_ringing, Snackbar.LENGTH_INDEFINITE);
