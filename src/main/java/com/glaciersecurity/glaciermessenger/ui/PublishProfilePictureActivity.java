@@ -63,6 +63,7 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
                 Intent intent = new Intent(getApplicationContext(), StartConversationActivity.class);
                 StartConversationActivity.addInviteUri(intent, getIntent());
                 intent.putExtra("init", true);
+                intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toEscapedString());
                 startActivity(intent);
             }
             Toast.makeText(PublishProfilePictureActivity.this,
@@ -103,60 +104,28 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
         });
         this.cancelButton.setOnClickListener(v -> {
             if (mInitialAccountSetup) {
-                Intent intent = new Intent(getApplicationContext(), StartConversationActivity.class);
+                final Intent intent = new Intent(getApplicationContext(), StartConversationActivity.class);
                 if (xmppConnectionService != null && xmppConnectionService.getAccounts().size() == 1) {
-                    StartConversationActivity.addInviteUri(intent, getIntent());
                     intent.putExtra("init", true);
                 }
+                StartConversationActivity.addInviteUri(intent, getIntent());
+                intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toEscapedString());
                 startActivity(intent);
             }
             finish();
         });
         this.avatar.setOnClickListener(v -> chooseAvatar(this));
-
+        this.defaultUri = PhoneHelper.getProfilePictureUri(getApplicationContext());
         if (savedInstanceState != null) {
             this.avatarUri = savedInstanceState.getParcelable("uri");
-            this.defaultUri = savedInstanceState.getParcelable("default");
             this.handledExternalUri.set(savedInstanceState.getBoolean("handle_external_uri",false));
-        } else {
-            this.avatarUri = PhoneHelper.getProfilePictureUri(getApplicationContext());
         }
-    }
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.reset_avatar, menu);
-//        //AccountUtils.showHideMenuItems(menu);
-//        MenuItem resetAvatar = menu.findItem(R.id.action_reset_avatar);
-//        return super.onCreateOptionsMenu(menu);
-//    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (MenuDoubleTabUtil.shouldIgnoreTap()) {
-            return false;
-        }
-        switch (item.getItemId()) {
-            //CMG AM-361
-//            case R.id.action_reset_avatar:
-//                if (account != null) {
-//                    avatarUri = defaultUri;
-//                    loadImageIntoPreview(defaultUri);
-//                    return true;
-//                }
-//                break;
-            case android.R.id.home:
-                finish();
-                break;
-        }
-        return true;
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (this.avatarUri != null) {
             outState.putParcelable("uri", this.avatarUri);
-            outState.putParcelable("default", this.defaultUri);
         }
         outState.putBoolean("handle_external_uri", handledExternalUri.get());
         super.onSaveInstanceState(outState);
@@ -165,6 +134,7 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
@@ -185,21 +155,14 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
         }
     }
 
-    private void chooseAvatar(final Activity activity) {
+    public static void chooseAvatar(final Activity activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            CropImage.activity()
-                    .setOutputCompressFormat(Bitmap.CompressFormat.PNG)
-                    .setAspectRatio(1, 1)
-                    .setMinCropResultSize(Config.AVATAR_SIZE, Config.AVATAR_SIZE)
-                    .start(activity);
-            /*
             final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("image/*");
             activity.startActivityForResult(
                     Intent.createChooser(intent, activity.getString(R.string.attach_choose_picture)),
                     REQUEST_CHOOSE_PICTURE
             );
-             */
         } else {
             CropImage.activity()
                     .setOutputCompressFormat(Bitmap.CompressFormat.PNG)
@@ -251,8 +214,7 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
     }
 
     public static void cropUri(final Activity activity, final Uri uri) {
-        CropImage.activity(uri)
-                .setOutputCompressFormat(Bitmap.CompressFormat.PNG)
+        CropImage.activity(uri).setOutputCompressFormat(Bitmap.CompressFormat.PNG)
                 .setAspectRatio(1, 1)
                 .setMinCropResultSize(Config.AVATAR_SIZE, Config.AVATAR_SIZE)
                 .start(activity);
