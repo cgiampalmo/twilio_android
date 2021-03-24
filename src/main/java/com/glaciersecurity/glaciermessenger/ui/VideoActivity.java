@@ -105,7 +105,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private boolean closeProximity = false; //AM-561
 
     //AM-545
-    private boolean minimizing = false;
+    private boolean endingCall = false;
     private Handler returningNotificationHandler;
     private boolean returning = false;
 
@@ -352,7 +352,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
          */
         //ALF AM-419 onPause gets called after open if the screen was locked causing video not to work
         //added remoteParticipantIdentity because this is set after the onPause call
-        if (localVideoTrack != null && remoteParticipantIdentity != null && !minimizing) {
+        if (localVideoTrack != null && remoteParticipantIdentity != null && endingCall) {
             /*
              * If this local video track is being shared in a Room, unpublish from room before
              * releasing the video track. Participants will be notified that the track has been
@@ -372,11 +372,11 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        outState.putBoolean(IS_AUDIO_MUTED, isAudioMuted);
-        outState.putBoolean(IS_VIDEO_MUTED, isVideoMuted);
-        outState.putBoolean(IS_SPEAKERPHONE_ENABLED, isSpeakerPhoneEnabled);
-        super.onSaveInstanceState(outState);
+    public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
+        savedInstanceState.putBoolean(IS_AUDIO_MUTED, isAudioMuted);
+        savedInstanceState.putBoolean(IS_VIDEO_MUTED, isVideoMuted);
+        savedInstanceState.putBoolean(IS_SPEAKERPHONE_ENABLED, isSpeakerPhoneEnabled);
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
@@ -497,12 +497,12 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
          * Release the local audio and video tracks ensuring any memory allocated to audio
          * or video is freed.
          */
-        if (localAudioTrack != null && !minimizing) { //AM-545 added minimizing and all places below
+        if (localAudioTrack != null && endingCall) { //AM-545 added minimizing and all places below
             localAudioTrack.release();
             localAudioTrack = null;
         }
 
-        if (localVideoTrack != null && !minimizing) {
+        if (localVideoTrack != null && endingCall) {
             localVideoTrack.release();
             localVideoTrack = null;
         }
@@ -511,7 +511,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         unregisterReceiver(phonecallReceiver); //ALF AM-474
 
         // DJF - AM-512
-        if (!minimizing) {
+        if (endingCall) {
             configureAudio(false);
             setVolumeControlStream(savedVolumeControlStream); //ALF AM-446
         } else { //AM-545
@@ -767,6 +767,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
     //ALF AM-420
     private void handleDisconnect() {
+        endingCall = true;
         SoundPoolManager.getInstance(VideoActivity.this).playDisconnect();
         final Intent intent = new Intent(this, XmppConnectionService.class);
         intent.setAction(XmppConnectionService.ACTION_FINISH_CALL);
@@ -781,7 +782,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
     private View.OnClickListener minimizeCall() {
         return v -> {
-            minimizing = true; //AM-545
+            endingCall = false; //AM-545
             Intent chatsActivity = new Intent(getApplicationContext(), ConversationsActivity.class);
             startActivity(chatsActivity);
         };
@@ -976,7 +977,9 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                     returningNotificationHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            callParticipantsLayout.update(callManager.getRemoteParticipants());
+                            if(callManager!= null) {
+                                callParticipantsLayout.update(callManager.getRemoteParticipants());
+                            }
                         }
                     }, 1000);
                 }
