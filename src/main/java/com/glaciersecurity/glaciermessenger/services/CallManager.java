@@ -23,7 +23,9 @@ import com.twilio.video.EncodingParameters;
 import com.twilio.video.G722Codec;
 import com.twilio.video.H264Codec;
 import com.twilio.video.IsacCodec;
+import com.twilio.video.LocalAudioTrack;
 import com.twilio.video.LocalParticipant;
+import com.twilio.video.LocalVideoTrack;
 import com.twilio.video.OpusCodec;
 import com.twilio.video.PcmaCodec;
 import com.twilio.video.PcmuCodec;
@@ -400,6 +402,7 @@ public class CallManager {
 
             @Override
             public void onDisconnected(Room room, TwilioException e) {
+                releaseLocalParticipantResources(); //AM-525 derivative
                 localParticipant = null;
                 CallManager.this.room = null;
                 // Only reinitialize the UI if disconnect was not called from onDestroy()
@@ -455,6 +458,7 @@ public class CallManager {
                     return;
                 }
 
+                releaseLocalParticipantResources(); //AM-525 derivative
                 localParticipant = null;
                 handleDisconnect(); //ALF AM-420
             }
@@ -477,6 +481,23 @@ public class CallManager {
                 Log.d(TAG, "onRecordingStopped");
             }
         };
+    }
+
+    //AM-525 derivative
+    private void releaseLocalParticipantResources() {
+        if (localParticipant != null) {
+            if (localParticipant.getLocalVideoTracks().size() > 0) {
+                LocalVideoTrack lvTrack = localParticipant.getLocalVideoTracks().get(0).getLocalVideoTrack();
+                localParticipant.unpublishTrack(lvTrack);
+                lvTrack.release();
+            }
+
+            if (localParticipant.getLocalAudioTracks().size() > 0) {
+                LocalAudioTrack laTrack = localParticipant.getLocalAudioTracks().get(0).getLocalAudioTrack();
+                localParticipant.unpublishTrack(laTrack);
+                laTrack.release();
+            }
+        }
     }
 
     //ALF AM-420
