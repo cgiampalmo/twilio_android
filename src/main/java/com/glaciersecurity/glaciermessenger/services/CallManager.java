@@ -488,14 +488,18 @@ public class CallManager {
         if (localParticipant != null) {
             if (localParticipant.getLocalVideoTracks().size() > 0) {
                 LocalVideoTrack lvTrack = localParticipant.getLocalVideoTracks().get(0).getLocalVideoTrack();
-                localParticipant.unpublishTrack(lvTrack);
-                lvTrack.release();
+                try {
+                    localParticipant.unpublishTrack(lvTrack);
+                    lvTrack.release();
+                } catch (Exception ae) { } //do nothing
             }
 
             if (localParticipant.getLocalAudioTracks().size() > 0) {
                 LocalAudioTrack laTrack = localParticipant.getLocalAudioTracks().get(0).getLocalAudioTrack();
-                localParticipant.unpublishTrack(laTrack);
-                laTrack.release();
+                try {
+                    localParticipant.unpublishTrack(laTrack);
+                    laTrack.release();
+                } catch (Exception ae) { } //do nothing
             }
         }
     }
