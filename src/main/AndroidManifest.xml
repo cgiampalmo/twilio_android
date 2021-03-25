@@ -348,7 +348,7 @@
             android:label="@string/group_chat_members" />
         <activity
             android:name=".ui.VideoActivity"
-            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait"
             android:label="@string/Video">
         </activity>
     </application>
