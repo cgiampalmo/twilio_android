@@ -6,22 +6,29 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.ActivityCompat;
 import androidx.databinding.DataBindingUtil;
+
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Build;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+
 import androidx.appcompat.widget.Toolbar;
 
 import android.provider.Settings;
-import android.view.View;import android.graphics.Color;
+import android.view.View;
+import android.graphics.Color;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -79,7 +86,6 @@ public class ShareLocationActivity extends XmppActivity implements OnMapReadyCal
 	private Boolean noAskAgain = false;
 
 
-
 	private PermissionsManager permissionsManager;
 	private MapView mapView;
 	private Button cancelButton;
@@ -89,6 +95,7 @@ public class ShareLocationActivity extends XmppActivity implements OnMapReadyCal
 	private LocationComponent locationComponent;
 	private FloatingActionButton fab;
 	private boolean isInTrackingMode;
+	private Location locationListener;
 
 
 	@Override
@@ -156,13 +163,18 @@ public class ShareLocationActivity extends XmppActivity implements OnMapReadyCal
 //				result.putExtra("altitude", myLoc.getAltitude());
 //				result.putExtra("accuracy", (int) myLoc.getAccuracy());
 //			} else {
-			if (mapboxMap.getLocationComponent() == null || !mapboxMap.getLocationComponent().isLocationComponentActivated()){
+			if (mapboxMap.getLocationComponent() == null || !mapboxMap.getLocationComponent().isLocationComponentActivated()) {
 				setResult(RESULT_CANCELED);
 				finish();
 			} else {
 				final Location markerPoint = mapboxMap.getLocationComponent().getLastKnownLocation();
-				result.putExtra("latitude", markerPoint.getLatitude());
-				result.putExtra("longitude", markerPoint.getLongitude());
+				if (markerPoint != null) {
+					result.putExtra("latitude", markerPoint.getLatitude());
+					result.putExtra("longitude", markerPoint.getLongitude());
+				} else {
+					setResult(RESULT_CANCELED);
+					finish();
+				}
 			}
 			//}
 
@@ -176,7 +188,7 @@ public class ShareLocationActivity extends XmppActivity implements OnMapReadyCal
 		try {
 			final int locationMode = Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE);
 			return locationMode != Settings.Secure.LOCATION_MODE_OFF;
-		} catch( final Settings.SettingNotFoundException e ){
+		} catch (final Settings.SettingNotFoundException e) {
 			return false;
 		}
 	}
@@ -192,7 +204,7 @@ public class ShareLocationActivity extends XmppActivity implements OnMapReadyCal
 		});
 	}
 
-//	@SuppressWarnings( {"MissingPermission"})
+	//	@SuppressWarnings( {"MissingPermission"})
 	private void enableLocationComponent(@NonNull Style loadedMapStyle) {
 		// Check if permissions are enabled and if not request
 		if (PermissionsManager.areLocationPermissionsGranted(this)) {
@@ -216,7 +228,6 @@ public class ShareLocationActivity extends XmppActivity implements OnMapReadyCal
 			// Activate with options
 			locationComponent.activateLocationComponent(locationComponentActivationOptions);
 
-			// Enable to make component visible
 			locationComponent.setLocationComponentEnabled(true);
 
 			// Set the component's camera mode

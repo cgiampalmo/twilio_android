@@ -72,13 +72,20 @@ public class CameraCapturerCompat {
         if (usingCamera1()) {
             camera1Capturer.switchCamera();
         } else {
-            CameraCapturer.CameraSource cameraSource =
-                    getCameraSource(camera2Capturer.getCameraId());
+            try {
 
-            if (cameraSource == CameraCapturer.CameraSource.FRONT_CAMERA) {
-                camera2Capturer.switchCamera(backCameraPair.second);
-            } else {
-                camera2Capturer.switchCamera(frontCameraPair.second);
+
+                CameraCapturer.CameraSource cameraSource =
+                        getCameraSource(camera2Capturer.getCameraId());
+
+                if (cameraSource == CameraCapturer.CameraSource.FRONT_CAMERA) {
+                    camera2Capturer.switchCamera(backCameraPair.second);
+                } else {
+                    camera2Capturer.switchCamera(frontCameraPair.second);
+                }
+            }
+            catch(Exception e){
+
             }
         }
     }
