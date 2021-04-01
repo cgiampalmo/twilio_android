@@ -348,7 +348,11 @@
             android:label="@string/group_chat_members" />
         <activity
             android:name=".ui.VideoActivity"
+            android:excludeFromRecents="true"
             android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateAlwaysHidden"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+            android:launchMode="singleTask"
             android:label="@string/Video">
         </activity>
     </application>
