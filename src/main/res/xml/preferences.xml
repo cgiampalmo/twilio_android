@@ -276,14 +276,15 @@
         <!--android:key="send_button_status"-->
         <!--android:summary="@string/pref_use_send_button_to_indicate_status_summary"-->
         <!--android:title="@string/pref_use_send_button_to_indicate_status"/>-->
-        <ListPreference
-            android:defaultValue="@string/quick_action"
-            android:dialogTitle="@string/choose_quick_action"
-            android:entries="@array/quick_actions"
-            android:entryValues="@array/quick_action_values"
-            android:key="quick_action"
-            android:summary="@string/pref_quick_action_summary"
-            android:title="@string/pref_quick_action"/>
+<!--        AM-583-->
+<!--        <ListPreference-->
+<!--            android:defaultValue="@string/quick_action"-->
+<!--            android:dialogTitle="@string/choose_quick_action"-->
+<!--            android:entries="@array/quick_actions"-->
+<!--            android:entryValues="@array/quick_action_values"-->
+<!--            android:key="quick_action"-->
+<!--            android:summary="@string/pref_quick_action_summary"-->
+<!--            android:title="@string/pref_quick_action"/>-->
         <!-- ALF AM-160 TODO Will use in future for user status page -->
         <!-- <CheckBoxPreference
             android:defaultValue="@bool/show_dynamic_tags"

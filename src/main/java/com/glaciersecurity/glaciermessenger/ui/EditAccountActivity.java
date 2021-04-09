@@ -292,6 +292,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private String mSavedInstanceAccount;
 	private boolean mSavedInstanceInit = false;
 	private Button mClearDevicesButton;
+	//AM-582
+	private Button mChangeStatusButton;
 	private XmppUri pendingUri = null;
 	private Button mEditDisplayNameButton;
 	private TextView mDisplayName;
@@ -635,6 +637,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.mHostname.setOnFocusChangeListener(mEditTextFocusListener);
 		this.mHostnameLayout = (TextInputLayout) findViewById(R.id.hostname_layout);
 		this.mClearDevicesButton = (Button) findViewById(R.id.clear_devices);
+		this.mChangeStatusButton = (Button) findViewById(R.id.change_status);
 		//CMG AM-
 		this.mEditDisplayNameButton = (Button) findViewById(R.id.edit_displayname_name_button);
 		this.mDisplayName = (TextView) findViewById(R.id.displayname_text);
@@ -659,6 +662,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					}
 				},false));
 		this.mClearDevicesButton.setOnClickListener(v -> showWipePepDialog());
+		//AM-582
+		this.mChangeStatusButton.setOnClickListener(v -> changePresence());
 		this.mPort = (EditText) findViewById(R.id.port);
 		this.mPort.setText(String.valueOf(Resolver.DEFAULT_PORT_XMPP));
 		this.mPort.addTextChangedListener(mTextWatcher);
@@ -871,18 +876,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				// DJF Add for Status on My Profile page
 				if(mAccount != null) {
 					invalidateOptionsMenu();
-					statusIcon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
-					statusText.setText(mAccount.getPresenceStatus().toDisplayString());
-                    this.presenceStatusMessage = mAccount.getPresenceStatusMessage();
-
-                    if (presenceStatusMessage != null) {
-                        if (isDefaultStatus(presenceStatusMessage)){
-							statusMessageText.setText(presenceStatusMessage);
-                        } else {
-                            String customStr = getEmojiByUnicode(customIcon)+"\t" + presenceStatusMessage ;
-							statusMessageText.setText(customStr);
-                        }
-                    }
+					updateStatusUI();
 				}
 			} else {
 //				this.binding.displayname.setVisibility(View.GONE); //CMG AM-323
@@ -914,6 +908,22 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		bindService();
 	}
 
+	//AM-582
+	private void updateStatusUI(){
+		statusIcon.setImageResource(mAccount.getPresenceStatus().getStatusIcon());
+		statusText.setText(mAccount.getPresenceStatus().toDisplayString());
+		this.presenceStatusMessage = mAccount.getPresenceStatusMessage();
+
+		if (presenceStatusMessage != null) {
+			if (isDefaultStatus(presenceStatusMessage)){
+				statusMessageText.setText(presenceStatusMessage);
+			} else {
+				String customStr = getEmojiByUnicode(customIcon)+"\t" + presenceStatusMessage ;
+				statusMessageText.setText(customStr);
+			}
+		}
+
+	}
 	private boolean isDefaultStatus(String statusMessage){
 		if (statusMessage.equals(getEmojiByUnicode(meetingIcon)+"\tIn a meeting")) {
 			return true;
@@ -1145,6 +1155,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		KeyChain.choosePrivateKeyAlias(this, this, null, null, null, -1, null);
 	}
 
+	//AM-582
 	private void changePresence() {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		boolean manualStatus = sharedPreferences.getBoolean(SettingsActivity.MANUALLY_CHANGE_PRESENCE, getResources().getBoolean(R.bool.manually_change_presence));
@@ -1173,6 +1184,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				//generateSignature(null, template);
 			//} else {
 				xmppConnectionService.changeStatus(mAccount, template, null);
+				updateStatusUI();
 			//}
 		});
 		builder.create().show();
