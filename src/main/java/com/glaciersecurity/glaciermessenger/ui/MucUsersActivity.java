@@ -111,7 +111,7 @@ public class MucUsersActivity extends XmppActivity implements XmppConnectionServ
 
     @Override
     public void onAffiliationChangedSuccessful(Jid jid) {
-
+        loadAndSubmitUsers(); //AM-573
     }
 
     @Override
