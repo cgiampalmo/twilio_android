@@ -166,23 +166,24 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 		boolean removeLocation = new Intent("com.glaciersecurity.glaciermessenger.location.request").resolveActivity(getPackageManager()) == null;
 		boolean removeVoice = new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION).resolveActivity(getPackageManager()) == null;
 
-		ListPreference quickAction = (ListPreference) mSettingsFragment.findPreference("quick_action");
-		if (quickAction != null && (removeLocation || removeVoice)) {
-			ArrayList<CharSequence> entries = new ArrayList<>(Arrays.asList(quickAction.getEntries()));
-			ArrayList<CharSequence> entryValues = new ArrayList<>(Arrays.asList(quickAction.getEntryValues()));
-			int index = entryValues.indexOf("location");
-			if (index > 0 && removeLocation) {
-				entries.remove(index);
-				entryValues.remove(index);
-			}
-			index = entryValues.indexOf("voice");
-			if (index > 0 && removeVoice) {
-				entries.remove(index);
-				entryValues.remove(index);
-			}
-			quickAction.setEntries(entries.toArray(new CharSequence[entries.size()]));
-			quickAction.setEntryValues(entryValues.toArray(new CharSequence[entryValues.size()]));
-		}
+		//AM-583
+//		ListPreference quickAction = (ListPreference) mSettingsFragment.findPreference("quick_action");
+//		if (quickAction != null && (removeLocation || removeVoice)) {
+//			ArrayList<CharSequence> entries = new ArrayList<>(Arrays.asList(quickAction.getEntries()));
+//			ArrayList<CharSequence> entryValues = new ArrayList<>(Arrays.asList(quickAction.getEntryValues()));
+//			int index = entryValues.indexOf("location");
+//			if (index > 0 && removeLocation) {
+//				entries.remove(index);
+//				entryValues.remove(index);
+//			}
+//			index = entryValues.indexOf("voice");
+//			if (index > 0 && removeVoice) {
+//				entries.remove(index);
+//				entryValues.remove(index);
+//			}
+//			quickAction.setEntries(entries.toArray(new CharSequence[entries.size()]));
+//			quickAction.setEntryValues(entryValues.toArray(new CharSequence[entryValues.size()]));
+//		}
 
 		final Preference removeCertsPreference = mSettingsFragment.findPreference("remove_trusted_certificates");
 		if (removeCertsPreference != null) {

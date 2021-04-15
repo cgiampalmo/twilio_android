@@ -158,7 +158,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 0x0308;
 
 
-	public static final String RECENTLY_USED_QUICK_ACTION = "recently_used_quick_action";
+	//public static final String RECENTLY_USED_QUICK_ACTION = "recently_used_quick_action";
 	public static final String STATE_CONVERSATION_UUID = ConversationFragment.class.getName() + ".uuid";
 	public static final String STATE_SCROLL_POSITION = ConversationFragment.class.getName() + ".scroll_position";
 	public static final String STATE_PHOTO_URI = ConversationFragment.class.getName() + ".take_photo_uri";
@@ -1714,13 +1714,14 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				return;
 			}
 		}
-		try {
-			activity.getPreferences().edit()
-					.putString(RECENTLY_USED_QUICK_ACTION, SendButtonAction.of(attachmentChoice).toString())
-					.apply();
-		} catch (IllegalArgumentException e) {
-			//just do not save
-		}
+		//AM-583
+//		try {
+//			activity.getPreferences().edit()
+//					.putString(RECENTLY_USED_QUICK_ACTION, SendButtonAction.of(attachmentChoice).toString())
+//					.apply();
+//		} catch (IllegalArgumentException e) {
+//			//just do not save
+//		}
 		final int encryption = conversation.getNextEncryption();
 		final int mode = conversation.getMode();
 		if (encryption == Message.ENCRYPTION_PGP) {

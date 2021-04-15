@@ -59,17 +59,19 @@ public class SendButtonTool {
 				if (conference && c.getNextCounterpart() != null) {
 					return SendButtonAction.CANCEL;
 				} else {
-					String setting = preferences.getString("quick_action", activity.getResources().getString(R.string.quick_action));
-					if (!setting.equals("none") && UIHelper.receivedLocationQuestion(c.getLatestMessage())) {
-						return SendButtonAction.SEND_LOCATION;
-					} else {
-						if (setting.equals("recent")) {
-							setting = preferences.getString(ConversationFragment.RECENTLY_USED_QUICK_ACTION, SendButtonAction.TEXT.toString());
-							return SendButtonAction.valueOfOrDefault(setting, SendButtonAction.TEXT);
-						} else {
-							return SendButtonAction.valueOfOrDefault(setting, SendButtonAction.TEXT);
-						}
-					}
+					//AM-583
+//					String setting = preferences.getString("quick_action", activity.getResources().getString(R.string.quick_action));
+//					if (!setting.equals("none") && UIHelper.receivedLocationQuestion(c.getLatestMessage())) {
+//						return SendButtonAction.SEND_LOCATION;
+//					} else {
+//						if (setting.equals("recent")) {
+//							setting = preferences.getString(ConversationFragment.RECENTLY_USED_QUICK_ACTION, SendButtonAction.TEXT.toString());
+//							return SendButtonAction.valueOfOrDefault(setting, SendButtonAction.TEXT);
+//						} else {
+							//return SendButtonAction.valueOfOrDefault(setting, SendButtonAction.TEXT);
+							return SendButtonAction.TEXT;
+//						}
+//					}
 				}
 			} else {
 				return SendButtonAction.TEXT;
