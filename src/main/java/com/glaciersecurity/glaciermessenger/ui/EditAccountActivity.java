@@ -16,6 +16,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 
@@ -101,6 +102,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -663,7 +665,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				},false));
 		this.mClearDevicesButton.setOnClickListener(v -> showWipePepDialog());
 		//AM-582
-		this.mChangeStatusButton.setOnClickListener(v -> changePresence());
+		this.mChangeStatusButton.setOnClickListener(v -> changePresence(mAccount));
 		this.mPort = (EditText) findViewById(R.id.port);
 		this.mPort.setText(String.valueOf(Resolver.DEFAULT_PORT_XMPP));
 		this.mPort.addTextChangedListener(mTextWatcher);
@@ -966,6 +968,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	@Override
 	public void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
 		if (intent != null && intent.getData() != null) {
 			final XmppUri uri = new XmppUri(intent.getData());
 			if (xmppConnectionServiceBound) {
@@ -1156,38 +1159,132 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	//AM-582
-	private void changePresence() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		boolean manualStatus = sharedPreferences.getBoolean(SettingsActivity.MANUALLY_CHANGE_PRESENCE, getResources().getBoolean(R.bool.manually_change_presence));
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+	protected void changePresence(Account fragAccount) {
+		android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
 		final DialogPresenceBinding binding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.dialog_presence, null, false);
-		String current = mAccount.getPresenceStatusMessage();
+		String current = fragAccount.getPresenceStatusMessage();
 		if (current != null && !current.trim().isEmpty()) {
 			binding.statusMessage.append(current);
 		}
-		setAvailabilityRadioButton(mAccount.getPresenceStatus(), binding);
-		binding.show.setVisibility(manualStatus ? VISIBLE : View.GONE);
-		List<PresenceTemplate> templates = xmppConnectionService.getPresenceTemplates(mAccount);
-	//CMG AM-365
-		PresenceTemplateAdapter presenceTemplateAdapter = new PresenceTemplateAdapter(this, R.layout.simple_list_item, templates);
-//		binding.statusMessage.setAdapter(presenceTemplateAdapter);
+		setAvailabilityRadioButton(fragAccount.getPresenceStatus(), binding);
+		setStatusMessageRadioButton(fragAccount.getPresenceStatusMessage(), binding);
+		List<PresenceTemplate> templates = xmppConnectionService.getPresenceTemplates(fragAccount);
+		//CMG AM-365
+//		PresenceTemplateAdapter presenceTemplateAdapter = new PresenceTemplateAdapter(this, R.layout.simple_list_item, templates);
+// 		binding.statusMessage.setAdapter(presenceTemplateAdapter);
 //		binding.statusMessage.setOnItemClickListener((parent, view, position, id) -> {
 //			PresenceTemplate template = (PresenceTemplate) parent.getItemAtPosition(position);
 //			setAvailabilityRadioButton(template.getStatus(), binding);
+//			setStatusMessageRadioButton(mAccount.getPresenceStatusMessage(), binding);
 //		});
+
+		binding.clearPrefs.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				binding.statuses.clearCheck();
+				binding.statusMessage.setText("");
+			}
+		});
+		binding.statuses.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
+			public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+				switch(checkedId){
+					case R.id.in_meeting:
+						binding.statusMessage.setText(Presence.StatusMessage.IN_MEETING.toShowString());
+						binding.statusMessage.setEnabled(false);
+						break;
+					case R.id.on_travel:
+						binding.statusMessage.setText(Presence.StatusMessage.ON_TRAVEL.toShowString());
+						binding.statusMessage.setEnabled(false);
+						break;
+					case R.id.out_sick:
+						binding.statusMessage.setText(Presence.StatusMessage.OUT_SICK.toShowString());
+						binding.statusMessage.setEnabled(false);
+						break;
+					case R.id.vacation:
+						binding.statusMessage.setText(Presence.StatusMessage.VACATION.toShowString());
+						binding.statusMessage.setEnabled(false);
+						break;
+					case R.id.custom:
+						binding.statusMessage.setEnabled(true);
+						break;
+					default:
+						binding.statusMessage.setEnabled(false);
+						break;
+				}
+			}
+		});
+
 		builder.setTitle(R.string.edit_status_message_title);
 		builder.setView(binding.getRoot());
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
 			PresenceTemplate template = new PresenceTemplate(getAvailabilityRadioButton(binding), binding.statusMessage.getText().toString().trim());
-			//if (mAccount.getPgpId() != 0 && hasPgp()) {
-				//generateSignature(null, template);
+			//CMG AM-218
+			//if (fragAccount.getPgpId() != 0 && hasPgp()) {
+			//	generateSignature(null, template, fragAccount);
 			//} else {
-				xmppConnectionService.changeStatus(mAccount, template, null);
-				updateStatusUI();
+			xmppConnectionService.changeStatus(fragAccount, template, null);
 			//}
+			if (template.getStatus().equals(Presence.Status.OFFLINE)){
+				disableAccount(fragAccount);
+			} else {
+				if (!template.getStatus().equals(Presence.Status.OFFLINE) && fragAccount.getStatus().equals(Account.State.DISABLED)){
+					enableAccount(fragAccount);
+				}
+			}
+			updateStatusUI();
 		});
 		builder.create().show();
+	}
+
+	private void disableAccount(Account account) {
+		account.setOption(Account.OPTION_DISABLED, true);
+		if (!xmppConnectionService.updateAccount(account)) {
+			Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	private void enableAccount(Account account) {
+		account.setOption(Account.OPTION_DISABLED, false);
+		final XmppConnection connection = account.getXmppConnection();
+		if (connection != null) {
+			connection.resetEverything();
+		}
+		if (!xmppConnectionService.updateAccount(account)) {
+			Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	private static void setStatusMessageRadioButton(String statusMessage, DialogPresenceBinding binding) {
+		if (statusMessage == null) {
+			binding.statuses.clearCheck();
+			binding.statusMessage.setEnabled(false);
+			return;
+		}
+		binding.statuses.clearCheck();
+		binding.statusMessage.setEnabled(false);
+		if (statusMessage.equals(getEmojiByUnicode(meetingIcon)+"\tIn a meeting")) {
+			binding.inMeeting.setChecked(true);
+			return;
+		} else if (statusMessage.equals(getEmojiByUnicode(travelIcon)+"\tOn travel")) {
+			binding.onTravel.setChecked(true);
+			return;
+		} else if (statusMessage.equals(getEmojiByUnicode(sickIcon)+"\tOut sick")) {
+			binding.outSick.setChecked(true);
+			return;
+		} else if (statusMessage.equals(getEmojiByUnicode(vacationIcon)+"\tVacation")) {
+			binding.vacation.setChecked(true);
+			return;
+		} else if (!statusMessage.isEmpty()) {
+			binding.custom.setChecked(true);
+			binding.statusMessage.setEnabled(true);
+			return;
+		} else {
+			binding.statuses.clearCheck();
+			binding.statusMessage.setEnabled(false);
+			return;
+		}
+
 	}
 
 	/*private void generateSignature(Intent intent, PresenceTemplate template) {
