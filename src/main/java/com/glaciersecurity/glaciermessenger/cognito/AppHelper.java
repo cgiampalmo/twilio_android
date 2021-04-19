@@ -86,7 +86,6 @@ public class AppHelper {
         }
 
         if (userPool == null) {
-            // GOOBER - Test
             loadPropertiesFile(context); //ALF AM-313
             ClientConfiguration clientConfiguration = new ClientConfiguration();
             userPool = new CognitoUserPool(context, Constants.COGNITO_USER_POOL_ID, Constants.COGNITO_CLIENT_ID, Constants.COGNITO_CLIENT_SECRET, clientConfiguration, cognitoRegion);

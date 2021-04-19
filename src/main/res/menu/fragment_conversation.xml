@@ -118,17 +118,6 @@
     <!--android:orderInCategory="55"-->
     <!--android:showAsAction="never"-->
     <!--android:title="@string/conversation_message_timer"/>-->
-    <!-- GOOBER WIPE ALL HISTORY - Replace with our own clear/end chat
-    <item
-        android:id="@+id/action_clear_history"
-        android:orderInCategory="50"
-        app:showAsAction="never"
-        android:title="@string/action_clear_history"/>
-    <item
-        android:id="@+id/action_archive"
-        android:orderInCategory="60"
-        app:showAsAction="never"
-        android:title="@string/action_end_conversation"/> -->
     <item
         android:id="@+id/action_end_conversation"
         android:orderInCategory="60"
@@ -140,12 +129,6 @@
         android:orderInCategory="61"
         android:showAsAction="never"
         android:title="@string/action_leave_group"/>
-    <!-- GOOBER - Added wipe all history -->
-    <!--<item-->
-    <!--android:id="@+id/action_wipe_all_history"-->
-    <!--android:orderInCategory="62"-->
-    <!--android:showAsAction="never"-->
-    <!--android:title="@string/action_wipe_all_history"/>-->
     <item
         android:id="@+id/action_mute"
         android:orderInCategory="70"

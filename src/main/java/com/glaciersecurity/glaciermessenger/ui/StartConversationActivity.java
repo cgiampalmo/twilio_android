@@ -803,41 +803,6 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		super.onActivityResult(requestCode, requestCode, intent);
 	}
 
-	/**
-	 * GOOBER PIN - Removed in favor of prompting for multiple permissions above
-	 */
-	/* private void askForContactsPermissions() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			if (checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-				if (mRequestedContactsPermission.compareAndSet(false, true)) {
-					if (shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS)) {
-						AlertDialog.Builder builder = new AlertDialog.Builder(this);
-						builder.setTitle(R.string.sync_with_contacts);
-						if (QuickConversationsService.isQuicksy()) {
-							builder.setMessage(Html.fromHtml(getString(R.string.sync_with_contacts_quicksy)));
-                        } else {
-                            builder.setMessage(R.string.sync_with_contacts_long);
-                        }
-						builder.setPositiveButton(R.string.next, (dialog, which) -> requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_SYNC_CONTACTS));
-						builder.setOnDismissListener(dialog -> requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_SYNC_CONTACTS));
-						builder.setCancelable(false);
-						AlertDialog dialog = builder.create();
-						dialog.setCanceledOnTouchOutside(false);
-						dialog.setOnShowListener(dialogInterface -> {
-							final TextView tv =  dialog.findViewById(android.R.id.message);
-							if (tv != null) {
-								tv.setMovementMethod(LinkMovementMethod.getInstance());
-							}
-						});
-						dialog.show();
-					} else {
-						requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_SYNC_CONTACTS);
-					}
-				}
-			}
-		}
-	} */
-
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
 		if (grantResults.length > 0)
@@ -865,7 +830,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 
 	@Override
 	protected void onBackendConnected() {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+		if (checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
 			xmppConnectionService.getQuickConversationsService().considerSyncBackground(false);
 		}
 		if (mPostponedActivityResult != null) {
@@ -1630,12 +1595,8 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 				if (withRefresh) {
 					Drawable refreshIcon =
 							ContextCompat.getDrawable(this, R.drawable.ic_refresh_black_24dp);
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-						networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
-					} else {
-						refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
-						networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
-					}
+
+					networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
 				} else {
 					networkStatus.setCompoundDrawables(null, null, null, null);
 				}

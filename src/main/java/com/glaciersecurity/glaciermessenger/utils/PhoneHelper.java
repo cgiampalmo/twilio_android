@@ -26,8 +26,7 @@ public class PhoneHelper {
 
 	public static void loadPhoneContacts(Context context, final OnPhoneContactsLoadedListener listener) {
 		final List<Bundle> phoneContacts = new ArrayList<>();
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-				&& context.checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+		if (context.checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
 			listener.onPhoneContactsLoaded(phoneContacts);
 			return;
 		}
@@ -74,7 +73,7 @@ public class PhoneHelper {
 	}
 
 	public static Uri getProfilePictureUri(Context context) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context.checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+		if (context.checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
 			return null;
 		}
 		final String[] projection = new String[]{Profile._ID, Profile.PHOTO_URI};

@@ -11,7 +11,6 @@ import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import com.twilio.video.Camera2Capturer;
 import com.twilio.video.CameraCapturer;
@@ -110,7 +109,6 @@ public class CameraCapturerCompat {
         return camera1Capturer != null;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void setCameraPairs(Context context) {
         Camera2Enumerator camera2Enumerator = new Camera2Enumerator(context);
         for (String cameraId : camera2Enumerator.getDeviceNames()) {
@@ -143,10 +141,9 @@ public class CameraCapturerCompat {
     }
 
     private boolean isLollipopApiSupported() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+        return true;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private boolean isCameraIdSupported(String cameraId) {
         boolean isMonoChromeSupported = false;
         boolean isPrivateImageFormatSupported = false;
@@ -165,7 +162,7 @@ public class CameraCapturerCompat {
         final StreamConfigurationMap streamMap =
                 cameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
-        if (streamMap != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (streamMap != null) {
             isPrivateImageFormatSupported = streamMap.isOutputSupportedFor(ImageFormat.PRIVATE);
         }
 

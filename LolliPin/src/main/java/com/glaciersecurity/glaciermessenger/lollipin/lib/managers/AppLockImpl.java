@@ -185,7 +185,6 @@ public class AppLockImpl<T extends AppLockActivity> extends AppLock implements L
     }
 
     private void setSalt(String salt) {
-        // GOOBER
         try {
             File root = android.os.Environment.getExternalStorageDirectory();
             File dir = new File(root.getAbsolutePath() + "/" + STORAGE_DIRCTORY);
@@ -485,8 +484,6 @@ public class AppLockImpl<T extends AppLockActivity> extends AppLock implements L
 
     @Override
     public void setLastActiveMillis() {
-        Log.d("GOOBER", "***************** RESETTING TIMER *********************");
-
         try {
             File root = android.os.Environment.getExternalStorageDirectory();
             File dir = new File(root.getAbsolutePath() + "/" + STORAGE_DIRCTORY);
@@ -651,16 +648,13 @@ public class AppLockImpl<T extends AppLockActivity> extends AppLock implements L
     public boolean shouldLockSceen(Activity activity) {
         // previously backed out of pin screen
         if (pinChallengeCancelled()) {
-            Log.d(TAG, "Lollipin shouldLockSceen() called-1");
             return true;
         }
 
         // already unlock
         if (activity instanceof AppLockActivity) {
-            Log.d(TAG, "Lollipin shouldLockSceen() called-2");
             AppLockActivity ala = (AppLockActivity) activity;
             if (ala.getType() == UNLOCK_PIN) {
-                Log.d(TAG, "Lollipin shouldLockSceen() called-3");
                 Log.d(TAG, "already unlock activity");
                 return false;
             }
@@ -668,7 +662,6 @@ public class AppLockImpl<T extends AppLockActivity> extends AppLock implements L
 
         // no pass code set
         if (!isPasscodeSet()) {
-            Log.d(TAG, "Lollipin shouldLockSceen() called-4");
             Log.d(TAG, "lock passcode not set.");
             return false;
         }
@@ -678,14 +671,9 @@ public class AppLockImpl<T extends AppLockActivity> extends AppLock implements L
         long passedTime = System.currentTimeMillis() - lastActiveMillis;
         long timeout = getTimeout();
 
-        Log.d("GOOBER", "Elapsed time: " + passedTime + "(passedTime)::" + timeout + "(timeout)");
-
         if (lastActiveMillis > 0 && passedTime <= timeout) {
-            Log.d(TAG, "Lollipin shouldLockSceen() called-5");
-            Log.d(TAG, "No lock, not enough time have passed: " + passedTime + " < " + timeout);
             return false;
         }
-        Log.d(TAG, "Lollipin shouldLockSceen() called-6");
 
         return true;
     }
@@ -699,34 +687,9 @@ public class AppLockImpl<T extends AppLockActivity> extends AppLock implements L
         String clazzName = activity.getClass().getName();
         Log.d(TAG, "onActivityPaused " + clazzName);
 
-        Log.d("GOOBER", "AppLockImpl::onActivityPaused: " + onlyBackgroundTimeout() + "::" + shouldLockSceen(activity) + "::" + (activity instanceof AppLockActivity));
         if ((onlyBackgroundTimeout() || !shouldLockSceen(activity)) && !(activity instanceof AppLockActivity)) {
             setLastActiveMillis();
         }
-    }
-
-    private void printLollipinDB() {
-        Log.d("GOOBER", "**************************************** START QUERY **********************************************");
-        try {
-            File root = android.os.Environment.getExternalStorageDirectory();
-            File dir = new File(root.getAbsolutePath() + "/" + STORAGE_DIRCTORY);
-            SQLiteDatabase lollipinDB = SQLiteDatabase.openDatabase(dir + "/" + DATABASE_NAME, null, SQLiteDatabase.OPEN_READONLY);
-
-            Cursor c = lollipinDB.rawQuery("SELECT * FROM " + TABLE_NAME + ";", null);
-
-            if ((c != null) && (c.getCount() > 0)) {
-                c.moveToFirst();
-                while (c.moveToNext()) {
-                    Log.d("GOOBER", TABLE_NAME + ": " + c.getString(c.getColumnIndex("key")) + "::" + c.getString(c.getColumnIndex("value")));
-                }
-            } else {
-                Log.d("GOOBER", TABLE_NAME + ": Cursor is NULL");
-            }
-            lollipinDB.close();
-        } catch (SQLiteException e) {
-            e.printStackTrace();
-        }
-        Log.d("GOOBER", "**************************************** END QUERY **********************************************");
     }
 
     @Override
@@ -745,10 +708,6 @@ public class AppLockImpl<T extends AppLockActivity> extends AppLock implements L
             intent.putExtra(EXTRA_TYPE, UNLOCK_PIN);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             activity.getApplication().startActivity(intent);
-        }
-
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
-            return;
         }
 
         if (!shouldLockSceen(activity) && !(activity instanceof AppLockActivity)) {

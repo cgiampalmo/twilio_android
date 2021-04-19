@@ -1,7 +1,6 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -97,7 +96,7 @@ public abstract class LocationActivity extends ActionBarActivity implements Loca
 		// Ask for location permissions if location services are enabled and we're
 		// just starting the activity (we don't want to keep pestering them on every
 		// screen rotation or if there's no point because it's disabled anyways).
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && savedInstanceState == null) {
+		if (savedInstanceState == null) {
 			requestPermissions(REQUEST_CODE_CREATE);
 		}
 
@@ -259,13 +258,11 @@ public abstract class LocationActivity extends ActionBarActivity implements Loca
 		}
 	}
 
-	@TargetApi(Build.VERSION_CODES.M)
 	protected boolean hasLocationPermissions() {
 		return (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
 				checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED);
 	}
 
-	@TargetApi(Build.VERSION_CODES.M)
 	protected void requestPermissions(final int request_code) {
 		if (!hasLocationPermissions()) {
 			requestPermissions(

@@ -44,12 +44,10 @@ import rocks.xmpp.addr.Jid;
 public class Tools {
 
     public static void setSystemBarColor(Activity act) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = act.getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(act.getResources().getColor(R.color.primary_bg_color));
-        }
+        Window window = act.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(act.getResources().getColor(R.color.primary_bg_color));
     }
 
     public static String logJid(Jid jid){
@@ -67,59 +65,45 @@ public class Tools {
     }
 
     public static void setSystemBarColor(Activity act, @ColorRes int color) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = act.getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(act.getResources().getColor(R.color.primary_bg_color));
-            //window.setStatusBarColor(act.getResources().getColor(color));
-        }
+        Window window = act.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(act.getResources().getColor(R.color.primary_bg_color));
     }
 
     public static void setSystemBarColorDialog(Context act, Dialog dialog, @ColorRes int color) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = dialog.getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(act.getResources().getColor(R.color.primary_bg_color));
-//            window.setStatusBarColor(act.getResources().getColor(color));
-        }
+        Window window = dialog.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(act.getResources().getColor(R.color.primary_bg_color));
     }
 
     public static void setSystemBarLight(Activity act) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            View view = act.findViewById(android.R.id.content);
-            int flags = view.getSystemUiVisibility();
-            flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-            view.setSystemUiVisibility(flags);
-        }
+        View view = act.findViewById(android.R.id.content);
+        int flags = view.getSystemUiVisibility();
+        flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+        view.setSystemUiVisibility(flags);
     }
 
     public static void setSystemBarLightDialog(Dialog dialog) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            View view = dialog.findViewById(android.R.id.content);
-            int flags = view.getSystemUiVisibility();
-            flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-            view.setSystemUiVisibility(flags);
-        }
+        View view = dialog.findViewById(android.R.id.content);
+        int flags = view.getSystemUiVisibility();
+        flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+        view.setSystemUiVisibility(flags);
     }
 
     public static void clearSystemBarLight(Activity act) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Window window = act.getWindow();
-            window.setStatusBarColor(ContextCompat.getColor(act, R.color.primary_bg_color));
-        }
+        Window window = act.getWindow();
+        window.setStatusBarColor(ContextCompat.getColor(act, R.color.primary_bg_color));
     }
 
     /**
      * Making notification bar transparent
      */
     public static void setSystemBarTransparent(Activity act) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = act.getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(Color.TRANSPARENT);
-        }
+        Window window = act.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(Color.TRANSPARENT);
     }
 
     public static void displayImageOriginal(Context ctx, ImageView img, @DrawableRes int drawable) {

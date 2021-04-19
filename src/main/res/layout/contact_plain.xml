@@ -16,8 +16,6 @@
             android:layout_alignParentLeft="true"
             android:scaleType="centerCrop"
             app:riv_corner_radius="30dip" />
-            <!-- GOOBER - circle/round profile image
-            app:riv_corner_radius="2dp" /> -->
 
         <LinearLayout
             android:layout_width="wrap_content"

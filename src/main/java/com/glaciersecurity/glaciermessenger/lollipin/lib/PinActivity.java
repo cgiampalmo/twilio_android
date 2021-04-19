@@ -56,31 +56,24 @@ public class PinActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //Log.d("GOOBER", "PIN onCreate()");
         IntentFilter filter = new IntentFilter(AppLockActivity.ACTION_CANCEL);
         LocalBroadcastManager.getInstance(this).registerReceiver(mPinCancelledReceiver, filter);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        // check if permissions are granted before accessing database and image file
+        if (checkSelfPermission("android.permission.WRITE_EXTERNAL_STORAGE") == PackageManager.PERMISSION_GRANTED) {
+            // if new install delete all data associated with PIN
+            if (newInstall) {
+                // remove serialized object capture
+                deleteImageFiles();
 
-            // check if permissions are granted before accessing database and image file
-            if (checkSelfPermission("android.permission.WRITE_EXTERNAL_STORAGE") == PackageManager.PERMISSION_GRANTED) {
-                // if new install delete all data associated with PIN
-                if (newInstall) {
-                    // clear database rows
-                    //clearPINDatabase();
-
-                    // remove serialized object capture
-                    deleteImageFiles();
-
-                    newInstall = false;
-                } else
-                    mLifeCycleListener = getImageFile();
-            } else {
-                // this is how we trick this to thinking it's a new install
-                // if it requires permissions, then it's a new install
-                // This is to help distinguish closing app vs reinstalling app
-                newInstall = true;
-            }
+                newInstall = false;
+            } else
+                mLifeCycleListener = getImageFile();
+        } else {
+            // this is how we trick this to thinking it's a new install
+            // if it requires permissions, then it's a new install
+            // This is to help distinguish closing app vs reinstalling app
+            newInstall = true;
         }
     }
 
@@ -103,10 +96,8 @@ public class PinActivity extends ActionBarActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //Log.d("GOOBER", "PIN onDestroy()");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mPinCancelledReceiver);
 
-        // GOOBER
         if (mLifeCycleListener != null) {
             saveImageFile();
         }
@@ -122,7 +113,7 @@ public class PinActivity extends ActionBarActivity {
 
     public static void clearListeners() {
         mLifeCycleListener = null;
-        deleteImageFiles();  // GOOBER
+        deleteImageFiles();
     }
 
     public static boolean hasListeners() {
@@ -130,7 +121,7 @@ public class PinActivity extends ActionBarActivity {
     }
 
     /**
-     * GOOBER - delete file associated with PIN image to include database
+     * delete file associated with PIN image to include database
      */
     private static void deleteImageFiles() {
         File root = android.os.Environment.getExternalStorageDirectory();
@@ -146,7 +137,7 @@ public class PinActivity extends ActionBarActivity {
     }
 
     /**
-     * GOOBER - get file associated with PIN image
+     * get file associated with PIN image
      */
     private static LifeCycleInterface getImageFile() {
         LifeCycleInterface tmpInterface = null;
@@ -172,7 +163,7 @@ public class PinActivity extends ActionBarActivity {
     }
 
     /**
-     * GOOBER - save file associated with PIN image
+     * save file associated with PIN image
      */
     private static void saveImageFile() {
         File root = android.os.Environment.getExternalStorageDirectory();
@@ -190,21 +181,6 @@ public class PinActivity extends ActionBarActivity {
             e.printStackTrace();
         }
     }
-
-    /**
-     * GOOBER - clear any saved preferences for PIN
-     */
-    /* private static void clearPINDatabase() {
-        try {
-            File root = android.os.Environment.getExternalStorageDirectory();
-            File dir = new File(root.getAbsolutePath() + "/" + AppLockImpl.STORAGE_DIRCTORY);
-            SQLiteDatabase lollipinDB = SQLiteDatabase.openDatabase(dir + "/" + AppLockImpl.DATABASE_NAME, null, SQLiteDatabase.OPEN_READWRITE);
-            lollipinDB.delete(AppLockImpl.TABLE_NAME, null, null);
-            lollipinDB.close();
-        } catch (SQLiteException e) {
-            e.printStackTrace();
-        }
-    }*/
 
     public class ClassTypeAdapter extends TypeAdapter<Class<?>> {
         @Override

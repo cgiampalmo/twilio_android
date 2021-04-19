@@ -11,7 +11,7 @@
     <attr name="TextSizeInput" format="dimension"/>
     <attr name="TextSeparation" format="dimension"/>
 
-    <!-- GOOBER CORE -->
+    <!-- CORE -->
     <attr name="TextSizeInfo" format="dimension" />
     <attr name="TextSizeBody" format="dimension" />
     <attr name="TextSizeHeadline" format="dimension" />
@@ -152,7 +152,7 @@
 
     <attr name="popupOverlayStyle" format="reference"/>
 
-    <!-- GOOBER PIN -->
+    <!-- PIN -->
     <declare-styleable name="PinCodeView">
         <attr name="lp_empty_pin_dot" format="integer" />
         <attr name="lp_full_pin_dot" format="integer" />

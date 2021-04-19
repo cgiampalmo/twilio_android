@@ -57,13 +57,9 @@ public class SoundPoolManager {
 
         // Load the sounds
         int maxStreams = 2; //AM-446
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            soundPool = new SoundPool.Builder()
-                    .setMaxStreams(maxStreams)
-                    .build();
-        } else {
-            soundPool = new SoundPool(maxStreams, AudioManager.STREAM_MUSIC, 0);
-        }
+        soundPool = new SoundPool.Builder()
+                .setMaxStreams(maxStreams)
+                .build();
 
         soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
             @Override

@@ -1,6 +1,5 @@
 package com.glaciersecurity.glaciermessenger.persistance;
 
-import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -19,7 +18,6 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 import android.system.Os;
 import android.system.StructStat;
@@ -146,7 +144,7 @@ public class FileBackend {
     }
 
     /**
-     * GOOBER - Remove entire storage directory (ie WipeAllHistory)
+     * Remove entire storage directory (ie WipeAllHistory)
      */
     public static void removeStorageDirectory() {
         // removeDirectory(new File(Environment.getExternalStorageDirectory() + "/Conversations/Media/Conversations Images/"));
@@ -155,13 +153,13 @@ public class FileBackend {
     }
 
     /**
-     * GOOBER - delete root directory - testing purposes only
+     * delete root directory - testing purposes only
      *
      * @param rootDirectory
      */
     private static void removeDirectory(File rootDirectory) {
         if (rootDirectory.exists()) {
-            // GOOBER - delete files
+            // delete files
             File[] listFiles = rootDirectory.listFiles();
             for (int i = 0; i < listFiles.length; i++) {
                 if (listFiles[i].isDirectory()) {
@@ -223,18 +221,10 @@ public class FileBackend {
     }
 
     public static Uri getUriForFile(Context context, File file) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N || Config.ONLY_INTERNAL_STORAGE) {
-            try {
-                return FileProvider.getUriForFile(context, getAuthority(context), file);
-            } catch (IllegalArgumentException e) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    throw new SecurityException(e);
-                } else {
-                    return Uri.fromFile(file);
-                }
-            }
-        } else {
-            return Uri.fromFile(file);
+        try {
+            return FileProvider.getUriForFile(context, getAuthority(context), file);
+        } catch (IllegalArgumentException e) {
+            throw new SecurityException(e);
         }
     }
 
@@ -336,12 +326,8 @@ public class FileBackend {
         if (dimensions != null) {
             return dimensions;
         }
-        final int rotation;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            rotation = extractRotationFromMediaRetriever(metadataRetriever);
-        } else {
-            rotation = 0;
-        }
+        final int rotation = extractRotationFromMediaRetriever(metadataRetriever);
+
         boolean rotated = rotation == 90 || rotation == 270;
         int height;
         try {
@@ -362,7 +348,6 @@ public class FileBackend {
         return rotated ? new Dimensions(width, height) : new Dimensions(height, width);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     private static int extractRotationFromMediaRetriever(MediaMetadataRetriever metadataRetriever) {
         String r = metadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
         try {
@@ -393,8 +378,6 @@ public class FileBackend {
     public static boolean weOwnFile(Context context, Uri uri) {
         if (uri == null || !ContentResolver.SCHEME_FILE.equals(uri.getScheme())) {
             return false;
-        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return fileIsInFilesDir(context, uri);
         } else {
             return weOwnFileLollipop(uri);
         }
@@ -415,7 +398,6 @@ public class FileBackend {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private static boolean weOwnFileLollipop(Uri uri) {
         try {
             File file = new File(uri.getPath());

@@ -103,7 +103,6 @@ public class VPNConnectionService extends Service implements ServiceConnection, 
 
     @Override
     public boolean handleMessage(Message msg) {
-        Log.d("GOOBER", "VPNConnectionService::handleMessage(): " + msg.obj.toString() + "::What = " + msg.what);
 
         if(msg.what == MSG_UPDATE_STATE) {
             if (msg.obj.toString().startsWith("CONNECTED")) {

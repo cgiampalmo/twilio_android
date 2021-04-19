@@ -279,17 +279,6 @@
                         </LinearLayout>
 
                 </LinearLayout>
-
-                <!-- GOOBER CORE - remove emergency profile
-                <CheckBox
-                    android:id="@+id/enable_emergconnect"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/enable_emergconnect"
-                    android:textColor="@color/almost_black"
-                    android:layout_below="@+id/startVPN"
-                    android:textSize="20dp"/> -->
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/fab_import"
                     android:layout_width="wrap_content"

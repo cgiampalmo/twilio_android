@@ -26,12 +26,7 @@
 	<item
 		android:id="@+id/action_disable_all"
 		android:title="@string/disable_all_accounts"/>
-	<!--<item-->
-		<!--android:id="@+id/action_settings"-->
-		<!--android:orderInCategory="100"-->
-		<!--app:showAsAction="never"-->
-		<!--android:title="@string/action_settings"/>-->
-	<!-- GOOBER PIN -->
+	<!-- PIN -->
 	<item
 		android:id="@+id/action_enablepin"
 		android:checkable="true"

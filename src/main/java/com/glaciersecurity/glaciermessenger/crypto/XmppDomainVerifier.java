@@ -105,7 +105,7 @@ public class XmppDomainVerifier implements DomainHostnameVerifier {
 			}
 			X509Certificate certificate = (X509Certificate) chain[0];
 			final List<String> commonNames = getCommonNames(certificate);
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && isSelfSigned(certificate)) {
+			if (isSelfSigned(certificate)) {
 				if (commonNames.size() == 1 && matchDomain(domain, commonNames)) {
 					Log.d(LOGTAG, "accepted CN in self signed cert as work around for " + domain);
 					return true;

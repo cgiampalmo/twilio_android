@@ -54,8 +54,6 @@
 
         <item name="activity_filesafe">@drawable/filesafe_black_48dp</item>
 
-        <!-- GOOBER
-        <item name="TextColorOnline">@color/green_600</item> -->
         <item name="TextColorOnline">@color/primary_bg_color</item>
         <item name="TextColorError">@color/red_800</item>
         <item name="edit_text_color">@color/almost_black</item>
@@ -98,8 +96,6 @@
         <item type="reference" name="ic_attach_photo">@drawable/ic_attach_photo</item>
         <item type="reference" name="ic_attach_record">@drawable/ic_attach_record</item>
 
-        <!-- GOOBER
-        <item name="conversations_overview_background">@color/green_700</item> -->
         <item name="conversations_overview_background">@color/primary_bg_color</item>
 
         <item type="float" name="icon_alpha">0.54</item>
@@ -226,8 +222,6 @@
 
         <item name="activity_filesafe">@drawable/filesafe_white_48dp</item>
 
-        <!-- GOOBER
-        <item name="TextColorOnline">@color/green_500</item> -->
         <item name="TextColorOnline">@color/blue_grey_875</item>
         <item name="TextColorError">@color/red_500</item>
         <item name="edit_text_color">@color/white</item>
@@ -266,8 +260,6 @@
         <item type="reference" name="ic_attach_photo">@drawable/ic_attach_photo_white</item>
         <item type="reference" name="ic_attach_record">@drawable/ic_attach_record_white</item>
 
-        <!-- GOOBER
-        <item name="conversations_overview_background">@color/green_900</item> -->
         <item name="conversations_overview_background">@color/primary_bg_color</item>
 
         <item type="float" name="icon_alpha">0.7</item>

@@ -8,7 +8,6 @@ import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
@@ -1362,9 +1361,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 
 		registerForContextMenu(binding.messagesView);
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			this.binding.textinput.setCustomInsertionActionModeCallback(new EditMessageActionModeCallback(this.binding.textinput));
-		}
+		this.binding.textinput.setCustomInsertionActionModeCallback(new EditMessageActionModeCallback(this.binding.textinput));
 
 		return binding.getRoot();
 	}
@@ -1575,18 +1572,9 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 //			case R.id.attach_location:
 //				handleAttachmentSelection(item);
 //				break;
-
-			/* GOOBER WIPE ALL HISTORY
-			case R.id.action_archive:
-				activity.xmppConnectionService.archiveConversation(conversation);
-				break;*/
 //			case R.id.action_conversation_timer: //ALF AM-53
 //				this.conversationMessageTimerDialog(conversation);
 //				break;
-			// GOOBER - add end conversation capability
-			//case R.id.action_end_conversation:
-			//	this.endConversationDialog(conversation);
-			//	break;
 			case R.id.action_leave_group:  //ALF AM-122
 				this.endConversationDialog(conversation);
 				break;
@@ -1616,10 +1604,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			case R.id.action_end_conversation:
 				endConversationDialog(conversation);
 				break;
-			/* GOOBER WIPE ALL HISTORY
-			case R.id.action_clear_history:
-				clearHistoryDialog(conversation);
-				break;*/
 			case R.id.action_mute:
 				muteConversationDialog(conversation);
 				break;
@@ -1933,7 +1917,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	}
 
 	/**
-	 * GOOBER - Add end conversation capability
+	 * Add end conversation capability
 	 *
 	 * @param conversation
 	 */
@@ -2066,24 +2050,20 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	}
 
 	private boolean hasPermissions(int requestCode, String... permissions) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			final List<String> missingPermissions = new ArrayList<>();
-			for(String permission : permissions) {
-				if (Config.ONLY_INTERNAL_STORAGE && permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-					continue;
-				}
-				if (activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-					missingPermissions.add(permission);
-				}
+		final List<String> missingPermissions = new ArrayList<>();
+		for(String permission : permissions) {
+			if (Config.ONLY_INTERNAL_STORAGE && permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+				continue;
 			}
-			if (missingPermissions.size() == 0) {
-				return true;
-			} else {
-				requestPermissions(missingPermissions.toArray(new String[missingPermissions.size()]), requestCode);
-				return false;
+			if (activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+				missingPermissions.add(permission);
 			}
-		} else {
+		}
+		if (missingPermissions.size() == 0) {
 			return true;
+		} else {
+			requestPermissions(missingPermissions.toArray(new String[missingPermissions.size()]), requestCode);
+			return false;
 		}
 	}
 
@@ -2103,9 +2083,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			switch (attachmentChoice) {
 				case ATTACHMENT_CHOICE_CHOOSE_IMAGE:
 					intent.setAction(Intent.ACTION_GET_CONTENT);
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-						intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-					}
+					intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 					intent.setType("image/*");
 					chooser = true;
 					break;
@@ -2123,9 +2101,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				case ATTACHMENT_CHOICE_CHOOSE_FILE:
 					chooser = true;
 					intent.setType("*/*");
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-						intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-					}
+					intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 					intent.addCategory(Intent.CATEGORY_OPENABLE);
 					intent.setAction(Intent.ACTION_GET_CONTENT);
 					break;
@@ -2599,7 +2575,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		//TODO if we only do this when this fragment is running on main it won't *bing* in tablet layout which might be unnecessary since we can *see* it
 		activity.xmppConnectionService.getNotificationService().setOpenConversation(this.conversation);
 
-		// GOOBER - Use this b/c iOS cannot do OMEMO in group chat  //ALF AM-88
+		// Use this b/c iOS cannot do OMEMO in group chat  //ALF AM-88
 		if ((conversation.getMode() == Conversation.MODE_MULTI) && !(conversation.getMucOptions().membersOnly())) {
 			conversation.setNextEncryption(Message.ENCRYPTION_NONE);
 		} else {

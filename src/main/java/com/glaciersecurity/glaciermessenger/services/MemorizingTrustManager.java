@@ -754,17 +754,6 @@ public class MemorizingTrustManager {
 
 	boolean interactHostname(X509Certificate cert, String hostname)
 	{
-		/* GOOBER MISC - skip server name discrepancy
-		switch (interact(hostNameMessage(cert, hostname), R.string.mtm_accept_servername)) {
-		case MTMDecision.DECISION_ALWAYS:
-			storeCert(hostname, cert);
-		case MTMDecision.DECISION_ONCE:
-			return true;
-		default:
-			return false;
-		}*/
-
-		// GOOBER MISC - always accept
 		storeCert(hostname, cert);
 		return true;
 	}

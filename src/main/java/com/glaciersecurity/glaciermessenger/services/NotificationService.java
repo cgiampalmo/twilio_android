@@ -36,8 +36,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -310,10 +308,7 @@ public class NotificationService {
 		// DJF - Was .setSmallIcon(R.drawable.ic_notification)  above for orig Glacier icon
 		// DJF - Use  .setSmallIcon(R.drawable.ic_gchat_icon_blue)  above to update to new blue icon
 
-		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			mBuilder.setCategory(Notification.CATEGORY_CALL);
-		}
-
+		mBuilder.setCategory(Notification.CATEGORY_CALL);
 		notify(CALL_NOTIFICATION_ID, mBuilder.build());
 
 		return true;
@@ -424,32 +419,26 @@ public class NotificationService {
 				this.markLastNotification();
 			}
 			final Builder mBuilder;
-			if (notifications.size() == 1 && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-				mBuilder = buildSingleConversations(notifications.values().iterator().next(), notify, quiteHours);
-				modifyForSoundVibrationAndLight(mBuilder, notify, quiteHours, preferences);
-				notify(NOTIFICATION_ID, mBuilder.build());
-			} else {
-				mBuilder = buildMultipleConversation(notify, quiteHours);
-				if (notifyOnlyOneChild) {
-					mBuilder.setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN);
-				}
-				modifyForSoundVibrationAndLight(mBuilder, notify, quiteHours, preferences);
-				if (!summaryOnly) {
-					for (Map.Entry<String, ArrayList<Message>> entry : notifications.entrySet()) {
-						String uuid = entry.getKey();
-						final boolean notifyThis = notifyOnlyOneChild ? conversations.contains(uuid) : notify;
-						Builder singleBuilder = buildSingleConversations(entry.getValue(), notifyThis, quiteHours);
-						if (!notifyOnlyOneChild) {
-							singleBuilder.setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY);
-						}
-						modifyForSoundVibrationAndLight(singleBuilder, notifyThis, quiteHours, preferences);
-						singleBuilder.setGroup(CONVERSATIONS_GROUP);
-						setNotificationColor(singleBuilder);
-						notify(entry.getKey(), NOTIFICATION_ID, singleBuilder.build());
-					}
-				}
-				notify(NOTIFICATION_ID, mBuilder.build());
+			mBuilder = buildMultipleConversation(notify, quiteHours);
+			if (notifyOnlyOneChild) {
+				mBuilder.setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN);
 			}
+			modifyForSoundVibrationAndLight(mBuilder, notify, quiteHours, preferences);
+			if (!summaryOnly) {
+				for (Map.Entry<String, ArrayList<Message>> entry : notifications.entrySet()) {
+					String uuid = entry.getKey();
+					final boolean notifyThis = notifyOnlyOneChild ? conversations.contains(uuid) : notify;
+					Builder singleBuilder = buildSingleConversations(entry.getValue(), notifyThis, quiteHours);
+					if (!notifyOnlyOneChild) {
+						singleBuilder.setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY);
+					}
+					modifyForSoundVibrationAndLight(singleBuilder, notifyThis, quiteHours, preferences);
+					singleBuilder.setGroup(CONVERSATIONS_GROUP);
+					setNotificationColor(singleBuilder);
+					notify(entry.getKey(), NOTIFICATION_ID, singleBuilder.build());
+				}
+			}
+			notify(NOTIFICATION_ID, mBuilder.build());
 		}
 	}
 
@@ -475,9 +464,7 @@ public class NotificationService {
 				Log.d(Config.LOGTAG, "unable to use custom notification sound " + uri.toString());
 			}
 		}
-		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			mBuilder.setCategory(Notification.CATEGORY_MESSAGE);
-		}
+		mBuilder.setCategory(Notification.CATEGORY_MESSAGE);
 		mBuilder.setPriority(notify ? (headsup ? NotificationCompat.PRIORITY_HIGH : NotificationCompat.PRIORITY_DEFAULT) : NotificationCompat.PRIORITY_LOW);
 		setNotificationColor(mBuilder);
 		mBuilder.setDefaults(0);
@@ -487,7 +474,7 @@ public class NotificationService {
 	}
 
 	private Uri fixRingtoneUri(Uri uri) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && "file".equals(uri.getScheme())) {
+		if ("file".equals(uri.getScheme())) {
 			return FileBackend.getUriForFile(mXmppConnectionService, new File(uri.getPath()));
 		} else {
 			return uri;
@@ -554,9 +541,6 @@ public class NotificationService {
 		if (messages.size() >= 1) {
 			final Conversation conversation = (Conversation) messages.get(0).getConversation();
 			final UnreadConversation.Builder mUnreadBuilder = new UnreadConversation.Builder(conversation.getName().toString());
-			/* GOOBER - Instead of using publish icon, use default glacier icon
-			mBuilder.setLargeIcon(mXmppConnectionService.getAvatarService()
-					.get(conversation, getPixel(64)));*/
 			//mBuilder.setLargeIcon(BitmapFactory.decodeResource(mXmppConnectionService.getResources(), R.drawable.glacier_notification)); //ALF AM-91 changed from ic_launcher
 			mBuilder.setContentTitle(conversation.getName());
 			if (Config.HIDE_MESSAGE_TEXT_IN_NOTIFICATION) {
@@ -589,10 +573,9 @@ public class NotificationService {
 				mBuilder.extend(new NotificationCompat.CarExtender().setUnreadConversation(mUnreadBuilder.build()));
 				int addedActionsCount = 1;
 				mBuilder.addAction(markReadAction);
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-					mBuilder.addAction(replyAction);
-					++addedActionsCount;
-				}
+
+				mBuilder.addAction(replyAction);
+				++addedActionsCount;
 
 				if (displaySnoozeAction(messages)) {
 					String label = mXmppConnectionService.getString(R.string.snooze);
@@ -711,59 +694,33 @@ public class NotificationService {
 
 
 	private void modifyForTextOnly(final Builder builder, final UnreadConversation.Builder uBuilder, final ArrayList<Message> messages) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			final Conversation conversation = (Conversation) messages.get(0).getConversation();
-			final Person.Builder meBuilder = new Person.Builder().setName(mXmppConnectionService.getString(R.string.me));
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-				meBuilder.setIcon(IconCompat.createWithBitmap(mXmppConnectionService.getAvatarService().get(conversation.getAccount(), AvatarService.getSystemUiAvatarSize(mXmppConnectionService))));
-			}
-			final Person me = meBuilder.build();
-			NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(me);
-			final boolean multiple = conversation.getMode() == Conversation.MODE_MULTI;
-			if (multiple) {
-				messagingStyle.setConversationTitle(conversation.getName());
-			}
-			for (Message message : messages) {
-				final Person sender = message.getStatus() == Message.STATUS_RECEIVED ? getPerson(message) : null;
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && isImageMessage(message)) {
-					final Uri dataUri = FileBackend.getMediaUri(mXmppConnectionService,mXmppConnectionService.getFileBackend().getFile(message));
-					NotificationCompat.MessagingStyle.Message imageMessage = new NotificationCompat.MessagingStyle.Message(UIHelper.getMessagePreview(mXmppConnectionService, message).first, message.getTimeSent(), sender);
-					if (dataUri != null) {
-						imageMessage.setData(message.getMimeType(), dataUri);
-					}
-					messagingStyle.addMessage(imageMessage);
-				} else {
-					messagingStyle.addMessage(UIHelper.getMessagePreview(mXmppConnectionService, message).first, message.getTimeSent(), sender);
+		final Conversation conversation = (Conversation) messages.get(0).getConversation();
+		final Person.Builder meBuilder = new Person.Builder().setName(mXmppConnectionService.getString(R.string.me));
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+			meBuilder.setIcon(IconCompat.createWithBitmap(mXmppConnectionService.getAvatarService().get(conversation.getAccount(), AvatarService.getSystemUiAvatarSize(mXmppConnectionService))));
+		}
+		final Person me = meBuilder.build();
+		NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(me);
+		final boolean multiple = conversation.getMode() == Conversation.MODE_MULTI;
+		if (multiple) {
+			messagingStyle.setConversationTitle(conversation.getName());
+		}
+		for (Message message : messages) {
+			final Person sender = message.getStatus() == Message.STATUS_RECEIVED ? getPerson(message) : null;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && isImageMessage(message)) {
+				final Uri dataUri = FileBackend.getMediaUri(mXmppConnectionService,mXmppConnectionService.getFileBackend().getFile(message));
+				NotificationCompat.MessagingStyle.Message imageMessage = new NotificationCompat.MessagingStyle.Message(UIHelper.getMessagePreview(mXmppConnectionService, message).first, message.getTimeSent(), sender);
+				if (dataUri != null) {
+					imageMessage.setData(message.getMimeType(), dataUri);
 				}
-			}
-			messagingStyle.setGroupConversation(multiple);
-			builder.setStyle(messagingStyle);
-		} else {
-			if (messages.get(0).getConversation().getMode() == Conversation.MODE_SINGLE) {
-				builder.setStyle(new NotificationCompat.BigTextStyle().bigText(getMergedBodies(messages)));
-				builder.setContentText(UIHelper.getMessagePreview(mXmppConnectionService, messages.get(messages.size()-1)).first);
-				builder.setNumber(messages.size());
+				messagingStyle.addMessage(imageMessage);
 			} else {
-				final NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
-				SpannableString styledString;
-				for (Message message : messages) {
-					final String name = UIHelper.getMessageDisplayName(message);
-					styledString = new SpannableString(name + ": " + message.getBody());
-					styledString.setSpan(new StyleSpan(Typeface.BOLD), 0, name.length(), 0);
-					style.addLine(styledString);
-				}
-				builder.setStyle(style);
-				int count = messages.size();
-				if (count == 1) {
-					final String name = UIHelper.getMessageDisplayName(messages.get(0));
-					styledString = new SpannableString(name + ": " + messages.get(0).getBody());
-					styledString.setSpan(new StyleSpan(Typeface.BOLD), 0, name.length(), 0);
-					builder.setContentText(styledString);
-				} else {
-					builder.setContentText(mXmppConnectionService.getResources().getQuantityString(R.plurals.x_messages, count, count));
-				}
+				messagingStyle.addMessage(UIHelper.getMessagePreview(mXmppConnectionService, message).first, message.getTimeSent(), sender);
 			}
 		}
+		messagingStyle.setGroupConversation(multiple);
+		builder.setStyle(messagingStyle);
+
 		/** message preview for Android Auto **/
 		for (Message message : messages) {
 			Pair<CharSequence, Boolean> preview = UIHelper.getMessagePreview(mXmppConnectionService, message);
@@ -1040,15 +997,9 @@ public class NotificationService {
 				createTryAgainIntent());
 		mBuilder.setDeleteIntent(createDismissErrorIntent());
 		mBuilder.setVisibility(NotificationCompat.VISIBILITY_PRIVATE);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			mBuilder.setSmallIcon(R.drawable.ic_warning_white_24dp);
-		} else {
-			mBuilder.setSmallIcon(R.drawable.ic_stat_alert_warning);
-		}
+		mBuilder.setSmallIcon(R.drawable.ic_warning_white_24dp);
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
-			mBuilder.setLocalOnly(true);
-		}
+		mBuilder.setLocalOnly(true);
 		mBuilder.setPriority(Notification.PRIORITY_LOW);
 		final Intent intent;
 		if (AccountUtils.MANAGE_ACCOUNT_ACTIVITY != null) {

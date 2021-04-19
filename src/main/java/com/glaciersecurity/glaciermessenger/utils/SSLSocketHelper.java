@@ -1,7 +1,6 @@
 package com.glaciersecurity.glaciermessenger.utils;
 
 import android.os.Build;
-import androidx.annotation.RequiresApi;
 import android.util.Log;
 
 import org.conscrypt.Conscrypt;
@@ -43,10 +42,8 @@ public class SSLSocketHelper {
 	public static void setHostname(final SSLSocket socket, final String hostname) {
 		if (Conscrypt.isConscrypt(socket)) {
 			Conscrypt.setHostname(socket, hostname);
-		} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			setHostnameNougat(socket, hostname);
 		} else {
-			setHostnameReflection(socket, hostname);
+			setHostnameNougat(socket, hostname);
 		}
 	}
 
@@ -58,7 +55,6 @@ public class SSLSocketHelper {
 		}
 	}
 
-	@RequiresApi(api = Build.VERSION_CODES.N)
 	private static void setHostnameNougat(final SSLSocket socket, final String hostname) {
 		final SSLParameters parameters = new SSLParameters();
 		parameters.setServerNames(Collections.singletonList(new SNIHostName(hostname)));

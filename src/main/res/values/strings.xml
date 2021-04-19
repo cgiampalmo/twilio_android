@@ -936,15 +936,13 @@
     <string name="attach">Attach</string>
     <string name="video_original">Original (uncompressed)</string>
 
-    <!-- GOOBER - Added text for rooms tab -->
     <string name="room_tab_error_title">Account Error</string>
     <!-- ALF AM-78 room to group -->
     <string name="room_tab_error_message">Groups tab could not be opened. Core might not be connected to server.\n\nPlease check Core for VPN status and Glacier Account for account status.</string>
     <string name="create_room_error_title">Account Error</string>
     <string name="create_room_error_message">Cannot create group. Core might not be connected to server.\n\nPlease check Core for VPN status and Glacier Account for account status.</string>
 
-    <!-- GOOBER Cognito -->
-    <!-- <string name="app_name">GlacierSecurity Identity</string> -->
+    <!-- Cognito -->
     <string name="app_main_screen_title">Glacier Login</string>
     <string name="Username">Username</string>
     <string name="Password">Password</string>
@@ -1011,9 +1009,6 @@
     <string name="change_pin_dialog_msg">Must enable PIN before changing!</string>
     <string name="title_activity_glacierpin">Security PIN</string>
 
-    <!-- GOOBER PIN -->
-    <!-- <string name="app_name" translatable="false">lib</string> -->
-
     <string name="button1_large_text" translatable="false">1</string>
     <string name="button2_large_text" translatable="false">2</string>
     <string name="button2_small_text" translatable="false">ABC</string>
@@ -1044,7 +1039,7 @@
     <string name="pin_code_fingerprint_success">Fingerprint recognized</string>
     <string name="pin_code_fingerprint_not_recognized">Fingerprint not recognized. Try again</string>
 
-    <!-- GOOBER CORE -->
+    <!-- CORE -->
     <string name="connectionStatusTitle">Connection Status</string>
     <string name="no_status_yet">No Status yet</string>
     <string name="currentProfileTitle">Current Profile</string>

@@ -1,7 +1,6 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,7 +24,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -329,13 +327,11 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 		outgoingCallLayout.setVisibility(View.VISIBLE);
 	}
 
-	@TargetApi(Build.VERSION_CODES.M)
 	protected boolean hasStoragePermissions() {
 		return (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED ||
 				checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED);
 	}
 
-	@TargetApi(Build.VERSION_CODES.M)
 	protected void requestPermissions(final int request_code) {
 		if (!hasStoragePermissions()) {
 			requestPermissions(

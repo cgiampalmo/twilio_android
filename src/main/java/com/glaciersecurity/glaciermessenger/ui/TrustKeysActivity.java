@@ -378,8 +378,6 @@ public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdat
 						Toast.makeText(TrustKeysActivity.this, R.string.error_fetching_glacier_key, Toast.LENGTH_SHORT).show();
 						break;
 					case SUCCESS_TRUSTED:
-						// GOOBER - Remove toast for blindly trust message
-						//Toast.makeText(TrustKeysActivity.this, R.string.blindly_trusted_omemo_keys, Toast.LENGTH_LONG).show();
 						break;
 					case SUCCESS_VERIFIED:
 						Toast.makeText(TrustKeysActivity.this,

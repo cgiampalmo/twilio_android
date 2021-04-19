@@ -29,7 +29,6 @@
 
 package com.glaciersecurity.glaciermessenger.utils;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import androidx.annotation.ColorInt;
@@ -134,7 +133,6 @@ public class IrregularUnicodeDetector {
 		return map;
 	}
 
-	@TargetApi(Build.VERSION_CODES.N)
 	private static Map<Character.UnicodeScript, List<String>> map(String word) {
 		Map<Character.UnicodeScript, List<String>> map = new HashMap<>();
 		final int length = word.length();
@@ -160,7 +158,6 @@ public class IrregularUnicodeDetector {
 		return eliminateFirstAndGetCodePoints(map, Character.UnicodeBlock.BASIC_LATIN);
 	}
 
-	@TargetApi(Build.VERSION_CODES.N)
 	private static Set<String> eliminateFirstAndGetCodePoints(Map<Character.UnicodeScript, List<String>> map) {
 		return eliminateFirstAndGetCodePoints(map, Character.UnicodeScript.COMMON);
 	}
@@ -183,12 +180,7 @@ public class IrregularUnicodeDetector {
 	}
 
 	private static Set<String> findIrregularCodePoints(String word) {
-		Set<String> codePoints;
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-			codePoints = eliminateFirstAndGetCodePointsCompat(mapCompat(word));
-		} else {
-			codePoints = eliminateFirstAndGetCodePoints(map(word));
-		}
+		Set<String> codePoints = eliminateFirstAndGetCodePoints(map(word));
 		return codePoints;
 	}
 

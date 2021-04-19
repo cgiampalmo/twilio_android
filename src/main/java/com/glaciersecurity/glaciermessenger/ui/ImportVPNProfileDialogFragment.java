@@ -72,7 +72,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * GOOBER - Added entire Dialog to add/import VPN into Core
+ * Added entire Dialog to add/import VPN into Core
  */
 public class ImportVPNProfileDialogFragment extends DialogFragment {
     private FileNotFoundException mException;
@@ -122,25 +122,12 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // GOOBER - Cognito
+        // Cognito
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
         getDialog().setTitle(getString(R.string.open_vpn_profile_dialog_title));
         View v = inflater.inflate(R.layout.import_vpn_profile_dialog, container, false);
-//        profileSpinner = (Spinner) v.findViewById(R.id.file_spinner);
-//        profileSpinner.setVisibility(View.GONE);
-
-        //setUpTitleText(R.string.load_vpn_profile_dialog_message);
-        // GOOBER CORE - set message title
-//        messageTextView = (TextView) v.findViewById(R.id.message);
-//        messageTextView.setText(getString(R.string.load_vpn_profile_dialog_message));
-//
-//        cancelButton = (Button) v.findViewById(R.id.cancel_button);
-//        okButton = (Button) v.findViewById(R.id.ok_button);
-//        cancelButton.setOnClickListener(this);
-//        okButton.setOnClickListener(this);
-//        okButton.setEnabled(false);
 
         // retrieve Cognito credentials
         getCognitoInfo();
@@ -155,7 +142,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
         this.setCancelable(false);
         // this.setCanceledOnTouchOutside(false);
 
-        // GOOBER - CORE processing/integration
+        // CORE processing/integration
         try {
             bindService();
         } catch (Exception e){ //HONEYBADGER AM-76
@@ -348,10 +335,10 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
             if (sS3Client.doesBucketExist(bucketName)) {
                 List<S3ObjectSummary> objectListing = sS3Client.listObjects(bucketName, Constants.KEY_PREFIX).getObjectSummaries();
                 for (S3ObjectSummary summary : objectListing) {
-                    Log.d("GOOBER", "Keys found in S3 Bucket (" + summary.getBucketName() + "): " + summary.getKey());
+                    Log.d("Glacier", "Keys found in S3 Bucket (" + summary.getBucketName() + "): " + summary.getKey());
 
                     if (summary.getKey().contains("_" + username + ".ovpn")) {
-                        Log.d("GOOBER", "File we want to download: " + summary.getKey());
+                        Log.d("Glacier", "File we want to download: " + summary.getKey());
                         String destFilename = summary.getKey().substring(Constants.KEY_PREFIX.length() + 1, summary.getKey().length());
 
                         // remove directory and extension
@@ -367,40 +354,40 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
                 //logOut();
             }
         } catch (AmazonS3Exception ase) {
-            Log.d("GOOBER","Caught an AmazonS3Exception, " +
+            Log.d("Glacier","Caught an AmazonS3Exception, " +
                     "which means your request made it " +
                     "to Amazon S3, but was rejected with an error response " +
                     "for some reason.");
-            Log.d("GOOBER", "Error Message:    " + ase.getMessage());
-            Log.d("GOOBER","HTTP Status Code: " + ase.getStatusCode());
-            Log.d("GOOBER","AWS Error Code:   " + ase.getErrorCode());
-            Log.d("GOOBER","Error Type:       " + ase.getErrorType());
-            Log.d("GOOBER","Request ID:       " + ase.getRequestId());
+            Log.d("Glacier", "Error Message:    " + ase.getMessage());
+            Log.d("Glacier","HTTP Status Code: " + ase.getStatusCode());
+            Log.d("Glacier","AWS Error Code:   " + ase.getErrorCode());
+            Log.d("Glacier","Error Type:       " + ase.getErrorType());
+            Log.d("Glacier","Request ID:       " + ase.getRequestId());
             showFailedDialog("Failed to retrieve profile list(2)!");
         } catch (AmazonServiceException ase) {
-            Log.d("GOOBER","Caught an AmazonServiceException, " +
+            Log.d("Glacier","Caught an AmazonServiceException, " +
                     "which means your request made it " +
                     "to Amazon S3, but was rejected with an error response " +
                     "for some reason.");
-            Log.d("GOOBER", "Error Message:    " + ase.getMessage());
-            Log.d("GOOBER","HTTP Status Code: " + ase.getStatusCode());
-            Log.d("GOOBER","AWS Error Code:   " + ase.getErrorCode());
-            Log.d("GOOBER","Error Type:       " + ase.getErrorType());
-            Log.d("GOOBER","Request ID:       " + ase.getRequestId());
+            Log.d("Glacier", "Error Message:    " + ase.getMessage());
+            Log.d("Glacier","HTTP Status Code: " + ase.getStatusCode());
+            Log.d("Glacier","AWS Error Code:   " + ase.getErrorCode());
+            Log.d("Glacier","Error Type:       " + ase.getErrorType());
+            Log.d("Glacier","Request ID:       " + ase.getRequestId());
         } catch (AmazonClientException ace) {
-            Log.d("GOOBER", "Caught an AmazonClientException, " +
+            Log.d("Glacier", "Caught an AmazonClientException, " +
                     "which means the client encountered " +
                     "an internal error while trying to communicate" +
                     " with S3, " +
                     "such as not being able to access the network.");
-            Log.d("GOOBER","Error Message: " + ace.getMessage());
+            Log.d("Glacier","Error Message: " + ace.getMessage());
             showFailedDialog("Failed to retrieve profile list(3)!");
         }
         return null;
     }
 
     /**
-     * GOOBER - strip off directory and extension return filename
+     * strip off directory and extension return filename
      *
      * @param value
      * @return
@@ -421,7 +408,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
      */
     private void getBucketAndProfiles() {
         if (doesBucketExist()) {
-            // GOOBER - try to list objects in directory
+            // try to list objects in directory
             // put together list
             List<String> listStr =  new ArrayList<String>();
             if (doesBucketExist()) {
@@ -470,7 +457,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
     AuthenticationHandler authenticationHandler = new AuthenticationHandler() {
         @Override
         public void onSuccess(CognitoUserSession cognitoUserSession, CognitoDevice device) {
-            Log.d("GOOBER", " -- Auth Success");
+            Log.d("Glacier", " -- Auth Success");
             AppHelper.setCurrSession(cognitoUserSession);
             AppHelper.newDevice(device);
             // closeWaitDialog();
@@ -532,21 +519,11 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
 
         @Override
         public void getMFACode(MultiFactorAuthenticationContinuation multiFactorAuthenticationContinuation) {
-            // GOOBER
+
         }
 
         @Override
         public void onFailure(Exception e) {
-            // GOOBER
-            /* closeWaitDialog();
-            TextView label = (TextView) view.findViewById(R.id.account_user_message);
-            label.setText(R.string.signin_fail_title);
-            mAccountUsername.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.text_border_error));
-
-            label = (TextView) view.findViewById(R.id.account_user_message);
-            label.setText(R.string.signin_fail_title);
-            mAccountUsername.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.text_border_error)); */
-
             showFailedDialog("Failed to retrieve profile list(5)!");
             // showDialogMessage(AppHelper.formatException(e));
         }
@@ -573,20 +550,20 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
         }
         @Override
         public void onError(int id, Exception e) {
-            Log.d("GOOBER", "Error during download (" + key + "): " + id, e);
+            Log.d("Glacier", "Error during download (" + key + "): " + id, e);
             showFailedDialog("Error encountered during download: " + key);
         }
 
         @Override
         public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-            Log.d("GOOBER", String.format("onProgressChanged (" + key + "): %d, total: %d, current: %d", id, bytesCurrent, bytesTotal));
+            Log.d("Glacier", String.format("onProgressChanged (" + key + "): %d, total: %d, current: %d", id, bytesCurrent, bytesTotal));
         }
 
         @Override
         public void onStateChanged(int id, TransferState newState) {
             ImportVPNProfileListener activity = (ImportVPNProfileListener) context;
 
-            Log.d("GOOBER", "onStateChanged(" + key + "): " + id + "," + newState);
+            Log.d("Glacier", "onStateChanged(" + key + "): " + id + "," + newState);
             if (newState == TransferState.COMPLETED) {
                 // logout of
 
@@ -595,7 +572,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
                 if (tmpFile.exists()) {
                     // track how many have completed download
                     // downloadCount--;
-                    Log.d("GOOBER", "File confirmed: " + Environment.getExternalStorageDirectory() + "/" + key);
+                    Log.d("Glacier", "File confirmed: " + Environment.getExternalStorageDirectory() + "/" + key);
                     moveFile(Environment.getExternalStorageDirectory().toString(), key, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString());
                     exportFile(key);
                     //showDialogMessage("VPN Download", "Successfully downloaded profile: " + key);
@@ -607,14 +584,14 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
 
                 } else {
-                    Log.d("GOOBER", "File unconfirmed: " + Environment.getExternalStorageDirectory() + "/" + key);
+                    Log.d("Glacier", "File unconfirmed: " + Environment.getExternalStorageDirectory() + "/" + key);
                 }
             }
         }
     }
 
     /**
-     * GOOBER - move file to different directory
+     * move file to different directory
      *
      * @param inputPath
      * @param inputFile
@@ -651,9 +628,9 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
 
             // delete the original file
             if (new File(inputPath + "/" + inputFile).delete()) {
-                Log.d("GOOBER", "Successfully deleted profile: " + inputPath + "/" + inputFile);
+                Log.d("Glacier", "Successfully deleted profile: " + inputPath + "/" + inputFile);
             } else {
-                Log.d("GOOBER", "Failed to delete profile: " + inputPath + "/" + inputFile);
+                Log.d("Glacier", "Failed to delete profile: " + inputPath + "/" + inputFile);
             }
         }
         catch (FileNotFoundException fnfe1) {
@@ -674,9 +651,9 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
             File location = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             location = new File(location.toString() + "/" + inputFile);
             if (location.exists()) {
-                Log.d("GOOBER", "File does exist!");
+                Log.d("Glacier", "File does exist!");
             } else {
-                Log.d("GOOBER", "File does not exist!");
+                Log.d("Glacier", "File does not exist!");
             }
             //InputStream config2 = getActivity().getAssets().open(location.toString());
 
@@ -687,7 +664,6 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
             String line;
             while(true) {
                 line = br.readLine();
-                //Log.d("GOOBER", "Line: " + line);
                 if(line == null)
                     break;
                 config += line + "\n";
@@ -705,9 +681,9 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
 
             // delete profile after adding to Core
             if (location.delete()) {
-                Log.d("GOOBER", "Successfully deleted profile: " + location);
+                Log.d("Glacier", "Successfully deleted profile: " + location);
             } else {
-                Log.d("GOOBER", "Failed to delete profile: " + location);
+                Log.d("Glacier", "Failed to delete profile: " + location);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -715,7 +691,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
     }
 
     /**
-     * GOOBER - Add profile to Glacier Core
+     * Add profile to Glacier Core
      *
      * @param profile
      * @param config
@@ -769,7 +745,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
                 // Request permission to use the API
                 Intent i = mService.prepare(getActivity().getPackageName());
 
-                // GOOBER NOT GOING TO WORK
+                // NOT GOING TO WORK
                 if (i!=null) {
                     getActivity().startActivityForResult(i, ICS_OPENVPN_PERMISSION);
                 }

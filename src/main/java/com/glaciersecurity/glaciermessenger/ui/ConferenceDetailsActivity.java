@@ -58,17 +58,16 @@ import static com.glaciersecurity.glaciermessenger.utils.StringUtils.changed;
 public class ConferenceDetailsActivity extends XmppActivity implements OnConversationUpdate, OnMucRosterUpdate, XmppConnectionService.OnAffiliationChanged, XmppConnectionService.OnConfigurationPushed, XmppConnectionService.OnRoomDestroy, TextWatcher, OnMediaLoaded {
     public static final String ACTION_VIEW_MUC = "view_muc";
 
-    //GOOBER
     private OnClickListener inviteListener = new OnClickListener() {
 
         @Override
         public void onClick(View v) {
             inviteToConversation(mConversation);
 
-            // GOOBER - automatically go into OMEMO when starting conversation or when creating own room
+            // automatically go into OMEMO when starting conversation or when creating own room
             // Stay unencrypted when going to public/persistent room.  We do this here b/c otherwise it will not
             // send a secure message when creating own room.
-            // GOOBER - Use this b/c iOS cannot do OMEMO in group chat  //ALF AM-88
+            // Use this b/c iOS cannot do OMEMO in group chat  //ALF AM-88
             if ((mConversation.getMode() == Conversation.MODE_MULTI) && !(mConversation.getMucOptions().membersOnly())) {
                 mConversation.setNextEncryption(Message.ENCRYPTION_NONE);
             } else {

@@ -353,7 +353,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	private void openBatteryOptimizationDialogIfNeeded() {
 		if (isOptimizingBattery()
-				&& android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M
 				&& getPreferences().getBoolean(getBatteryOptimizationPreferenceKey(), true)) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setTitle(R.string.battery_optimizations_enabled);
@@ -462,7 +461,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	AuthenticationHandler authenticationHandler = new AuthenticationHandler() {
 		@Override
 		public void onSuccess(CognitoUserSession cognitoUserSession, CognitoDevice device) {
-			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", " -- Auth Success");
+			com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", " -- Auth Success");
 			AppHelper.setCurrSession(cognitoUserSession);
 			AppHelper.newDevice(device);
 		}
@@ -485,7 +484,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 		@Override
 		public void getMFACode(MultiFactorAuthenticationContinuation multiFactorAuthenticationContinuation) {
-			// GOOBER
+
 		}
 
 		@Override
@@ -810,27 +809,16 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	public boolean isInteractive() {
 		try {
 			final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-
-			final boolean isScreenOn;
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-				isScreenOn = pm.isScreenOn();
-			} else {
-				isScreenOn = pm.isInteractive();
-			}
-			return isScreenOn;
+			return pm.isInteractive();
 		} catch (RuntimeException e) {
 			return false;
 		}
 	}
 	private boolean isPhoneSilenced() {
 		final boolean notificationDnd;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			final NotificationManager notificationManager = getSystemService(NotificationManager.class);
-			final int filter = notificationManager == null ? NotificationManager.INTERRUPTION_FILTER_UNKNOWN : notificationManager.getCurrentInterruptionFilter();
-			notificationDnd = filter >= NotificationManager.INTERRUPTION_FILTER_PRIORITY;
-		} else {
-			notificationDnd = false;
-		}
+		final NotificationManager notificationManager = getSystemService(NotificationManager.class);
+		final int filter = notificationManager == null ? NotificationManager.INTERRUPTION_FILTER_UNKNOWN : notificationManager.getCurrentInterruptionFilter();
+		notificationDnd = filter >= NotificationManager.INTERRUPTION_FILTER_PRIORITY;
 		final AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 		final int ringerMode = audioManager == null ? AudioManager.RINGER_MODE_NORMAL : audioManager.getRingerMode();
 		try {
@@ -1208,7 +1196,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	/**
 	 * Display Logout confirmation
-	 * //ALF AM-143, AM-228 changed button title //GOOBER
+	 * //ALF AM-143, AM-228 changed button title
 	 */
 	private void showLogoutConfirmationDialog() {
 		new android.app.AlertDialog.Builder(this)
@@ -1350,10 +1338,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	}
 
 	/**
-	 * GOOBER - Clear local files for Messenger
+	 * Clear local files for Messenger
 	 */
 	private void clearLocalFiles() {
-		// GOOBER - Retrieve directory
+		// Retrieve directory
 		String extStore = System.getenv("EXTERNAL_STORAGE") + "/Messenger";
 		File f_exts = new File(extStore);
 
@@ -1363,29 +1351,25 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			String[] deletedFiles = new String[fileDir.length];
 			int deletedFilesIndex = 0;
 
-			// GOOBER - delete file
+			// delete file
 			for (int i = 0; i < fileDir.length; i++) {
 				// do not delete lollipin db
 				if (!(fileDir[i].getName().startsWith("LollipinDB") || (fileDir[i].getName().startsWith("AppLockImpl"))) && (fileDir[i].delete())) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Successfully deleted " + fileDir[i]);
+					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Did not delete " + fileDir[i]);
+					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
-
-			// GOOBER - Need to do something to update after deleting
-			// String[] delFile = {fileDir[fileDir.length-1].toString()};
-			// callBroadcast(deletedFiles);
 		}
 	}
 
 	/**
-	 * GOOBER - Clear voice recordings
+	 * Clear voice recordings
 	 */
 	private void clearVoiceRecordings() {
-		// GOOBER - Retrieve directory
+		// Retrieve directory
 		String extStore = System.getenv("EXTERNAL_STORAGE") + "/Voice Recorder";
 		File f_exts = new File(extStore);
 
@@ -1395,28 +1379,24 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			String[] deletedFiles = new String[fileDir.length];
 			int deletedFilesIndex = 0;
 
-			// GOOBER - delete file
+			// delete file
 			for (int i = 0; i < fileDir.length; i++) {
 				if (fileDir[i].delete()) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Successfully deleted " + fileDir[i]);
+					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Did not delete " + fileDir[i]);
+					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
-
-			// GOOBER - Need to do something to update after deleting
-			// String[] delFile = {fileDir[fileDir.length-1].toString()};
-			// callBroadcast(deletedFiles);
 		}
 	}
 
 	/**
-	 * GOOBER - Clear shared locations
+	 * Clear shared locations
 	 */
 	private void clearSharedLocations() {
-		// GOOBER - Retrieve directory
+		// Retrieve directory
 		//String extStore = System.getenv("EXTERNAL_STORAGE") + "/Android/data/com.glaciersecurity.glaciermessenger.sharelocation/cache";
 		ArrayList<String> deletedFiles = new ArrayList<String>();
 		String extStore = System.getenv("EXTERNAL_STORAGE") + "/Android/data/com.glaciersecurity.glaciermessenger.sharelocation";
@@ -1431,13 +1411,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			if (f_exts2.exists()) {
 				File[] fileDir = f_exts2.listFiles();
 
-				// GOOBER - delete file
+				// delete file
 				for (int i = 0; i < fileDir.length; i++) {
 					if (fileDir[i].delete()) {
 						deletedFiles.add(fileDir[i].toString());
-						com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Successfully deleted " + fileDir[i]);
+						com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 					} else {
-						com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Did not delete " + fileDir[i]);
+						com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 					}
 				}
 				if (f_exts2.delete()) {
@@ -1449,7 +1429,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				deletedFiles.add(f_exts.toString());
 			}
 
-			// GOOBER - Need to do something to update after deleting
 			// String[] delFile = {fileDir[fileDir.length-1].toString()};
 			String[] stringArray = deletedFiles.toArray(new String[0]);
 			// callBroadcast(deletedFiles.toArray(new String[0]));
@@ -1461,10 +1440,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	}
 
 	/**
-	 * GOOBER - Clear pictures in Pictures/Messenger directory
+	 * Clear pictures in Pictures/Messenger directory
 	 */
 	private void clearPictures() {
-		// GOOBER - Retrieve directory
+		// Retrieve directory
 		String extStore = System.getenv("EXTERNAL_STORAGE") + "/Pictures/Messenger";
 		File f_exts = new File(extStore);
 
@@ -1474,23 +1453,19 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			String[] deletedFiles = new String[fileDir.length];
 			int deletedFilesIndex = 0;
 
-			// GOOBER - delete file
+			// delete file
 			for (int i = 0; i < fileDir.length; i++) {
 				if (fileDir[i].delete()) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Successfully deleted " + fileDir[i]);
+					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Did not delete " + fileDir[i]);
+					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
-
-			// GOOBER - Need to do something to update after deleting
-			// String[] delFile = {fileDir[fileDir.length-1].toString()};
-			// callBroadcast(deletedFiles);
 		}
 
-		// GOOBER - Remove higher level files
+		// Remove higher level files
 		extStore = System.getenv("EXTERNAL_STORAGE") + "/Pictures";
 		f_exts = new File(extStore);
 
@@ -1500,21 +1475,17 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			String[] deletedFiles = new String[fileDir.length];
 			int deletedFilesIndex = 0;
 
-			// GOOBER - delete file
+			// delete file
 			for (int i = 0; i < fileDir.length; i++) {
-				// GOOBER - do not remove directory
+				// do not remove directory
 				if ((!fileDir[i].isDirectory()) && (fileDir[i].delete())) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Successfully deleted " + fileDir[i]);
+					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Did not delete " + fileDir[i]);
+					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
-
-			// GOOBER - Need to do something to update after deleting
-			// String[] delFile = {fileDir[fileDir.length-1].toString()};
-			// callBroadcast(deletedFiles);
 		}
 	}
 
@@ -1821,12 +1792,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				if (withRefresh) {
 					Drawable refreshIcon =
 							ContextCompat.getDrawable(this, R.drawable.ic_refresh_black_24dp);
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-						networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
-					} else {
-						refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
-						networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
-					}
+					networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
 				} else {
 					networkStatus.setCompoundDrawables(null, null, null, null);
 				}

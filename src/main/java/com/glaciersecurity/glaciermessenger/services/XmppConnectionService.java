@@ -351,10 +351,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		@Override
 		public void onBind(final Account account) {
 			//ALF AM-222
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				//check if already scheduled
-				scheduleNextIdlePing();
-			}
+			//check if already scheduled
+			scheduleNextIdlePing();
 			synchronized (mInProgressAvatarFetches) {
 				for (Iterator<String> iterator = mInProgressAvatarFetches.iterator(); iterator.hasNext(); ) {
 					final String KEY = iterator.next();
@@ -509,7 +507,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	//HONEYBADGER maybe?
 	public void checkNewPermission(){
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED )) {
+		if ((ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED )) {
 			startContactObserver();
 		}
 	}
@@ -517,32 +515,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	public boolean areMessagesInitialized() {
 		return this.restoredFromDatabaseLatch.getCount() == 0;
 	}
-
-	/*public PgpEngine getPgpEngine() {
-		if (!Config.supportOpenPgp()) {
-			return null;
-		} else if (pgpServiceConnection != null && pgpServiceConnection.isBound()) {
-			if (this.mPgpEngine == null) {
-				this.mPgpEngine = new PgpEngine(new OpenPgpApi(
-						getApplicationContext(),
-						pgpServiceConnection.getService()), this);
-			}
-			return mPgpEngine;
-		} else {
-			return null;
-		}
-
-	}
-
-	public OpenPgpApi getOpenPgpApi() {
-		if (!Config.supportOpenPgp()) {
-			return null;
-		} else if (pgpServiceConnection != null && pgpServiceConnection.isBound()) {
-			return new OpenPgpApi(this, pgpServiceConnection.getService());
-		} else {
-			return null;
-		}
-	}*/
 
 	public FileBackend getFileBackend() {
 		return this.fileBackend;
@@ -969,9 +941,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					refreshAllFcmTokens();
 					break;
 				case ACTION_IDLE_PING:
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-						scheduleNextIdlePing();
-					}
+					scheduleNextIdlePing();
 					break;
 				case ACTION_FCM_MESSAGE_RECEIVED:
 					pushedAccountHash = intent.getStringExtra("account");
@@ -1188,47 +1158,20 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public boolean isDataSaverDisabled() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-			return !connectivityManager.isActiveNetworkMetered()
-					|| connectivityManager.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_DISABLED;
-		} else {
-			return true;
-		}
+		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+		return !connectivityManager.isActiveNetworkMetered()
+				|| connectivityManager.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_DISABLED;
 	}
 
 	private void directReply(Conversation conversation, String body, final boolean dismissAfterReply) {
 		Message message = new Message(conversation, body, conversation.getNextEncryption());
 		message.markUnread();
-		/*if (message.getEncryption() == Message.ENCRYPTION_PGP) {
-			getPgpEngine().encrypt(message, new UiCallback<Message>() {
-				@Override
-				public void success(Message message) {
-					if (dismissAfterReply) {
-						markRead((Conversation) message.getConversation(), true);
-					} else {
-						mNotificationService.pushFromDirectReply(message);
-					}
-				}
-
-				@Override
-				public void error(int errorCode, Message object) {
-
-				}
-
-				@Override
-				public void userInputRequried(PendingIntent pi, Message object) {
-
-				}
-			});
-		} else {*/
 		sendMessage(message);
 		if (dismissAfterReply) {
 			markRead(conversation, true);
 		} else {
 			mNotificationService.pushFromDirectReply(message);
 		}
-		//}
 	}
 
 	private boolean dndOnSilentMode() {
@@ -1266,13 +1209,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	public boolean isInteractive() {
 		try {
 			final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-
-			final boolean isScreenOn;
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-				isScreenOn = pm.isScreenOn();
-			} else {
-				isScreenOn = pm.isInteractive();
-			}
+			final boolean isScreenOn = pm.isInteractive();
 			return isScreenOn;
 		} catch (RuntimeException e) {
 			return false;
@@ -1281,13 +1218,9 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	private boolean isPhoneSilenced() {
 		final boolean notificationDnd;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			final NotificationManager notificationManager = getSystemService(NotificationManager.class);
-			final int filter = notificationManager == null ? NotificationManager.INTERRUPTION_FILTER_UNKNOWN : notificationManager.getCurrentInterruptionFilter();
-			notificationDnd = filter >= NotificationManager.INTERRUPTION_FILTER_PRIORITY;
-		} else {
-			notificationDnd = false;
-		}
+		final NotificationManager notificationManager = getSystemService(NotificationManager.class);
+		final int filter = notificationManager == null ? NotificationManager.INTERRUPTION_FILTER_UNKNOWN : notificationManager.getCurrentInterruptionFilter();
+		notificationDnd = filter >= NotificationManager.INTERRUPTION_FILTER_PRIORITY;
 		final AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 		final int ringerMode = audioManager == null ? AudioManager.RINGER_MODE_NORMAL : audioManager.getRingerMode();
 		try {
@@ -1412,7 +1345,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 		restoreFromDatabase();
 
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED )) {
+		if ((ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED )) {
 			startContactObserver();
 		}
 		if (Compatibility.hasStoragePermission(this)) {
@@ -1472,15 +1405,11 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		toggleForegroundService();
 		updateUnreadCountBadge();
 		toggleScreenEventReceiver();
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			scheduleNextIdlePing();
-			IntentFilter intentFilter = new IntentFilter();
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-				intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-			}
-			intentFilter.addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED);
-			registerReceiver(this.mInternalEventReceiver, intentFilter);
-		}
+		scheduleNextIdlePing();
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+		intentFilter.addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED);
+		registerReceiver(this.mInternalEventReceiver, intentFilter);
 		mForceDuringOnCreate.set(false);
 		toggleForegroundService();
 	}
@@ -1639,11 +1568,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		intent.setAction(ACTION_POST_CONNECTIVITY_CHANGE);
 		try {
 			final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtMillis, pendingIntent);
-			} else {
-				alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtMillis, pendingIntent);
-			}
+			alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtMillis, pendingIntent);
 		} catch (RuntimeException e) {
 			Log.e(Config.LOGTAG, "unable to schedule alarm for post connectivity change", e);
 		}
@@ -1665,7 +1590,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 	}
 
-	@TargetApi(Build.VERSION_CODES.M)
 	private void scheduleNextIdlePing() {
 		//ALF AM-103 changed IDLE to MIN
 		final long timeToWake = SystemClock.elapsedRealtime() + (Config.PING_MIN_INTERVAL * 1000);

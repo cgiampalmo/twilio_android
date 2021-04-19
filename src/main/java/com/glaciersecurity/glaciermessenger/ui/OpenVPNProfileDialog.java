@@ -33,7 +33,6 @@ public class OpenVPNProfileDialog extends Dialog implements View.OnClickListener
     Spinner profileSpinner = null;
 
     /**
-     * GOOBER - Testing parameter
      * @param context
      */
     public OpenVPNProfileDialog(Context context, List<APIVpnProfile> list) {

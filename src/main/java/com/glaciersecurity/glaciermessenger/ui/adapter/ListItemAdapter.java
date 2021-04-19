@@ -113,7 +113,7 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		final Jid jid = item.getJid();
 		viewHolder.jid.setVisibility(View.INVISIBLE);
 		if (jid != null) {
-			// GOOBER USERNAME - don't show jid in contact list
+			// USERNAME - don't show jid in contact list
 //			viewHolder.jid.setVisibility(View.VISIBLE);
 			viewHolder.jid.setText(IrregularUnicodeDetector.style(activity, jid));
 		}

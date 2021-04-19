@@ -1,7 +1,5 @@
 package com.glaciersecurity.glaciermessenger.crypto.sasl;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.util.Base64;
 import android.util.LruCache;
 
@@ -18,7 +16,6 @@ import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.xml.TagWriter;
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
 abstract class ScramMechanism extends SaslMechanism {
 	// TODO: When channel binding (SCRAM-SHA1-PLUS) is supported in future, generalize this to indicate support and/or usage.
 	private final static String GS2_HEADER = "n,,";

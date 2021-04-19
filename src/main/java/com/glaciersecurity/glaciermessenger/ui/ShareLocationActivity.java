@@ -1,17 +1,12 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.app.ActivityCompat;
-import androidx.databinding.DataBindingUtil;
 
 import android.location.Location;
-import android.location.LocationListener;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -19,19 +14,11 @@ import androidx.annotation.NonNull;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import androidx.appcompat.widget.Toolbar;
-
 import android.provider.Settings;
 import android.view.View;
 import android.graphics.Color;
-import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
@@ -145,7 +132,7 @@ public class ShareLocationActivity extends XmppActivity implements OnMapReadyCal
 		this.snackBar.setAction(R.string.enable, view -> {
 			if (isLocationEnabledAndAllowed()) {
 				updateUi();
-			} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !hasLocationPermissions()) {
+			} else if (!hasLocationPermissions()) {
 				permissionsManager = new PermissionsManager(this);
 				permissionsManager.requestLocationPermissions(this);
 			} else if (!isLocationEnabled()) {
@@ -310,7 +297,6 @@ public class ShareLocationActivity extends XmppActivity implements OnMapReadyCal
 		updateUi();
 	}
 
-	@TargetApi(Build.VERSION_CODES.M)
 	protected boolean hasLocationPermissions() {
 		return (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED );
 	}

@@ -425,9 +425,9 @@ public class ConversationsOverviewFragment extends XmppFragment {
 		}
 	}
 
-	/**  GOOBER WIPE ALL  HISTORY  **/
+	/** WIPE ALL  HISTORY  **/
 	/**
-	 * GOOBER - end ALL existing conversations
+	 * end ALL existing conversations
 	 */
 	@SuppressLint("InflateParams")
 	protected void wipeAllHistoryDialog() {
@@ -501,17 +501,17 @@ public class ConversationsOverviewFragment extends XmppFragment {
 	}
 
 	/**
-	 * GOOBER - clear storage area
+	 * clear storage area
 	 */
 	private void clearExternalStorage() {
 		FileBackend.removeStorageDirectory();
 	}
 
 	/**
-	 * GOOBER - Clear pictures in Pictures/Messenger directory
+	 * Clear pictures in Pictures/Messenger directory
 	 */
 	private void clearPictures() {
-		// GOOBER - Retrieve directory
+		// Retrieve directory
 		String extStore = System.getenv("EXTERNAL_STORAGE") + "/Pictures/Messenger";
 		File f_exts = new File(extStore);
 
@@ -521,23 +521,21 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			String[] deletedFiles = new String[fileDir.length];
 			int deletedFilesIndex = 0;
 
-			// GOOBER - delete file
+			// delete file
 			for (int i = 0; i < fileDir.length; i++) {
 				if (fileDir[i].delete()) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Successfully deleted " + fileDir[i]);
+					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Did not delete " + fileDir[i]);
+					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
 
-			// GOOBER - Need to do something to update after deleting
-			// String[] delFile = {fileDir[fileDir.length-1].toString()};
 			callBroadcast(deletedFiles);
 		}
 
-		// GOOBER - Remove higher level files
+		// Remove higher level files
 		extStore = System.getenv("EXTERNAL_STORAGE") + "/Pictures";
 		f_exts = new File(extStore);
 
@@ -547,29 +545,27 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			String[] deletedFiles = new String[fileDir.length];
 			int deletedFilesIndex = 0;
 
-			// GOOBER - delete file
+			// delete file
 			for (int i = 0; i < fileDir.length; i++) {
-				// GOOBER - do not remove directory
+				// do not remove directory
 				if ((!fileDir[i].isDirectory()) && (fileDir[i].delete())) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Successfully deleted " + fileDir[i]);
+					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Did not delete " + fileDir[i]);
+					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
 
-			// GOOBER - Need to do something to update after deleting
-			// String[] delFile = {fileDir[fileDir.length-1].toString()};
 			callBroadcast(deletedFiles);
 		}
 	}
 
 	/**
-	 * GOOBER - Clear local files for Messenger
+	 * Clear local files for Messenger
 	 */
 	private void clearLocalFiles() {
-		// GOOBER - Retrieve directory
+		// Retrieve directory
 		String extStore = System.getenv("EXTERNAL_STORAGE") + "/Messenger";
 		File f_exts = new File(extStore);
 
@@ -579,29 +575,27 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			String[] deletedFiles = new String[fileDir.length];
 			int deletedFilesIndex = 0;
 
-			// GOOBER - delete file
+			// delete file
 			for (int i = 0; i < fileDir.length; i++) {
 				// do not delete lollipin db
 				if (!(fileDir[i].getName().startsWith("LollipinDB") || (fileDir[i].getName().startsWith("AppLockImpl"))) && (fileDir[i].delete())) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Successfully deleted " + fileDir[i]);
+					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Did not delete " + fileDir[i]);
+					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
 
-			// GOOBER - Need to do something to update after deleting
-			// String[] delFile = {fileDir[fileDir.length-1].toString()};
 			callBroadcast(deletedFiles);
 		}
 	}
 
 	/**
-	 * GOOBER - Clear voice recordings
+	 * Clear voice recordings
 	 */
 	private void clearVoiceRecordings() {
-		// GOOBER - Retrieve directory
+		// Retrieve directory
 		String extStore = System.getenv("EXTERNAL_STORAGE") + "/Voice Recorder";
 		File f_exts = new File(extStore);
 
@@ -611,28 +605,26 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			String[] deletedFiles = new String[fileDir.length];
 			int deletedFilesIndex = 0;
 
-			// GOOBER - delete file
+			// delete file
 			for (int i = 0; i < fileDir.length; i++) {
 				if (fileDir[i].delete()) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Successfully deleted " + fileDir[i]);
+					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Did not delete " + fileDir[i]);
+					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
 
-			// GOOBER - Need to do something to update after deleting
-			// String[] delFile = {fileDir[fileDir.length-1].toString()};
 			callBroadcast(deletedFiles);
 		}
 	}
 
 	/**
-	 * GOOBER - Clear shared locations
+	 * Clear shared locations
 	 */
 	private void clearSharedLocations() {
-		// GOOBER - Retrieve directory
+		// Retrieve directory
 		//String extStore = System.getenv("EXTERNAL_STORAGE") + "/Android/data/com.glaciersecurity.glaciermessenger.sharelocation/cache";
 		ArrayList<String> deletedFiles = new ArrayList<String>();
 		String extStore = System.getenv("EXTERNAL_STORAGE") + "/Android/data/com.glaciersecurity.glaciermessenger.sharelocation";
@@ -647,13 +639,13 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			if (f_exts2.exists()) {
 				File[] fileDir = f_exts2.listFiles();
 
-				// GOOBER - delete file
+				// delete file
 				for (int i = 0; i < fileDir.length; i++) {
 					if (fileDir[i].delete()) {
 						deletedFiles.add(fileDir[i].toString());
-						com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Successfully deleted " + fileDir[i]);
+						com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 					} else {
-						com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "File list: Did not delete " + fileDir[i]);
+						com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 					}
 				}
 				if (f_exts2.delete()) {
@@ -665,7 +657,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 				deletedFiles.add(f_exts.toString());
 			}
 
-			// GOOBER - Need to do something to update after deleting
+			// Need to do something to update after deleting
 			// String[] delFile = {fileDir[fileDir.length-1].toString()};
 			String[] stringArray = deletedFiles.toArray(new String[0]);
 			callBroadcast(deletedFiles.toArray(new String[0]));
@@ -673,7 +665,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 	}
 
 	/**
-	 * GOOBER - Notify everyone of file status change.  Must send specific files (not necessarily directories.
+	 * Notify everyone of file status change.  Must send specific files (not necessarily directories.
 	 */
 	private void callBroadcast(String[] files) {
 		if (Build.VERSION.SDK_INT >= 14) {

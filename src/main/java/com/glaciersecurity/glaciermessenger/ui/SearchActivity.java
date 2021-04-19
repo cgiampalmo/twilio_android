@@ -493,12 +493,7 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 				if (withRefresh) {
 					Drawable refreshIcon =
 							ContextCompat.getDrawable(this, R.drawable.ic_refresh_black_24dp);
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-						networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
-					} else {
-						refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
-						networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
-					}
+					networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
 				} else {
 					networkStatus.setCompoundDrawables(null, null, null, null);
 				}

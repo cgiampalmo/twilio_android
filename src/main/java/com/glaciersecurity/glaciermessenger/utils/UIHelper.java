@@ -283,26 +283,6 @@ public class UIHelper {
 			return 0xFF202020;
 		}
 
-		/* GOOBER AVATAR - limit background color of avatar/background image
-
-		int colors[] = {0xFFe91e63, 0xFF9c27b0, 0xFF673ab7, 0xFF3f51b5,
-			0xFF5677fc, 0xFF03a9f4, 0xFF00bcd4, 0xFF009688, 0xFFff5722,
-			0xFF795548, 0xFF607d8b};
-
-		*/
-		//int colors[] = {0xFFBBDEFB, 0xFF90CAF9, 0xFF64B5F6, 0xFF42A5F5, 0xFF2196F3, 0xFF1E88E5, 0xFF1976D2, 0xFF1565C0, 0xFF0D47A1};
-/*
-
-		int colors[] = {
-				0xFF6FFFE9, //teal
-				0xFFF694C1, //pink
-				0xFF9678D3, //light purple
-				0xFFFFAF92, //orange
-				0xFFFDAA63, //orange
-				0xFFA4343A, //rutabaga
-				0xFFBBDEFB, 0xFF90CAF9, 0xFF64B5F6, 0xFF42A5F5, 0xFF2196F3, 0xFF1E88E5, 0xFF1976D2, 0xFF1565C0, 0xFF0D47A1 //blues
-		};
-*/
 		//CMG AM-255
 		return AVATAR_COLORS[(int) (getLongForName(name) % AVATAR_COLORS.length)];
 	}

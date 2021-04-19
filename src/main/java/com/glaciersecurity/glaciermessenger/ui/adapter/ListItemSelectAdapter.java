@@ -82,12 +82,7 @@ public class ListItemSelectAdapter extends ArrayAdapter<ListItem> {
 		}
 		final Jid jid = item.getJid();
 		if (jid != null) {
-			// GOOBER USERNAME - don't show jid in contact list
-//			viewHolder.jid.setVisibility(View.VISIBLE);
-//			viewHolder.jid.setVisibility(View.INVISIBLE);
-//			viewHolder.jid.setText(IrregularUnicodeDetector.style(activity, jid));
-//		} else {
-//			viewHolder.jid.setVisibility(View.GONE);
+
 		}
 		viewHolder.name.setText(EmojiWrapper.transform(item.getDisplayName()));
 		AvatarWorkerTask.loadAvatar(item, viewHolder.avatar, R.dimen.avatar);

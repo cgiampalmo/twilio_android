@@ -1045,10 +1045,6 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 	//ALF AM-487
 	private void updateCognitoAccounts(SQLiteDatabase db) {
 
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-			return;
-		}
-
 		Cursor cursor = db.rawQuery("select * from " + CognitoAccount.TABLENAME, new String[0]);
 		while (cursor.moveToNext()) {
 			CognitoAccount cognitoAccount = CognitoAccount.fromCursor(cursor);

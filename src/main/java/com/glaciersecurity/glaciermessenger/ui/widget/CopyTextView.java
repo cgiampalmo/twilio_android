@@ -1,10 +1,8 @@
 package com.glaciersecurity.glaciermessenger.ui.widget;
 
-import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
@@ -23,7 +21,6 @@ public class CopyTextView extends TextView {
 	}
 
 	@SuppressWarnings("unused")
-	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	public CopyTextView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
 		super(context, attrs, defStyleAttr, defStyleRes);
 	}

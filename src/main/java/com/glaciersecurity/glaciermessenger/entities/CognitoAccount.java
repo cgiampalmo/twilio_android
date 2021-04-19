@@ -11,8 +11,6 @@ import android.util.Log;
 
 import com.glaciersecurity.glaciermessenger.Config;
 
-import androidx.annotation.RequiresApi;
-
 //AM-487 and all encryption related functions below
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
@@ -62,11 +60,7 @@ public class CognitoAccount extends AbstractEntity {
     public ContentValues getContentValues() {
         ContentValues values = new ContentValues();
         values.put(USERNAME, this.username);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            values.put(PASSWORD, "gibberish"); //store this in database and use encryptedSharedPreferences
-        } else {
-            values.put(PASSWORD, this.password);
-        }
+        values.put(PASSWORD, "gibberish"); //store this in database and use encryptedSharedPreferences
         values.put(ACCOUNT, this.account);
         values.put(UUID, uuid);
         return values;
@@ -104,9 +98,6 @@ public class CognitoAccount extends AbstractEntity {
 
     private static void updateSharedPreferences(final String uuid,
                                                 final String password, Context context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return;
-        }
 
         try {
             SharedPreferences spref = getEncryptedSharedPreferences(context);
@@ -148,7 +139,6 @@ public class CognitoAccount extends AbstractEntity {
     }
 
     //AM-487 (next two)
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private static MasterKey getMasterKey(Context context) {
         try {
             KeyGenParameterSpec spec = new KeyGenParameterSpec.Builder(
@@ -169,21 +159,18 @@ public class CognitoAccount extends AbstractEntity {
     }
 
     private static SharedPreferences getEncryptedSharedPreferences(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            try {
-                return EncryptedSharedPreferences.create(
-                        context,
-                        "secret_shared_prefs",
-                        getMasterKey(context), // calling the method above for creating MasterKey
-                        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-                );
-            } catch (Exception e) {
-                Log.e(Config.LOGTAG, "Error on getting encrypted shared preferences", e);
-            }
-        } else { //warning...this is using non-encrypted shared preferences for < API 23.
-            return context.getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
+        try {
+            return EncryptedSharedPreferences.create(
+                    context,
+                    "secret_shared_prefs",
+                    getMasterKey(context), // calling the method above for creating MasterKey
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+        } catch (Exception e) {
+            Log.e(Config.LOGTAG, "Error on getting encrypted shared preferences", e);
         }
+
         return null;
     }
 }

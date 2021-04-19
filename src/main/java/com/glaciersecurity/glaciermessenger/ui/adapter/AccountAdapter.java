@@ -45,7 +45,7 @@ public class AccountAdapter extends ArrayAdapter<Account> {
 		} else {
 			viewHolder = (ViewHolder) view.getTag();
 		}
-		// GOOBER USERNAME - display only username
+		// USERNAME - display only username
 		viewHolder.binding.accountJid.setText(account.getUsername());
 		/*if (Config.DOMAIN_LOCK != null) {
 			viewHolder.binding.accountJid.setText(account.getJid().getLocal());

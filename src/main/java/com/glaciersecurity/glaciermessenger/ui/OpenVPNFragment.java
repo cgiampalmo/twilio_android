@@ -125,32 +125,8 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.openvpn_fragment, container, false);
-        /* GOOBER CORE - Remove emergency profile enableEmergConnectCheckBox = (CheckBox) v.findViewById(R.id.enable_emergconnect);
-        enableEmergConnectCheckBox.setChecked(false);
-        enableEmergConnectCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // Log.d("GOOBER", "CheckChange: " + isChecked);
 
-                // make sure we have an emergency profile
-                if (emergencyProfile != null) {
-                    if (isChecked) {
-                        if (spinnerAdapter.getPosition(emergencyProfile) < 0) {
-                            spinnerAdapter.add(emergencyProfile);
-                            spinnerAdapter.notifyDataSetChanged();
-                        }
-                    } else {
-                        spinnerAdapter.remove(emergencyProfile);
-                        spinnerAdapter.notifyDataSetChanged();
-                    }
-                } else {
-                    displayNoEmergencyProfile();
-                    enableEmergConnectCheckBox.setChecked(false);
-                }
-            }
-        }); */
         v.findViewById(R.id.fab_import).setOnClickListener(this);
-        //mHelloWorld = (TextView) v.findViewById(R.id.helloworld);
         mImportVpn = (FloatingActionButton) v.findViewById(R.id.fab_import);
         mStatus = (TextView) v.findViewById(R.id.status);
         mProfile = (TextView) v.findViewById(R.id.currentProfile);
@@ -161,9 +137,6 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
         mNoVpnProfilesView = (LinearLayout) v.findViewById(R.id.no_vpn_profiles_layout);
         mDisconnectVpn= (Button) v.findViewById(R.id.disconnet_button);
         v.findViewById(R.id.disconnet_button).setOnClickListener(mOnDisconnectListener);
-
-
-        // mMyIp = (TextView) v.findViewById(R.id.MyIpText);
         v.findViewById(R.id.glacier_chat_core_link).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -347,33 +320,16 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             Message msg = Message.obtain(mHandler, MSG_UPDATE_STATE, state + "|" + message);
             msg.sendToTarget();
 
-            // GOOBER - Retrieve name of uuid and set the profile text
+            // Retrieve name of uuid and set the profile text
             String profileName = getProfileName(uuid);
             if (profileName != null) {
                 mProfile.setText(profileName);
             }
-//            if (uuid != null){
-//                profileSpinner.setSelection(getSpinnerIndex(uuid));
-//            }
-
-            /*if (index >= 0) {
-
-                Log.d("GOOBER", "Setting to current used profile");
-                profileSpinner.setSelection(index);
-                currentProfile = (GlacierProfile) profileSpinner.getSelectedItem();
-
-                if (isEmergencyProfile(currentProfile.getName())) {
-                    enableEmergConnectCheckBox.setChecked(true);
-                }
-            } else if (state.toLowerCase().contains("connected")) {
-                displayProfileNoLongerExists();
-                mService = null;
-            }*/
         }
     };
 
     /**
-     * GOOBER - Retrieve profile name based on uuid.  We first check
+     * Retrieve profile name based on uuid.  We first check
      * the spinner and then check the emergency node
      * @param uuid
      * @return
@@ -392,7 +348,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     }
 
     /**
-     * GOOBER - Retrieve index in spinner for matching uuid.
+     * Retrieve index in spinner for matching uuid.
      * Return -1 if nothing found
      */
     private int getSpinnerIndex(String uuid) {
@@ -400,7 +356,6 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
         String tmpUuid = null;
         int i = 0;
         for (i = 0; i < profileSpinner.getAdapter().getCount(); i++) {
-            // Log.d("GOOBER", "THIS IS IT: " + profileSpinner.getItemAtPosition(i) + "::" + profileSpinner.getAdapter().getCount());
             tmpProfile = (GlacierProfile) profileSpinner.getItemAtPosition(i);
             tmpUuid = tmpProfile.getUuid();
 
@@ -423,7 +378,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 
 
     /**
-     * GOOBER - Add items to spinner
+     * Add items to spinner
      *
      * @param v
      */
@@ -521,21 +476,6 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 }
             });
 
-            // create random "profile" if there's enough in the list to randomize
-            // we have to account for emergency profile since list contains everything
-            /* GOOBER CORE - Remove random profile
-            if (((emergencyProfile != null) && (list.size() > 2)) || ((emergencyProfile == null) && (list.size() > 1))) {
-                // create random profile
-                nameList.add(0, new GlacierProfile("RANDOM", "random"));
-            }*/
-
-            // add emergency profile to end and check the box as being enabled
-            /* GOOBER CORE - Remove emergency profile
-            if (enableEmergConnectCheckBox.isChecked()) {
-                nameList.add(emergencyProfile);
-            }*/
-
-
             spinnerAdapter = new ProfileSelectListAdapter<GlacierProfile>(this.getActivity(),R.layout.radio, nameList);
             //spinnerAdapter.setDropDownViewResource(R.layout.radio);
             profileSpinner.setAdapter(spinnerAdapter);
@@ -555,7 +495,6 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 if (mUseVpnToggle.isChecked()){
                     profileSpinner.setVisibility(View.VISIBLE);
                     mVpnStatusBar.setVisibility(View.VISIBLE);
-                    // GOOBER retrieve previous profile selected
                 } else {
                     profileSpinner.setVisibility(View.GONE);
                     mVpnStatusBar.setVisibility(View.GONE);
@@ -572,11 +511,6 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                     mNoVpnProfilesView.setVisibility(View.GONE);
                 }
             }
-
-            /* GOOBER CORE - Remove emergency profile
-            enableEmergConnectCheckBox.setChecked(false);
-             */
-            // mHelloWorld.setText(all);
 
         } catch (RemoteException e) {
             Log.d("RemoteException", "at listVpns");
@@ -622,10 +556,9 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     private void startVpn(GlacierProfile glacierProfile){
         mStartUUID = glacierProfile.getUuid();
 
-        // GOOBER retrieve previous profile selected
+        // retrieve previous profile selected
         SharedPreferences sp = this.getActivity().getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
         sp.edit().putString("last_spinner_profile", mStartUUID).commit();
-        // Log.d("GOOBER", "This is uuid set: " + mStartUUID);
 
         // see if random profile selected
         if (mStartUUID.compareTo("random") == 0) {
@@ -753,22 +686,18 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
         GlacierProfile glacierProfile = null;
 
         while (true) {
-
-            //Log.d("GOOBER", "Count:  size: " + excludeProfileList.size() + "::" + count);
             if (enableEmergConnectCheckBox.isChecked() == true) {
                 // do not include random profile in the beginning and the
                 // emergency profile at the end.
                 randomInt = randomGenerator.nextInt(count - 2);
 
                 if (excludeProfileList.size() == (count - 2)) {
-                    // Log.d("GOOBER", "Return null-1");
                     return null;
                 }
             } else {
                 // do not include the random profile in the beginning
                 randomInt = randomGenerator.nextInt(count - 1);
                 if (excludeProfileList.size() == (count-1)) {
-                    //Log.d("GOOBER", "Return null-2");
                     return null;
                 }
             }
@@ -778,7 +707,6 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 
             // check if we're excluding
             if (!excludeProfileList.contains(glacierProfile.getUuid())) {
-                //Log.d("GOOBER", "Found a profile " + excludeProfileList.size());
                 excludeProfileList.add(glacierProfile.getUuid());
                 return glacierProfile.getUuid();
             }
@@ -875,9 +803,8 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     public boolean handleMessage(Message msg) {
         Log.d(Config.LOGTAG, "OpenVPNFragment::handleMessage(): " + msg.obj.toString() + "::What = " + msg.what);
         //TODO use message to update connection status
-        //Log.d("GOOBER", "** UPDATED MESSAGE: " + ((CharSequence) msg.obj).subSequence(0, ((CharSequence) msg.obj).length() - 1) + "**" + msg.obj.toString());
         if(msg.what == MSG_UPDATE_STATE) {
-            // GOOBER - check for NOPROCESS string and change it to NOT CONNECTED
+            // check for NOPROCESS string and change it to NOT CONNECTED
             if (msg.obj.toString().startsWith("NOPROCESS")) {
                 mStatus.setText("NOT CONNECTED");
                 mVpnConnectionStatus.setText("Not Connected");
@@ -888,7 +815,6 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 //    mStartVpn.setEnabled(false);
                 //    mDisconnect.setEnabled(false);
                 //}
-                //Log.d("GOOBER", "NOT CONNECTED: connectClicked = " + connectClicked + "::randomProfileSelected = " + randomProfileSelected);
 
                 // check if this is a start of trying random profiles and it failed
 
@@ -896,13 +822,11 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                     mStartUUID = getRandomUuid();
                     if (mStartUUID != null) {
                         try {
-                            //Log.d("GOOBER", "Attempting to start UUID: " + mStartUUID);
                             prepareStartProfile(START_PROFILE_BYUUID);
                         } catch (RemoteException e) {
                             e.printStackTrace();
                         }
                     } else {
-                        //Log.d("GOOBER", "Exhausted all ids = Done trying, reset flags-1");
                         // reset flags b/c done trying all profiles
                         randomProfileSelected = false;
                         excludeProfileList.clear();
@@ -911,14 +835,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 
             } else {
                 // found profile that works, so reset variables
-                //Log.d("GOOBER", "Done trying, reset flags-2");
                 if (msg.obj.toString().startsWith("CONNECTED")) {
-                    //Log.d("GOOBER", "CONNECTED: connectClicked: Says we're connected");
-                    randomProfileSelected = false;
-//                    excludeProfileList.clear();
-//                    mStartVpn.setEnabled(false);
-//                    mDisconnect.setEnabled(true); // DJF 08-27
-                    // GOOBER - Generally don't want stuff after text when CONNECTED
                     mStatus.setText("CONNECTED");
                     mVpnConnectionStatus.setText("Connected");
                     mDisconnectVpn.setVisibility(VISIBLE);
@@ -927,7 +844,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                     excludeProfileList.clear();
 //                    mStartVpn.setEnabled(true);
 //                    mDisconnect.setEnabled(false); // DJF 08-27
-                    // GOOBER - get rid of pipe ("|") from end of message
+                    // get rid of pipe ("|") from end of message
                     mStatus.setText(((CharSequence) msg.obj).subSequence(0, ((CharSequence) msg.obj).length() - 1));
                     mVpnConnectionStatus.setText("Connection failed");
                     mDisconnectVpn.setVisibility(View.GONE);
@@ -935,7 +852,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 } else { // all other messages are in-process messages so disable "Connect" button
 //                    mStartVpn.setEnabled(false);
 //                    mDisconnect.setEnabled(false); // DJF 08-27
-                    // GOOBER - get rid of pipe ("|") from end of message
+                    // get rid of pipe ("|") from end of message
                     mStatus.setText(((CharSequence) msg.obj).subSequence(0, ((CharSequence) msg.obj).length() - 1));
                     mVpnConnectionStatus.setText("Configuring Connection");
                     mDisconnectVpn.setVisibility(VISIBLE);
@@ -950,7 +867,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     }
 
     /**
-     * GOOBER - Import VPN from AWS
+     * Import VPN from AWS
      */
     private void showImportProfileVPNDialogFragment() {
         //TODO

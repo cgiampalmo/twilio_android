@@ -51,27 +51,20 @@ public class PinFragmentActivity extends FragmentActivity {
         IntentFilter filter = new IntentFilter(AppLockActivity.ACTION_CANCEL);
         LocalBroadcastManager.getInstance(this).registerReceiver(mPinCancelledReceiver, filter);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-            // check if permissions are granted before accessing database and image file
-            if (checkSelfPermission("android.permission.WRITE_EXTERNAL_STORAGE") == PackageManager.PERMISSION_GRANTED) {
-                // if new install delete all data associated with PIN
-                if (newInstall) {
-                    // clear database rows
-                    // clearPINDatabase();
-
-                    // remove serialized object capture
-                    deleteImageFiles();
-
-                    newInstall = false;
-                } else
-                    mLifeCycleListener = getImageFile();
-            } else {
-                // this is how we trick this to thinking it's a new install
-                // if it requires permissions, then it's a new install
-                // This is to help distinguish closing app vs reinstalling app
-                newInstall = true;
-            }
+        // check if permissions are granted before accessing database and image file
+        if (checkSelfPermission("android.permission.WRITE_EXTERNAL_STORAGE") == PackageManager.PERMISSION_GRANTED) {
+            // if new install delete all data associated with PIN
+            if (newInstall) {
+                // remove serialized object capture
+                deleteImageFiles();
+                newInstall = false;
+            } else
+                mLifeCycleListener = getImageFile();
+        } else {
+            // this is how we trick this to thinking it's a new install
+            // if it requires permissions, then it's a new install
+            // This is to help distinguish closing app vs reinstalling app
+            newInstall = true;
         }
     }
 
@@ -96,7 +89,6 @@ public class PinFragmentActivity extends FragmentActivity {
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mPinCancelledReceiver);
 
-        // GOOBER
         if (mLifeCycleListener != null) {
             saveImageFile();
         }
@@ -111,7 +103,7 @@ public class PinFragmentActivity extends FragmentActivity {
 
     public static void clearListeners() {
         mLifeCycleListener = null;
-        deleteImageFiles();  // GOOBER
+        deleteImageFiles();
     }
 
     public static boolean hasListeners() {
@@ -119,7 +111,7 @@ public class PinFragmentActivity extends FragmentActivity {
     }
 
     /**
-     * GOOBER PIN - delete file associated with PIN image
+     * PIN - delete file associated with PIN image
      */
     private static void deleteImageFiles() {
         File root = android.os.Environment.getExternalStorageDirectory();
@@ -136,7 +128,7 @@ public class PinFragmentActivity extends FragmentActivity {
     }
 
     /**
-     * GOOBER PIN - get file associated with PIN image
+     * PIN - get file associated with PIN image
      */
     private static LifeCycleInterface getImageFile() {
         LifeCycleInterface tmpInterface = null;
@@ -162,7 +154,7 @@ public class PinFragmentActivity extends FragmentActivity {
     }
 
     /**
-     * GOOBER - save file associated with PIN image
+     * save file associated with PIN image
      */
     private static void saveImageFile() {
         File root = android.os.Environment.getExternalStorageDirectory();
@@ -182,7 +174,7 @@ public class PinFragmentActivity extends FragmentActivity {
     }
 
     /**
-     * GOOBER - clear any saved preferences for PIN
+     * clear any saved preferences for PIN
      */
     private static void clearPINDatabase() {
         try {

@@ -2,8 +2,6 @@ package com.glaciersecurity.glaciermessenger.utils;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
-import android.os.Build;
-import androidx.annotation.RequiresApi;
 import android.util.Log;
 
 import net.ypresto.androidtranscoder.format.MediaFormatExtraConstants;
@@ -28,7 +26,6 @@ public class Android720pFormatStrategy implements MediaFormatStrategy {
         mAudioChannels = 2;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     public MediaFormat createVideoOutputFormat(MediaFormat inputFormat) {
         int width = inputFormat.getInteger(MediaFormat.KEY_WIDTH);
@@ -57,10 +54,8 @@ public class Android720pFormatStrategy implements MediaFormatStrategy {
         format.setInteger(MediaFormat.KEY_FRAME_RATE, 30);
         format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 3);
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            format.setInteger(MediaFormat.KEY_PROFILE ,MediaCodecInfo.CodecProfileLevel.AVCProfileBaseline);
-            format.setInteger(MediaFormat.KEY_LEVEL, MediaCodecInfo.CodecProfileLevel.AVCLevel13);
-        }
+        format.setInteger(MediaFormat.KEY_PROFILE ,MediaCodecInfo.CodecProfileLevel.AVCProfileBaseline);
+        format.setInteger(MediaFormat.KEY_LEVEL, MediaCodecInfo.CodecProfileLevel.AVCLevel13);
         return format;
     }
 

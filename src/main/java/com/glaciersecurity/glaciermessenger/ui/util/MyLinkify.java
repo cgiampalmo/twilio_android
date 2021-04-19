@@ -95,21 +95,7 @@ public class MyLinkify {
     };
 
     private static boolean isAlphabetic(final int code) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            return Character.isAlphabetic(code);
-        }
-
-        switch (Character.getType(code)) {
-            case Character.UPPERCASE_LETTER:
-            case Character.LOWERCASE_LETTER:
-            case Character.TITLECASE_LETTER:
-            case Character.MODIFIER_LETTER:
-            case Character.OTHER_LETTER:
-            case Character.LETTER_NUMBER:
-                return true;
-            default:
-                return false;
-        }
+        return Character.isAlphabetic(code);
     }
 
     public static void addLinks(Editable body, boolean includeGeo) {

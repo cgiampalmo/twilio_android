@@ -1,13 +1,11 @@
 package com.glaciersecurity.glaciermessenger.utils;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.LinkProperties;
 import android.net.Network;
 import android.net.NetworkInfo;
 import android.net.RouteInfo;
-import android.os.Build;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -28,11 +26,10 @@ public class AndroidUsingLinkProperties extends AbstractDNSServerLookupMechanism
 
     @Override
     public boolean isAvailable() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+        return true;
     }
 
     @Override
-    @TargetApi(21)
     public String[] getDnsServerAddresses() {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         Network[] networks = connectivityManager == null ? null : connectivityManager.getAllNetworks();
@@ -62,9 +59,8 @@ public class AndroidUsingLinkProperties extends AbstractDNSServerLookupMechanism
         return servers.toArray(new String[servers.size()]);
     }
 
-    @TargetApi(23)
     private static Network getActiveNetwork(ConnectivityManager cm) {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? cm.getActiveNetwork() : null;
+        return cm.getActiveNetwork();
     }
 
     private static List<String> getIPv4First(List<InetAddress> in) {
@@ -79,7 +75,6 @@ public class AndroidUsingLinkProperties extends AbstractDNSServerLookupMechanism
         return out;
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private static boolean hasDefaultRoute(LinkProperties linkProperties) {
         for(RouteInfo route: linkProperties.getRoutes()) {
             if (route.isDefaultRoute()) {

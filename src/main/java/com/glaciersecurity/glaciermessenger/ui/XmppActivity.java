@@ -2,7 +2,6 @@ package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -87,7 +86,7 @@ import rocks.xmpp.addr.Jid;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
-// GOOBER PIN - extend to use PIN everywherety
+// PIN - extend to use PIN everywhere
 // public abstract class XmppActivity extends ActionBarActivity {
 public abstract class XmppActivity extends PinActivity {
 
@@ -505,24 +504,16 @@ public abstract class XmppActivity extends PinActivity {
 	}
 
 	protected boolean isOptimizingBattery() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			final PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-			return pm != null
-					&& !pm.isIgnoringBatteryOptimizations(getPackageName());
-		} else {
-			return false;
-		}
+		final PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+		return pm != null
+				&& !pm.isIgnoringBatteryOptimizations(getPackageName());
 	}
 
 	protected boolean isAffectedByDataSaver() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			final ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-			return cm != null
-					&& cm.isActiveNetworkMetered()
-					&& cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED;
-		} else {
-			return false;
-		}
+		final ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		return cm != null
+				&& cm.isActiveNetworkMetered()
+				&& cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED;
 	}
 
 	protected boolean usingEnterKey() {
@@ -688,37 +679,9 @@ public abstract class XmppActivity extends PinActivity {
 	}*/
 
 	@SuppressWarnings("deprecation")
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	protected void setListItemBackgroundOnView(View view) {
-		int sdk = android.os.Build.VERSION.SDK_INT;
-		if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-			view.setBackgroundDrawable(getResources().getDrawable(R.drawable.greybackground));
-		} else {
-			view.setBackground(getResources().getDrawable(R.drawable.greybackground));
-		}
+		view.setBackground(getResources().getDrawable(R.drawable.greybackground));
 	}
-
-	/*protected void choosePgpSignId(Account account) {
-		xmppConnectionService.getPgpEngine().chooseKey(account, new UiCallback<Account>() {
-			@Override
-			public void success(Account account1) {
-			}
-
-			@Override
-			public void error(int errorCode, Account object) {
-
-			}
-
-			@Override
-			public void userInputRequried(PendingIntent pi, Account object) {
-				try {
-					startIntentSenderForResult(pi.getIntentSender(),
-							REQUEST_CHOOSE_PGP_ID, null, 0, 0, 0);
-				} catch (final SendIntentException ignored) {
-				}
-			}
-		});
-	}*/
 
 	protected void displayErrorDialog(final int errorCode) {
 		runOnUiThread(() -> {
@@ -818,13 +781,9 @@ public abstract class XmppActivity extends PinActivity {
 	}
 
 	protected boolean hasStoragePermission(int requestCode) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-				requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, requestCode);
-				return false;
-			} else {
-				return true;
-			}
+		if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+			requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, requestCode);
+			return false;
 		} else {
 			return true;
 		}
@@ -1111,73 +1070,62 @@ public abstract class XmppActivity extends PinActivity {
 	}
 
 	/**
-	 * GOOBER PERMISSIONS - Ask for permissions
+	 * PERMISSIONS - Ask for permissions
 	 */
 	//HONEYBADGER AM-120 added all ne
 	private void askForPermissions() {
 		final int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
 
 		//String[] request = {Manifest.permission.READ_CONTACTS, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "StartConversationActivity::askForPermissions-1");
-			List<String> permissionsNeeded = new ArrayList<String>();
+		List<String> permissionsNeeded = new ArrayList<String>();
 
-				final List<String> permissionsList = new ArrayList<String>();
-				// GOOBER - added WRITE_EXTERNAL_STORAGE permission ahead of time so that it doesn't ask
-				// when time comes which inevitably fails at that point.
-				if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
-					permissionsNeeded.add("Write Storage");
-				if (!addPermission(permissionsList, Manifest.permission.CAMERA))
-					permissionsNeeded.add("Camera");
-			if (!addPermission(permissionsList, Manifest.permission.RECORD_AUDIO))
-				permissionsNeeded.add("Record Audio");
-				if (!addPermission(permissionsList, Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS))
-					permissionsNeeded.add("Ignore Battery Optimizations");
+		final List<String> permissionsList = new ArrayList<String>();
+		// added WRITE_EXTERNAL_STORAGE permission ahead of time so that it doesn't ask
+		// when time comes which inevitably fails at that point.
+		if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+			permissionsNeeded.add("Write Storage");
+		if (!addPermission(permissionsList, Manifest.permission.CAMERA))
+			permissionsNeeded.add("Camera");
+		if (!addPermission(permissionsList, Manifest.permission.RECORD_AUDIO))
+			permissionsNeeded.add("Record Audio");
+		if (!addPermission(permissionsList, Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS))
+			permissionsNeeded.add("Ignore Battery Optimizations");
 
-
-
-			if (permissionsList.size() > 0) {
-				if (permissionsNeeded.size() > 0) {
-					// Need Rationale
-					String message = "You need to grant access to " + permissionsNeeded.get(0);
-					for (int i = 1; i < permissionsNeeded.size(); i++) {
-						message = message + ", " + permissionsNeeded.get(i);
-					}
-
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-						requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
-								REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
-					}
-
-					return;
+		if (permissionsList.size() > 0) {
+			if (permissionsNeeded.size() > 0) {
+				// Need Rationale
+				String message = "You need to grant access to " + permissionsNeeded.get(0);
+				for (int i = 1; i < permissionsNeeded.size(); i++) {
+					message = message + ", " + permissionsNeeded.get(i);
 				}
+
 				requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
 						REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
 
 				return;
 			}
+			requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
+					REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
+
+			return;
 		}
 	}
 
 	/**
-	 * GOOBER PERMISSIONS - add permission
+	 * PERMISSIONS - add permission
 	 *
 	 * @param permissionsList
 	 * @param permission
 	 * @return
 	 */
 	private boolean addPermission(List<String> permissionsList, String permission) {
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			if (this.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-				permissionsList.add(permission);
-				// Check for Rationale Option
-				if (!shouldShowRequestPermissionRationale(permission))
-					return false;
-			}
-			return true;
+		if (this.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+			permissionsList.add(permission);
+			// Check for Rationale Option
+			if (!shouldShowRequestPermissionRationale(permission))
+				return false;
 		}
-		return false;
+		return true;
 	}
 
 	//HONEYBADGER retry actions that their  permission might have been updated/granted and additional service is possible

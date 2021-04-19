@@ -164,12 +164,9 @@ public class StepperWizard extends AppCompatActivity {
     }
 
     public boolean hasAllPermissionGranted() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
-                    checkSelfPermission(Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS) == PackageManager.PERMISSION_GRANTED &&
-                    checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
-        }
-        return false;
+        return checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+                checkSelfPermission(Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS) == PackageManager.PERMISSION_GRANTED &&
+                checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     }
     private void bottomProgressDots(int current_index) {
         LinearLayout dotsLayout = (LinearLayout) findViewById(R.id.layoutDots);
@@ -268,72 +265,63 @@ public class StepperWizard extends AppCompatActivity {
 
 
     /**
-     * GOOBER PERMISSIONS - Ask for permissions
+     * PERMISSIONS - Ask for permissions
      */
     private void askForPermissions() {
         final int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
 
         //String[] request = {Manifest.permission.READ_CONTACTS, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "StartConversationActivity::askForPermissions-1");
-            List<String> permissionsNeeded = new ArrayList<String>();
+        List<String> permissionsNeeded = new ArrayList<String>();
 
-            final List<String> permissionsList = new ArrayList<String>();
-            // GOOBER - added WRITE_EXTERNAL_STORAGE permission ahead of time so that it doesn't ask
-            // when time comes which inevitably fails at that point.
-            if (!addPermission(permissionsList, Manifest.permission.RECORD_AUDIO))
-                permissionsNeeded.add("RECORD_AUDIO");
-            if (!addPermission(permissionsList, Manifest.permission.CAMERA))
-                permissionsNeeded.add("Camera");
-            if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
-                permissionsNeeded.add("Write Storage");
-            if (!addPermission(permissionsList, Manifest.permission.READ_PHONE_STATE))
-                permissionsNeeded.add("Read Phone State");
-            if (!addPermission(permissionsList, Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS))
-                permissionsNeeded.add("Ignore Battery Optimizations");
-            if (permissionsList.size() > 0) {
-                if (permissionsNeeded.size() > 0) {
-                    // Need Rationale
-                    String message = "You need to grant access to " + permissionsNeeded.get(0);
-                    for (int i = 1; i < permissionsNeeded.size(); i++) {
-                        message = message + ", " + permissionsNeeded.get(i);
-                    }
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
-                                REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
-                    }
-
-                    return;
+        final List<String> permissionsList = new ArrayList<String>();
+        // added WRITE_EXTERNAL_STORAGE permission ahead of time so that it doesn't ask
+        // when time comes which inevitably fails at that point.
+        if (!addPermission(permissionsList, Manifest.permission.RECORD_AUDIO))
+            permissionsNeeded.add("RECORD_AUDIO");
+        if (!addPermission(permissionsList, Manifest.permission.CAMERA))
+            permissionsNeeded.add("Camera");
+        if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+            permissionsNeeded.add("Write Storage");
+        if (!addPermission(permissionsList, Manifest.permission.READ_PHONE_STATE))
+            permissionsNeeded.add("Read Phone State");
+        if (!addPermission(permissionsList, Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS))
+            permissionsNeeded.add("Ignore Battery Optimizations");
+        if (permissionsList.size() > 0) {
+            if (permissionsNeeded.size() > 0) {
+                // Need Rationale
+                String message = "You need to grant access to " + permissionsNeeded.get(0);
+                for (int i = 1; i < permissionsNeeded.size(); i++) {
+                    message = message + ", " + permissionsNeeded.get(i);
                 }
+
                 requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
                         REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
 
                 return;
             }
+            requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
+                    REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
+
+            return;
         }
     }
 
 
     /**
-     * GOOBER PERMISSIONS - add permission
+     * PERMISSIONS - add permission
      *
      * @param permissionsList
      * @param permission
      * @return
      */
     private boolean addPermission(List<String> permissionsList, String permission) {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (this.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-                permissionsList.add(permission);
-                // Check for Rationale Option
-                if (!shouldShowRequestPermissionRationale(permission))
-                    return false;
-            }
-            return true;
+        if (this.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+            permissionsList.add(permission);
+            // Check for Rationale Option
+            if (!shouldShowRequestPermissionRationale(permission))
+                return false;
         }
-        return false;
+        return true;
     }
 
     @Override

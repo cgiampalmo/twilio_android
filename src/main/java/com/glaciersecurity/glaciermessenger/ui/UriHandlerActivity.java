@@ -30,7 +30,7 @@ public class UriHandlerActivity extends AppCompatActivity {
 	private boolean handled = false;
 
 	public static void scan(Activity activity) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+		if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
 			Intent intent = new Intent(activity, UriHandlerActivity.class);
 			intent.setAction(UriHandlerActivity.ACTION_SCAN_QR_CODE);
 			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);

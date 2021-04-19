@@ -41,7 +41,7 @@ import static com.glaciersecurity.glaciermessenger.utils.PermissionUtils.writeGr
 
 public class ManageAccountActivity extends XmppActivity implements OnAccountUpdate, KeyChainAliasCallback, XmppConnectionService.OnAccountCreated, AccountAdapter.OnTglAccountState {
 
-    private static final int REQUEST_CODE_ENABLE = 11;  // GOOBER - PIN integration
+    private static final int REQUEST_CODE_ENABLE = 11;  // PIN integration
     private final String STATE_SELECTED_ACCOUNT = "selected_account";
 
     private static final int REQUEST_IMPORT_BACKUP = 0x63fb;
@@ -56,8 +56,8 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
 
     protected Pair<Integer, Intent> mPostponedActivityResult = null;
 
-    protected boolean mEnablePIN = false;  // GOOBER PIN - PIN integration
-    private int iClicked = 0;              // GOOBER - click to access account details
+    protected boolean mEnablePIN = false;  // PIN integration
+    private int iClicked = 0;              // click to access account details
 
     @Override
     public void onAccountUpdate() {
@@ -103,9 +103,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
         accountListView.setAdapter(this.mAccountAdapter);
         accountListView.setOnItemClickListener((arg0, view, position, arg3) -> switchToAccount(accountList.get(position)));
 
-        Log.d("GOOBER", "************************ManageAccountActivity.java::onCreate() - " + getPreferences().getBoolean("enable_pin", false));
-
-        this.mEnablePIN = getPreferences().getBoolean("enable_pin", false); // GOOBER - PIN Integration
+        this.mEnablePIN = getPreferences().getBoolean("enable_pin", false); // PIN Integration
 
         registerForContextMenu(accountListView);
     }
@@ -166,14 +164,12 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
         getMenuInflater().inflate(R.menu.manageaccounts, menu);
         MenuItem enableAll = menu.findItem(R.id.action_enable_all);
         //MenuItem addAccount = menu.findItem(R.id.action_add_account); //ALF AM-205
-        // GOOBER - remove account with certificates and incorporate PIN
-        //MenuItem addAccountWithCertificate = menu.findItem(R.id.action_add_account_with_cert);
         MenuItem menuEnablePIN = menu.findItem(R.id.action_enablepin);
         menuEnablePIN.setChecked(this.mEnablePIN);
 
         if (Config.X509_VERIFICATION) {
             //addAccount.setVisible(false); //ALF AM-205
-            //addAccountWithCertificate.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS); // GOOBER - Remove account with certificates
+            //addAccountWithCertificate.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS); // Remove account with certificates
         }
 
         if (!accountsLeftToEnable()) {
@@ -229,7 +225,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
             case R.id.action_enable_all:
                 enableAllAccounts();
                 break;
-            // GOOBER - incorporate pin activity
+            // incorporate pin activity
             case R.id.action_enablepin:
                 mEnablePIN = !item.isChecked();
                 getPreferences().edit().putBoolean("enable_pin", mEnablePIN).commit();
@@ -253,7 +249,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
     }
 
     /**
-     * GOOBER - disable PIN
+     * disable PIN
      */
     private void disablePIN() {
         Intent intent = new Intent(this, CustomPinActivity.class);
@@ -262,7 +258,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
     }
 
     /**
-     * GOOBER - enable PIN
+     * enable PIN
      */
     private void enablePIN() {
         Intent intent = new Intent(this, CustomPinActivity.class);
@@ -271,7 +267,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
     }
 
     /**
-     * GOOBER - Change PIN if PIN enabled, otherwise pop up error
+     * Change PIN if PIN enabled, otherwise pop up error
      */
     private void changePIN(){
         if (mEnablePIN) {

@@ -7,11 +7,9 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import androidx.annotation.AttrRes;
 import androidx.annotation.DimenRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -90,7 +88,6 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
         return attr;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     static void renderPreview(Context context, Attachment attachment, ImageView imageView) {
         imageView.setBackgroundColor(StyledAttributes.getColor(context, R.attr.color_background_tertiary));
         imageView.setImageAlpha(Math.round(StyledAttributes.getFloat(context, R.attr.icon_alpha) * 255));

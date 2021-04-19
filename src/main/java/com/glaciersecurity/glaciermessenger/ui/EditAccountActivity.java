@@ -205,11 +205,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private EditText mPassword;
 	private TextInputLayout mAccountPasswordLayout;
 
-	/* GOOBER COGNITO - Removed in favor of buttons
-	private Button mCancelButton;
-	private Button mSaveButton;*/
-
-	// GOOBER COGNITO
 	private Button mLoginButton;
 	private Button mSupportButton;
 	private String mConnectionType = null;
@@ -268,7 +263,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	// track vpn downloads so we know when to stop
 	private int downloadCount = 0;
 
-	// GOOBER - do not change default or it will break
+	// do not change default or it will break
 	private int lastConnectionState = VPN_STATE_UNKNOWN;
 	// CMG AM-342
 	private ConnectivityReceiver connectivityReceiver;
@@ -331,7 +326,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				xmppConnectionService.checkForAvatar(mAccount, mAvatarFetchCallback);
 			}
 
-			// GOOBER COGNITO - Call Conversation activity immediately after account is online/connected
+			// Call Conversation activity immediately after account is online/connected
 			// This will help minimize any wait time for pulling up contact information.
 			if (!conversationStarted) {
 				conversationStarted = true;
@@ -352,9 +347,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		if (mAccount != null) {
 			updateAccountInformation(false);
 		}
-
-		/* GOOBER COGNITO - removed in favor of button
-		updateSaveButton(); */
 	}
 
 	@Override
@@ -365,8 +357,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	@Override
 	public void onBackPressed() {
-		// GOOBER MISC - Do nothing on back press
-		// deleteAccountAndReturnIfNecessary();
 		//ALF AM-226
 		if (!mInitMode) {
 			super.onBackPressed();
@@ -414,8 +404,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 		@Override
 		public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
-			/* GOOBER COGNITO - removed in favor of button.  Actually don't do anything when text change
-			updateSaveButton();*/
 		}
 
 		@Override
@@ -475,10 +463,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					intent.putExtra("init", true);
 				}
 			} else {
-				// GOOBER COGNITO - bypass publish profile activity and go directly to conversation activity
-				/* intent = new Intent(getApplicationContext(), PublishProfilePictureActivity.class);
-				intent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().asBareJid().toString());
-				intent.putExtra("setup", true);*/
 				//CMG AM-215
 				intent = new Intent(getApplicationContext(),
 						ConversationsActivity.class);
@@ -526,7 +510,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			if (resultCode == RESULT_OK) {
 				continueSignIn = data.getBooleanExtra("continueSignIn", false);
 			}
-			if (continueSignIn && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			if (continueSignIn) {
 				continueWithFirstTimeSignIn();
 			} else {
 				handleLoginFailure();
@@ -591,7 +575,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			loadPropertiesFile();
 		}
 
-		// GOOBER COGNITO
+		// COGNITO
 		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 		StrictMode.setThreadPolicy(policy);
 
@@ -614,7 +598,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.mPassword.addTextChangedListener(this.mTextWatcher);
 		this.mAccountPasswordLayout = (TextInputLayout) findViewById(R.id.account_password_layout);
 
-		// GOOBER COGNITO
+		// COGNITO
 		this.mLoginButton = (Button) findViewById(R.id.account_login);
 		this.mSupportButton = (Button) findViewById(R.id.account_support);
 
@@ -670,11 +654,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.mPort.setText(String.valueOf(Resolver.DEFAULT_PORT_XMPP));
 		this.mPort.addTextChangedListener(mTextWatcher);
 		this.mPortLayout = (TextInputLayout) findViewById(R.id.port_layout);
-		/* GOOBER COGNITO - Removed in favor of buttons
-		this.mSaveButton = (Button) findViewById(R.id.save_button);
-		this.mCancelButton = (Button) findViewById(R.id.cancel_button);
-		this.mSaveButton.setOnClickListener(this.mSaveButtonClickListener);
-		this.mCancelButton.setOnClickListener(this.mCancelButtonClickListener); */
 		this.mMoreTable = (TableLayout) findViewById(R.id.server_info_more);
 		if (savedInstanceState != null && savedInstanceState.getBoolean("showMoreTable")) {
 			changeMoreTableVisibility(true);
@@ -682,8 +661,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		final OnCheckedChangeListener OnCheckedShowConfirmPassword = new OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
-				/* GOOBER COGNITO - removed in favor of button
-				updateSaveButton(); */
+
 			}
 		};
 		this.binding.accountRegisterNew.setOnCheckedChangeListener(OnCheckedShowConfirmPassword);
@@ -695,16 +673,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		// Cognito - Initialize application
 		AppHelper.init(getApplicationContext());
 
-		// GOOBER COGNITO - Test
 		//TODO maybe move
 		cognitoCurrentUserSignout();
 		connectivityReceiver = new ConnectivityReceiver(this);
-
-		// initApp();
-
-		// GOOBER COGNITO - removed in favor of buttons
-		/* this.mCancelButton.setVisibility(View.INVISIBLE);
-		this.mSaveButton.setVisibility(View.INVISIBLE);*/
 	}
 
 	private boolean changeDisplayName(String displayname){
@@ -888,11 +859,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				this.binding.accountMainLayout.setVisibility(View.GONE);
 				ActionBar ab = getSupportActionBar();
 				if (ab != null) {
-					// GOOBER - don't show back button when in Cognito login screen
-					//if (init && Config.MAGIC_CREATE_DOMAIN == null) {
+					// don't show back button when in Cognito login screen
 					ab.setDisplayShowHomeEnabled(false);
 					ab.setDisplayHomeAsUpEnabled(false);
-					//}
 
 					//HONEYBADGER AM-125 remove "Messenger" Title bar
 					//ab.setTitle(R.string.app_name); //ALF changed from action_add_account, maybe part of AM-173
@@ -905,7 +874,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.mShowOptions = mUseTor || (QuickConversationsService.isConversations() && preferences.getBoolean("show_connection_options", getResources().getBoolean(R.bool.show_connection_options)));
 		this.mNamePort.setVisibility(mShowOptions ? VISIBLE : View.GONE);
 
-		// GOOBER CORE integration
+		// CORE integration
 		mHandler = new Handler(this);
 		bindService();
 	}
@@ -1583,10 +1552,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		} else {
 			final TextInputLayout errorLayout;
 			if (this.mAccount.errorStatus()) {
-				// GOOBER COGNITO - close wait dialog and clear password
+				// COGNITO - close wait dialog and clear password
 				closeWaitDialog();
-				// GOOBER - if unauthorized, delete account from services
-				// so that app stays on login screen
 
 				// CMG AM-378
 				//xmppConnectionService.deleteAccount(mAccount); //ALF AM-143?
@@ -1611,8 +1578,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				errorLayout = null;
 			}
 
-
-			// GOOBER TEST USERNAME - only display username (without '@xxx.xx.xx.xxx')
 			//CMG AM-172
 			username = mAccount.getDisplayName();
 			//binding.accountJid.setText(mAccount.getDisplayName());
@@ -1782,7 +1747,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	/**
-	 * GOOBER - Add default DOMAIN if not specified by user
+	 * Add default DOMAIN if not specified by user
 	 *
 	 * @param _accountJID
 	 * @return
@@ -1796,7 +1761,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	/**
-	 * GOOBER - Return first portion of fully qualified name
+	 * Return first portion of fully qualified name
 	 *
 	 * @param _qualifiedUsername
 	 * @return
@@ -1844,16 +1809,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 	}
 
-//	public void resetDefaultAvatar(View view) {
-//		if (mAccount != null) {
-//
-//		}
-//	}
 	/**
-	 * *********** GOOBER COGNITO MODIFICATIONS **************
-	 */
-	/**
-	 * GOOBER COGNITO - gather login info and report any errors
+	 * COGNITO - gather login info and report any errors
 	 *
 	 * @param view
 	 */
@@ -1865,13 +1822,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 	}
 
-	@TargetApi(Build.VERSION_CODES.M)
 	protected boolean hasStoragePermissions() {
 		return (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED ||
 				checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
 	}
 
-	@TargetApi(Build.VERSION_CODES.M)
 	protected void requestPermissions(final int request_code) {
 		if (!hasStoragePermissions()) {
 			requestPermissions(
@@ -1934,7 +1889,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 
 	/**
-	 * GOOBER COGNITO - login AWS
+	 * COGNITO - login AWS
 	 */
 	private void signInUserState() {
 			AppHelper.setUser(cognitoUsername); //CMG AM-172 changed
@@ -2045,7 +2000,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 								//CMG AM-172 changed next 2
 								keyList.clear();
 
-								// GOOBER - try to list objects in directory
+								// try to list objects in directory
 								if (downloadS3Files()){
 									launchUser();
 								} else {
@@ -2077,12 +2032,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         };
 		@Override
 		public void getMFACode(MultiFactorAuthenticationContinuation multiFactorAuthenticationContinuation) {
-			// GOOBER COGNITO - do nothing
+			// COGNITO - do nothing
 		}
 
 		@Override
 		public void onFailure(Exception e) {
-			Log.d("GOOBER", "FAILED TO LOGIN!!!");
 			handleLoginFailure(); //ALF AM-220
 		}
 
@@ -2105,7 +2059,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	//ALF AM-220
 	private void handleLoginFailure() {
-		// GOOBER COGNITO - close waitdialog
+		// COGNITO - close waitdialog
 		closeWaitDialog();
 
 		//CMG AM-192
@@ -2135,7 +2089,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	//ALF AM-220
-	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 	private void continueWithFirstTimeSignIn() {
 		newPasswordContinuation.setPassword(AppHelper.getPasswordForFirstTimeLogin());
 		cognitoPassword = AppHelper.getPasswordForFirstTimeLogin();
@@ -2170,14 +2123,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			Message msg = Message.obtain(mHandler, MSG_UPDATE_STATE, state + "|" + message);
 			msg.sendToTarget();
 
-			// GOOBER COGNITO - save current uuid so we can compare
+			// COGNITO - save current uuid so we can compare
 			currentProfileUUID = uuid;
-
-			// GOOBER COGNITO - Retrieve name of uuid and set the profile text
-			/* String profileName = getProfileName(uuid);
-			if (profileName != null) {
-				currentProfile.setText(profileName);
-			}*/
 		}
 	};
 
@@ -2194,18 +2141,18 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		}
 		@Override
 		public void onError(int id, Exception e) {
-			Log.d("GOOBER", "Error during download (" + key + "): " + id, e);
+			Log.d("Glacier", "Error during download (" + key + "): " + id, e);
 			// s3DownloadInterface.inDownloadError(e.toString());
 		}
 
 		@Override
 		public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-			Log.d("GOOBER", String.format("onProgressChanged (" + key + "): %d, total: %d, current: %d", id, bytesCurrent, bytesTotal));
+			Log.d("Glacier", String.format("onProgressChanged (" + key + "): %d, total: %d, current: %d", id, bytesCurrent, bytesTotal));
 		}
 
 		@Override
 		public void onStateChanged(int id, TransferState newState) {
-			Log.d("GOOBER", "onStateChanged(" + key + "): " + id + "," + newState);
+			Log.d("Glacier", "onStateChanged(" + key + "): " + id + "," + newState);
 			if (newState == TransferState.COMPLETED) {
 				this.toString();
 
@@ -2216,11 +2163,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				if (tmpFile.exists()) {
 					// track how many have completed download
 					downloadCount--;
-					Log.d("GOOBER", "File confirmed: " + Environment.getExternalStorageDirectory() + "/" + key);
+					Log.d("Glacier", "File confirmed: " + Environment.getExternalStorageDirectory() + "/" + key);
 
 					if (key.endsWith("ovpn") == true) {
 						// move file
-						Log.d("GOOBER", "Key Count (COMPLETED): " + downloadCount);
+						Log.d("Glacier", "Key Count (COMPLETED): " + downloadCount);
 						connection = openVPN;
 						moveFile(Environment.getExternalStorageDirectory().toString(), key, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString());
 						// Rather than exporting the file immediately, keep list of files to export
@@ -2230,7 +2177,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 					// check if finished download all files
 					if (downloadCount == 0) {
-						// GOOBER COGNITO - remove all profiles for fresh start
+						// COGNITO - remove all profiles for fresh start
 						// commented out b/c we want to keep any existing profiles
 						// not being replaced.
 						deleteExistingProfiles();
@@ -2257,7 +2204,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					}
 
 				} else {
-					Log.d("GOOBER", "File unconfirmed: " + Environment.getExternalStorageDirectory() + "/" + key);
+					Log.d("Glacier", "File unconfirmed: " + Environment.getExternalStorageDirectory() + "/" + key);
 				}
 				// s3DownloadInterface.onDownloadSuccess("Success");
 
@@ -2266,7 +2213,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	/**
-	 * GOOBER COGNITO - move file to different directory
+	 * COGNITO - move file to different directory
 	 *
 	 * @param inputPath
 	 * @param inputFile
@@ -2315,7 +2262,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	/**
-	 * GOOBER COGNITO - Currently not used but left it here in
+	 * COGNITO - Currently not used but left it here in
 	 * case we want to delete all profiles for a fresh start for
 	 * a user.
 	 *
@@ -2340,7 +2287,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	/**
-	 * GOOBER COGNITO - Delete all the profiles from Core
+	 * COGNITO - Delete all the profiles from Core
 	 */
 	private void addVPNProfiles() {
 		boolean profileFound = false;
@@ -2449,7 +2396,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			String line;
 			while(true) {
 				line = br.readLine();
-				//Log.d("GOOBER", "Line: " + line);
 				if(line == null)
 					break;
 				config += line + "\n";
@@ -2473,7 +2419,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	/**
-	 * GOOBER - Add profile to Glacier Core
+	 * Add profile to Glacier Core
 	 *
 	 * @param profile
 	 * @param config
@@ -2503,7 +2449,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}*/
 
 	/**
-	 * GOOBER
+	 *
 	 */
 	private void launchUser() {
 		// reset values
@@ -2546,7 +2492,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	/**
-	 * GOOBER - Restore accounts from file
+	 * Restore accounts from file
 	 */
 	private boolean restoreAccountsFromFile() {
 		//ALF AM-413
@@ -2591,7 +2537,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	/**
-	 * GOOBER - show components of login screen
+	 * show components of login screen
 	 */
 	private void setLoginContentView() {
 		// reset
@@ -2613,11 +2559,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			if (sS3Client.doesBucketExist(bucketName)) {
 				List<S3ObjectSummary> objectListing = sS3Client.listObjects(bucketName, Constants.KEY_PREFIX).getObjectSummaries();
 				for (S3ObjectSummary summary : objectListing) {
-					Log.d("GOOBER", "Keys found in S3 Bucket (" + summary.getBucketName() + "): " + summary.getKey());
+					Log.d("Glacier", "Keys found in S3 Bucket (" + summary.getBucketName() + "): " + summary.getKey());
 					String tmpString = stripDirectory(summary.getKey().toString());
 
 					if ((summary.getKey().contains("_" + cognitoUsername + ".ovpn") )) { //CMG AM-172 changed
-						Log.d("GOOBER", "File we want to download: " + summary.getKey());
+						Log.d("Glacier", "File we want to download: " + summary.getKey());
 						String destFilename = summary.getKey().substring(Constants.KEY_PREFIX.length() + 1, summary.getKey().length());
 
 						// bump the number of files to download
@@ -2640,38 +2586,38 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				logOut();
 			}
 		} catch (AmazonS3Exception ase) {
-			Log.d("GOOBER","Caught an AmazonS3Exception, " +
+			Log.d("Glacier","Caught an AmazonS3Exception, " +
 					"which means your request made it " +
 					"to Amazon S3, but was rejected with an error response " +
 					"for some reason.");
-			Log.d("GOOBER", "Error Message:    " + ase.getMessage());
-			Log.d("GOOBER","HTTP Status Code: " + ase.getStatusCode());
-			Log.d("GOOBER","AWS Error Code:   " + ase.getErrorCode());
-			Log.d("GOOBER","Error Type:       " + ase.getErrorType());
-			Log.d("GOOBER","Request ID:       " + ase.getRequestId());
+			Log.d("Glacier", "Error Message:    " + ase.getMessage());
+			Log.d("Glacier","HTTP Status Code: " + ase.getStatusCode());
+			Log.d("Glacier","AWS Error Code:   " + ase.getErrorCode());
+			Log.d("Glacier","Error Type:       " + ase.getErrorType());
+			Log.d("Glacier","Request ID:       " + ase.getRequestId());
 		} catch (AmazonServiceException ase) {
-			Log.d("GOOBER","Caught an AmazonServiceException, " +
+			Log.d("Glacier","Caught an AmazonServiceException, " +
 					"which means your request made it " +
 					"to Amazon S3, but was rejected with an error response " +
 					"for some reason.");
-			Log.d("GOOBER", "Error Message:    " + ase.getMessage());
-			Log.d("GOOBER","HTTP Status Code: " + ase.getStatusCode());
-			Log.d("GOOBER","AWS Error Code:   " + ase.getErrorCode());
-			Log.d("GOOBER","Error Type:       " + ase.getErrorType());
-			Log.d("GOOBER","Request ID:       " + ase.getRequestId());
+			Log.d("Glacier", "Error Message:    " + ase.getMessage());
+			Log.d("Glacier","HTTP Status Code: " + ase.getStatusCode());
+			Log.d("Glacier","AWS Error Code:   " + ase.getErrorCode());
+			Log.d("Glacier","Error Type:       " + ase.getErrorType());
+			Log.d("Glacier","Request ID:       " + ase.getRequestId());
 		} catch (AmazonClientException ace) {
-			Log.d("GOOBER", "Caught an AmazonClientException, " +
+			Log.d("Glacier", "Caught an AmazonClientException, " +
 					"which means the client encountered " +
 					"an internal error while trying to communicate" +
 					" with S3, " +
 					"such as not being able to access the network.");
-			Log.d("GOOBER","Error Message: " + ace.getMessage());
+			Log.d("Glacier","Error Message: " + ace.getMessage());
 		}
 		return hasDownload;
 	}
 
 	/**
-	 * GOOBER - strip off derectory and return filename
+	 * strip off derectory and return filename
 	 *
 	 * @param value
 	 * @return
@@ -2744,10 +2690,10 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	/**
-	 * GOOBER - display profile spnner...maybe...hopefullly
+	 * display profile spinner
 	 */
 	private void showVPNProfileDialog() {
-		// GOOBER retrieve list of vpn and pick one to start
+		// retrieve list of vpn and pick one to start
 		try {
 			closeWaitDialog();
 
@@ -2801,7 +2747,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	/**
-	 * GOOBER COGNITO - logout of Cognito
+	 * COGNITO - logout of Cognito
 	 * sometimes if it's been too long, I believe pool doesn't
 	 * exists and user is no longer logged in
 	 */
@@ -2816,7 +2762,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	/**
-	 * GOOBER COGNITO - log in automatically to messenger with given username/password
+	 * COGNITO - log in automatically to messenger with given username/password
 	 */
 
 	//TODO AM-151 we are relying on the text fields which may or maynot have been altered with a stored account.. I think we should be looking at an VPN object instead
@@ -2971,11 +2917,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	}
 
 	/**
-	 * *********** GOOBER CORE MODIFICATIONS **************
+	 * *********** CORE MODIFICATIONS **************
 	 */
 
 	/**
-	 * GOOBER COGNITO - Return profile from OpenVPNProfileDialog where the user selects the profile
+	 * COGNITO - Return profile from OpenVPNProfileDialog where the user selects the profile
 	 * they want to start
 	 *
 	 * @param vpnName
@@ -3022,9 +2968,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				doCoreErrorAction(); //HONEYBADGER AM-76
 			}
 		} else {
-			// GOOBER COGNITO - Go back to login screen if hit cancel on vpndialog box
-			//setLoginContentView();
-
 			// try logging in anyway in case user has own vpn running
 			showWaitDialog(getString(R.string.wait_dialog_retrieving_account_info));
 			autoLoginMessenger();
@@ -3033,7 +2976,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	@Override
 	public boolean handleMessage(Message msg) {
-		Log.d("GOOBER", "EditAccountActivity::handleMessage(): " + msg.obj.toString() + "::What = " + msg.what);
+		Log.d("Glacier", "EditAccountActivity::handleMessage(): " + msg.obj.toString() + "::What = " + msg.what);
 
 		if(msg.what == MSG_UPDATE_STATE) {
 			if (msg.obj.toString().startsWith("CONNECTED")) {
@@ -3041,7 +2984,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				if ((lastConnectionState == VPN_STATE_MISC) || (lastConnectionState == VPN_STATE_NOPROCESS)) {
 					showWaitDialog(getString(R.string.wait_dialog_retrieving_account_info));
 
-					// GOOBER COGNITO - sleep before trying to log in.
+					// COGNITO - sleep before trying to log in.
 					// Assumption is that backend still needs to do stuff
 					try {
 						Thread.sleep(100);
@@ -3069,7 +3012,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		icsopenvpnService.setPackage("com.glaciersecurity.glaciercore");
 
 		try {
-			// GOOBER ERROR - Reports error on occassion but doesn't seem to effect anything
+			// ERROR - Reports error on occassion but doesn't seem to effect anything
 			bindService(icsopenvpnService, mConnection, Context.BIND_AUTO_CREATE);
 
 			//ALF AM-76
@@ -3111,7 +3054,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					onActivityResult(ICS_OPENVPN_PERMISSION, Activity.RESULT_OK,null);
 				}
 
-				// GOOBER COGNITO - trigger to get status/current running profile from Core
+				// COGNITO - trigger to get status/current running profile from Core
 				/*try {
 					mService.registerStatusCallback(mCallback);
 				} catch (RemoteException | SecurityException e) { //ALF AM-194 added Security for UVP
@@ -3131,49 +3074,44 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	};
 
 	/**
-	 * GOOBER PERMISSIONS - Ask for permissions
+	 * PERMISSIONS - Ask for permissions
 	 */
 	private void askForPermissions() {
 		final int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
 
 		//String[] request = {Manifest.permission.READ_CONTACTS, Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			Log.d("GOOBER", "EditAccountActivity::askForPermissions-1");
-			List<String> permissionsNeeded = new ArrayList<String>();
+		List<String> permissionsNeeded = new ArrayList<String>();
 
-			final List<String> permissionsList = new ArrayList<String>();
-			// GOOBER - added WRITE_EXTERNAL_STORAGE permission ahead of time so that it doesn't ask
-			// when time comes which inevitably fails at that point.
-			if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
-				permissionsNeeded.add("Write Storage");
-			// if (!addPermission(permissionsList, Manifest.permission.READ_EXTERNAL_STORAGE))
-			//	permissionsNeeded.add("Read Storage");
+		final List<String> permissionsList = new ArrayList<String>();
+		// added WRITE_EXTERNAL_STORAGE permission ahead of time so that it doesn't ask
+		// when time comes which inevitably fails at that point.
+		if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+			permissionsNeeded.add("Write Storage");
+		// if (!addPermission(permissionsList, Manifest.permission.READ_EXTERNAL_STORAGE))
+		//	permissionsNeeded.add("Read Storage");
 
-			if (permissionsList.size() > 0) {
-				if (permissionsNeeded.size() > 0) {
-					// Need Rationale
-					String message = "You need to grant access to " + permissionsNeeded.get(0);
-					for (int i = 1; i < permissionsNeeded.size(); i++) {
-						message = message + ", " + permissionsNeeded.get(i);
-					}
-
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-						requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
-								REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
-					}
-
-					return;
+		if (permissionsList.size() > 0) {
+			if (permissionsNeeded.size() > 0) {
+				// Need Rationale
+				String message = "You need to grant access to " + permissionsNeeded.get(0);
+				for (int i = 1; i < permissionsNeeded.size(); i++) {
+					message = message + ", " + permissionsNeeded.get(i);
 				}
+
 				requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
 						REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
 
 				return;
 			}
+			requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
+					REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
+
+			return;
 		}
 	}
 
 	/**
-	 * GOOBER PERMISSIONS - This is how we ensure that permissions are granted and then accounts are restored
+	 * PERMISSIONS - This is how we ensure that permissions are granted and then accounts are restored
 	 *
 	 * @param requestCode
 	 * @param permissions
@@ -3191,24 +3129,20 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 
 	/**
-	 * GOOBER PERMISSIONS - add permission
+	 * PERMISSIONS - add permission
 	 *
 	 * @param permissionsList
 	 * @param permission
 	 * @return
 	 */
 	private boolean addPermission(List<String> permissionsList, String permission) {
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			if (this.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-				permissionsList.add(permission);
-				// Check for Rationale Option
-				if (!shouldShowRequestPermissionRationale(permission))
-					return false;
-			}
-			return true;
+		if (this.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+			permissionsList.add(permission);
+			// Check for Rationale Option
+			if (!shouldShowRequestPermissionRationale(permission))
+				return false;
 		}
-		return false;
+		return true;
 	}
 
 

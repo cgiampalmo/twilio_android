@@ -177,9 +177,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
             Intent intent = new Intent(Intent.ACTION_PICK);
 
             intent.setType("*/*");
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-            }
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setAction(Intent.ACTION_GET_CONTENT);
 
@@ -561,42 +559,41 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
                 //uploadObserver.getAbsoluteFilePath();
 
             } catch (AmazonS3Exception ase) {
-                com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER","Caught an AmazonS3Exception, " +
+                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","Caught an AmazonS3Exception, " +
                         "which means your request made it " +
                         "to Amazon S3, but was rejected with an error response " +
                         "for some reason.");
-                com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Error Message:    " + ase.getMessage());
-                com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER","HTTP Status Code: " + ase.getStatusCode());
-                com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER","AWS Error Code:   " + ase.getErrorCode());
-                com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER","Error Type:       " + ase.getErrorType());
-                com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER","Request ID:       " + ase.getRequestId());
+                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "Error Message:    " + ase.getMessage());
+                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","HTTP Status Code: " + ase.getStatusCode());
+                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","AWS Error Code:   " + ase.getErrorCode());
+                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","Error Type:       " + ase.getErrorType());
+                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","Request ID:       " + ase.getRequestId());
                 if (failedsb.length() > 0) {
                     failedsb.append(", ");
                 }
                 failedsb.append(filename);
                 processed[ctr] = true;
             } catch (AmazonServiceException ase) {
-                com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER","Caught an AmazonServiceException, " +
+                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","Caught an AmazonServiceException, " +
                         "which means your request made it " +
                         "to Amazon S3, but was rejected with an error response " +
                         "for some reason.");
-                com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Error Message:    " + ase.getMessage());
-                com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER","HTTP Status Code: " + ase.getStatusCode());
-                com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER","AWS Error Code:   " + ase.getErrorCode());
-                com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER","Error Type:       " + ase.getErrorType());
-                com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER","Request ID:       " + ase.getRequestId());
+                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "Error Message:    " + ase.getMessage());
+                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","HTTP Status Code: " + ase.getStatusCode());
+                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","AWS Error Code:   " + ase.getErrorCode());
+                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","Error Type:       " + ase.getErrorType());
+                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","Request ID:       " + ase.getRequestId());
                 if (failedsb.length() > 0) {
                     failedsb.append(", ");
                 }
                 failedsb.append(filename);
                 processed[ctr] = true;
             } catch (AmazonClientException ace) {
-                com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", "Caught an AmazonClientException, " +
+                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "Caught an AmazonClientException, " +
                         "which means the client encountered " +
                         "an internal error while trying to communicate" +
                         " with S3, " +
                         "such as not being able to access the network.");
-                com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER","Error Message: " + ace.getMessage());
                 if (failedsb.length() > 0) {
                     failedsb.append(", ");
                 }
@@ -642,7 +639,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
     AuthenticationHandler authenticationHandler = new AuthenticationHandler() {
         @Override
         public void onSuccess(CognitoUserSession cognitoUserSession, CognitoDevice device) {
-            com.glaciersecurity.glaciermessenger.utils.Log.d("GOOBER", " -- Auth Success");
+            com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", " -- Auth Success");
             AppHelper.setCurrSession(cognitoUserSession);
             AppHelper.newDevice(device);
 
@@ -707,7 +704,6 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
 
         @Override
         public void getMFACode(MultiFactorAuthenticationContinuation multiFactorAuthenticationContinuation) {
-            // GOOBER
         }
 
         @Override
@@ -980,12 +976,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
                 if (withRefresh) {
                     Drawable refreshIcon =
                             ContextCompat.getDrawable(this, R.drawable.ic_refresh_black_24dp);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                        networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
-                    } else {
-                        refreshIcon.setBounds(0, 0, refreshIcon.getIntrinsicWidth(), refreshIcon.getIntrinsicHeight());
-                        networkStatus.setCompoundDrawables(refreshIcon, null, null, null);
-                    }
+                    networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
                 } else {
                     networkStatus.setCompoundDrawables(null, null, null, null);
                 }

@@ -1,13 +1,11 @@
 package com.glaciersecurity.glaciermessenger.services;
 
-import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Icon;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.service.chooser.ChooserTarget;
@@ -20,7 +18,6 @@ import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.ui.ConversationsActivity;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 
-@TargetApi(Build.VERSION_CODES.M)
 public class ContactChooserTargetService extends ChooserTargetService implements ServiceConnection {
 
 	private final Object lock = new Object();

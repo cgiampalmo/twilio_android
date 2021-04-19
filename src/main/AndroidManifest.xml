@@ -22,7 +22,6 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" /> <!-- AM-440 -->
     <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" /> <!-- AM-561 -->
 
-    <!-- GOOBER COGNITO -->
     <uses-feature android:name="android.hardware.camera.autofocus"
         android:required="false"/>
     <uses-feature
@@ -74,12 +73,6 @@
         android:minHeight="450dp"
         android:minWidth="300dp"
         tools:targetApi="o">
-
-
-    <!--  GOOBER - Commented out so it would go through Playstore
-        <meta-data
-            android:name="com.google.android.gms.car.application"
-            android:resource="@xml/automotive_app_desc"/> -->
 
         <service android:name=".services.XmppConnectionService"/>
 
