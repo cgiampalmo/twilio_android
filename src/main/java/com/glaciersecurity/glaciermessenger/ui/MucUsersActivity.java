@@ -21,6 +21,7 @@ import java.util.Locale;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.databinding.ActivityMucUsersBinding;
+import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.MucOptions;
@@ -59,6 +60,8 @@ public class MucUsersActivity extends XmppActivity implements XmppConnectionServ
             Collections.sort(users);
             userAdapter.submitList(users);
             allUsers = mConversation.getMucOptions().getUsers();
+            //AM-377
+            allUsers.add(mConversation.getMucOptions().getSelf());
             Collections.sort(allUsers);
             submitFilteredList(mSearchEditText != null ? mSearchEditText.getText().toString() : null);
         }
@@ -73,9 +76,19 @@ public class MucUsersActivity extends XmppActivity implements XmppConnectionServ
             for(MucOptions.User user : allUsers) {
                 final String name = user.getName();
                 final Contact contact = user.getContact();
-                if (name != null && name.toLowerCase(Locale.getDefault()).contains(needle) || contact != null && contact.getDisplayName().toLowerCase(Locale.getDefault()).contains(needle)) {
-                    filtered.add(user);
+                if (contact != null) {
+                    if (name != null && name.toLowerCase(Locale.getDefault()).contains(needle) || contact != null && contact.getDisplayName().toLowerCase(Locale.getDefault()).contains(needle)) {
+                        filtered.add(user);
+                    }
                 }
+
+            }
+//            //AM-377
+            MucOptions.User selfUser = mConversation.getMucOptions().getSelf();
+            final String name = selfUser.getName();
+            final Account account = selfUser.getAccount();
+            if (name != null && name.toLowerCase(Locale.getDefault()).contains(needle) || account != null && account.getDisplayName().toLowerCase(Locale.getDefault()).contains(needle)) {
+                filtered.add(mConversation.getMucOptions().getSelf());
             }
             userAdapter.submitList(filtered);
         }
@@ -97,6 +110,7 @@ public class MucUsersActivity extends XmppActivity implements XmppConnectionServ
         configureActionBar(getSupportActionBar(), true);
         this.userAdapter = new UserAdapter(getPreferences().getBoolean("advanced_muc_mode", false));
         binding.list.setAdapter(this.userAdapter);
+
     }
 
 

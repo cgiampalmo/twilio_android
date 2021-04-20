@@ -70,8 +70,14 @@ public class UserAdapter extends ListAdapter<MucOptions.User, UserAdapter.ViewHo
         viewHolder.binding.getRoot().setOnClickListener(v -> {
             final XmppActivity activity = XmppActivity.find(v);
             if (activity != null) {
-                //CMG AM-302
-                activity.switchToContactDetails(user.getContact(), null);
+                //CMG AM-302 AM-337
+                Contact contact = user.getContact();
+                if (contact != null) {
+                    activity.switchToContactDetails(contact, null);
+                }
+                else if (user.getAccount().equals(activity.xmppConnectionService.getAccounts().get(0))){
+                    activity.switchToAccount(user.getAccount());
+                }
                 // activity.highlightInMuc(user.getConversation(), user.getName());
             }
         });

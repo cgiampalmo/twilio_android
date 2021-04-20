@@ -2,7 +2,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    HONEYBADGER AM-120 hide "Share Location Plugin"
     <item android:id="@+id/action_share_location"
         app:showAsAction="ifRoom"
         android:showAsAction="ifRoom"

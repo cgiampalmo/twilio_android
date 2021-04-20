@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.databinding.UserPreviewBinding;
+import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.MucOptions;
 import com.glaciersecurity.glaciermessenger.ui.XmppActivity;
 import com.glaciersecurity.glaciermessenger.ui.util.AvatarWorkerTask;
@@ -37,8 +38,14 @@ public class UserPreviewAdapter extends ListAdapter<MucOptions.User, UserPreview
         viewHolder.binding.getRoot().setOnClickListener(v -> {
             final XmppActivity activity = XmppActivity.find(v);
             if (activity != null) {
-                //CMG AM-302
-                activity.switchToContactDetails(user.getContact(), null);
+                //CMG AM-302 AM-377
+                Contact contact = user.getContact();
+                if (contact != null) {
+                    activity.switchToContactDetails(contact, null);
+                }
+                else if (user.getAccount().equals(activity.xmppConnectionService.getAccounts().get(0))){
+                    activity.switchToAccount(user.getAccount());
+                }
             }
         });
         viewHolder.binding.getRoot().setOnCreateContextMenuListener(this);

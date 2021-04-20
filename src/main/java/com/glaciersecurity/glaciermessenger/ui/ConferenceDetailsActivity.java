@@ -559,7 +559,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             this.binding.notificationStatusText.setText(R.string.notify_only_when_highlighted);
             this.binding.notificationStatusButton.setImageResource(ic_notifications_none);
         }
-        final List<User> users = mucOptions.getUsers();
+        List<User> users = mucOptions.getUsers();
         Collections.sort(users, (a, b) -> {
             if (b.getAffiliation().outranks(a.getAffiliation())) {
                 return 1;
@@ -575,7 +575,10 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
                 }
             }
         });
-        this.mUserPreviewAdapter.submitList(MucOptions.sub(users, GridManager.getCurrentColumnCount(binding.users)));
+        if (mucOptions.getSelf().getAffiliation().outranks(MucOptions.Affiliation.NONE)) {
+            users.add(mucOptions.getSelf());
+        }
+        this.mUserPreviewAdapter.submitList(MucOptions.subPlusSelf(users, GridManager.getCurrentColumnCount(binding.users)));
         this.binding.invite.setVisibility(mucOptions.canInvite() ? View.VISIBLE : View.GONE);
         this.binding.showUsers.setVisibility(users.size() > 0 ? View.VISIBLE : View.GONE);
         this.binding.usersWrapper.setVisibility(users.size() > 0 || mucOptions.canInvite() ? View.VISIBLE : View.GONE);
