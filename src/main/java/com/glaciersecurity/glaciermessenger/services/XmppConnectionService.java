@@ -1008,7 +1008,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			if (call.getStatus().equalsIgnoreCase("reject")) {
 				//stop CallActivity
 				//AM-558 should not stop call activity yet if it was a group call in case others accept
-				if (currentTwilioCall != null && currentTwilioCall.getRoomTitle().startsWith("#")) {
+				//AM-592
+				if (currentTwilioCall != null && currentTwilioCall.getRoomTitle() != null && currentTwilioCall.getRoomTitle().startsWith("#")) {
 					return;
 				}
 
@@ -4821,10 +4822,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 					//AM-558 accept message already sent...this should be the group conversation if group
 					Conversation c = null;
-					if (call.getRoomTitle() == null){
-						c = findOrCreateConversation(account, Jid.of(call.getCaller()), false, true);
-					}
-					else if (call.getRoomTitle().startsWith("#")) {
+					if (call.getRoomTitle() != null && call.getRoomTitle().startsWith("#")) {
 						String server = findConferenceServer(account);
 						String name = call.getRoomTitle().substring(1);
 						try {
@@ -4957,7 +4955,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 						//AM-558 accept message already sent...this should be the group conversation if group
 						Conversation c = null;
-						if (call.getRoomTitle().startsWith("#")) {
+						if (call.getRoomTitle() != null && call.getRoomTitle().startsWith("#")) {
 							String server = findConferenceServer(account);
 							String name = call.getRoomTitle().substring(1);
 							try {

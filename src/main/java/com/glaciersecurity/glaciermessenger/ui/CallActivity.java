@@ -294,9 +294,10 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 	private void onIncomingCall(){
 		String incoming = getResources().getString(R.string.incoming_call);
 		callState.setText(incoming);
-		contactText.setText(currentTwilioCall.getCaller());
 		if (currentTwilioCall.getRoomTitle() != null) { //AM-558
 			contactText.setText(currentTwilioCall.getRoomTitle());
+		} else {
+			contactText.setText(currentTwilioCall.getCaller());
 		}
 		incomingCallLayout.setVisibility(View.VISIBLE);
 		outgoingCallLayout.setVisibility(View.GONE);
