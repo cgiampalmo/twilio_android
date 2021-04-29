@@ -3251,7 +3251,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	public void sendJoiningGroupMessage(final Conversation conversation, List joiners, boolean includeAccount) {
 		// sleep required so message goes out before conversation thread stopped
 		// maybe show a spinner?
-		try { Thread.sleep(5000); } catch (InterruptedException ie) {}
+		//AM-535
+		//try { Thread.sleep(5000); } catch (InterruptedException ie) {}
 		final Account account = conversation.getAccount();
 		String dname = account.getDisplayName();
 		if (dname == null) { dname = account.getUsername(); }

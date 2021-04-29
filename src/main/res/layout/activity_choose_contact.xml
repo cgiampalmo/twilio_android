@@ -11,6 +11,20 @@
         <include android:id="@+id/toolbar"
             layout="@layout/toolbar" />
 
+<!--        AM-564-->
+        <LinearLayout
+            android:visibility="gone"
+            android:id="@+id/in_progress"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center">
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" />
+        </LinearLayout>
+
+
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"

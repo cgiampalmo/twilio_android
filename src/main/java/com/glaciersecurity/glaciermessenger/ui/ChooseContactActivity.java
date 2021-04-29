@@ -48,15 +48,15 @@ public class ChooseContactActivity extends AbstractSearchableListItemSelectActiv
     public static final String EXTRA_SHOW_ENTER_JID = "extra_show_enter_jid";
     public static final String EXTRA_CONVERSATION = "extra_conversation";
     private static final String EXTRA_FILTERED_CONTACTS = "extra_filtered_contacts";
-    private List<String> mActivatedAccounts = new ArrayList<>();
-    private Set<String> selected = new HashSet<>();
+    private final List<String> mActivatedAccounts = new ArrayList<>();
+    private final Set<String> selected = new HashSet<>();
     private Set<String> filterContacts;
 
     private boolean showEnterJid = false;
     private boolean startSearching = false;
     private boolean multiple = false;
 
-    private PendingItem<ActivityResult> postponedActivityResult = new PendingItem<>();
+    private final PendingItem<ActivityResult> postponedActivityResult = new PendingItem<>();
 
     public static Intent create(Activity activity, Conversation conversation) {
         final Intent intent = new Intent(activity, ChooseContactActivity.class);
@@ -75,7 +75,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemSelectActiv
         intent.putExtra(EXTRA_CONVERSATION, conversation.getUuid());
         intent.putExtra(EXTRA_SELECT_MULTIPLE, true);
         intent.putExtra(EXTRA_SHOW_ENTER_JID, true);
-        intent.putExtra(EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toString());
+        intent.putExtra(EXTRA_ACCOUNT, conversation.getAccount().getJid().asBareJid().toEscapedString());
         return intent;
     }
 
@@ -138,6 +138,8 @@ public class ChooseContactActivity extends AbstractSearchableListItemSelectActiv
     private void onFabClicked(View v) {
         //CMG AM-152
         if (selected.size() > 0) {
+            //AM-564
+            binding.inProgress.setVisibility(View.VISIBLE);
             submitSelection();
         }
     }
@@ -369,9 +371,9 @@ public class ChooseContactActivity extends AbstractSearchableListItemSelectActiv
         for (Account account : xmppConnectionService.getAccounts()) {
             if (account.getStatus() != Account.State.DISABLED) {
                 if (Config.DOMAIN_LOCK != null) {
-                    this.mActivatedAccounts.add(account.getJid().getLocal());
+                    this.mActivatedAccounts.add(account.getJid().getEscapedLocal());
                 } else {
-                    this.mActivatedAccounts.add(account.getJid().asBareJid().toString());
+                    this.mActivatedAccounts.add(account.getJid().asBareJid().toEscapedString());
                 }
             }
         }
@@ -409,7 +411,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemSelectActiv
         data.putExtra("contact", item.getJid().toString());
         String account = request.getStringExtra(EXTRA_ACCOUNT);
         if (account == null && item instanceof Contact) {
-            account = ((Contact) item).getAccount().getJid().asBareJid().toString();
+            account = ((Contact) item).getAccount().getJid().asBareJid().toEscapedString();
         }
         data.putExtra(EXTRA_ACCOUNT, account);
         data.putExtra(EXTRA_SELECT_MULTIPLE, false);

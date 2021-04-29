@@ -3404,7 +3404,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			handleActivityResult(activityResult);
 		}
 		clearPending();
-
 		//CMG AM-41
 		activity.updateOfflineStatusBar();
 
