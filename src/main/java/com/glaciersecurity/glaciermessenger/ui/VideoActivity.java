@@ -1067,6 +1067,10 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         if (!room.getRemoteParticipants().isEmpty()){
             reconnectingProgressBar.setVisibility(View.GONE);
         }
+
+        //AM-484
+        SoundPoolManager.getInstance(VideoActivity.this).playJoin();
+
     }
 
     public void handleReconnecting(boolean reconnecting){
