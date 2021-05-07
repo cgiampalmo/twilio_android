@@ -180,10 +180,6 @@
             android:name=".ui.OpenVPNActivity"
             android:label="@string/title_activity_glaciervpn"/>
         <activity
-            android:name="com.glaciersecurity.glaciermessenger.ui.CustomPinActivity"
-            android:label="@string/title_activity_glacierpin">
-        </activity>
-        <activity
             android:name=".ui.ChooseContactActivity"
             android:label="@string/title_activity_choose_contact"/>
         <activity
