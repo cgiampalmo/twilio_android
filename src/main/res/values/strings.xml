@@ -1003,11 +1003,6 @@
     <string name="activity_dialog_accept">OK</string>
     <string name="activity_dialog_decline">CANCEL</string>
     <string name="activity_dialog_content">Please contact your system administrator for assistance or tap \'Cancel\' to go back.</string>
-    <string name="action_enablepin">Enable PIN</string>
-    <string name="action_changepin">Change PIN</string>
-    <string name="change_pin_dialog_title">Change PIN</string>
-    <string name="change_pin_dialog_msg">Must enable PIN before changing!</string>
-    <string name="title_activity_glacierpin">Security PIN</string>
 
     <string name="button1_large_text" translatable="false">1</string>
     <string name="button2_large_text" translatable="false">2</string>
@@ -1027,17 +1022,6 @@
     <string name="button9_large_text" translatable="false">9</string>
     <string name="button9_small_text" translatable="false">WXYZ</string>
     <string name="button11_large_text" translatable="false">0</string>
-
-    <string name="pin_code_forgot_text">Forgot?</string>
-    <string name="pin_code_step_disable">Disable %d-digit Pincode</string>
-    <string name="pin_code_step_create">Create a %d-digit Pincode</string>
-    <string name="pin_code_step_change">Enter your current %d-digit Pincode</string>
-    <string name="pin_code_step_unlock">Enter your %d-digit Pincode</string>
-    <string name="pin_code_step_enable_confirm">Confirm your %d-digit Pincode</string>
-
-    <string name="pin_code_fingerprint_text">Fingerprint</string>
-    <string name="pin_code_fingerprint_success">Fingerprint recognized</string>
-    <string name="pin_code_fingerprint_not_recognized">Fingerprint not recognized. Try again</string>
 
     <!-- CORE -->
     <string name="connectionStatusTitle">Connection Status</string>

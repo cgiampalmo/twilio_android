@@ -688,8 +688,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 
 			// delete file
 			for (int i = 0; i < fileDir.length; i++) {
-				// do not delete lollipin db
-				if (!(fileDir[i].getName().startsWith("LollipinDB") || (fileDir[i].getName().startsWith("AppLockImpl"))) && (fileDir[i].delete())) {
+				if (fileDir[i].delete()) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
 					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);

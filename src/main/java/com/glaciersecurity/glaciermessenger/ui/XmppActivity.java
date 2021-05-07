@@ -2,6 +2,7 @@ package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
@@ -59,7 +60,6 @@ import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 
 import com.glaciersecurity.glaciermessenger.entities.PresenceTemplate;
-import com.glaciersecurity.glaciermessenger.lollipin.lib.PinActivity;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 //import com.glaciersecurity.glaciermessenger.crypto.PgpEngine;
@@ -86,9 +86,8 @@ import rocks.xmpp.addr.Jid;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
-// PIN - extend to use PIN everywhere
-// public abstract class XmppActivity extends ActionBarActivity {
-public abstract class XmppActivity extends PinActivity {
+public abstract class XmppActivity extends ActionBarActivity {
+//public abstract class XmppActivity extends Activity {
 
 	public static final String EXTRA_ACCOUNT = "account";
 	protected static final int REQUEST_ANNOUNCE_PGP = 0x0101;
