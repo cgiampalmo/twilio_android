@@ -69,16 +69,12 @@ public class AudioPlayer implements View.OnClickListener, MediaPlayer.OnCompleti
 	}
 
 	private void initializeProximityWakeLock(Context context) {
-		if (Build.VERSION.SDK_INT >= 21) {
-			synchronized (AudioPlayer.LOCK) {
-				if (AudioPlayer.wakeLock == null) {
-					final PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-					AudioPlayer.wakeLock = powerManager == null ? null : powerManager.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, AudioPlayer.class.getSimpleName());
-					AudioPlayer.wakeLock.setReferenceCounted(false);
-				}
+		synchronized (AudioPlayer.LOCK) {
+			if (AudioPlayer.wakeLock == null) {
+				final PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+				AudioPlayer.wakeLock = powerManager == null ? null : powerManager.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, AudioPlayer.class.getSimpleName());
+				AudioPlayer.wakeLock.setReferenceCounted(false);
 			}
-		} else {
-			AudioPlayer.wakeLock = null;
 		}
 	}
 

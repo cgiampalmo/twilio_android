@@ -22,9 +22,7 @@ public class GridManager {
         recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if (Build.VERSION.SDK_INT >= 16) {
-                    recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                }
+                recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 final int availableWidth = recyclerView.getMeasuredWidth();
                 if (availableWidth == 0) {
                     Log.e(Config.LOGTAG,"GridManager: available width was 0; probably because layout was hidden");

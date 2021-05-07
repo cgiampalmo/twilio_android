@@ -668,22 +668,15 @@ public class ConversationsOverviewFragment extends XmppFragment {
 	 * Notify everyone of file status change.  Must send specific files (not necessarily directories.
 	 */
 	private void callBroadcast(String[] files) {
-		if (Build.VERSION.SDK_INT >= 14) {
-			com.glaciersecurity.glaciermessenger.utils.Log.d("-->", " >= 14");
-			MediaScannerConnection.scanFile(getActivity(), files, null, new MediaScannerConnection.OnScanCompletedListener() {
-				/*
-				 *   (non-Javadoc)
-				 * @see android.media.MediaScannerConnection.OnScanCompletedListener#onScanCompleted(java.lang.String, android.net.Uri)
-				 */
-				public void onScanCompleted(String path, Uri uri) {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("ExternalStorage", "Scanned " + path + ":");
-					com.glaciersecurity.glaciermessenger.utils.Log.d("ExternalStorage", "-> uri=" + uri);
-				}
-			});
-		} else {
-			com.glaciersecurity.glaciermessenger.utils.Log.d("-->", " < 14");
-			getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-					Uri.parse("file://" + Environment.getExternalStorageDirectory())));
-		}
+		MediaScannerConnection.scanFile(getActivity(), files, null, new MediaScannerConnection.OnScanCompletedListener() {
+			/*
+			*   (non-Javadoc)
+			* @see android.media.MediaScannerConnection.OnScanCompletedListener#onScanCompleted(java.lang.String, android.net.Uri)
+			*/
+			public void onScanCompleted(String path, Uri uri) {
+				com.glaciersecurity.glaciermessenger.utils.Log.d("ExternalStorage", "Scanned " + path + ":");
+				com.glaciersecurity.glaciermessenger.utils.Log.d("ExternalStorage", "-> uri=" + uri);
+			}
+		});
 	}
 }
