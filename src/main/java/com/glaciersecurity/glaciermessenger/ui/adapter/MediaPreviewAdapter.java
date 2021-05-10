@@ -49,9 +49,7 @@ public class MediaPreviewAdapter extends RecyclerView.Adapter<MediaPreviewAdapte
         final Context context = conversationFragment.getActivity();
         final Attachment attachment = mediaPreviews.get(position);
         if (attachment.renderThumbnail()) {
-            if (Build.VERSION.SDK_INT >= 16) {
-                holder.binding.mediaPreview.setImageAlpha(255);
-            }
+            holder.binding.mediaPreview.setImageAlpha(255);
             loadPreview(attachment, holder.binding.mediaPreview);
         } else {
             cancelPotentialWork(attachment, holder.binding.mediaPreview);

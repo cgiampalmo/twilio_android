@@ -123,7 +123,7 @@ public class SoundPoolManager {
 
     public void playDisconnect() {
         if (loaded && !playing) {
-            soundPool.play(disconnectSoundId, volume, volume, 1, 0, 1f);
+            soundPool.play(disconnectSoundId, 3, volume, 1, 0, 1f);
             playing = false;
         }
         setSpeakerOn(false); //AM-441
@@ -131,7 +131,7 @@ public class SoundPoolManager {
 
     public void playJoin() {
         if (loaded && !playing) {
-            soundPool.play(joingSoundId, volume, volume, 1, 0, 1f);
+            soundPool.play(joingSoundId, 3, volume, 1, 0, 1f);
             playing = false;
         }
     }

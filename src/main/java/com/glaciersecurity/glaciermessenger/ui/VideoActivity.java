@@ -599,7 +599,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
      */
     @SuppressLint("SetTextI18n")
     private void addRemoteParticipant(TwilioCallParticipant remoteCallParticipant) {
-
         callParticipantsLayout.update(callManager.getRemoteParticipants());
 
         //AM-558 the rest after this should initialize a new view for this specific user, not for
@@ -612,6 +611,9 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         if(remoteContact != null){
             //Todo setAvatar
         }
+
+        //AM-484
+        SoundPoolManager.getInstance(VideoActivity.this).playJoin();
     }
 
     public Contact getRemoteContact(String rcString){
@@ -1061,15 +1063,15 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         audioDeviceSelector.activate(); //AM-440
         updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
 
+        //AM-484
+        SoundPoolManager.getInstance(VideoActivity.this).playJoin();
+
         //AM-558
         callParticipantsLayout.update(callManager.getRemoteParticipants());
 
         if (!room.getRemoteParticipants().isEmpty()){
             reconnectingProgressBar.setVisibility(View.GONE);
         }
-
-        //AM-484
-        SoundPoolManager.getInstance(VideoActivity.this).playJoin();
 
     }
 

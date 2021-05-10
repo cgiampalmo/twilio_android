@@ -17,6 +17,7 @@ import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
 import com.glaciersecurity.glaciermessenger.ui.CallActivity;
 import com.glaciersecurity.glaciermessenger.ui.VideoActivity;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
+import com.glaciersecurity.glaciermessenger.ui.util.SoundPoolManager;
 import com.twilio.video.AudioCodec;
 import com.twilio.video.ConnectOptions;
 import com.twilio.video.EncodingParameters;
@@ -172,16 +173,21 @@ public class CallManager {
         }
     }
     public void getReceivers(){
-        List<String> receiverJids = Arrays.asList(receiver.split(","));
-        for(String receiver: receiverJids) {
-            try {
-                Jid remoteJid = Jid.of(receiver);
-                Contact contact = mXmppConnectionService.getAccounts().get(0).getRoster().getContact(remoteJid);
-                contactByDisplayName.put(contact.getDisplayName(), contact);
-            }
-            catch (Exception e){
+        //AM-602
+        try {
+            List<String> receiverJids = Arrays.asList(receiver.split(","));
+            for (String receiver : receiverJids) {
+                try {
+                    Jid remoteJid = Jid.of(receiver);
+                    Contact contact = mXmppConnectionService.getAccounts().get(0).getRoster().getContact(remoteJid);
+                    contactByDisplayName.put(contact.getDisplayName(), contact);
+                } catch (Exception e) {
 
+                }
             }
+        }
+        catch (Exception ex){
+
         }
     }
 

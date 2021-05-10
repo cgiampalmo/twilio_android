@@ -63,11 +63,7 @@ public class ExportBackupService extends Service {
         //do not use 'vnd.android.document/directory' since this will trigger system file manager
         Intent openIntent = new Intent(Intent.ACTION_VIEW);
         openIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        if (Compatibility.runsAndTargetsTwentyFour(context)) {
-            openIntent.setType("resource/folder");
-        } else {
-            openIntent.setDataAndType(Uri.parse("file://"+path),"resource/folder");
-        }
+        openIntent.setType("resource/folder");
         openIntent.putExtra("org.openintents.extra.ABSOLUTE_PATH", path);
 
         Intent amazeIntent = new Intent(Intent.ACTION_VIEW);

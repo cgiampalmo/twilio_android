@@ -134,24 +134,12 @@ public class ProfileSelectListAdapter<T> extends ArrayAdapter<GlacierProfile> {
             if (item.getUuid().equals(lastUUID)){
                 viewHolder.checkedTextView.setChecked(true);
             }
-
-
         }
         else {
             viewHolder = (ViewHolder) view.getTag();
         }
-//        if (Build.VERSION.SDK_INT >= 16) {
-//            view.setBackground(StyledAttributes.getDrawable(view.getContext(), R.attr.list_item_background));
-//        }
-//        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
 
-//        ViewHolder viewHolder;
-//        RadioBinding binding = DataBindingUtil.inflate(layoutInflater, R.layout.radio, parent, false);
-//        viewHolder = ViewHolder.get(binding);
-//        viewHolder.checkedTextView = view.findViewById(R.id.profname);
-//
-    return view;
-//        return super.getView(position, view, parent);
+        return view;
     }
 
 
