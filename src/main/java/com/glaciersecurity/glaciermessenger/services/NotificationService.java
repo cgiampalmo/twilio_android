@@ -13,7 +13,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.media.AudioAttributes;
-import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -1146,7 +1145,7 @@ public class NotificationService {
 				NotificationManager.IMPORTANCE_HIGH);
 		callsChannel.setShowBadge(true);
 		//Uri callUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE); //AM-447
-		Uri callUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"+ mXmppConnectionService.getPackageName() + "/" + R.raw.outgoing_ring);
+		Uri callUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"+ mXmppConnectionService.getPackageName() + "/" + R.raw.incoming_ring);
 		callsChannel.setSound(callUri, new AudioAttributes.Builder()
 				.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
 				.setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)

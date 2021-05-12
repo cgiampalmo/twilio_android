@@ -6,7 +6,6 @@ import android.media.AudioManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.media.SoundPool;
-import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Build;
 import android.os.VibrationEffect;
@@ -22,10 +21,11 @@ public class SoundPoolManager {
     private boolean playing = false;
     private boolean loaded = false;
     private boolean playingCalled = false;
-    private float volume;
+    private boolean outgoingCalled = false;  private float volume;
     private SoundPool soundPool;
     private int ringingSoundId;
     private int ringingStreamId;
+    private int outgoingSoundId;
     private int disconnectSoundId;
     private int joingSoundId;
 
@@ -34,6 +34,7 @@ public class SoundPoolManager {
     private int audioMode;
 
     Ringtone ringtone; //ALF AM-447
+    Ringtone outgoingRingtone; //AM-588
 
     private static SoundPoolManager instance;
 
@@ -51,9 +52,14 @@ public class SoundPoolManager {
         vibrator = (Vibrator) context.getSystemService(VIBRATOR_SERVICE); //AM-475
 
         //AM-447
-        Uri soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"+ context.getPackageName() + "/" + R.raw.outgoing_ring);
+        Uri soundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"+ context.getPackageName() + "/" + R.raw.incoming_ring);
         //Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
         ringtone = RingtoneManager.getRingtone(context,soundUri);
+
+        //AM-588
+        Uri outgoingUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"+ context.getPackageName() + "/" + R.raw.outgoing);
+        //Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+        outgoingRingtone = RingtoneManager.getRingtone(context,outgoingUri);
 
         // Load the sounds
         int maxStreams = 2; //AM-446
@@ -69,10 +75,16 @@ public class SoundPoolManager {
                     playRinging();
                     playingCalled = false;
                 }
+
+                if(outgoingCalled){
+                    playOutgoing();
+                    outgoingCalled = false;
+                }
             }
 
         });
-        ringingSoundId = soundPool.load(context, R.raw.outgoing_ring, 1);
+        ringingSoundId = soundPool.load(context, R.raw.incoming_ring, 1);
+        outgoingSoundId = soundPool.load(context, R.raw.outgoing, 1);
         disconnectSoundId = soundPool.load(context, R.raw.disconnect_end_call, 1);
         joingSoundId = soundPool.load(context, R.raw.join_call, 1);
     }
@@ -96,6 +108,17 @@ public class SoundPoolManager {
         }
     }
 
+    public void playOutgoing() {
+        if (loaded && !playing) {
+            //ringingStreamId = soundPool.play(ringingSoundId, volume, volume, 1, -1, 1f);
+            outgoingRingtone.play(); //AM-447
+            vibrateIfNeeded(); //AM-475
+
+            playing = true;
+        } else {
+            outgoingCalled = true;
+        }
+    }
     //AM-475
     public void vibrateIfNeeded() {
         if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE ||
@@ -116,6 +139,10 @@ public class SoundPoolManager {
             soundPool.stop(ringingStreamId);
             if (ringtone != null) { //ALF AM-447, probably don't need above line anymore
                 ringtone.stop();
+            }
+
+            if (outgoingRingtone != null) { //AM-588
+                outgoingRingtone.stop();
             }
             playing = false;
         }

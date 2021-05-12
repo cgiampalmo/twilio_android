@@ -1065,7 +1065,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
         //AM-484
         SoundPoolManager.getInstance(VideoActivity.this).playJoin();
-
         //AM-558
         callParticipantsLayout.update(callManager.getRemoteParticipants());
 

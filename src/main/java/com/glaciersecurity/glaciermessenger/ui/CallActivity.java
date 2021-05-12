@@ -313,7 +313,7 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 	}
 
 	private void onOutgoingCall(){
-		SoundPoolManager.getInstance(CallActivity.this).playRinging();
+		SoundPoolManager.getInstance(CallActivity.this).playOutgoing();
 		callState.setText(getResources().getString(R.string.outgoing_call));
 		if (currentTwilioCall.getRoomTitle() != null) { //AM-558
 			contactText.setText(currentTwilioCall.getRoomTitle());

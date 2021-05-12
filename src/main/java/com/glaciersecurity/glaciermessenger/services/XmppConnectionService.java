@@ -4708,7 +4708,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							} else if (item.getAttribute("var").equals("room_name")) {
 								call.setRoomName(item.findChild("value").getContent());
 							} else if (item.getAttribute("var").equals("title")) { //ALF AM-558
-								setRoomTitle(item.findChild("value"), call);
+								call.setRoomTitle(item.findChild("value").getContent());
 							} else if (item.getAttribute("var").equals("token")) {
 								call.setToken(item.findChild("value").getContent());
 							} else if (item.getAttribute("var").equals("call_id")) {
@@ -4804,7 +4804,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							} else if (item.getAttribute("var").equals("receiver")) {
 								call.setReceiver(item.findChild("value").getContent());
 							} else if (item.getAttribute("var").equals("title")) { //ALF AM-558
-								setRoomTitle(item.findChild("value"), call);
+								call.setRoomTitle(item.findChild("value").getContent());
 							}
 						}
 					}
@@ -4823,7 +4823,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 					//AM-558 accept message already sent...this should be the group conversation if group
 					Conversation c = null;
-					if (call.getRoomTitle() != null && call.getRoomTitle().startsWith("#")) {
+					if (call.getRoomTitle() == null){
+						c = findOrCreateConversation(account, Jid.of(call.getCaller()), false, true);
+					}
+					else if (call.getRoomTitle().startsWith("#")) {
 						String server = findConferenceServer(account);
 						String name = call.getRoomTitle().substring(1);
 						try {
@@ -4864,20 +4867,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		});
 	}
 
-	private void setRoomTitle(Element value, TwilioCall call){
-		if (value != null){
-			try{
-				String room_title = value.getContent();
-				if (room_title != null) {
-					call.setRoomTitle(room_title);
-				} else {
-					call.setRoomTitle("");
-				}
-			}catch (Exception e){
-				call.setRoomTitle("");
-			}
-		}
-	}
 	public void rejectCall(TwilioCall call, boolean isBusy) {
 		final String deviceId = PhoneHelper.getAndroidId(this);
 
@@ -4943,7 +4932,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							} else if (item.getAttribute("var").equals("caller")) {
 								call.setCaller(item.findChild("value").getContent());
 							} else if (item.getAttribute("var").equals("title")) { //ALF AM-558
-								setRoomTitle(item.findChild("value"), call);
+								call.setRoomTitle(item.findChild("value").getContent());
 							}
 						}
 					}
