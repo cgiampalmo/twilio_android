@@ -139,17 +139,19 @@ public class FileBackend {
         if (Config.ONLY_INTERNAL_STORAGE) {
             return context.getFilesDir().getAbsolutePath() + "/" + type + "/";
         } else {
-            return getAppMediaDirectory(context) + context.getString(R.string.app_name) + " " + type + "/";
+            //return getAppMediaDirectory(context) + context.getString(R.string.app_name) + " " + type + "/";
+            return getAppMediaDirectory(context) + type + "/"; //ALF AM-603
         }
     }
 
     /**
      * Remove entire storage directory (ie WipeAllHistory)
      */
-    public static void removeStorageDirectory() {
-        // removeDirectory(new File(Environment.getExternalStorageDirectory() + "/Conversations/Media/Conversations Images/"));
-        // removeDirectory(new File(Environment.getExternalStorageDirectory() + "/Conversations/"));
-        removeDirectory(new File(Environment.getExternalStorageDirectory() + "/Messenger/"));
+    public static void removeStorageDirectory(Context context) {
+        removeDirectory(context.getExternalFilesDir(null)); //ALF AM-603 and context and if below
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            removeDirectory(new File(Environment.getExternalStorageDirectory() + "/Messenger/"));
+        }
     }
 
     /**
@@ -173,20 +175,21 @@ public class FileBackend {
     }
 
     public static String getAppMediaDirectory(Context context) {
-        return Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + context.getString(R.string.app_name) + "/Media/";
+        return context.getExternalFilesDir(null).getAbsolutePath() + "/Media/"; //ALF AM-603 should include app name already
+        //return Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + context.getString(R.string.app_name) + "/Media/";
     }
 
     public static String getBackupDirectory(Context context) {
         return getBackupDirectory(context.getString(R.string.app_name));
     }
 
-    public static String getBackupDirectory(String app) {
+    public static String getBackupDirectory(String app) {  //ALF IOSM-603 need to revisit this if we enable backup, won't work with API 29+
         return Environment.getExternalStorageDirectory().getAbsolutePath() + "/"+app+"/Backup/";
     }
 
-    public static String getConversationsLogsDirectory() {
+    /*public static String getConversationsLogsDirectory() {
         return Environment.getExternalStorageDirectory().getAbsolutePath() + "/Conversations/";
-    }
+    }*/
 
     private static Bitmap rotate(Bitmap bitmap, int degree) {
         if (degree == 0) {
@@ -203,9 +206,10 @@ public class FileBackend {
         return result;
     }
 
-    public static boolean isPathBlacklisted(String path) {
+    public static boolean isPathBlacklisted(String path, Context context) {  //ALF AM-603 glacierDataPath
         final String androidDataPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/data/";
-        return path.startsWith(androidDataPath);
+        final String glacierDataPath = context.getExternalFilesDir(null).getAbsolutePath(); //AM-603 and below
+        return path.startsWith(androidDataPath) && !path.startsWith(glacierDataPath);
     }
 
     private static Paint createAntiAliasingPaint() {
@@ -216,8 +220,9 @@ public class FileBackend {
         return paint;
     }
 
-    private static String getTakePhotoPath() {
-        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/";
+    private static String getTakePhotoPath(Context context) { //ALF AM-603 added context and new call
+        return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/Camera/";
+        //return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/";
     }
 
     public static Uri getUriForFile(Context context, File file) {
@@ -575,9 +580,9 @@ public class FileBackend {
         }
     }
 
-    public boolean useImageAsIs(Uri uri) {
+    public boolean useImageAsIs(Uri uri, Context context) { //ALF AM-603 added context
         String path = getOriginalPath(uri);
-        if (path == null || isPathBlacklisted(path)) {
+        if (path == null || isPathBlacklisted(path, context)) {
             return false;
         }
         File file = new File(path);
@@ -898,12 +903,12 @@ public class FileBackend {
         return frame;
     }
 
-    public Uri getTakePhotoUri() {
+    public Uri getTakePhotoUri(Context context) { //ALF AM-603 added context
         File file;
         if (Config.ONLY_INTERNAL_STORAGE) {
             file = new File(mXmppConnectionService.getCacheDir().getAbsolutePath(), "Camera/IMG_" + this.IMAGE_DATE_FORMAT.format(new Date()) + ".jpg");
         } else {
-            file = new File(getTakePhotoPath() + "IMG_" + this.IMAGE_DATE_FORMAT.format(new Date()) + ".jpg");
+            file = new File(getTakePhotoPath(context) + "IMG_" + this.IMAGE_DATE_FORMAT.format(new Date()) + ".jpg");
         }
         file.getParentFile().mkdirs();
         return getUriForFile(mXmppConnectionService, file);

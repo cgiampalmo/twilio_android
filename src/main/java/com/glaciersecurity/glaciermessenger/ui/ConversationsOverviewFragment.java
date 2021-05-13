@@ -504,7 +504,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 	 * clear storage area
 	 */
 	private void clearExternalStorage() {
-		FileBackend.removeStorageDirectory();
+		FileBackend.removeStorageDirectory(getActivity().getApplicationContext()); //ALF AM-603 added context
 	}
 
 	/**

@@ -41,7 +41,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.json.JSONException;
 
 import com.glaciersecurity.glaciermessenger.Config;
-import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
+//import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.FingerprintStatus;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.SQLiteAxolotlStore;
@@ -1063,16 +1063,16 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 		cursor.close();
 	}
 
-	//ALF AM-388 TODO remove context when remove getMissingCognitoAccount
-	public CognitoAccount getCognitoAccount(final Account account, final Context context) {
+	//ALF AM-388, remove context when remove getMissingCognitoAccount
+	//done in AM-603
+	public CognitoAccount getCognitoAccount(final Account account) {
 		SQLiteDatabase db = this.getReadableDatabase();
 		String args[] = {account.getUuid()};
 		Cursor cursor = db.query(CognitoAccount.TABLENAME, null,
 				CognitoAccount.ACCOUNT + "=?", args, null, null, null);
 		if (cursor.getCount() == 0) {
 			cursor.close();
-			return getMissingCognitoAccount(account, context);
-			//return null when we remove getMissingCognitoAccount
+			return null;//getMissingCognitoAccount(account, context); //AM-603
 		}
 		cursor.moveToFirst();
 		CognitoAccount cognitoAccount = CognitoAccount.fromCursor(cursor, dbcontext);
@@ -1081,12 +1081,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * //ALF AM-388
-	 * TODO remove this and BackupAccountManager class after some period of time
-	 * @param context
-	 * @return
+	 * //ALF AM-388  //AM-603 removed
 	 */
-	private CognitoAccount getMissingCognitoAccount(final Account account, final Context context) {
+	/*private CognitoAccount getMissingCognitoAccount(final Account account, final Context context) {
 		BackupAccountManager backupAccountManager = new BackupAccountManager(context);
 		BackupAccountManager.AccountInfo accountInfo = backupAccountManager.getAccountInfo();
 		if (accountInfo != null) {
@@ -1104,7 +1101,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 		}
 
 		return null;
-	}
+	}*/
 
 	public boolean updateMessage(Message message, boolean includeBody) {
 		SQLiteDatabase db = this.getWritableDatabase();

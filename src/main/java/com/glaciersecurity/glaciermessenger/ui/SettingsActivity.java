@@ -770,7 +770,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 	}
 
 	private void clearExternalStorage() {
-		FileBackend.removeStorageDirectory();
+		FileBackend.removeStorageDirectory(getApplicationContext()); //ALF AM-603 added context
 	}
 
 	/**

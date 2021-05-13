@@ -68,7 +68,7 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.Chal
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.MultiFactorAuthenticationContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.AuthenticationHandler;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GetDetailsHandler;
-import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
+//import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
 import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
 import com.glaciersecurity.glaciermessenger.services.CallManager;
@@ -439,7 +439,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		if (xmppConnectionService != null) {
 			for (Account account : xmppConnectionService.getAccounts()) {
 
-				CognitoAccount cacct = xmppConnectionService.databaseBackend.getCognitoAccount(account,getApplicationContext());
+				CognitoAccount cacct = xmppConnectionService.databaseBackend.getCognitoAccount(account);
 				if (cacct != null) {
 					username = cacct.getUserName();
 					password = cacct.getPassword();
@@ -1259,9 +1259,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			xmppConnectionService.deleteAccount(account);
 		}
 
-		//ALF AM-388
-		BackupAccountManager backupAccountManager = new BackupAccountManager(getApplicationContext());
-		backupAccountManager.deleteAccountFiles();
+		//ALF AM-388 removed in AM-603
+		//BackupAccountManager backupAccountManager = new BackupAccountManager(getApplicationContext());
+		//backupAccountManager.deleteAccountFiles();
 
 		// logout of Cognito
 		// sometimes if it's been too long, I believe pool doesn't
@@ -1435,7 +1435,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	}
 
 	private void clearExternalStorage() {
-		FileBackend.removeStorageDirectory();
+		FileBackend.removeStorageDirectory(getApplicationContext()); //ALF AM-603 added context
 	}
 
 	/**
