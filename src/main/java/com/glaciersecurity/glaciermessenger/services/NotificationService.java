@@ -314,6 +314,7 @@ public class NotificationService {
 	}
 
 	//ALF AM-468
+	//AM-601
 	public void notifyMissedCall(final Conversation conversation) {
 
 		String ctext = "Missed Call from " + conversation.getName();
@@ -325,7 +326,7 @@ public class NotificationService {
 				.setWhen(System.currentTimeMillis())
 				.setAutoCancel(true)
 				.setShowWhen(true)
-				.setSmallIcon(R.drawable.ic_gchat_icon)
+				.setSmallIcon(R.drawable.ic_baseline_call_missed_24)
 				.setPriority(NotificationCompat.PRIORITY_HIGH);
 
 		// DJF - Was .setSmallIcon(R.drawable.ic_notification)  above for orig Glacier icon
