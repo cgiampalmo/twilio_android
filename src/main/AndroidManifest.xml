@@ -56,6 +56,7 @@
 
     <!-- ALF AM-91 changed ic_launcher to mipmap/glacier_launcher, added round -->
     <!-- ALF AM-146?? changed allowBackup to false, didn't add android:fullBackupContent="false" -->
+    <!-- ALF AM-603 add preserveLegacyExternalStorage when we update to 30 -->
     <application
         android:allowBackup="true"
         android:appCategory="social"

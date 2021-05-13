@@ -247,7 +247,8 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     protected IOpenVPNAPIService mService=null;
     private Handler mHandler;
 
-    private void startEmbeddedProfile(boolean addNew)
+    //ALF AM-603 not sure why we are calling this
+    /*private void startEmbeddedProfile(boolean addNew)
     {
         try {
             InputStream conf = getActivity().getAssets().open("dave-vpn.ovpn");
@@ -272,7 +273,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             Log.d("RemoteException", "at mService.startVpn");
             e.printStackTrace();
         }
-    }
+    }*/
 
     /**
      * HONEYBADGER AM-76
@@ -725,8 +726,8 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
-            if(requestCode==START_PROFILE_EMBEDDED)
-                startEmbeddedProfile(false);
+            //if(requestCode==START_PROFILE_EMBEDDED) //ALF AM-603 removed
+            //    startEmbeddedProfile(false);
             if(requestCode==START_PROFILE_BYUUID)
                 try {
                     if (mStartUUID!= null ||mStartUUID.isEmpty()) {
@@ -752,7 +753,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             }
             if (requestCode == PROFILE_ADD_NEW) {
                 listVPNs();
-                startEmbeddedProfile(true);
+                //startEmbeddedProfile(true); //ALF AM-603 removed
             }
         }
     };
