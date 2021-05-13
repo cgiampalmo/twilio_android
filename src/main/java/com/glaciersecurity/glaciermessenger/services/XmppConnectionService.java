@@ -4829,8 +4829,9 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					else if (call.getRoomTitle().startsWith("#")) {
 						String server = findConferenceServer(account);
 						String name = call.getRoomTitle().substring(1);
+						//AM-599
 						try {
-							final Jid roomjid = Jid.of(name + "@" + server);
+							Jid roomjid = findRoomJidfromRoomTitle(name, account);
 							c = findOrCreateConversation(account, roomjid, true, true);
 						} catch (Exception re) {}
 					} else {
@@ -4946,10 +4947,11 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 						//AM-558 accept message already sent...this should be the group conversation if group
 						Conversation c = null;
 						if (call.getRoomTitle() != null && call.getRoomTitle().startsWith("#")) {
-							String server = findConferenceServer(account);
+
 							String name = call.getRoomTitle().substring(1);
+
 							try {
-								final Jid roomjid = Jid.of(name + "@" + server);
+								Jid roomjid = findRoomJidfromRoomTitle(name, account);
 								c = findOrCreateConversation(account, roomjid, true, true);
 							} catch (Exception re) {}
 						} else {
@@ -4976,6 +4978,21 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		Intent intent1 = new Intent("callActivityFinish");
 		sendBroadcast(intent1);
 		getNotificationService().dismissCallNotification();
+	}
+
+	//AM-599
+	public Jid findRoomJidfromRoomTitle(String roomTitle, Account account){
+		for (Jid jid: account.getAvailableGroups()){
+			Conversation c = find(account, jid);
+			if (c != null) {
+				String cRoomTitle = c.getName().toString();
+				if (roomTitle.equals(cRoomTitle)) {
+					return jid;
+				}
+			}
+		}
+		String server = findConferenceServer(account);
+		return Jid.of(roomTitle + "@" + server);
 	}
 
 	public void cancelCall(TwilioCall call) {
