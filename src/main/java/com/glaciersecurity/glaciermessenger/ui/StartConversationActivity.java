@@ -71,6 +71,7 @@ import com.glaciersecurity.glaciermessenger.entities.Bookmark;
 import com.glaciersecurity.glaciermessenger.entities.Contact;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.ListItem;
+import com.glaciersecurity.glaciermessenger.entities.MucOptions;
 import com.glaciersecurity.glaciermessenger.entities.Presence;
 import com.glaciersecurity.glaciermessenger.entities.PresenceTemplate;
 import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
@@ -518,7 +519,10 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		if (!found) {
 			bookmark.getAccount().getBookmarks().add(bookmark);
 			xmppConnectionService.pushBookmarks(bookmark.getAccount());
-			xmppConnectionService.sendJoiningGroupMessage(conversation, new ArrayList(), true);
+			//AM-606
+			if(!conversation.getMucOptions().getSelf().getAffiliation().outranks(MucOptions.Affiliation.NONE)) {
+				xmppConnectionService.sendJoiningGroupMessage(conversation, new ArrayList(), true);
+			}
 		}
 	}
 
