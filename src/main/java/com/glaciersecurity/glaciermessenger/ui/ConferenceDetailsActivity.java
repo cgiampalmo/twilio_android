@@ -475,6 +475,8 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         String roomName = mucOptions.getName();
         String subject = mucOptions.getSubject();
         final boolean hasTitle;
+        //AM-604
+        this.binding.jidText.setText(mucOptions.getSelf().getFullJid().asBareJid().getEscapedLocal());
         if (printableValue(roomName)) {
             //HONEYBADGER AM120 # for groups next 2
             this.binding.mucTitle.setText("#"+EmojiWrapper.transform(roomName));

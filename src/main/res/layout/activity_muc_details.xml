@@ -106,6 +106,35 @@
                                     android:layout_height="wrap_content"
                                     android:textAppearance="@style/TextAppearance.Conversations.Title"/>
 
+<!--                                AM-604-->
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:layout_marginTop="@dimen/activity_margin_1"
+                                    android:orientation="horizontal">
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignParentLeft="true"
+                                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                                        android:textStyle="italic"
+                                        android:text="@"
+                                        android:textColor="?attr/colorAccent1"
+                                        app:fontFamily="sans-serif-medium"/>
+
+                                    <TextView
+                                        android:id="@+id/jid_text"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignParentLeft="true"
+                                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                                        android:textStyle="italic"
+                                        android:textColor="?attr/colorAccent1"
+                                        app:fontFamily="sans-serif-medium"/>
+                                </LinearLayout>
+
+
                                 <!-- <LinearLayout
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
