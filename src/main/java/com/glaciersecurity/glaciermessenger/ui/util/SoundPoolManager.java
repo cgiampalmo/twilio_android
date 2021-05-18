@@ -45,8 +45,8 @@ public class SoundPoolManager {
     private SoundPoolManager(Context context) {
         // AudioManager audio settings for adjusting the volume
         audioManager = (AudioManager) context.getSystemService(AUDIO_SERVICE);
-        float actualVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        float actualVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
+        float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL);
         volume = actualVolume / maxVolume;
 
         vibrator = (Vibrator) context.getSystemService(VIBRATOR_SERVICE); //AM-475
@@ -185,6 +185,7 @@ public class SoundPoolManager {
             soundPool.unload(ringingSoundId);
             soundPool.unload(disconnectSoundId);
             soundPool.unload(joingSoundId);
+            soundPool.unload(outgoingSoundId);
             soundPool.release();
             soundPool = null;
         }
