@@ -119,7 +119,7 @@
                                         android:layout_alignParentLeft="true"
                                         android:textAppearance="@style/TextAppearance.AppCompat.Small"
                                         android:textStyle="italic"
-                                        android:text="@"
+                                        android:text="#"
                                         android:textColor="?attr/colorAccent1"
                                         app:fontFamily="sans-serif-medium"/>
 

@@ -479,18 +479,18 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         this.binding.jidText.setText(mucOptions.getSelf().getFullJid().asBareJid().getEscapedLocal());
         if (printableValue(roomName)) {
             //HONEYBADGER AM120 # for groups next 2
-            this.binding.mucTitle.setText("#"+EmojiWrapper.transform(roomName));
+            this.binding.mucTitle.setText(EmojiWrapper.transform(roomName));
             this.binding.mucTitle.setVisibility(View.VISIBLE);
             hasTitle = true;
         } else if (!printableValue(subject)) {
-            this.binding.mucTitle.setText("#"+EmojiWrapper.transform(mConversation.getName()));
+            this.binding.mucTitle.setText(EmojiWrapper.transform(mConversation.getName()));
             hasTitle = true;
             this.binding.mucTitle.setVisibility(View.VISIBLE);
         } else {
             //hasTitle = false;
             //this.binding.mucTitle.setVisibility(View.GONE);
             //ALF AM-80
-            this.binding.mucTitle.setText("#"+EmojiWrapper.transform(mConversation.getName()));
+            this.binding.mucTitle.setText(EmojiWrapper.transform(mConversation.getName()));
             hasTitle = true;
             this.binding.mucTitle.setVisibility(View.VISIBLE);
         }
