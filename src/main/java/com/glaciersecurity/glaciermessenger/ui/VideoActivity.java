@@ -250,6 +250,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         if (title != null) {
             setTitle(title);
             primaryTitle.setText(title);
+
         }
 
         /*
@@ -603,14 +604,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
 
         //AM-558 the rest after this should initialize a new view for this specific user, not for
         //VideoActivity as a whole
-        RemoteParticipant remoteParticipant = remoteCallParticipant.getRemoteParticipant();
 
-        //I don't think this is needed anymore
-        remoteParticipantIdentity = remoteParticipant.getIdentity();
-        Contact remoteContact = getRemoteContact(remoteParticipantIdentity);
-        if(remoteContact != null){
-            //Todo setAvatar
-        }
 
         //AM-484
         SoundPoolManager.getInstance(VideoActivity.this).playJoin();
@@ -986,6 +980,19 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                             }
                         }
                     }, 1000);
+                }
+
+                List<TwilioCallParticipant> remoteParticipants = callManager.getRemoteParticipants();
+                if (remoteParticipants.size()==1){
+
+                //I don't think this is needed anymore
+                remoteParticipantIdentity = remoteParticipants.get(0).getRemoteParticipant().getIdentity();
+                Contact remoteContact = getRemoteContact(remoteParticipantIdentity);
+                if(remoteContact != null){
+                    if (primaryTitle != null && !primaryTitle.getText().toString().startsWith("#")){
+                        primaryTitle.setText(remoteContact.getDisplayName());
+                    }
+                }
                 }
             }
         } catch (Exception e){

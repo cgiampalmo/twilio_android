@@ -67,7 +67,7 @@ public class CallManager {
 
     //ALF AM-558
     private String roomtitle;
-    private List<TwilioCallParticipant> callParticipants;
+    protected List<TwilioCallParticipant> callParticipants;
 
     private TwilioCallListener twilioCallListener;
 
