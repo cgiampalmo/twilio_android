@@ -4295,7 +4295,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				&& markable != null
 				&& (markable.trusted() || isPrivateAndNonAnonymousMuc)
 				&& markable.getRemoteMsgId() != null) {
-			Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": sending read marker to " + markable.getCounterpart().toString());
+			//Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": sending read marker to " + markable.getCounterpart().toString());
 			Account account = conversation.getAccount();
 			final Jid to = markable.getCounterpart();
 			final boolean groupChat = conversation.getMode() == Conversation.MODE_MULTI;

@@ -230,7 +230,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 		} else if (AxolotlService.PEP_DEVICE_LIST.equals(node)) {
 			Element item = items.findChild("item");
 			Set<Integer> deviceIds = mXmppConnectionService.getIqParser().deviceIds(item);
-			Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Received PEP device list " + deviceIds + " update from " + from + ", processing... ");
+			Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Received PEP device list " + deviceIds + " update from " + getLogJid(from) + ", processing... ");
 			AxolotlService axolotlService = account.getAxolotlService();
 			axolotlService.registerDevices(from, deviceIds);
 		} else if (Namespace.BOOKMARKS.equals(node) && account.getJid().asBareJid().equals(from)) {
@@ -243,6 +243,21 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 				Log.d(Config.LOGTAG, account.getLogJid()+": ignoring bookmark PEP event because bookmark conversion was not detected");
 			}
 		}
+	}
+
+	//CMG AM-
+	public String getLogJid(Jid jid) {
+		StringBuilder logJidBuilder = new StringBuilder();
+		logJidBuilder.append(jid.getLocal().charAt(0));
+		for (int i = 1; i < jid.getLocal().length(); i++) {
+			logJidBuilder.append("*");
+		}
+		logJidBuilder.append("@");
+		logJidBuilder.append(jid.getDomain().charAt(0));
+		for (int i = 1; i < jid.getDomain().length(); i++) {
+			logJidBuilder.append("*");
+		}
+		return logJidBuilder.toString();
 	}
 
     private void parseDeleteEvent(final Element event, final Jid from, final Account account) {
