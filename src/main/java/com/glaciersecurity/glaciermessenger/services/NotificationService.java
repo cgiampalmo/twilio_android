@@ -326,7 +326,7 @@ public class NotificationService {
 				.setWhen(System.currentTimeMillis())
 				.setAutoCancel(true)
 				.setShowWhen(true)
-				.setSmallIcon(R.drawable.ic_baseline_call_missed_24)
+				.setSmallIcon(R.drawable.ic_baseline_phone_missed_24)
 				.setPriority(NotificationCompat.PRIORITY_HIGH);
 
 		// DJF - Was .setSmallIcon(R.drawable.ic_notification)  above for orig Glacier icon
@@ -336,6 +336,7 @@ public class NotificationService {
 			mBuilder.setContentIntent(createContentIntent(conversation));
 		}
 		mBuilder.setDeleteIntent(createDeleteIntent(conversation));
+		mBuilder.setColor(0xff27a1cb);
 
 		notify(CALL_MISSED_NOTIFICATION_ID, mBuilder.build());
 	}
