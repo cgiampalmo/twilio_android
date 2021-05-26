@@ -757,56 +757,14 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 						call.setStatus(intent.getStringExtra("status"));
 
-						//AM-558 is this whole section irrelevant now since we don't use notifications to send these?
-						if (call.getStatus().equalsIgnoreCase("reject") || call.getStatus().equalsIgnoreCase("cancel")) {
-							//stop CallActivity
-							//AM-558 handle this if one party rejects when we've called a group
-							Intent intent1 = new Intent("callActivityFinish");
-							sendBroadcast(intent1);
-							callHandler.removeCallbacksAndMessages(null);
-							//TODO: notify user of rejection from other party if reject
-
-							if (call.getStatus().equalsIgnoreCase("cancel")) {
-								cancelledCall = call.getCallId(); //AM-492
-								this.getNotificationService().dismissCallNotification();
-
-								//ALF AM-421
-								//final Conversation c = findConversationByUuid(uuid); // DJF DJF AM-438
-								final Conversation c = findOrCreateConversation(acct, Jid.of(call.getCaller()), false, true);
-								if (currentTwilioCall != null && c != null) {
-									Message msg = Message.createCallStatusMessage(c, Message.STATUS_CALL_MISSED);
-									getNotificationService().notifyMissedCall(c); //ALF AM-468
-									c.add(msg);
-									databaseBackend.createMessage(msg);
-								}
-							}
-
-							currentTwilioCall = null;
-						} else if (call.getStatus().equalsIgnoreCase("busy")) { //ALF AM-420
-							//just play busy tone but do nothing else. Up to them to cancel
-							this.playTone(ToneGenerator.TONE_SUP_BUSY);
-							callHandler.removeCallbacksAndMessages(null);
-							currentTwilioCall = null;
-						} else if (call.getStatus().equalsIgnoreCase("accept")) {
-							// other party accepted call
+						//repurposing for IOSM-569 this happens now when answered from other MAM device
+						if (call.getStatus().equalsIgnoreCase("reject") ||
+								call.getStatus().equalsIgnoreCase("busy") || call.getStatus().equalsIgnoreCase("accept")) {
 							//stop CallActivity
 							Intent intent1 = new Intent("callActivityFinish");
 							sendBroadcast(intent1);
-
-							if (currentTwilioCall != null) {
-								//open RoomActivity
-								/*Intent callIntent = new Intent(getApplicationContext(), VideoActivity.class);
-								callIntent.setAction(CallActivity.ACTION_ACCEPTED_CALL);
-								callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-								callIntent.putExtra("call_id", currentTwilioCall.getCallId());
-								callIntent.putExtra("token", currentTwilioCall.getToken());
-								callIntent.putExtra("roomname", currentTwilioCall.getRoomName());
-								callIntent.putExtra("caller", currentTwilioCall.getCaller());
-								callIntent.putExtra("receiver", currentTwilioCall.getReceiver());
-								this.startActivity(callIntent);*/
-
-								callManager.initCall(currentTwilioCall); //AM-478
-							}
+							callHandler.removeCallbacksAndMessages(null);
+							currentTwilioCall = null;
 						} else {
 							call.setCaller(intent.getStringExtra("caller"));
 
