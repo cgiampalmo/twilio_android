@@ -4858,6 +4858,13 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		callidval.setContent(Integer.toString(call.getCallId()));
 		callidfield.addChild(callidval);
 
+		//AM-612, IOSM-569
+		final Element receiverdevicefield = x.addChild("field");
+		receiverdevicefield.setAttribute("var", "receiverdevice");
+		Element receiverdeviceval = new Element("value");
+		receiverdeviceval.setContent(deviceId);
+		receiverdevicefield.addChild(receiverdeviceval);
+
 		final Element migratedfield = x.addChild("field");
 		migratedfield.setAttribute("var", "migrated");
 		Element migratedval = new Element("value");
