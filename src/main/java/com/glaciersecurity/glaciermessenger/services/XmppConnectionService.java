@@ -757,12 +757,13 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 						call.setStatus(intent.getStringExtra("status"));
 
-						//repurposing for IOSM-569 this happens now when answered from other MAM device
+						//repurposing for AM-612, IOSM-569 this happens now when answered from other MAM device
 						if (call.getStatus().equalsIgnoreCase("reject") ||
 								call.getStatus().equalsIgnoreCase("busy") || call.getStatus().equalsIgnoreCase("accept")) {
 							//stop CallActivity
 							Intent intent1 = new Intent("callActivityFinish");
 							sendBroadcast(intent1);
+							SoundPoolManager.getInstance(XmppConnectionService.this).stopRinging();
 							callHandler.removeCallbacksAndMessages(null);
 							currentTwilioCall = null;
 						} else {
