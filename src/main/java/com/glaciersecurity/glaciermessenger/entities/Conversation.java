@@ -584,6 +584,21 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 		return this.contactJid;
 	}
 
+	//CMG AM-464
+	public String getLogJid() {
+		StringBuilder logJidBuilder = new StringBuilder();
+		logJidBuilder.append(contactJid.getLocal().charAt(0));
+		for (int i = 1; i < contactJid.getLocal().length(); i++) {
+			logJidBuilder.append("*");
+		}
+		logJidBuilder.append("@");
+		logJidBuilder.append(contactJid.getDomain().charAt(0));
+		for (int i = 1; i < contactJid.getDomain().length(); i++) {
+			logJidBuilder.append("*");
+		}
+		return logJidBuilder.toString();
+	}
+
 	public int getStatus() {
 		return this.status;
 	}

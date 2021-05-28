@@ -3044,7 +3044,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		final Bookmark bookmark = conversation.getBookmark();
 		final String bookmarkedNick = bookmark == null ? null : bookmark.getNick();
 		if (bookmark != null && (tookProposedNickFromBookmark || TextUtils.isEmpty(bookmarkedNick)) && !full.getResource().equals(bookmarkedNick)) {
-			Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": persist nick '" + full.getResource() + "' into bookmark for " + conversation.getJid().asBareJid());
+			Log.d(Config.LOGTAG, conversation.getAccount().getLogJid() + ": persist nick '" + full.getResource() + "' into bookmark for " + conversation.getJid().asBareJid());
 			bookmark.setNick(full.getResource());
 			pushBookmarks(bookmark.getAccount());
 		}
@@ -3111,7 +3111,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			if (bookmark != null) {
 				bookmark.setConversation(null);
 			}
-			Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": leaving muc " + conversation.getJid());
+			Log.d(Config.LOGTAG, conversation.getAccount().getLogJid()+ ": leaving muc " + conversation.getLogJid());
 		} else {
 			account.pendingConferenceLeaves.add(conversation);
 		}
@@ -3252,7 +3252,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		// sleep required so message goes out before conversation thread stopped
 		// maybe show a spinner?
 		//AM-535
-		//try { Thread.sleep(5000); } catch (InterruptedException ie) {}
+		try { Thread.sleep(2000); } catch (InterruptedException ie) {}
 		final Account account = conversation.getAccount();
 		String dname = account.getDisplayName();
 		if (dname == null) { dname = account.getUsername(); }
@@ -3991,7 +3991,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public void invite(Conversation conversation, Jid contact) {
-		Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": inviting " + contact + " to " + conversation.getJid().asBareJid());
+		Log.d(Config.LOGTAG, conversation.getAccount().getLogJid() + ": inviting " + contact + " to " + conversation.getJid().asBareJid());
 		MessagePacket packet = mMessageGenerator.invite(conversation, contact);
 		sendMessagePacket(conversation.getAccount(), packet);
 	}
@@ -4295,7 +4295,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				&& markable != null
 				&& (markable.trusted() || isPrivateAndNonAnonymousMuc)
 				&& markable.getRemoteMsgId() != null) {
-			//Log.d(Config.LOGTAG, conversation.getAccount().getJid().asBareJid() + ": sending read marker to " + markable.getCounterpart().toString());
+			Log.d(Config.LOGTAG, conversation.getAccount().getLogJid()+ ": sending read marker to " + markable.getCounterpart().toString());
 			Account account = conversation.getAccount();
 			final Jid to = markable.getCounterpart();
 			final boolean groupChat = conversation.getMode() == Conversation.MODE_MULTI;
@@ -4681,7 +4681,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			calltitle.addChild(titleval);
 		}
 
-		Log.d(Config.LOGTAG, call.getAccount().getJid().asBareJid() + ": making call request to " + call.getReceiver());
+		Log.d(Config.LOGTAG, call.getAccount().getLogJid() + ": making call request to " + call.getReceiver());
 		sendIqPacket(call.getAccount(), request, new OnIqPacketReceived() {
 			@Override
 			public void onIqPacketReceived(final Account account, final IqPacket packet) {
@@ -4771,7 +4771,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		migratedval.setContent("true");
 		migratedfield.addChild(migratedval);*/ //ALF AM-558
 
-		Log.d(Config.LOGTAG, call.getAccount().getJid().asBareJid() + ": accepting call from " + call.getCaller());
+		Log.d(Config.LOGTAG, call.getAccount().getLogJid() + ": accepting call from " + call.getCaller());
 		sendIqPacket(call.getAccount(), request, new OnIqPacketReceived() {
 			@Override
 			public void onIqPacketReceived(final Account account, final IqPacket packet) {
@@ -4906,7 +4906,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		migratedval.setContent("true");
 		migratedfield.addChild(migratedval);
 
-		Log.d(Config.LOGTAG, call.getAccount().getJid().asBareJid() + ": rejecting call from " + call.getCaller());
+		Log.d(Config.LOGTAG, call.getAccount().getLogJid() + ": rejecting call from " + call.getCaller());
 
 		//ALF AM-431 handle response
 		sendIqPacket(call.getAccount(), request, new OnIqPacketReceived() {
@@ -5019,7 +5019,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		callidval.setContent(Integer.toString(call.getCallId()));
 		callidfield.addChild(callidval);
 
-		Log.d(Config.LOGTAG, call.getAccount().getJid().asBareJid() + ": cancelling call from " + call.getCaller());
+		Log.d(Config.LOGTAG, call.getAccount().getLogJid() + ": cancelling call from " + call.getCaller());
 		sendIqPacket(call.getAccount(), request, null);
 
 		//ALF AM-431 send message
