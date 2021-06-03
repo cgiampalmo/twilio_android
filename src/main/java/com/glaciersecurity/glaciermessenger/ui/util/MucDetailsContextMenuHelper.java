@@ -36,10 +36,12 @@ public final class MucDetailsContextMenuHelper {
             final MucOptions.User user = (MucOptions.User) tag;
             String name;
             final Contact contact = user.getContact();
+
+
             if (contact != null && contact.showInContactList()) {
                 name = contact.getDisplayName();
             } else if (user.getRealJid() != null) {
-                name = user.getRealJid().asBareJid().toString();
+                name = user.getRealJid().asBareJid().getEscapedLocal();
             } else {
                 name = user.getName();
             }
@@ -68,11 +70,13 @@ public final class MucDetailsContextMenuHelper {
             MenuItem banFromConference = menu.findItem(R.id.ban_from_conference);
             banFromConference.setTitle(isGroupChat ? R.string.ban_from_conference : R.string.ban_from_channel);
             MenuItem invite = menu.findItem(R.id.invite);
-            startConversation.setVisible(true);
+            startConversation.setVisible(false);
+
             final Contact contact = user.getContact();
             final User self = conversation.getMucOptions().getSelf();
             if (contact != null && contact.showInRoster()) {
                 showContactDetails.setVisible(!contact.isSelf());
+                startConversation.setVisible(true);
             }
             if ((activity instanceof ConferenceDetailsActivity || activity instanceof MucUsersActivity) && user.getRole() == MucOptions.Role.NONE) {
                 invite.setVisible(true);
