@@ -164,8 +164,8 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
         getMenuInflater().inflate(R.menu.manageaccounts, menu);
         MenuItem enableAll = menu.findItem(R.id.action_enable_all);
         //MenuItem addAccount = menu.findItem(R.id.action_add_account); //ALF AM-205
-        MenuItem menuEnablePIN = menu.findItem(R.id.action_enablepin);
-        menuEnablePIN.setChecked(this.mEnablePIN);
+        //MenuItem menuEnablePIN = menu.findItem(R.id.action_enablepin);
+        //menuEnablePIN.setChecked(this.mEnablePIN);
 
         if (Config.X509_VERIFICATION) {
             //addAccount.setVisible(false); //ALF AM-205
@@ -226,7 +226,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
                 enableAllAccounts();
                 break;
             // incorporate pin activity
-            case R.id.action_enablepin:
+            /*case R.id.action_enablepin:
                 mEnablePIN = !item.isChecked();
                 getPreferences().edit().putBoolean("enable_pin", mEnablePIN).commit();
 
@@ -237,7 +237,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
                 }
                 invalidateOptionsMenu();
 
-                break;
+                break;*/
             //CMG AM-152
             //case R.id.action_add_account_with_cert:
             //    addAccountFromKey();

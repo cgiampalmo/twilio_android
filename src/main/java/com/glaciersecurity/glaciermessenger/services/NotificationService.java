@@ -289,7 +289,8 @@ public class NotificationService {
 		SoundPoolManager.getInstance(mXmppConnectionService).vibrateIfNeeded();  //AM-475
 
 		String ctext = "Call from " + call.getCaller();
-		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, "gcalls");
+		//AM-618 changed channel name
+		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, "gchatcalls");
 		mBuilder.setContentTitle("Incoming Call")
 				.setContentText(ctext)
 				.setContentIntent(pendingIntent)
@@ -1140,10 +1141,10 @@ public class NotificationService {
 		messagesChannel.setGroup("chats");
 		notificationManager.createNotificationChannel(messagesChannel);
 
-		//ALF AM-410
-		notificationManager.createNotificationChannelGroup(new NotificationChannelGroup("callgroup", "Calls"));
-		final NotificationChannel callsChannel = new NotificationChannel("gcalls",
-				"Calls",
+		//ALF AM-410, //AM-618 changed channel and group names
+		notificationManager.createNotificationChannelGroup(new NotificationChannelGroup("callsgroup", "GlacierCallGroup"));
+		final NotificationChannel callsChannel = new NotificationChannel("gchatcalls",
+				"GlacierCallChannel",
 				NotificationManager.IMPORTANCE_HIGH);
 		callsChannel.setShowBadge(true);
 		//Uri callUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE); //AM-447
@@ -1157,7 +1158,7 @@ public class NotificationService {
 		callsChannel.setVibrationPattern(pattern);
 		callsChannel.enableVibration(true);
 		callsChannel.enableLights(true);
-		callsChannel.setGroup("callgroup");
+		callsChannel.setGroup("callsgroup");
 		notificationManager.createNotificationChannel(callsChannel);
 
 		final NotificationChannel silentMessagesChannel = new NotificationChannel("silent_messages",
