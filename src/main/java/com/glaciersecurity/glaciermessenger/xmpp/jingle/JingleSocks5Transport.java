@@ -160,7 +160,7 @@ public class JingleSocks5Transport extends JingleTransport {
 				file.setSha1Sum(digest.digest());
 				callback.onFileTransmitted(file);
 			} catch (Exception e) {
-				Log.d(Config.LOGTAG, connection.getAccount().getJid().asBareJid() + ": " + e.getMessage());
+				Log.d(Config.LOGTAG, connection.getAccount().getLogJid() + ": " + e.getMessage());
 				callback.onFileTransferAborted();
 			} finally {
 				WakeLockHelper.release(wakeLock);

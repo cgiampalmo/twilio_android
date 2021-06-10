@@ -309,6 +309,7 @@
     <string name="bookmark_already_exists">This bookmark already exists</string>
     <!-- ALF AM-51 -->
     <string name="added_to_group">added to the group</string>
+    <string name="joined_group">joined the group</string>
     <string name="left_group">left the group</string>
     <string name="action_edit_subject">Edit group chat subject</string>
     <string name="topic">Topic</string>
@@ -517,8 +518,8 @@
     <string name="no_application_found_to_display_location">No application found to display location</string>
     <string name="location">Location</string>
     <string name="title_undo_swipe_out_conversation">Conversation closed</string>
-    <string name="title_undo_swipe_out_group_chat">Left private group chat</string>
-    <string name="title_undo_swipe_out_channel">Left public group chat</string>
+    <string name="title_undo_swipe_out_group_chat">Left group chat</string>
+    <string name="title_undo_swipe_out_channel">Left group chat</string>
     <string name="pref_dont_trust_system_cas_title">Don’t trust system CAs</string>
     <string name="pref_dont_trust_system_cas_summary">All certificates must be manually approved</string>
     <string name="pref_remove_trusted_certificates_title">Remove certificates</string>

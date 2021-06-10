@@ -42,6 +42,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+
+import com.glaciersecurity.glaciermessenger.entities.MucOptions;
+import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -76,6 +79,8 @@ import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.ScrollState;
 import com.glaciersecurity.glaciermessenger.ui.util.StyledAttributes;
 import com.glaciersecurity.glaciermessenger.utils.ThemeHelper;
+
+import rocks.xmpp.addr.Jid;
 
 import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
 import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
@@ -220,6 +225,7 @@ public class ConversationsOverviewFragment extends XmppFragment {
 	 */
 	public void sendLeavingGroupMessage(final Conversation conversation) {
 		final Account account = conversation.getAccount();
+
 		String dname = account.getDisplayName();
 		if (dname == null) { dname = account.getUsername(); }
 		String bod = dname + " " + getString(R.string.left_group);

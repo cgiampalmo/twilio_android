@@ -519,10 +519,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		if (!found) {
 			bookmark.getAccount().getBookmarks().add(bookmark);
 			xmppConnectionService.pushBookmarks(bookmark.getAccount());
-			//AM-606
-			if(!conversation.getMucOptions().getSelf().getAffiliation().outranks(MucOptions.Affiliation.NONE)) {
-				xmppConnectionService.sendJoiningGroupMessage(conversation, new ArrayList(), true);
-			}
+			xmppConnectionService.sendJoiningGroupMessage(conversation, new ArrayList(), true);
 		}
 	}
 
