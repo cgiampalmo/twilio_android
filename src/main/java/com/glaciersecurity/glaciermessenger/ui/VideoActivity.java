@@ -244,13 +244,12 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         }
 
         final String action = intent.getAction();
-
+        primaryTitle.setVisibility(View.GONE);
         //ALF AM-558
         final String title = intent.getStringExtra("roomtitle");
         if (title != null) {
             setTitle(title);
             primaryTitle.setText(title);
-
         }
 
         /*
@@ -981,19 +980,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                         }
                     }, 1000);
                 }
-
-                List<TwilioCallParticipant> remoteParticipants = callManager.getRemoteParticipants();
-                if (remoteParticipants.size()==1){
-
-                //I don't think this is needed anymore
-                remoteParticipantIdentity = remoteParticipants.get(0).getRemoteParticipant().getIdentity();
-                Contact remoteContact = getRemoteContact(remoteParticipantIdentity);
-                if(remoteContact != null){
-                    if (primaryTitle != null && !primaryTitle.getText().toString().startsWith("#")){
-                        primaryTitle.setText(remoteContact.getDisplayName());
-                    }
-                }
-                }
             }
         } catch (Exception e){
 
@@ -1071,13 +1057,21 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
 
         //AM-484
-        SoundPoolManager.getInstance(VideoActivity.this).playJoin();
+        if (!returning) {
+            SoundPoolManager.getInstance(VideoActivity.this).playJoin();
+        }
         //AM-558
         callParticipantsLayout.update(callManager.getRemoteParticipants());
 
         if (!room.getRemoteParticipants().isEmpty()){
             reconnectingProgressBar.setVisibility(View.GONE);
         }
+        //AM-594
+        if(!primaryTitle.getText().toString().startsWith("#")){
+            setTitle(callManager.getRoomTitle());
+            primaryTitle.setText(callManager.getRoomTitle());
+        }
+        primaryTitle.setVisibility(View.VISIBLE);
 
     }
 

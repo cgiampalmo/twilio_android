@@ -505,7 +505,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		toggleForegroundService();
 	}
 
-	//HONEYBADGER maybe?
 	public void checkNewPermission(){
 		if ((ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED )) {
 			startContactObserver();

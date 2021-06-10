@@ -67,6 +67,7 @@ public class CallManager {
 
     //ALF AM-558
     private String roomtitle;
+    private String roomtitled;
     protected List<TwilioCallParticipant> callParticipants;
 
     private TwilioCallListener twilioCallListener;
@@ -162,6 +163,13 @@ public class CallManager {
 
 
     }
+
+    public String getRoomTitle(){
+        return roomtitled;
+    };
+    public void setRoomTitle(String str){
+        roomtitled = str;
+    };
 
     public void getCaller(){
         try {
@@ -429,6 +437,7 @@ public class CallManager {
                 if (c != null) {
                     Bitmap av = mXmppConnectionService.getAvatarService().get(c, (int) mXmppConnectionService.getResources().getDimension(R.dimen.avatar_on_call_screen_size));
                     tcallParticipant.setAvatar(av);
+
                 }
 
                 callParticipants.add(tcallParticipant);
