@@ -181,6 +181,42 @@
                         </LinearLayout>
 
                         <LinearLayout
+                            android:id="@+id/install_core_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center|center_vertical"
+                            android:gravity="center"
+                            android:orientation="vertical">
+                                <View
+                                    android:layout_width="match_parent"
+                                    android:layout_height=".5dp"
+                                    android:background="?attr/edit_text_color2" />
+                                <ImageView
+                                    android:layout_width="50dp"
+                                    android:layout_height="50dp"
+                                    android:layout_centerInParent="true"
+                                    android:layout_centerHorizontal="true"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginTop="@dimen/spacing_slarge"
+                                    android:tint="?attr/edit_text_color"
+                                    android:src="@drawable/step3_foryoureyes2" />
+
+                                <TextView
+                                    android:id="@+id/core_not_installed"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_centerInParent="true"
+                                    android:layout_gravity="left"
+                                    android:layout_margin="10dp"
+                                    android:drawablePadding="10dp"
+                                    android:padding="8dp"
+                                    android:text="@string/no_core_status_to_display"
+                                    android:textAlignment="gravity"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+
+                        </LinearLayout>
+                        <LinearLayout
                             android:id="@+id/no_vpn_profiles_layout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -279,6 +315,16 @@
                         </LinearLayout>
 
                 </LinearLayout>
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fab_install_core"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:backgroundTint="#27a1cb"
+                    android:layout_gravity="right"
+                    android:src="@drawable/ic_baseline_arrow_downward_24"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_margin="16dp" />
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/fab_import"
                     android:layout_width="wrap_content"
