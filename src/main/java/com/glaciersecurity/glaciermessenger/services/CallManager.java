@@ -67,7 +67,6 @@ public class CallManager {
 
     //ALF AM-558
     private String roomtitle;
-    private String roomtitled;
     protected List<TwilioCallParticipant> callParticipants;
 
     private TwilioCallListener twilioCallListener;
@@ -163,13 +162,6 @@ public class CallManager {
 
 
     }
-
-    public String getRoomTitle(){
-        return roomtitled;
-    };
-    public void setRoomTitle(String str){
-        roomtitled = str;
-    };
 
     public void getCaller(){
         try {

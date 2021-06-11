@@ -282,10 +282,6 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 					avatar.setImageBitmap(avatarService().get(conversation.getContact(), (int) getResources().getDimension(R.dimen.avatar_on_incoming_call_screen_size)));
 
 				}
-				//AM-594
-				if(contactText != null) {
-					xmppConnectionService.getCallManager().setRoomTitle(contactText.getText().toString());
-				}
 			}
 		} catch (Exception e){
 
