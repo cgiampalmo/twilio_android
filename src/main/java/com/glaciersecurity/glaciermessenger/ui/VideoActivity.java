@@ -244,7 +244,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         }
 
         final String action = intent.getAction();
-
+        primaryTitle.setVisibility(View.GONE);
         //ALF AM-558
         final String title = intent.getStringExtra("roomtitle");
         if (title != null) {
@@ -1057,19 +1057,21 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         updateAudioDeviceIcon(audioDeviceSelector.getSelectedAudioDevice());
 
         //AM-484
-        SoundPoolManager.getInstance(VideoActivity.this).playJoin();
+        if (!returning) {
+            SoundPoolManager.getInstance(VideoActivity.this).playJoin();
+        }
         //AM-558
         callParticipantsLayout.update(callManager.getRemoteParticipants());
 
-
-
         if (!room.getRemoteParticipants().isEmpty()){
             reconnectingProgressBar.setVisibility(View.GONE);
-            if(!room.getName().startsWith("#")){
-                setTitle(callManager.getRemoteParticipants().toString());
-                primaryTitle.setText(callManager.getRemoteParticipants().get(0).toString());
-            }
         }
+        //AM-594
+        if(!primaryTitle.getText().toString().startsWith("#")){
+            setTitle(callManager.getRoomTitle());
+            primaryTitle.setText(callManager.getRoomTitle());
+        }
+        primaryTitle.setVisibility(View.VISIBLE);
 
     }
 
