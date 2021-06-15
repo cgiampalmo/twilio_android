@@ -36,6 +36,7 @@ import com.glaciersecurity.glaciercore.api.IOpenVPNStatusCallback;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.GlacierProfile;
+import com.glaciersecurity.glaciermessenger.lollipin.lib.PinActivity;
 import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
 import com.glaciersecurity.glaciermessenger.ui.adapter.ProfileSelectListAdapter;
 import com.glaciersecurity.glaciermessenger.utils.Log;
@@ -79,6 +80,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     private CheckBox enableEmergConnectCheckBox;
     private GlacierProfile emergencyProfile;
     private Switch mUseVpnToggle;
+    private RelativeLayout mUseVpnView;
     private Button mDisconnectVpn;
     private TextView mCoreLink;
     private LinearLayout mDisableVpnView;
@@ -123,6 +125,29 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.openvpn_fragment, container, false);
         mImportVpnFab = (FloatingActionButton) v.findViewById(R.id.fab_import);
+        profileSpinner = (ListView) v.findViewById(R.id.profileSpinner);
+        List<GlacierProfile> gp = new ArrayList<GlacierProfile>();
+
+        spinnerAdapter = new ProfileSelectListAdapter<GlacierProfile>(this.getActivity(),R.layout.radio, gp);
+        profileSpinner.setAdapter(spinnerAdapter);
+        profileSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,final int position, long id) {
+                //TODO CHECK
+                spinnerAdapter.select(position, view, parent);
+                GlacierProfile glacierProfile = (GlacierProfile) parent.getItemAtPosition(position);
+                confirmProfileSelection(position, glacierProfile);
+            }
+
+        });
+        spinnerAdapter.setOnItemClickListener(new ProfileSelectListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, GlacierProfile glacierProfile, int position) {
+                spinnerAdapter.select(position,view,profileSpinner);
+                confirmProfileSelection(position, glacierProfile);
+            }
+
+        });
         mImportVpnFab.setOnClickListener(this);
         mInstallCoreFab = (FloatingActionButton) v.findViewById(R.id.fab_install_core);
         mInstallCoreFab.setOnClickListener(this);
@@ -147,6 +172,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
         mProfile = (TextView) v.findViewById(R.id.currentProfile);
         mInstallCore = (LinearLayout) v.findViewById(R.id.install_core_layout);
         mUseVpnToggle = (Switch) v.findViewById(R.id.use_vpn_status_toggle);
+        mUseVpnView = (RelativeLayout) v.findViewById(R.id.use_vpn);
         v.findViewById(R.id.use_vpn_status_toggle).setOnClickListener(mOnToggleSwitchListener);
 
         // mMyIp = (TextView) v.findViewById(R.id.MyIpText);
@@ -154,9 +180,9 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
         //AM-619
         if (isCoreInstalled()){
             addItemsOnProfileSpinner(v);
+            mUseVpnView.setVisibility(VISIBLE);
             mInstallCore.setVisibility(View.GONE);
             mInstallCoreFab.hide();
-            mUseVpnToggle.setEnabled(true);
             isCoreConnectUsed = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(USE_CORE_CONNECT, false);
             if(isCoreConnectUsed){
                 profileSpinner.setVisibility(View.VISIBLE);
@@ -177,13 +203,15 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             mUseVpnToggle.setChecked(false);
             mDisableVpnView.setVisibility(View.GONE);
             mNoVpnProfilesView.setVisibility(View.GONE);
-            //profileSpinner.setVisibility(View.GONE);
+            setUseCoreConnect(false);
+            mVpnStatusBar.setVisibility(View.GONE);
+            mImportVpnFab.hide();
+            profileSpinner.setVisibility(View.GONE);
             mVpnStatusBar.setVisibility(View.GONE);
             mImportVpnFab.hide();
             mInstallCoreFab.show();
             mInstallCore.setVisibility(View.VISIBLE);
-            mUseVpnToggle.setEnabled(false);
-
+            mUseVpnView.setVisibility(View.GONE);
         }
 
 
@@ -228,7 +256,12 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 mVpnStatusBar.setVisibility(VISIBLE);
                 mDisableVpnView.setVisibility(View.GONE);
                 mVpnStatusBar.setVisibility(VISIBLE);
-                listVPNs();
+                try {
+                    showImportProfileVPNDialogFragment();
+                } catch (Exception e){
+                    Log.d("Exception", "at showImportProfileVPNDialogFragment");
+                    e.printStackTrace();
+                }
 
             } else {
                 setUseCoreConnect(false);
@@ -256,10 +289,12 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 
     private void disconnectVpn(){
         try {
-            mService.disconnect();
-            spinnerAdapter.clearSelections(profileSpinner);
-            SharedPreferences sp = this.getActivity().getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
-            sp.edit().putString("last_spinner_profile", "").commit();
+            if(isCoreInstalled()) {
+                mService.disconnect();
+                spinnerAdapter.clearSelections(profileSpinner);
+                SharedPreferences sp = this.getActivity().getSharedPreferences("SHARED_PREFS", Context.MODE_PRIVATE);
+                sp.edit().putString("last_spinner_profile", "").commit();
+            }
         } catch (RemoteException e) {
             //CMG AM-240
             Log.d(Config.LOGTAG, "at mService.disconnect");
@@ -643,6 +678,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                     Log.d("Exception", "at showImportProfileVPNDialogFragment");
                     e.printStackTrace();
                 }
+                break;
             /* case R.id.getMyIP:
                 Log.d("RemoteExample", "DAVID getMyIP");
                 // Socket handling is not allowed on main thread
@@ -769,6 +805,7 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
                 } catch (RemoteException | SecurityException e) { //ALF AM-194 added Security
                     doCoreErrorAction();
                 }
+                listVPNs();
             }
             if (requestCode == PROFILE_ADD_NEW) {
                 listVPNs();
@@ -798,6 +835,45 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
 
     }
 
+    @Override
+    public void onResume() {        //AM-619
+        if (isCoreInstalled()){
+            addItemsOnProfileSpinner(getView());
+            mUseVpnView.setVisibility(VISIBLE);
+            mInstallCore.setVisibility(View.GONE);
+            mInstallCoreFab.hide();
+            isCoreConnectUsed = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(USE_CORE_CONNECT, false);
+            if(isCoreConnectUsed){
+                profileSpinner.setVisibility(View.VISIBLE);
+                mVpnStatusBar.setVisibility(View.VISIBLE);
+                mDisableVpnView.setVisibility(View.GONE);
+                mImportVpnFab.show();
+                mVpnStatusBar.setVisibility(VISIBLE);
+                mUseVpnToggle.setChecked(true);
+            } else {
+                mUseVpnToggle.setChecked(false);
+                mDisableVpnView.setVisibility(View.VISIBLE);
+                mNoVpnProfilesView.setVisibility(View.GONE);
+                profileSpinner.setVisibility(View.GONE);
+                mVpnStatusBar.setVisibility(View.GONE);
+                mImportVpnFab.hide();
+            }
+        } else {
+            mUseVpnToggle.setChecked(false);
+            mDisableVpnView.setVisibility(View.GONE);
+            mNoVpnProfilesView.setVisibility(View.GONE);
+            setUseCoreConnect(false);
+            mVpnStatusBar.setVisibility(View.GONE);
+            mImportVpnFab.hide();
+            profileSpinner.setVisibility(View.GONE);
+            mVpnStatusBar.setVisibility(View.GONE);
+            mImportVpnFab.hide();
+            mInstallCoreFab.show();
+            mInstallCore.setVisibility(View.VISIBLE);
+            mUseVpnView.setVisibility(View.GONE);
+        }
+        super.onResume();
+    }
 
     public void handleStatusMessage(String status){
         if (status.startsWith("NOPROCESS")) {
