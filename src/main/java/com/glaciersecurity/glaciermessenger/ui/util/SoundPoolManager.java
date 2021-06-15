@@ -45,8 +45,9 @@ public class SoundPoolManager {
     private SoundPoolManager(Context context) {
         // AudioManager audio settings for adjusting the volume
         audioManager = (AudioManager) context.getSystemService(AUDIO_SERVICE);
-        float actualVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        //AM-588
+        float actualVolume = (float) audioManager.getStreamVolume(audioManager.getMode());
+        float maxVolume = (float) audioManager.getStreamMaxVolume(audioManager.getMode());
         volume = actualVolume / maxVolume;
 
         vibrator = (Vibrator) context.getSystemService(VIBRATOR_SERVICE); //AM-475
@@ -97,6 +98,8 @@ public class SoundPoolManager {
     }
 
     public void playRinging() {
+        //AM-588
+        audioManager.setMode(AudioManager.MODE_RINGTONE);
         if (loaded && !playing) {
             //ringingStreamId = soundPool.play(ringingSoundId, volume, volume, 1, -1, 1f);
             ringtone.play(); //AM-447
@@ -109,6 +112,8 @@ public class SoundPoolManager {
     }
 
     public void playOutgoing() {
+        //AM-588
+        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
         if (loaded && !playing) {
             //ringingStreamId = soundPool.play(ringingSoundId, volume, volume, 1, -1, 1f);
             outgoingRingtone.play(); //AM-447
@@ -149,6 +154,8 @@ public class SoundPoolManager {
     }
 
     public void playDisconnect() {
+        //AM-588
+        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
         if (loaded && !playing) {
             soundPool.play(disconnectSoundId, 3, volume, 1, 0, 1f);
             playing = false;
@@ -157,6 +164,8 @@ public class SoundPoolManager {
     }
 
     public void playJoin() {
+        //AM-588
+        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
         if (loaded && !playing) {
             soundPool.play(joingSoundId, 3, volume, 1, 0, 1f);
             playing = false;
