@@ -21,7 +21,8 @@ public class SoundPoolManager {
     private boolean playing = false;
     private boolean loaded = false;
     private boolean playingCalled = false;
-    private boolean outgoingCalled = false;  private float volume;
+    private boolean outgoingCalled = false;
+    private float volume;
     private SoundPool soundPool;
     private int ringingSoundId;
     private int ringingStreamId;
@@ -90,6 +91,13 @@ public class SoundPoolManager {
         joingSoundId = soundPool.load(context, R.raw.join_call, 1);
     }
 
+    private float getVolume(){
+        //AM-588
+        float actualVolume = (float) audioManager.getStreamVolume(audioManager.getMode());
+        float maxVolume = (float) audioManager.getStreamMaxVolume(audioManager.getMode());
+        volume = actualVolume / maxVolume;
+        return volume;
+    }
     public static SoundPoolManager getInstance(Context context) {
         if (instance == null) {
             instance = new SoundPoolManager(context);
@@ -157,7 +165,7 @@ public class SoundPoolManager {
         //AM-588
         audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
         if (loaded && !playing) {
-            soundPool.play(disconnectSoundId, 3, volume, 1, 0, 1f);
+            soundPool.play(disconnectSoundId, getVolume(), getVolume(), 1, 0, 1f);
             playing = false;
         }
         setSpeakerOn(false); //AM-441
@@ -167,7 +175,7 @@ public class SoundPoolManager {
         //AM-588
         audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
         if (loaded && !playing) {
-            soundPool.play(joingSoundId, 3, volume, 1, 0, 1f);
+            soundPool.play(joingSoundId, getVolume(), getVolume(), 1, 0, 1f);
             playing = false;
         }
     }
