@@ -154,35 +154,11 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
         return v;
     }
 
-    /**
-     * HONEYBADGER AM-76
-     */
+    //AM-619
     private void doCoreErrorAction() {
-        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this.getContext());
-        builder.setTitle(R.string.core_missing);
-        builder.setMessage(R.string.glacier_core_install);
-        builder.setPositiveButton(R.string.next, (dialog, which) -> {
-            try {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
-                startActivity(intent);
-                dialog.dismiss();
-            }
-            catch(Exception e2){
-                e2.printStackTrace();
-            }
-        });
-        final androidx.appcompat.app.AlertDialog dialog = builder.create();
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.show();    }
-
-
-    /**
-     * setUpTitleText
-     */
-    private void setUpTitleText(int resourceId) {
-        // int resourceId = R.string.open_vpn_profile_dialog_title;
-        getDialog().setTitle(getString(resourceId));
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
+        startActivity(intent);
     }
 
     /**
