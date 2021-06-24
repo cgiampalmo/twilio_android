@@ -85,6 +85,7 @@ import com.glaciersecurity.glaciermessenger.ui.util.JidDialog;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils;
+import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.ui.widget.SwipeRefreshListFragment;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
 import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
@@ -1117,7 +1118,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			editName.setError(getString(R.string.group_already_exists));
 			mToast = Toast.makeText(this, R.string.group_already_exists, Toast.LENGTH_LONG);
 			mToast.show();
-			Log.d(Config.LOGTAG, "PROBLEM - a group chat named " + conferenceJid + " already exists!");
+			Log.d(Config.LOGTAG, "PROBLEM - a group chat named " + Tools.logJid(conferenceJid) + " already exists!");
 		} else {
 			Intent intent = new Intent(getApplicationContext(), ChooseContactActivity.class);
 			intent.putExtra(ChooseContactActivity.EXTRA_SHOW_ENTER_JID, true); //ALF from false

@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioRemoteParticipantListener;
+import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.twilio.video.RemoteAudioTrack;
 import com.twilio.video.RemoteAudioTrackPublication;
 import com.twilio.video.RemoteDataTrack;
@@ -153,7 +154,7 @@ public class TwilioCallParticipant {
                 Log.i(TAG, String.format("onAudioTrackSubscribed: " +
                                 "[RemoteParticipant: identity=%s], " +
                                 "[RemoteAudioTrack: enabled=%b, playbackEnabled=%b, name=%s]",
-                        remoteParticipant.getIdentity(),
+                        Tools.logJid(remoteParticipant.getIdentity()),
                         remoteAudioTrack.isEnabled(),
                         remoteAudioTrack.isPlaybackEnabled(),
                         remoteAudioTrack.getName()));
@@ -166,7 +167,7 @@ public class TwilioCallParticipant {
                 Log.i(TAG, String.format("onAudioTrackUnsubscribed: " +
                                 "[RemoteParticipant: identity=%s], " +
                                 "[RemoteAudioTrack: enabled=%b, playbackEnabled=%b, name=%s]",
-                        remoteParticipant.getIdentity(),
+                        Tools.logJid(remoteParticipant.getIdentity()),
                         remoteAudioTrack.isEnabled(),
                         remoteAudioTrack.isPlaybackEnabled(),
                         remoteAudioTrack.getName()));
@@ -180,7 +181,7 @@ public class TwilioCallParticipant {
                                 "[RemoteParticipant: identity=%s], " +
                                 "[RemoteAudioTrackPublication: sid=%b, name=%s]" +
                                 "[TwilioException: code=%d, message=%s]",
-                        remoteParticipant.getIdentity(),
+                        Tools.logJid(remoteParticipant.getIdentity()),
                         remoteAudioTrackPublication.getTrackSid(),
                         remoteAudioTrackPublication.getTrackName(),
                         twilioException.getCode(),
@@ -194,7 +195,7 @@ public class TwilioCallParticipant {
                 Log.i(TAG, String.format("onDataTrackSubscribed: " +
                                 "[RemoteParticipant: identity=%s], " +
                                 "[RemoteDataTrack: enabled=%b, name=%s]",
-                        remoteParticipant.getIdentity(),
+                        Tools.logJid(remoteParticipant.getIdentity()),
                         remoteDataTrack.isEnabled(),
                         remoteDataTrack.getName()));
             }
@@ -206,7 +207,7 @@ public class TwilioCallParticipant {
                 Log.i(TAG, String.format("onDataTrackUnsubscribed: " +
                                 "[RemoteParticipant: identity=%s], " +
                                 "[RemoteDataTrack: enabled=%b, name=%s]",
-                        remoteParticipant.getIdentity(),
+                        Tools.logJid(remoteParticipant.getIdentity()),
                         remoteDataTrack.isEnabled(),
                         remoteDataTrack.getName()));
             }
@@ -219,7 +220,7 @@ public class TwilioCallParticipant {
                                 "[RemoteParticipant: identity=%s], " +
                                 "[RemoteDataTrackPublication: sid=%b, name=%s]" +
                                 "[TwilioException: code=%d, message=%s]",
-                        remoteParticipant.getIdentity(),
+                        Tools.logJid(remoteParticipant.getIdentity()),
                         remoteDataTrackPublication.getTrackSid(),
                         remoteDataTrackPublication.getTrackName(),
                         twilioException.getCode(),
@@ -233,7 +234,7 @@ public class TwilioCallParticipant {
                 Log.i(TAG, String.format("onVideoTrackSubscribed: " +
                                 "[RemoteParticipant: identity=%s], " +
                                 "[RemoteVideoTrack: enabled=%b, name=%s]",
-                        remoteParticipant.getIdentity(),
+                        Tools.logJid(remoteParticipant.getIdentity()),
                         remoteVideoTrack.isEnabled(),
                         remoteVideoTrack.getName()));
                 if (twilioRemoteParticipantListener != null) {
@@ -248,7 +249,7 @@ public class TwilioCallParticipant {
                 Log.i(TAG, String.format("onVideoTrackUnsubscribed: " +
                                 "[RemoteParticipant: identity=%s], " +
                                 "[RemoteVideoTrack: enabled=%b, name=%s]",
-                        remoteParticipant.getIdentity(),
+                        Tools.logJid(remoteParticipant.getIdentity()),
                         remoteVideoTrack.isEnabled(),
                         remoteVideoTrack.getName()));
                 if (twilioRemoteParticipantListener != null) {
@@ -264,7 +265,7 @@ public class TwilioCallParticipant {
                                 "[RemoteParticipant: identity=%s], " +
                                 "[RemoteVideoTrackPublication: sid=%b, name=%s]" +
                                 "[TwilioException: code=%d, message=%s]",
-                        remoteParticipant.getIdentity(),
+                        Tools.logJid(remoteParticipant.getIdentity()),
                         remoteVideoTrackPublication.getTrackSid(),
                         remoteVideoTrackPublication.getTrackName(),
                         twilioException.getCode(),

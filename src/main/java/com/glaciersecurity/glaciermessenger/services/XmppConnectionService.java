@@ -124,6 +124,7 @@ import com.glaciersecurity.glaciermessenger.ui.interfaces.OnAvatarPublication;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnMediaLoaded;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnSearchResultsAvailable;
 import com.glaciersecurity.glaciermessenger.ui.util.SoundPoolManager;
+import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.utils.ConversationsFileObserver;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
@@ -2922,7 +2923,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							Jid jid = iterator.next();
 							if (!members.contains(jid) && !members.contains(Jid.ofDomain(jid.getDomain()))) {
 								iterator.remove();
-								Log.d(Config.LOGTAG, account.getLogJid() + ": removed " + jid + " from crypto targets of " + conversation.getName());
+								Log.d(Config.LOGTAG, account.getLogJid() + ": removed " + Tools.logJid(jid) + " from crypto targets of " + conversation.getName());
 								changed = true;
 							}
 						}
@@ -4639,7 +4640,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			calltitle.addChild(titleval);
 		}
 
-		Log.d(Config.LOGTAG, call.getAccount().getLogJid() + ": making call request to " + call.getReceiver());
+		Log.d(Config.LOGTAG, call.getAccount().getLogJid() + ": making call request to " + Tools.logJid(call.getReceiver()));
 		sendIqPacket(call.getAccount(), request, new OnIqPacketReceived() {
 			@Override
 			public void onIqPacketReceived(final Account account, final IqPacket packet) {
@@ -5064,7 +5065,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							databaseBackend.insertDiscoveryResult(discoveryResult);
 							injectServiceDiscoveryResult(a.getRoster(), presence.getHash(), presence.getVer(), discoveryResult);
 						} else {
-							Log.d(Config.LOGTAG, a.getJid().asBareJid() + ": mismatch in caps for contact " + jid + " " + presence.getVer() + " vs " + discoveryResult.getVer());
+							Log.d(Config.LOGTAG, a.getLogJid() + ": mismatch in caps for contact " + Tools.logJid(jid) + " " + presence.getVer() + " vs " + discoveryResult.getVer());
 						}
 					}
 					a.inProgressDiscoFetches.remove(key);

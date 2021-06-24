@@ -233,7 +233,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 						try {
 							final String cn = information.getString("subject_cn");
 							final Jid jid = Jid.of(bareJid);
-							Log.d(Config.LOGTAG, "setting common name for " + jid + " to " + cn);
+							Log.d(Config.LOGTAG, "setting common name for " + Tools.logJid(jid) + " to " + cn);
 							account.getRoster().getContact(jid).setCommonName(cn);
 						} catch (final IllegalArgumentException ignored) {
 							//ignored
@@ -1026,7 +1026,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 				if (callback != null) {
 					callbacks.add(callback);
 				}
-				Log.d(Config.LOGTAG, account.getLogJid() + ": fetching device ids for " + jid + " already running. adding callback");
+				Log.d(Config.LOGTAG, account.getLogJid() + ": fetching device ids for " + Tools.logJid(jid) + " already running. adding callback");
 				packet = null;
 			} else {
 				callbacks = new ArrayList<>();

@@ -32,6 +32,7 @@ import com.glaciersecurity.glaciermessenger.http.P1S3UrlStreamHandler;
 import com.glaciersecurity.glaciermessenger.services.MessageArchiveService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
+import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.xml.Namespace;
 import com.glaciersecurity.glaciermessenger.xml.Element;
@@ -800,7 +801,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 								Jid jid = user.getRealJid();
 								List<Jid> cryptoTargets = conversation.getAcceptedCryptoTargets();
 								if (cryptoTargets.remove(user.getRealJid())) {
-									Log.d(Config.LOGTAG, account.getLogJid() + ": removed " + jid + " from crypto targets of " + conversation.getName());
+									Log.d(Config.LOGTAG, account.getLogJid() + ": removed " + Tools.logJid(jid) + " from crypto targets of " + conversation.getName());
 									conversation.setAcceptedCryptoTargets(cryptoTargets);
 									mXmppConnectionService.updateConversation(conversation);
 								}

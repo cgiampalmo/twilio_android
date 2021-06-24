@@ -38,6 +38,7 @@ import com.google.android.gms.maps.GoogleMap;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import rocks.xmpp.addr.Jid;
 
@@ -60,6 +61,35 @@ public class Tools {
         logJidBuilder.append(jid.getDomain().charAt(0));
         for (int i = 1; i < jid.getDomain().length(); i++) {
             logJidBuilder.append("*");
+        }
+        return logJidBuilder.toString();
+    }
+
+    public static String logJid(String jid){
+        StringBuilder logJidBuilder = new StringBuilder();
+
+        if (jid.contains("@")) {
+            String local = jid.split("@")[0];
+            String domain = jid.split("@")[1];
+            logJidBuilder.append(jid.charAt(0));
+            for (int i = 1; i < local.length(); i++) {
+                logJidBuilder.append("*");
+            }
+            logJidBuilder.append("@");
+            logJidBuilder.append(domain.charAt(0));
+            for (int i = 1; i < domain.length(); i++) {
+                logJidBuilder.append("*");
+            }
+            return logJidBuilder.toString();
+        }
+        return jid;
+    }
+
+    public static String obvJidLog(String log){
+        StringBuilder logJidBuilder = new StringBuilder();
+        String [] stringList = log.split(" ");
+        for (String s : stringList){
+            logJidBuilder.append(logJid(s));
         }
         return logJidBuilder.toString();
     }
