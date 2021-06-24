@@ -18,7 +18,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.glaciersecurity.glaciermessenger.entities.Bookmark;
 import com.glaciersecurity.glaciermessenger.entities.Contact;
+import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.ui.SettingsActivity;
 import com.glaciersecurity.glaciermessenger.ui.util.AvatarWorkerTask;
 import com.glaciersecurity.glaciermessenger.ui.util.StyledAttributes;
@@ -113,9 +115,33 @@ public class ListItemAdapter extends ArrayAdapter<ListItem> {
 		if (jid != null) {
 			// USERNAME - don't show jid in contact list
 //			viewHolder.jid.setVisibility(View.VISIBLE);
+			//
 			viewHolder.jid.setText(IrregularUnicodeDetector.style(activity, jid));
 		}
-		viewHolder.name.setText(EmojiWrapper.transform(item.getDisplayName()));
+
+		//AM-605
+		if (item instanceof Contact){
+			if (item.getDisplayName() != null) {
+				viewHolder.name.setText(EmojiWrapper.transform(item.getDisplayName()));
+			} else {
+				viewHolder.name.setText(EmojiWrapper.transform(item.getJid()));
+			}
+		}
+		else {
+			Conversation conversation = activity.xmppConnectionService.find(activity.xmppConnectionService.getAccounts().get(0), jid);
+			if (conversation != null && conversation.getAttribute("muc_name") != null) {
+				viewHolder.name.setText("#" + conversation.getAttribute("muc_name"));
+			} else {
+				conversation = activity.xmppConnectionService.databaseBackend.findConversation(activity.xmppConnectionService.getAccounts().get(0), jid);
+				if (conversation != null && conversation.getAttribute("muc_name") != null) {
+					viewHolder.name.setText("#" + conversation.getAttribute("muc_name"));
+				} else if (item.getDisplayName() != null) {
+					viewHolder.name.setText(EmojiWrapper.transform(item.getDisplayName()));
+				} else {
+					viewHolder.name.setText(EmojiWrapper.transform(item.getJid()));
+				}
+			}
+		}
 		//viewHolder.name.setOnClickListener(onContactTvClick);
 
 		//CMG AM-301
