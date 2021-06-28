@@ -226,7 +226,8 @@ public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
 	private void execute(final Query query) {
 		final Account account = query.getAccount();
 		if (account.getStatus() == Account.State.ONLINE) {
-			Log.d(Config.LOGTAG, account.getLogJid().toString() + ": running mam query " + query.toString());
+			//Log.d(Config.LOGTAG, account.getLogJid().toString() + ": running mam query " + query.toString());
+			//Log.d(Config.LOGTAG, account.getLogJid().toString() + ": running mam query ");
 			IqPacket packet = this.mXmppConnectionService.getIqGenerator().queryMessageArchiveManagement(query);
 			this.mXmppConnectionService.sendIqPacket(account, packet, (a, p) -> {
 				Element fin = p.findChild("fin", query.version.namespace);
@@ -242,7 +243,7 @@ public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
 				} else if (p.getType() == IqPacket.TYPE.RESULT && query.isLegacy()) {
 					//do nothing
 				} else {
-					Log.d(Config.LOGTAG, a.getLogJid() + ": error executing mam: " + p.toString());
+					Log.d(Config.LOGTAG, a.getLogJid() + ": error executing mam "); // + p.toString());
 					finalizeQuery(query, true);
 				}
 			});

@@ -322,13 +322,13 @@ public class XmppConnection implements Runnable {
 						if (result.getIp() != null) {
 							addr = new InetSocketAddress(result.getIp(), result.getPort());
 							Log.d(Config.LOGTAG, account.getLogJid().toString()
-									+ ": using values from resolver " + (result.getHostname() == null ? "" : result.getHostname().toString()
-									+ "/") + result.getIp().getHostAddress() + ":" + result.getPort() + " tls: " + features.encryptionEnabled);
+									+ ": using values from resolver "); // + (result.getHostname() == null ? "" : result.getHostname().toString()
+									//+ "/") + result.getIp().getHostAddress() + ":" + result.getPort() + " tls: " + features.encryptionEnabled);
 						} else {
 							addr = new InetSocketAddress(IDN.toASCII(result.getHostname().toString()), result.getPort());
 							Log.d(Config.LOGTAG, account.getLogJid().toString()
-									+ ": using values from resolver "
-									+ result.getHostname().toString() + ":" + result.getPort() + " tls: " + features.encryptionEnabled);
+									+ ": using values from resolver ");
+									//+ result.getHostname().toString() + ":" + result.getPort() + " tls: " + features.encryptionEnabled);
 						}
 
 						if (!features.encryptionEnabled) {
@@ -583,7 +583,7 @@ public class XmppConnection implements Runnable {
 					}
 				} catch (final NumberFormatException ignored) {
 				}
-				Log.d(Config.LOGTAG, account.getLogJid() + ": online with resource " + account.getResource());
+				Log.d(Config.LOGTAG, account.getLogJid() + ": online with resource "); // + account.getResource());
 				changeStatus(Account.State.ONLINE);
 			} else if (nextTag.isStart("r")) {
 				tagReader.readElement(nextTag);
@@ -737,7 +737,7 @@ public class XmppConnection implements Runnable {
 	private void processIq(final Tag currentTag) throws XmlPullParserException, IOException {
 		final IqPacket packet = (IqPacket) processPacket(currentTag, PACKET_IQ);
 		if (!packet.valid()) {
-			Log.e(Config.LOGTAG, "encountered invalid iq from='" + packet.getFrom() + "' to='" + packet.getTo() + "'");
+			Log.e(Config.LOGTAG, "encountered invalid iq"); // from='" + packet.getFrom() + "' to='" + packet.getTo() + "'");
 			return;
 		}
 		if (packet instanceof JinglePacket) {
@@ -782,7 +782,7 @@ public class XmppConnection implements Runnable {
 	private void processMessage(final Tag currentTag) throws XmlPullParserException, IOException {
 		final MessagePacket packet = (MessagePacket) processPacket(currentTag, PACKET_MESSAGE);
 		if (!packet.valid()) {
-			Log.e(Config.LOGTAG, "encountered invalid message from='" + packet.getFrom() + "' to='" + packet.getTo() + "'");
+			Log.e(Config.LOGTAG, "encountered invalid message"); // from='" + packet.getFrom() + "' to='" + packet.getTo() + "'");
 			return;
 		}
 		this.messageListener.onMessagePacketReceived(account, packet);
@@ -791,7 +791,7 @@ public class XmppConnection implements Runnable {
 	private void processPresence(final Tag currentTag) throws XmlPullParserException, IOException {
 		PresencePacket packet = (PresencePacket) processPacket(currentTag, PACKET_PRESENCE);
 		if (!packet.valid()) {
-			Log.e(Config.LOGTAG, "encountered invalid presence from='" + packet.getFrom() + "' to='" + packet.getTo() + "'");
+			Log.e(Config.LOGTAG, "encountered invalid presence"); // from='" + packet.getFrom() + "' to='" + packet.getTo() + "'");
 			return;
 		}
 		this.presenceListener.onPresencePacketReceived(account, packet);
@@ -1066,7 +1066,7 @@ public class XmppConnection implements Runnable {
 					try {
 						Jid assignedJid = Jid.ofEscaped(jid.getContent());
 						if (!account.getJid().getDomain().equals(assignedJid.getDomain())) {
-							Log.d(Config.LOGTAG, account.getLogJid() + ": server tried to re-assign domain to " + assignedJid.getDomain());
+							Log.d(Config.LOGTAG, account.getLogJid() + ": server tried to re-assign domain"); // to " + assignedJid.getDomain());
 							throw new StateChangingError(Account.State.BIND_FAILURE);
 						}
 						if (account.setJid(assignedJid)) {
@@ -1081,13 +1081,13 @@ public class XmppConnection implements Runnable {
 						}
 						return;
 					} catch (final IllegalArgumentException e) {
-						Log.d(Config.LOGTAG, account.getLogJid() + ": server reported invalid jid (" + jid.getContent() + ") on bind");
+						Log.d(Config.LOGTAG, account.getLogJid() + ": server reported invalid jid on bind"); // (" + jid.getContent() + ") on bind");
 					}
 				} else {
 					Log.d(Config.LOGTAG, account.getJid() + ": disconnecting because of bind failure. (no jid)");
 				}
 			} else {
-				Log.d(Config.LOGTAG, account.getJid() + ": disconnecting because of bind failure (" + packet.toString());
+				Log.d(Config.LOGTAG, account.getJid() + ": disconnecting because of bind failure "); // + packet.toString());
 			}
 			final Element error = packet.findChild("error");
 			if (packet.getType() == IqPacket.TYPE.ERROR && error != null && error.hasChild("conflict")) {
@@ -1223,7 +1223,7 @@ public class XmppConnection implements Runnable {
 					enableAdvancedStreamFeatures();
 				}
 			} else {
-				Log.d(Config.LOGTAG, account.getLogJid() + ": could not query disco info for " + jid.toString());
+				Log.d(Config.LOGTAG, account.getLogJid() + ": could not query disco info for jid"); // + jid.toString());
 			}
 			if (packet.getType() != IqPacket.TYPE.TIMEOUT) {
 				if (mPendingServiceDiscoveries.decrementAndGet() == 0
@@ -1250,7 +1250,7 @@ public class XmppConnection implements Runnable {
 	}
 
 	private void finalizeBind() {
-		Log.d(Config.LOGTAG, account.getLogJid() + ": online with resource " + account.getResource());
+		Log.d(Config.LOGTAG, account.getLogJid() + ": online with resource "); // + account.getResource());
 		if (bindListener != null) {
 			bindListener.onBind(account);
 		}
@@ -1297,7 +1297,7 @@ public class XmppConnection implements Runnable {
 					sendServiceDiscoveryInfo(jid);
 				}
 			} else {
-				Log.d(Config.LOGTAG, account.getLogJid() + ": could not query disco items of " + server);
+				Log.d(Config.LOGTAG, account.getLogJid() + ": could not query disco items of server");  // + server);
 			}
 			if (packet.getType() != IqPacket.TYPE.TIMEOUT) {
 				if (mPendingServiceDiscoveries.decrementAndGet() == 0
@@ -1346,7 +1346,7 @@ public class XmppConnection implements Runnable {
 
 					account.setAvailableGroups(items);
 				} else {
-					Log.d(Config.LOGTAG, account.getLogJid() + ": could not query disco items of " + discoItemConf);
+					Log.d(Config.LOGTAG, account.getLogJid() + ": could not query disco items of discoItemConf");  // + discoItemConf);
 				}
 			}
 		});
@@ -1365,7 +1365,7 @@ public class XmppConnection implements Runnable {
 					features.carbonsEnabled = true;
 				} else {
 					Log.d(Config.LOGTAG, account.getLogJid()
-							+ ": error enableing carbons " + packet.toString());
+							+ ": error enableing carbons "); // + packet.toString());
 				}
 			}
 		});
@@ -1456,7 +1456,7 @@ public class XmppConnection implements Runnable {
 			if (force || isBound) {
 				tagWriter.writeStanzaAsync(packet);
 			} else {
-				Log.d(Config.LOGTAG, account.getLogJid() + " do not write stanza to unbound stream " + packet.toString());
+				Log.d(Config.LOGTAG, account.getLogJid() + " do not write stanza to unbound stream "); // + packet.toString());
 			}
 			if (packet instanceof AbstractAcknowledgeableStanza) {
 				AbstractAcknowledgeableStanza stanza = (AbstractAcknowledgeableStanza) packet;

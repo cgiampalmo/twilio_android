@@ -240,14 +240,12 @@ public class JingleConnection implements Transferable {
 				returnResult = this.receiveFallbackToIbb(packet);
 			} else {
 				returnResult = false;
-				Log.d(Config.LOGTAG, "trying to fallback to something unknown"
-						+ packet.toString());
+				Log.d(Config.LOGTAG, "trying to fallback to something unknown");  //+ packet.toString());
 			}
 		} else if (packet.isAction("transport-accept")) {
 			returnResult = this.receiveTransportAccept(packet);
 		} else {
-			Log.d(Config.LOGTAG, "packet arrived in connection. action was "
-					+ packet.getAction());
+			Log.d(Config.LOGTAG, "packet arrived in connection."); // action was " + packet.getAction());
 			returnResult = false;
 		}
 		IqPacket response;
@@ -428,7 +426,7 @@ public class JingleConnection implements Transferable {
 				if (mJingleConnectionManager.hasStoragePermission()
 						&& size < this.mJingleConnectionManager.getAutoAcceptFileSize()
 						&& mXmppConnectionService.isDataSaverDisabled()) {
-					Log.d(Config.LOGTAG, "auto accepting file from "+ packet.getFrom());
+					Log.d(Config.LOGTAG, "auto accepting file"); // from "+ packet.getFrom());
 					this.acceptedAutomatically = true;
 					this.sendAccept();
 				} else {

@@ -146,7 +146,8 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 			if (plaintextMessage != null) {
 				Message finishedMessage = new Message(conversation, plaintextMessage.getPlaintext(), Message.ENCRYPTION_AXOLOTL, status);
 				finishedMessage.setFingerprint(plaintextMessage.getFingerprint());
-				Log.d(Config.LOGTAG, AxolotlService.getLogprefix(finishedMessage.getConversation().getAccount()) + " Received Message with session fingerprint: " + plaintextMessage.getFingerprint());
+				//Log.d(Config.LOGTAG, AxolotlService.getLogprefix(finishedMessage.getConversation().getAccount()) + "Received Message with session fingerprint: " + plaintextMessage.getFingerprint());
+				Log.d(Config.LOGTAG, AxolotlService.getLogprefix(finishedMessage.getConversation().getAccount()) + "Received Message with session fingerprint ");
 				return finishedMessage;
 			} else if (!service.isReflected(xmppAxolotlMessage)){ //ALF AM-228   //ALF AM-287 if !reflected
 				//service.verifySessions(conversation, from);
@@ -603,7 +604,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 					final boolean mucUserMatches = query == null && replacedMessage.sameMucUser(message); //can not be checked when using mam
 					final boolean duplicate = conversation.hasDuplicateMessage(message);
 					if (fingerprintsMatch && (trueCountersMatch || !conversationMultiMode || mucUserMatches) && !duplicate) {
-						Log.d(Config.LOGTAG, "replaced message '" + replacedMessage.getBody() + "' with '" + message.getBody() + "'");
+						//Log.d(Config.LOGTAG, "replaced message '" + replacedMessage.getBody() + "' with '" + message.getBody() + "'");
 						synchronized (replacedMessage) {
 							final String uuid = replacedMessage.getUuid();
 							replacedMessage.setUuid(UUID.randomUUID().toString());
@@ -853,7 +854,8 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 						} else if (!counterpart.isBareJid() && trueJid != null) {
 							ReadByMarker readByMarker = ReadByMarker.from(counterpart, trueJid);
 							if (message.addReadByMarker(readByMarker)) {
-								Log.d(Config.LOGTAG, account.getLogJid() + ": added read by (" + readByMarker.getRealJid() + ") to message '" + message.getBody() + "'");
+								//Log.d(Config.LOGTAG, account.getLogJid() + ": added read by (" + readByMarker.getRealJid() + ") to message '" + message.getBody() + "'");
+								Log.d(Config.LOGTAG, account.getLogJid() + ": added read by (" + Tools.logJid(readByMarker.getRealJid()) + ") to message");
 								mXmppConnectionService.updateMessage(message, false);
 							}
 						}

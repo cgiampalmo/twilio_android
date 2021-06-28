@@ -639,7 +639,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 							Log.d(Config.LOGTAG, account.getLogJid()+": device list pre condition still not met on second attempt");
 						} else if (error != null) {
 							pepBroken = true;
-							Log.d(Config.LOGTAG, getLogprefix(account) + "Error received while publishing own device id" + packet.findChild("error"));
+							Log.d(Config.LOGTAG, getLogprefix(account) + "Error received while publishing own device id"); // + packet.findChild("error"));
 						}
 
 					}
@@ -716,7 +716,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 					Element error = packet.findChild("error");
 					if (error == null || !error.hasChild("item-not-found")) {
 						pepBroken = true;
-						Log.w(Config.LOGTAG, AxolotlService.getLogprefix(account) + "request for device bundles came back with something other than item-not-found" + packet);
+						Log.w(Config.LOGTAG, AxolotlService.getLogprefix(account) + "request for device bundles came back with something other than item-not-found"); // + packet);
 						return;
 					}
 				}
@@ -725,12 +725,12 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 				Map<Integer, ECPublicKey> keys = mXmppConnectionService.getIqParser().preKeyPublics(packet);
 				boolean flush = false;
 				if (bundle == null) {
-					Log.w(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Received invalid bundle:" + packet);
+					Log.w(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Received invalid bundle"); // + packet);
 					bundle = new PreKeyBundle(-1, -1, -1, null, -1, null, null, null);
 					flush = true;
 				}
 				if (keys == null) {
-					Log.w(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Received invalid prekeys:" + packet);
+					Log.w(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Received invalid prekeys"); // + packet);
 				}
 				try {
 					boolean changed = false;
@@ -882,7 +882,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 					if (preconditionNotMet) {
 						Log.d(Config.LOGTAG,getLogprefix(account) + "bundle precondition still not met after second attempt");
 					} else {
-						Log.d(Config.LOGTAG, getLogprefix(account) + "Error received while publishing bundle: " + packet.toString());
+						Log.d(Config.LOGTAG, getLogprefix(account) + "Error received while publishing bundle "); // + packet.toString());
 					}
 					pepBroken = true;
 				}
@@ -1117,7 +1117,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 				final List<PreKeyBundle> preKeyBundleList = parser.preKeys(packet);
 				final PreKeyBundle bundle = parser.bundle(packet);
 				if (preKeyBundleList.isEmpty() || bundle == null) {
-					Log.e(Config.LOGTAG, AxolotlService.getLogprefix(account) + "preKey IQ packet invalid: " + packet);
+					Log.e(Config.LOGTAG, AxolotlService.getLogprefix(account) + "preKey IQ packet invalid "); // + packet);
 					fetchStatusMap.put(address, FetchStatus.ERROR);
 					finishBuildingSessionsFromPEP(address);
 					if (callback != null) {
@@ -1181,7 +1181,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 				fetchStatusMap.put(address, FetchStatus.ERROR);
 				Element error = packet.findChild("error");
 				boolean itemNotFound = error != null && error.hasChild("item-not-found");
-				Log.d(Config.LOGTAG, getLogprefix(account) + "Error received while building session:" + packet.findChild("error"));
+				Log.d(Config.LOGTAG, getLogprefix(account) + "Error received while building session"); // + packet.findChild("error"));
 				finishBuildingSessionsFromPEP(address);
 				if (oneOfOurs && itemNotFound && cleanedOwnDeviceIds.add(address.getDeviceId())) {
 					removeFromDeviceAnnouncement(address.getDeviceId());
@@ -1204,7 +1204,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 	public Set<SignalProtocolAddress> findDevicesWithoutSession(final Conversation conversation) {
 		Set<SignalProtocolAddress> addresses = new HashSet<>();
 		for (Jid jid : getCryptoTargets(conversation)) {
-			Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Finding devices without session for " + Tools.logJid(jid));
+			//Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Finding devices without session for " + Tools.logJid(jid));
 			final Set<Integer> ids = deviceIds.get(jid);
 			if (ids != null && !ids.isEmpty()) {
 				for (Integer foreignId : ids) {
@@ -1212,7 +1212,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 					if (sessions.get(address) == null) {
 						IdentityKey identityKey = axolotlStore.loadSession(address).getSessionState().getRemoteIdentityKey();
 						if (identityKey != null) {
-							Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Already have session for " + address.toString() + ", adding to cache...");
+							Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Already have session for " + Tools.logJid(address.toString()) + ", adding to cache...");
 							XmppAxolotlSession session = new XmppAxolotlSession(account, axolotlStore, address, identityKey);
 							sessions.put(address, session);
 						} else {
@@ -1227,7 +1227,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 				}
 			} else {
 				mXmppConnectionService.keyStatusUpdated(FetchStatus.ERROR);
-				Log.w(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Have no target devices in PEP!");
+				Log.w(Config.LOGTAG, AxolotlService.getLogprefix(account) + Tools.logJid(jid) + " has no target devices in PEP!");
 			}
 		}
 		Set<Integer> ownIds = this.deviceIds.get(account.getJid().asBareJid());

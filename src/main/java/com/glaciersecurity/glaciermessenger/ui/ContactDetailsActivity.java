@@ -107,7 +107,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
     private Jid accountJid;
     private Jid contactJid;
     private boolean showDynamicTags = false;
-    private boolean showLastSeen = false;
+    private boolean showLastSeen = true;
     private boolean showInactiveOmemo = false;
     private String messageFingerprint;
 
@@ -234,10 +234,14 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         } else {
             final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             this.showDynamicTags = preferences.getBoolean(SettingsActivity.SHOW_DYNAMIC_TAGS, true);
-            this.showLastSeen = preferences.getBoolean("last_activity", false);
+            this.showLastSeen = preferences.getBoolean("last_activity", true);
         }
         binding.mediaWrapper.setVisibility(Compatibility.hasStoragePermission(this) ? View.VISIBLE : View.GONE);
         mMediaAdapter.setAttachments(Collections.emptyList());
+
+        binding.lastseenclockicon.setVisibility(View.GONE);
+        binding.detailsLastseen.setVisibility(View.GONE);
+
     }
 
     @Override
@@ -324,26 +328,6 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
     }
     //CMG AM-218
 
-//    private void setStatusIconandText(Contact contact) {
-//        // DJF Add for Status on My Profile page
-//        this.statusIcon = (ImageView) findViewById(R.id.details_contactpresence_icon);
-//        this.statusText = (TextView) findViewById(R.id.details_contactpresence_string);
-//        this.statusMessageText = (TextView) findViewById(R.id.contact_status_message);
-//
-//        statusIcon.setImageResource(contact.getShownStatus().getStatusIcon());
-//        statusText.setText(contact.getShownStatus().toDisplayString());
-//        this.presenceStatusMessage = contact.getShownStatusMessage();
-//
-//        if (presenceStatusMessage != null) {
-//            if (isDefaultStatus(presenceStatusMessage)){
-//                statusMessageText.setText(presenceStatusMessage);
-//            } else {
-//                String customStr = getEmojiByUnicode(customIcon)+"\t" + presenceStatusMessage ;
-//                statusMessageText.setText(customStr);
-//            }
-//        }
-//    }
-
     private boolean isDefaultStatus(String statusMessage){
         if (statusMessage.equals(getEmojiByUnicode(meetingIcon)+"\tIn a meeting")) {
             return true;
@@ -358,55 +342,6 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         }
         return false;
     }
-
-
-    //      private void setStatusIconandText(Contact contact) {
-  //      ImageView statusIcon = (ImageView) findViewById(R.id.details_contactpresence_icon);
-  //      TextView statusText = (TextView) findViewById(R.id.details_contactpresence_string);
-
-//        TextView statusMessageText = (TextView) findViewById(R.id.status_message);
-
-//        statusMessageText.setText(contact.getAccount().getPresenceStatusMessage());
-
-        //List<String> statusMessage = contact.getPresences().getStatusMessages();
-        //if (!statusMessage.isEmpty()){
-        //    statusMessageText.setText(statusMessage.get(0));
-        //}else {
-        //    statusMessageText.setText("----");
-        //}
-
-        //CMG AM-218 orange circle to grey
-  //      statusIcon.setImageResource(contact.getShownStatus().getStatusIcon());
-  //      statusText.setText(contact.getShownStatus().toDisplayString());
-//        switch (contact.getShownStatus()) {
-//
-//            case CHAT:
-//                statusIcon.setImageResource(R.drawable.ic_green);
-//                statusText.setText(R.string.presence_online);
-//                break;
-//            case AWAY:
-//                statusIcon.setImageResource(R.drawable.ic_orange);
-//                statusText.setText(R.string.presence_away);
-//                break;
-//            case XA:
-//                statusIcon.setImageResource(R.drawable.ic_grey);
-//                statusText.setText(R.string.presence_xa);
-//                break;
-//            case OFFLINE:
-//                statusIcon.setImageResource(R.drawable.ic_grey);
-//                statusText.setText(R.string.presence_xa);
-//                break;
-//            case DND:
-//                statusIcon.setImageResource(R.drawable.ic_red);
-//                statusText.setText(R.string.presence_dnd);
-//                break;
-//            default:
-//                statusIcon.setImageResource(R.drawable.ic_green);
-//                statusText.setText(R.string.presence_online);
-//                break;
-//
-//        }
-//    }
 
     private void populateView() {
         if (contact == null) {
@@ -502,20 +437,34 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             binding.contactStatusMessage.setVisibility(View.GONE);
         }
 
-        if (contact.isBlocked() && !this.showDynamicTags) {
-            binding.detailsLastseen.setVisibility(View.VISIBLE);
-            binding.detailsLastseen.setText(R.string.contact_blocked);
+        if (statusText.getText() == "Online") {
+            binding.lastseenclockicon.setVisibility(View.GONE);
+            binding.detailsLastseen.setVisibility(View.GONE);
         } else {
-            if (showLastSeen
-                    && contact.getLastseen() > 0
-                    && contact.getPresences().allOrNonSupport(Namespace.IDLE)) {
+            if (contact.isBlocked() && !this.showDynamicTags) {
+                binding.lastseenclockicon.setVisibility(View.VISIBLE);
                 binding.detailsLastseen.setVisibility(View.VISIBLE);
-                binding.detailsLastseen.setText(UIHelper.lastseen(getApplicationContext(), contact.isActive(), contact.getLastseen()));
+                binding.detailsLastseen.setText(R.string.contact_blocked);
             } else {
-                binding.detailsLastseen.setVisibility(View.GONE);
+
+                if (contact.isActive()) {
+                    binding.lastseenclockicon.setVisibility(View.GONE);
+                    binding.detailsLastseen.setVisibility(View.GONE);
+                }
+                else
+
+                if (showLastSeen
+                        && contact.getLastseen() > 0
+                        && contact.getPresences().allOrNonSupport(Namespace.IDLE)) {
+                    binding.lastseenclockicon.setVisibility(View.VISIBLE);
+                    binding.detailsLastseen.setVisibility(View.VISIBLE);
+                    binding.detailsLastseen.setText(UIHelper.lastseen(getApplicationContext(), contact.isActive(), contact.getLastseen()));
+                } else {
+                    binding.lastseenclockicon.setVisibility(View.GONE);
+                    binding.detailsLastseen.setVisibility(View.GONE);
+                }
             }
         }
-
 
         //CMG AM-260
         binding.detailsContactjid.setText(contact.getDisplayName());
