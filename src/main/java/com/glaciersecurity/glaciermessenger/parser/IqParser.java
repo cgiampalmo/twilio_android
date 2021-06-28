@@ -190,7 +190,7 @@ public class IqParser extends AbstractParser implements OnIqPacketReceived {
 		Map<Integer, ECPublicKey> preKeyRecords = new HashMap<>();
 		Element item = getItem(packet);
 		if (item == null) {
-			Log.d(Config.LOGTAG, AxolotlService.LOGPREFIX+" : "+"Couldn't find <item> in bundle IQ packet: " + packet);
+			Log.d(Config.LOGTAG, AxolotlService.LOGPREFIX+" : "+"Couldn't find <item> in bundle IQ packet: "); // + packet);
 			return null;
 		}
 		final Element bundleElement = item.findChild("bundle");
@@ -199,7 +199,7 @@ public class IqParser extends AbstractParser implements OnIqPacketReceived {
 		}
 		final Element prekeysElement = bundleElement.findChild("prekeys");
 		if(prekeysElement == null) {
-			Log.d(Config.LOGTAG, AxolotlService.LOGPREFIX+" : "+"Couldn't find <prekeys> in bundle IQ packet: " + packet);
+			Log.d(Config.LOGTAG, AxolotlService.LOGPREFIX+" : "+"Couldn't find <prekeys> in bundle IQ packet: "); // + packet);
 			return null;
 		}
 		for(Element preKeyPublicElement : prekeysElement.getChildren()) {
@@ -213,7 +213,7 @@ public class IqParser extends AbstractParser implements OnIqPacketReceived {
 				final ECPublicKey preKeyPublic = Curve.decodePoint(Base64.decode(preKeyPublicElement.getContent(), Base64.DEFAULT), 0);
 				preKeyRecords.put(preKeyId, preKeyPublic);
 			} catch (NumberFormatException e) {
-				Log.e(Config.LOGTAG, AxolotlService.LOGPREFIX+" : "+"could not parse preKeyId from preKey "+preKeyPublicElement.toString());
+				Log.e(Config.LOGTAG, AxolotlService.LOGPREFIX+" : "+"could not parse preKeyId from preKey ");  //+preKeyPublicElement.toString());
 			} catch (Throwable e) {
 				Log.e(Config.LOGTAG, AxolotlService.LOGPREFIX+" : "+"Invalid preKeyPublic (ID="+preKeyId+") in PEP: "+ e.getMessage()+", skipping...");
 			}

@@ -118,7 +118,7 @@ public class SQLiteAxolotlStore implements SignalProtocolStore {
 		if (!regenerate && regIdString != null) {
 			reg_id = Integer.valueOf(regIdString);
 		} else {
-			Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Could not retrieve axolotl registration id for account " + account.getJid());
+			Log.i(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Could not retrieve axolotl registration id for account " + account.getLogJid());
 			reg_id = generateRegistrationId();
 			boolean success = this.account.setKey(JSONKEY_REGISTRATION_ID, Integer.toString(reg_id));
 			if (success) {

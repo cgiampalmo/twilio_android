@@ -157,7 +157,7 @@ public class PresenceParser extends AbstractParser implements
 						mucOptions.setError(MucOptions.Error.SHUTDOWN);
 					} else if (!codes.contains(MucOptions.STATUS_CODE_CHANGED_NICK)) {
 						mucOptions.setError(MucOptions.Error.UNKNOWN);
-						Log.d(Config.LOGTAG, "unknown error in conference: " + packet);
+						Log.d(Config.LOGTAG, "unknown error in conference "); // + packet);
 					}
 				} else if (codes.contains(MucOptions.STATUS_CODE_SHUTDOWN)) { //ALF AM-78
 					mucOptions.setError(MucOptions.Error.SHUTDOWN);
@@ -225,7 +225,7 @@ public class PresenceParser extends AbstractParser implements
 						}
 					} else {
 						mucOptions.setError(MucOptions.Error.UNKNOWN);
-						Log.d(Config.LOGTAG, "unknown error in conference: " + packet);
+						Log.d(Config.LOGTAG, "unknown error in conference "); // + packet);
 					}
 				}
 			}

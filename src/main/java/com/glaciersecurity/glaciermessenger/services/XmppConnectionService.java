@@ -784,6 +784,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								} catch (NumberFormatException nfe) {
 									calltime = curtime;
 								}
+								call.setCallTime(calltime); //AM-624
 
 								//AM-492 if cancelled already don't post notification
 								if ((curtime - calltime) > 45000 || cancelledCall == currentTwilioCall.getCallId()) {
@@ -2810,7 +2811,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					}*/ //ALF AM-270 Conversations update caused this, we don't want it
 
 					final Jid joinJid = mucOptions.getSelf().getFullJid();
-					Log.d(Config.LOGTAG, account.getLogJid().toString() + ": joining conversation " + joinJid.toString());
+					Log.d(Config.LOGTAG, account.getLogJid().toString() + ": joining conversation " + Tools.logJid(joinJid.toString()));
 					PresencePacket packet = mPresenceGenerator.selfPresence(account, Presence.Status.ONLINE, mucOptions.nonanonymous() || onConferenceJoined != null);
 					packet.setTo(joinJid);
 					Element x = packet.addChild("x", "http://jabber.org/protocol/muc");
@@ -2911,7 +2912,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					}
 				} else {
 					success = false;
-					Log.d(Config.LOGTAG, account.getLogJid() + ": could not request affiliation " + affiliations[i] + " in " + conversation.getJid().asBareJid());
+					Log.d(Config.LOGTAG, account.getLogJid() + ": could not request affiliation " + affiliations[i] + " in " + Tools.logJid(conversation.getJid()));
 				}
 				++i;
 				if (i >= affiliations.length) {
@@ -2947,7 +2948,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		for (String affiliation : affiliations) {
 			sendIqPacket(account, mIqGenerator.queryAffiliation(conversation, affiliation), callback);
 		}
-		Log.d(Config.LOGTAG, account.getLogJid() + ": fetching members for " + conversation.getName());
+		//Log.d(Config.LOGTAG, account.getLogJid() + ": fetching members for " + Tools.logJid(conversation.getName().toString()));
 	}
 
 	public void providePasswordForMuc(Conversation conversation, String password) {
@@ -4254,7 +4255,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				&& markable != null
 				&& (markable.trusted() || isPrivateAndNonAnonymousMuc)
 				&& markable.getRemoteMsgId() != null) {
-			Log.d(Config.LOGTAG, conversation.getAccount().getLogJid()+ ": sending read marker to " + markable.getCounterpart().toString());
+//			Log.d(Config.LOGTAG, conversation.getAccount().getLogJid()+ ": sending read marker to " + markable.getCounterpart().toString());
+			Log.d(Config.LOGTAG, conversation.getAccount().getLogJid()+ ": sending read marker to " + Tools.logJid(markable.getCounterpart().toString()));
 			Account account = conversation.getAccount();
 			final Jid to = markable.getCounterpart();
 			final boolean groupChat = conversation.getMode() == Conversation.MODE_MULTI;
@@ -5011,7 +5013,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		mAvatarService.clear(account);
 		sendIqPacket(account, request, (account1, packet) -> {
 			if (packet.getType() == IqPacket.TYPE.ERROR) {
-				Log.d(Config.LOGTAG, account1.getJid().asBareJid() + ": unable to modify nick name "+packet.toString());
+				Log.d(Config.LOGTAG, account1.getJid().asBareJid() + ": unable to modify nick name "); //+packet.toString());
 			}
 		});
 
@@ -5057,7 +5059,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				if (node != null && ver != null) {
 					query.setAttribute("node",node+"#"+ver);
 				}
-				Log.d(Config.LOGTAG, account.getLogJid() + ": making disco request for " + key.second + " to " + jid);
+				Log.d(Config.LOGTAG, account.getLogJid() + ": making disco request to " + Tools.logJid(jid));
 				sendIqPacket(account, request, (a, response) -> {
 					if (response.getType() == IqPacket.TYPE.RESULT) {
 						ServiceDiscoveryResult discoveryResult = new ServiceDiscoveryResult(response);

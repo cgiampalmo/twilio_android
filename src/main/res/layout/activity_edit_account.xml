@@ -413,10 +413,13 @@
 
                             <ImageView
                                 android:id="@+id/details_contactpresence_icon"
-                                android:layout_width="11dp"
-                                android:layout_height="11dp"
-                                android:padding="@dimen/activity_margin_0"
-                                android:layout_gravity="center_vertical"
+                                android:layout_width="16.5dp"
+                                android:layout_height="16.5dp"
+                                android:paddingTop="3.2dp"
+                                android:paddingBottom="1.2dp"
+                                android:paddingLeft="3.2dp"
+                                android:paddingRight="2.7dp"
+                                android:layout_gravity="center"
                                 android:adjustViewBounds="true"
                                 app:srcCompat="@drawable/ic_green" />
 
@@ -425,7 +428,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
-                                android:layout_marginLeft="@dimen/activity_margin_3"
+                                android:layout_marginLeft="@dimen/spacing_medium"
                                 android:text="@string/presence_online"
                                 android:textAppearance="@style/TextAppearance.Conversations.Body2" />
                         </LinearLayout>
@@ -435,7 +438,8 @@
                             android:id="@+id/profile_status_message"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/activity_margin_2"
+                            android:layout_marginTop="@dimen/activity_margin_3"
+                            android:layout_marginBottom="@dimen/activity_margin_1"
                             android:textAppearance="@style/TextAppearance.Conversations.Body1"/>
 
                     </LinearLayout>

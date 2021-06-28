@@ -257,13 +257,16 @@
     <string name="server_info_available">available</string>
     <string name="server_info_unavailable">unavailable</string>
     <string name="missing_public_keys">Missing public key announcements</string>
-    <string name="last_seen_now">last seen just now</string>
-    <string name="last_seen_min">last seen 1 minute ago</string>
-    <string name="last_seen_mins">last seen %d minutes ago</string>
-    <string name="last_seen_hour">last seen 1 hour ago</string>
-    <string name="last_seen_hours">last seen %d hours ago</string>
-    <string name="last_seen_day">last seen 1 day ago</string>
-    <string name="last_seen_days">last seen %d days ago</string>
+
+    <string name="online_right_now">   </string>
+    <string name="last_seen_now">Active &lt; 1 min ago</string>
+    <string name="last_seen_min">Active 1 min ago</string>
+    <string name="last_seen_mins">Active %d mins ago</string>
+    <string name="last_seen_hour">Active 1 hr ago</string>
+    <string name="last_seen_hours">Active %d hrs ago</string>
+    <string name="last_seen_day">Active 1 day ago</string>
+    <string name="last_seen_days">Active %d days ago</string>
+
     <string name="install_openkeychain">Encrypted message. Please install OpenKeychain to decrypt.</string>
     <string name="openpgp_messages_found">OpenPGP encrypted messages found</string>
     <string name="openpgp_key_id">OpenPGP Key ID</string>
@@ -766,7 +769,6 @@
     <string name="received_message_from_stranger">Received a message from a user outside your contact list</string>
     <string name="block_stranger">Block stranger</string>
     <string name="block_entire_domain">Block entire domain</string>
-    <string name="online_right_now">online right now</string>
     <string name="retry_decryption">Retry decryption</string>
     <string name="session_failure">Session failure</string>
     <string name="sasl_downgrade">Downgraded SASL mechanism</string>
