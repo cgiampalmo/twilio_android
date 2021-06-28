@@ -4987,7 +4987,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		callidval.setContent(Integer.toString(call.getCallId()));
 		callidfield.addChild(callidval);
 
-		Log.d(Config.LOGTAG, call.getAccount().getLogJid() + ": cancelling call from " + call.getCaller());
+		Log.d(Config.LOGTAG, call.getAccount().getLogJid() + ": cancelling call"); // from " + call.getCaller());
 		sendIqPacket(call.getAccount(), request, null);
 
 		//ALF AM-431 send message
