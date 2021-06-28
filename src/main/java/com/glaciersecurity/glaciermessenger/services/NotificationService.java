@@ -290,7 +290,7 @@ public class NotificationService {
 
 		String ctext = "Call from " + call.getCaller();
 		//AM-618 changed channel name
-		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, "gchatcalls");
+		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService, "gchatcall2");
 		mBuilder.setContentTitle("Incoming Call")
 				.setContentText(ctext)
 				.setContentIntent(pendingIntent)
@@ -1142,8 +1142,8 @@ public class NotificationService {
 		notificationManager.createNotificationChannel(messagesChannel);
 
 		//ALF AM-410, //AM-618 changed channel and group names
-		notificationManager.createNotificationChannelGroup(new NotificationChannelGroup("callsgroup", "GlacierCallGroup"));
-		final NotificationChannel callsChannel = new NotificationChannel("gchatcalls",
+		notificationManager.createNotificationChannelGroup(new NotificationChannelGroup("callsgroup2", "GlacierCallGroup"));
+		final NotificationChannel callsChannel = new NotificationChannel("gchatcall2",
 				"GlacierCallChannel",
 				NotificationManager.IMPORTANCE_HIGH);
 		callsChannel.setShowBadge(true);
@@ -1158,7 +1158,7 @@ public class NotificationService {
 		callsChannel.setVibrationPattern(pattern);
 		callsChannel.enableVibration(true);
 		callsChannel.enableLights(true);
-		callsChannel.setGroup("callsgroup");
+		callsChannel.setGroup("callsgroup2");
 		notificationManager.createNotificationChannel(callsChannel);
 
 		final NotificationChannel silentMessagesChannel = new NotificationChannel("silent_messages",

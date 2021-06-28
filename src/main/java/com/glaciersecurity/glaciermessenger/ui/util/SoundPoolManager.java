@@ -2,6 +2,7 @@ package com.glaciersecurity.glaciermessenger.ui.util;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -58,6 +59,8 @@ public class SoundPoolManager {
         //Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
         ringtone = RingtoneManager.getRingtone(context,soundUri);
 
+
+
         //AM-588
         Uri outgoingUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"+ context.getPackageName() + "/" + R.raw.outgoing);
         //Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
@@ -107,6 +110,10 @@ public class SoundPoolManager {
 
     public void playRinging() {
         //AM-588
+        AudioAttributes attrs = new AudioAttributes.Builder()
+                .setLegacyStreamType(AudioManager.STREAM_RING)
+                .build();
+        ringtone.setAudioAttributes(attrs);
         audioManager.setMode(AudioManager.MODE_RINGTONE);
         if (loaded && !playing) {
             //ringingStreamId = soundPool.play(ringingSoundId, volume, volume, 1, -1, 1f);
@@ -120,7 +127,11 @@ public class SoundPoolManager {
     }
 
     public void playOutgoing() {
-        //AM-588
+        AudioAttributes attr = new AudioAttributes.Builder()
+                .setLegacyStreamType(AudioManager.STREAM_VOICE_CALL)
+                .build();
+
+        outgoingRingtone.setAudioAttributes(attr);
         audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
         if (loaded && !playing) {
             //ringingStreamId = soundPool.play(ringingSoundId, volume, volume, 1, -1, 1f);
@@ -153,12 +164,13 @@ public class SoundPoolManager {
             if (ringtone != null) { //ALF AM-447, probably don't need above line anymore
                 ringtone.stop();
             }
-
+            soundPool.stop(outgoingSoundId);
             if (outgoingRingtone != null) { //AM-588
                 outgoingRingtone.stop();
             }
             playing = false;
         }
+
     }
 
     public void playDisconnect() {
