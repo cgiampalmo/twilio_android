@@ -59,9 +59,9 @@ public class PushManagementService {
 		IqPacket enable = mXmppConnectionService.getIqGenerator().enablePush(jid, node, secret);
 		mXmppConnectionService.sendIqPacket(account, enable, (a, p) -> {
 			if (p.getType() == IqPacket.TYPE.RESULT) {
-				Log.d(Config.LOGTAG, a.getJid().asBareJid() + ": successfully enabled push on server");
+				Log.d(Config.LOGTAG, a.getLogJid() + ": successfully enabled push on server");
 			} else if (p.getType() == IqPacket.TYPE.ERROR) {
-				Log.d(Config.LOGTAG, a.getJid().asBareJid() + ": enabling push on server failed");
+				Log.d(Config.LOGTAG, a.getLogJid() + ": enabling push on server failed");
 			}
 		});
 	}
