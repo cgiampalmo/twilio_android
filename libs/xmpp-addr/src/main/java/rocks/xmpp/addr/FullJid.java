@@ -243,7 +243,7 @@ final class FullJid extends AbstractJid {
             }
             return jidValue;
         } else {
-            throw new IllegalArgumentException("Could not parse JID: " + jid);
+            throw new IllegalArgumentException("Could not parse JID");
         }
     }
 

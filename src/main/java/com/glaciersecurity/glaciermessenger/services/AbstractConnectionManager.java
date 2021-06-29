@@ -3,7 +3,7 @@ package com.glaciersecurity.glaciermessenger.services;
 import android.content.Context;
 import android.os.PowerManager;
 import android.os.SystemClock;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

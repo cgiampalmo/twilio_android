@@ -6,7 +6,7 @@ import java.util.Properties;
 
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 public class PropertyLoader {
     private Context context;

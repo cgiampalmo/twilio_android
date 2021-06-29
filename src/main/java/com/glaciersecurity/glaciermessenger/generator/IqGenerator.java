@@ -3,7 +3,7 @@ package com.glaciersecurity.glaciermessenger.generator;
 
 import android.os.Bundle;
 import android.util.Base64;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.ecc.ECPublicKey;

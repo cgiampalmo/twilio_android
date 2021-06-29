@@ -44,7 +44,7 @@ import androidx.core.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.LruCache;
 import android.util.Pair;
 import android.widget.Toast;
@@ -1099,7 +1099,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					long discoTimeout = Config.CONNECT_DISCO_TIMEOUT - secondsSinceLastDisco;
 					long timeout = Config.CONNECT_TIMEOUT - secondsSinceLastConnect;
 					if (timeout < 0) {
-						Log.d(Config.LOGTAG, account.getJid() + ": time out during connect reconnecting (secondsSinceLast=" + secondsSinceLastConnect + ")");
+						Log.d(Config.LOGTAG, account.getLogJid() + ": time out during connect reconnecting (secondsSinceLast=" + secondsSinceLastConnect + ")");
 						account.getXmppConnection().resetAttemptCount(false);
 						reconnectAccount(account, true, interactive);
 					} else if (discoTimeout < 0) {
@@ -3126,7 +3126,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 										 final Iterable<Jid> jids,
 										 final boolean publicgroup, //ALF AM-88
 										 final UiCallback<Conversation> callback) {
-		Log.d(Config.LOGTAG, account.getLogJid().toString() + ": creating adhoc conference with " + jids.toString());
+		Log.d(Config.LOGTAG, account.getLogJid().toString() + ": creating adhoc conference");
 		if (account.getStatus() == Account.State.ONLINE) {
 			try {
 				String server = findConferenceServer(account);
@@ -3255,7 +3255,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					final boolean sameBefore = StringUtils.equals(bookmark == null ? null : bookmark.getBookmarkName(), mucOptions.getName());
 
 					if (mucOptions.updateConfiguration(new ServiceDiscoveryResult(packet))) {
-						Log.d(Config.LOGTAG, account.getLogJid() + ": muc configuration changed for " + conversation.getJid().asBareJid());
+						Log.d(Config.LOGTAG, account.getLogJid() + ": muc configuration changed for " + conversation.getLogJid());
 						updateConversation(conversation);
 					}
 
@@ -3951,7 +3951,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public void invite(Conversation conversation, Jid contact) {
-		Log.d(Config.LOGTAG, conversation.getAccount().getLogJid() + ": inviting " + contact + " to " + conversation.getJid().asBareJid());
+		Log.d(Config.LOGTAG, conversation.getAccount().getLogJid() + ": inviting " + Tools.logJid(contact) + " to " + conversation.getLogJid());
 		MessagePacket packet = mMessageGenerator.invite(conversation, contact);
 		sendMessagePacket(conversation.getAccount(), packet);
 	}

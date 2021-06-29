@@ -49,7 +49,7 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.ItemTouchHelper;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -532,9 +532,9 @@ public class ConversationsOverviewFragment extends XmppFragment {
 				if (fileDir[i].delete()) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
+					Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
+					Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
 
@@ -557,9 +557,9 @@ public class ConversationsOverviewFragment extends XmppFragment {
 				if ((!fileDir[i].isDirectory()) && (fileDir[i].delete())) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
+					Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
+					Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
 
@@ -587,9 +587,9 @@ public class ConversationsOverviewFragment extends XmppFragment {
 				if (!(fileDir[i].getName().startsWith("LollipinDB") || (fileDir[i].getName().startsWith("AppLockImpl"))) && (fileDir[i].delete())) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
+					Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
+					Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
 
@@ -616,9 +616,9 @@ public class ConversationsOverviewFragment extends XmppFragment {
 				if (fileDir[i].delete()) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
+					Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
+					Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
 
@@ -649,9 +649,9 @@ public class ConversationsOverviewFragment extends XmppFragment {
 				for (int i = 0; i < fileDir.length; i++) {
 					if (fileDir[i].delete()) {
 						deletedFiles.add(fileDir[i].toString());
-						com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
+						Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 					} else {
-						com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
+						Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 					}
 				}
 				if (f_exts2.delete()) {
@@ -680,8 +680,8 @@ public class ConversationsOverviewFragment extends XmppFragment {
 			* @see android.media.MediaScannerConnection.OnScanCompletedListener#onScanCompleted(java.lang.String, android.net.Uri)
 			*/
 			public void onScanCompleted(String path, Uri uri) {
-				com.glaciersecurity.glaciermessenger.utils.Log.d("ExternalStorage", "Scanned " + path + ":");
-				com.glaciersecurity.glaciermessenger.utils.Log.d("ExternalStorage", "-> uri=" + uri);
+				Log.d("ExternalStorage", "Scanned " + path + ":");
+				Log.d("ExternalStorage", "-> uri=" + uri);
 			}
 		});
 	}

@@ -32,7 +32,7 @@ import androidx.annotation.RequiresApi;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.Pair;
 
 import java.io.File;

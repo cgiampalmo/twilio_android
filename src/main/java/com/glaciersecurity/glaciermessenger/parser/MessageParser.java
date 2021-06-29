@@ -1,6 +1,6 @@
 package com.glaciersecurity.glaciermessenger.parser;
 
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.Pair;
 
 import java.net.URL;
@@ -751,9 +751,9 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 				try {
 					final XmppAxolotlMessage xmppAxolotlMessage = XmppAxolotlMessage.fromElement(axolotlEncrypted, origin.asBareJid());
 					account.getAxolotlService().processReceivingKeyTransportMessage(xmppAxolotlMessage, query != null);
-					Log.d(Config.LOGTAG, account.getLogJid() + ": omemo key transport message received from " + origin);
+					Log.d(Config.LOGTAG, account.getLogJid() + ": omemo key transport message received"); // from " + origin);
 				} catch (Exception e) {
-					Log.d(Config.LOGTAG, account.getLogJid() + ": invalid omemo key transport message received " + e.getMessage());
+					Log.d(Config.LOGTAG, account.getLogJid() + ": invalid omemo key transport message received "); // + e.getMessage());
 					return;
 				}
 			}
@@ -790,8 +790,8 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 					} else if ("item".equals(child.getName())) {
 						MucOptions.User user = AbstractParser.parseItem(conversation, child);
 						Log.d(Config.LOGTAG, account.getLogJid() + ": changing affiliation for "
-								+ user.getRealJid() + " to " + user.getAffiliation() + " in "
-								+ conversation.getJid().asBareJid());
+								+ Tools.logJid(user.getRealJid()) + " to " + user.getAffiliation() + " in "
+								+ conversation.getLogJid());
 						if (!user.realJidMatchesAccount()) {
 							boolean isNew = conversation.getMucOptions().updateUser(user);
 							mXmppConnectionService.getAvatarService().clear(conversation);
@@ -802,7 +802,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 								Jid jid = user.getRealJid();
 								List<Jid> cryptoTargets = conversation.getAcceptedCryptoTargets();
 								if (cryptoTargets.remove(user.getRealJid())) {
-									Log.d(Config.LOGTAG, account.getLogJid() + ": removed " + Tools.logJid(jid) + " from crypto targets of " + conversation.getName());
+									Log.d(Config.LOGTAG, account.getLogJid() + ": removed " + Tools.logJid(jid) + " from crypto targets " ); //+ conversation.getName()
 									conversation.setAcceptedCryptoTargets(cryptoTargets);
 									mXmppConnectionService.updateConversation(conversation);
 								}
@@ -854,7 +854,6 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 						} else if (!counterpart.isBareJid() && trueJid != null) {
 							ReadByMarker readByMarker = ReadByMarker.from(counterpart, trueJid);
 							if (message.addReadByMarker(readByMarker)) {
-								//Log.d(Config.LOGTAG, account.getLogJid() + ": added read by (" + readByMarker.getRealJid() + ") to message '" + message.getBody() + "'");
 								Log.d(Config.LOGTAG, account.getLogJid() + ": added read by (" + Tools.logJid(readByMarker.getRealJid()) + ") to message");
 								mXmppConnectionService.updateMessage(message, false);
 							}

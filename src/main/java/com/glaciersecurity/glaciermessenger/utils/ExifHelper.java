@@ -16,7 +16,7 @@
 
 package com.glaciersecurity.glaciermessenger.utils;
 
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.io.IOException;
 import java.io.InputStream;

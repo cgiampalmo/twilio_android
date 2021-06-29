@@ -32,7 +32,7 @@ import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.databinding.ActivityShowLocationBinding;
 import com.glaciersecurity.glaciermessenger.ui.util.LocationHelper;
-import com.glaciersecurity.glaciermessenger.ui.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import com.glaciersecurity.glaciermessenger.ui.util.UriHelper;
 import com.glaciersecurity.glaciermessenger.ui.widget.Marker;
 import com.glaciersecurity.glaciermessenger.ui.widget.MyLocation;

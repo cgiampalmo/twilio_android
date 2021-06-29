@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.glaciersecurity.glaciermessenger.R;
-import com.glaciersecurity.glaciermessenger.lollipin.lib.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import com.glaciersecurity.glaciermessenger.lollipin.lib.PinActivity;
 import com.glaciersecurity.glaciermessenger.lollipin.lib.enums.KeyboardButtonEnum;
 import com.glaciersecurity.glaciermessenger.lollipin.lib.interfaces.KeyboardButtonClickedListener;

@@ -1,6 +1,6 @@
 package com.glaciersecurity.glaciermessenger.http;
 
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import org.apache.http.conn.ssl.StrictHostnameVerifier;
 

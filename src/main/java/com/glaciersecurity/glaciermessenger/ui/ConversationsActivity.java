@@ -86,7 +86,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceManager;
 
 import android.service.notification.NotificationListenerService;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -461,7 +461,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	AuthenticationHandler authenticationHandler = new AuthenticationHandler() {
 		@Override
 		public void onSuccess(CognitoUserSession cognitoUserSession, CognitoDevice device) {
-			com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", " -- Auth Success");
+			Log.d("Glacier", " -- Auth Success");
 			AppHelper.setCurrSession(cognitoUserSession);
 			AppHelper.newDevice(device);
 		}
@@ -562,7 +562,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				setNeverAskForBatteryOptimizationsAgain();
 				break;
 			case REQUEST_CHANGE_STATUS: {
-				com.glaciersecurity.glaciermessenger.utils.Log.d(Config.LOGTAG, "pgp result not ok");
+				Log.d(Config.LOGTAG, "pgp result not ok");
 				break;
 			}
 
@@ -1357,9 +1357,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				if (!(fileDir[i].getName().startsWith("LollipinDB") || (fileDir[i].getName().startsWith("AppLockImpl"))) && (fileDir[i].delete())) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
+					Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
+					Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
 		}
@@ -1384,9 +1384,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				if (fileDir[i].delete()) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
+					Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
+					Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
 		}
@@ -1415,9 +1415,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				for (int i = 0; i < fileDir.length; i++) {
 					if (fileDir[i].delete()) {
 						deletedFiles.add(fileDir[i].toString());
-						com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
+						Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 					} else {
-						com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
+						Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 					}
 				}
 				if (f_exts2.delete()) {
@@ -1458,9 +1458,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				if (fileDir[i].delete()) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
+					Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
+					Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
 		}
@@ -1481,9 +1481,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				if ((!fileDir[i].isDirectory()) && (fileDir[i].delete())) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
+					Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
+					Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
 		}

@@ -1,6 +1,6 @@
 package com.glaciersecurity.glaciermessenger.services;
 
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.utils.PhoneHelper;

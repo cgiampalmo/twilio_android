@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.security.KeyChain;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.Pair;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -283,7 +283,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 				}
 				for (Map.Entry<Integer, FetchStatus> entry : devices.entrySet()) {
 					if (entry.getValue() == FetchStatus.ERROR) {
-						Log.d(Config.LOGTAG, "resetting error for " + jid.asBareJid() + "(" + entry.getKey() + ")");
+						Log.d(Config.LOGTAG, "resetting error for " + Tools.logJid(jid)); // + "(" + entry.getKey() + ")");
 						entry.setValue(FetchStatus.TIMEOUT);
 					}
 				}
@@ -940,7 +940,6 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 									try {
 										final String cn = information.getString("subject_cn");
 										final Jid jid = Jid.of(address.getName());
-										//Log.d(Config.LOGTAG, "setting common name for " + jid + " to " + cn);
 										account.getRoster().getContact(jid).setCommonName(cn);
 									} catch (final IllegalArgumentException ignored) {
 										//ignored
@@ -1034,7 +1033,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 					callbacks.add(callback);
 				}
 				this.fetchDeviceIdsMap.put(jid, callbacks);
-				Log.d(Config.LOGTAG, account.getLogJid() + ": fetching device ids for " + jid);
+				Log.d(Config.LOGTAG, account.getLogJid() + ": fetching device ids for " + Tools.logJid(jid));
 				packet = mXmppConnectionService.getIqGenerator().retrieveDeviceIds(jid);
 			}
 		}
@@ -1261,7 +1260,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 				iterator.remove();
 			}
 		}
-		Log.d(Config.LOGTAG, account.getLogJid() + ": createSessionsIfNeeded() - jids with empty device list: " + jidsWithEmptyDeviceList);
+		Log.d(Config.LOGTAG, account.getLogJid() + ": createSessionsIfNeeded() - Some jids have empty device list");
 		if (jidsWithEmptyDeviceList.size() > 0) {
 			fetchDeviceIds(jidsWithEmptyDeviceList, () -> createSessionsIfNeededActual(conversation));
 			return true;

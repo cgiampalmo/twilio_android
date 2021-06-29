@@ -1,7 +1,7 @@
 package com.glaciersecurity.glaciermessenger.xmpp.jingle;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;

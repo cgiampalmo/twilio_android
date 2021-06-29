@@ -47,7 +47,7 @@ import android.os.Process;
 import android.os.Vibrator;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.KeyEvent;
 import android.view.Surface;
 import android.view.TextureView;

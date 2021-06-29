@@ -16,7 +16,7 @@ import android.provider.Settings;
 import androidx.annotation.BoolRes;
 import androidx.annotation.NonNull;
 
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.MenuItem;
 
 import org.osmdroid.api.IGeoPoint;

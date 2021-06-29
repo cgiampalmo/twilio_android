@@ -1,7 +1,7 @@
 package com.glaciersecurity.glaciermessenger.utils;
 
 import android.net.Uri;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;

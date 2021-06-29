@@ -4,7 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.text.SpannableStringBuilder;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;

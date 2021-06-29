@@ -2,7 +2,7 @@ package com.glaciersecurity.glaciermessenger.utils;
 
 
 import android.os.FileObserver;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.io.File;
 import java.util.ArrayList;

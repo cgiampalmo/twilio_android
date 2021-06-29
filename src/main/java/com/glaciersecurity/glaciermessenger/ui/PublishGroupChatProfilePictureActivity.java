@@ -36,7 +36,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.View;
 import android.widget.Toast;
 

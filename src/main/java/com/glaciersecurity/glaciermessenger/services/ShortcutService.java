@@ -9,7 +9,7 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import androidx.annotation.NonNull;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;

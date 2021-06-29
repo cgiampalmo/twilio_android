@@ -2,7 +2,7 @@ package com.glaciersecurity.glaciermessenger.entities;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioRemoteParticipantListener;

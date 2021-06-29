@@ -5,7 +5,7 @@ import android.os.Build;
 import androidx.emoji.text.EmojiCompat;
 import androidx.emoji.text.FontRequestEmojiCompatConfig;
 import androidx.core.provider.FontRequest;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;

@@ -8,7 +8,7 @@ import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.Contact;

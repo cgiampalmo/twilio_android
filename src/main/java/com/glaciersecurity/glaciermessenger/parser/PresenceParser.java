@@ -1,6 +1,6 @@
 package com.glaciersecurity.glaciermessenger.parser;
 
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.text.ParseException;
 import java.util.ArrayList;

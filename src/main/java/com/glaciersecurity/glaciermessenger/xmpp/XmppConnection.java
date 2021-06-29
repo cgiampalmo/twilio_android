@@ -7,7 +7,7 @@ import android.os.SystemClock;
 import android.security.KeyChain;
 import androidx.annotation.NonNull;
 import android.util.Base64;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 
@@ -1081,13 +1081,13 @@ public class XmppConnection implements Runnable {
 						}
 						return;
 					} catch (final IllegalArgumentException e) {
-						Log.d(Config.LOGTAG, account.getLogJid() + ": server reported invalid jid on bind"); // (" + jid.getContent() + ") on bind");
+						Log.d(Config.LOGTAG, account.getLogJid() + ": server reported invalid jid on bind");
 					}
 				} else {
-					Log.d(Config.LOGTAG, account.getJid() + ": disconnecting because of bind failure. (no jid)");
+					Log.d(Config.LOGTAG, account.getLogJid() + ": disconnecting because of bind failure. (no jid)");
 				}
 			} else {
-				Log.d(Config.LOGTAG, account.getJid() + ": disconnecting because of bind failure "); // + packet.toString());
+				Log.d(Config.LOGTAG, account.getLogJid() + ": disconnecting because of bind failure "); // + packet.toString());
 			}
 			final Element error = packet.findChild("error");
 			if (packet.getType() == IqPacket.TYPE.ERROR && error != null && error.hasChild("conflict")) {
@@ -1223,7 +1223,7 @@ public class XmppConnection implements Runnable {
 					enableAdvancedStreamFeatures();
 				}
 			} else {
-				Log.d(Config.LOGTAG, account.getLogJid() + ": could not query disco info for jid"); // + jid.toString());
+				Log.d(Config.LOGTAG, account.getLogJid() + ": could not query disco info for jid");
 			}
 			if (packet.getType() != IqPacket.TYPE.TIMEOUT) {
 				if (mPendingServiceDiscoveries.decrementAndGet() == 0

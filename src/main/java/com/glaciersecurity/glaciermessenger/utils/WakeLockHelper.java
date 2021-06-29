@@ -30,7 +30,7 @@
 package com.glaciersecurity.glaciermessenger.utils;
 
 import android.os.PowerManager;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import com.glaciersecurity.glaciermessenger.Config;
 

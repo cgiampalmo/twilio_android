@@ -1985,7 +1985,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         private GraphQLCall.Callback<GetGlacierUsersQuery.Data> getUserCallback = new GraphQLCall.Callback<GetGlacierUsersQuery.Data>() {
 			@Override
 			public void onResponse(@Nonnull Response<GetGlacierUsersQuery.Data> response) {
-				android.util.Log.i("Results", "RES...");
+				Log.i("Results", "RES...");
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {

@@ -1,6 +1,6 @@
 package com.glaciersecurity.glaciermessenger.services;
 
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

@@ -29,7 +29,7 @@
 
 package com.glaciersecurity.glaciermessenger.http;
 
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.io.File;
 import java.net.MalformedURLException;

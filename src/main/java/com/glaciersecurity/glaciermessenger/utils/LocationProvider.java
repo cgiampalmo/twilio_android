@@ -2,7 +2,7 @@ package com.glaciersecurity.glaciermessenger.utils;
 
 import android.content.Context;
 import android.telephony.TelephonyManager;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import org.osmdroid.util.GeoPoint;
 

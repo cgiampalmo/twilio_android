@@ -30,7 +30,7 @@
 package com.glaciersecurity.glaciermessenger.ui.util;
 
 import android.os.SystemClock;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import com.glaciersecurity.glaciermessenger.Config;
 

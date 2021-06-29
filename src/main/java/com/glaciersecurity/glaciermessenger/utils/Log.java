@@ -21,10 +21,23 @@
 
 package com.glaciersecurity.glaciermessenger.utils;
 
+import com.glaciersecurity.glaciermessenger.Config;
+
+/**
+ The logLevel variable controls what is seen when using logcat while using the app.
+ Available values are 0 through 5, with each level providing more detail than the previous level.
+ Available logging levels are as follows:
+
+ logLevel = 0    No logging (Use this for a production release)
+ logLevel = 1    Error logging (Only shows errors)
+ logLevel = 2    Warning logging (Shows warnings and errors)
+ logLevel = 3    Info logging (Shows info, warnings, and errors)
+ logLevel = 4    Debug logging (Shows debug logging, as well as info, warnings, and errors)
+ logLevel = 5    Verbose logging (Essentially shows all available logging)
+ */
+
 public class Log {
-    // RELEASE_CHECK - set to no logging (zero)
-    // option 0 through 5
-    private static int logLevel = 0;
+    private static int logLevel = Config.logLevel;  // SET THIS TO ZERO FOR PRODUCTION RELEASES
 
     /**
      * Change current logging level

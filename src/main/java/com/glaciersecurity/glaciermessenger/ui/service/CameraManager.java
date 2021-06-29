@@ -32,7 +32,7 @@ import android.graphics.RectF;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.PreviewCallback;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.TextureView;
 
 import com.glaciersecurity.glaciermessenger.Config;

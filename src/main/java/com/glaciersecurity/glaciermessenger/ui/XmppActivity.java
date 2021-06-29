@@ -45,7 +45,7 @@ import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.appcompat.app.AppCompatDelegate;
 import android.text.InputType;
 import android.util.DisplayMetrics;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;

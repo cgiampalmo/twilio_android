@@ -2,7 +2,7 @@ package com.glaciersecurity.glaciermessenger.http;
 
 import android.os.PowerManager;
 import androidx.annotation.Nullable;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

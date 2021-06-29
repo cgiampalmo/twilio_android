@@ -1,7 +1,7 @@
 package com.glaciersecurity.glaciermessenger.services;
 
 import android.content.Intent;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 

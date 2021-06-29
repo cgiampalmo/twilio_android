@@ -1,7 +1,7 @@
 package com.glaciersecurity.glaciermessenger.utils;
 
 import android.os.Looper;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.util.ArrayDeque;
 import java.util.Queue;

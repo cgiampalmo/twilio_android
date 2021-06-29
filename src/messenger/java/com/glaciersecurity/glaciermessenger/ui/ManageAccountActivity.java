@@ -31,7 +31,7 @@ import com.glaciersecurity.glaciermessenger.lollipin.lib.managers.AppLock;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService.OnAccountUpdate;
 import com.glaciersecurity.glaciermessenger.ui.adapter.AccountAdapter;
-import com.glaciersecurity.glaciermessenger.ui.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 import rocks.xmpp.addr.Jid;

@@ -1,7 +1,7 @@
 package com.glaciersecurity.glaciermessenger.xmpp.jingle;
 
 import android.os.PowerManager;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
