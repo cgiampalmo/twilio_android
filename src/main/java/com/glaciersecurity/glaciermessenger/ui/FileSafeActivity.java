@@ -20,7 +20,7 @@ import android.os.StrictMode;
 import androidx.annotation.IdRes;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -559,37 +559,37 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
                 //uploadObserver.getAbsoluteFilePath();
 
             } catch (AmazonS3Exception ase) {
-                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","Caught an AmazonS3Exception, " +
+                Log.d("Glacier","Caught an AmazonS3Exception, " +
                         "which means your request made it " +
                         "to Amazon S3, but was rejected with an error response " +
                         "for some reason.");
-                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "Error Message:    " + ase.getMessage());
-                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","HTTP Status Code: " + ase.getStatusCode());
-                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","AWS Error Code:   " + ase.getErrorCode());
-                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","Error Type:       " + ase.getErrorType());
-                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","Request ID:       " + ase.getRequestId());
+                Log.d("Glacier", "Error Message:    " + ase.getMessage());
+                Log.d("Glacier","HTTP Status Code: " + ase.getStatusCode());
+                Log.d("Glacier","AWS Error Code:   " + ase.getErrorCode());
+                Log.d("Glacier","Error Type:       " + ase.getErrorType());
+                Log.d("Glacier","Request ID:       " + ase.getRequestId());
                 if (failedsb.length() > 0) {
                     failedsb.append(", ");
                 }
                 failedsb.append(filename);
                 processed[ctr] = true;
             } catch (AmazonServiceException ase) {
-                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","Caught an AmazonServiceException, " +
+                Log.d("Glacier","Caught an AmazonServiceException, " +
                         "which means your request made it " +
                         "to Amazon S3, but was rejected with an error response " +
                         "for some reason.");
-                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "Error Message:    " + ase.getMessage());
-                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","HTTP Status Code: " + ase.getStatusCode());
-                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","AWS Error Code:   " + ase.getErrorCode());
-                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","Error Type:       " + ase.getErrorType());
-                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier","Request ID:       " + ase.getRequestId());
+                Log.d("Glacier", "Error Message:    " + ase.getMessage());
+                Log.d("Glacier","HTTP Status Code: " + ase.getStatusCode());
+                Log.d("Glacier","AWS Error Code:   " + ase.getErrorCode());
+                Log.d("Glacier","Error Type:       " + ase.getErrorType());
+                Log.d("Glacier","Request ID:       " + ase.getRequestId());
                 if (failedsb.length() > 0) {
                     failedsb.append(", ");
                 }
                 failedsb.append(filename);
                 processed[ctr] = true;
             } catch (AmazonClientException ace) {
-                com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "Caught an AmazonClientException, " +
+                Log.d("Glacier", "Caught an AmazonClientException, " +
                         "which means the client encountered " +
                         "an internal error while trying to communicate" +
                         " with S3, " +
@@ -639,7 +639,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
     AuthenticationHandler authenticationHandler = new AuthenticationHandler() {
         @Override
         public void onSuccess(CognitoUserSession cognitoUserSession, CognitoDevice device) {
-            com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", " -- Auth Success");
+            Log.d("Glacier", " -- Auth Success");
             AppHelper.setCurrSession(cognitoUserSession);
             AppHelper.newDevice(device);
 

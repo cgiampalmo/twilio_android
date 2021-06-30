@@ -35,7 +35,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Base64;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.SparseArray;
 import android.os.Handler;
 

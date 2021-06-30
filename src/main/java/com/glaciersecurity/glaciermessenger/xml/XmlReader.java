@@ -1,6 +1,6 @@
 package com.glaciersecurity.glaciermessenger.xml;
 
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;

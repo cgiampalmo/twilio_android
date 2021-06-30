@@ -22,7 +22,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.provider.MediaStore;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Toast;
@@ -692,9 +692,9 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 				if (!(fileDir[i].getName().startsWith("LollipinDB") || (fileDir[i].getName().startsWith("AppLockImpl"))) && (fileDir[i].delete())) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
+					Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
+					Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
 		}
@@ -719,9 +719,9 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 				if (fileDir[i].delete()) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
+					Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
+					Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
 		}
@@ -750,9 +750,9 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 				for (int i = 0; i < fileDir.length; i++) {
 					if (fileDir[i].delete()) {
 						deletedFiles.add(fileDir[i].toString());
-						com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
+						Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 					} else {
-						com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
+						Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 					}
 				}
 				if (f_exts2.delete()) {
@@ -793,9 +793,9 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 				if (fileDir[i].delete()) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
+					Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
+					Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
 		}
@@ -816,9 +816,9 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 				if ((!fileDir[i].isDirectory()) && (fileDir[i].delete())) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
+					Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
 				} else {
-					com.glaciersecurity.glaciermessenger.utils.Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
+					Log.d("Glacier", "File list: Did not delete " + fileDir[i]);
 				}
 			}
 		}

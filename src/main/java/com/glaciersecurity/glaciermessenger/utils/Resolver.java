@@ -3,7 +3,7 @@ package com.glaciersecurity.glaciermessenger.utils;
 import android.content.ContentValues;
 import android.database.Cursor;
 import androidx.annotation.NonNull;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.io.IOException;
 import java.lang.reflect.Field;

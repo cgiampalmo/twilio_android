@@ -16,6 +16,11 @@ public final class Config {
 
 	private static final int ENCRYPTION_MASK = UNENCRYPTED | OPENPGP | OTR | OMEMO;
 
+	/** LOG LEVEL: 0 -> No logging from app, 1 -> Error logging, 2 -> Warnings, 3 -> Info, 4 -> Debug, 5 -> Verbose logging
+	  	IMPORTANT: For production releases, logLevel must be set to 0 */
+	public static int logLevel = 0;
+
+
 	public static boolean supportUnencrypted() {
 		return (ENCRYPTION_MASK & UNENCRYPTED) != 0;
 	}

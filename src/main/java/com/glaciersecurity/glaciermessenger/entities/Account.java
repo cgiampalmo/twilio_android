@@ -3,7 +3,7 @@ package com.glaciersecurity.glaciermessenger.entities;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.SystemClock;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.Pair;
 
 import org.json.JSONException;

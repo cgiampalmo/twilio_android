@@ -1,7 +1,7 @@
 package com.glaciersecurity.glaciermessenger.crypto.axolotl;
 
 import android.util.Base64;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.SparseArray;
 
 import java.security.InvalidAlgorithmParameterException;

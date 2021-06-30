@@ -12,7 +12,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.IBinder;
 import androidx.core.app.NotificationCompat;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.io.DataOutputStream;
 import java.io.File;

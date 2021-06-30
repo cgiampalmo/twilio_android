@@ -2,7 +2,7 @@ package com.glaciersecurity.glaciermessenger.crypto.axolotl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import org.whispersystems.libsignal.SignalProtocolAddress;
 import org.whispersystems.libsignal.DuplicateMessageException;

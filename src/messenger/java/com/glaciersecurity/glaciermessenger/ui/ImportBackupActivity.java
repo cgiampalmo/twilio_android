@@ -11,7 +11,7 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 

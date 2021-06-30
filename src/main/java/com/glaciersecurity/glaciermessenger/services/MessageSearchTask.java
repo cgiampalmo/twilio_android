@@ -31,7 +31,7 @@ package com.glaciersecurity.glaciermessenger.services;
 
 import android.database.Cursor;
 import android.os.SystemClock;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;

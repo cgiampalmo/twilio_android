@@ -2,7 +2,7 @@ package com.glaciersecurity.glaciermessenger.parser;
 
 import androidx.annotation.NonNull;
 import android.util.Base64;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.Pair;
 
 import org.whispersystems.libsignal.IdentityKey;

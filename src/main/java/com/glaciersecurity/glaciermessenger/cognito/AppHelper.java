@@ -19,7 +19,7 @@ package com.glaciersecurity.glaciermessenger.cognito;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoDevice;
@@ -142,8 +142,9 @@ public class AppHelper {
 
     public static String formatException(Exception exception) {
         String formattedString = "Internal Error";
-        Log.e(TAG, " -- Error: "+exception.toString());
-        Log.getStackTraceString(exception);
+        Log.e(TAG, " -- Error: ", exception);
+        //Log.e(TAG, " -- Error: " + exception.toString());
+        //Log.getStackTraceString(exception);
 
         String temp = exception.getMessage();
 

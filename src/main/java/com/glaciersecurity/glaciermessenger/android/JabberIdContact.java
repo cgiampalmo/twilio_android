@@ -6,7 +6,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
 import android.provider.ContactsContract;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.util.Collections;
 import java.util.HashMap;

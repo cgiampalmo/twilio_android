@@ -6,7 +6,8 @@ import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import com.glaciersecurity.glaciermessenger.lollipin.lib.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
+
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;

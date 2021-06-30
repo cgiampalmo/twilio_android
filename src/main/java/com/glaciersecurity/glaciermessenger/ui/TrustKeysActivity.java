@@ -6,7 +6,7 @@ import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;

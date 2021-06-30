@@ -1,7 +1,7 @@
 package com.glaciersecurity.glaciermessenger.http;
 
 import android.os.PowerManager;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.io.FileInputStream;
 import java.io.InputStream;

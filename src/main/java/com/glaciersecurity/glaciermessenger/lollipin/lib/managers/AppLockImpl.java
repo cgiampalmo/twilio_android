@@ -10,7 +10,8 @@ import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.util.Base64;
 
-import com.glaciersecurity.glaciermessenger.lollipin.lib.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
+
 import com.glaciersecurity.glaciermessenger.lollipin.lib.PinActivity;
 import com.glaciersecurity.glaciermessenger.lollipin.lib.PinCompatActivity;
 import com.glaciersecurity.glaciermessenger.lollipin.lib.PinFragmentActivity;

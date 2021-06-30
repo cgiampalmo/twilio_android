@@ -7,7 +7,7 @@ import android.database.Cursor;
 import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import com.glaciersecurity.glaciermessenger.Config;
 

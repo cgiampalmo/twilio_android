@@ -10,7 +10,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Base64;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import org.json.JSONObject;
 import org.whispersystems.libsignal.SignalProtocolAddress;

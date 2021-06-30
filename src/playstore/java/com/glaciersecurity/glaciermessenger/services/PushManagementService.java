@@ -1,6 +1,6 @@
 package com.glaciersecurity.glaciermessenger.services;
 
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;

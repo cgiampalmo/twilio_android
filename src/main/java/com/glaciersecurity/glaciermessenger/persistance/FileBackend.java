@@ -23,7 +23,7 @@ import android.system.Os;
 import android.system.StructStat;
 import android.util.Base64;
 import android.util.Base64OutputStream;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.LruCache;
 
 import java.io.ByteArrayOutputStream;

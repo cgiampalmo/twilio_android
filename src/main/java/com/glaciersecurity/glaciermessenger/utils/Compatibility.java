@@ -11,7 +11,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import androidx.annotation.BoolRes;
 import androidx.core.content.ContextCompat;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import java.util.Arrays;
 import java.util.Collections;

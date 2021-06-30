@@ -3,7 +3,7 @@ package com.glaciersecurity.glaciermessenger.utils;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.Build;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import net.ypresto.androidtranscoder.format.MediaFormatExtraConstants;
 import net.ypresto.androidtranscoder.format.MediaFormatStrategy;

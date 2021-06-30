@@ -1,7 +1,7 @@
 package com.glaciersecurity.glaciermessenger.utils;
 
 import android.os.Build;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import org.conscrypt.Conscrypt;
 

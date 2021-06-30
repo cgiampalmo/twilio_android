@@ -1,7 +1,7 @@
 package com.glaciersecurity.glaciermessenger.crypto;
 
 import android.os.Build;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.Pair;
 
 import org.bouncycastle.asn1.ASN1Primitive;

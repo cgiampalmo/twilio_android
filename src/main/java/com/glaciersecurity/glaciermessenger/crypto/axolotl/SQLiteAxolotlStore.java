@@ -1,6 +1,6 @@
 package com.glaciersecurity.glaciermessenger.crypto.axolotl;
 
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.LruCache;
 
 import org.whispersystems.libsignal.SignalProtocolAddress;

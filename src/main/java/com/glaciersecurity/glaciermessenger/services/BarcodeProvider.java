@@ -14,7 +14,9 @@ import android.os.CancellationSignal;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import androidx.annotation.Nullable;
-import android.util.Log;
+
+import com.glaciersecurity.glaciermessenger.ui.util.Tools;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -126,7 +128,7 @@ public class BarcodeProvider extends ContentProvider implements ServiceConnectio
 		String path = uri.getPath();
 		if (path != null && path.endsWith(".png") && path.length() >= 5) {
 			String jid = path.substring(1).substring(0, path.length() - 4);
-			Log.d(Config.LOGTAG, "account:" + jid);
+			Log.d(Config.LOGTAG, "account:" + Tools.logJid(jid));
 			if (connectAndWait()) {
 				Log.d(Config.LOGTAG, "connected to background service");
 				try {

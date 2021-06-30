@@ -14,7 +14,7 @@ import android.os.Handler;
 import android.os.PowerManager;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -369,7 +369,7 @@ public class AudioPlayer implements View.OnClickListener, MediaPlayer.OnCompleti
 						play(currentViewHolder, currentlyPlayingMessage, streamType == AudioManager.STREAM_VOICE_CALL, progress);
 					}
 				} catch (Exception e) {
-					Log.w(Config.LOGTAG, e);
+					Log.w(Config.LOGTAG, "Warning: Issue with AudioPlayer for Voice call", e);
 				}
 			}
 		}

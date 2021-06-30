@@ -17,7 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.LruCache;
 
 import java.util.ArrayList;

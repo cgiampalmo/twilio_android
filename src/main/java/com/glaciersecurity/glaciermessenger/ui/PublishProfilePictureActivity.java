@@ -8,7 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.StringRes;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnLongClickListener;

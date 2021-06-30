@@ -5,7 +5,7 @@ import android.os.Build;
 import androidx.annotation.DimenRes;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.ViewTreeObserver;
 
 import com.glaciersecurity.glaciermessenger.Config;
