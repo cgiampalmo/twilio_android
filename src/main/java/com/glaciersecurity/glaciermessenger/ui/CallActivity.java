@@ -33,6 +33,7 @@ import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
+import com.glaciersecurity.glaciermessenger.services.CallManager;
 import com.glaciersecurity.glaciermessenger.services.PhonecallReceiver;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.ui.util.SoundPoolManager;
@@ -59,6 +60,7 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 	public static final int MY_PERMISSIONS_REQUEST_READ_PHONE_STATE = 0; //AM-474
 
 	private AudioManager audioManager;
+	private CallManager callManager;
 
 	private TextView callState;
 	private TextView contactText;
@@ -78,6 +80,8 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 	private String conversationUuid;
 	private String calltitle; //ALF AM-558
 	private Handler handler = new Handler();
+	private Boolean isSpeaker = false; //AM-598
+	private Boolean isMute = false; //AM-598
 
 	private PhonecallReceiver phonecallReceiver; //ALF AM-474
 
@@ -158,21 +162,24 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 
 		this.audioBtn = findViewById(R.id.audio_image_button);
 		this.audioBtnOff = findViewById(R.id.audio_image_button_off);
-		this.audioBtnOff.setEnabled(false);
-		this.audioBtnOff.setClickable(false);
-		this.audioBtn.setClickable(false);
 
-		/*audioBtnOff.setOnClickListener(v -> {
-			audioManager.setMicrophoneMute(true);
+
+
+		audioBtnOff.setOnClickListener(v -> {
+			audioManager.setMicrophoneMute(false);
 			audioBtn.setVisibility(View.VISIBLE);
 			audioBtnOff.setVisibility(View.GONE);
+			isMute = false;
+			callManager.setIsMute(false);
 
 		});
 		audioBtn.setOnClickListener(v -> {
-			audioManager.setMicrophoneMute(false);
+			audioManager.setMicrophoneMute(true);
 			audioBtnOff.setVisibility(View.VISIBLE);
 			audioBtn.setVisibility(View.GONE);
-		});*/
+			isMute = true;
+			callManager.setIsMute(true);
+		});
 
 
 		// TODO in twilio roomActiviy audio manager is used to manage speaker phone status
@@ -181,17 +188,23 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 
 		//AM-441 to true and below uncommented
 		this.speakerBtnOff.setEnabled(true);
+
+		////AM-598
 		speakerBtnOff.setOnClickListener(v -> {
 			//audioManager.setSpeakerphoneOn(true);
 			SoundPoolManager.getInstance(CallActivity.this).setSpeakerOn(true); //AM-441
 			speakerBtn.setVisibility(View.VISIBLE);
 			speakerBtnOff.setVisibility(View.GONE);
+			isSpeaker = true;
+			callManager.setIsSpeaker(true);
 		});
 		speakerBtn.setOnClickListener(v -> {
 			//audioManager.setSpeakerphoneOn(false);
 			SoundPoolManager.getInstance(CallActivity.this).setSpeakerOn(false); //AM-441
 			speakerBtn.setVisibility(View.GONE);
 			speakerBtnOff.setVisibility(View.VISIBLE);
+			isSpeaker = false;
+			callManager.setIsSpeaker(false);
 		});
 
 	}
@@ -219,6 +232,9 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 			//needs access to XmppConnectionService
 			final Intent intent = new Intent(this, XmppConnectionService.class);
 			intent.setAction(XmppConnectionService.ACTION_ACCEPT_CALL_REQUEST);
+			//AM-598
+			intent.putExtra("isSpeaker", isSpeaker);
+			intent.putExtra("isMute", isMute);
 			Compatibility.startService(this, intent);
 		}
 	@Override
@@ -276,6 +292,14 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 	protected void onBackendConnected() {
 		try {
 			if (xmppConnectionService != null) {
+
+				//AM-598
+				callManager = xmppConnectionService.getCallManager();
+				if(callManager!=null){
+					callManager.setIsSpeaker(isSpeaker);
+					callManager.setIsMute(isMute);
+				}
+
 				Account mAccount = xmppConnectionService.getAccounts().get(0);
 				if (mAccount != null && conversationUuid != null) {
 					Conversation conversation = xmppConnectionService.findConversationByUuid(conversationUuid);
@@ -286,6 +310,8 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 				if(contactText != null) {
 					xmppConnectionService.getCallManager().setRoomTitle(contactText.getText().toString());
 				}
+
+
 			}
 		} catch (Exception e){
 
@@ -305,6 +331,11 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 		}
 		incomingCallLayout.setVisibility(View.VISIBLE);
 		outgoingCallLayout.setVisibility(View.GONE);
+
+		if(callManager!=null){
+			callManager.setIsSpeaker(isSpeaker);
+			callManager.setIsMute(isMute);
+		}
 
 		handler.postDelayed(() -> {
 			handler.removeCallbacksAndMessages(null);
