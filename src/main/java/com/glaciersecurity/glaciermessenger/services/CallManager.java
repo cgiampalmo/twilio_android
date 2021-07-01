@@ -86,9 +86,6 @@ public class CallManager {
     private AudioCodec audioCodec;
     private VideoCodec videoCodec;
 
-    //AM-598
-    private Boolean isMute = false;
-    private Boolean isSpeaker = false;
     /*
      * Encoding parameters represent the sender side bandwidth constraints.
      */
@@ -126,20 +123,6 @@ public class CallManager {
         return contactByDisplayName.get(displayName);
     }
 
-    //AM-598
-    public void setIsMute(boolean b){
-        isMute = b;
-    }
-    public boolean isMute(){
-        return isMute;
-    }
-    public void setIsSpeaker(boolean b){
-        isSpeaker = b;
-    }
-    public boolean isSpeaker(){
-        return isSpeaker;
-    }
-
     //AM-558b
     public Contact getRemoteContact(String rcString){
         if (rcString.contains("@")){
@@ -169,9 +152,6 @@ public class CallManager {
         callIntent.putExtra("caller", caller);
         callIntent.putExtra("receiver", receiver);
         callIntent.putExtra("roomtitle", roomtitle); //ALF AM-558
-        //AM-598
-        callIntent.putExtra("isSpeaker", isSpeaker);
-        callIntent.putExtra("isMute", isMute);
         mXmppConnectionService.startActivity(callIntent);
 
         getCaller();

@@ -251,8 +251,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             setTitle(title);
             primaryTitle.setText(title);
         }
-        isAudioMuted = intent.getBooleanExtra("isMute", false);
-        isSpeakerPhoneEnabled = intent.getBooleanExtra("isSpeaker", false);
 
         /*
          * Route audio through cached value.
@@ -303,7 +301,6 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
          * Route audio through cached value.
          */
         audioManager.setSpeakerphoneOn(isSpeakerPhoneEnabled);
-        audioManager.setMicrophoneMute(isAudioMuted);
 
         //AM-478 changed from audioManager.isMicrophoneMute to isAudioMuted
         int muteIcon = !isAudioMuted ?

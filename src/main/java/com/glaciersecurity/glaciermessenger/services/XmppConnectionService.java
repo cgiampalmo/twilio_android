@@ -757,7 +757,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 						call.setStatus(intent.getStringExtra("status"));
 
-
 						//repurposing for AM-612, IOSM-569 this happens now when answered from other MAM device
 						if (call.getStatus().equalsIgnoreCase("reject") ||
 								call.getStatus().equalsIgnoreCase("busy") || call.getStatus().equalsIgnoreCase("accept")) {
@@ -837,10 +836,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					break;
 				case ACTION_ACCEPT_CALL_REQUEST:
 					SoundPoolManager.getInstance(XmppConnectionService.this).playJoin();
-					callManager.setIsMute(intent.getBooleanExtra("isMute", false));
-					callManager.setIsSpeaker(intent.getBooleanExtra("isSpeaker", false));
 					acceptCall(currentTwilioCall);
-
 					callHandler.removeCallbacksAndMessages(null);
 					break;
 				case ACTION_REJECT_CALL_REQUEST:
