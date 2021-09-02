@@ -23,7 +23,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.stanzas.MessagePacket;
 import rocks.xmpp.addr.Jid;
 
 public class MessageGenerator extends AbstractGenerator {
-	private static final String GLACIER_FALLBACK_MESSAGE = "I sent you an Glacier encrypted message but your client doesn’t seem to support that. Find more information on www.glaciersecurity.com";
+	private static final String GLACIER_FALLBACK_MESSAGE = "Message cannot be decrypted.";
 	//private static final String PGP_FALLBACK_MESSAGE = "I sent you a PGP encrypted message but your client doesn’t seem to support that.";
 
 	public MessageGenerator(XmppConnectionService service) {
