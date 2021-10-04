@@ -68,7 +68,6 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.Chal
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.MultiFactorAuthenticationContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.AuthenticationHandler;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GetDetailsHandler;
-import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
 import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
 import com.glaciersecurity.glaciermessenger.services.CallManager;
@@ -1259,9 +1258,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			xmppConnectionService.deleteAccount(account);
 		}
 
-		//ALF AM-388
-		BackupAccountManager backupAccountManager = new BackupAccountManager(getApplicationContext());
-		backupAccountManager.deleteAccountFiles();
+		//CMG AM-636
+//		//ALF AM-388
+//		BackupAccountManager backupAccountManager = new BackupAccountManager(getApplicationContext());
+//		backupAccountManager.deleteAccountFiles();
 
 		// logout of Cognito
 		// sometimes if it's been too long, I believe pool doesn't

@@ -41,7 +41,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.json.JSONException;
 
 import com.glaciersecurity.glaciermessenger.Config;
-import com.glaciersecurity.glaciermessenger.cognito.BackupAccountManager;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.AxolotlService;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.FingerprintStatus;
 import com.glaciersecurity.glaciermessenger.crypto.axolotl.SQLiteAxolotlStore;
@@ -1071,8 +1070,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 				CognitoAccount.ACCOUNT + "=?", args, null, null, null);
 		if (cursor.getCount() == 0) {
 			cursor.close();
-			return getMissingCognitoAccount(account, context);
+			//return getMissingCognitoAccount(account, context);
 			//return null when we remove getMissingCognitoAccount
+			return null;
 		}
 		cursor.moveToFirst();
 		CognitoAccount cognitoAccount = CognitoAccount.fromCursor(cursor, dbcontext);
@@ -1086,25 +1086,25 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 	 * @param context
 	 * @return
 	 */
-	private CognitoAccount getMissingCognitoAccount(final Account account, final Context context) {
-		BackupAccountManager backupAccountManager = new BackupAccountManager(context);
-		BackupAccountManager.AccountInfo accountInfo = backupAccountManager.getAccountInfo();
-		if (accountInfo != null) {
-			BackupAccountManager.Account cognitoAccount = accountInfo.getCognitoAccount();
-
-			String username = cognitoAccount.getAttribute(BackupAccountManager.COGNITO_USERNAME_KEY);
-			String password = cognitoAccount.getAttribute((BackupAccountManager.COGNITO_PASSWORD_KEY));
-
-			if (username != null && password != null) {
-				CognitoAccount cacct = new CognitoAccount(username, password, account.getUuid(), context);
-				createCognitoAccount(cacct);
-				return cacct;
-			}
-
-		}
-
-		return null;
-	}
+//	private CognitoAccount getMissingCognitoAccount(final Account account, final Context context) {
+//		BackupAccountManager backupAccountManager = new BackupAccountManager(context);
+//		BackupAccountManager.AccountInfo accountInfo = backupAccountManager.getAccountInfo();
+//		if (accountInfo != null) {
+//			BackupAccountManager.Account cognitoAccount = accountInfo.getCognitoAccount();
+//
+//			String username = cognitoAccount.getAttribute(BackupAccountManager.COGNITO_USERNAME_KEY);
+//			String password = cognitoAccount.getAttribute((BackupAccountManager.COGNITO_PASSWORD_KEY));
+//
+//			if (username != null && password != null) {
+//				CognitoAccount cacct = new CognitoAccount(username, password, account.getUuid(), context);
+//				createCognitoAccount(cacct);
+//				return cacct;
+//			}
+//
+//		}
+//
+//		return null;
+//	}
 
 	public boolean updateMessage(Message message, boolean includeBody) {
 		SQLiteDatabase db = this.getWritableDatabase();
