@@ -1031,17 +1031,6 @@
     <string name="button9_small_text" translatable="false">WXYZ</string>
     <string name="button11_large_text" translatable="false">0</string>
 
-    <string name="pin_code_forgot_text">Forgot?</string>
-    <string name="pin_code_step_disable">Disable %d-digit Pincode</string>
-    <string name="pin_code_step_create">Create a %d-digit Pincode</string>
-    <string name="pin_code_step_change">Enter your current %d-digit Pincode</string>
-    <string name="pin_code_step_unlock">Enter your %d-digit Pincode</string>
-    <string name="pin_code_step_enable_confirm">Confirm your %d-digit Pincode</string>
-
-    <string name="pin_code_fingerprint_text">Fingerprint</string>
-    <string name="pin_code_fingerprint_success">Fingerprint recognized</string>
-    <string name="pin_code_fingerprint_not_recognized">Fingerprint not recognized. Try again</string>
-
     <!-- CORE -->
     <string name="connectionStatusTitle">Connection Status</string>
     <string name="no_status_yet">No Status yet</string>

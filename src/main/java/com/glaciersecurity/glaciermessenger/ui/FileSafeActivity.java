@@ -314,7 +314,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
         if (xmppConnectionService != null) {
             for (Account account : xmppConnectionService.getAccounts()) {
 
-                CognitoAccount cacct = xmppConnectionService.databaseBackend.getCognitoAccount(account,getApplicationContext());
+                CognitoAccount cacct = xmppConnectionService.databaseBackend.getCognitoAccount(account);
                 if (cacct != null) {
                     username = cacct.getUserName();
                     password = cacct.getPassword();
@@ -385,7 +385,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
                 final String filepath = FileUtils.getPath(xmppConnectionService, attachment.getUri());
                 File uploadfile = null;
 
-                if (filepath != null && !FileBackend.isPathBlacklisted(filepath)) {
+                if (filepath != null && !FileBackend.isPathBlacklisted(filepath, xmppConnectionService)) {
                     uploadfile = xmppConnectionService.getFileBackend().getFileForPath(filepath);
                     filename = uploadfile.getName();
                 } else {

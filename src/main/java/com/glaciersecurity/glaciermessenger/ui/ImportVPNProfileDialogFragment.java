@@ -169,7 +169,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
         Account firstacct = null;
         DatabaseBackend databaseBackend = DatabaseBackend.getInstance(getActivity().getApplicationContext());
         for (Account account : databaseBackend.getAccounts()) {
-            CognitoAccount cacct = databaseBackend.getCognitoAccount(account,getActivity().getApplicationContext());
+            CognitoAccount cacct = databaseBackend.getCognitoAccount(account);
             if (cacct != null) {
                 username = cacct.getUserName();
                 password = cacct.getPassword();
@@ -197,7 +197,8 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
         String selectedProfile = (String) prof + ".ovpn";
 
         // set where file is going on phone
-        File destFile = new File(Environment.getExternalStorageDirectory() + "/" + selectedProfile);
+        //File destFile = new File(Environment.getExternalStorageDirectory() + "/" + selectedProfile);
+        File destFile = new File(getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/" + selectedProfile); //ALF AM-603
 
         // start the transfer
         TransferObserver observer = transferUtility.download( Constants.KEY_PREFIX + "/" + selectedProfile, destFile, new DownloadListener(selectedProfile));
@@ -541,15 +542,13 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
 
             Log.d("Glacier", "onStateChanged(" + key + "): " + id + "," + newState);
             if (newState == TransferState.COMPLETED) {
-                // logout of
-
-
-                File tmpFile = new File(Environment.getExternalStorageDirectory() + "/" + key);
+                //File tmpFile = new File(Environment.getExternalStorageDirectory() + "/" + key);
+                File tmpFile = new File(getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/" + key); //ALF AM-603 and commented out moveFile
                 if (tmpFile.exists()) {
                     // track how many have completed download
                     // downloadCount--;
-                    Log.d("Glacier", "File confirmed: " + Environment.getExternalStorageDirectory() + "/" + key);
-                    moveFile(Environment.getExternalStorageDirectory().toString(), key, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString());
+                    Log.d("Glacier", "File confirmed: " + tmpFile.getPath());
+                    //moveFile(Environment.getExternalStorageDirectory().toString(), key, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString());
                     exportFile(key);
                     //showDialogMessage("VPN Download", "Successfully downloaded profile: " + key);
                     dismiss();
@@ -560,7 +559,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
 
                 } else {
-                    Log.d("Glacier", "File unconfirmed: " + Environment.getExternalStorageDirectory() + "/" + key);
+                    Log.d("Glacier", "File unconfirmed: " + tmpFile.getPath());
                 }
             }
         }
@@ -624,7 +623,8 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
      */
     private void exportFile(String inputFile) {
         try {
-            File location = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            //File location = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            File location = getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS); //ALF AM-603
             location = new File(location.toString() + "/" + inputFile);
             if (location.exists()) {
                 Log.d("Glacier", "File does exist!");

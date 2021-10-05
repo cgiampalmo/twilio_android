@@ -14,13 +14,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.glaciersecurity.glaciermessenger.lollipin.lib.PinActivity;
-import com.glaciersecurity.glaciermessenger.lollipin.lib.R;
-import com.glaciersecurity.glaciermessenger.lollipin.lib.enums.KeyboardButtonEnum;
-import com.glaciersecurity.glaciermessenger.lollipin.lib.interfaces.KeyboardButtonClickedListener;
-import com.glaciersecurity.glaciermessenger.lollipin.lib.views.KeyboardView;
-import com.glaciersecurity.glaciermessenger.lollipin.lib.views.PinCodeRoundView;
-
 import java.util.Arrays;
 import java.util.List;
 

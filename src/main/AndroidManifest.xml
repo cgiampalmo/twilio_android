@@ -56,6 +56,7 @@
 
     <!-- ALF AM-91 changed ic_launcher to mipmap/glacier_launcher, added round -->
     <!-- ALF AM-146?? changed allowBackup to false, didn't add android:fullBackupContent="false" -->
+    <!-- ALF AM-603 add preserveLegacyExternalStorage when we update to 30 -->
     <application
         android:allowBackup="false"
         android:fullBackupContent="false"
@@ -180,10 +181,6 @@
         <activity
             android:name=".ui.OpenVPNActivity"
             android:label="@string/title_activity_glaciervpn"/>
-        <activity
-            android:name="com.glaciersecurity.glaciermessenger.ui.CustomPinActivity"
-            android:label="@string/title_activity_glacierpin">
-        </activity>
         <activity
             android:name=".ui.ChooseContactActivity"
             android:label="@string/title_activity_choose_contact"/>

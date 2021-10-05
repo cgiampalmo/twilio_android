@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.Account;
-import com.glaciersecurity.glaciermessenger.lollipin.lib.managers.AppLock;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService.OnAccountUpdate;
 import com.glaciersecurity.glaciermessenger.ui.adapter.AccountAdapter;
@@ -40,8 +39,6 @@ import static com.glaciersecurity.glaciermessenger.utils.PermissionUtils.allGran
 import static com.glaciersecurity.glaciermessenger.utils.PermissionUtils.writeGranted;
 
 public class ManageAccountActivity extends XmppActivity implements OnAccountUpdate, KeyChainAliasCallback, XmppConnectionService.OnAccountCreated, AccountAdapter.OnTglAccountState {
-
-    private static final int REQUEST_CODE_ENABLE = 11;  // PIN integration
     private final String STATE_SELECTED_ACCOUNT = "selected_account";
 
     private static final int REQUEST_IMPORT_BACKUP = 0x63fb;
@@ -55,8 +52,6 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
     protected AtomicBoolean mInvokedAddAccount = new AtomicBoolean(false);
 
     protected Pair<Integer, Intent> mPostponedActivityResult = null;
-
-    protected boolean mEnablePIN = false;  // PIN integration
     private int iClicked = 0;              // click to access account details
 
     @Override
@@ -102,8 +97,6 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
         this.mAccountAdapter = new AccountAdapter(this, accountList);
         accountListView.setAdapter(this.mAccountAdapter);
         accountListView.setOnItemClickListener((arg0, view, position, arg3) -> switchToAccount(accountList.get(position)));
-
-        this.mEnablePIN = getPreferences().getBoolean("enable_pin", false); // PIN Integration
 
         registerForContextMenu(accountListView);
     }
@@ -164,8 +157,6 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
         getMenuInflater().inflate(R.menu.manageaccounts, menu);
         MenuItem enableAll = menu.findItem(R.id.action_enable_all);
         //MenuItem addAccount = menu.findItem(R.id.action_add_account); //ALF AM-205
-        //MenuItem menuEnablePIN = menu.findItem(R.id.action_enablepin);
-        //menuEnablePIN.setChecked(this.mEnablePIN);
 
         if (Config.X509_VERIFICATION) {
             //addAccount.setVisible(false); //ALF AM-205
@@ -225,19 +216,6 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
             case R.id.action_enable_all:
                 enableAllAccounts();
                 break;
-            // incorporate pin activity
-            /*case R.id.action_enablepin:
-                mEnablePIN = !item.isChecked();
-                getPreferences().edit().putBoolean("enable_pin", mEnablePIN).commit();
-
-                if (item.isChecked() == false) {
-                    enablePIN();
-                } else {
-                    disablePIN();
-                }
-                invalidateOptionsMenu();
-
-                break;*/
             //CMG AM-152
             //case R.id.action_add_account_with_cert:
             //    addAccountFromKey();
@@ -246,42 +224,6 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * disable PIN
-     */
-    private void disablePIN() {
-        Intent intent = new Intent(this, CustomPinActivity.class);
-        intent.putExtra(AppLock.EXTRA_TYPE, AppLock.DISABLE_PINLOCK);
-        startActivity(intent);
-    }
-
-    /**
-     * enable PIN
-     */
-    private void enablePIN() {
-        Intent intent = new Intent(this, CustomPinActivity.class);
-        intent.putExtra(AppLock.EXTRA_TYPE, AppLock.ENABLE_PINLOCK);
-        startActivityForResult(intent, REQUEST_CODE_ENABLE);
-    }
-
-    /**
-     * Change PIN if PIN enabled, otherwise pop up error
-     */
-    private void changePIN(){
-        if (mEnablePIN) {
-            Intent intent = new Intent(this, CustomPinActivity.class);
-            intent.putExtra(AppLock.EXTRA_TYPE, AppLock.CHANGE_PIN);
-            startActivity(intent);
-        } else {
-            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(
-                    ManageAccountActivity.this);
-            builder.setTitle(getString(R.string.change_pin_dialog_title));
-            builder.setMessage(getString(R.string.change_pin_dialog_msg));
-            builder.setPositiveButton(getString(R.string.ok), null);
-            builder.create().show();
-        }
     }
 
 

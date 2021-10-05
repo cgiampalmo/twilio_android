@@ -2154,22 +2154,19 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		public void onStateChanged(int id, TransferState newState) {
 			Log.d("Glacier", "onStateChanged(" + key + "): " + id + "," + newState);
 			if (newState == TransferState.COMPLETED) {
-				this.toString();
 
-				// File destFile = new File(Environment.getExternalStorageDirectory() + "/dave.glacier");
-				// readFile(new File(Environment.getExternalStorageDirectory() + "/" + key));
-
-				File tmpFile = new File(Environment.getExternalStorageDirectory() + "/" + key);
+				//File tmpFile = new File(Environment.getExternalStorageDirectory() + "/" + key);
+				File tmpFile = new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/" + key); //ALF AM-603 and commented out move file
 				if (tmpFile.exists()) {
 					// track how many have completed download
 					downloadCount--;
-					Log.d("Glacier", "File confirmed: " + Environment.getExternalStorageDirectory() + "/" + key);
+					Log.d("Glacier", "File confirmed: " + tmpFile.getPath());
 
 					if (key.endsWith("ovpn") == true) {
 						// move file
 						Log.d("Glacier", "Key Count (COMPLETED): " + downloadCount);
 						connection = openVPN;
-						moveFile(Environment.getExternalStorageDirectory().toString(), key, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString());
+						//moveFile(Environment.getExternalStorageDirectory().toString(), key, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString());
 						// Rather than exporting the file immediately, keep list of files to export
 						// exportProfile(key);
 						keyList.add(key);
@@ -2204,7 +2201,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					}
 
 				} else {
-					Log.d("Glacier", "File unconfirmed: " + Environment.getExternalStorageDirectory() + "/" + key);
+					Log.d("Glacier", "File unconfirmed: " + tmpFile.getPath());
 				}
 				// s3DownloadInterface.onDownloadSuccess("Success");
 
@@ -2386,7 +2383,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 */
 	private void exportProfile(String inputFile) {
 		try {
-			File location = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+			//File location = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+			File location = getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
 			location = new File(location.toString() + "/" + inputFile);
 
 			FileInputStream config2 = new FileInputStream(location.toString());
@@ -2503,7 +2501,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		//need to have set messenger_id and username/pass here
 		//ALF AM-388
 		for (Account account : xmppConnectionService.getAccounts()) {
-			CognitoAccount cacct = xmppConnectionService.databaseBackend.getCognitoAccount(account,getApplicationContext());
+			CognitoAccount cacct = xmppConnectionService.databaseBackend.getCognitoAccount(account);
 			if (cacct != null) {
 				cognitoUsername = cacct.getUserName();
 				cognitoPassword = cacct.getPassword();
@@ -2570,7 +2568,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						downloadCount++;
 						hasDownload = true;
 
-						File destFile = new File(Environment.getExternalStorageDirectory() + "/" + destFilename);
+						//File destFile = new File(Environment.getExternalStorageDirectory() + "/" + destFilename);
+						File destFile = new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/" + destFilename); //ALF AM-603
 						TransferObserver observer = transferUtility.download(summary.getKey(), destFile, new DownloadListener(destFilename));
 						if (download_keys == null) {
 							download_keys = destFilename;

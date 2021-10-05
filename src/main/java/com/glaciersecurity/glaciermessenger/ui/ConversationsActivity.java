@@ -438,7 +438,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		if (xmppConnectionService != null) {
 			for (Account account : xmppConnectionService.getAccounts()) {
 
-				CognitoAccount cacct = xmppConnectionService.databaseBackend.getCognitoAccount(account,getApplicationContext());
+				CognitoAccount cacct = xmppConnectionService.databaseBackend.getCognitoAccount(account);
 				if (cacct != null) {
 					username = cacct.getUserName();
 					password = cacct.getPassword();
@@ -1258,10 +1258,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			xmppConnectionService.deleteAccount(account);
 		}
 
-		//CMG AM-636
-//		//ALF AM-388
-//		BackupAccountManager backupAccountManager = new BackupAccountManager(getApplicationContext());
-//		backupAccountManager.deleteAccountFiles();
+		//ALF AM-388 removed in AM-603
+		//BackupAccountManager backupAccountManager = new BackupAccountManager(getApplicationContext());
+		//backupAccountManager.deleteAccountFiles();
 
 		// logout of Cognito
 		// sometimes if it's been too long, I believe pool doesn't
@@ -1353,8 +1352,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 			// delete file
 			for (int i = 0; i < fileDir.length; i++) {
-				// do not delete lollipin db
-				if (!(fileDir[i].getName().startsWith("LollipinDB") || (fileDir[i].getName().startsWith("AppLockImpl"))) && (fileDir[i].delete())) {
+				if (fileDir[i].delete()) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
 					Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
@@ -1436,7 +1434,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	}
 
 	private void clearExternalStorage() {
-		FileBackend.removeStorageDirectory();
+		FileBackend.removeStorageDirectory(getApplicationContext()); //ALF AM-603 added context
 	}
 
 	/**

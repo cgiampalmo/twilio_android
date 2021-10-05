@@ -2091,7 +2091,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 					intent.setAction(MediaStore.ACTION_VIDEO_CAPTURE);
 					break;
 				case ATTACHMENT_CHOICE_TAKE_PHOTO:
-					final Uri uri = activity.xmppConnectionService.getFileBackend().getTakePhotoUri();
+					final Uri uri = activity.xmppConnectionService.getFileBackend().getTakePhotoUri(getContext());
 					pendingTakePhotoUri.push(uri);
 					intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
 					intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);

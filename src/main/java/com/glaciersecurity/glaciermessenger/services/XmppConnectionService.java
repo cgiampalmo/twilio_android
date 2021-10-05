@@ -259,14 +259,15 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	private CallManager callManager = new CallManager(this); //ALF AM-478;
 
-	private final ConversationsFileObserver fileObserver = new ConversationsFileObserver(
+	private ConversationsFileObserver fileObserver; //ALF AM-603 moved to onCreate and changed mechanism
+	/*private final ConversationsFileObserver fileObserver = new ConversationsFileObserver(
 			Environment.getExternalStorageDirectory().getAbsolutePath()
 	) {
 		@Override
 		public void onEvent(int event, String path) {
 			markFileDeleted(path);
 		}
-	};
+	};*/
 	private final OnMessageAcknowledged mOnMessageAcknowledgedListener = new OnMessageAcknowledged() {
 
 		@Override
@@ -589,7 +590,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		final String compressPictures = getCompressPicturesPreference();
 
 		if ("never".equals(compressPictures)
-				|| ("auto".equals(compressPictures) && getFileBackend().useImageAsIs(uri))
+				|| ("auto".equals(compressPictures) && getFileBackend().useImageAsIs(uri, getApplicationContext()))
 				|| (mimeType != null && mimeType.endsWith("/gif"))
 				|| getFileBackend().unusualBounds(uri)) {
 			Log.d(Config.LOGTAG, conversation.getAccount().getLogJid() + ": not compressing picture. sending as file");
@@ -1289,6 +1290,16 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		if (mLastActivity == 0) {
 			mLastActivity = getPreferences().getLong(SETTING_LAST_ACTIVITY_TS, System.currentTimeMillis());
 		}
+
+		//ALF AM-603 test
+		this.fileObserver = new ConversationsFileObserver(
+				getApplicationContext().getExternalFilesDir(null).getAbsolutePath()
+		) {
+			@Override
+			public void onEvent(int event, String path) {
+				markFileDeleted(path);
+			}
+		};
 
 		Log.d(Config.LOGTAG, "initializing database...");
 		this.databaseBackend = DatabaseBackend.getInstance(getApplicationContext());

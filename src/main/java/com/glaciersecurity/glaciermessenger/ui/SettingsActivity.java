@@ -688,8 +688,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 
 			// delete file
 			for (int i = 0; i < fileDir.length; i++) {
-				// do not delete lollipin db
-				if (!(fileDir[i].getName().startsWith("LollipinDB") || (fileDir[i].getName().startsWith("AppLockImpl"))) && (fileDir[i].delete())) {
+				if (fileDir[i].delete()) {
 					deletedFiles[deletedFilesIndex] = fileDir[i].toString();
 					deletedFilesIndex++;
 					Log.d("Glacier", "File list: Successfully deleted " + fileDir[i]);
@@ -771,7 +770,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 	}
 
 	private void clearExternalStorage() {
-		FileBackend.removeStorageDirectory();
+		FileBackend.removeStorageDirectory(getApplicationContext()); //ALF AM-603 added context
 	}
 
 	/**

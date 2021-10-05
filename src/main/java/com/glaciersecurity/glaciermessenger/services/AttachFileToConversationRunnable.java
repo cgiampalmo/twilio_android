@@ -56,7 +56,7 @@ public class AttachFileToConversationRunnable implements Runnable, MediaTranscod
 
 	private void processAsFile() {
 		final String path = mXmppConnectionService.getFileBackend().getOriginalPath(uri);
-		if (path != null && !FileBackend.isPathBlacklisted(path)) {
+		if (path != null && !FileBackend.isPathBlacklisted(path, mXmppConnectionService)) {
 			message.setRelativeFilePath(path);
 			mXmppConnectionService.getFileBackend().updateFileParams(message);
 			/*if (message.getEncryption() == Message.ENCRYPTION_DECRYPTED) {
