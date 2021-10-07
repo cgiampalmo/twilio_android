@@ -116,7 +116,7 @@ public class XmppAxolotlMessage {
 			switch (keyElement.getName()) {
 				case KEYTAG:
 					try {
-						Integer recipientId = Integer.parseInt(keyElement.getAttribute(REMOTEID));
+						int recipientId = Integer.parseInt(keyElement.getAttribute(REMOTEID));
 						byte[] key = Base64.decode(keyElement.getContent().trim(), Base64.DEFAULT);
 						boolean isPreKey =keyElement.getAttributeAsBoolean("prekey");
 						this.keys.add(new XmppAxolotlSession.AxolotlKey(recipientId, key,isPreKey));
@@ -159,14 +159,13 @@ public class XmppAxolotlMessage {
 			generator.init(128);
 			return generator.generateKey().getEncoded();
 		} catch (NoSuchAlgorithmException e) {
-			Log.e(Config.LOGTAG, e.getMessage());
-			return null;
+			throw new IllegalStateException(e);
 		}
 	}
 
 	private static byte[] generateIv() {
-		SecureRandom random = new SecureRandom();
-		byte[] iv = new byte[16];
+		final SecureRandom random = new SecureRandom();
+		final byte[] iv = new byte[12];
 		random.nextBytes(iv);
 		return iv;
 	}
@@ -175,7 +174,7 @@ public class XmppAxolotlMessage {
 		return ciphertext != null;
 	}
 
-	void encrypt(String plaintext) throws CryptoFailedException {
+	void encrypt(final String plaintext) throws CryptoFailedException {
 		try {
 			SecretKey secretKey = new SecretKeySpec(innerKey, KEYTYPE);
 			IvParameterSpec ivSpec = new IvParameterSpec(iv);
@@ -212,7 +211,6 @@ public class XmppAxolotlMessage {
 		}
 		return builder.toString().getBytes();
 	}
-
 	public Jid getFrom() {
 		return this.from;
 	}
@@ -249,11 +247,11 @@ public class XmppAxolotlMessage {
 		Element encryptionElement = new Element(CONTAINERTAG, AxolotlService.PEP_PREFIX);
 		Element headerElement = encryptionElement.addChild(HEADER);
 		headerElement.setAttribute(SOURCEID, sourceDeviceId);
-		for(XmppAxolotlSession.AxolotlKey key : keys) {
+		for (XmppAxolotlSession.AxolotlKey key : keys) {
 			Element keyElement = new Element(KEYTAG);
 			keyElement.setAttribute(REMOTEID, key.deviceId);
 			if (key.prekey) {
-				keyElement.setAttribute("prekey","true");
+				keyElement.setAttribute("prekey", "true");
 			}
 			keyElement.setContent(Base64.encodeToString(key.key, Base64.NO_WRAP));
 			headerElement.addChild(keyElement);
@@ -268,7 +266,7 @@ public class XmppAxolotlMessage {
 
 	private byte[] unpackKey(XmppAxolotlSession session, Integer sourceDeviceId) throws CryptoFailedException {
 		ArrayList<XmppAxolotlSession.AxolotlKey> possibleKeys = new ArrayList<>();
-		for(XmppAxolotlSession.AxolotlKey key : keys) {
+		for (XmppAxolotlSession.AxolotlKey key : keys) {
 			if (key.deviceId == sourceDeviceId) {
 				possibleKeys.add(key);
 			}
@@ -288,19 +286,19 @@ public class XmppAxolotlMessage {
 		byte[] key = unpackKey(session, sourceDeviceId);
 		if (key != null) {
 			try {
-				if (key.length >= 32) {
-					int authtaglength = key.length - 16;
-					Log.d(Config.LOGTAG,"found auth tag as part of omemo key");
-					byte[] newCipherText = new byte[key.length - 16  + ciphertext.length];
-					byte[] newKey = new byte[16];
-					System.arraycopy(ciphertext, 0, newCipherText, 0, ciphertext.length);
-					System.arraycopy(key, 16, newCipherText, ciphertext.length, authtaglength);
-					System.arraycopy(key,0,newKey,0,newKey.length);
-					ciphertext = newCipherText;
-					key = newKey;
+				if (key.length < 32) {
+					throw new CryptoFailedException("Key did not contain auth tag. Sender needs to update their OMEMO client");
 				}
+				final int authTagLength = key.length - 16;
+				byte[] newCipherText = new byte[key.length - 16 + ciphertext.length];
+				byte[] newKey = new byte[16];
+				System.arraycopy(ciphertext, 0, newCipherText, 0, ciphertext.length);
+				System.arraycopy(key, 16, newCipherText, ciphertext.length, authTagLength);
+				System.arraycopy(key, 0, newKey, 0, newKey.length);
+				ciphertext = newCipherText;
+				key = newKey;
 
-				Cipher cipher = Compatibility.twentyEight() ? Cipher.getInstance(CIPHERMODE) : Cipher.getInstance(CIPHERMODE, PROVIDER);
+				final Cipher cipher = Compatibility.twentyEight() ? Cipher.getInstance(CIPHERMODE) : Cipher.getInstance(CIPHERMODE, PROVIDER);
 				SecretKeySpec keySpec = new SecretKeySpec(key, KEYTYPE);
 				IvParameterSpec ivSpec = new IvParameterSpec(iv);
 
