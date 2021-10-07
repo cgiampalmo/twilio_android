@@ -1,50 +1,76 @@
 package com.glaciersecurity.glaciermessenger.crypto.sasl;
 
 import android.util.Base64;
-import android.util.LruCache;
+
+import com.glaciersecurity.glaciermessenger.crypto.sasl.SaslMechanism;
+import com.glaciersecurity.glaciermessenger.crypto.sasl.Tokenizer;
+import com.glaciersecurity.glaciermessenger.entities.Account;
+import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
+import com.glaciersecurity.glaciermessenger.xml.TagWriter;
+import com.google.common.base.Objects;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.macs.HMac;
 import org.bouncycastle.crypto.params.KeyParameter;
 
-import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.SecureRandom;
+import java.util.concurrent.ExecutionException;
 
-import com.glaciersecurity.glaciermessenger.entities.Account;
-import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
-import com.glaciersecurity.glaciermessenger.xml.TagWriter;
 
 abstract class ScramMechanism extends SaslMechanism {
 	// TODO: When channel binding (SCRAM-SHA1-PLUS) is supported in future, generalize this to indicate support and/or usage.
 	private final static String GS2_HEADER = "n,,";
 	private static final byte[] CLIENT_KEY_BYTES = "Client Key".getBytes();
 	private static final byte[] SERVER_KEY_BYTES = "Server Key".getBytes();
-	private static final LruCache<String, KeyPair> CACHE;
-	static HMac HMAC;
-	static Digest DIGEST;
 
-	static {
-		CACHE = new LruCache<String, KeyPair>(10) {
-			protected KeyPair create(final String k) {
-				// Map keys are "bytesToHex(JID),bytesToHex(password),bytesToHex(salt),iterations,SASL-Mechanism".
-				// Changing any of these values forces a cache miss. `CryptoHelper.bytesToHex()'
-				// is applied to prevent commas in the strings breaking things.
-				final String[] kparts = k.split(",", 5);
-				try {
-					final byte[] saltedPassword, serverKey, clientKey;
-					saltedPassword = hi(CryptoHelper.hexToString(kparts[1]).getBytes(),
-							Base64.decode(CryptoHelper.hexToString(kparts[2]), Base64.DEFAULT), Integer.valueOf(kparts[3]));
-					serverKey = hmac(saltedPassword, SERVER_KEY_BYTES);
-					clientKey = hmac(saltedPassword, CLIENT_KEY_BYTES);
+	protected abstract HMac getHMAC();
 
-					return new KeyPair(clientKey, serverKey);
-				} catch (final InvalidKeyException | NumberFormatException e) {
-					return null;
-				}
-			}
-		};
+	protected abstract Digest getDigest();
+
+	private static final Cache<CacheKey, KeyPair> CACHE = CacheBuilder.newBuilder().maximumSize(10).build();
+
+	private static class CacheKey {
+		final String algorithm;
+		final String password;
+		final String salt;
+		final int iterations;
+
+		private CacheKey(String algorithm, String password, String salt, int iterations) {
+			this.algorithm = algorithm;
+			this.password = password;
+			this.salt = salt;
+			this.iterations = iterations;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			CacheKey cacheKey = (CacheKey) o;
+			return iterations == cacheKey.iterations &&
+					Objects.equal(algorithm, cacheKey.algorithm) &&
+					Objects.equal(password, cacheKey.password) &&
+					Objects.equal(salt, cacheKey.salt);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hashCode(algorithm, password, salt, iterations);
+		}
+	}
+
+	private KeyPair getKeyPair(final String password, final String salt, final int iterations) throws ExecutionException {
+		return CACHE.get(new CacheKey(getHMAC().getAlgorithmName(), password, salt, iterations), () -> {
+			final byte[] saltedPassword, serverKey, clientKey;
+			saltedPassword = hi(password.getBytes(), Base64.decode(salt, Base64.DEFAULT), iterations);
+			serverKey = hmac(saltedPassword, SERVER_KEY_BYTES);
+			clientKey = hmac(saltedPassword, CLIENT_KEY_BYTES);
+			return new KeyPair(clientKey, serverKey);
+		});
 	}
 
 	private final String clientNonce;
@@ -60,20 +86,21 @@ abstract class ScramMechanism extends SaslMechanism {
 		clientFirstMessageBare = "";
 	}
 
-	private static synchronized byte[] hmac(final byte[] key, final byte[] input)
-			throws InvalidKeyException {
-		HMAC.init(new KeyParameter(key));
-		HMAC.update(input, 0, input.length);
-		final byte[] out = new byte[HMAC.getMacSize()];
-		HMAC.doFinal(out, 0);
+	private byte[] hmac(final byte[] key, final byte[] input) throws InvalidKeyException {
+		final HMac hMac = getHMAC();
+		hMac.init(new KeyParameter(key));
+		hMac.update(input, 0, input.length);
+		final byte[] out = new byte[hMac.getMacSize()];
+		hMac.doFinal(out, 0);
 		return out;
 	}
 
-	public static synchronized byte[] digest(byte[] bytes) {
-		DIGEST.reset();
-		DIGEST.update(bytes, 0, bytes.length);
-		final byte[] out = new byte[DIGEST.getDigestSize()];
-		DIGEST.doFinal(out, 0);
+	public byte[] digest(byte[] bytes) {
+		final Digest digest = getDigest();
+		digest.reset();
+		digest.update(bytes, 0, bytes.length);
+		final byte[] out = new byte[digest.getDigestSize()];
+		digest.doFinal(out, 0);
 		return out;
 	}
 
@@ -82,7 +109,7 @@ abstract class ScramMechanism extends SaslMechanism {
 	 * pseudorandom function (PRF) and with dkLen == output length of
 	 * HMAC() == output length of H().
 	 */
-	private static synchronized byte[] hi(final byte[] key, final byte[] salt, final int iterations)
+	private byte[] hi(final byte[] key, final byte[] salt, final int iterations)
 			throws InvalidKeyException {
 		byte[] u = hmac(key, CryptoHelper.concatenateByteArrays(salt, CryptoHelper.ONE));
 		byte[] out = u.clone();
@@ -168,15 +195,10 @@ abstract class ScramMechanism extends SaslMechanism {
 				final byte[] authMessage = (clientFirstMessageBare + ',' + new String(serverFirstMessage) + ','
 						+ clientFinalMessageWithoutProof).getBytes();
 
-				// Map keys are "bytesToHex(JID),bytesToHex(password),bytesToHex(salt),iterations,SASL-Mechanism".
-				final KeyPair keys = CACHE.get(
-						CryptoHelper.bytesToHex(account.getJid().asBareJid().toString().getBytes()) + ","
-								+ CryptoHelper.bytesToHex(account.getPassword().getBytes()) + ","
-								+ CryptoHelper.bytesToHex(salt.getBytes()) + ","
-								+ String.valueOf(iterationCount) + ","
-								+ getMechanism()
-				);
-				if (keys == null) {
+				final KeyPair keys;
+				try {
+					keys = getKeyPair(CryptoHelper.saslPrep(account.getPassword()), salt, iterationCount);
+				} catch (ExecutionException e) {
 					throw new AuthenticationException("Invalid keys generated");
 				}
 				final byte[] clientSignature;
@@ -191,6 +213,10 @@ abstract class ScramMechanism extends SaslMechanism {
 				}
 
 				final byte[] clientProof = new byte[keys.clientKey.length];
+
+				if (clientSignature.length < keys.clientKey.length) {
+					throw new AuthenticationException("client signature was shorter than clientKey");
+				}
 
 				for (int i = 0; i < clientProof.length; i++) {
 					clientProof[i] = (byte) (keys.clientKey[i] ^ clientSignature[i]);
@@ -214,7 +240,7 @@ abstract class ScramMechanism extends SaslMechanism {
 					throw new AuthenticationException("Server final message does not match calculated final message");
 				}
 			default:
-				throw new InvalidStateException(state);
+				throw new SaslMechanism.InvalidStateException(state);
 		}
 	}
 

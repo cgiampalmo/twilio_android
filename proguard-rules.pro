@@ -44,3 +44,14 @@
 -keep class com.twilio.video.** { *; }
 -keep class com.twilio.common.** { *; }
 -keepattributes InnerClasses
+
+#guava
+-dontwarn com.google.errorprone.annotations.CanIgnoreReturnValue
+-dontwarn com.google.errorprone.annotations.concurrent.LazyInit
+-dontwarn com.google.errorprone.annotations.ForOverride
+-dontwarn com.google.errorprone.annotations.IncompatibleModifiers
+-dontwarn com.google.errorprone.annotations.RequiredModifiers
+-dontwarn com.google.errorprone.annotations.Var
+-dontwarn javax.inject.**
+-dontwarn sun.misc.Unsafe
+-dontwarn com.google.common.util.concurrent.**

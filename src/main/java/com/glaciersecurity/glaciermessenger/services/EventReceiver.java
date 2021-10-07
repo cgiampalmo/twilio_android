@@ -5,7 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import com.glaciersecurity.glaciermessenger.utils.Log;
+import android.util.Log;
+import com.google.common.base.Strings;
 
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
@@ -18,25 +19,21 @@ public class EventReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(final Context context, final Intent originalIntent) {
 		final Intent intentForService = new Intent(context, XmppConnectionService.class);
-		if (originalIntent.getAction() != null) {
-			intentForService.setAction(originalIntent.getAction());
-			final Bundle extras = originalIntent.getExtras();
-			if (extras != null) {
-				intentForService.putExtras(extras);
-			}
-		} else {
-			intentForService.setAction("other");
-		}
 		final String action = originalIntent.getAction();
-		if (action.equals("ui") || hasEnabledAccounts(context)) {
+		intentForService.setAction(Strings.isNullOrEmpty(action) ? "other" : action);
+		final Bundle extras = originalIntent.getExtras();
+		if (extras != null) {
+			intentForService.putExtras(extras);
+		}
+		if ("ui".equals(action) || hasEnabledAccounts(context)) {
 			Compatibility.startService(context, intentForService);
 		} else {
 			Log.d(Config.LOGTAG, "EventReceiver ignored action " + intentForService.getAction());
 		}
 	}
 
-	public static boolean hasEnabledAccounts(Context context) {
-		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTING_ENABLED_ACCOUNTS,true);
+	public static boolean hasEnabledAccounts(final Context context) {
+		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(SETTING_ENABLED_ACCOUNTS, true);
 	}
 
 }
