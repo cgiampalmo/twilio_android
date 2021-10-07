@@ -35,6 +35,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Base64;
+
+import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.SparseArray;
 import android.os.Handler;
@@ -330,13 +332,18 @@ public class MemorizingTrustManager {
 			LOGGER.log(Level.SEVERE, "getAppKeyStore()", e);
 			return null;
 		}
+		FileInputStream fileInputStream = null;
 		try {
 			ks.load(null, null);
-			ks.load(new java.io.FileInputStream(keyStoreFile), "MTM".toCharArray());
+			fileInputStream = new FileInputStream(keyStoreFile);
+			ks.load(fileInputStream, "MTM".toCharArray());
 		} catch (java.io.FileNotFoundException e) {
 			LOGGER.log(Level.INFO, "getAppKeyStore(" + keyStoreFile + ") - file does not exist");
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "getAppKeyStore(" + keyStoreFile + ")", e);
+		}
+		finally {
+			FileBackend.close(fileInputStream);
 		}
 		return ks;
 	}
