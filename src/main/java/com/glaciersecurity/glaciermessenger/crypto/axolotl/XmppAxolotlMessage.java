@@ -135,7 +135,7 @@ public class XmppAxolotlMessage {
 					break;
 			}
 		}
-		Element payloadElement = axolotlMessage.findChild(PAYLOAD);
+		final Element payloadElement = axolotlMessage.findChildEnsureSingle(PAYLOAD, AxolotlService.PEP_PREFIX);
 		if (payloadElement != null) {
 			ciphertext = Base64.decode(payloadElement.getContent().trim(), Base64.DEFAULT);
 		}
@@ -170,6 +170,8 @@ public class XmppAxolotlMessage {
 		return iv;
 	}
 
+
+
 	public boolean hasPayload() {
 		return ciphertext != null;
 	}
@@ -182,11 +184,11 @@ public class XmppAxolotlMessage {
 			cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec);
 			this.ciphertext = cipher.doFinal(Config.OMEMO_PADDING ? getPaddedBytes(plaintext) : plaintext.getBytes());
 			if (Config.PUT_AUTH_TAG_INTO_KEY && this.ciphertext != null) {
-				this.authtagPlusInnerKey = new byte[16+16];
+				this.authtagPlusInnerKey = new byte[16 + 16];
 				byte[] ciphertext = new byte[this.ciphertext.length - 16];
-				System.arraycopy(this.ciphertext,0,ciphertext,0,ciphertext.length);
-				System.arraycopy(this.ciphertext,ciphertext.length,authtagPlusInnerKey,16,16);
-				System.arraycopy(this.innerKey,0,authtagPlusInnerKey,0,this.innerKey.length);
+				System.arraycopy(this.ciphertext, 0, ciphertext, 0, ciphertext.length);
+				System.arraycopy(this.ciphertext, ciphertext.length, authtagPlusInnerKey, 16, 16);
+				System.arraycopy(this.innerKey, 0, authtagPlusInnerKey, 0, this.innerKey.length);
 				this.ciphertext = ciphertext;
 			}
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
@@ -309,7 +311,7 @@ public class XmppAxolotlMessage {
 
 			} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
 					| InvalidAlgorithmParameterException | IllegalBlockSizeException
-					| BadPaddingException | NoSuchProviderException | RuntimeException e) { //ALF AM-128 added RuntimeException
+					| BadPaddingException | NoSuchProviderException e) {
 				throw new CryptoFailedException(e);
 			}
 		}

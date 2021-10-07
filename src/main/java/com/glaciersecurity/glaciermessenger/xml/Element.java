@@ -64,6 +64,19 @@ public class Element {
 		return null;
 	}
 
+	public Element findChildEnsureSingle(String name, String xmlns) {
+		final List<Element> results = new ArrayList<>();
+		for (Element child : this.children) {
+			if (name.equals(child.getName()) && xmlns.equals(child.getAttribute("xmlns"))) {
+				results.add(child);
+			}
+		}
+		if (results.size() == 1) {
+			return results.get(0);
+		}
+		return null;
+	}
+
 	public String findChildContent(String name) {
 		Element element = findChild(name);
 		return element == null ? null : element.getContent();
