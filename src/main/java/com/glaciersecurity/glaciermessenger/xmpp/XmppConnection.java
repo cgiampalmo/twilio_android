@@ -217,6 +217,7 @@ public class XmppConnection implements Runnable {
 				}
 				if (nextStatus == Account.State.ONLINE) {
 					this.attempt = 0;
+					mXmppConnectionService.getVCard(account); //AM-642
 				}
 				account.setStatus(nextStatus);
 			} else {

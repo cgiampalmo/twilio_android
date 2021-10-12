@@ -261,9 +261,22 @@ public class PresenceParser extends AbstractParser implements
 	private void parseContactPresence(final PresencePacket packet, final Account account) {
 		final PresenceGenerator mPresenceGenerator = mXmppConnectionService.getPresenceGenerator();
 		final Jid from = packet.getFrom();
-		if (from == null || from.equals(account.getJid())) {
+		if (from == null) {
 			return;
 		}
+		//AM-642 adjusted above, and below
+		if (from.equals(account.getJid())) {
+			Element xel = packet.findChild("x", "vcard-temp:x:update");
+			String displayname = xel == null ? null : xel.findChildContent("displayname");
+			if (displayname != null) {
+				account.setDisplayName(displayname);
+				mXmppConnectionService.databaseBackend.updateAccount(account);
+				mXmppConnectionService.updateConversationUi();
+				mXmppConnectionService.updateAccountUi();
+			}
+			return;
+		}
+
 		final String type = packet.getAttribute("type");
 		final Contact contact = account.getRoster().getContact(from);
 		if (type == null) {

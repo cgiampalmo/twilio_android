@@ -1817,6 +1817,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					if (bookmark.getJid() == null) {
 						continue;
 					}
+
 					previousBookmarks.remove(bookmark.getJid().asBareJid());
 					Conversation conversation = find(bookmark);
 					if (conversation != null) {
@@ -3010,6 +3011,20 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 	}
 
+	//AM-642
+	public void setRoomsNickname(String nickname, final UiCallback<Conversation> callback) {
+		for (final Conversation conversation : getConversations()) {
+			if (conversation.getMode() == Conversation.MODE_MULTI) {
+				Bookmark bookmark = conversation.getBookmark();
+				renameInMuc(conversation, nickname, callback);
+				if (bookmark != null) {
+					bookmark.setNick(nickname);
+					pushBookmarks(bookmark.getAccount());
+				}
+			}
+		}
+	}
+
 	public boolean renameInMuc(final Conversation conversation, final String nick, final UiCallback<Conversation> callback) {
 		final MucOptions options = conversation.getMucOptions();
 		final Jid joinJid = options.createJoinJid(nick);
@@ -3840,9 +3855,28 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							}
 						}
 					}
+					//AM-642
+					Element displayel = vCard != null ? vCard.findChild("NICKNAME") : null;
+					String displayname = displayel.getContent();
+					Jid avatarJid = avatar.owner;
+					if (displayname != null && avatarJid != null && account.getJid().asBareJid().equals(avatarJid.asBareJid()) && !account.getDisplayName().equals(displayname)) {
+						account.setDisplayName(displayname);
+						databaseBackend.updateAccount(account);
+						updateConversationUi();
+						updateAccountUi();
+					}
 				}
 			}
 		});
+	}
+
+	//AM-642
+	public void getVCard(Account account) {
+		Avatar avatar = fileBackend.getStoredPepAvatar(account.getAvatar());
+		if (avatar != null) {
+			avatar.owner = account.getJid().asBareJid();
+			fetchAvatarVcard(account, avatar, null);
+		}
 	}
 
 	public void checkForAvatar(Account account, final UiCallback<Avatar> callback) {
