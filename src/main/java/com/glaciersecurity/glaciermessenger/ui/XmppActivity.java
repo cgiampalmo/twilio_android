@@ -230,7 +230,7 @@ public abstract class XmppActivity extends ActionBarActivity {
 
 	public void connectToBackend() {
 		Intent intent = new Intent(this, XmppConnectionService.class);
-		intent.setAction("ui");
+		intent.setAction(Intent.ACTION_VIEW);
 		try {
 			startService(intent);
 		}catch (IllegalStateException e) {

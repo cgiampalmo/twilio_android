@@ -25,7 +25,7 @@ public class EventReceiver extends BroadcastReceiver {
 		if (extras != null) {
 			intentForService.putExtras(extras);
 		}
-		if ("ui".equals(action) || hasEnabledAccounts(context)) {
+		if (Intent.ACTION_VIEW.equals(intentForService.getAction()) || hasEnabledAccounts(context)) {
 			Compatibility.startService(context, intentForService);
 		} else {
 			Log.d(Config.LOGTAG, "EventReceiver ignored action " + intentForService.getAction());
