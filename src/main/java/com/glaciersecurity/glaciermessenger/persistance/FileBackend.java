@@ -139,8 +139,8 @@ public class FileBackend {
         if (Config.ONLY_INTERNAL_STORAGE) {
             return context.getFilesDir().getAbsolutePath() + "/" + type + "/";
         } else {
-            //return getAppMediaDirectory(context) + context.getString(R.string.app_name) + " " + type + "/";
-            return getAppMediaDirectory(context) + type + "/"; //ALF AM-603
+            return getAppMediaDirectory(context) + context.getString(R.string.app_name) + " " + type + "/";
+            //return getAppMediaDirectory(context) + type + "/"; //ALF AM-603
         }
     }
 
@@ -175,7 +175,8 @@ public class FileBackend {
     }
 
     public static String getAppMediaDirectory(Context context) {
-        return context.getExternalFilesDir(null).getAbsolutePath() + "/Media/"; //ALF AM-603 should include app name already
+        return Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + context.getString(R.string.app_name) + "/Media/";
+        //return context.getExternalFilesDir(null).getAbsolutePath() + "/Media/"; //ALF AM-603 should include app name already
         //return Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + context.getString(R.string.app_name) + "/Media/";
     }
 
