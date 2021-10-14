@@ -1142,7 +1142,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			}
 			case R.id.Support: {
 				Intent intent = new Intent(Intent.ACTION_VIEW);
-				intent.setData(Uri.parse("https://glaciersecurity.zendesk.com"));
+				intent.setData(Uri.parse("https://glacier.chat/support"));
 				startActivity(intent);
 				break;
 			}

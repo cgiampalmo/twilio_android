@@ -38,7 +38,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(Intent.ACTION_VIEW);
-				intent.setData(Uri.parse("https://glaciersecurity.zendesk.com"));
+				intent.setData(Uri.parse("https://glacier.chat/support"));
 				startActivity(intent);
 			}
 		});

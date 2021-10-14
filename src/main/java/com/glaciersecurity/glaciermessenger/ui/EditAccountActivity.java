@@ -1110,7 +1110,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	//CMG AM-117
 	public void gotoSupportPage(View view){
 		Intent intent = new Intent(Intent.ACTION_VIEW);
-		intent.setData(Uri.parse("https://glaciersecurity.zendesk.com"));
+		intent.setData(Uri.parse("https://glacier.chat/support"));
 		startActivity(intent);
 	}
 
