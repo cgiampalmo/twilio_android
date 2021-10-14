@@ -190,6 +190,7 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:hint="@string/group_chat_name"
+                                        android:inputType="textNoSuggestions"
                                         android:textAppearance="@style/Widget.Conversations.EditText"/>
                                 </com.google.android.material.textfield.TextInputLayout>
 

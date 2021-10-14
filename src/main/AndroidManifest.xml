@@ -22,6 +22,11 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" /> <!-- AM-440 -->
     <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" /> <!-- AM-561 -->
 
+    <permission android:name="${applicationId}.ACCESS_SECRETS"
+        android:label="signature permissions"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.glaciersecurity.glaciermessenger.ACCESS_SECRETS"/>
     <uses-feature android:name="android.hardware.camera.autofocus"
         android:required="false"/>
     <uses-feature
@@ -79,13 +84,13 @@
         <service android:name=".services.XmppConnectionService"/>
 
         <receiver android:name=".services.EventReceiver">
+            android:permission=""com.glaciersecurity.glaciermessenger.ACCESS_SECRETS"
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
                 <action android:name="android.intent.action.ACTION_SHUTDOWN"/>
                 <action android:name="android.media.RINGER_MODE_CHANGED"/>
                 <action android:name="android.intent.action.VIEW"/>
-
             </intent-filter>
         </receiver>
 
@@ -179,7 +184,12 @@
             android:launchMode="singleTask"/>
         <activity
             android:name=".ui.SettingsActivity"
-            android:label="@string/title_activity_settings"/>
+            android:label="@string/title_activity_settings">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.NOTIFICATION_PREFERENCES" />
+            </intent-filter>/>
+        </activity>
         <activity
             android:name=".ui.OpenVPNActivity"
             android:label="@string/title_activity_glaciervpn"/>
@@ -215,6 +225,7 @@
             android:name=".ui.ShareViaAccountActivity"
             android:label="@string/title_activity_share_via_account"
             android:launchMode="singleTop"/>
+
         <!--CMG AM-214 portrait mode only-->
         <activity
             android:name=".ui.EditAccountActivity"

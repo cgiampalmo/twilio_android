@@ -133,7 +133,7 @@
                         android:ems="10"
                         android:hint="@string/status_message"
                         android:imeOptions="actionDone"
-                        android:inputType="textShortMessage" />
+                        android:inputType="textShortMessage|textNoSuggestions" />
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
