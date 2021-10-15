@@ -80,7 +80,7 @@ public class PresenceParser extends AbstractParser implements
 								mXmppConnectionService.databaseBackend.updateConversation(conversation);
 							}
 
-							mXmppConnectionService.persistSelfNick(user);
+							//mXmppConnectionService.persistSelfNick(user); //AM-642
 							invokeRenameListener(mucOptions, true);
 						}
 						boolean isNew = mucOptions.updateUser(user);
@@ -265,11 +265,12 @@ public class PresenceParser extends AbstractParser implements
 			return;
 		}
 		//AM-642 adjusted above, and below
-		if (from.equals(account.getJid())) {
+		if (from.asBareJid().equals(account.getJid().asBareJid())) {
 			Element xel = packet.findChild("x", "vcard-temp:x:update");
 			String displayname = xel == null ? null : xel.findChildContent("displayname");
-			if (displayname != null) {
+			if (displayname != null && !displayname.equals(account.getDisplayName())) {
 				account.setDisplayName(displayname);
+				mXmppConnectionService.setRoomsNickname(displayname, false, null);
 				mXmppConnectionService.databaseBackend.updateAccount(account);
 				mXmppConnectionService.updateConversationUi();
 				mXmppConnectionService.updateAccountUi();

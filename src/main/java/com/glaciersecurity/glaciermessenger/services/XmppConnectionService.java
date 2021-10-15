@@ -334,6 +334,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 	};
 
+	private Presence.Status lastStatus = Presence.Status.ONLINE; //AM-642
+
 	//Ui callback listeners
 	private final Set<OnConversationUpdate> mOnConversationUpdates = Collections.newSetFromMap(new WeakHashMap<OnConversationUpdate, Boolean>());
 	private final Set<OnShowErrorToast> mOnShowErrorToasts = Collections.newSetFromMap(new WeakHashMap<OnShowErrorToast, Boolean>());
@@ -3012,15 +3014,26 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	//AM-642
-	public void setRoomsNickname(String nickname, final UiCallback<Conversation> callback) {
+	public void setRoomsNickname(String nickname, boolean push, final UiCallback<Conversation> callback) {
 		for (final Conversation conversation : getConversations()) {
 			if (conversation.getMode() == Conversation.MODE_MULTI) {
-				Bookmark bookmark = conversation.getBookmark();
-				renameInMuc(conversation, nickname, callback);
-				if (bookmark != null) {
-					bookmark.setNick(nickname);
-					pushBookmarks(bookmark.getAccount());
+				if (push) {
+					renameInMuc(conversation, nickname, callback);
 				}
+				final MucOptions options = conversation.getMucOptions();
+				final Jid joinJid = options.createJoinJid(nickname);
+				conversation.setContactJid(joinJid);
+				databaseBackend.updateConversation(conversation);
+			}
+		}
+		for (Account account : getAccounts()) {
+			List<Bookmark> bookies = account.getBookmarks();
+			for (Bookmark bookie : bookies) {
+				bookie.setNick(nickname);
+			}
+			account.setBookmarks(new CopyOnWriteArrayList<>(bookies));
+			if (push) {
+				pushBookmarks(account);
 			}
 		}
 	}
@@ -3861,6 +3874,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					Jid avatarJid = avatar.owner;
 					if (displayname != null && avatarJid != null && account.getJid().asBareJid().equals(avatarJid.asBareJid()) && !account.getDisplayName().equals(displayname)) {
 						account.setDisplayName(displayname);
+						setRoomsNickname(displayname, false, null);
 						databaseBackend.updateAccount(account);
 						updateConversationUi();
 						updateAccountUi();
@@ -4405,6 +4419,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	private void sendPresence(final Account account, final boolean includeIdleTimestamp) {
 		Presence.Status status;
+		boolean getVcard = false; //AM-642 and usage below
 		/*if (manuallyChangePresence()) {
 			status = account.getPresenceStatus();
 		} else {
@@ -4417,9 +4432,16 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			status =  Presence.Status.AWAY;
 		} else if (manuallyChangePresence()) {
 			status = account.getPresenceStatus();
+			if (status == Presence.Status.ONLINE && lastStatus != Presence.Status.ONLINE && account.getStatus() == Account.State.ONLINE) { //AM-642
+				getVcard = true;
+			}
 		} else {
 			status =  Presence.Status.ONLINE;
+			if (lastStatus != Presence.Status.ONLINE && account.getStatus() == Account.State.ONLINE) { //AM-642
+				getVcard = true;
+			}
 		}
+		lastStatus = status;
 
 		PresencePacket packet = mPresenceGenerator.selfPresence(account, status);
 		String message = account.getPresenceStatusMessage();
@@ -4432,6 +4454,9 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 		sendPresencePacket(account, packet);
 
+		if (getVcard) { //AM-642
+			getVCard(account);
+		}
 	}
 
 	private void deactivateGracePeriod() {

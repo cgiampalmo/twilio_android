@@ -702,7 +702,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				xmppConnectionService.databaseBackend.updateAccount(account);
 				xmppConnectionService.publishDisplayName(account);
 				//AM-642
-				xmppConnectionService.setRoomsNickname(displayname, renameCallback);
+				xmppConnectionService.setRoomsNickname(displayname, true, renameCallback);
 			}
 			return true;
 		}
