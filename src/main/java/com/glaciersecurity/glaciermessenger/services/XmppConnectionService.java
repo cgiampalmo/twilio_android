@@ -3017,9 +3017,9 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	public void setRoomsNickname(String nickname, boolean push, final UiCallback<Conversation> callback) {
 		for (final Conversation conversation : getConversations()) {
 			if (conversation.getMode() == Conversation.MODE_MULTI) {
-				if (push) {
+				//if (push) {
 					renameInMuc(conversation, nickname, callback);
-				}
+				//}
 				final MucOptions options = conversation.getMucOptions();
 				final Jid joinJid = options.createJoinJid(nickname);
 				conversation.setContactJid(joinJid);
@@ -3050,12 +3050,16 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 				@Override
 				public void onSuccess() {
-					callback.success(conversation);
+					if (callback != null) {
+						callback.success(conversation);
+					}
 				}
 
 				@Override
 				public void onFailure() {
-					callback.error(R.string.nick_in_use, conversation);
+					if (callback != null) {
+						callback.error(R.string.nick_in_use, conversation);
+					}
 				}
 			});
 
