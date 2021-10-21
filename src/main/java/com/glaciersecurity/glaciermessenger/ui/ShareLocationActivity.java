@@ -35,30 +35,12 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 
-import org.osmdroid.api.IGeoPoint;
-import org.osmdroid.util.GeoPoint;
 
-import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
-import com.glaciersecurity.glaciermessenger.databinding.ActivityShareLocationBinding;
-import com.glaciersecurity.glaciermessenger.ui.util.LocationHelper;
-import com.glaciersecurity.glaciermessenger.ui.widget.Marker;
-import com.glaciersecurity.glaciermessenger.ui.widget.MyLocation;
-import com.glaciersecurity.glaciermessenger.utils.LocationProvider;
 import com.glaciersecurity.glaciermessenger.utils.ThemeHelper;
-import com.mapbox.android.core.permissions.PermissionsListener;
-import com.mapbox.android.core.permissions.PermissionsManager;
-import com.mapbox.mapboxsdk.Mapbox;
-import com.mapbox.mapboxsdk.location.LocationComponent;
-import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener;
-import com.mapbox.mapboxsdk.location.OnLocationClickListener;
-import com.mapbox.mapboxsdk.maps.MapView;
-import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 
 import java.util.List;
 
-import static com.glaciersecurity.glaciermessenger.ui.ActionBarActivity.configureActionBar;
 
 public class ShareLocationActivity extends XmppActivity implements OnMapReadyCallback, OnLocationClickListener, PermissionsListener, OnCameraTrackingChangedListener {
 
@@ -82,7 +64,6 @@ public class ShareLocationActivity extends XmppActivity implements OnMapReadyCal
 	private LocationComponent locationComponent;
 	private FloatingActionButton fab;
 	private boolean isInTrackingMode;
-	private Location locationListener;
 
 
 	@Override
@@ -144,12 +125,6 @@ public class ShareLocationActivity extends XmppActivity implements OnMapReadyCal
 		shareButton.setOnClickListener(view -> {
 			final Intent result = new Intent();
 
-//			if (marker_fixed_to_loc && myLoc != null) {
-//				result.putExtra("latitude", myLoc.getLatitude());
-//				result.putExtra("longitude", myLoc.getLongitude());
-//				result.putExtra("altitude", myLoc.getAltitude());
-//				result.putExtra("accuracy", (int) myLoc.getAccuracy());
-//			} else {
 			if (mapboxMap.getLocationComponent() == null || !mapboxMap.getLocationComponent().isLocationComponentActivated()) {
 				setResult(RESULT_CANCELED);
 				finish();
@@ -163,7 +138,6 @@ public class ShareLocationActivity extends XmppActivity implements OnMapReadyCal
 					finish();
 				}
 			}
-			//}
 
 			setResult(RESULT_OK, result);
 			finish();
