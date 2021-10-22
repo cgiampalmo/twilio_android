@@ -3876,7 +3876,13 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					Element displayel = vCard != null ? vCard.findChild("NICKNAME") : null;
 					String displayname = displayel.getContent();
 					Jid avatarJid = avatar.owner;
-					if (displayname != null && avatarJid != null && account.getJid().asBareJid().equals(avatarJid.asBareJid()) && !account.getDisplayName().equals(displayname)) {
+					if (account.getDisplayName() == null) {
+						account.setDisplayName(displayname);
+						setRoomsNickname(displayname, false, null);
+						databaseBackend.updateAccount(account);
+						updateConversationUi();
+						updateAccountUi();
+					} else if (displayname != null && avatarJid != null && account.getJid().asBareJid().equals(avatarJid.asBareJid()) && !account.getDisplayName().equals(displayname)) {
 						account.setDisplayName(displayname);
 						setRoomsNickname(displayname, false, null);
 						databaseBackend.updateAccount(account);
