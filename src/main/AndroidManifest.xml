@@ -5,6 +5,7 @@
 
     <queries>
         <package android:name="com.glaciersecurity.glaciercore" />
+        <package android:name= "com.glaciersecurity.glaciervoice" />
         <package android:name="com.glaciersecurity.glaciermessenger" />
         <intent>
             <action android:name="android.intent.action.VIEW" />

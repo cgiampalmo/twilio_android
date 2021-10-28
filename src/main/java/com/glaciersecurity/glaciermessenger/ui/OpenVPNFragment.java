@@ -392,8 +392,6 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             GlacierProfile gp = (GlacierProfile) profileSpinner.getItemAtPosition(index);
             return gp.getName();
  //           return gp.getName();
-        } else if (uuid.compareTo(emergencyProfile.getUuid()) == 0) {
-            return emergencyProfile.getName();
         }
         return null;
     }

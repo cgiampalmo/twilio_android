@@ -144,7 +144,6 @@ public class AppLockImpl<T extends AppLockActivity> extends AppLock implements L
     @Override
     public void setTimeout(long timeout) {
         try {
-            File root = android.os.Environment.getExternalStorageDirectory();
             File dir = new File(root.getAbsolutePath() + "/" + STORAGE_DIRCTORY);
             SQLiteDatabase lollipinDB = SQLiteDatabase.openOrCreateDatabase(dir + "/" + DATABASE_NAME, null);
             lollipinDB.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "(key VARCHAR PRIMARY KEY, value VARCHAR);");

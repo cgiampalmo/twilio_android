@@ -195,9 +195,12 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
 
         // retrieve spinner value and add extension back on
         String selectedProfile = (String) prof + ".ovpn";
+        String destFilename = selectedProfile;
+
 
         // set where file is going on phone
-        File destFile = new File(Environment.getExternalStorageDirectory() + "/" + selectedProfile);
+       // File destFile = new File(Environment.getExternalStorageDirectory() + "/" + selectedProfile);
+        File destFile = new File(getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/" + destFilename); //ALF AM-603
 
         // start the transfer
         TransferObserver observer = transferUtility.download( Constants.KEY_PREFIX + "/" + selectedProfile, destFile, new DownloadListener(selectedProfile));
@@ -544,12 +547,13 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
                 // logout of
 
 
-                File tmpFile = new File(Environment.getExternalStorageDirectory() + "/" + key);
+                File tmpFile = new File(getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) +  "/" + key);
                 if (tmpFile.exists()) {
                     // track how many have completed download
                     // downloadCount--;
-                    Log.d("Glacier", "File confirmed: " + Environment.getExternalStorageDirectory() + "/" + key);
-                    moveFile(Environment.getExternalStorageDirectory().toString(), key, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString());
+                    //Log.d("Glacier", "File confirmed: " + getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/" + key);
+                    //moveFile(Environment.getExternalStorageDirectory().toString(), key, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString());
+                    //moveFile(getActivity().getApplicationContext().getExternalFilesDir(null).toString(), key, getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).toString());
                     exportFile(key);
                     //showDialogMessage("VPN Download", "Successfully downloaded profile: " + key);
                     dismiss();
@@ -560,7 +564,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
 
                 } else {
-                    Log.d("Glacier", "File unconfirmed: " + Environment.getExternalStorageDirectory() + "/" + key);
+                    Log.d("Glacier", "File unconfirmed: " + getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/" + key);
                 }
             }
         }

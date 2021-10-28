@@ -43,7 +43,7 @@ public class FileUtils {
 				final String type = split[0];
 
 				if ("primary".equalsIgnoreCase(type)) {
-					return Environment.getExternalStorageDirectory() + "/" + split[1];
+					return context.getExternalFilesDir(null) + "/" + split[1];
 				}
 
 				// TODO handle non-primary volumes
@@ -88,7 +88,7 @@ public class FileUtils {
 			List<String> segments = uri.getPathSegments();
 			String path;
 			if (FileBackend.getAuthority(context).equals(uri.getAuthority()) && segments.size() > 1 && segments.get(0).equals("external")) {
-				path = Environment.getExternalStorageDirectory().getAbsolutePath() + uri.getPath().substring(segments.get(0).length() + 1);
+				path = context.getExternalFilesDir(null).getAbsolutePath() + uri.getPath().substring(segments.get(0).length() + 1);
 			} else {
 				path = getDataColumn(context, uri, null, null);
 			}
