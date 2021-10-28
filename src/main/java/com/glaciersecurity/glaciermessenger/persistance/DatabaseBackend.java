@@ -468,12 +468,12 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 		if (oldVersion < 34 && newVersion >= 34) {
 			db.execSQL(CREATE_MESSAGE_TIME_INDEX);
 
-			final File oldPicturesDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/Conversations/");
-			final File oldFilesDirectory = new File(Environment.getExternalStorageDirectory() + "/Conversations/");
-			final File newFilesDirectory = new File(Environment.getExternalStorageDirectory() + "/Conversations/Media/Conversations Files/");
-			final File newVideosDirectory = new File(Environment.getExternalStorageDirectory() + "/Conversations/Media/Conversations Videos/");
+			final File oldPicturesDirectory = new File(dbcontext.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "/Conversations/");
+			final File oldFilesDirectory = new File(dbcontext.getExternalFilesDir(null),  "/Conversations/");
+			final File newFilesDirectory = new File(dbcontext.getExternalFilesDir(null), "/Conversations/Media/Conversations Files/");
+			final File newVideosDirectory = new File(dbcontext.getExternalFilesDir(null), "/Conversations/Media/Conversations Videos/");
 			if (oldPicturesDirectory.exists() && oldPicturesDirectory.isDirectory()) {
-				final File newPicturesDirectory = new File(Environment.getExternalStorageDirectory() + "/Conversations/Media/Conversations Images/");
+				final File newPicturesDirectory = new File(dbcontext.getExternalFilesDir(null), "/Conversations/Media/Conversations Images/");
 				newPicturesDirectory.getParentFile().mkdirs();
 				if (oldPicturesDirectory.renameTo(newPicturesDirectory)) {
 					Log.d(Config.LOGTAG, "moved " + oldPicturesDirectory.getAbsolutePath() + " to " + newPicturesDirectory.getAbsolutePath());

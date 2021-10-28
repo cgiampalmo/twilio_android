@@ -111,7 +111,7 @@ public class ImportBackupService extends Service {
             final ArrayList<BackupFile> backupFiles = new ArrayList<>();
             final Set<String> apps = new HashSet<>(Arrays.asList("Conversations", "Quicksy", getString(R.string.app_name)));
             for (String app : apps) {
-                final File directory = new File(FileBackend.getBackupDirectory(app));
+                final File directory = new File(FileBackend.getBackupDirectory(app, getApplicationContext()));
                 if (!directory.exists() || !directory.isDirectory()) {
                     Log.d(Config.LOGTAG, "directory not found: " + directory.getAbsolutePath());
                     continue;

@@ -139,8 +139,8 @@ public class FileBackend {
         if (Config.ONLY_INTERNAL_STORAGE) {
             return context.getFilesDir().getAbsolutePath() + "/" + type + "/";
         } else {
-            return getAppMediaDirectory(context) + context.getString(R.string.app_name) + " " + type + "/";
-            //return getAppMediaDirectory(context) + type + "/"; //ALF AM-603
+            //return getAppMediaDirectory(context) + context.getString(R.string.app_name) + " " + type + "/";
+            return getAppMediaDirectory(context) + type + "/"; //ALF AM-603
         }
     }
 
@@ -175,17 +175,18 @@ public class FileBackend {
     }
 
     public static String getAppMediaDirectory(Context context) {
-        return Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + context.getString(R.string.app_name) + "/Media/";
-        //return context.getExternalFilesDir(null).getAbsolutePath() + "/Media/"; //ALF AM-603 should include app name already
+        //return Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + context.getString(R.string.app_name) + "/Media/";
+        return context.getExternalFilesDir(null).getAbsolutePath() + "/Media/"; //ALF AM-603 should include app name already
         //return Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + context.getString(R.string.app_name) + "/Media/";
     }
 
     public static String getBackupDirectory(Context context) {
-        return getBackupDirectory(context.getString(R.string.app_name));
+        return getBackupDirectory(context.getString(R.string.app_name), context);
     }
 
-    public static String getBackupDirectory(String app) {  //ALF IOSM-603 need to revisit this if we enable backup, won't work with API 29+
-        return Environment.getExternalStorageDirectory().getAbsolutePath() + "/"+app+"/Backup/";
+    public static String getBackupDirectory(String app, Context context) {  //ALF IOSM-603 need to revisit this if we enable backup, won't work with API 29+
+        //return Environment.getExternalStorageDirectory().getAbsolutePath() + "/"+app+"/Backup/";
+        return context.getExternalFilesDir(null).getAbsolutePath() + "/Backup/";
     }
 
     /*public static String getConversationsLogsDirectory() {

@@ -624,8 +624,8 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
      */
     private void exportFile(String inputFile) {
         try {
-            File location = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            //File location = getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS); //ALF AM-603
+            //File location = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            File location = getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS); //ALF AM-603
             location = new File(location.toString() + "/" + inputFile);
             if (location.exists()) {
                 Log.d("Glacier", "File does exist!");
