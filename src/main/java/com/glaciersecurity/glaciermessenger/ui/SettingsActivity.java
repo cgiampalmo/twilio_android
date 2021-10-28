@@ -14,7 +14,6 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager;
 
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -46,7 +45,7 @@ import com.glaciersecurity.glaciermessenger.services.MemorizingTrustManager;
 import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
 import com.glaciersecurity.glaciermessenger.ui.util.Color;
 import com.glaciersecurity.glaciermessenger.utils.GeoHelper;
-import com.glaciersecurity.glaciermessenger.utils.TimeframeUtils;
+import com.glaciersecurity.glaciermessenger.utils.TimeFrameUtils;
 
 public class SettingsActivity extends XmppActivity implements OnSharedPreferenceChangeListener{
 	//OnSharedPreferenceChangeListener, LogoutListener {  //ALF AM-143 LogoutListener
@@ -152,7 +151,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 				if (choices[i] == 0) {
 					entries[i] = getString(R.string.never);
 				} else {
-					entries[i] = TimeframeUtils.resolve(this, 1000L * choices[i]);
+					entries[i] = TimeFrameUtils.resolve(this, 1000L * choices[i]);
 				}
 			}
 			automaticMessageDeletionList.setEntries(entries);

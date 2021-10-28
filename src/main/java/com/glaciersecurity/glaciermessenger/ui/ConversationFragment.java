@@ -13,7 +13,6 @@ import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
 import android.net.Uri;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import androidx.annotation.IdRes;
@@ -37,7 +36,6 @@ import android.text.TextWatcher;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -91,7 +89,6 @@ import com.glaciersecurity.glaciermessenger.entities.TwilioCall;
 import com.glaciersecurity.glaciermessenger.http.HttpDownloadConnection;
 import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
 import com.glaciersecurity.glaciermessenger.services.MessageArchiveService;
-import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.ui.adapter.MediaPreviewAdapter;
 import com.glaciersecurity.glaciermessenger.ui.adapter.MessageAdapter;
@@ -112,7 +109,6 @@ import com.glaciersecurity.glaciermessenger.ui.util.SendButtonTool;
 import com.glaciersecurity.glaciermessenger.ui.util.ShareUtil;
 import com.glaciersecurity.glaciermessenger.ui.util.ViewUtil;
 import com.glaciersecurity.glaciermessenger.ui.widget.EditMessage;
-import com.glaciersecurity.glaciermessenger.utils.AccountUtils;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.utils.GeoHelper;
 import com.glaciersecurity.glaciermessenger.utils.MessageUtils;
@@ -120,7 +116,7 @@ import com.glaciersecurity.glaciermessenger.utils.NickValidityChecker;
 import com.glaciersecurity.glaciermessenger.utils.Patterns;
 import com.glaciersecurity.glaciermessenger.utils.QuickLoader;
 import com.glaciersecurity.glaciermessenger.utils.StylingHelper;
-import com.glaciersecurity.glaciermessenger.utils.TimeframeUtils;
+import com.glaciersecurity.glaciermessenger.utils.TimeFrameUtils;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 import com.glaciersecurity.glaciermessenger.xmpp.chatstate.ChatState;
@@ -2030,7 +2026,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			if (durations[i] == -1) {
 				labels[i] = getString(R.string.until_further_notice);
 			} else {
-				labels[i] = TimeframeUtils.resolve(activity, 1000L * durations[i]);
+				labels[i] = TimeFrameUtils.resolve(activity, 1000L * durations[i]);
 			}
 		}
 		builder.setItems(labels, (dialog, which) -> {

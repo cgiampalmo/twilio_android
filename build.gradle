@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.1'
+        classpath 'com.android.tools.build:gradle:3.5.4'
         classpath 'com.amazonaws:aws-android-sdk-appsync-gradle-plugin:2.9.0'
         classpath 'com.google.gms:google-services:4.3.3'
         classpath 'com.android.support:multidex:1.0.3'
@@ -17,10 +17,10 @@ buildscript {
             'java'               : JavaVersion.VERSION_1_8,
             'androidGradlePlugin': '3.6.2',
             'googleServices'     : '3.2.1',
-            'compileSdk'         : 29,
+            'compileSdk'         : 30,
             'buildTools'         : '28.0.3',
             'minSdk'             : 16,
-            'targetSdk'          : 29,
+            'targetSdk'          : 30,
             'supportLibrary'     : '26.1.0',
             'firebase'           : '10.0.1',
             'retrofit'           : '2.0.0-beta4',
@@ -77,6 +77,8 @@ allprojects {
 configurations {
     compatImplementation
     messengerFreeCompatImplementation
+    cleanedAnnotations
+    compile.exclude group: 'org.jetbrains' , module:'annotations'
 }
 
 ext {
@@ -177,10 +179,10 @@ ext {
 }
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     defaultConfig {
         minSdkVersion 24
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 505
         versionName "3.3.5-RC12"
         archivesBaseName += "-$versionName"

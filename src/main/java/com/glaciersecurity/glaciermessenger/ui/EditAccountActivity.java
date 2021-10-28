@@ -258,6 +258,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private String extension = null;
     private String connection = noVPN;
 
+
 	protected IOpenVPNAPIService mService = null;
 
 	// track vpn downloads so we know when to stop
