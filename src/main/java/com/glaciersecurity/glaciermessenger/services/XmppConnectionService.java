@@ -334,7 +334,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 	};
 
-	private Presence.Status lastStatus = Presence.Status.ONLINE; //AM-642
+	private Presence.Status lastStatus = Presence.Status.OFFLINE; //AM-642
 
 	//Ui callback listeners
 	private final Set<OnConversationUpdate> mOnConversationUpdates = Collections.newSetFromMap(new WeakHashMap<OnConversationUpdate, Boolean>());
@@ -1636,7 +1636,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 		if (message.getEncryption() != Message.ENCRYPTION_NONE && conversation.getMode() == Conversation.MODE_MULTI && conversation.isPrivateAndNonAnonymous()) {
 			if (conversation.setAttribute(Conversation.ATTRIBUTE_FORMERLY_PRIVATE_NON_ANONYMOUS, true)) {
-				databaseBackend.updateConversation(conversation);
+				updateConversation(conversation);
 			}
 		}
 
@@ -2221,7 +2221,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					conversation.setMode(Conversation.MODE_SINGLE);
 					conversation.setContactJid(jid.asBareJid());
 				}
-				databaseBackend.updateConversation(conversation);
+				updateConversation(conversation);
 				loadMessagesFromDb = conversation.messagesLoaded.compareAndSet(true, false);
 			} else {
 				String conversationName;
@@ -2835,7 +2835,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					}
 					if (!joinJid.equals(conversation.getJid())) {
 						conversation.setContactJid(joinJid);
-						databaseBackend.updateConversation(conversation);
+						updateConversation(conversation);
 					}
 
 					if (mucOptions.mamSupport()) {
@@ -3001,7 +3001,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		if (!full.equals(conversation.getJid())) {
 			Log.d(Config.LOGTAG, "nick changed. updating");
 			conversation.setContactJid(full);
-			databaseBackend.updateConversation(conversation);
+			updateConversation(conversation);
 		}
 
 		final Bookmark bookmark = conversation.getBookmark();
@@ -3023,7 +3023,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				final MucOptions options = conversation.getMucOptions();
 				final Jid joinJid = options.createJoinJid(nickname);
 				conversation.setContactJid(joinJid);
-				databaseBackend.updateConversation(conversation);
+				updateConversation(conversation);
 			}
 		}
 		for (Account account : getAccounts()) {
@@ -3075,7 +3075,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			sendPresencePacket(account, packet);
 		} else {
 			conversation.setContactJid(joinJid);
-			databaseBackend.updateConversation(conversation);
+			updateConversation(conversation);
 			if (conversation.getAccount().getStatus() == Account.State.ONLINE) {
 				Bookmark bookmark = conversation.getBookmark();
 				if (bookmark != null) {
@@ -3874,20 +3874,22 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					}
 					//AM-642
 					Element displayel = vCard != null ? vCard.findChild("NICKNAME") : null;
-					String displayname = displayel.getContent();
-					Jid avatarJid = avatar.owner;
-					if (account.getDisplayName() == null) {
-						account.setDisplayName(displayname);
-						setRoomsNickname(displayname, false, null);
-						databaseBackend.updateAccount(account);
-						updateConversationUi();
-						updateAccountUi();
-					} else if (displayname != null && avatarJid != null && account.getJid().asBareJid().equals(avatarJid.asBareJid()) && !account.getDisplayName().equals(displayname)) {
-						account.setDisplayName(displayname);
-						setRoomsNickname(displayname, false, null);
-						databaseBackend.updateAccount(account);
-						updateConversationUi();
-						updateAccountUi();
+					if (displayel != null) {
+						String displayname = displayel.getContent();
+						Jid avatarJid = avatar.owner;
+						if (account.getDisplayName() == null) {
+							account.setDisplayName(displayname);
+							setRoomsNickname(displayname, false, null);
+							databaseBackend.updateAccount(account);
+							updateConversationUi();
+							updateAccountUi();
+						} else if (displayname != null && avatarJid != null && account.getJid().asBareJid().equals(avatarJid.asBareJid()) && !account.getDisplayName().equals(displayname)) {
+							account.setDisplayName(displayname);
+							setRoomsNickname(displayname, false, null);
+							databaseBackend.updateAccount(account);
+							updateConversationUi();
+							updateAccountUi();
+						}
 					}
 				}
 			}
@@ -3895,12 +3897,28 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	//AM-642
-	public void getVCard(Account account) {
-		Avatar avatar = fileBackend.getStoredPepAvatar(account.getAvatar());
-		if (avatar != null) {
-			avatar.owner = account.getJid().asBareJid();
-			fetchAvatarVcard(account, avatar, null);
-		}
+	public void getVCardForName(Account account) {
+		IqPacket packet = this.mIqGenerator.retrieveVcardAccount(account);
+		this.sendIqPacket(account, packet, new OnIqPacketReceived() {
+			@Override
+			public void onIqPacketReceived(Account account, IqPacket packet) {
+				if (packet.getType() == IqPacket.TYPE.RESULT) {
+					Element vCard = packet.findChild("vCard", "vcard-temp");
+					Element displayel = vCard != null ? vCard.findChild("NICKNAME") : null;
+					if (displayel != null) {
+						String displayname = displayel.getContent();
+						if (displayname != null &&
+								(account.getDisplayName() == null || !account.getDisplayName().equals(displayname))) {
+							account.setDisplayName(displayname);
+							setRoomsNickname(displayname, false, null);
+							databaseBackend.updateAccount(account);
+							updateConversationUi();
+							updateAccountUi();
+						}
+					}
+				}
+			}
+		});
 	}
 
 	public void checkForAvatar(Account account, final UiCallback<Avatar> callback) {
@@ -4465,7 +4483,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		sendPresencePacket(account, packet);
 
 		if (getVcard) { //AM-642
-			getVCard(account);
+			getVCardForName(account);
 		}
 	}
 
