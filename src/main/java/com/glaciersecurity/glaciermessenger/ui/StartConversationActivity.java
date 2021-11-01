@@ -497,6 +497,7 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 			Toast.makeText(this, R.string.invalid_jid, Toast.LENGTH_SHORT).show();
 			return;
 		}
+
 		//ALF AM-174
 		if (bookmark.getBookmarkName().startsWith("#")) {
 			bookmark.setBookmarkName(bookmark.getBookmarkName().substring(1));
@@ -511,16 +512,24 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		switchToConversation(conversation);
 
 		//ALF AM-78, AM-84 should only send join group message if bookmark doesn't already exist.
+		boolean changed = false; //AM-642
 		boolean found = false;
 		for (Bookmark existbookmark : bookmark.getAccount().getBookmarks()) {
 			if (existbookmark.getJid().toString().equals(bookmark.getJid().asBareJid().toString())) {
 				found = true;
+				if (existbookmark.autojoin() != bookmark.autojoin()) { //AM-642
+					changed = true;
+				}
 			}
 		}
 		if (!found) {
 			bookmark.getAccount().getBookmarks().add(bookmark);
 			xmppConnectionService.pushBookmarks(bookmark.getAccount());
 			xmppConnectionService.sendJoiningGroupMessage(conversation, new ArrayList(), true);
+		} else if (changed) { //AM-642
+			bookmark.getAccount().getBookmarks().remove(bookmark);
+			bookmark.getAccount().getBookmarks().add(bookmark);
+			xmppConnectionService.pushBookmarks(bookmark.getAccount());
 		}
 	}
 

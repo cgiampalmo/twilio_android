@@ -3,6 +3,8 @@ package com.glaciersecurity.glaciermessenger.xmpp;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.security.KeyChain;
 import androidx.annotation.NonNull;
@@ -217,6 +219,10 @@ public class XmppConnection implements Runnable {
 				}
 				if (nextStatus == Account.State.ONLINE) {
 					this.attempt = 0;
+					//AM-642
+					new Handler(Looper.getMainLooper()).postDelayed(() -> {
+						mXmppConnectionService.getVCardForName(account);
+					}, 5000);
 				}
 				account.setStatus(nextStatus);
 			} else {

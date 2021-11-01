@@ -53,6 +53,7 @@ import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
 import com.glaciersecurity.glaciermessenger.entities.Contact;
+import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.entities.ListItem;
 import com.glaciersecurity.glaciermessenger.xml.Tag;
 import com.google.android.material.textfield.TextInputLayout;
@@ -310,6 +311,21 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 	private String currentProfileUUID = null;
 	private String currentProfileName = null;
+
+	//AM-642
+	private UiCallback<Conversation> renameCallback = new UiCallback<Conversation>() {
+		@Override
+		public void success(Conversation object) {}
+
+		@Override
+		public void error(final int errorCode, Conversation object) {
+			String msg = getString(errorCode);
+			runOnUiThread(() -> Toast.makeText(EditAccountActivity.this, msg, Toast.LENGTH_LONG).show());
+		}
+
+		@Override
+		public void userInputRequried(PendingIntent pi, Conversation object) {}
+	};
 
 	public void refreshUiReal() {
 		//invalidateOptionsMenu();
@@ -685,7 +701,8 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				account.setDisplayName(displayname);
 				xmppConnectionService.databaseBackend.updateAccount(account);
 				xmppConnectionService.publishDisplayName(account);
-
+				//AM-642
+				xmppConnectionService.setRoomsNickname(displayname, true, renameCallback);
 			}
 			return true;
 		}
