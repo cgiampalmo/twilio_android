@@ -190,6 +190,14 @@ public class IqGenerator extends AbstractGenerator {
 		return packet;
 	}
 
+	//AM-642
+	public IqPacket retrieveVcardAccount(final Account account) {
+		final IqPacket packet = new IqPacket(IqPacket.TYPE.GET);
+		packet.setTo(account.getJid().asBareJid());
+		packet.addChild("vCard", "vcard-temp");
+		return packet;
+	}
+
 	public IqPacket retrieveAvatarMetaData(final Jid to) {
 		final IqPacket packet = retrieve("urn:xmpp:avatar:metadata", null);
 		if (to != null) {
