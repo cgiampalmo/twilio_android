@@ -61,6 +61,7 @@ import com.glaciersecurity.glaciermessenger.utils.FileUtils;
 import com.glaciersecurity.glaciermessenger.utils.FileWriterException;
 import com.glaciersecurity.glaciermessenger.utils.MimeUtils;
 import com.glaciersecurity.glaciermessenger.xmpp.pep.Avatar;
+import com.google.common.io.ByteStreams;
 
 public class FileBackend {
 
@@ -176,7 +177,7 @@ public class FileBackend {
 
     public static String getAppMediaDirectory(Context context) {
         //return Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + context.getString(R.string.app_name) + "/Media/";
-        return context.getExternalFilesDir(null).getAbsolutePath() + "/Media/"; //ALF AM-603 should include app name already
+-        return context.getExternalFilesDir(null).getAbsolutePath() + "/Media/"; //ALF AM-603 should include app name already
         //return Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + context.getString(R.string.app_name) + "/Media/";
     }
 
@@ -610,47 +611,57 @@ public class FileBackend {
     }
 
     private void copyFileToPrivateStorage(File file, Uri uri) throws FileCopyException {
-        Log.d(Config.LOGTAG, "copy file (" + uri.toString() + ") to private storage " + file.getAbsolutePath());
+        android.util.Log.d(Config.LOGTAG, "copy file (" + uri.toString() + ") to private storage " + file.getAbsolutePath());
         file.getParentFile().mkdirs();
-        OutputStream os = null;
-        InputStream is = null;
         try {
             file.createNewFile();
-            os = new FileOutputStream(file);
-            is = mXmppConnectionService.getContentResolver().openInputStream(uri);
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = is.read(buffer)) > 0) {
-                try {
-                    os.write(buffer, 0, length);
-                } catch (IOException e) {
-                    throw new FileWriterException();
-                }
+        } catch (IOException e) {
+            throw new FileCopyException(R.string.error_unable_to_create_temporary_file);
+        }
+        try (final OutputStream os = new FileOutputStream(file);
+             final InputStream is = mXmppConnectionService.getContentResolver().openInputStream(uri)) {
+            if (is == null) {
+                throw new FileCopyException(R.string.error_file_not_found);
+            }
+            try {
+                ByteStreams.copy(is, os);
+            } catch (IOException e) {
+                throw new FileWriterException();
             }
             try {
                 os.flush();
             } catch (IOException e) {
                 throw new FileWriterException();
             }
-        } catch (FileNotFoundException e) {
+        } catch (final FileNotFoundException e) {
+            cleanup(file);
             throw new FileCopyException(R.string.error_file_not_found);
-        } catch (FileWriterException e) {
+        } catch (final FileWriterException e) {
+            cleanup(file);
             throw new FileCopyException(R.string.error_unable_to_create_temporary_file);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (final SecurityException e) {
+            cleanup(file);
+            throw new FileCopyException(R.string.error_security_exception);
+        } catch (final IOException e) {
+            cleanup(file);
             throw new FileCopyException(R.string.error_io_exception);
-        } finally {
-            close(os);
-            close(is);
+        }
+    }
+
+    private static void cleanup(final File file) {
+        try {
+            file.delete();
+        } catch (Exception e) {
+
         }
     }
 
     public void copyFileToPrivateStorage(Message message, Uri uri, String type) throws FileCopyException {
         String mime = MimeUtils.guessMimeTypeFromUriAndMime(mXmppConnectionService, uri, type);
-        Log.d(Config.LOGTAG, "copy " + uri.toString() + " to private storage (mime=" + mime + ")");
+        android.util.Log.d(Config.LOGTAG, "copy " + uri.toString() + " to private storage (mime=" + mime + ")");
         String extension = MimeUtils.guessExtensionFromMimeType(mime);
         if (extension == null) {
-            Log.d(Config.LOGTAG, "extension from mime type was null");
+            android.util.Log.d(Config.LOGTAG, "extension from mime type was null");
             extension = getExtensionFromUri(uri);
         }
         if ("ogg".equals(extension) && type != null && type.startsWith("audio/")) {

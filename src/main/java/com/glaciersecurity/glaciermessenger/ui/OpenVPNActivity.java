@@ -46,8 +46,11 @@ public class OpenVPNActivity extends XmppActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        //Save the fragment's instance
-        getSupportFragmentManager().putFragment(outState, "openVpnFragment", openVPNFragment);
+
+//        if (openVPNFragment != null) {
+//            //Save the fragment's instance
+//            getSupportFragmentManager().putFragment(outState, "openVpnFragment", openVPNFragment);
+//        }
     }
 @Override
 protected void onStart() {

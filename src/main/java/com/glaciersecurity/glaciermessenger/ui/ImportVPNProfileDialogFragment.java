@@ -77,6 +77,7 @@ import java.util.Locale;
 public class ImportVPNProfileDialogFragment extends DialogFragment {
     private FileNotFoundException mException;
 
+    private Context mContext;
     private final String REPLACEMENT_ORG_ID = "<org_id>";
     private final int VPN_STATE_UNKNOWN     = 0;
     private final int VPN_STATE_NOPROCESS   = 1;
@@ -110,6 +111,12 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
     private Handler mHandler;
 
     //private ProgressDialog waitDialog;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
+    }
 
     static ImportVPNProfileDialogFragment newInstance(String profileNames) {
         ImportVPNProfileDialogFragment f = new ImportVPNProfileDialogFragment();
@@ -167,7 +174,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
     private void getCognitoInfo() {
         //ALF AM-388 get account from database if exists
         Account firstacct = null;
-        DatabaseBackend databaseBackend = DatabaseBackend.getInstance(getActivity().getApplicationContext());
+        DatabaseBackend databaseBackend = DatabaseBackend.getInstance(mContext);
         for (Account account : databaseBackend.getAccounts()) {
             CognitoAccount cacct = databaseBackend.getCognitoAccount(account);
             if (cacct != null) {
@@ -200,7 +207,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
 
         // set where file is going on phone
        // File destFile = new File(Environment.getExternalStorageDirectory() + "/" + selectedProfile);
-        File destFile = new File(getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/" + destFilename); //ALF AM-603
+        File destFile = new File(mContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/" + destFilename); //ALF AM-603
 
         // start the transfer
         TransferObserver observer = transferUtility.download( Constants.KEY_PREFIX + "/" + selectedProfile, destFile, new DownloadListener(selectedProfile));
@@ -546,8 +553,12 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
             if (newState == TransferState.COMPLETED) {
                 // logout of
 
+                if (mContext == null){
+                    Log.d("Glacier", "File unconfirmed: context == null");
+                    return;
+                }
 
-                File tmpFile = new File(getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) +  "/" + key);
+                File tmpFile = new File(mContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) +  "/" + key);
                 if (tmpFile.exists()) {
                     // track how many have completed download
                     // downloadCount--;
@@ -564,7 +575,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
                     getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
 
                 } else {
-                    Log.d("Glacier", "File unconfirmed: " + getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/" + key);
+                    Log.d("Glacier", "File unconfirmed: " + mContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/" + key);
                 }
             }
         }
@@ -629,7 +640,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
     private void exportFile(String inputFile) {
         try {
             //File location = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            File location = getActivity().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS); //ALF AM-603
+            File location = mContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS); //ALF AM-603
             location = new File(location.toString() + "/" + inputFile);
             if (location.exists()) {
                 Log.d("Glacier", "File does exist!");
