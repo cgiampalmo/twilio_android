@@ -3877,7 +3877,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					if (displayel != null) {
 						String displayname = displayel.getContent();
 						Jid avatarJid = avatar.owner;
-						if (account.getDisplayName() == null) {
+						if (account.getDisplayName() == null && packet.getFrom() != null && account.getJid().asBareJid().equals(packet.getFrom().asBareJid())) {
 							account.setDisplayName(displayname);
 							setRoomsNickname(displayname, false, null);
 							databaseBackend.updateAccount(account);
@@ -3905,7 +3905,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				if (packet.getType() == IqPacket.TYPE.RESULT) {
 					Element vCard = packet.findChild("vCard", "vcard-temp");
 					Element displayel = vCard != null ? vCard.findChild("NICKNAME") : null;
-					if (displayel != null) {
+					if (displayel != null && packet.getFrom() != null && account.getJid().asBareJid().equals(packet.getFrom().asBareJid())) {
 						String displayname = displayel.getContent();
 						if (displayname != null &&
 								(account.getDisplayName() == null || !account.getDisplayName().equals(displayname))) {
