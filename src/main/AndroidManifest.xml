@@ -84,7 +84,6 @@
         android:appCategory="social"
         android:icon="@mipmap/glacier_new_chat_launcher"
         android:roundIcon="@mipmap/glacier_new_chat_launcher_round"
-        android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="false"
         android:label="Glacier"
         android:largeHeap="true"
