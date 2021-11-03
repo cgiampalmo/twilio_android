@@ -177,7 +177,7 @@ public class FileBackend {
 
     public static String getAppMediaDirectory(Context context) {
         //return Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + context.getString(R.string.app_name) + "/Media/";
--        return context.getExternalFilesDir(null).getAbsolutePath() + "/Media/"; //ALF AM-603 should include app name already
+        return context.getExternalFilesDir(null).getAbsolutePath() + "/Media/"; //ALF AM-603 should include app name already
         //return Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + context.getString(R.string.app_name) + "/Media/";
     }
 
@@ -224,7 +224,7 @@ public class FileBackend {
     }
 
     private static String getTakePhotoPath(Context context) { //ALF AM-603 added context and new call
-        return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/Camera/";
+        return context.getExternalFilesDir(Environment.DIRECTORY_DCIM) + "/Camera/";
         //return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) + "/Camera/";
     }
 
