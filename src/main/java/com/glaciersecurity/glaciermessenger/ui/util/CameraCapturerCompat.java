@@ -26,14 +26,15 @@ public class CameraCapturerCompat {
 
     private CameraCapturer camera1Capturer;
     private Camera2Capturer camera2Capturer;
-    private Pair<CameraCapturer.CameraSource, String> frontCameraPair;
-    private Pair<CameraCapturer.CameraSource, String> backCameraPair;
+    private String frontCamera;
+    private String backCamera;
     private CameraManager cameraManager;
+    //AM-650 changed all camera and cameraSource references
 
-    public CameraCapturerCompat(Context context, CameraCapturer.CameraSource cameraSource) {
+    public CameraCapturerCompat(Context context, String cameraSource) {
         if (Camera2Capturer.isSupported(context) && isLollipopApiSupported()) {
             cameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-            setCameraPairs(context);
+            setCameras(context);
             Camera2Capturer.Listener camera2Listener =
                     new Camera2Capturer.Listener() {
                         @Override
@@ -53,34 +54,33 @@ public class CameraCapturerCompat {
                         }
                     };
             camera2Capturer =
-                    new Camera2Capturer(context, getCameraId(cameraSource), camera2Listener);
+                    new Camera2Capturer(context, cameraSource, camera2Listener);
         } else {
             camera1Capturer = new CameraCapturer(context, cameraSource);
         }
     }
 
-    public CameraCapturer.CameraSource getCameraSource() {
+    public String getCameraSource() {
         if (usingCamera1()) {
-            return camera1Capturer.getCameraSource();
+            return camera1Capturer.getCameraId();
         } else {
-            return getCameraSource(camera2Capturer.getCameraId());
+            return camera2Capturer.getCameraId();
         }
     }
 
     public void switchCamera() {
         if (usingCamera1()) {
-            camera1Capturer.switchCamera();
+            if (camera1Capturer.getCameraId() == frontCamera && backCamera != null) {
+                camera1Capturer.switchCamera(backCamera);
+            } else if (frontCamera != null) {
+                camera1Capturer.switchCamera(frontCamera);
+            }
         } else {
             try {
-
-
-                CameraCapturer.CameraSource cameraSource =
-                        getCameraSource(camera2Capturer.getCameraId());
-
-                if (cameraSource == CameraCapturer.CameraSource.FRONT_CAMERA) {
-                    camera2Capturer.switchCamera(backCameraPair.second);
-                } else {
-                    camera2Capturer.switchCamera(frontCameraPair.second);
+                if (camera2Capturer.getCameraId() == frontCamera && backCamera != null) {
+                    camera2Capturer.switchCamera(backCamera);
+                } else if (frontCamera != null){
+                    camera2Capturer.switchCamera(frontCamera);
                 }
             }
             catch(Exception e){
@@ -109,34 +109,17 @@ public class CameraCapturerCompat {
         return camera1Capturer != null;
     }
 
-    private void setCameraPairs(Context context) {
+    private void setCameras(Context context) {
         Camera2Enumerator camera2Enumerator = new Camera2Enumerator(context);
         for (String cameraId : camera2Enumerator.getDeviceNames()) {
             if (isCameraIdSupported(cameraId)) {
                 if (camera2Enumerator.isFrontFacing(cameraId)) {
-                    frontCameraPair =
-                            new Pair<>(CameraCapturer.CameraSource.FRONT_CAMERA, cameraId);
+                    frontCamera = cameraId;
                 }
                 if (camera2Enumerator.isBackFacing(cameraId)) {
-                    backCameraPair = new Pair<>(CameraCapturer.CameraSource.BACK_CAMERA, cameraId);
+                    backCamera = cameraId;
                 }
             }
-        }
-    }
-
-    private String getCameraId(CameraCapturer.CameraSource cameraSource) {
-        if (frontCameraPair.first == cameraSource) {
-            return frontCameraPair.second;
-        } else {
-            return backCameraPair.second;
-        }
-    }
-
-    private CameraCapturer.CameraSource getCameraSource(String cameraId) {
-        if (frontCameraPair.second.equals(cameraId)) {
-            return frontCameraPair.first;
-        } else {
-            return backCameraPair.first;
         }
     }
 
