@@ -3900,6 +3900,26 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							databaseBackend.updateAccount(account);
 							updateConversationUi();
 							updateAccountUi();
+						} else if (displayname != null && avatarJid != null && !account.getJid().asBareJid().equals(avatarJid.asBareJid())) {
+							if (avatarJid.isBareJid()) {
+								Contact contact = account.getRoster().getContact(avatarJid);
+								if (contact.getDisplayName() == null || !contact.getDisplayName().equals(displayname)) {
+									syncRoster(account);
+									updateRosterUi();
+								}
+							} else {
+								Conversation conversation = find(account, avatarJid.asBareJid());
+								if (conversation != null && conversation.getMode() == Conversation.MODE_MULTI) {
+									MucOptions.User user = conversation.getMucOptions().findUserByFullJid(avatar.owner);
+									if (user != null && user.getRealJid() != null) {
+										Contact contact = account.getRoster().getContact(user.getRealJid());
+										if (contact.getDisplayName() == null || !contact.getDisplayName().equals(displayname)) {
+											syncRoster(account);
+											updateRosterUi();
+										}
+									}
+								}
+							}
 						}
 					}
 				}

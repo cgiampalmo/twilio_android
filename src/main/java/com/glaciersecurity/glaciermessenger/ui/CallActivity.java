@@ -40,8 +40,6 @@ import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.PhoneHelper;
 import com.google.android.material.snackbar.Snackbar;
-import com.twilio.audioswitch.selection.AudioDevice;
-import com.twilio.audioswitch.selection.AudioDeviceSelector;
 
 import kotlin.Unit;
 import rocks.xmpp.addr.Jid;

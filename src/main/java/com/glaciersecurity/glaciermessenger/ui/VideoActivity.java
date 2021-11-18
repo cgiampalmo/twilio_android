@@ -44,22 +44,16 @@ import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.makeramen.roundedimageview.RoundedImageView;
-import com.twilio.audioswitch.selection.AudioDevice;
-import com.twilio.audioswitch.selection.AudioDeviceSelector;
+import com.twilio.audioswitch.AudioDevice;
+import com.twilio.audioswitch.AudioSwitch;
+import com.twilio.video.Camera2Capturer;
 import com.twilio.video.CameraCapturer;
-import com.twilio.video.CameraCapturer.CameraSource;
 import com.twilio.video.EncodingParameters;
 import com.twilio.video.LocalAudioTrack;
 import com.twilio.video.LocalVideoTrack;
 import com.twilio.video.RemoteParticipant;
-import com.twilio.video.RemoteVideoTrack;
-import com.twilio.video.RemoteVideoTrackPublication;
 import com.twilio.video.Room;
-import com.twilio.video.VideoRenderer;
-import com.twilio.video.VideoTrack;
 import com.twilio.video.VideoView;
-
-import org.whispersystems.libsignal.ecc.DjbECPrivateKey;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -69,6 +63,12 @@ import java.util.List;
 
 import kotlin.Unit; //AM-440
 import rocks.xmpp.addr.Jid;
+
+//AM-650
+import tvi.webrtc.Camera2Enumerator;
+import tvi.webrtc.CameraEnumerator;
+import tvi.webrtc.VideoSink;
+import tvi.webrtc.Camera1Enumerator;
 
 
 public class VideoActivity extends XmppActivity implements SensorEventListener, PhonecallReceiver.PhonecallReceiverListener, TwilioCallListener {
@@ -151,11 +151,15 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
      * Audio management
      */
     private int savedVolumeControlStream;
-    private AudioDeviceSelector audioDeviceSelector; //AM-440 Audio device mgmt
+    private AudioSwitch audioDeviceSelector; //AM-440 Audio device mgmt
 
     private AudioFocusRequest focusRequest; //ALF AM-446
 
-    private VideoRenderer localVideoView;
+    //AM-650
+    private VideoSink localVideoView;
+    private CameraEnumerator camor;
+    private String frontCam;
+    private String rearCam;
     //private boolean disconnectedFromOnDestroy;
 
     private PhonecallReceiver phonecallReceiver; //ALF AM-474
@@ -218,7 +222,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
         setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
 
         //AM-440 Setup audio device management
-        audioDeviceSelector = new AudioDeviceSelector(getApplicationContext());
+        audioDeviceSelector = new AudioSwitch(getApplicationContext());
 
         //CMG AM-419
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -334,7 +338,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                     false,
                     cameraCapturerCompat.getVideoCapturer(),
                     LOCAL_VIDEO_TRACK_NAME);
-            localVideoTrack.addRenderer(localVideoView);
+            localVideoTrack.addSink(localVideoView);
 
             /*
              * If connected to a Room then share the local video track.
@@ -520,7 +524,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
             //cleanup CallParticipant views when minimizing
             callParticipantsLayout.update(Collections.emptyList());
             if (localVideoTrack != null) {
-                localVideoTrack.removeRenderer(thumbnailVideoView);
+                localVideoTrack.removeSink(thumbnailVideoView);
             }
         }
 
@@ -564,16 +568,32 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
                 cameraCapturerCompat.getVideoCapturer(),
                 LOCAL_VIDEO_TRACK_NAME);
         //AM-450 change local from primary to thumbnail
-        localVideoTrack.addRenderer(thumbnailVideoView);
+        localVideoTrack.addSink(thumbnailVideoView);
         localVideoView = thumbnailVideoView;
         thumbnailVideoView.setMirror(cameraCapturerCompat.getCameraSource() ==
-                CameraSource.FRONT_CAMERA);
+                frontCam); //changed for AM-650
     }
 
-    private CameraSource getAvailableCameraSource() {
-        return (CameraCapturer.isSourceAvailable(CameraSource.FRONT_CAMERA)) ?
-                (CameraSource.FRONT_CAMERA) :
-                (CameraSource.BACK_CAMERA);
+    private String getAvailableCameraSource() { //changed for AM-650
+        if (camor == null) {
+            if (Camera2Capturer.isSupported(this)) {
+                camor = new Camera2Enumerator(this);
+            } else {
+                camor = new Camera1Enumerator();
+            }
+            String[] camSources = camor.getDeviceNames();
+            for (String camSource : camSources) {
+                if (camor.isFrontFacing(camSource)) {
+                    frontCam = camSource;
+                } else if (camor.isBackFacing(camSource)) {
+                    rearCam = camSource;
+                }
+            }
+        }
+        return frontCam != null ? frontCam : rearCam;
+        //return (CameraCapturer.isSourceAvailable(CameraSource.FRONT_CAMERA)) ?
+                //(CameraSource.FRONT_CAMERA) :
+                //(CameraSource.BACK_CAMERA);
     }
 
     /*
@@ -763,6 +783,7 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     }
 
     //ALF AM-420
+    @SuppressLint("WrongConstant")
     private void handleDisconnect() {
         endingCall = true;
         SoundPoolManager.getInstance(VideoActivity.this).playDisconnect();
@@ -788,10 +809,10 @@ public class VideoActivity extends XmppActivity implements SensorEventListener, 
     private View.OnClickListener switchCameraClickListener() {
         return v -> {
             if (cameraCapturerCompat != null) {
-                CameraSource cameraSource = cameraCapturerCompat.getCameraSource();
+                String cameraSource = cameraCapturerCompat.getCameraSource();
                 cameraCapturerCompat.switchCamera();
                 if (thumbnailVideoView.getVisibility() == View.VISIBLE) {
-                    thumbnailVideoView.setMirror(cameraSource == CameraSource.BACK_CAMERA);
+                    thumbnailVideoView.setMirror(cameraSource == rearCam);
                     thumbnailVideoView.bringToFront();
                 }
             }
