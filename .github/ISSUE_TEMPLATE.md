@@ -1,18 +1,16 @@
 #### General information
 
-* **Version:** eg 1.21.0
-* **Device:** eg Google Nexus 5
-* **Android Version:** eg Android 6.0 Stock or Android 5.1 Cyanogenmod
-* **Server name:** eg conversations.im, jabber.at or self hosted
-* **Server software:** ejabberd 16.04 or prosody 0.10 (if known)
-* **Installed server modules:** eg Stream Managment, CSI, MAM
-* **Conversations source:** eg PlayStore, PlayStore Beta Channel, F-Droid, self build (latest HEAD)
+* **Version:** eg 3.3.5
+* **Device:** eg Google Pixel 6
+* **Android Version:** eg Android 12.0 Stock, Samsung One UI, or AltOS
 
 
 #### Steps to reproduce
 
 1. …
 2. …
+
+#### Screenshots
 
 
 #### Expected result
@@ -27,9 +25,9 @@ What do you see instead?
 
 #### Debug output
 
-Please post the output of adb logcat. The log should begin with the start of Conversations and include all the
+Please post the output of adb logcat. The log should begin with the start of Glacier and include all the
 steps it takes to reproduce the problem.
 
 ````
-adb logcat -s conversations
+adb logcat -s glacier
 ````
