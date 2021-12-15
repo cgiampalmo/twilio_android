@@ -141,6 +141,8 @@ import com.glaciersecurity.glaciermessenger.utils.XmppUri;
 import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
 import com.glaciersecurity.glaciermessenger.xmpp.OnKeyStatusUpdated; //ALF AM-60
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
+import com.twilio.audioswitch.AudioDevice;
+import com.twilio.audioswitch.AudioSwitch;
 import com.twilio.video.LocalAudioTrack;
 import com.twilio.video.LocalVideoTrack;
 import com.twilio.video.RemoteAudioTrack;
@@ -153,6 +155,7 @@ import com.twilio.video.RemoteVideoTrackPublication;
 import com.twilio.video.Room;
 import com.twilio.video.TwilioException;
 
+import kotlin.Unit;
 import rocks.xmpp.addr.Jid;
 
 import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.customIcon;
@@ -1209,22 +1212,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				.setNegativeButton(android.R.string.no, null).show();
 	}
 
-//	/**
-//	 * Display confirmation window before making a call (AM-549)
-//	 * DJFDJF
-//	 */
-//	private void showCallingConfirmationDialog() {
-//		new android.app.AlertDialog.Builder(this)
-//				.setTitle("Call Confirmation")
-//				.setMessage("Please confirm that you want to make a Glacier call.")
-//				.setPositiveButton(R.string.continue_button_label, new DialogInterface.OnClickListener() {
-//					public void onClick(DialogInterface dialog, int whichButton) {
-//						makeCall();
-//					}})
-//				.setNegativeButton(R.string.cancel, null).show();
-//	}
-
-
 	//ALF AM-143
 	private void doLogout() {
 		LogoutListener activity = (LogoutListener) this;
@@ -1236,12 +1223,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	public void onLogout() {
 		//AM-517
 		getPreferences().edit().putBoolean("use_core_connect", false).apply();
-
-		//ALF AM-228, AM-202 store account in memory in case using same account
-		//Account curAccount = xmppConnectionService.getAccounts().get(0);
-		//if (curAccount != null) {
-		//	xmppConnectionService.setExistingAccount(curAccount);
-		//}
 
 		// clear all conversations
 		List<Conversation> conversations = xmppConnectionService.getConversations();
@@ -2030,6 +2011,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		}
 
 		returnToCall.setVisibility(View.GONE);
+		mCallManager.stopCallAudio();
 
 		final Intent intent = new Intent(this, XmppConnectionService.class);
 		intent.setAction(XmppConnectionService.ACTION_FINISH_CALL);
@@ -2038,27 +2020,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		mCallManager.setCallListener(null);
 
 	}
-
-	//AM-558 moved
-	/*@Override
-	public void handleAddRemoteParticipantVideo(RemoteVideoTrack videoTrack) {
-
-	}
-
-	@Override
-	public void handleRemoveRemoteParticipantVideo(RemoteVideoTrack videoTrack) {
-
-	}
-
-	@Override
-	public void handleVideoTrackEnabled() {
-
-	}
-
-	@Override
-	public void handleVideoTrackDisabled() {
-
-	}*/
 
 	@Override
 	public void handleConnected(Room room) {
@@ -2073,12 +2034,13 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	@Override
 	public void handleConnectFailure() {
 		returnToCall.setVisibility(View.GONE);
-
+		mCallManager.stopCallAudio();
 	}
 
 	@Override
 	public void endListening() {
 		returnToCall.setVisibility(View.GONE);
+		mCallManager.stopCallAudio();
 		mCallManager.handleDisconnect();
 		mCallManager.setCallListener(null);
 

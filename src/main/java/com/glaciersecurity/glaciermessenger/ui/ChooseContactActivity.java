@@ -79,6 +79,17 @@ public class ChooseContactActivity extends AbstractSearchableListItemSelectActiv
         return intent;
     }
 
+    //AM-569
+    public static Intent createForCall(Activity activity, List<String> contacts, String account) {
+        final Intent intent = new Intent(activity, ChooseContactActivity.class);
+        intent.putExtra(EXTRA_FILTERED_CONTACTS, contacts.toArray(new String[contacts.size()]));
+        //intent.putExtra(EXTRA_CONVERSATION, conversation.getUuid());
+        intent.putExtra(EXTRA_SELECT_MULTIPLE, true);
+        intent.putExtra(EXTRA_SHOW_ENTER_JID, true);
+        intent.putExtra(EXTRA_ACCOUNT, account);
+        return intent;
+    }
+
     public static List<Jid> extractJabberIds(Intent result) {
         List<Jid> jabberIds = new ArrayList<>();
         try {

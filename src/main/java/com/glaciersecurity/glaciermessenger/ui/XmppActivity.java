@@ -93,6 +93,7 @@ public abstract class XmppActivity extends ActionBarActivity {
 	protected static final int REQUEST_ANNOUNCE_PGP = 0x0101;
 	protected static final int REQUEST_INVITE_TO_CONVERSATION = 0x0102;
 	protected static final int REQUEST_CHOOSE_PGP_ID = 0x0103;
+	protected static final int REQUEST_INVITE_TO_CALL = 0x0104; //AM-569
 	protected static final int REQUEST_BATTERY_OP = 0x49ff;
 	protected static final String CORE_APK_PACKAGE = "com.glaciersecurity.glaciercore";
 	public XmppConnectionService xmppConnectionService;
@@ -807,6 +808,8 @@ public abstract class XmppActivity extends ActionBarActivity {
 					xmppConnectionService.sendJoiningGroupMessage(conv, mPendingConferenceInvite.jids, false);
 				}
 			}
+		} else if (requestCode == REQUEST_INVITE_TO_CALL && resultCode == RESULT_OK) { //AM-569
+			xmppConnectionService.addContactsToCall(ChooseContactActivity.extractJabberIds(data));
 		}
 	}
 

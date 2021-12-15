@@ -1,5 +1,7 @@
 package com.glaciersecurity.glaciermessenger.ui.util;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothHeadset;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.media.AudioAttributes;
@@ -30,10 +32,6 @@ public class SoundPoolManager {
     private int outgoingSoundId;
     private int disconnectSoundId;
     private int joingSoundId;
-
-    //AM-441
-    private boolean speaker = false;
-    private int audioMode;
 
     Ringtone ringtone; //ALF AM-447
     Ringtone outgoingRingtone; //AM-588
@@ -134,15 +132,25 @@ public class SoundPoolManager {
         outgoingRingtone.setAudioAttributes(attr);
         audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
         if (loaded && !playing) {
-            //ringingStreamId = soundPool.play(ringingSoundId, volume, volume, 1, -1, 1f);
             outgoingRingtone.play(); //AM-447
-            vibrateIfNeeded(); //AM-475
-
             playing = true;
         } else {
             outgoingCalled = true;
         }
     }
+
+    //AM-581b
+    /*public static boolean isBluetoothHeadsetConnected() {
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        return mBluetoothAdapter != null && mBluetoothAdapter.isEnabled()
+                && mBluetoothAdapter.getProfileConnectionState(BluetoothHeadset.HEADSET) == BluetoothHeadset.STATE_CONNECTED;
+    }
+
+    public static boolean isBluetoothHeadsetEnabled() {
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        return mBluetoothAdapter != null && mBluetoothAdapter.isEnabled();
+    }*/
+
     //AM-475
     public void vibrateIfNeeded() {
         if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE ||
@@ -180,7 +188,6 @@ public class SoundPoolManager {
             soundPool.play(disconnectSoundId, getVolume(), getVolume(), 1, 0, 1f);
             playing = false;
         }
-        setSpeakerOn(false); //AM-441
     }
 
     public void playJoin() {
@@ -190,23 +197,6 @@ public class SoundPoolManager {
             soundPool.play(joingSoundId, getVolume(), getVolume(), 1, 0, 1f);
             playing = false;
         }
-    }
-
-    //AM-441 (next four)
-    public void setSpeakerOn(boolean on) {
-        speaker = on;
-    }
-
-    public boolean getSpeakerOn() {
-        return speaker;
-    }
-
-    public void setPreviousAudioMode(int mode) {
-        audioMode = mode;
-    }
-
-    public int getPreviousAudioMode() {
-        return audioMode;
     }
 
     public void release() {
@@ -220,5 +210,4 @@ public class SoundPoolManager {
         }
         instance = null;
     }
-
 }
