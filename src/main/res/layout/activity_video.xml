@@ -35,6 +35,15 @@
             app:fontFamily="sans-serif-medium"
             android:layout_toRightOf="@+id/down_arrow"
             />
+        <ImageButton
+            android:id="@+id/add_contact_to_call"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:adjustViewBounds="true"
+            android:clickable="false"
+            android:layout_margin="16dp"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/ic_person_add_white_24dp" /> <!-- AM-569 -->
 
 
         <RelativeLayout

@@ -766,7 +766,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 							//stop CallActivity
 							Intent intent1 = new Intent("callActivityFinish");
 							sendBroadcast(intent1);
-							SoundPoolManager.getInstance(XmppConnectionService.this).stopRinging();
+							//SoundPoolManager.getInstance(XmppConnectionService.this).stopRinging();
 							callHandler.removeCallbacksAndMessages(null);
 							currentTwilioCall = null;
 						} else {
@@ -806,9 +806,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 										callHandler.removeCallbacksAndMessages(null);
 									}, 30000);
 								} else if (!getNotificationService().pushForCall(call, pushedAccountHash)) {
-									//ALF AM-447, no notification in this case because app is open, so manually play ringtone
-									SoundPoolManager.getInstance(XmppConnectionService.this).playRinging();
-
 									Intent callIntent = new Intent(getApplicationContext(), CallActivity.class);
 									callIntent.setAction(CallActivity.ACTION_INCOMING_CALL);
 									callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -816,6 +813,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 									callIntent.putExtra("status", call.getStatus());
 									callIntent.putExtra("call_id", call.getCallId());
 									callIntent.putExtra("account", pushedAccountHash);
+									//ALF AM-447, no notification in this case because app is open, so manually play ringtone
+									callIntent.putExtra("ring", true); //AM-581
 									this.startActivity(callIntent);
 								} else if (this.isInteractive()) {
 									callHandler.postDelayed(() -> {
@@ -844,14 +843,13 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					break;
 				case ACTION_REJECT_CALL_REQUEST:
 					SoundPoolManager.getInstance(XmppConnectionService.this).playDisconnect();
-
 					rejectCall(currentTwilioCall, false);
-
 					currentTwilioCall = null;
 					callHandler.removeCallbacksAndMessages(null);
 					break;
 				case ACTION_CANCEL_CALL_REQUEST: //CMG
 					SoundPoolManager.getInstance(XmppConnectionService.this).playDisconnect();
+					callManager.stopCallAudio(); //AM-581
 					cancelCall(currentTwilioCall);
 					currentTwilioCall = null;
 					callHandler.removeCallbacksAndMessages(null);
@@ -1448,6 +1446,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		SoundPoolManager.getInstance(XmppConnectionService.this).stopRinging();
 
 		//ALF AM-444
+		callManager.stopCallAudio();
 		SoundPoolManager.getInstance(XmppConnectionService.this).release();
 		currentTwilioCall = null;
 		callHandler.removeCallbacksAndMessages(null);
@@ -4709,6 +4708,97 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 	}
 
+	//ALF AM-569
+	//buddyUniqueIds, callid: callid)
+	public void addContactsToCall(List<Jid> receivers) {
+		final String deviceId = PhoneHelper.getAndroidId(this);
+		if (currentTwilioCall == null) {
+			return;
+		}
+
+		final IqPacket request = new IqPacket(IqPacket.TYPE.SET);
+		request.setTo(Jid.of("p2.glaciersec.cc"));
+		request.setAttribute("from",currentTwilioCall.getAccount().getJid().toString());
+
+		final Element command = request.addChild("command", "http://jabber.org/protocol/commands");
+		command.setAttribute("action", "execute");
+		command.setAttribute("node", "call-user-fcm");
+		final Element x = command.addChild("x", "jabber:x:data");
+		x.setAttribute("type", "submit");
+
+		final Element callerfield = x.addChild("field");
+		callerfield.setAttribute("var", "caller");
+		Element callerval = new Element("value");
+		String name = currentTwilioCall.getAccount().getDisplayName();
+		if (name == null) {
+			name = currentTwilioCall.getAccount().getUsername();
+		}
+		callerval.setContent(name);
+		callerfield.addChild(callerval);
+
+		final Element callerdevice = x.addChild("field");
+		callerdevice.setAttribute("var", "callerdevice");
+		Element deviceval = new Element("value");
+		deviceval.setContent(deviceId);
+		callerdevice.addChild(deviceval);
+
+		final Element receiver = x.addChild("field");
+		receiver.setAttribute("var", "receiver");
+		for (Jid receiverjid : receivers){
+			Element receiverval = new Element("value");
+			receiverval.setContent(receiverjid.toString());
+			receiver.addChild(receiverval);
+		}
+
+		if (currentTwilioCall.getRoomTitle() != null) {
+			final Element calltitle = x.addChild("field");
+			calltitle.setAttribute("var", "title");
+			Element titleval = new Element("value");
+			titleval.setContent(currentTwilioCall.getRoomTitle());
+			calltitle.addChild(titleval);
+		}
+
+		final Element roomname = x.addChild("field");
+		roomname.setAttribute("var", "roomname");
+		Element roomnameval = new Element("value");
+		roomnameval.setContent(currentTwilioCall.getRoomName());
+		roomname.addChild(deviceval);
+
+		final Element callid = x.addChild("field");
+		callid.setAttribute("var", "callid");
+		Element callidval = new Element("value");
+		callidval.setContent(Integer.toString(currentTwilioCall.getCallId()));
+		callerdevice.addChild(callid);
+
+		final Element inprogress = x.addChild("field");
+		inprogress.setAttribute("var", "inprogress");
+		Element inprogressval = new Element("value");
+		inprogressval.setContent("true");
+		inprogress.addChild(inprogressval);
+
+		sendIqPacket(currentTwilioCall.getAccount(), request, new OnIqPacketReceived() {
+			@Override
+			public void onIqPacketReceived(final Account account, final IqPacket packet) {
+				if (packet.getType() == IqPacket.TYPE.RESULT) {
+					final Element command = packet.findChild("command", "http://jabber.org/protocol/commands");
+					if (command == null) {
+						Log.d(Config.LOGTAG, account.getLogJid() + ": could not create call");
+						return;
+					}
+
+					final Element x = command.findChild("x", "jabber:x:data");
+					if (x == null) {
+						Log.d(Config.LOGTAG, account.getLogJid() + ": could not create call");
+						return;
+					}
+				} else {
+					//callback.informUser("Something bad");
+					Log.d(Config.LOGTAG, account.getLogJid() + ": could not create call");
+				}
+			}
+		});
+	}
+
 	//ALF AM-410 (next 3) //receiver is bare jid of receiver
 	public void sendCallRequest(TwilioCall call) {
 		final String deviceId = PhoneHelper.getAndroidId(this);
@@ -4949,6 +5039,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	public void rejectCall(TwilioCall call, boolean isBusy) {
 		final String deviceId = PhoneHelper.getAndroidId(this);
+		callManager.stopCallAudio(); //AM-581
 
 		if (call == null) {
 			//Close CallActivity

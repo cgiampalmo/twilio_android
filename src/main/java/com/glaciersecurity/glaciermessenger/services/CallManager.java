@@ -2,6 +2,7 @@ package com.glaciersecurity.glaciermessenger.services;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -17,7 +18,7 @@ import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
 import com.glaciersecurity.glaciermessenger.ui.CallActivity;
 import com.glaciersecurity.glaciermessenger.ui.VideoActivity;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
-import com.glaciersecurity.glaciermessenger.ui.util.SoundPoolManager;
+import com.twilio.audioswitch.AudioSwitch;
 import com.twilio.video.AudioCodec;
 import com.twilio.video.ConnectOptions;
 import com.twilio.video.EncodingParameters;
@@ -27,6 +28,7 @@ import com.twilio.video.IsacCodec;
 import com.twilio.video.LocalAudioTrack;
 import com.twilio.video.LocalParticipant;
 import com.twilio.video.LocalVideoTrack;
+import com.twilio.video.LogLevel;
 import com.twilio.video.OpusCodec;
 import com.twilio.video.PcmaCodec;
 import com.twilio.video.PcmuCodec;
@@ -53,6 +55,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 
+import kotlin.Unit;
 import rocks.xmpp.addr.Jid;
 
 //ALF AM-478
@@ -69,6 +72,8 @@ public class CallManager {
     private String roomtitle;
     private String roomtitled;
     protected List<TwilioCallParticipant> callParticipants;
+
+    private AudioSwitch audioDeviceSelector; //AM-581
 
     private TwilioCallListener twilioCallListener;
 
@@ -101,7 +106,7 @@ public class CallManager {
     public static final String PREF_VIDEO_CODEC = "video_codec";
     public static final String PREF_VIDEO_CODEC_DEFAULT = Vp8Codec.NAME;
     public static final String PREF_SENDER_MAX_AUDIO_BITRATE = "sender_max_audio_bitrate";
-    public static final String PREF_SENDER_MAX_AUDIO_BITRATE_DEFAULT = "0";
+    public static final String PREF_SENDER_MAX_AUDIO_BITRATE_DEFAULT = "16"; //ALF test
     public static final String PREF_SENDER_MAX_VIDEO_BITRATE = "sender_max_video_bitrate";
     public static final String PREF_SENDER_MAX_VIDEO_BITRATE_DEFAULT = "0";
     public static final String PREF_VP8_SIMULCAST = "vp8_simulcast";
@@ -156,12 +161,30 @@ public class CallManager {
 
         getCaller();
         getReceivers();
+    }
 
-        //if (room == null || room.getState() == Room.State.DISCONNECTED) {
-        //    connectToRoom(roomname);
-        //}
+    //AM-581 next 4
+    private AudioSwitch getCallAudio(Context c) {
+        if (audioDeviceSelector == null) {
+            audioDeviceSelector = new AudioSwitch(c, true);
+        }
+        return audioDeviceSelector;
+    }
 
+    public AudioSwitch getCallAudio() {
+        return audioDeviceSelector;
+    }
 
+    public void startCallAudio(Context c) {
+        getCallAudio(c).start((audioDevices, audioDevice) -> Unit.INSTANCE);
+        audioDeviceSelector.activate();
+    }
+
+    public void stopCallAudio() {
+        if (audioDeviceSelector != null) {
+            audioDeviceSelector.stop();
+            audioDeviceSelector = null;
+        }
     }
 
     public String getRoomTitle(){
@@ -305,6 +328,7 @@ public class CallManager {
          */
         connectOptionsBuilder.enableAutomaticSubscription(enableAutomaticSubscription);
 
+        //Video.setLogLevel(LogLevel.ALL); //AM-650
         room = Video.connect(mXmppConnectionService, connectOptionsBuilder.build(), roomListener());
     }
 
@@ -360,6 +384,21 @@ public class CallManager {
     //ALF AM-558
     public List<TwilioCallParticipant> getRemoteParticipants() {
         return callParticipants;
+    }
+
+    //ALF AM-569
+    public List<String> getRemoteParticipantIds() {
+        List<TwilioCallParticipant> parties = getRemoteParticipants();
+        List<String> participantIds = new ArrayList<String>();
+        for (TwilioCallParticipant participant : parties) {
+            String id = participant.getRemoteParticipant().getIdentity();
+            if (!id.contains("@")){
+                Contact c = getContactFromDisplayName(id);
+                if (c != null) { id = c.getJid().asBareJid().toString(); }
+            }
+            participantIds.add(id);
+        }
+        return participantIds;
     }
 
     /*
