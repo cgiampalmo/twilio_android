@@ -994,6 +994,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					Conversation c = findOrCreateConversation(account, Jid.of(call.getCaller()), false, true);
 					if (c != null) {
 						Message msg = Message.createCallStatusMessage(c, Message.STATUS_CALL_MISSED);
+						msg.markUnread(); //AM#10
 						getNotificationService().notifyMissedCall(c); //ALF AM-468
 						c.add(msg);
 						databaseBackend.createMessage(msg);
@@ -4768,7 +4769,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		callid.setAttribute("var", "callid");
 		Element callidval = new Element("value");
 		callidval.setContent(Integer.toString(currentTwilioCall.getCallId()));
-		callerdevice.addChild(callid);
+		callid.addChild(callidval);
 
 		final Element inprogress = x.addChild("field");
 		inprogress.setAttribute("var", "inprogress");
@@ -5138,6 +5139,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 						if (c != null) {
 							Message msg = Message.createCallStatusMessage(c, Message.STATUS_CALL_MISSED);
+							msg.markUnread(); //AM#10
 							getNotificationService().notifyMissedCall(c); //ALF AM-468
 							c.add(msg);
 							databaseBackend.createMessage(msg);
