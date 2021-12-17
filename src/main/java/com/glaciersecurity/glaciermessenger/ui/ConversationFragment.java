@@ -2170,7 +2170,8 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 						//should not happen if we synchronize properly. however if that fails we just gonna try item -1
 						continue;
 					}
-					if (message.getType() != Message.TYPE_STATUS) {
+					if (message.getType() != Message.TYPE_STATUS ||
+							message.getStatus() == Message.STATUS_CALL_MISSED) { //AM#10 add missed but dont send receipt
 						break;
 					}
 				}

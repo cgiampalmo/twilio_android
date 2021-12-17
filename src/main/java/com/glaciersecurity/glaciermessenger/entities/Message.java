@@ -297,6 +297,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 			separator.body = "You called";
 		} else if (status == Message.STATUS_CALL_MISSED) {
 			separator.body = "Missed call";
+			separator.uuid = java.util.UUID.randomUUID().toString(); //AM#10 might mess up other things
 		}
 		separator.setTime(System.currentTimeMillis());
 		//if (message.isRead()) { separator.markRead(); }
