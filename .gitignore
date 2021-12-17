@@ -42,6 +42,9 @@ proguard/
 .idea
 src/main/.DS_Store
 src/main/res/.DS_Store
+src/freeCompat/java/.DS_Store
+src/freeCompat/.DS_Store
+messengerFreeCompat/release/output.json
 
 import-summary.txt
 .navigation/
