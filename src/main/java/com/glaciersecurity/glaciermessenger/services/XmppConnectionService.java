@@ -567,6 +567,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		if (runnable.isVideoMessage()) {
 			mVideoCompressionExecutor.execute(runnable);
 		} else {
+			setCompressionPercent(100); //AM#3
 			mFileAddingExecutor.execute(runnable);
 		}
 	}

@@ -56,6 +56,7 @@ public class AttachFileToConversationRunnable implements Runnable, MediaTranscod
 
 	private void processAsFile() {
 		final String path = mXmppConnectionService.getFileBackend().getOriginalPath(uri);
+		mXmppConnectionService.setCompressionPercent(100); //AM#3
 		if (path != null && !FileBackend.isPathBlacklisted(path, mXmppConnectionService)) {
 			message.setRelativeFilePath(path);
 			mXmppConnectionService.getFileBackend().updateFileParams(message);
@@ -167,6 +168,7 @@ public class AttachFileToConversationRunnable implements Runnable, MediaTranscod
 			try {
 				processAsVideo();
 			} catch (FileNotFoundException e) {
+				mXmppConnectionService.stopForcingForegroundNotification(); //AM#3
 				processAsFile();
 			}
 		} else {
