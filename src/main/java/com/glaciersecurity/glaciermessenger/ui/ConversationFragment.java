@@ -151,6 +151,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	public static final int ATTACHMENT_CHOICE_RECORD_VIDEO = 0x0307;
 
 	private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 0x0308;
+	//private static final int BLUETOOTH_PERMISSION_REQUEST_CODE = 0x0309; //AM-581b
 
 
 	//public static final String RECENTLY_USED_QUICK_ACTION = "recently_used_quick_action";
@@ -1110,7 +1111,11 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				return false;
 			}
 
-			if(checkPermissionForCameraAndMicrophone()){
+			if (!checkPermissionForCameraAndMicrophone()) {
+				requestPermissionForCameraAndMicrophone();
+			//} else if (!checkPermissionForBluetooth()) { //AM-581b
+			//	requestPermissionForBluetooth();
+			} else {
 				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 				builder.setTitle(R.string.start_call);
 				builder.setNegativeButton(R.string.cancel, null);
@@ -1119,8 +1124,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 							makeCall();
 						});
 				builder.create().show();
-			} else {
-				requestPermissionForCameraAndMicrophone();
 			}
 			return true;
 
@@ -1180,10 +1183,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		super.onCreateOptionsMenu(menu, menuInflater);
 	}
 
-
-
-
-
 	private boolean checkPermissionForCameraAndMicrophone() {
 		int resultCamera = ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA);
 		int resultMic = ContextCompat.checkSelfPermission(activity, Manifest.permission.RECORD_AUDIO);
@@ -1197,6 +1196,19 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
 				CAMERA_MIC_PERMISSION_REQUEST_CODE);
 	}
+
+	//AM-581b next 2
+	/*private boolean checkPermissionForBluetooth() {
+		int resultBluetooth = ContextCompat.checkSelfPermission(activity, "android.permission.BLUETOOTH_CONNECT");
+		return resultBluetooth == PackageManager.PERMISSION_GRANTED;
+	}
+
+	private void requestPermissionForBluetooth() {
+		ActivityCompat.requestPermissions(
+				activity,
+				new String[]{"android.permission.BLUETOOTH_CONNECT"},
+				BLUETOOTH_PERMISSION_REQUEST_CODE);
+	}*/
 
 	@Override
 	public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -1772,6 +1784,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 
 		//call.setReceiver(conversation.getJid().asBareJid().toString());
 		activity.xmppConnectionService.sendCallRequest(call);
+		activity.xmppConnectionService.getCallManager().startCallAudio(activity.xmppConnectionService); //AM-581
 		Intent callActivity = new Intent(getContext(), CallActivity.class);
 		callActivity.setAction(CallActivity.ACTION_OUTGOING_CALL);
 		callActivity.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -2157,7 +2170,8 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 						//should not happen if we synchronize properly. however if that fails we just gonna try item -1
 						continue;
 					}
-					if (message.getType() != Message.TYPE_STATUS) {
+					if (message.getType() != Message.TYPE_STATUS ||
+							message.getStatus() == Message.STATUS_CALL_MISSED) { //AM#10 add missed but dont send receipt
 						break;
 					}
 				}

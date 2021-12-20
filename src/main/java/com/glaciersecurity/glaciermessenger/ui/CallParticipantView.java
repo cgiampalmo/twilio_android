@@ -152,7 +152,7 @@ public class CallParticipantView extends ConstraintLayout implements TwilioRemot
 
     public void handleAddRemoteParticipantVideo(RemoteVideoTrack videoTrack){
         setMirror(false);
-        videoTrack.addRenderer(primaryVideoView);
+        videoTrack.addSink(primaryVideoView);
 
         if (videoTrack.isEnabled()) { //AM-404
             handleVideoTrackEnabled();
@@ -160,7 +160,7 @@ public class CallParticipantView extends ConstraintLayout implements TwilioRemot
     }
 
     public void handleRemoveRemoteParticipantVideo(RemoteVideoTrack videoTrack){
-        videoTrack.removeRenderer(primaryVideoView);
+        videoTrack.removeSink(primaryVideoView);
     }
 
     public void handleVideoTrackEnabled(){

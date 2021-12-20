@@ -40,8 +40,10 @@ import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.PhoneHelper;
 import com.google.android.material.snackbar.Snackbar;
-import com.twilio.audioswitch.selection.AudioDevice;
-import com.twilio.audioswitch.selection.AudioDeviceSelector;
+import com.twilio.audioswitch.AudioDevice;
+
+import java.util.Collections;
+import java.util.List;
 
 import kotlin.Unit;
 import rocks.xmpp.addr.Jid;
@@ -106,6 +108,17 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 					new String[]{Manifest.permission.READ_PHONE_STATE},
 					MY_PERMISSIONS_REQUEST_READ_PHONE_STATE);
 		}
+
+		//AM-581b
+		/*if (ContextCompat.checkSelfPermission(CallActivity.this,
+				Manifest.permission.BLUETOOTH)
+				!= PackageManager.PERMISSION_GRANTED) {
+			// We do not have this permission. Let's ask the user
+			ActivityCompat.requestPermissions(CallActivity.this,
+					new String[]{Manifest.permission.BLUETOOTH},
+					BLUETOOTH_PERMISSION_REQUEST_CODE);
+		}*/
+
 		phonecallReceiver = new PhonecallReceiver(this);
 
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
@@ -113,9 +126,6 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 				| WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-
-		//AM-441
-		SoundPoolManager.getInstance(CallActivity.this).setPreviousAudioMode(audioManager.getMode());
 
 		registerReceiver(mMessageReceiver, new IntentFilter("callActivityFinish"));
 
@@ -146,11 +156,6 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 		endCallBtn.setOnClickListener(v -> {
 			SoundPoolManager.getInstance(CallActivity.this).stopRinging();
 
-			//AM-441
-			SoundPoolManager.getInstance(CallActivity.this).setSpeakerOn(false);
-			//audioManager.setSpeakerphoneOn(false);
-			//audioManager.setMode(SoundPoolManager.getInstance(CallActivity.this).getPreviousAudioMode());
-
 			final Intent intent = new Intent(this, XmppConnectionService.class);
 			intent.setAction(XmppConnectionService.ACTION_CANCEL_CALL_REQUEST);
 			Compatibility.startService(this, intent);
@@ -162,47 +167,46 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 		this.audioBtnOff.setClickable(false);
 		this.audioBtn.setClickable(false);
 
-		/*audioBtnOff.setOnClickListener(v -> {
-			audioManager.setMicrophoneMute(true);
-			audioBtn.setVisibility(View.VISIBLE);
-			audioBtnOff.setVisibility(View.GONE);
-
-		});
-		audioBtn.setOnClickListener(v -> {
-			audioManager.setMicrophoneMute(false);
-			audioBtnOff.setVisibility(View.VISIBLE);
-			audioBtn.setVisibility(View.GONE);
-		});*/
-
-
-		// TODO in twilio roomActiviy audio manager is used to manage speaker phone status
+		// in twilio roomActiviy audio manager is used to manage speaker phone status
 		this.speakerBtn= findViewById(R.id.speaker_button);
 		this.speakerBtnOff= findViewById(R.id.speaker_button_off);
 
 		//AM-441 to true and below uncommented
 		this.speakerBtnOff.setEnabled(true);
 		speakerBtnOff.setOnClickListener(v -> {
-			//audioManager.setSpeakerphoneOn(true);
-			SoundPoolManager.getInstance(CallActivity.this).setSpeakerOn(true); //AM-441
+			this.setSpeakerOn(true); //AM-581
 			speakerBtn.setVisibility(View.VISIBLE);
 			speakerBtnOff.setVisibility(View.GONE);
 		});
 		speakerBtn.setOnClickListener(v -> {
-			//audioManager.setSpeakerphoneOn(false);
-			SoundPoolManager.getInstance(CallActivity.this).setSpeakerOn(false); //AM-441
+			this.setSpeakerOn(false); //AM-581
 			speakerBtn.setVisibility(View.GONE);
 			speakerBtnOff.setVisibility(View.VISIBLE);
 		});
 
 	}
 
+	//AM-581
+	private void setSpeakerOn(boolean speakerOn) {
+		AudioDevice selected = xmppConnectionService.getCallManager().getCallAudio().getSelectedAudioDevice();
+		if (selected instanceof AudioDevice.BluetoothHeadset ||
+				selected instanceof AudioDevice.WiredHeadset) {
+			return;
+		}
+
+		List<AudioDevice> availableAudioDevices = xmppConnectionService.getCallManager().getCallAudio().getAvailableAudioDevices();
+		for (AudioDevice a : availableAudioDevices) {
+			if (speakerOn && a instanceof AudioDevice.Speakerphone) {
+				selected = a;
+			} else if (!speakerOn && a instanceof AudioDevice.Earpiece) {
+				selected = a;
+			}
+		}
+		xmppConnectionService.getCallManager().getCallAudio().selectDevice(selected);
+	}
+
 	public void endCall(){
 		SoundPoolManager.getInstance(CallActivity.this).stopRinging();
-
-		//AM-441
-		SoundPoolManager.getInstance(CallActivity.this).setSpeakerOn(false);
-		//audioManager.setSpeakerphoneOn(false);
-		//audioManager.setMode(SoundPoolManager.getInstance(CallActivity.this).getPreviousAudioMode());
 
 		//needs access to XmppConnectionService
 		final Intent intent = new Intent(this, XmppConnectionService.class);
@@ -212,10 +216,7 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 
 	public void acceptCall(){
 			SoundPoolManager.getInstance(CallActivity.this).stopRinging();
-			//AM-441
-			if (audioManager.isSpeakerphoneOn()) {
-				SoundPoolManager.getInstance(CallActivity.this).setSpeakerOn(true);
-			}
+
 			//needs access to XmppConnectionService
 			final Intent intent = new Intent(this, XmppConnectionService.class);
 			intent.setAction(XmppConnectionService.ACTION_ACCEPT_CALL_REQUEST);
@@ -286,6 +287,7 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 				if(contactText != null) {
 					xmppConnectionService.getCallManager().setRoomTitle(contactText.getText().toString());
 				}
+				xmppConnectionService.getCallManager().startCallAudio(xmppConnectionService); //AM-581
 			}
 		} catch (Exception e){
 
@@ -360,14 +362,6 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 			// do nothing
 			return;
 		}
-
-//		if (grantResults.length > 0) {
-//			if (allGranted(grantResults)) {
-//				acceptCall();
-//			} else {
-//				endCall();
-//			}
-//		}
 	}
 
 
@@ -380,27 +374,27 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 	}
 
 	private void requestPermissionForCameraAndMicrophone() {
-//		if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA) ||
-//				ActivityCompat.shouldShowRequestPermissionRationale(this,
-//						Manifest.permission.RECORD_AUDIO)) {
-//			Toast.makeText(this,
-//					R.string.permissions_needed,
-//					Toast.LENGTH_LONG).show();
-//		} else {
 		//CMG AM-471
 			ActivityCompat.requestPermissions(
 					this,
 					new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
 					CAMERA_MIC_PERMISSION_REQUEST_CODE);
-	//	}
 	}
+
+	//AM-581b
+	/*private void requestPermissionForBluetooth() {
+		ActivityCompat.requestPermissions(
+				this,
+				new String[]{Manifest.permission.BLUETOOTH, "android.permission.BLUETOOTH_CONNECT"},
+				BLUETOOTH_PERMISSION_REQUEST_CODE);
+	}*/
 
 	//ALF AM-474
 	@Override
 	public void onIncomingNativeCallAnswered() {
 		//cancel any current call
 		SoundPoolManager.getInstance(CallActivity.this).stopRinging();
-		SoundPoolManager.getInstance(CallActivity.this).setSpeakerOn(false);
+		//SoundPoolManager.getInstance(CallActivity.this).setSpeakerOn(false);
 		final Intent intent = new Intent(this, XmppConnectionService.class);
 
 		if (incomingCallLayout.getVisibility() == View.VISIBLE) {
@@ -434,12 +428,6 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 				snackbar.show();
 			} else {
 				Toast.makeText(this, R.string.native_ringing, Toast.LENGTH_LONG).show();
-
-				// AlertDialog.Builder alert = new AlertDialog.Builder(CallActivity.this);
-				// alert.setTitle(R.string.native_ring_alert_title);
-				// alert.setMessage(R.string.native_ringing);
-				// alert.setPositiveButton("OK",null);
-				// alert.show();
 			}
 		}
 	}
