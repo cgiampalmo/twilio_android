@@ -506,7 +506,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	public void stopForcingForegroundNotification() {
 		mForceForegroundService.set(false);
-		toggleForegroundService();
+		mNotificationService.dismissForcedForegroundNotification(); //AM#3
+		//toggleForegroundService();
 	}
 
 	public void checkNewPermission(){
