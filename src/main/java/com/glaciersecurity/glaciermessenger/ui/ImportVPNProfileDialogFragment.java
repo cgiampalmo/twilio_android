@@ -196,6 +196,22 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
         }
     }
 
+    //AM#4 this should be called removed just to refresh the list when VPNs are being pulled from s3
+    private void removeAllVPNs() {
+        try {
+            if (mService != null) {
+                List<APIVpnProfile> list = mService.getProfiles();
+
+                // check if profile exists and delete it
+                for (APIVpnProfile prof : list) {
+                    mService.removeProfile(prof.mUUID);
+                }
+            }
+        } catch (RemoteException e) {
+            doCoreErrorAction();
+        }
+    }
+
     private void downloadAllVPNs(String prof){
         String bucketName = Constants.BUCKET_NAME.replace(REPLACEMENT_ORG_ID,organization);
         TransferUtility transferUtility = Util.getTransferUtility(getActivity(), bucketName);
@@ -404,6 +420,9 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
             if (listStr.isEmpty()){
                 dismiss();
             }
+
+            //AM#4 remove all VPNs in order to re-add current list
+            removeAllVPNs();
 
             Collections.sort(listStr);
             for (String profileStr: listStr){
@@ -691,16 +710,16 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
      */
     private boolean addVPNProfile(String profile, String config) {
         try {
-
             if (mService != null) {
-                List<APIVpnProfile> list = mService.getProfiles();
+                //AM#4 moved above so as to delete all and start fresh
+                /*List<APIVpnProfile> list = mService.getProfiles();
 
                 // check if profile exists and delete it
                 for (APIVpnProfile prof : list) {
                     if (prof.mName.compareTo(profile) == 0) {
                         mService.removeProfile(prof.mUUID);
                     }
-                }
+                }*/
 
                 // add vpn profile
                 mService.addNewVPNProfile(profile, true, config);
