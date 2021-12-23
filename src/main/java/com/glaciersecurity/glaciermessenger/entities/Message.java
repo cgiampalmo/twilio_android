@@ -167,8 +167,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 				false);
 
 		//ALF AM-53 moved from constructor below because was overwriting database
-		if (conversation.getMode() == Conversation.MODE_SINGLE &&
-				status != STATUS_RECEIVED && this.timer == TIMER_NONE) {
+		//AM#9 removed status != STATUS_RECEIVED
+		if (conversation.getMode() == Conversation.MODE_SINGLE && this.timer == TIMER_NONE) {
 			if (conversation.getTimer() > 0) {
 				this.setTimer(conversation.getTimer());
 			} else if (conversation.getAccount().getTimer() > 0) {
