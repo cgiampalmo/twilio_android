@@ -488,6 +488,7 @@
     <string name="five_minutes">5 minutes</string>
     <string name="one_day">1 day</string>
     <string name="one_week">1 week</string>
+    <string name="four_weeks">4 weeks</string> <!-- AM#9 -->
     <string name="conversation_message_timer">Disappearing messages</string>
     <string name="pref_global_message_timer">Global disappearing messages</string>
     <string name="pref_global_message_timer_description">Set 1-to-1 messages to disappear after a selected duration of time. Group messages are not affected.</string>    <!-- ALF AM-53 end -->
