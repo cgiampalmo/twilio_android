@@ -148,6 +148,8 @@ dependencies {
     //AM-440
     implementation 'com.twilio:audioswitch:1.1.2'
 
+    implementation 'me.saket:better-link-movement-method:2.2.0' //AM#12
+
     implementation 'de.measite.minidns:minidns-hla:0.2.4'
 
     implementation 'me.drakeet.support:toastcompat:1.1.0'
@@ -179,7 +181,7 @@ android {
         minSdkVersion 24
         targetSdkVersion 30
         versionCode 507
-        versionName "3.3.6-RC11"
+        versionName "3.3.6-RC12"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
 

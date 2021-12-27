@@ -2,13 +2,19 @@ package com.glaciersecurity.glaciermessenger.ui.adapter;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.preference.PreferenceManager;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import me.saket.bettermovementmethod.BetterLinkMovementMethod;
+
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -519,7 +525,30 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 			viewHolder.messageBody.setAutoLinkMask(0);
 			viewHolder.messageBody.setText(EmojiWrapper.transform(body));
 			viewHolder.messageBody.setTextIsSelectable(true);
-			viewHolder.messageBody.setMovementMethod(ClickableMovementMethod.getInstance());
+			//viewHolder.messageBody.setMovementMethod(ClickableMovementMethod.getInstance());
+
+			//AM#12
+			BetterLinkMovementMethod linkMethod = BetterLinkMovementMethod.newInstance();
+			linkMethod.setOnLinkClickListener((textView, url) -> {
+				// alert with warning. If positive, return false.
+				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+				builder.setTitle(R.string.external_link_alert_title);
+				builder.setMessage(R.string.external_link_alert_msg);
+				builder.setPositiveButton(activity.getText(R.string.ok), new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+					}
+				});
+				builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.cancel();
+					}
+				});
+				builder.create().show();
+				return true;
+			});
+			viewHolder.messageBody.setMovementMethod(linkMethod);
+
 			listSelectionManager.onUpdate(viewHolder.messageBody, message);
 		} else {
 			viewHolder.messageBody.setText("");

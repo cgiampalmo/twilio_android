@@ -1093,6 +1093,10 @@
     <string name="glaciersecurity_help">Please visit us at glaciersecurity.com</string>
     <string name="version_info">%1$s %2$s</string>
 
+    <!-- AM#12 -->
+    <string name="external_link_alert_title">External Link</string>
+    <string name="external_link_alert_msg">Opening links external to Glacier can be dangerous. It can also affect privacy if not protected with Core. Do you still want to open?</string>
+
     <!--CMG AM-254 material_x nav bar-->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
