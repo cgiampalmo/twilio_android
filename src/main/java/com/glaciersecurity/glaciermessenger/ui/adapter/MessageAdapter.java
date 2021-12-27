@@ -530,16 +530,15 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
 			//AM#12
 			BetterLinkMovementMethod linkMethod = BetterLinkMovementMethod.newInstance();
 			linkMethod.setOnLinkClickListener((textView, url) -> {
-				// alert with warning. If positive, return false.
 				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 				builder.setTitle(R.string.external_link_alert_title);
 				builder.setMessage(R.string.external_link_alert_msg);
-				builder.setPositiveButton(activity.getText(R.string.ok), new DialogInterface.OnClickListener() {
+				builder.setPositiveButton(activity.getText(R.string.OPEN), new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
 					}
 				});
-				builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+				builder.setNegativeButton(R.string.CANCEL, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						dialog.cancel();
 					}
