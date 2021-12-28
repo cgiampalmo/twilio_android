@@ -488,6 +488,7 @@
     <string name="five_minutes">5 minutes</string>
     <string name="one_day">1 day</string>
     <string name="one_week">1 week</string>
+    <string name="four_weeks">4 weeks</string> <!-- AM#9 -->
     <string name="conversation_message_timer">Disappearing messages</string>
     <string name="pref_global_message_timer">Global disappearing messages</string>
     <string name="pref_global_message_timer_description">Set 1-to-1 messages to disappear after a selected duration of time. Group messages are not affected.</string>    <!-- ALF AM-53 end -->
@@ -1091,6 +1092,11 @@
     <string name="glaciersecurity_property">Glacier is a property of Glacier Security</string>
     <string name="glaciersecurity_help">Please visit us at glaciersecurity.com</string>
     <string name="version_info">%1$s %2$s</string>
+
+    <!-- AM#12 -->
+    <string name="external_link_alert_title">Open external link?</string>
+    <string name="external_link_alert_msg">Opening links external to Glacier can be dangerous. It can also affect privacy if not protected with Glacier Core.</string>
+    <string name="open_link">Open</string>
 
     <!--CMG AM-254 material_x nav bar-->
     <string name="navigation_drawer_open">Open navigation drawer</string>

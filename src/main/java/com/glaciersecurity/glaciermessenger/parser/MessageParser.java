@@ -546,11 +546,20 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 				try {
 					int timer = Integer.parseInt(timerStr);
 					message.setTimer(timer);
+					//conversation.setTimer(timer); //AM#9
+					if (conversation.getTimer() != timer) {
+						conversation.setTimer(timer);
+						setTimerStatus(conversation, timerStr);
+					}
 				} catch(NumberFormatException nfe) {
 					message.setTimer(Message.TIMER_NONE);
 				}
 			} else {
-				message.setTimer(Message.TIMER_NONE);
+				if (conversation.getTimer() != Message.TIMER_NONE) { //AM#9
+					message.setTimer(Message.TIMER_NONE);
+					conversation.setTimer(Message.TIMER_NONE);
+					setTimerStatus(conversation, null);
+				}
 			}
 
 			message.setServerMsgId(serverMsgId);
@@ -887,6 +896,35 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 				mXmppConnectionService.getAvatarService().clear(contact);
 			}
 		}
+	}
+
+	//AM#9
+	protected void setTimerStatus(Conversation conversation, String timerstring) {
+		final String[] ctimers = mXmppConnectionService.getResources().getStringArray(R.array.timer_options_durations);
+		final String[] ctimersStrs = mXmppConnectionService.getResources().getStringArray(R.array.timer_options_descriptions);
+		int idx = -1;
+		if (timerstring == null) {
+			idx = 0;
+		} else {
+			for (int i = 0; i < ctimers.length; i++) {
+				if (ctimers[i].equals(timerstring)) {
+					idx = i;
+				}
+			}
+		}
+
+		String tstatus = "";
+		if (idx >= 0) {
+			tstatus = ctimersStrs[idx];
+		} else { return;}
+
+		String timerStatus = "Disappearing message time set to " + tstatus;
+		Message disMessageStatus = Message.createStatusMessage(conversation, timerStatus);
+		disMessageStatus.setTime(System.currentTimeMillis());
+		disMessageStatus.setEndTime(Long.MAX_VALUE);
+		disMessageStatus.setTimer(Message.TIMER_NONE);
+		mXmppConnectionService.databaseBackend.createMessage(disMessageStatus);
+		conversation.add(disMessageStatus);
 	}
 
 	private void dismissNotification(Account account, Jid counterpart, MessageArchiveService.Query query) {

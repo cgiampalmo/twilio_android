@@ -42,6 +42,7 @@
 		<item>@string/five_minutes</item>
 		<item>@string/one_day</item>
 		<item>@string/one_week</item>
+		<item>@string/four_weeks</item> <!-- AM#9 and below -->
 	</string-array>
 
 	<string-array name="timer_options_durations">
@@ -51,6 +52,7 @@
 		<item>300</item>
 		<item>86400</item>
 		<item>604800</item>
+		<item>2419200</item>
 	</string-array>
 
 	<string-array name="quick_actions">

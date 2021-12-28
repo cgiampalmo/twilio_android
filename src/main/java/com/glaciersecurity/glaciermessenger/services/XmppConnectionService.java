@@ -506,7 +506,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	public void stopForcingForegroundNotification() {
 		mForceForegroundService.set(false);
-		toggleForegroundService();
+		mNotificationService.dismissForcedForegroundNotification(); //AM#3
+		//toggleForegroundService();
 	}
 
 	public void checkNewPermission(){
@@ -567,6 +568,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		if (runnable.isVideoMessage()) {
 			mVideoCompressionExecutor.execute(runnable);
 		} else {
+			setCompressionPercent(100); //AM#3
 			mFileAddingExecutor.execute(runnable);
 		}
 	}

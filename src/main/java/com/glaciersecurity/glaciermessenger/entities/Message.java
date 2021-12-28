@@ -65,11 +65,6 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 
 	//ALF AM-53
 	public static final int TIMER_NONE = 0;
-	public static final int TIMER_15S = 15;
-	public static final int TIMER_1M = 60;
-	public static final int TIMER_5M = 300;
-	public static final int TIMER_1D = 86400;
-	public static final int TIMER_1W = 604800;
 
 	public static final String CONVERSATION = "conversationUuid";
 	public static final String COUNTERPART = "counterpart";
@@ -167,8 +162,8 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 				false);
 
 		//ALF AM-53 moved from constructor below because was overwriting database
-		if (conversation.getMode() == Conversation.MODE_SINGLE &&
-				status != STATUS_RECEIVED && this.timer == TIMER_NONE) {
+		//AM#9 removed status != STATUS_RECEIVED
+		if (conversation.getMode() == Conversation.MODE_SINGLE && this.timer == TIMER_NONE) {
 			if (conversation.getTimer() > 0) {
 				this.setTimer(conversation.getTimer());
 			} else if (conversation.getAccount().getTimer() > 0) {
@@ -488,7 +483,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 	public void markRead() {
 		this.read = true;
 		if (this.timer != TIMER_NONE) {
-			this.endTime = System.currentTimeMillis() + (timer * 1000); //ALF AM-53
+			this.endTime = System.currentTimeMillis() + ((long)timer * 1000L); //ALF AM-53
 		}
 	}
 
@@ -525,7 +520,7 @@ public class Message extends AbstractEntity implements AvatarService.Avatarable 
 	public void setTimer(int timer) {
 		this.timer = timer;
 		if (timer != TIMER_NONE) {
-			this.endTime = System.currentTimeMillis() + (timer * 1000);
+			this.endTime = System.currentTimeMillis() + ((long)timer * 1000L);
 		}
 	}
 
