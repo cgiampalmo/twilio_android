@@ -45,6 +45,7 @@ import com.twilio.audioswitch.AudioDevice;
 import java.util.Collections;
 import java.util.List;
 
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import kotlin.Unit;
 import rocks.xmpp.addr.Jid;
 
@@ -127,7 +128,7 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 
 		audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
-		registerReceiver(mMessageReceiver, new IntentFilter("callActivityFinish"));
+		LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("callActivityFinish"));
 
 		if (getIntent().getAction().equals(ACTION_OUTGOING_CALL)) {
 			try {
@@ -269,7 +270,7 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 		super.onDestroy();
 		SoundPoolManager.getInstance(CallActivity.this).stopRinging();
 		handler.removeCallbacksAndMessages(null);
-		unregisterReceiver(mMessageReceiver);
+		LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
 		unregisterReceiver(phonecallReceiver); //ALF AM-474
 	}
 
