@@ -163,6 +163,8 @@ import com.glaciersecurity.glaciermessenger.xmpp.pep.PublishOptions;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.IqPacket;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.MessagePacket;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.PresencePacket;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import me.leolin.shortcutbadger.ShortcutBadger;
 import rocks.xmpp.addr.Jid;
 
@@ -767,7 +769,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 								call.getStatus().equalsIgnoreCase("busy") || call.getStatus().equalsIgnoreCase("accept")) {
 							//stop CallActivity
 							Intent intent1 = new Intent("callActivityFinish");
-							sendBroadcast(intent1);
+							LocalBroadcastManager.getInstance(this).sendBroadcast(intent1);
 							//SoundPoolManager.getInstance(XmppConnectionService.this).stopRinging();
 							callHandler.removeCallbacksAndMessages(null);
 							currentTwilioCall = null;
@@ -977,14 +979,14 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				}
 
 				Intent intent1 = new Intent("callActivityFinish");
-				sendBroadcast(intent1);
+				LocalBroadcastManager.getInstance(this).sendBroadcast(intent1);
 				callHandler.removeCallbacksAndMessages(null);
 				//TODO: notify user of rejection from other party
 
 				currentTwilioCall = null;
 			} else if (call.getStatus().equalsIgnoreCase("cancel")) {
 				Intent intent1 = new Intent("callActivityFinish");
-				sendBroadcast(intent1);
+				LocalBroadcastManager.getInstance(this).sendBroadcast(intent1);
 				callHandler.removeCallbacksAndMessages(null);
 
 				cancelledCall = call.getCallId(); //AM-492
@@ -1012,7 +1014,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				// other party accepted call
 				//stop CallActivity
 				Intent intent1 = new Intent("callActivityFinish");
-				sendBroadcast(intent1);
+				LocalBroadcastManager.getInstance(this).sendBroadcast(intent1);
 
 				//ALF AM-558 if call is already active we don't want to initCall here
 				if (currentTwilioCall != null && call.getCallId() == currentTwilioCall.getCallId() &&
@@ -1036,7 +1038,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			toneGenerator.stopTone();
 			toneGenerator.release();
 			Intent intent1 = new Intent("callActivityFinish");
-			sendBroadcast(intent1);
+			LocalBroadcastManager.getInstance(this).sendBroadcast(intent1);
 		},4500);
 	}
 
@@ -4908,7 +4910,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		if (call == null ){
 			Toast.makeText(this, R.string.call_nolonger_exisits, Toast.LENGTH_LONG).show();
 			Intent intent1 = new Intent("callActivityFinish");
-			sendBroadcast(intent1);
+			LocalBroadcastManager.getInstance(this).sendBroadcast(intent1);
 			getNotificationService().dismissCallNotification();
 			return ;
 		}
@@ -4987,7 +4989,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					sendMessagePacket(call.getAccount(), messagePacket);
 
 					Intent intent1 = new Intent("callActivityFinish");
-					sendBroadcast(intent1);
+					LocalBroadcastManager.getInstance(XmppConnectionService.this).sendBroadcast(intent1);
 					getNotificationService().dismissCallNotification();
 
 					//ALF AM-421
@@ -5047,7 +5049,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		if (call == null) {
 			//Close CallActivity
 			Intent intent1 = new Intent("callActivityFinish");
-			sendBroadcast(intent1);
+			LocalBroadcastManager.getInstance(this).sendBroadcast(intent1);
 			getNotificationService().dismissCallNotification();
 			return;
 		}
@@ -5157,7 +5159,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 		//Close CallActivity
 		Intent intent1 = new Intent("callActivityFinish");
-		sendBroadcast(intent1);
+		LocalBroadcastManager.getInstance(this).sendBroadcast(intent1);
 		getNotificationService().dismissCallNotification();
 	}
 
@@ -5180,7 +5182,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 		if (call == null) {
 			Intent intent1 = new Intent("callActivityFinish");
-			sendBroadcast(intent1);
+			LocalBroadcastManager.getInstance(this).sendBroadcast(intent1);
 			return;
 		}
 
@@ -5210,7 +5212,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 		//Close CallActivity
 		Intent intent1 = new Intent("callActivityFinish");
-		sendBroadcast(intent1);
+		LocalBroadcastManager.getInstance(this).sendBroadcast(intent1);
 	}
 	//ALF AM-410 end TwilioCall stuff
 
