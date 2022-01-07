@@ -31,7 +31,7 @@
 <resources>
     <string name="pref_about_message" translatable="false">
 			Glacier Chat - The highest level of security for your team’s text, voice, and video calls.
-			\n\nCopyright 2017-2020 Glacier Security Inc
+			\n\nCopyright 2017-2022 Glacier Security Inc
 			\n\nwww.glacier.chat
 			\n\nsupport@glacier.chat
 			\n\nThis program is free software: you can redistribute it and/or modify
@@ -61,7 +61,5 @@
 			\n\nhttps://github.com/jdamcd/android-crop\n(Apache License, Version 2.0)
 			\n\nhttps://github.com/zxing/zxing\n(Apache License, Version 2.0)
 			\n\nhttps://github.com/osmdroid/osmdroid\n(Apache License, Version 2.0)
-			\n\n\nMaps
-			\n\nMaps by Open Street Map (https://www.openstreetmap.org). Copyright restrictions may apply.
 	</string>
 </resources>
