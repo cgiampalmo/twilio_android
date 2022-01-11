@@ -27,7 +27,8 @@ buildscript {
             'okhttp'             : '3.6.0',
             'ion'                : '2.1.8',
             'videoAndroid'       : '7.0.2',
-            'audioSwitch'        : '1.1.2'
+            'audioSwitch'        : '1.1.2',
+            'lifecycle_version'  : '2.4.0'
     ]
 }
 
@@ -149,6 +150,9 @@ dependencies {
     implementation 'com.twilio:audioswitch:1.1.2'
 
     implementation 'me.saket:better-link-movement-method:2.2.0' //AM#12
+    implementation 'androidx.biometric:biometric:1.1.0' //AM#14 (next 3)
+    implementation "androidx.lifecycle:lifecycle-process:${versions.lifecycle_version}"
+    implementation "androidx.lifecycle:lifecycle-common:${versions.lifecycle_version}"
 
     implementation 'de.measite.minidns:minidns-hla:0.2.4'
 

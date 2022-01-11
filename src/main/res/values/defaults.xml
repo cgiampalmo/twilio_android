@@ -18,6 +18,9 @@
     <bool name="led">true</bool>
     <bool name="screen_security">true</bool> <!-- CMG AM-137 -->
     <bool name="enable_quiet_hours">false</bool>
+    <bool name="enable_biometrics">false</bool> <!-- AM#14 next 3 -->
+    <bool name="enable_pin">false</bool>
+    <integer name="automatic_locktime">0</integer>
     <string name="notification_ringtone">content://settings/system/notification_sound</string>
     <integer name="grace_period">144</integer>
     <integer name="auto_accept_filesize">10485760</integer> <!-- ALF AM-144 -->

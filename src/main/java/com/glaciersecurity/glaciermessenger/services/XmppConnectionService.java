@@ -260,6 +260,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	private QuickConversationsService mQuickConversationsService = new QuickConversationsService(this);
 
 	private CallManager callManager = new CallManager(this); //ALF AM-478;
+	private ProcessLifecycleListener processListener = new ProcessLifecycleListener(this); //AM#14
 
 	private ConversationsFileObserver fileObserver; //ALF AM-603 moved to onCreate and changed mechanism
 	/*private final ConversationsFileObserver fileObserver = new ConversationsFileObserver(
@@ -1040,6 +1041,29 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			Intent intent1 = new Intent("callActivityFinish");
 			LocalBroadcastManager.getInstance(this).sendBroadcast(intent1);
 		},4500);
+	}
+
+	//AM#14
+	public void handleLifecycleUpdate(ProcessLifecycleListener.LifecycleStatus value) {
+		//if biometrics turned off, return
+		//final String value = sharedPreferences.getString(SettingsActivity.OMEMO_SETTING, context.getResources().getString(R.string.omemo_setting_default));
+		switch (value) {
+			case CREATE:
+			case DESTROY:
+			case PAUSE:
+			case RESUME:
+				break;
+			case START: // app moved to foreground
+				//
+				break;
+			case STOP: // app moved to background
+				//
+				break;
+			default:
+				//
+				break;
+
+		}
 	}
 
 	private boolean processAccountState(Account account, boolean interactive, boolean isUiAction, boolean isAccountPushed, HashSet<Account> pingCandidates) {

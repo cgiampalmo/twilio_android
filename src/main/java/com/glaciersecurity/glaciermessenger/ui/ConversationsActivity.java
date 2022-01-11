@@ -36,21 +36,21 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
 import androidx.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
@@ -59,21 +59,18 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoDevice;
-import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserAttributes;
-import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserDetails;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserSession;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.AuthenticationContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.AuthenticationDetails;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.ChallengeContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.MultiFactorAuthenticationContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.AuthenticationHandler;
-import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GetDetailsHandler;
 import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
 import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
 import com.glaciersecurity.glaciermessenger.services.CallManager;
-import com.glaciersecurity.glaciermessenger.services.NotificationService;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
+import com.glaciersecurity.glaciermessenger.utils.SystemSecurityInfo;
 import com.google.android.material.navigation.NavigationView;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -84,7 +81,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceManager;
 
-import android.service.notification.NotificationListenerService;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -104,6 +100,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUser;
@@ -141,21 +138,11 @@ import com.glaciersecurity.glaciermessenger.utils.XmppUri;
 import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
 import com.glaciersecurity.glaciermessenger.xmpp.OnKeyStatusUpdated; //ALF AM-60
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
-import com.twilio.audioswitch.AudioDevice;
-import com.twilio.audioswitch.AudioSwitch;
 import com.twilio.video.LocalAudioTrack;
 import com.twilio.video.LocalVideoTrack;
-import com.twilio.video.RemoteAudioTrack;
-import com.twilio.video.RemoteAudioTrackPublication;
-import com.twilio.video.RemoteDataTrack;
-import com.twilio.video.RemoteDataTrackPublication;
 import com.twilio.video.RemoteParticipant;
-import com.twilio.video.RemoteVideoTrack;
-import com.twilio.video.RemoteVideoTrackPublication;
 import com.twilio.video.Room;
-import com.twilio.video.TwilioException;
 
-import kotlin.Unit;
 import rocks.xmpp.addr.Jid;
 
 import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.customIcon;
@@ -196,6 +183,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	private final PendingItem<PresenceTemplate> mPendingPresenceTemplate = new PendingItem<>();
 	private CallManager mCallManager;
 
+	//AM#14
+	private Executor executor;
+	private BiometricPrompt biometricPrompt;
+	private BiometricPrompt.PromptInfo promptInfo;
 
 
 	//secondary fragment (when holding the conversation, must be initialized before refreshing the overview fragment
@@ -653,6 +644,10 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		returnToCall = findViewById(R.id.toolbar_in_call);
 		returnToCall.setOnClickListener(returnToCall());
 
+		//AM#14
+		if (SystemSecurityInfo.isBiometricReady(this)) {
+			createBiometricPrompt(this);
+		}
 	}
 
 	private View.OnClickListener returnToCall() {
@@ -2057,5 +2052,44 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	}
 
 
+	//AM#14
+	public BiometricPrompt createBiometricPrompt(Context context) {
+		executor = ContextCompat.getMainExecutor(this);
+		biometricPrompt = new BiometricPrompt(ConversationsActivity.this,
+				executor, new BiometricPrompt.AuthenticationCallback() {
+			@Override
+			public void onAuthenticationError(int errorCode,
+											  @NonNull CharSequence errString) {
+				super.onAuthenticationError(errorCode, errString);
+				Toast.makeText(context, "Authentication error: " + errString, Toast.LENGTH_SHORT).show();
+			}
 
+			@Override
+			public void onAuthenticationSucceeded(
+					@NonNull BiometricPrompt.AuthenticationResult result) {
+				super.onAuthenticationSucceeded(result);
+				Toast.makeText(context,
+						"Authentication succeeded!", Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onAuthenticationFailed() {
+				super.onAuthenticationFailed();
+				Toast.makeText(context, "Authentication failed",
+						Toast.LENGTH_SHORT)
+						.show();
+			}
+		});
+
+		promptInfo = new BiometricPrompt.PromptInfo.Builder()
+				.setTitle("Biometric login for my app")
+				.setSubtitle("Log in using your biometric credential")
+				// Can't call setNegativeButtonText() and
+				// setAllowedAuthenticators(...|DEVICE_CREDENTIAL) at the same time.
+				// .setNegativeButtonText("Use account password")
+				.setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+				.build();
+
+		return biometricPrompt;
+	}
 }

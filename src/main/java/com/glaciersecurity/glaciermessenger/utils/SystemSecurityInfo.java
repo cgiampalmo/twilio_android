@@ -6,9 +6,13 @@ import android.os.Build;
 import android.provider.Settings;
 import android.provider.Settings.Secure;
 
+import androidx.biometric.BiometricManager;
+
 import com.glaciersecurity.glaciermessenger.Config;
 
 import java.io.File;
+
+
 
 //AM#20, AM#21, AM#22, AM#23, AM#24
 public class SystemSecurityInfo {
@@ -23,6 +27,7 @@ public class SystemSecurityInfo {
         Log.d(Config.LOGTAG, "Current security patch: " + getCurrentSecurityPatch());
         Log.d(Config.LOGTAG, "Developer tools is enabled: " + isDeveloperToolsEnabled(context));
         Log.d(Config.LOGTAG, "USB debugging is enabled: " + isUSBDebuggingEnabled(context));
+        Log.d(Config.LOGTAG, "Biometric or PIN enabled: " + isBiometricReady(context));
     }
 
     /**
@@ -87,5 +92,13 @@ public class SystemSecurityInfo {
     public static boolean isUSBDebuggingEnabled(Context context) {
         //android.provider.Settings.Global
         return Settings.Global.getInt(context.getContentResolver(), Settings.Global.ADB_ENABLED, 0) == 1;
+    }
+
+    /**
+     * Indicate whether this device can authenticate the user with biometrics
+     * @return true if there are any available biometric mechanisms and biometrics are enrolled on the device, if not, return false
+     */
+    public static boolean isBiometricReady(Context context) {
+        return BiometricManager.from(context).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS;
     }
 }

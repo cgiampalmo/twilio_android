@@ -102,6 +102,42 @@
             android:key="wipe_all_history"
             android:summary="@string/wipe_all_history_desc"
             android:title="@string/action_wipe_all_history"/>
+        <!-- AM#14 -->
+        <PreferenceScreen
+            android:key="biometrics"
+            android:summary="@string/pref_biometrics_summary"
+            android:title="@string/pref_biometrics_title"
+            >
+            <PreferenceCategory
+                android:key="biometric_option"
+                android:title="@string/biometrics_options">
+                <SwitchPreference
+                    android:defaultValue="@bool/enable_biometrics"
+                    android:key="enable_biometric"
+                    android:summary="@string/pref_biometric_summary"
+                    android:title="@string/title_pref_biometric"/>
+            </PreferenceCategory>
+            <PreferenceCategory
+                android:key="pin_option"
+                android:title="@string/pin_options">
+                <SwitchPreference
+                    android:defaultValue="@bool/enable_pin"
+                    android:key="enable_pin"
+                    android:summary="@string/pref_pin_summary"
+                    android:title="@string/title_pref_pin"/>
+            </PreferenceCategory>
+            <PreferenceCategory
+                android:key="locktime_option"
+                android:title="@string/locktime_options">
+                <ListPreference
+                    android:defaultValue="@integer/automatic_locktime"
+                    android:key="automatic_locktime"
+                    android:summary="@string/pref_automatic_locktime_summary"
+                    android:title="@string/title_pref_locktime"
+                    android:entries="@array/timer_options_descriptions"
+                    android:entryValues="@array/timer_options_durations"/>
+            </PreferenceCategory>
+        </PreferenceScreen>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_notification_settings"
         android:key="notification_category">
