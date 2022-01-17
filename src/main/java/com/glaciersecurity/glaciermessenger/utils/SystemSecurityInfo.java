@@ -27,7 +27,7 @@ public class SystemSecurityInfo {
         Log.d(Config.LOGTAG, "Current security patch: " + getCurrentSecurityPatch());
         Log.d(Config.LOGTAG, "Developer tools is enabled: " + isDeveloperToolsEnabled(context));
         Log.d(Config.LOGTAG, "USB debugging is enabled: " + isUSBDebuggingEnabled(context));
-        Log.d(Config.LOGTAG, "Biometric or PIN enabled: " + isBiometricReady(context));
+        Log.d(Config.LOGTAG, "Biometric or PIN enabled: " + isBiometricPINReady(context));
     }
 
     /**
@@ -98,7 +98,19 @@ public class SystemSecurityInfo {
      * Indicate whether this device can authenticate the user with biometrics
      * @return true if there are any available biometric mechanisms and biometrics are enrolled on the device, if not, return false
      */
-    public static boolean isBiometricReady(Context context) {
+    /*public static boolean isBiometricReady(Context context) {
+        return BiometricManager.from(context).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS;
+    }
+
+    public static boolean isPINReady(Context context) {
+        return BiometricManager.from(context).canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS;
+    }*/
+
+    public static boolean isBiometricPINReady(Context context) {
+        return BiometricManager.from(context).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS;
+    }
+
+    public static boolean isBiometricPINOn(Context context) {
         return BiometricManager.from(context).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS;
     }
 }

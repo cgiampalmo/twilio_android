@@ -183,11 +183,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	private final PendingItem<PresenceTemplate> mPendingPresenceTemplate = new PendingItem<>();
 	private CallManager mCallManager;
 
-	//AM#14
-	private Executor executor;
-	private BiometricPrompt biometricPrompt;
-	private BiometricPrompt.PromptInfo promptInfo;
-
 
 	//secondary fragment (when holding the conversation, must be initialized before refreshing the overview fragment
 	private static final @IdRes
@@ -643,11 +638,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		//CMG AM-469
 		returnToCall = findViewById(R.id.toolbar_in_call);
 		returnToCall.setOnClickListener(returnToCall());
-
-		//AM#14
-		if (SystemSecurityInfo.isBiometricReady(this)) {
-			createBiometricPrompt(this);
-		}
 	}
 
 	private View.OnClickListener returnToCall() {
@@ -1776,6 +1766,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	@Override
 	protected void onNewIntent(final Intent intent) {
+		super.onNewIntent(intent);
 		if (isViewOrShareIntent(intent)) {
 			if (xmppConnectionService != null) {
 				clearPendingViewIntent();
@@ -2049,47 +2040,5 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	@Override
 	public LocalVideoTrack getLocalVideoTrack() {
 		return null;
-	}
-
-
-	//AM#14
-	public BiometricPrompt createBiometricPrompt(Context context) {
-		executor = ContextCompat.getMainExecutor(this);
-		biometricPrompt = new BiometricPrompt(ConversationsActivity.this,
-				executor, new BiometricPrompt.AuthenticationCallback() {
-			@Override
-			public void onAuthenticationError(int errorCode,
-											  @NonNull CharSequence errString) {
-				super.onAuthenticationError(errorCode, errString);
-				Toast.makeText(context, "Authentication error: " + errString, Toast.LENGTH_SHORT).show();
-			}
-
-			@Override
-			public void onAuthenticationSucceeded(
-					@NonNull BiometricPrompt.AuthenticationResult result) {
-				super.onAuthenticationSucceeded(result);
-				Toast.makeText(context,
-						"Authentication succeeded!", Toast.LENGTH_SHORT).show();
-			}
-
-			@Override
-			public void onAuthenticationFailed() {
-				super.onAuthenticationFailed();
-				Toast.makeText(context, "Authentication failed",
-						Toast.LENGTH_SHORT)
-						.show();
-			}
-		});
-
-		promptInfo = new BiometricPrompt.PromptInfo.Builder()
-				.setTitle("Biometric login for my app")
-				.setSubtitle("Log in using your biometric credential")
-				// Can't call setNegativeButtonText() and
-				// setAllowedAuthenticators(...|DEVICE_CREDENTIAL) at the same time.
-				// .setNegativeButtonText("Use account password")
-				.setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL)
-				.build();
-
-		return biometricPrompt;
 	}
 }

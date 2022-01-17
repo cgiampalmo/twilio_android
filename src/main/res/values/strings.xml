@@ -367,18 +367,25 @@
     <string name="pref_quiet_hours_summary">Notifications will be silenced during quiet hours</string>
 
     <!-- AM#14 -->
+    <string name="immediate">Immediately</string>
+    <string name="one_hour">1 hour</string>
+    <string name="four_hours">4 hours</string>
     <string name="pref_biometrics_summary">Protect Glacier access with multiple layers of security</string>
-    <string name="pref_biometrics_title">Device Passcode/PIN/Biometric</string>
-    <string name="pref_biometric_summary">Unlock with fingerprint or facial recognition.</string>
-    <string name="title_pref_biometric">Enable biometric authentication</string>
+    <string name="pref_biometrics_title">Device Biometric/PIN</string>
+    <string name="pref_biometric_summary">Unlock with fingerprint or facial recognition, with PIN as backup (if set on your device).</string>
+    <string name="title_pref_biometric">Enable biometric/PIN authentication</string>
     <string name="biometrics_options">Biometric</string>
-    <string name="pref_pin_summary">PIN is used as the backup for biometric authentication</string>
-    <string name="title_pref_pin">Enable PIN</string>
+    <string name="pref_pin_summary">Default is the device PIN. This allows you to set a PIN different from the device PIN as the backup for biometric authentication</string>
+    <string name="title_pref_pin">Set Glacier PIN</string>
     <string name="pin_options">PIN Code</string>
-    <string name="title_pref_locktime">Require Authentication</string>
+    <string name="title_pref_locktime">Set authentication lock time</string>
     <string name="locktime_options">Lock Time</string>
     <string name="pref_automatic_locktime">Automatic Lock Time</string>
-    <string name="pref_automatic_locktime_summary">Set Glacier to lock after a selected away from the app.</string>
+    <string name="pref_automatic_locktime_summary">Set Glacier to require authentication after a selected away from the app.</string>
+    <string name="biometrics_not_ready">Enable biometric authentication</string>
+    <string name="biometrics_not_ready_message">Enable screen lock authentication on your device for this to work with Glacier. Open System Settings -> Security to setup facial recognition, fingerprint or PIN on your device.</string>
+    <string name="pin_not_ready">Enable PIN/Screen Lock authentication</string>
+    <string name="pin_not_ready_message">Enable PIN/Screen lock authentication on your device for this to work with Glacier, or select a PIN specifically for Glacier. Open System Settings -> Security to setup PIN/Screen Lock on your device.</string>
 
     <string name="pref_use_larger_font">Increase font size</string>
     <string name="pref_use_larger_font_summary">Use larger font sizes across the entire app</string>

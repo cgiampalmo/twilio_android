@@ -137,6 +137,7 @@ import com.glaciersecurity.glaciermessenger.utils.ReplacingTaskManager;
 import com.glaciersecurity.glaciermessenger.utils.Resolver;
 import com.glaciersecurity.glaciermessenger.utils.SerialSingleThreadExecutor;
 import com.glaciersecurity.glaciermessenger.utils.StringUtils;
+import com.glaciersecurity.glaciermessenger.utils.SystemSecurityInfo;
 import com.glaciersecurity.glaciermessenger.utils.WakeLockHelper;
 import com.glaciersecurity.glaciermessenger.xml.Namespace;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
@@ -260,7 +261,12 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	private QuickConversationsService mQuickConversationsService = new QuickConversationsService(this);
 
 	private CallManager callManager = new CallManager(this); //ALF AM-478;
-	private ProcessLifecycleListener processListener = new ProcessLifecycleListener(this); //AM#14
+
+	//AM#14
+	private ProcessLifecycleListener processListener;
+	private boolean needsProcessLifecycleUpdate = false;
+	private AtomicLong mLastGlacierUsage = new AtomicLong(0);
+	public static final long BIOAUTH_INTERVAL_DEFAULT = 0L;
 
 	private ConversationsFileObserver fileObserver; //ALF AM-603 moved to onCreate and changed mechanism
 	/*private final ConversationsFileObserver fileObserver = new ConversationsFileObserver(
@@ -349,6 +355,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	private final Set<OnUpdateBlocklist> mOnUpdateBlocklist = Collections.newSetFromMap(new WeakHashMap<OnUpdateBlocklist, Boolean>());
 	private final Set<OnMucRosterUpdate> mOnMucRosterUpdate = Collections.newSetFromMap(new WeakHashMap<OnMucRosterUpdate, Boolean>());
 	private final Set<OnKeyStatusUpdated> mOnKeyStatusUpdated = Collections.newSetFromMap(new WeakHashMap<OnKeyStatusUpdated, Boolean>());
+	private final Set<OnProcessLifecycleUpdate> mOnProcessLifecycleUpdates = Collections.newSetFromMap(new WeakHashMap<OnProcessLifecycleUpdate, Boolean>()); //AM#14
 
 	private final Object LISTENER_LOCK = new Object();
 
@@ -1045,8 +1052,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	//AM#14
 	public void handleLifecycleUpdate(ProcessLifecycleListener.LifecycleStatus value) {
-		//if biometrics turned off, return
-		//final String value = sharedPreferences.getString(SettingsActivity.OMEMO_SETTING, context.getResources().getString(R.string.omemo_setting_default));
 		switch (value) {
 			case CREATE:
 			case DESTROY:
@@ -1054,15 +1059,16 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			case RESUME:
 				break;
 			case START: // app moved to foreground
-				//
+				if (SystemSecurityInfo.isBiometricPINReady(this)) {
+					updateProcessLifecycle();
+				}
 				break;
 			case STOP: // app moved to background
-				//
+				mLastGlacierUsage.set(SystemClock.elapsedRealtime());
+				needsProcessLifecycleUpdate = false;
 				break;
 			default:
-				//
 				break;
-
 		}
 	}
 
@@ -1300,6 +1306,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		this.destroyed = false;
 		OmemoSetting.load(this);
 		ExceptionHelper.init(getApplicationContext());
+		processListener = new ProcessLifecycleListener(this); //AM#14
 		try {
 			Security.insertProviderAt(Conscrypt.newProvider(), 1);
 		} catch (Throwable throwable) {
@@ -1374,7 +1381,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}*/
 
 		this.pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-		this.wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "XmppConnectionService");
+		this.wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Glacier:XmppConnectionService");
 
 		//AM-410
 		//twilioCallListener = this;
@@ -2740,6 +2747,25 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 		if (remainingListeners) {
 			switchToBackground();
+		}
+	}
+
+	//AM#14 (next 2)
+	public void setOnProcessLifecycleUpdateListener(OnProcessLifecycleUpdate listener) {
+		synchronized (LISTENER_LOCK) {
+			if (!this.mOnProcessLifecycleUpdates.add(listener)) {
+				Log.w(Config.LOGTAG,listener.getClass().getName()+" is already registered as OnProcessLifecycleUpdateListener");
+			}
+		}
+
+		if (needsProcessLifecycleUpdate) {
+			updateProcessLifecycle();
+		}
+	}
+
+	public void removeOnProcessLifecycleUpdateListener(OnProcessLifecycleUpdate listener) {
+		synchronized (LISTENER_LOCK) {
+			this.mOnProcessLifecycleUpdates.remove(listener);
 		}
 	}
 
@@ -4302,6 +4328,34 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 	}
 
+	//AM#14
+	public void updateProcessLifecycle() {
+		if (this.mOnProcessLifecycleUpdates.size() == 0) {
+			needsProcessLifecycleUpdate = true;
+			return;
+		}
+		needsProcessLifecycleUpdate = false;
+
+		//get time stored in shared preferences
+		String locktimeStr = getPreferences().getString("automatic_locktime", null);
+		long locktime = BIOAUTH_INTERVAL_DEFAULT;
+		if (locktimeStr != null && !locktimeStr.equalsIgnoreCase("immediate"))
+		{
+			try {
+				locktime = Long.parseLong(locktimeStr);
+				locktime = locktime * 1000L;
+			} catch(NumberFormatException nfe) {
+				locktime = BIOAUTH_INTERVAL_DEFAULT;
+			}
+		}
+
+		if (SystemClock.elapsedRealtime() - mLastGlacierUsage.get() >= locktime) {
+			for (OnProcessLifecycleUpdate listener : threadSafeList(this.mOnProcessLifecycleUpdates)) {
+				listener.onProcessLifecycleUpdate();
+			}
+		}
+	}
+
 	public Account findAccountByJid(final Jid accountJid) {
 		for (Account account : this.accounts) {
 			if (account.getJid().asBareJid().equals(accountJid.asBareJid())) {
@@ -5573,6 +5627,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	public interface OnShowErrorToast {
 		void onShowErrorToast(int resId);
+	}
+
+	public interface OnProcessLifecycleUpdate { //AM#14
+		void onProcessLifecycleUpdate();
 	}
 
 	public class XmppConnectionBinder extends Binder {

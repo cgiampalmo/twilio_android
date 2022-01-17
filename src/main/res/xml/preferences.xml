@@ -108,24 +108,32 @@
             android:summary="@string/pref_biometrics_summary"
             android:title="@string/pref_biometrics_title"
             >
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="com.glaciersecurity.glaciermessenger.ui.SettingsActivity"
+                android:targetPackage="@string/applicationId">
+                <extra
+                    android:name="page"
+                    android:value="biometrics"/>
+            </intent>
             <PreferenceCategory
                 android:key="biometric_option"
                 android:title="@string/biometrics_options">
                 <SwitchPreference
                     android:defaultValue="@bool/enable_biometrics"
-                    android:key="enable_biometric"
+                    android:key="use_biometrics"
                     android:summary="@string/pref_biometric_summary"
                     android:title="@string/title_pref_biometric"/>
             </PreferenceCategory>
-            <PreferenceCategory
+            <!--<PreferenceCategory
                 android:key="pin_option"
                 android:title="@string/pin_options">
                 <SwitchPreference
                     android:defaultValue="@bool/enable_pin"
-                    android:key="enable_pin"
+                    android:key="use_pin_code"
                     android:summary="@string/pref_pin_summary"
                     android:title="@string/title_pref_pin"/>
-            </PreferenceCategory>
+            </PreferenceCategory> -->
             <PreferenceCategory
                 android:key="locktime_option"
                 android:title="@string/locktime_options">
@@ -134,8 +142,13 @@
                     android:key="automatic_locktime"
                     android:summary="@string/pref_automatic_locktime_summary"
                     android:title="@string/title_pref_locktime"
-                    android:entries="@array/timer_options_descriptions"
-                    android:entryValues="@array/timer_options_durations"/>
+                    android:entries="@array/bioauth_options_descriptions"
+                    android:entryValues="@array/bioauth_options_durations"/>
+            </PreferenceCategory>
+            <PreferenceCategory
+                android:layout="@layout/preferences_category"
+                android:key="locktime_selected"
+                android:title="@string/locktime_options">
             </PreferenceCategory>
         </PreferenceScreen>
     </PreferenceCategory>

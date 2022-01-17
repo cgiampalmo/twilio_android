@@ -7,9 +7,6 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 //AM#14
 public class ProcessLifecycleListener implements DefaultLifecycleObserver {
 
-    //should only do this if 1) logged in, 2) Biometrics is turned on 3) with lockscreen
-    //Maybe wait until then to instantiate?
-
     XmppConnectionService xmppConnectionService;
 
     public static enum LifecycleStatus {
@@ -20,8 +17,6 @@ public class ProcessLifecycleListener implements DefaultLifecycleObserver {
         START,
         STOP
     }
-
-    //biometricPrompt.authenticate(promptInfo)
 
     public ProcessLifecycleListener(XmppConnectionService service) {
         xmppConnectionService = service;

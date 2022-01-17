@@ -3,6 +3,7 @@
 buildscript {
     repositories {
         google()
+        mavenCentral()
         jcenter()
     }
     dependencies {
@@ -42,8 +43,8 @@ apply plugin: 'com.google.gms.google-services'
 
 repositories {
     google()
-    jcenter()
     mavenCentral()
+    jcenter()
 }
 
 allprojects {
@@ -54,6 +55,7 @@ allprojects {
 
     repositories {
         google()  // Google's Maven repository
+        mavenCentral()
         jcenter()
         maven{
             url "https://github.com/omadahealth/omada-nexus/raw/master/release"
@@ -150,7 +152,8 @@ dependencies {
     implementation 'com.twilio:audioswitch:1.1.2'
 
     implementation 'me.saket:better-link-movement-method:2.2.0' //AM#12
-    implementation 'androidx.biometric:biometric:1.1.0' //AM#14 (next 3)
+    implementation 'androidx.biometric:biometric:1.1.0' //AM#14 (next 4)
+    implementation "androidx.lifecycle:lifecycle-runtime:${versions.lifecycle_version}"
     implementation "androidx.lifecycle:lifecycle-process:${versions.lifecycle_version}"
     implementation "androidx.lifecycle:lifecycle-common:${versions.lifecycle_version}"
 
@@ -184,8 +187,8 @@ android {
     defaultConfig {
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 508
-        versionName "3.4.0"
+        versionCode 509
+        versionName "3.4.1-RC3"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
 
@@ -202,6 +205,10 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    node {
+        download = true
     }
 
     buildTypes {
