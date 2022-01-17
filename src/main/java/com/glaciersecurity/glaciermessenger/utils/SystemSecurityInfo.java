@@ -2,13 +2,18 @@ package com.glaciersecurity.glaciermessenger.utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.provider.Settings.Secure;
 
+import androidx.annotation.BoolRes;
 import androidx.biometric.BiometricManager;
 
 import com.glaciersecurity.glaciermessenger.Config;
+import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.ui.SettingsActivity;
 
 import java.io.File;
 
@@ -28,6 +33,7 @@ public class SystemSecurityInfo {
         Log.d(Config.LOGTAG, "Developer tools is enabled: " + isDeveloperToolsEnabled(context));
         Log.d(Config.LOGTAG, "USB debugging is enabled: " + isUSBDebuggingEnabled(context));
         Log.d(Config.LOGTAG, "Biometric or PIN enabled: " + isBiometricPINReady(context));
+        Log.d(Config.LOGTAG, "Biometric or PIN turned on: " + isBiometricPINOn(context));
     }
 
     /**
@@ -111,6 +117,10 @@ public class SystemSecurityInfo {
     }
 
     public static boolean isBiometricPINOn(Context context) {
-        return BiometricManager.from(context).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS;
+        return getBooleanPreference(context, SettingsActivity.USE_BIOMETRICS, R.bool.enable_biometrics);
+    }
+
+    private static boolean getBooleanPreference(Context context, String name, @BoolRes int res) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(name, context.getResources().getBoolean(res));
     }
 }
