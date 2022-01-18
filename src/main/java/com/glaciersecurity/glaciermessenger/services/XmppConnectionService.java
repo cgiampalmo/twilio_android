@@ -265,6 +265,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	//AM#14
 	private ProcessLifecycleListener processListener;
 	private boolean needsProcessLifecycleUpdate = false;
+	private boolean ignoreLifecycleUpdate = false;
 	private AtomicLong mLastGlacierUsage = new AtomicLong(0);
 	public static final long BIOAUTH_INTERVAL_DEFAULT = 0L;
 
@@ -1059,9 +1060,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			case RESUME:
 				break;
 			case START: // app moved to foreground
-				if (SystemSecurityInfo.isBiometricPINReady(this)) {
+				if (!ignoreLifecycleUpdate && SystemSecurityInfo.isBiometricPINReady(this)) {
 					updateProcessLifecycle();
 				}
+				ignoreLifecycleUpdate = false; //activity won't need to track return to app this way
 				break;
 			case STOP: // app moved to background
 				mLastGlacierUsage.set(SystemClock.elapsedRealtime());
@@ -1070,6 +1072,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			default:
 				break;
 		}
+	}
+
+	public void setChoosingFile(boolean choosingFile) { //AM#14
+		ignoreLifecycleUpdate = choosingFile;
 	}
 
 	private boolean processAccountState(Account account, boolean interactive, boolean isUiAction, boolean isAccountPushed, HashSet<Account> pingCandidates) {

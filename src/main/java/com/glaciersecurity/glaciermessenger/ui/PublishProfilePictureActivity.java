@@ -155,10 +155,11 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
         }
     }
 
-    public static void chooseAvatar(final Activity activity) {
+    private void chooseAvatar(final Activity activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("image/*");
+            xmppConnectionService.setChoosingFile(true); //AM#14
             activity.startActivityForResult(
                     Intent.createChooser(intent, activity.getString(R.string.attach_choose_picture)),
                     REQUEST_CHOOSE_PICTURE

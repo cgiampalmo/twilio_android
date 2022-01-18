@@ -29,12 +29,14 @@
 
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.app.Activity;
 import android.content.Intent;
 
 import androidx.activity.result.ActivityResultCallback;
 import androidx.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
@@ -95,7 +97,7 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity impleme
         configureActionBar(getSupportActionBar());
         this.binding.cancelButton.setOnClickListener((v) -> this.finish());
         this.binding.secondaryHint.setVisibility(View.GONE);
-        this.binding.accountImage.setOnClickListener((v) -> this.chooseAvatar());
+        this.binding.accountImage.setOnClickListener((v) -> this.chooseAvatar(this));
         Intent intent = getIntent();
         String uuid = intent == null ? null : intent.getStringExtra("uuid");
         if (uuid != null) {
@@ -136,7 +138,8 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity impleme
         }
     }
 
-    private void chooseAvatar() {
+    private void chooseAvatar(final Activity activity) {
+        xmppConnectionService.setChoosingFile(true); //AM#14
         CropImage.activity()
                 .setOutputCompressFormat(Bitmap.CompressFormat.PNG)
                 .setAspectRatio(1, 1)
