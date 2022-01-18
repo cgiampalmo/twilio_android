@@ -402,7 +402,7 @@ There are two build flavors available. *free* and *playstore*. Unless you know w
 
 #### How do I update/add external libraries?
 
-If the library you want to update is in Maven Central or JCenter (or has its own
+If the library you want to update is in Maven Central (or has its own
 Maven repo), add it or update its version in `build.gradle`. If the library is
 in the `libs/` directory, you can update it using a subtree merge by doing the
 following (using `minidns` as an example):

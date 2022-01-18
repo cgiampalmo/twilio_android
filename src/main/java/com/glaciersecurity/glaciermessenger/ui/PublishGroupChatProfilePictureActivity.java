@@ -30,6 +30,8 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.content.Intent;
+
+import androidx.activity.result.ActivityResultCallback;
 import androidx.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -40,7 +42,7 @@ import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.theartofdev.edmodo.cropper.CropImage;
+import com.canhub.cropper.CropImage;
 
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
@@ -113,9 +115,15 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity impleme
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            /*registerForActivityResult(CropImageContract(), new ActivityResultCallback<>() {
+                @Override
+                public void onActivityResult(Object result) {
+
+                }
+            });*/ //when we update
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
-                this.uri = result.getUri();
+                this.uri = result.getUriContent();
                 if (xmppConnectionServiceBound) {
                     reloadAvatar();
                 }

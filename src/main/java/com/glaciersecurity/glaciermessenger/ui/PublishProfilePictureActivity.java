@@ -18,7 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
-import com.theartofdev.edmodo.cropper.CropImage;
+import com.canhub.cropper.CropImage;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -138,7 +138,7 @@ public class PublishProfilePictureActivity extends XmppActivity implements XmppC
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
-                this.avatarUri = result.getUri();
+                this.avatarUri = result.getUriContent();
                 if (xmppConnectionServiceBound) {
                     loadImageIntoPreview(this.avatarUri);
                 }

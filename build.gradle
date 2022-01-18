@@ -4,7 +4,6 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.4'
@@ -44,7 +43,6 @@ apply plugin: 'com.google.gms.google-services'
 repositories {
     google()
     mavenCentral()
-    jcenter()
 }
 
 allprojects {
@@ -56,10 +54,10 @@ allprojects {
     repositories {
         google()  // Google's Maven repository
         mavenCentral()
-        jcenter()
         maven{
             url "https://github.com/omadahealth/omada-nexus/raw/master/release"
         }
+        maven { url 'https://jitpack.io' }
         maven {
             url 'https://api.mapbox.com/downloads/v2/releases/maven'
             authentication {
@@ -95,10 +93,7 @@ dependencies {
         exclude group: 'com.google.firebase', module: 'firebase-measurement-connector'
     } //ALF AM-410 updated version and pointed to messenger, added google-services above
 
-    implementation('com.theartofdev.edmodo:android-image-cropper:2.7.0') {
-        exclude group: 'com.android.support', module: 'appcompat-v7'
-        exclude group: 'com.android.support', module: 'exifinterface'
-    }
+    implementation "com.github.CanHub:Android-Image-Cropper:3.2.2"
 
     //ALF AM-313, AM-346
     implementation 'com.amazonaws:aws-android-sdk-appsync:3.0.0'  //AppSync SDK
@@ -127,16 +122,16 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
     implementation "com.android.support:preference-v14:${versions.supportLibrary}"
 
-    implementation 'com.github.traex.rippleeffect:ripple:1.3.1-OG'              // RippleView
-    implementation 'com.github.omadahealth.typefaceview:typefaceview:1.5.0@aar' // TypefaceView
+    implementation 'com.github.traex.rippleeffect:ripple:1.3.1-OG'
+    implementation 'com.github.omadahealth.typefaceview:typefaceview:1.5.0@aar'
 
-    implementation 'com.google.android:flexbox:2.0.1'
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
     implementation 'com.google.android.material:material:1.0.0'                 // NEEDS UPDATE from 1.0.0 to 1.4.0
     implementation 'com.google.guava:guava:30.1.1-android'
     implementation 'com.google.zxing:core:3.3.3'
 
     implementation "com.koushikdutta.ion:ion:${versions.ion}"
-    implementation 'com.leinardi.android:speed-dial:2.0.1'
+    //implementation 'com.leinardi.android:speed-dial:2.0.1'
     implementation 'com.makeramen:roundedimageview:2.3.0'
     implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:9.7.0' //AM-261
     implementation 'com.wefika:flowlayout:0.4.1'
@@ -144,7 +139,7 @@ dependencies {
     // CMG AM-254 materialx third party dependencies
     implementation 'com.balysv:material-ripple:1.0.2'         // ripple effect
     implementation 'com.github.bumptech.glide:glide:3.7.0'    // image loader   // NEEDS UPDATE from 3.7.0 to 4.9.0
-    implementation 'com.mikhaellopez:circularimageview:3.2.0' // circle image view
+    //implementation 'com.mikhaellopez:circularimageview:3.2.0' // circle image view
 
     // Twilio dependencies for calls
     implementation "com.twilio:video-android:${versions.videoAndroid}"
@@ -161,8 +156,7 @@ dependencies {
 
     implementation 'me.drakeet.support:toastcompat:1.1.0'
     implementation 'me.leolin:ShortcutBadger:1.1.22@aar'
-
-    implementation 'net.ypresto.androidtranscoder:android-transcoder:0.3.0'
+    implementation 'com.otaliastudios:transcoder:0.10.4'
 
     implementation 'org.bouncycastle:bcmail-jdk15on:1.58'
     implementation 'org.conscrypt:conscrypt-android:1.3.0'
@@ -170,10 +164,7 @@ dependencies {
     implementation 'org.osmdroid:osmdroid-android:6.0.3'
     implementation 'org.whispersystems:signal-protocol-java:2.6.2'
 
-    implementation 'uk.me.lewisdeane.ldialogs:ldialogs:1.2.0@aar'
-
     implementation project(':libs:xmpp-addr')
-
 }
 
 
