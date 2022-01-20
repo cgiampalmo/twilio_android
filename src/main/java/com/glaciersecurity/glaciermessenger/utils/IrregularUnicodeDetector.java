@@ -50,7 +50,7 @@ import java.util.regex.Pattern;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.ui.util.Color;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class IrregularUnicodeDetector {
 
@@ -85,7 +85,7 @@ public class IrregularUnicodeDetector {
 			builder.append('@');
 		}
 		if (jid.getDomain() != null) {
-			String[] labels = jid.getDomain().split("\\.");
+			String[] labels = jid.getDomain().toEscapedString().split("\\.");
 			for (int i = 0; i < labels.length; ++i) {
 				SpannableString spannableString = new SpannableString(labels[i]);
 				colorize(spannableString, patternTuple.domain.get(i), color);
@@ -224,7 +224,7 @@ public class IrregularUnicodeDetector {
 			} else {
 				localPattern = null;
 			}
-			String domain = jid.getDomain();
+			String domain = jid.getDomain().toEscapedString();
 			final List<Pattern> domainPatterns = new ArrayList<>();
 			if (domain != null) {
 				for (String label : domain.split("\\.")) {

@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.glaciersecurity.glaciermessenger.android.AbstractPhoneContact;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 
 public class Roster {

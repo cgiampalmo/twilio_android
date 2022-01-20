@@ -26,7 +26,7 @@ import com.glaciersecurity.glaciermessenger.services.AvatarService;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class Account extends AbstractEntity implements AvatarService.Avatarable {
 
@@ -89,14 +89,6 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 	public Contact getSelfContact() {
 		return getRoster().getContact(jid);
 	}
-
-	/*public boolean hasPendingPgpIntent(Conversation conversation) {
-		return pgpDecryptionService != null && pgpDecryptionService.hasPendingIntent(conversation);
-	}
-
-	public boolean isPgpDecryptionServiceConnected() {
-		return pgpDecryptionService != null && pgpDecryptionService.isConnected();
-	}*/
 
 	public boolean setShowErrorNotification(boolean newValue) {
 		boolean oldValue = showErrorNotification();
@@ -360,7 +352,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 	}
 
 	public String getServer() {
-		return jid.getDomain();
+		return jid.getDomain().toEscapedString();
 	}
 
 	public String getPassword() {
@@ -510,7 +502,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 		final ContentValues values = new ContentValues();
 		values.put(UUID, uuid);
 		values.put(USERNAME, jid.getLocal());
-		values.put(SERVER, jid.getDomain());
+		values.put(SERVER, jid.getDomain().toEscapedString());
 		values.put(PASSWORD, password);
 		values.put(OPTIONS, options);
 		synchronized (this.keys) {

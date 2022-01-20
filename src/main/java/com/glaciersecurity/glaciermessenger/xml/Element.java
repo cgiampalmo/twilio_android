@@ -11,7 +11,7 @@ import java.util.Locale;
 import com.glaciersecurity.glaciermessenger.utils.XmlHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.InvalidJid;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.MessagePacket;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class Element {
 	private final String name;

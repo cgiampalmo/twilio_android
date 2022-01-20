@@ -40,7 +40,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.jingle.stanzas.Content;
 import com.glaciersecurity.glaciermessenger.xmpp.jingle.stanzas.JinglePacket;
 import com.glaciersecurity.glaciermessenger.xmpp.jingle.stanzas.Reason;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.IqPacket;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class JingleConnection implements Transferable {
 

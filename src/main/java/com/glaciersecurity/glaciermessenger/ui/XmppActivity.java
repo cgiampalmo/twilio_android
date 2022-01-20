@@ -88,7 +88,7 @@ import com.glaciersecurity.glaciermessenger.utils.SystemSecurityInfo;
 import com.glaciersecurity.glaciermessenger.utils.ThemeHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.OnKeyStatusUpdated;
 import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -664,57 +664,6 @@ public abstract class XmppActivity extends ActionBarActivity implements XmppConn
 	protected void inviteToConversation(Conversation conversation) {
 		startActivityForResult(ChooseContactActivity.create(this,conversation), REQUEST_INVITE_TO_CONVERSATION);
 	}
-
-	/*protected void announcePgp(final Account account, final Conversation conversation, Intent intent, final Runnable onSuccess) {
-		if (account.getPgpId() == 0) {
-			choosePgpSignId(account);
-		} else {
-			String status = null;
-			if (manuallyChangePresence()) {
-				status = account.getPresenceStatusMessage();
-			}
-			if (status == null) {
-				status = "";
-			}
-			xmppConnectionService.getPgpEngine().generateSignature(intent, account, status, new UiCallback<String>() {
-
-				@Override
-				public void userInputRequried(PendingIntent pi, String signature) {
-					try {
-						startIntentSenderForResult(pi.getIntentSender(), REQUEST_ANNOUNCE_PGP, null, 0, 0, 0);
-					} catch (final SendIntentException ignored) {
-					}
-				}
-
-				@Override
-				public void success(String signature) {
-					account.setPgpSignature(signature);
-					xmppConnectionService.databaseBackend.updateAccount(account);
-					xmppConnectionService.sendPresence(account);
-					if (conversation != null) {
-						conversation.setNextEncryption(Message.ENCRYPTION_PGP);
-						xmppConnectionService.updateConversation(conversation);
-						refreshUi();
-					}
-					if (onSuccess != null) {
-						runOnUiThread(onSuccess);
-					}
-				}
-
-				@Override
-				public void error(int error, String signature) {
-					if (error == 0) {
-						account.setPgpSignId(0);
-						account.unsetPgpSignature();
-						xmppConnectionService.databaseBackend.updateAccount(account);
-						choosePgpSignId(account);
-					} else {
-						displayErrorDialog(error);
-					}
-				}
-			});
-		}
-	}*/
 
 	@SuppressWarnings("deprecation")
 	protected void setListItemBackgroundOnView(View view) {

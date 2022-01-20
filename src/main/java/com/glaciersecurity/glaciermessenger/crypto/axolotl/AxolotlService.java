@@ -54,7 +54,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.OnIqPacketReceived;
 import com.glaciersecurity.glaciermessenger.xmpp.pep.PublishOptions;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.IqPacket;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.MessagePacket;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 

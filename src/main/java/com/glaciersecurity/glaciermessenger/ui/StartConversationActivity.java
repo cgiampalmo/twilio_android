@@ -90,7 +90,7 @@ import com.glaciersecurity.glaciermessenger.ui.widget.SwipeRefreshListFragment;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
 import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.meetingIcon;
 import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.sickIcon;
@@ -1209,37 +1209,6 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		}
 	}
 
-	/*
-	@Override
-	public void onCreatePublicChannel(Account account, String name, Jid address) {
-		mToast = Toast.makeText(this, R.string.creating_channel, Toast.LENGTH_LONG);
-		mToast.show();
-		xmppConnectionService.createPublicChannel(account, name, address, new UiCallback<Conversation>() {
-			@Override
-			public void success(Conversation conversation) {
-				runOnUiThread(() -> {
-					hideToast();
-					switchToConversation(conversation);
-				});
-
-			}
-
-			@Override
-			public void error(int errorCode, Conversation conversation) {
-				runOnUiThread(() -> {
-					replaceToast(getString(errorCode));
-					switchToConversation(conversation);
-				});
-			}
-
-			@Override
-			public void userInputRequried(PendingIntent pi, Conversation object) {
-
-			}
-		});
-	}*/
-
-
 	public static class MyListFragment extends SwipeRefreshListFragment {
 		private AdapterView.OnItemClickListener mOnItemClickListener;
 		private int mResContextMenu;
@@ -1693,29 +1662,6 @@ public class StartConversationActivity extends XmppActivity implements XmppConne
 		builder.create().show();
 	}
 
-
-	/*private void generateSignature(Intent intent, PresenceTemplate template, Account fragAccount) {
-		xmppConnectionService.getPgpEngine().generateSignature(intent, fragAccount, template.getStatusMessage(), new UiCallback<String>() {
-			@Override
-			public void success(String signature) {
-				xmppConnectionService.changeStatus(fragAccount, template, signature);
-			}
-
-			@Override
-			public void error(int errorCode, String object) {
-
-			}
-
-			@Override
-			public void userInputRequried(PendingIntent pi, String object) {
-				mPendingPresenceTemplate.push(template);
-				try {
-					startIntentSenderForResult(pi.getIntentSender(), REQUEST_CHANGE_STATUS, null, 0, 0, 0);
-				} catch (final IntentSender.SendIntentException ignored) {
-				}
-			}
-		});
-	}*/
 
 	private static final int REQUEST_CHANGE_STATUS = 0xee11;
 	private final PendingItem<PresenceTemplate> mPendingPresenceTemplate = new PendingItem<>();

@@ -21,7 +21,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.OnAdvancedStreamFeaturesLoaded;
 import com.glaciersecurity.glaciermessenger.xmpp.mam.MamReference;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.IqPacket;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.MessagePacket;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
 

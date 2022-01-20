@@ -3,17 +3,14 @@ package com.glaciersecurity.glaciermessenger.ui;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.IntentSender;
 import androidx.databinding.DataBindingUtil;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
@@ -1062,30 +1059,6 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
         });
         builder.create().show();
     }
-
-
-    /*private void generateSignature(Intent intent, PresenceTemplate template, Account fragAccount) {
-        xmppConnectionService.getPgpEngine().generateSignature(intent, fragAccount, template.getStatusMessage(), new UiCallback<String>() {
-            @Override
-            public void success(String signature) {
-                xmppConnectionService.changeStatus(fragAccount, template, signature);
-            }
-
-            @Override
-            public void error(int errorCode, String object) {
-
-            }
-
-            @Override
-            public void userInputRequried(PendingIntent pi, String object) {
-                mPendingPresenceTemplate.push(template);
-                try {
-                    startIntentSenderForResult(pi.getIntentSender(), REQUEST_CHANGE_STATUS, null, 0, 0, 0);
-                } catch (final IntentSender.SendIntentException ignored) {
-                }
-            }
-        });
-    }*/
 
     private static final int REQUEST_CHANGE_STATUS = 0xee11;
     private final PendingItem<PresenceTemplate> mPendingPresenceTemplate = new PendingItem<>();

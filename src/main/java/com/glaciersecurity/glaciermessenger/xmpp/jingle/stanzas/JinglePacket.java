@@ -4,7 +4,7 @@ import android.util.Base64;
 
 import com.glaciersecurity.glaciermessenger.xml.Element;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.IqPacket;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class JinglePacket extends IqPacket {
 	Content content = null;

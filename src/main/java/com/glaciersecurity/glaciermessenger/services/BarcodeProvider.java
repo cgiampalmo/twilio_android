@@ -33,7 +33,7 @@ import java.util.Hashtable;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class BarcodeProvider extends ContentProvider implements ServiceConnection {
 

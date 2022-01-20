@@ -47,7 +47,7 @@ import java.util.List;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import kotlin.Unit;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 import static com.glaciersecurity.glaciermessenger.utils.PermissionUtils.allGranted;
 
@@ -60,6 +60,7 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 
 	private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 1;
 	public static final int MY_PERMISSIONS_REQUEST_READ_PHONE_STATE = 0; //AM-474
+	private static final int BLUETOOTH_PERMISSION_REQUEST_CODE = 0x0309; //AM-581b
 
 	private AudioManager audioManager;
 
@@ -111,14 +112,15 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 		}
 
 		//AM-581b
-		/*if (ContextCompat.checkSelfPermission(CallActivity.this,
+		if (ContextCompat.checkSelfPermission(CallActivity.this,
 				Manifest.permission.BLUETOOTH)
 				!= PackageManager.PERMISSION_GRANTED) {
 			// We do not have this permission. Let's ask the user
-			ActivityCompat.requestPermissions(CallActivity.this,
-					new String[]{Manifest.permission.BLUETOOTH},
-					BLUETOOTH_PERMISSION_REQUEST_CODE);
-		}*/
+			requestPermissionForBluetooth();
+			//ActivityCompat.requestPermissions(CallActivity.this,
+			//		new String[]{Manifest.permission.BLUETOOTH},
+			//		BLUETOOTH_PERMISSION_REQUEST_CODE);
+		}
 
 		phonecallReceiver = new PhonecallReceiver(this);
 
@@ -383,12 +385,12 @@ public class CallActivity extends XmppActivity implements PhonecallReceiver.Phon
 	}
 
 	//AM-581b
-	/*private void requestPermissionForBluetooth() {
+	private void requestPermissionForBluetooth() {
 		ActivityCompat.requestPermissions(
 				this,
 				new String[]{Manifest.permission.BLUETOOTH, "android.permission.BLUETOOTH_CONNECT"},
 				BLUETOOTH_PERMISSION_REQUEST_CODE);
-	}*/
+	}
 
 	//ALF AM-474
 	@Override

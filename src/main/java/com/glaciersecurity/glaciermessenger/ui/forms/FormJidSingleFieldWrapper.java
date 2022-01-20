@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.xmpp.forms.Field;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class FormJidSingleFieldWrapper extends FormTextFieldWrapper {
 

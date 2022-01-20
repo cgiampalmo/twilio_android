@@ -34,7 +34,7 @@ import android.database.Cursor;
 import java.util.Set;
 
 import com.glaciersecurity.glaciermessenger.ui.adapter.MessageAdapter;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class IndividualMessage extends Message {
 

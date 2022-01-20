@@ -143,7 +143,7 @@ import com.twilio.video.LocalVideoTrack;
 import com.twilio.video.RemoteParticipant;
 import com.twilio.video.Room;
 
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.customIcon;
 import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.meetingIcon;
@@ -911,30 +911,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		});
 		builder.create().show();
 	}
-
-
-	/*private void generateSignature(Intent intent, PresenceTemplate template) {
-		xmppConnectionService.getPgpEngine().generateSignature(intent, mAccount, template.getStatusMessage(), new UiCallback<String>() {
-			@Override
-			public void success(String signature) {
-				xmppConnectionService.changeStatus(mAccount, template, signature);
-			}
-
-			@Override
-			public void error(int errorCode, String object) {
-
-			}
-
-			@Override
-			public void userInputRequried(PendingIntent pi, String object) {
-				mPendingPresenceTemplate.push(template);
-				try {
-					startIntentSenderForResult(pi.getIntentSender(), REQUEST_CHANGE_STATUS, null, 0, 0, 0);
-				} catch (final IntentSender.SendIntentException ignored) {
-				}
-			}
-		});
-	}*/
 
 	private static void setAvailabilityRadioButton(Presence.Status status, DialogPresenceBinding binding) {
 		if (status == null) {

@@ -3,7 +3,7 @@ package com.glaciersecurity.glaciermessenger.xmpp.pep;
 import android.util.Base64;
 
 import com.glaciersecurity.glaciermessenger.xml.Element;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class Avatar {
 

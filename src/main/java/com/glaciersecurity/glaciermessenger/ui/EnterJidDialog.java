@@ -20,7 +20,7 @@ import com.glaciersecurity.glaciermessenger.databinding.EnterJidDialogBinding;
 import com.glaciersecurity.glaciermessenger.ui.adapter.KnownHostsAdapter;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnBackendConnected;
 import com.glaciersecurity.glaciermessenger.ui.util.DelayedHintHelper;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class EnterJidDialog extends DialogFragment implements OnBackendConnected {
 

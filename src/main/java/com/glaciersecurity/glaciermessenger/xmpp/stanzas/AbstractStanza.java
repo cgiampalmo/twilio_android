@@ -2,7 +2,7 @@ package com.glaciersecurity.glaciermessenger.xmpp.stanzas;
 
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.xml.Element;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class AbstractStanza extends Element {
 

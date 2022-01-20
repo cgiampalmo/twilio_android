@@ -102,7 +102,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.stanzas.streammgmt.AckPacket;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.streammgmt.EnablePacket;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.streammgmt.RequestPacket;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.streammgmt.ResumePacket;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class XmppConnection implements Runnable {
 
@@ -285,7 +285,7 @@ public class XmppConnection implements Runnable {
 					throw new IOException(e.getMessage());
 				}
 			} else {
-				final String domain = account.getJid().getDomain();
+				final String domain = account.getJid().getDomain().toEscapedString();
 				final List<Resolver.Result> results;
 				final boolean hardcoded = extended && !account.getHostname().isEmpty();
 				if (hardcoded) {
@@ -446,7 +446,7 @@ public class XmppConnection implements Runnable {
 		} else {
 			keyManager = null;
 		}
-		String domain = account.getJid().getDomain();
+		String domain = account.getJid().getDomain().toEscapedString();
 		sc.init(keyManager, new X509TrustManager[]{mInteractive ? trustManager.getInteractive(domain) : trustManager.getNonInteractive(domain)}, mXmppConnectionService.getRNG());
 		final SSLSocketFactory factory = sc.getSocketFactory();
 		final DomainHostnameVerifier verifier = trustManager.wrapHostnameVerifier(new XmppDomainVerifier(), mInteractive);
@@ -1295,7 +1295,7 @@ public class XmppConnection implements Runnable {
 				}
 				for (Jid jid : items) {
 					//ALF AM-78
-					if (jid.getDomain().startsWith("conference")) {
+					if (jid.getDomain().toEscapedString().startsWith("conference")) {
 						discoItemConf = jid;
 						sendRoomDiscoveries(); //ALF AM-78, AM-10
 					}

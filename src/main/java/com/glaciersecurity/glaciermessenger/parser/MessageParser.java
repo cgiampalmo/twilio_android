@@ -41,7 +41,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.OnMessagePacketReceived;
 import com.glaciersecurity.glaciermessenger.xmpp.chatstate.ChatState;
 import com.glaciersecurity.glaciermessenger.xmpp.pep.Avatar;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.MessagePacket;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class MessageParser extends AbstractParser implements OnMessagePacketReceived {
 

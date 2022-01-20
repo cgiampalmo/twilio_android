@@ -140,7 +140,7 @@ public class SoundPoolManager {
     }
 
     //AM-581b
-    /*public static boolean isBluetoothHeadsetConnected() {
+    public static boolean isBluetoothHeadsetConnected() {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         return mBluetoothAdapter != null && mBluetoothAdapter.isEnabled()
                 && mBluetoothAdapter.getProfileConnectionState(BluetoothHeadset.HEADSET) == BluetoothHeadset.STATE_CONNECTED;
@@ -149,7 +149,7 @@ public class SoundPoolManager {
     public static boolean isBluetoothHeadsetEnabled() {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         return mBluetoothAdapter != null && mBluetoothAdapter.isEnabled();
-    }*/
+    }
 
     //AM-475
     public void vibrateIfNeeded() {
