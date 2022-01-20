@@ -266,6 +266,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	private ProcessLifecycleListener processListener;
 	private boolean needsProcessLifecycleUpdate = false;
 	private boolean ignoreLifecycleUpdate = false;
+	private boolean lastBioauthFailed = false;
 	private AtomicLong mLastGlacierUsage = new AtomicLong(0);
 	public static final long BIOAUTH_INTERVAL_DEFAULT = 0L;
 
@@ -1051,7 +1052,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		},4500);
 	}
 
-	//AM#14
+	//AM#14 (next 3)
 	public void handleLifecycleUpdate(ProcessLifecycleListener.LifecycleStatus value) {
 		switch (value) {
 			case CREATE:
@@ -1074,8 +1075,12 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 	}
 
-	public void setChoosingFile(boolean choosingFile) { //AM#14
+	public void setChoosingFile(boolean choosingFile) {
 		ignoreLifecycleUpdate = choosingFile;
+	}
+
+	public void setLastBioauthAttemptFailed(boolean failed) {
+		lastBioauthFailed = failed;
 	}
 
 	private boolean processAccountState(Account account, boolean interactive, boolean isUiAction, boolean isAccountPushed, HashSet<Account> pingCandidates) {
@@ -4355,7 +4360,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			}
 		}
 
-		if (SystemClock.elapsedRealtime() - mLastGlacierUsage.get() >= locktime) {
+		if (lastBioauthFailed || SystemClock.elapsedRealtime() - mLastGlacierUsage.get() >= locktime) {
 			for (OnProcessLifecycleUpdate listener : threadSafeList(this.mOnProcessLifecycleUpdates)) {
 				listener.onProcessLifecycleUpdate();
 			}

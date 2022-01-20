@@ -1152,6 +1152,7 @@ public abstract class XmppActivity extends ActionBarActivity implements XmppConn
 											  @NonNull CharSequence errString) {
 				super.onAuthenticationError(errorCode, errString);
 				Toast.makeText(context, "Authentication error: " + errString, Toast.LENGTH_SHORT).show();
+				xmppConnectionService.setLastBioauthAttemptFailed(true);
 				biometricPrompt.authenticate(promptInfo);
 			}
 
@@ -1159,6 +1160,7 @@ public abstract class XmppActivity extends ActionBarActivity implements XmppConn
 			public void onAuthenticationSucceeded(
 					@NonNull BiometricPrompt.AuthenticationResult result) {
 				super.onAuthenticationSucceeded(result);
+				xmppConnectionService.setLastBioauthAttemptFailed(false);
 				WindowManager.LayoutParams lp = getWindow().getAttributes();
 				lp.alpha = 1.0f;
 				getWindow().setAttributes(lp);
@@ -1173,6 +1175,7 @@ public abstract class XmppActivity extends ActionBarActivity implements XmppConn
 				Toast.makeText(context, "Authentication failed",
 						Toast.LENGTH_SHORT)
 						.show();
+				xmppConnectionService.setLastBioauthAttemptFailed(true);
 				biometricPrompt.authenticate(promptInfo);
 			}
 		});
