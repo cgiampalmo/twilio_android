@@ -180,6 +180,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setAction(Intent.ACTION_GET_CONTENT);
+            xmppConnectionService.setChoosingFile(true); //AM#14
 
             if (intent.resolveActivity(getPackageManager()) != null) {
                 Intent chooserIntent = Intent.createChooser(intent, getString(R.string.perform_action_with));

@@ -6,6 +6,8 @@ import android.preference.CheckBoxPreference;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
+import android.preference.SwitchPreference;
+
 import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -45,6 +47,7 @@ import com.glaciersecurity.glaciermessenger.services.MemorizingTrustManager;
 import com.glaciersecurity.glaciermessenger.services.QuickConversationsService;
 import com.glaciersecurity.glaciermessenger.ui.util.Color;
 import com.glaciersecurity.glaciermessenger.utils.GeoHelper;
+import com.glaciersecurity.glaciermessenger.utils.SystemSecurityInfo;
 import com.glaciersecurity.glaciermessenger.utils.TimeFrameUtils;
 
 public class SettingsActivity extends XmppActivity implements OnSharedPreferenceChangeListener{
@@ -63,6 +66,8 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 	public static final String SHOW_DYNAMIC_TAGS = "show_dynamic_tags";
 	public static final String OMEMO_SETTING = "omemo";
 	public static final String SCREEN_SECURITY = "screen_security"; //CMG AM-137
+	public static final String USE_BIOMETRICS = "use_biometrics"; //AM#14 next 2
+	public static final String USE_PIN_CODE = "use_pin_code";
 //	public static final String DISPLAYNAME = "displayname"; //ALF AM-48
 
 	public static final int REQUEST_CREATE_BACKUP = 0xbf8701;
@@ -270,6 +275,80 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 		final Preference deleteOmemoPreference = mSettingsFragment.findPreference("delete_omemo_identities");
 		if (deleteOmemoPreference != null) {
 			deleteOmemoPreference.setOnPreferenceClickListener(preference -> deleteOmemoIdentities());
+		}
+
+		//AM#14 next 2
+		final SwitchPreference biometricPreference = (SwitchPreference) mSettingsFragment.findPreference("use_biometrics");
+		if (biometricPreference != null){
+			biometricPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+				@Override
+				public boolean onPreferenceChange(Preference preference, Object o) {
+					if(biometricPreference.isChecked()){
+						biometricPreference.setChecked(false);
+					} else {
+						if (!SystemSecurityInfo.isBiometricPINReady(SettingsActivity.this)) {
+							AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+							builder.setTitle(R.string.biometrics_not_ready);
+							builder.setMessage(R.string.biometrics_not_ready_message);
+							builder.setPositiveButton(R.string.ok, null);
+							AlertDialog dialog = builder.create();
+							dialog.show();
+						} else {
+							biometricPreference.setChecked(true);
+						}
+					}
+					return false;
+				}
+			});
+		}
+
+		/*final SwitchPreference pinPreference = (SwitchPreference) mSettingsFragment.findPreference("use_pin_code");
+		if (pinPreference != null){
+			pinPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+				@Override
+				public boolean onPreferenceChange(Preference preference, Object o) {
+					if(pinPreference.isChecked()) {
+						pinPreference.setChecked(false);
+					} else {
+						if (!SystemSecurityInfo.isPINReady(SettingsActivity.this)) {
+							AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+							builder.setTitle(R.string.pin_not_ready);
+							builder.setMessage(R.string.pin_not_ready_message);
+							builder.setPositiveButton(R.string.ok, null);
+							AlertDialog dialog = builder.create();
+							dialog.show();
+						} else {
+							pinPreference.setChecked(true);
+						}
+					}
+					return false;
+				}
+			});
+		}*/
+		final ListPreference locktimePref = (ListPreference) mSettingsFragment.findPreference("automatic_locktime");
+		if (locktimePref != null) {
+			String locktimeStr = locktimePref.getEntry().toString();
+			setCurrentLocktime(locktimeStr);
+
+			locktimePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+				@Override public boolean onPreferenceChange(Preference preference, Object o) {
+					locktimePref.setValue((String)o);
+					String locktimeStr = locktimePref.getEntry().toString();
+					setCurrentLocktime(locktimeStr);
+					return false;
+				}
+			});
+		}
+	}
+
+	private void setCurrentLocktime(String locktimeStr) {
+		final PreferenceCategory locktimePreference = (PreferenceCategory) mSettingsFragment.findPreference("locktime_selected");
+		if (locktimePreference != null) {
+			if (locktimeStr != null) {
+				locktimePreference.setTitle("Lock time: " + locktimeStr);
+			} else {
+				locktimePreference.setTitle("");
+			}
 		}
 	}
 

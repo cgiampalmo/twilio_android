@@ -2,13 +2,22 @@ package com.glaciersecurity.glaciermessenger.utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.provider.Settings.Secure;
 
+import androidx.annotation.BoolRes;
+import androidx.biometric.BiometricManager;
+
 import com.glaciersecurity.glaciermessenger.Config;
+import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.ui.SettingsActivity;
 
 import java.io.File;
+
+
 
 //AM#20, AM#21, AM#22, AM#23, AM#24
 public class SystemSecurityInfo {
@@ -23,6 +32,8 @@ public class SystemSecurityInfo {
         Log.d(Config.LOGTAG, "Current security patch: " + getCurrentSecurityPatch());
         Log.d(Config.LOGTAG, "Developer tools is enabled: " + isDeveloperToolsEnabled(context));
         Log.d(Config.LOGTAG, "USB debugging is enabled: " + isUSBDebuggingEnabled(context));
+        Log.d(Config.LOGTAG, "Biometric or PIN enabled: " + isBiometricPINReady(context));
+        Log.d(Config.LOGTAG, "Biometric or PIN turned on: " + isBiometricPINOn(context));
     }
 
     /**
@@ -87,5 +98,29 @@ public class SystemSecurityInfo {
     public static boolean isUSBDebuggingEnabled(Context context) {
         //android.provider.Settings.Global
         return Settings.Global.getInt(context.getContentResolver(), Settings.Global.ADB_ENABLED, 0) == 1;
+    }
+
+    /**
+     * Indicate whether this device can authenticate the user with biometrics
+     * @return true if there are any available biometric mechanisms and biometrics are enrolled on the device, if not, return false
+     */
+    /*public static boolean isBiometricReady(Context context) {
+        return BiometricManager.from(context).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS;
+    }
+
+    public static boolean isPINReady(Context context) {
+        return BiometricManager.from(context).canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS;
+    }*/
+
+    public static boolean isBiometricPINReady(Context context) {
+        return BiometricManager.from(context).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS;
+    }
+
+    public static boolean isBiometricPINOn(Context context) {
+        return getBooleanPreference(context, SettingsActivity.USE_BIOMETRICS, R.bool.enable_biometrics);
+    }
+
+    private static boolean getBooleanPreference(Context context, String name, @BoolRes int res) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(name, context.getResources().getBoolean(res));
     }
 }

@@ -19,6 +19,9 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
 import androidx.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -50,6 +53,7 @@ import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -57,6 +61,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
 import com.glaciersecurity.glaciermessenger.entities.PresenceTemplate;
@@ -79,6 +84,7 @@ import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.PresenceSelector;
 import com.glaciersecurity.glaciermessenger.ui.util.SoftKeyboardUtils;
 import com.glaciersecurity.glaciermessenger.utils.ExceptionHelper;
+import com.glaciersecurity.glaciermessenger.utils.SystemSecurityInfo;
 import com.glaciersecurity.glaciermessenger.utils.ThemeHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.OnKeyStatusUpdated;
 import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
@@ -86,7 +92,8 @@ import rocks.xmpp.addr.Jid;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
-public abstract class XmppActivity extends ActionBarActivity {
+public abstract class XmppActivity extends ActionBarActivity implements XmppConnectionService.OnProcessLifecycleUpdate {
+	//AM#14 added OnProcessLifecycleUpdate
 //public abstract class XmppActivity extends Activity {
 
 	public static final String EXTRA_ACCOUNT = "account";
@@ -101,6 +108,10 @@ public abstract class XmppActivity extends ActionBarActivity {
 
 	private final PendingItem<PresenceTemplate> mPendingPresenceTemplate = new PendingItem<>();
 
+	//AM#14
+	private Executor executor;
+	private BiometricPrompt biometricPrompt;
+	private BiometricPrompt.PromptInfo promptInfo;
 
 	protected int mColorRed;
 
@@ -321,6 +332,13 @@ public abstract class XmppActivity extends ActionBarActivity {
 		if (this instanceof OnKeyStatusUpdated) {
 			this.xmppConnectionService.setOnKeyStatusUpdatedListener((OnKeyStatusUpdated) this);
 		}
+		//AM#14
+		if (biometricsEnabled()) {
+			if (biometricPrompt == null && SystemSecurityInfo.isBiometricPINReady(this)) {
+				createBiometricPrompt(this);
+			}
+			this.xmppConnectionService.setOnProcessLifecycleUpdateListener((XmppConnectionService.OnProcessLifecycleUpdate) this);
+		}
 	}
 
 	protected void unregisterListeners() {
@@ -348,6 +366,8 @@ public abstract class XmppActivity extends ActionBarActivity {
 		if (this instanceof OnKeyStatusUpdated) {
 			this.xmppConnectionService.removeOnNewKeysAvailableListener((OnKeyStatusUpdated) this);
 		}
+		//AM#14
+		this.xmppConnectionService.removeOnProcessLifecycleUpdateListener((XmppConnectionService.OnProcessLifecycleUpdate) this);
 	}
 
 //	//CMG AM-76 only show core connections if core is installed
@@ -483,6 +503,11 @@ public abstract class XmppActivity extends ActionBarActivity {
 		setTheme(this.mTheme);
 
 		this.mUsingEnterKey = usingEnterKey();
+
+		//AM#14
+		if (SystemSecurityInfo.isBiometricPINReady(this)) { //and turned on
+			createBiometricPrompt(this);
+		}
 	}
 
 	protected boolean isCameraFeatureAvailable() {
@@ -501,6 +526,19 @@ public abstract class XmppActivity extends ActionBarActivity {
 		ta.recycle();
 
 		return res;
+	}
+
+	//AM#14 (next 3)
+	protected boolean biometricsEnabled() {
+		return getBooleanPreference(SettingsActivity.USE_BIOMETRICS, R.bool.enable_biometrics);
+	}
+
+	protected boolean pinEnabled() {
+		return getBooleanPreference(SettingsActivity.USE_PIN_CODE, R.bool.enable_pin);
+	}
+
+	protected boolean getLocktime() {
+		return getBooleanPreference(SettingsActivity.AWAY_WHEN_SCREEN_IS_OFF, R.bool.away_when_screen_off);
 	}
 
 	protected boolean isOptimizingBattery() {
@@ -1142,6 +1180,61 @@ public abstract class XmppActivity extends ActionBarActivity {
 				this.isCameraFeatureAvailable = getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
 			}
 		}
+	}
+
+	//AM#14
+	public void onProcessLifecycleUpdate() { //check if turned on?
+		if (biometricPrompt != null) {
+			WindowManager.LayoutParams lp = getWindow().getAttributes();
+			lp.alpha = 0.0f;
+			getWindow().setAttributes(lp);
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+			biometricPrompt.authenticate(promptInfo);
+		}
+	}
+
+	//AM#14
+	public BiometricPrompt createBiometricPrompt(Context context) {
+		executor = ContextCompat.getMainExecutor(this);
+		biometricPrompt = new BiometricPrompt(this,
+				executor, new BiometricPrompt.AuthenticationCallback() {
+			@Override
+			public void onAuthenticationError(int errorCode,
+											  @NonNull CharSequence errString) {
+				super.onAuthenticationError(errorCode, errString);
+				Toast.makeText(context, "Authentication error: " + errString, Toast.LENGTH_SHORT).show();
+				biometricPrompt.authenticate(promptInfo);
+			}
+
+			@Override
+			public void onAuthenticationSucceeded(
+					@NonNull BiometricPrompt.AuthenticationResult result) {
+				super.onAuthenticationSucceeded(result);
+				WindowManager.LayoutParams lp = getWindow().getAttributes();
+				lp.alpha = 1.0f;
+				getWindow().setAttributes(lp);
+				getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+				Toast.makeText(context,
+						"Authentication succeeded!", Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onAuthenticationFailed() {
+				super.onAuthenticationFailed();
+				Toast.makeText(context, "Authentication failed",
+						Toast.LENGTH_SHORT)
+						.show();
+				biometricPrompt.authenticate(promptInfo);
+			}
+		});
+
+		promptInfo = new BiometricPrompt.PromptInfo.Builder()
+				.setTitle("Unlock Glacier")
+				//.setSubtitle("Log in using your biometric credential")
+				.setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+				.build();
+
+		return biometricPrompt;
 	}
 
 }

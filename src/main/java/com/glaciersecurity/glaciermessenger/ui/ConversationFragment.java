@@ -2091,15 +2091,18 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 			boolean chooser = false;
 			switch (attachmentChoice) {
 				case ATTACHMENT_CHOICE_CHOOSE_IMAGE:
+					this.activity.xmppConnectionService.setChoosingFile(true); //AM#14
 					intent.setAction(Intent.ACTION_GET_CONTENT);
 					intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 					intent.setType("image/*");
 					chooser = true;
 					break;
 				case ATTACHMENT_CHOICE_RECORD_VIDEO:
+					this.activity.xmppConnectionService.setChoosingFile(true); //AM#14
 					intent.setAction(MediaStore.ACTION_VIDEO_CAPTURE);
 					break;
 				case ATTACHMENT_CHOICE_TAKE_PHOTO:
+					this.activity.xmppConnectionService.setChoosingFile(true); //AM#14
 					final Uri uri = activity.xmppConnectionService.getFileBackend().getTakePhotoUri(getContext());
 					pendingTakePhotoUri.push(uri);
 					intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
@@ -2108,6 +2111,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 					intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
 					break;
 				case ATTACHMENT_CHOICE_CHOOSE_FILE:
+					this.activity.xmppConnectionService.setChoosingFile(true); //AM#14
 					chooser = true;
 					intent.setType("*/*");
 					intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);

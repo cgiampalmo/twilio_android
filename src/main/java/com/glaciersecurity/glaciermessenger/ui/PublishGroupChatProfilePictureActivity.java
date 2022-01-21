@@ -29,10 +29,14 @@
 
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.app.Activity;
 import android.content.Intent;
+
+import androidx.activity.result.ActivityResultCallback;
 import androidx.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
@@ -40,7 +44,7 @@ import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.theartofdev.edmodo.cropper.CropImage;
+import com.canhub.cropper.CropImage;
 
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
@@ -93,7 +97,7 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity impleme
         configureActionBar(getSupportActionBar());
         this.binding.cancelButton.setOnClickListener((v) -> this.finish());
         this.binding.secondaryHint.setVisibility(View.GONE);
-        this.binding.accountImage.setOnClickListener((v) -> this.chooseAvatar());
+        this.binding.accountImage.setOnClickListener((v) -> this.chooseAvatar(this));
         Intent intent = getIntent();
         String uuid = intent == null ? null : intent.getStringExtra("uuid");
         if (uuid != null) {
@@ -113,9 +117,15 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity impleme
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            /*registerForActivityResult(CropImageContract(), new ActivityResultCallback<>() {
+                @Override
+                public void onActivityResult(Object result) {
+
+                }
+            });*/ //when we update
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
-                this.uri = result.getUri();
+                this.uri = result.getUriContent();
                 if (xmppConnectionServiceBound) {
                     reloadAvatar();
                 }
@@ -128,7 +138,8 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity impleme
         }
     }
 
-    private void chooseAvatar() {
+    private void chooseAvatar(final Activity activity) {
+        xmppConnectionService.setChoosingFile(true); //AM#14
         CropImage.activity()
                 .setOutputCompressFormat(Bitmap.CompressFormat.PNG)
                 .setAspectRatio(1, 1)

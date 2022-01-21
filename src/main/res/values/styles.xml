@@ -146,7 +146,7 @@
     </style>
 
     <!--style for ripple library-->
-    <style name="RippleStyleWhite">
+    <!-- <style name="RippleStyleWhite">
         <item name="mrl_rippleOverlay">true</item>
         <item name="mrl_rippleColor">#80FFFFFF</item>
         <item name="mrl_rippleHover">true</item>
@@ -155,7 +155,7 @@
 
     <style name="RippleStyleBlack" parent="RippleStyleWhite">
         <item name="mrl_rippleColor">#8096989A</item>
-    </style>
+    </style> -->
 
     <style name="SCBSwitch" parent="Theme.AppCompat.Light">
         <!-- active thumb & track color (30% transparency) -->

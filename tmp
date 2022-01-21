@@ -1,2 +1,0 @@
-apply from: 'https://raw.github.com/omadahealth/omada-nexus/master/gradle-mvn-push/gradle-mvn-push.gradle'
-./LolliPin/lib/build.gradle

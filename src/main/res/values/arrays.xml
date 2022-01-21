@@ -55,6 +55,27 @@
 		<item>2419200</item>
 	</string-array>
 
+	<!-- AM#14 next two -->
+	<string-array name="bioauth_options_descriptions">
+		<item>@string/immediate</item>
+		<item>@string/fifteen_seconds</item>
+		<item>@string/one_minute</item>
+		<item>@string/five_minutes</item>
+		<item>@string/one_hour</item>
+		<item>@string/four_hours</item>
+		<item>@string/one_day</item>
+	</string-array>
+
+	<string-array name="bioauth_options_durations">
+		<item>0</item>
+		<item>15</item>
+		<item>60</item>
+		<item>300</item>
+		<item>3600</item>
+		<item>14400</item>
+		<item>86400</item>
+	</string-array>
+
 	<string-array name="quick_actions">
 		<item>@string/none</item>
 		<item>@string/recently_used</item>

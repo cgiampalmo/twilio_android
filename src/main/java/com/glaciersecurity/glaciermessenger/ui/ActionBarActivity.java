@@ -43,6 +43,7 @@ public abstract class ActionBarActivity extends AppCompatActivity {
     public boolean isScreenSecurityEnabled() {
         return getBooleanPreference("screen_security", R.bool.screen_security);
     }
+
     protected SharedPreferences getPreferences() {
         return PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     }
