@@ -11,7 +11,7 @@ import com.glaciersecurity.glaciermessenger.databinding.DialogBlockContactBindin
 import com.glaciersecurity.glaciermessenger.entities.Blockable;
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
 import com.glaciersecurity.glaciermessenger.ui.util.JidDialog;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public final class BlockContactDialog {
 	public static void show(final XmppActivity xmppActivity, final Blockable blockable) {

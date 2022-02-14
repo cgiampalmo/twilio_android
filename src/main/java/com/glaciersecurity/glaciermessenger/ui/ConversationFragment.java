@@ -122,7 +122,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 import com.glaciersecurity.glaciermessenger.xmpp.chatstate.ChatState;
 import com.glaciersecurity.glaciermessenger.xmpp.jingle.JingleConnection;
 
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 import static com.glaciersecurity.glaciermessenger.ui.XmppActivity.EXTRA_ACCOUNT;
 import static com.glaciersecurity.glaciermessenger.ui.XmppActivity.REQUEST_INVITE_TO_CONVERSATION;
@@ -151,7 +151,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	public static final int ATTACHMENT_CHOICE_RECORD_VIDEO = 0x0307;
 
 	private static final int CAMERA_MIC_PERMISSION_REQUEST_CODE = 0x0308;
-	//private static final int BLUETOOTH_PERMISSION_REQUEST_CODE = 0x0309; //AM-581b
+	private static final int BLUETOOTH_PERMISSION_REQUEST_CODE = 0x0309; //AM-581b
 
 
 	//public static final String RECENTLY_USED_QUICK_ACTION = "recently_used_quick_action";
@@ -407,20 +407,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 
 		@Override
 		public void onClick(View v) {
-			/*PendingIntent pendingIntent = conversation.getAccount().getPgpDecryptionService().getPendingIntent();
-			if (pendingIntent != null) {
-				try {
-					getActivity().startIntentSenderForResult(pendingIntent.getIntentSender(),
-							REQUEST_DECRYPT_PGP,
-							null,
-							0,
-							0,
-							0);
-				} catch (SendIntentException e) {
-					Toast.makeText(getActivity(), R.string.unable_to_connect_to_keychain, Toast.LENGTH_SHORT).show();
-					conversation.getAccount().getPgpDecryptionService().continueDecryption(true);
-				}
-			}*/
 			updateSnackBar(conversation);
 		}
 	};
@@ -1113,8 +1099,8 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 
 			if (!checkPermissionForCameraAndMicrophone()) {
 				requestPermissionForCameraAndMicrophone();
-			//} else if (!checkPermissionForBluetooth()) { //AM-581b
-			//	requestPermissionForBluetooth();
+			} else if (!checkPermissionForBluetooth()) { //AM-581b
+				requestPermissionForBluetooth();
 			} else {
 				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 				builder.setTitle(R.string.start_call);
@@ -1198,7 +1184,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 	}
 
 	//AM-581b next 2
-	/*private boolean checkPermissionForBluetooth() {
+	private boolean checkPermissionForBluetooth() {
 		int resultBluetooth = ContextCompat.checkSelfPermission(activity, "android.permission.BLUETOOTH_CONNECT");
 		return resultBluetooth == PackageManager.PERMISSION_GRANTED;
 	}
@@ -1208,7 +1194,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 				activity,
 				new String[]{"android.permission.BLUETOOTH_CONNECT"},
 				BLUETOOTH_PERMISSION_REQUEST_CODE);
-	}*/
+	}
 
 	@Override
 	public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -1717,44 +1703,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		final int encryption = conversation.getNextEncryption();
 		final int mode = conversation.getMode();
 		if (encryption == Message.ENCRYPTION_PGP) {
-			/*if (activity.hasPgp()) {
-				if (mode == Conversation.MODE_SINGLE && conversation.getContact().getPgpKeyId() != 0) {
-					activity.xmppConnectionService.getPgpEngine().hasKey(
-							conversation.getContact(),
-							new UiCallback<Contact>() {
-
-								@Override
-								public void userInputRequried(PendingIntent pi, Contact contact) {
-									startPendingIntent(pi, attachmentChoice);
-								}
-
-								@Override
-								public void success(Contact contact) {
-									selectPresenceToAttachFile(attachmentChoice);
-								}
-
-								@Override
-								public void error(int error, Contact contact) {
-									activity.replaceToast(getString(error));
-								}
-							});
-				} else if (mode == Conversation.MODE_MULTI && conversation.getMucOptions().pgpKeysInUse()) {
-					if (!conversation.getMucOptions().everybodyHasKeys()) {
-						Toast warning = Toast.makeText(getActivity(), R.string.missing_public_keys, Toast.LENGTH_LONG);
-						warning.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-						warning.show();
-					}
-					selectPresenceToAttachFile(attachmentChoice);
-				} else {
-					showNoPGPKeyDialog(false, (dialog, which) -> {
-						conversation.setNextEncryption(Message.ENCRYPTION_NONE);
-						activity.xmppConnectionService.updateConversation(conversation);
-						selectPresenceToAttachFile(attachmentChoice);
-					});
-				}
-			} else {
-				activity.showInstallPgpDialog();
-			}*/
+			//
 		} else {
 			selectPresenceToAttachFile(attachmentChoice);
 		}
@@ -3162,118 +3111,6 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 		activity.xmppConnectionService.sendMessage(message);
 		messageSent();
 	}
-
-	/*protected void sendPgpMessage(final Message message) {
-		final XmppConnectionService xmppService = activity.xmppConnectionService;
-		final Contact contact = message.getConversation().getContact();
-		if (!activity.hasPgp()) {
-			activity.showInstallPgpDialog();
-			return;
-		}
-		if (conversation.getAccount().getPgpSignature() == null) {
-			activity.announcePgp(conversation.getAccount(), conversation, null, activity.onOpenPGPKeyPublished);
-			return;
-		}
-		if (!mSendingPgpMessage.compareAndSet(false, true)) {
-			Log.d(Config.LOGTAG, "sending pgp message already in progress");
-		}
-		if (conversation.getMode() == Conversation.MODE_SINGLE) {
-			if (contact.getPgpKeyId() != 0) {
-				xmppService.getPgpEngine().hasKey(contact,
-						new UiCallback<Contact>() {
-
-							@Override
-							public void userInputRequried(PendingIntent pi, Contact contact) {
-								startPendingIntent(pi, REQUEST_ENCRYPT_MESSAGE);
-							}
-
-							@Override
-							public void success(Contact contact) {
-								encryptTextMessage(message);
-							}
-
-							@Override
-							public void error(int error, Contact contact) {
-								activity.runOnUiThread(() -> Toast.makeText(activity,
-										R.string.unable_to_connect_to_keychain,
-										Toast.LENGTH_SHORT
-								).show());
-								mSendingPgpMessage.set(false);
-							}
-						});
-
-			} else {
-				showNoPGPKeyDialog(false, (dialog, which) -> {
-					conversation.setNextEncryption(Message.ENCRYPTION_NONE);
-					xmppService.updateConversation(conversation);
-					message.setEncryption(Message.ENCRYPTION_NONE);
-					xmppService.sendMessage(message);
-					messageSent();
-				});
-			}
-		} else {
-			if (conversation.getMucOptions().pgpKeysInUse()) {
-				if (!conversation.getMucOptions().everybodyHasKeys()) {
-					Toast warning = Toast
-							.makeText(getActivity(),
-									R.string.missing_public_keys,
-									Toast.LENGTH_LONG);
-					warning.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-					warning.show();
-				}
-				encryptTextMessage(message);
-			} else {
-				showNoPGPKeyDialog(true, (dialog, which) -> {
-					conversation.setNextEncryption(Message.ENCRYPTION_NONE);
-					message.setEncryption(Message.ENCRYPTION_NONE);
-					xmppService.updateConversation(conversation);
-					xmppService.sendMessage(message);
-					messageSent();
-				});
-			}
-		}
-	}
-
-	public void encryptTextMessage(Message message) {
-		activity.xmppConnectionService.getPgpEngine().encrypt(message,
-				new UiCallback<Message>() {
-
-					@Override
-					public void userInputRequried(PendingIntent pi, Message message) {
-						startPendingIntent(pi, REQUEST_SEND_MESSAGE);
-					}
-
-					@Override
-					public void success(Message message) {
-						//TODO the following two call can be made before the callback
-						getActivity().runOnUiThread(() -> messageSent());
-					}
-
-					@Override
-					public void error(final int error, Message message) {
-						getActivity().runOnUiThread(() -> {
-							doneSendingPgpMessage();
-							Toast.makeText(getActivity(), error == 0 ? R.string.unable_to_connect_to_keychain : error, Toast.LENGTH_SHORT).show();
-						});
-
-					}
-				});
-	}
-
-	public void showNoPGPKeyDialog(boolean plural, DialogInterface.OnClickListener listener) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		builder.setIconAttribute(android.R.attr.alertDialogIcon);
-		if (plural) {
-			builder.setTitle(getString(R.string.no_pgp_keys));
-			builder.setMessage(getText(R.string.contacts_have_no_pgp_keys));
-		} else {
-			builder.setTitle(getString(R.string.no_pgp_key));
-			builder.setMessage(getText(R.string.contact_has_no_pgp_key));
-		}
-		builder.setNegativeButton(getString(R.string.cancel), null);
-		builder.setPositiveButton(getString(R.string.send_unencrypted), listener);
-		builder.create().show();
-	}*/
 
 	public void appendText(String text, final boolean doNotAppend) {
 		if (text == null) {

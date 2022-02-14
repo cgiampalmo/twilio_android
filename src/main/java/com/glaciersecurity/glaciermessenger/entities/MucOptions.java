@@ -21,7 +21,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.chatstate.ChatState;
 import com.glaciersecurity.glaciermessenger.xmpp.forms.Data;
 import com.glaciersecurity.glaciermessenger.xmpp.forms.Field;
 import com.glaciersecurity.glaciermessenger.xmpp.pep.Avatar;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class MucOptions {
 

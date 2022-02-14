@@ -49,7 +49,7 @@ import com.glaciersecurity.glaciermessenger.ui.interfaces.OnSearchResultsAvailab
 import com.glaciersecurity.glaciermessenger.utils.Cancellable;
 import com.glaciersecurity.glaciermessenger.utils.MessageUtils;
 import com.glaciersecurity.glaciermessenger.utils.ReplacingSerialSingleThreadExecutor;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class MessageSearchTask implements Runnable, Cancellable {
 

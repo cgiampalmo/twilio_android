@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.glaciersecurity.glaciermessenger.entities.Conversation;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class NickValidityChecker {
 

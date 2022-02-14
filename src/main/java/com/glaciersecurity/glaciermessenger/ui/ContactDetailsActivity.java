@@ -54,7 +54,7 @@ import com.glaciersecurity.glaciermessenger.xml.Namespace;
 import com.glaciersecurity.glaciermessenger.xmpp.OnKeyStatusUpdated;
 import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.customIcon;
 import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.meetingIcon;

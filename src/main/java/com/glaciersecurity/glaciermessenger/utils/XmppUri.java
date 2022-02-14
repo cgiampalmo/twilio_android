@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Locale;
 
 import com.glaciersecurity.glaciermessenger.Config;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class XmppUri {
 

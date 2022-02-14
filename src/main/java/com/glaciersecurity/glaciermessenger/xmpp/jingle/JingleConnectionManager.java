@@ -20,7 +20,7 @@ import com.glaciersecurity.glaciermessenger.xml.Element;
 import com.glaciersecurity.glaciermessenger.xmpp.OnIqPacketReceived;
 import com.glaciersecurity.glaciermessenger.xmpp.jingle.stanzas.JinglePacket;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.IqPacket;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class JingleConnectionManager extends AbstractConnectionManager {
 	private List<JingleConnection> connections = new CopyOnWriteArrayList<>();

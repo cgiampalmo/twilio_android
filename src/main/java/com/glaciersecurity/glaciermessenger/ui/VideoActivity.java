@@ -66,7 +66,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import kotlin.Unit; //AM-440
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 //AM-650
 import tvi.webrtc.Camera2Enumerator;

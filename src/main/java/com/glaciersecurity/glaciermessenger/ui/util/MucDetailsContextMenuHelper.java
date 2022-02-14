@@ -23,7 +23,7 @@ import com.glaciersecurity.glaciermessenger.ui.ConversationFragment;
 import com.glaciersecurity.glaciermessenger.ui.ConversationsActivity;
 import com.glaciersecurity.glaciermessenger.ui.MucUsersActivity;
 import com.glaciersecurity.glaciermessenger.ui.XmppActivity;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 
 public final class MucDetailsContextMenuHelper {

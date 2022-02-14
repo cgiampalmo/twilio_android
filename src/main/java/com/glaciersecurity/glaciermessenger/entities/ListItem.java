@@ -5,7 +5,7 @@ import android.content.Context;
 import java.util.List;
 
 import com.glaciersecurity.glaciermessenger.services.AvatarService;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 
 public interface ListItem extends Comparable<ListItem>, AvatarService.Avatarable {

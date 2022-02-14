@@ -34,7 +34,7 @@ import com.glaciersecurity.glaciermessenger.utils.JidHelper;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.chatstate.ChatState;
 import com.glaciersecurity.glaciermessenger.xmpp.mam.MamReference;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 import static com.glaciersecurity.glaciermessenger.entities.Bookmark.printableValue;
 
@@ -773,7 +773,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 		if (conversation.getContact().isOwnServer()) {
 			return false;
 		}
-		final String contact = conversation.getJid().getDomain();
+		final String contact = conversation.getJid().getDomain().toEscapedString();
 		final String account = conversation.getAccount().getServer();
 		if (Config.OMEMO_EXCEPTIONS.CONTACT_DOMAINS.contains(contact) || Config.OMEMO_EXCEPTIONS.ACCOUNT_DOMAINS.contains(account)) {
 			return false;

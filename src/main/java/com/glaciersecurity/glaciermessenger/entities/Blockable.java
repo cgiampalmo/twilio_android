@@ -1,6 +1,6 @@
 package com.glaciersecurity.glaciermessenger.entities;
 
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public interface Blockable {
 	boolean isBlocked();

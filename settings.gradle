@@ -1,2 +1,2 @@
-include ':libs:xmpp-addr'
+//include ':libs:xmpp-addr'
 rootProject.name = 'glacierMessenger'

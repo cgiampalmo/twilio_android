@@ -56,7 +56,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 
 import kotlin.Unit;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 //ALF AM-478
 public class CallManager {

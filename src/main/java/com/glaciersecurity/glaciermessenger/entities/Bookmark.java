@@ -13,7 +13,7 @@ import com.glaciersecurity.glaciermessenger.utils.StringUtils;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.glaciersecurity.glaciermessenger.xml.Element;
 import com.glaciersecurity.glaciermessenger.xmpp.InvalidJid;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class Bookmark extends Element implements ListItem {
 

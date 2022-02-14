@@ -26,7 +26,7 @@ import com.glaciersecurity.glaciermessenger.services.AvatarService;
 import com.glaciersecurity.glaciermessenger.services.ImportBackupService;
 import com.glaciersecurity.glaciermessenger.utils.BackupFileHeader;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class BackupFileAdapter extends RecyclerView.Adapter<BackupFileAdapter.BackupFileViewHolder> {
 

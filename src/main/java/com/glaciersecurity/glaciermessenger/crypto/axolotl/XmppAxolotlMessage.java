@@ -24,7 +24,7 @@ import javax.crypto.spec.SecretKeySpec;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.xml.Element;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class XmppAxolotlMessage {
 	public static final String CONTAINERTAG = "encrypted";

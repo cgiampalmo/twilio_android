@@ -41,7 +41,7 @@ import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.OnAdvancedStreamFeaturesLoaded;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
 
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 

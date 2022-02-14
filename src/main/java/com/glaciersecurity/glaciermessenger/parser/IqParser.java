@@ -33,7 +33,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.InvalidJid;
 import com.glaciersecurity.glaciermessenger.xmpp.OnIqPacketReceived;
 import com.glaciersecurity.glaciermessenger.xmpp.OnUpdateBlocklist;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.IqPacket;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class IqParser extends AbstractParser implements OnIqPacketReceived {
 

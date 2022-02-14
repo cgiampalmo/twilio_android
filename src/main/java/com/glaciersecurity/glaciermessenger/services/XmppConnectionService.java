@@ -167,7 +167,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.stanzas.PresencePacket;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import me.leolin.shortcutbadger.ShortcutBadger;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class XmppConnectionService extends Service implements ServiceConnection, Handler.Callback { //ALF AM-57 placeholder, AM-344
 
@@ -266,6 +266,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	private ProcessLifecycleListener processListener;
 	private boolean needsProcessLifecycleUpdate = false;
 	private boolean ignoreLifecycleUpdate = false;
+	private boolean lastBioauthFailed = false;
 	private AtomicLong mLastGlacierUsage = new AtomicLong(0);
 	public static final long BIOAUTH_INTERVAL_DEFAULT = 0L;
 
@@ -1051,7 +1052,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		},4500);
 	}
 
-	//AM#14
+	//AM#14 (next 3)
 	public void handleLifecycleUpdate(ProcessLifecycleListener.LifecycleStatus value) {
 		switch (value) {
 			case CREATE:
@@ -1074,8 +1075,12 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 	}
 
-	public void setChoosingFile(boolean choosingFile) { //AM#14
+	public void setChoosingFile(boolean choosingFile) {
 		ignoreLifecycleUpdate = choosingFile;
+	}
+
+	public void setLastBioauthAttemptFailed(boolean failed) {
+		lastBioauthFailed = failed;
 	}
 
 	private boolean processAccountState(Account account, boolean interactive, boolean isUiAction, boolean isAccountPushed, HashSet<Account> pingCandidates) {
@@ -1582,7 +1587,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		final Intent intent = new Intent(this, EventReceiver.class);
 		intent.setAction(ACTION_POST_CONNECTIVITY_CHANGE);
 		try {
-			final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
+			final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, PendingIntent.FLAG_IMMUTABLE);
 			alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtMillis, pendingIntent);
 		} catch (RuntimeException e) {
 			Log.e(Config.LOGTAG, "unable to schedule alarm for post connectivity change", e);
@@ -1598,7 +1603,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		final Intent intent = new Intent(this, EventReceiver.class);
 		intent.setAction("ping");
 		try {
-			PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, 0);
+			PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_IMMUTABLE);
 			alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, timeToWake, pendingIntent);
 		} catch (RuntimeException e) {
 			Log.e(Config.LOGTAG, "unable to schedule alarm for ping", e);
@@ -1615,7 +1620,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		final Intent intent = new Intent(this, EventReceiver.class);
 		intent.setAction(ACTION_IDLE_PING);
 		try {
-			PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+			PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 			alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, timeToWake, pendingIntent);
 		} catch (RuntimeException e) {
 			Log.d(Config.LOGTAG, "unable to schedule alarm for idle ping", e);
@@ -2458,7 +2463,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					callback.onAccountCreated(account);
 					if (Config.X509_VERIFICATION) {
 						try {
-							getMemorizingTrustManager().getNonInteractive(account.getJid().getDomain()).checkClientTrusted(chain, "RSA");
+							getMemorizingTrustManager().getNonInteractive(account.getJid().getDomain().toEscapedString()).checkClientTrusted(chain, "RSA");
 						} catch (CertificateException e) {
 							callback.informUser(R.string.certificate_chain_is_not_trusted);
 						}
@@ -4355,7 +4360,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			}
 		}
 
-		if (SystemClock.elapsedRealtime() - mLastGlacierUsage.get() >= locktime) {
+		if (lastBioauthFailed || SystemClock.elapsedRealtime() - mLastGlacierUsage.get() >= locktime) {
 			for (OnProcessLifecycleUpdate listener : threadSafeList(this.mOnProcessLifecycleUpdates)) {
 				listener.onProcessLifecycleUpdate();
 			}
@@ -4519,7 +4524,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				mucServers.addAll(account.getXmppConnection().getMucServers());
 				for (Bookmark bookmark : account.getBookmarks()) {
 					final Jid jid = bookmark.getJid();
-					final String s = jid == null ? null : jid.getDomain();
+					final String s = jid == null ? null : jid.getDomain().toEscapedString();
 					if (s != null) {
 						mucServers.add(s);
 					}

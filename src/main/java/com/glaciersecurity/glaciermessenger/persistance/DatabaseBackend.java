@@ -60,7 +60,7 @@ import com.glaciersecurity.glaciermessenger.utils.MimeUtils;
 import com.glaciersecurity.glaciermessenger.utils.Resolver;
 import com.glaciersecurity.glaciermessenger.xmpp.InvalidJid;
 import com.glaciersecurity.glaciermessenger.xmpp.mam.MamReference;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class DatabaseBackend extends SQLiteOpenHelper {
 
@@ -641,7 +641,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 						cursor.getString(cursor.getColumnIndex(Account.USERNAME)),
 						cursor.getString(cursor.getColumnIndex(Account.SERVER)),
 						null
-				).getDomain();
+				).getDomain().toEscapedString();
 			} catch (IllegalArgumentException ignored) {
 				Log.e(Config.LOGTAG, "Failed to migrate Account SERVER "
 						+ cursor.getString(cursor.getColumnIndex(Account.SERVER))

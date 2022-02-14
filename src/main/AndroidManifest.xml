@@ -36,7 +36,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" /> <!-- AM-440 -->
-    <!-- <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" /> --> <!-- AM-581b -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" /> <!-- AM-581b -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC" /> <!-- AM#14 -->
 
     <permission android:name="${applicationId}.ACCESS_SECRETS"
@@ -98,7 +98,8 @@
 
         <service android:name=".services.XmppConnectionService"/>
 
-        <receiver android:name=".services.EventReceiver">
+        <receiver android:name=".services.EventReceiver"
+            android:exported="true">
 <!--            android:permission=""com.glaciersecurity.glaciermessenger.ACCESS_SECRETS"-->
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
@@ -133,6 +134,7 @@
             android:configChanges="orientation|screenSize"
             android:minHeight="400dp"
             android:minWidth="400dp"
+            android:exported="true"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -152,7 +154,9 @@
             android:windowSoftInputMode="stateAlwaysHidden"/>
         <activity
             android:name=".ui.UriHandlerActivity"
-            android:label="@string/title_activity_start_conversation">
+            android:exported="false"
+            android:label="@string/title_activity_start_conversation"
+            tools:ignore="AppLinkUrlError">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
 
@@ -184,7 +188,9 @@
         <activity
             android:name=".ui.StartConversationActivity"
             android:label="@string/title_activity_start_conversation"
-            android:launchMode="singleTop">
+            android:exported="false"
+            android:launchMode="singleTop"
+            tools:ignore="AppLinkUrlError">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
             </intent-filter>
@@ -199,6 +205,7 @@
             android:launchMode="singleTask"/>
         <activity
             android:name=".ui.SettingsActivity"
+            android:exported="true"
             android:label="@string/title_activity_settings">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -224,6 +231,7 @@
         <activity
             android:name=".ui.ChooseAccountForProfilePictureActivity"
             android:enabled="false"
+            android:exported="false"
             android:label="@string/choose_account">
             <intent-filter android:label="@string/set_profile_picture">
                 <action android:name="android.intent.action.ATTACH_DATA" />
@@ -279,6 +287,7 @@
         <activity
             android:name=".ui.ShareWithActivity"
             android:label="@string/app_name"
+            android:exported="true"
             android:launchMode="singleTop">
 
             <intent-filter>
@@ -309,7 +318,9 @@
             android:windowSoftInputMode="stateAlwaysHidden"/>
         <activity
             android:name=".ui.AboutActivity"
-            android:parentActivityName=".ui.SettingsActivity">
+            android:exported="false"
+            android:parentActivityName=".ui.SettingsActivity"
+            tools:ignore="AppLinkUrlError">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.glaciersecurity.glaciermessenger.ui.SettingsActivity"/>
@@ -330,6 +341,7 @@
         <service android:name=".services.ImportBackupService" />
         <service
             android:name=".services.ContactChooserTargetService"
+            android:exported="false"
             android:permission="android.permission.BIND_CHOOSER_TARGET_SERVICE">
             <intent-filter>
                 <action android:name="android.service.chooser.ChooserTargetService" />
@@ -357,6 +369,7 @@
 
         <activity
             android:name=".ui.ShortcutActivity"
+            android:exported="false"
             android:label="@string/contact">
             <intent-filter>
                 <action android:name="android.intent.action.CREATE_SHORTCUT"/>

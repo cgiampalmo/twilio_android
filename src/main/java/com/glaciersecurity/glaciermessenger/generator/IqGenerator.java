@@ -34,7 +34,7 @@ import com.glaciersecurity.glaciermessenger.xml.Element;
 import com.glaciersecurity.glaciermessenger.xmpp.forms.Data;
 import com.glaciersecurity.glaciermessenger.xmpp.pep.Avatar;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.IqPacket;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class IqGenerator extends AbstractGenerator {
 

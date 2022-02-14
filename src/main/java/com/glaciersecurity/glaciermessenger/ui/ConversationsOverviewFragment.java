@@ -80,7 +80,7 @@ import com.glaciersecurity.glaciermessenger.ui.util.ScrollState;
 import com.glaciersecurity.glaciermessenger.ui.util.StyledAttributes;
 import com.glaciersecurity.glaciermessenger.utils.ThemeHelper;
 
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
 import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;

@@ -29,7 +29,7 @@ import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.FileWriterException;
 import com.glaciersecurity.glaciermessenger.utils.WakeLockHelper;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.IqPacket;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class HttpDownloadConnection implements Transferable {
 
@@ -79,7 +79,7 @@ public class HttpDownloadConnection implements Transferable {
 			//ALF AM-100
 			String host = mUrl.getHost();
 			if (mXmppConnectionService.getAccounts().size() >= 1) {
-				String curdomain = mXmppConnectionService.getAccounts().get(0).getJid().getDomain();
+				String curdomain = mXmppConnectionService.getAccounts().get(0).getJid().getDomain().toEscapedString();
 				if (!(curdomain.equalsIgnoreCase(host))) {
 					String newurl = mUrl.toString().replace(host, curdomain);
 					mUrl = new URL(newurl);

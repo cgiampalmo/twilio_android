@@ -27,7 +27,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.InvalidJid;
 import com.glaciersecurity.glaciermessenger.xmpp.OnPresencePacketReceived;
 import com.glaciersecurity.glaciermessenger.xmpp.pep.Avatar;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.PresencePacket;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class PresenceParser extends AbstractParser implements
 		OnPresencePacketReceived {

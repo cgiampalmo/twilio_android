@@ -15,7 +15,7 @@ import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.xml.Element;
 import com.glaciersecurity.glaciermessenger.xmpp.InvalidJid;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.AbstractStanza;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public abstract class AbstractParser {
 
@@ -105,7 +105,7 @@ public abstract class AbstractParser {
 
 	public static MucOptions.User parseItem(Conversation conference, Element item, Jid fullJid) {
 		final String local = conference.getJid().getLocal();
-		final String domain = conference.getJid().getDomain();
+		final String domain = conference.getJid().getDomain().toEscapedString();
 		String affiliation = item.getAttribute("affiliation");
 		String role = item.getAttribute("role");
 		String nick = item.getAttribute("nick");

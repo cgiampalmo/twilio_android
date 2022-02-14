@@ -33,7 +33,7 @@ import com.glaciersecurity.glaciermessenger.ui.adapter.AccountAdapter;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import com.glaciersecurity.glaciermessenger.ui.util.MenuDoubleTabUtil;
 import com.glaciersecurity.glaciermessenger.xmpp.XmppConnection;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 import static com.glaciersecurity.glaciermessenger.utils.PermissionUtils.allGranted;
 import static com.glaciersecurity.glaciermessenger.utils.PermissionUtils.writeGranted;

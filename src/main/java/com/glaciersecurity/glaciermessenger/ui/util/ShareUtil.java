@@ -42,7 +42,7 @@ import com.glaciersecurity.glaciermessenger.persistance.FileBackend;
 import com.glaciersecurity.glaciermessenger.ui.XmppActivity;
 import com.glaciersecurity.glaciermessenger.utils.Patterns;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class ShareUtil {
 

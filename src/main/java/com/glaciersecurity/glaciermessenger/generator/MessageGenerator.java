@@ -20,7 +20,7 @@ import com.glaciersecurity.glaciermessenger.xml.Element;
 import com.glaciersecurity.glaciermessenger.xml.Namespace;
 import com.glaciersecurity.glaciermessenger.xmpp.chatstate.ChatState;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.MessagePacket;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class MessageGenerator extends AbstractGenerator {
 	private static final String GLACIER_FALLBACK_MESSAGE = "Message cannot be decrypted.";

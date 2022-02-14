@@ -28,7 +28,7 @@ import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 
 import org.json.JSONException;
 
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class Message extends AbstractEntity implements AvatarService.Avatarable {
 

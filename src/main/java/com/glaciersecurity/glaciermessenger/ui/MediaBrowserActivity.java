@@ -18,7 +18,7 @@ import com.glaciersecurity.glaciermessenger.ui.adapter.MediaAdapter;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnMediaLoaded;
 import com.glaciersecurity.glaciermessenger.ui.util.Attachment;
 import com.glaciersecurity.glaciermessenger.ui.util.GridManager;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class MediaBrowserActivity extends XmppActivity implements OnMediaLoaded {
 

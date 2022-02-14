@@ -32,7 +32,7 @@ package com.glaciersecurity.glaciermessenger.xmpp;
 import androidx.annotation.NonNull;
 
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.AbstractStanza;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class InvalidJid implements Jid {
 
@@ -78,7 +78,7 @@ public class InvalidJid implements Jid {
 		throw new AssertionError("Not implemented");
 	}
 
-	@Override
+	//@Override
 	public Jid withLocal(CharSequence charSequence) {
 		throw new AssertionError("Not implemented");
 	}
@@ -88,7 +88,7 @@ public class InvalidJid implements Jid {
 		throw new AssertionError("Not implemented");
 	}
 
-	@Override
+	//@Override
 	public Jid atSubdomain(CharSequence charSequence) {
 		throw new AssertionError("Not implemented");
 	}
@@ -104,7 +104,7 @@ public class InvalidJid implements Jid {
 	}
 
 	@Override
-	public String getDomain() {
+	public Jid getDomain() {
 		throw new AssertionError("Not implemented");
 	}
 

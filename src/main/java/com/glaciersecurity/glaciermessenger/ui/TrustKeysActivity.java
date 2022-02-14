@@ -38,7 +38,7 @@ import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.IrregularUnicodeDetector;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
 import com.glaciersecurity.glaciermessenger.xmpp.OnKeyStatusUpdated;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 
 public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdated {

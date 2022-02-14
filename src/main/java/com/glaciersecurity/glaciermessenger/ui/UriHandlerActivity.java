@@ -19,7 +19,7 @@ import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.persistance.DatabaseBackend;
 import com.glaciersecurity.glaciermessenger.utils.SignupUtils;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class UriHandlerActivity extends AppCompatActivity {
 

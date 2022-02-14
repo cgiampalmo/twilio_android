@@ -27,7 +27,7 @@ import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.glaciersecurity.glaciermessenger.xml.Element;
 import com.glaciersecurity.glaciermessenger.xmpp.pep.Avatar;
 
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.customIcon;
 import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.meetingIcon;
@@ -147,7 +147,7 @@ public class Contact implements ListItem, Blockable {
         } else if (jid.getLocal() != null) {
             return JidHelper.localPartOrFallback(jid);
         } else {
-            return jid.getDomain();
+            return jid.getDomain().toEscapedString();
         }
     }
 
@@ -442,7 +442,7 @@ public class Contact implements ListItem, Blockable {
     }
 
     public String getServer() {
-        return getJid().getDomain();
+        return getJid().getDomain().toEscapedString();
     }
 
     public boolean setAvatar(Avatar avatar) {

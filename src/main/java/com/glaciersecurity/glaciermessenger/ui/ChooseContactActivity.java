@@ -38,7 +38,7 @@ import com.glaciersecurity.glaciermessenger.ui.interfaces.OnBackendConnected;
 import com.glaciersecurity.glaciermessenger.ui.util.ActivityResult;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class ChooseContactActivity extends AbstractSearchableListItemSelectActivity implements MultiChoiceModeListener, AdapterView.OnItemClickListener {
     public static final String EXTRA_TITLE_RES_ID = "extra_title_res_id";

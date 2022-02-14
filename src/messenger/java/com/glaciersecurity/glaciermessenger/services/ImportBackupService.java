@@ -42,7 +42,7 @@ import com.glaciersecurity.glaciermessenger.ui.ManageAccountActivity;
 import com.glaciersecurity.glaciermessenger.utils.BackupFileHeader;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.utils.SerialSingleThreadExecutor;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 import static com.glaciersecurity.glaciermessenger.services.ExportBackupService.CIPHERMODE;
 import static com.glaciersecurity.glaciermessenger.services.ExportBackupService.KEYTYPE;
@@ -182,7 +182,7 @@ public class ImportBackupService extends Service {
                 }
             }
             final Jid jid = backupFileHeader.getJid();
-            Cursor countCursor = db.rawQuery("select count(messages.uuid) from messages join conversations on conversations.uuid=messages.conversationUuid join accounts on conversations.accountUuid=accounts.uuid where accounts.username=? and accounts.server=?", new String[]{jid.getEscapedLocal(), jid.getDomain()});
+            Cursor countCursor = db.rawQuery("select count(messages.uuid) from messages join conversations on conversations.uuid=messages.conversationUuid join accounts on conversations.accountUuid=accounts.uuid where accounts.username=? and accounts.server=?", new String[]{jid.getEscapedLocal(), jid.getDomain().toEscapedString()});
             countCursor.moveToFirst();
             int count = countCursor.getInt(0);
             Log.d(Config.LOGTAG, "restored " + count + " messages");
@@ -221,7 +221,7 @@ public class ImportBackupService extends Service {
         mBuilder.setContentTitle(getString(R.string.notification_restored_backup_title))
                 .setContentText(getString(R.string.notification_restored_backup_subtitle))
                 .setAutoCancel(true)
-                .setContentIntent(PendingIntent.getActivity(this, 145, new Intent(this, ManageAccountActivity.class), PendingIntent.FLAG_UPDATE_CURRENT))
+                .setContentIntent(PendingIntent.getActivity(this, 145, new Intent(this, ManageAccountActivity.class), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE))
                 .setSmallIcon(R.drawable.ic_unarchive_white_24dp);
         notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
     }

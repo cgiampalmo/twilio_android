@@ -50,7 +50,7 @@ import com.glaciersecurity.glaciermessenger.utils.StringUtils;
 import com.glaciersecurity.glaciermessenger.utils.StylingHelper;
 import com.glaciersecurity.glaciermessenger.utils.XmppUri;
 import me.drakeet.support.toast.ToastCompat;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 import static com.glaciersecurity.glaciermessenger.entities.Bookmark.printableValue;
 import static com.glaciersecurity.glaciermessenger.utils.StringUtils.changed;

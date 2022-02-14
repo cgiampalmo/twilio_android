@@ -1,7 +1,5 @@
 package com.glaciersecurity.glaciermessenger.ui.adapter;
 
-import android.app.PendingIntent;
-import android.content.IntentSender;
 import androidx.databinding.DataBindingUtil;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ListAdapter;
@@ -11,8 +9,6 @@ import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-//import org.openintents.openpgp.util.OpenPgpUtils;
 
 import com.glaciersecurity.glaciermessenger.R;
 //import com.glaciersecurity.glaciermessenger.crypto.PgpEngine;
@@ -24,7 +20,7 @@ import com.glaciersecurity.glaciermessenger.ui.ConferenceDetailsActivity;
 import com.glaciersecurity.glaciermessenger.ui.XmppActivity;
 import com.glaciersecurity.glaciermessenger.ui.util.AvatarWorkerTask;
 import com.glaciersecurity.glaciermessenger.ui.util.MucDetailsContextMenuHelper;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class UserAdapter extends ListAdapter<MucOptions.User, UserAdapter.ViewHolder> implements View.OnCreateContextMenuListener {
 
@@ -101,27 +97,6 @@ public class UserAdapter extends ListAdapter<MucOptions.User, UserAdapter.ViewHo
             viewHolder.binding.contactDisplayName.setText(name == null ? "" : name);
             viewHolder.binding.contactJid.setText(ConferenceDetailsActivity.getStatus(viewHolder.binding.getRoot().getContext(), user, advancedMode));
         }
-        /*if (advancedMode && user.getPgpKeyId() != 0) {
-            viewHolder.binding.key.setVisibility(View.VISIBLE);
-            viewHolder.binding.key.setOnClickListener(v -> {
-                final XmppActivity activity = XmppActivity.find(v);
-                final XmppConnectionService service = activity == null ? null : activity.xmppConnectionService;
-                final PgpEngine pgpEngine = service == null ? null : service.getPgpEngine();
-                if (pgpEngine != null) {
-                    PendingIntent intent = pgpEngine.getIntentForKey(user.getPgpKeyId());
-                    if (intent != null) {
-                        try {
-                            activity.startIntentSenderForResult(intent.getIntentSender(), 0, null, 0, 0, 0);
-                        } catch (IntentSender.SendIntentException ignored) {
-
-                        }
-                    }
-                }
-            });
-            viewHolder.binding.key.setText(OpenPgpUtils.convertKeyIdToHex(user.getPgpKeyId()));
-        }*/
-
-
     }
 
     public MucOptions.User getSelectedUser() {

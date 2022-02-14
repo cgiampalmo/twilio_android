@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.glaciersecurity.glaciermessenger.xmpp.chatstate.ChatState;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public final class Config {
 	private static final int UNENCRYPTED = 1;

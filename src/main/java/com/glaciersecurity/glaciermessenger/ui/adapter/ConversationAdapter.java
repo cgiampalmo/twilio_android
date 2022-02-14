@@ -22,7 +22,7 @@ import com.glaciersecurity.glaciermessenger.ui.util.StyledAttributes;
 import com.glaciersecurity.glaciermessenger.utils.EmojiWrapper;
 import com.glaciersecurity.glaciermessenger.utils.IrregularUnicodeDetector;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
-import rocks.xmpp.addr.Jid;
+import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
 public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ConversationViewHolder> {
 

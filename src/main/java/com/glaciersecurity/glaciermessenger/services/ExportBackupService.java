@@ -309,7 +309,7 @@ public class ExportBackupService extends Service {
 
         for (Intent intent : getPossibleFileOpenIntents(this, path)) {
             if (intent.resolveActivityInfo(getPackageManager(), 0) != null) {
-                pendingIntent = PendingIntent.getActivity(this, 189, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                pendingIntent = PendingIntent.getActivity(this, 189, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
                 break;
             }
         }
