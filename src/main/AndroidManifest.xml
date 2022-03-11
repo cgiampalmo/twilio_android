@@ -83,7 +83,7 @@
         android:appCategory="social"
         android:icon="@mipmap/glacier_new_chat_launcher"
         android:roundIcon="@mipmap/glacier_new_chat_launcher_round"
-        android:usesCleartextTraffic="false"
+        android:usesCleartextTraffic="true"
         android:label="Glacier"
         android:largeHeap="true"
         android:networkSecurityConfig="@xml/network_security_configuration"
@@ -94,7 +94,8 @@
         android:gravity="top|center"
         android:minHeight="450dp"
         android:minWidth="300dp"
-        tools:targetApi="o">
+        tools:targetApi="o"
+        android:name=".ui.ConversationModel">
 
         <service android:name=".services.XmppConnectionService"/>
 
@@ -141,6 +142,22 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.SMSActivity"
+            android:parentActivityName=".ui.ConversationsActivity"
+            android:label="@string/app_name"/>
+        <activity
+            android:name=".ui.smsConvActivity"
+            android:parentActivityName=".ui.SMSActivity"
+            android:label="@string/app_name"/>
+        <activity
+            android:name=".ui.widget.NewSMSActivity"
+            android:parentActivityName=".ui.SMSActivity"
+            android:label="@string/app_name"/>
+        <activity
+            android:name=".ui.ContactListActivity"
+            android:parentActivityName=".ui.SMSActivity"
+            android:label="@string/app_name"/>
         <activity
             android:name=".ui.ConversationsActivity"
             android:label="@string/app_name"

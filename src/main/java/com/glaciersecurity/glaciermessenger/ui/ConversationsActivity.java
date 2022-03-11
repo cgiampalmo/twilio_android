@@ -615,7 +615,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		} else {
 			intent = savedInstanceState.getParcelable("intent");
 			this.mSavedInstanceAccount = savedInstanceState.getString("account");
-
 		}
 		if (isViewOrShareIntent(intent)) {
 			pendingViewIntent.push(intent);
@@ -844,7 +843,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		List<PresenceTemplate> templates = xmppConnectionService.getPresenceTemplates(mAccount);
 		//CMG AM-365
 //		PresenceTemplateAdapter presenceTemplateAdapter = new PresenceTemplateAdapter(this, R.layout.simple_list_item, templates);
-// 		binding.statusMessage.setAdapter(presenceTemplateAdapter);
+// 		binding.statusMessage.setAdapter(presenceTemplateAdaptreer);
 //		binding.statusMessage.setOnItemClickListener((parent, view, position, id) -> {
 //			PresenceTemplate template = (PresenceTemplate) parent.getItemAtPosition(position);
 //			setAvailabilityRadioButton(template.getStatus(), binding);
@@ -1144,6 +1143,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 					}
 				}
+				break;
+			}
+			case R.id.SMS:{
+				Intent SMSActivity = new Intent(getApplicationContext(), SMSActivity.class);
+				startActivity(SMSActivity.putExtra("account",getDisplayName()));
 				break;
 			}
 			case R.id.Logout: {
