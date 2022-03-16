@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBar;
@@ -109,6 +110,8 @@ public class smsConvActivity extends AppCompatActivity implements ConversationsM
     public void showList() {
         /*Intent SMSActivity = new Intent(getApplicationContext(), SMSActivity.class);
         startActivity(SMSActivity);*/
+        ProgressBar progressBar = findViewById(R.id.progressBar2);
+        progressBar.setVisibility(View.GONE);
         Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation());
     }
 

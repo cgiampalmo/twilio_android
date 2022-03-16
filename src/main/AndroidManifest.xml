@@ -151,7 +151,7 @@
             android:parentActivityName=".ui.SMSActivity"
             android:label="@string/app_name"/>
         <activity
-            android:name=".ui.widget.NewSMSActivity"
+            android:name=".ui.NewSMSActivity"
             android:parentActivityName=".ui.SMSActivity"
             android:label="@string/app_name"/>
         <activity

@@ -236,6 +236,7 @@ public class ConversationsManager {
                                 @Override
                                 public void onSuccess(Long result) {
                                     Log.d("Glacier","setUnreadCount "+result);
+                                    conversationsManagerListener.showList();
                                 }
                             });
                         }

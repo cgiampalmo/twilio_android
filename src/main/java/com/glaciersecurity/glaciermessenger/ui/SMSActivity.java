@@ -10,8 +10,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
@@ -23,11 +26,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -36,7 +41,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.glaciersecurity.glaciermessenger.R;
 //import com.glaciersecurity.glaciermessenger.databinding.ActivityChooseContactBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
-import com.glaciersecurity.glaciermessenger.ui.widget.NewSMSActivity;
+import com.glaciersecurity.glaciermessenger.ui.NewSMSActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.twilio.conversations.CallbackListener;
 import com.twilio.conversations.Conversation;
@@ -70,10 +75,17 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
     }
     public void showList() {
         Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation());
-//        messagesAdapter.notifyDataSetChanged();
+
         List<Conversation> conversationList = ConversationsManager.conversationsClient.getMyConversations();
+        Map<String, String> aList =new HashMap<>();
+        for (Conversation conv:conversationList) {
+            aList.put(conv.getFriendlyName(),conv.getSid());
+        }
+        model.setContConv(aList);
         sortconv(conversationList);
         messagesAdapter = new SMSActivity.MessagesAdapter((OnSMSConversationClickListener) this,conversationList);
+        ProgressBar progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.GONE);
         recyclerView.setAdapter(messagesAdapter);
     }
     private final ConversationsManager ConversationsManager = new ConversationsManager(this);
@@ -81,7 +93,7 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
     ConversationModel model;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.list_sms);
+        setContentView(R.layout.list_sms1);
         setTitle("SMS");
         toolbar = (Toolbar) findViewById(R.id.aToolbar);
         model = (ConversationModel) getApplicationContext();
@@ -119,10 +131,15 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
             @Override
             public void onClick(View view) {
                 accessToken = Atoken.getAccessToken();
-                model.setConversationsClient(ConversationsManager.conversationsClient);
-                Intent intent = new Intent(mContext, ContactListActivity.class);
-                String conv_Sid = "new";
-                startActivity(intent.putExtra("conv_sid",conv_Sid).putExtra("identity",identity).putExtra("conversationToken", accessToken).putExtra("title","New message"));
+                Log.d("Glacier","conversationsClient "+ConversationsManager.conversationsClient);
+                if (ConversationsManager.conversationsClient != null){
+                    model.setConversationsClient(ConversationsManager.conversationsClient);
+                    Intent intent = new Intent(mContext, ContactListActivity.class);
+                    String conv_Sid = "new";
+                    startActivity(intent.putExtra("conv_sid", conv_Sid).putExtra("identity", identity).putExtra("conversationToken", accessToken).putExtra("title", "New message"));
+                }else{
+                    Toast.makeText(mContext, "Please wait the SMS is not loaded successfully", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -277,8 +294,10 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
             });
             if(conv_last_msg_sent.containsKey(conversation.getSid()) && conv_last_msg_sent.get(conversation.getSid()).toString().equals(identity))
                 sender_name.setText("Me :");
-            else
+            else if(conv_last_msg_sent.containsKey(conversation.getSid()) && conv_last_msg_sent.get(conversation.getSid()) != null)
                 sender_name.setText((CharSequence) conv_last_msg_sent.get(conversation.getSid()) +" :");
+            else
+                sender_name.setText("");
 
             if(conv_last_msg.get(conversation.getSid()) != null)
                 dateText.setText(df.format("MMM d hh:mm", conversation.getLastMessageDate()).toString());
@@ -303,21 +322,25 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
         public int compare(Conversation customerEvents1, Conversation customerEvents2) {
             Date DateObject1 = customerEvents1.getLastMessageDate();
             Date DateObject2 = customerEvents2.getLastMessageDate();
+            if(DateObject1 == null || DateObject2 == null){
+                Log.d("Glacier","DateObject1 "+DateObject1+" DateObject2 "+DateObject2+" other "+customerEvents1.getFriendlyName());
+                return 1;
+            }else{
+                Calendar cal1 = Calendar.getInstance();
+                cal1.setTime(DateObject1);
+                Calendar cal2 = Calendar.getInstance();
+                cal2.setTime(DateObject2);
 
-            Calendar cal1 = Calendar.getInstance();
-            cal1.setTime(DateObject1);
-            Calendar cal2 = Calendar.getInstance();
-            cal2.setTime(DateObject2);
+                int month1 = cal1.get(Calendar.MONTH);
+                int month2 = cal2.get(Calendar.MONTH);
 
-            int month1 = cal1.get(Calendar.MONTH);
-            int month2 = cal2.get(Calendar.MONTH);
+                if (month1 < month2)
+                    return -1;
+                else if (month1 == month2)
+                    return cal1.get(Calendar.DAY_OF_MONTH) - cal2.get(Calendar.DAY_OF_MONTH);
 
-            if (month1 < month2)
-                return -1;
-            else if (month1 == month2)
-                return cal1.get(Calendar.DAY_OF_MONTH) - cal2.get(Calendar.DAY_OF_MONTH);
-
-            else return 1;
+                else return 1;
+            }
         }
     }
 }

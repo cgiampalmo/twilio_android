@@ -15,10 +15,12 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
-import com.glaciersecurity.glaciermessenger.ui.widget.NewSMSActivity;
+import com.glaciersecurity.glaciermessenger.ui.NewSMSActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -36,6 +38,7 @@ public class ContactListActivity extends AppCompatActivity implements OnSMSConve
     ContactAdapter adapter;
     Toolbar toolbar;
     private Context mContext = this;
+    ConversationModel cModel;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.contacts_list_view);
@@ -46,6 +49,7 @@ public class ContactListActivity extends AppCompatActivity implements OnSMSConve
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationOnClickListener(view -> onBackPressed());
+        cModel = (ConversationModel) getApplicationContext();
         checkPermission();
         if (getIntent().hasExtra("conv_sid")) {
             convSid = getIntent().getExtras().getString("conv_sid");
@@ -75,6 +79,8 @@ public class ContactListActivity extends AppCompatActivity implements OnSMSConve
         String sort = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME+" ASC";
         Cursor cursor = getContentResolver().query(uri,null,null,null,sort);
         Log.d("Glacier","cursor "+cursor.getCount());
+        Map<String, String> convContList = new HashMap<>();
+        convContList = cModel.getContConv();
         if(cursor.getCount() > 0){
             while (cursor.moveToNext()){
                 String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
@@ -89,6 +95,20 @@ public class ContactListActivity extends AppCompatActivity implements OnSMSConve
                         model.setName(name);
                         model.setNumber(number);
                         arrayList.add(model);
+                        Log.d("Glacier","convContList "+convContList);
+
+                        number = number.replaceAll(" ","");
+                        number = number.replace("+1","");
+                        number = number.replace("(","");
+                        number = number.replace(")","");
+                        number = number.replace("-","");
+
+                        if(number.length() > 8 && ( convContList == null || !(convContList.size() > 0) || !convContList.containsKey(number))) {
+                            if(convContList == null){
+                                convContList = new HashMap<>();
+                            }
+                            convContList.put(number,"No sid");
+                        }
                         phoneCursor.close();
                     }
                     Log.d("Glacier", "cursor arrayList " + arrayList.size());
@@ -97,6 +117,7 @@ public class ContactListActivity extends AppCompatActivity implements OnSMSConve
             Log.d("Glacier","cursor final arrayList "+arrayList.size());
             cursor.close();
         }
+        cModel.setContConv(convContList);
         recyclerView.setLayoutManager((new LinearLayoutManager(this)));
         adapter = new ContactAdapter(this,arrayList,(OnSMSConversationClickListener) this);
         recyclerView.setAdapter(adapter);
