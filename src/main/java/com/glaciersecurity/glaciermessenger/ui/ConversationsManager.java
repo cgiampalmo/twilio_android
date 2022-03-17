@@ -1,5 +1,7 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.util.Log;
 
@@ -24,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.core.app.NotificationCompat;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -31,7 +34,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 interface ConversationsManagerListener {
-    void receivedNewMessage();
+    void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor);
     void messageSentCallback();
     void reloadMessages();
     void showList();
@@ -59,7 +62,7 @@ public class ConversationsManager {
 
     public ConversationsClient conversationsClient;
 
-    private Conversation conversation;
+    protected Conversation conversation;
 
     private ConversationsManagerListener conversationsManagerListener;
 
@@ -471,8 +474,19 @@ public class ConversationsManager {
                             conv_last_msg_count.put(message.getConversationSid(),1);
                         }
                     }
+
                 }
-                conversationsManagerListener.receivedNewMessage();
+                if(!conversation.getSid().equals(message.getConversationSid()))
+                    conversationsManagerListener.receivedNewMessage("New sms from " + message.getAuthor() + " : " + message.getMessageBody(),message.getConversationSid(),message.getAuthor());
+                else {
+                    conversationsManagerListener.reloadMessages();
+                    conversation.setAllMessagesRead(new CallbackListener<Long>() {
+                        @Override
+                        public void onSuccess(Long result) {
+
+                        }
+                    });
+                }
             }
         }
 

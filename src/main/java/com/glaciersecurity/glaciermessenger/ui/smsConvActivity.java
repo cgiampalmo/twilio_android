@@ -24,6 +24,7 @@ import java.io.Serializable;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -41,6 +42,7 @@ public class smsConvActivity extends AppCompatActivity implements ConversationsM
     ConversationModel model;
     private Context mContext = this;
     RecyclerView recyclerView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,7 +64,7 @@ public class smsConvActivity extends AppCompatActivity implements ConversationsM
             Convtoken = getIntent().getExtras().getString("conversationToken");
         }
         ConversationsClient conversationsClient = model.getConversationsClient();
-        Log.d("Glacier","Get conversation from model "+conversationsClient);
+        //Conversation co = model.getConversationsClient();
         if(conversationsClient != null){
             ConversationsManager.getConversation(convSid,false,conversationsClient);
         }else {
@@ -88,7 +90,7 @@ public class smsConvActivity extends AppCompatActivity implements ConversationsM
             @Override
             public void onClick(View view) {
                 Log.d(TAG,"Button clicked "+writeMessageEditText.getText().toString());
-                String messageBody = writeMessageEditText.getText().toString();
+                String messageBody = writeMessageEditText.getText().toString().trim();
                 if (messageBody.length() > 0) {
                     ConversationsManager.sendMessage(messageBody);
                 }
@@ -145,7 +147,7 @@ public class smsConvActivity extends AppCompatActivity implements ConversationsM
     }
 
     @Override
-    public void receivedNewMessage() {
+    public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -158,7 +160,9 @@ public class smsConvActivity extends AppCompatActivity implements ConversationsM
 
     @Override
     public void reloadMessages() {
-        if(convSid.trim().length() < 13 && convSid.length() > 9){
+        model.setConversation(ConversationsManager.conversation);
+        model.clearNotification(Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2,5)));
+        if(convSid.trim().length() < 13 && convSid.length() > 9 && newMessageBody.trim().length() > 0){
             ConversationsManager.sendMessage(newMessageBody);
             convSid = "Sent";
         }
@@ -167,6 +171,7 @@ public class smsConvActivity extends AppCompatActivity implements ConversationsM
             public void run() {
                 // need to modify user interface elements on the UI thread
                 messagesAdapter.notifyDataSetChanged();
+                recyclerView.scrollToPosition(ConversationsManager.getMessages().size()-1);
             }
         });
     }

@@ -1,8 +1,12 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
@@ -18,6 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.databinding.DataBindingUtil;
 
 import org.jetbrains.annotations.Nullable;
@@ -59,11 +65,34 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
     TokenModel Atoken = new TokenModel();
     public String AccessToken;
     RecyclerView recyclerView;
-    @Override
-    public void receivedNewMessage() {
-        messagesAdapter.notifyDataSetChanged();
-    }
+    NotificationManagerCompat managerCompat;
+    NotificationCompat.Builder builder = new NotificationCompat.Builder(this,"Glacier");
 
+    @Override
+    public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor) {
+        messagesAdapter.notifyDataSetChanged();
+        Conversation current_conv = model.getConversation();
+        if(current_conv != null)
+            Log.d("Glacier","Current Conversation new message "+current_conv.getSid()+" : "+messageConversationSid+" : "+current_conv.getSid().equals(messageConversationSid)+" : "+messageAuthor);
+        if (current_conv == null)
+            notifyMessage(newMessage,messageAuthor);
+        else if(!current_conv.getSid().equals(messageConversationSid) && identity != messageAuthor) {
+            notifyMessage(newMessage,messageAuthor);
+        }
+    }
+    private void notifyMessage(String newMessage,String messageAuthor){
+        Intent intent = new Intent(mContext, SMSActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+        builder.setContentTitle("Glacier");
+        builder.setContentText(newMessage);
+        builder.setSmallIcon(R.drawable.ic_launcher_foreground);
+        builder.setAutoCancel(true);
+        builder.setContentIntent(pendingIntent);
+        managerCompat = NotificationManagerCompat.from(this);
+        Log.d("Glacier", "New notification");
+        managerCompat.notify(Integer.parseInt(messageAuthor.substring(2,5)), builder.build());
+        model.setNotificationManager(managerCompat);
+    }
     @Override
     public void messageSentCallback() {
         messagesAdapter.notifyDataSetChanged();
@@ -73,6 +102,7 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
     public void reloadMessages() {
         messagesAdapter.notifyDataSetChanged();
     }
+
     public void showList() {
         Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation());
 
@@ -83,6 +113,7 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
         }
         model.setContConv(aList);
         sortconv(conversationList);
+        model.setConversationsClient(ConversationsManager.conversationsClient);
         messagesAdapter = new SMSActivity.MessagesAdapter((OnSMSConversationClickListener) this,conversationList);
         ProgressBar progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
@@ -91,6 +122,7 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
     private final ConversationsManager ConversationsManager = new ConversationsManager(this);
     Toolbar toolbar;
     ConversationModel model;
+    @RequiresApi(api = Build.VERSION_CODES.O)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.list_sms1);
@@ -106,8 +138,15 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
             Log.d("Glacier ","Twilio Conversation "+model.getConversation());
         }else{
             identity = model.getIdentity();
+            model.setConversation(null);
             Log.d("Glacier","Identity "+identity);
         }
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("Glacier", "Glacier", NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(channel);
+        }
+
         recyclerView = findViewById(R.id.choose_conversation_list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setStackFromEnd(true);
@@ -336,9 +375,18 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
 
                 if (month1 < month2)
                     return -1;
-                else if (month1 == month2)
-                    return cal1.get(Calendar.DAY_OF_MONTH) - cal2.get(Calendar.DAY_OF_MONTH);
-
+                else if (month1 == month2) {
+                    if(cal1.get(Calendar.DAY_OF_MONTH) != cal2.get(Calendar.DAY_OF_MONTH))
+                        return cal1.get(Calendar.DAY_OF_MONTH) - cal2.get(Calendar.DAY_OF_MONTH);
+                    else if(cal1.get(Calendar.HOUR_OF_DAY) != cal1.get(Calendar.HOUR_OF_DAY))
+                        return cal1.get(Calendar.HOUR_OF_DAY) - cal2.get(Calendar.HOUR_OF_DAY);
+                    else if(cal1.get(Calendar.AM_PM) != cal2.get(Calendar.AM_PM))
+                        return cal1.get(Calendar.AM_PM) - cal2.get(Calendar.AM_PM);
+                    else if(cal1.get(Calendar.MINUTE) != cal2.get(Calendar.MINUTE))
+                        return cal1.get(Calendar.MINUTE) - cal2.get(Calendar.MINUTE);
+                    else
+                        return cal1.get(Calendar.SECOND) - cal2.get(Calendar.SECOND);
+                }
                 else return 1;
             }
         }

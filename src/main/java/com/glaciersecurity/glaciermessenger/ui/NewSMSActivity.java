@@ -20,6 +20,7 @@ import java.util.Map;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 public class NewSMSActivity extends AppCompatActivity implements OnSMSConversationClickListener {
@@ -106,7 +107,7 @@ public class NewSMSActivity extends AppCompatActivity implements OnSMSConversati
             String sid = convContList.get(conv_name);
             Log.d("Glacier","OnSMSConversationClick sid "+sid);
             Intent intent = new Intent(this,smsConvActivity.class);
-            if(!(sid.trim().equals("No sid"))){
+            if(sid != null && !(sid.trim().equals("No sid"))){
                 startActivity(intent.putExtra("conv_sid",sid).putExtra("identity",identity).putExtra("conversationToken", Convtoken).putExtra("title",conv_name).putExtra("title",conv_name));
             }else{
                 startActivity(intent.putExtra("conv_sid",conv_name).putExtra("identity",identity).putExtra("conversationToken", Convtoken).putExtra("title",conv_name).putExtra("title",conv_name));
