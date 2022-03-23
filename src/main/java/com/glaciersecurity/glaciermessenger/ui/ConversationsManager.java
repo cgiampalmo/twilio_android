@@ -293,24 +293,26 @@ public class ConversationsManager {
                 });
     }
     private void loadlastmsg (final Conversation conversation) {
-        conversation.getLastMessages(10,
-                new CallbackListener<List<Message>>() {
-                    @Override
-                    public void onSuccess(List<Message> result) {
-                        /*messages.addAll(result);
-                        if (conversationsManagerListener != null) {
-                            conversationsManagerListener.reloadMessages();
-                        }*/
-                        if (conversationsManagerListener != null) {
-                            if(result.size() > 0) {
-                                Log.d("Glacier", "loadlastmsg----" + result.get(result.size()-1).getMessageBody() + " " + result.size());
-                                conv_last_msg.put(conversation.getSid(), result.get(result.size()-1).getMessageBody());
-                                conv_last_msg_sent.put(conversation.getSid(), result.get(result.size()-1).getAuthor());
-                                conversationsManagerListener.reloadMessages();
+        Log.d("Glacier","loadlastmsg "+conversation.getSynchronizationStatus()+" conversation "+conversation.getState()+" "+conversation.getStatus()+conversation.getFriendlyName());
+        //if(conversation.getSynchronizationStatus().equals("ALL") || conversation.getSynchronizationStatus().equals("METADATA")) {
+            try{
+                conversation.getLastMessages(10,
+                    new CallbackListener<List<Message>>() {
+                        @Override
+                        public void onSuccess(List<Message> result) {
+                            if (conversationsManagerListener != null) {
+                                if (result.size() > 0) {
+                                    Log.d("Glacier", "loadlastmsg----" + result.get(result.size() - 1).getMessageBody() + " " + result.size());
+                                    conv_last_msg.put(conversation.getSid(), result.get(result.size() - 1).getMessageBody());
+                                    conv_last_msg_sent.put(conversation.getSid(), result.get(result.size() - 1).getAuthor());
+                                    conversationsManagerListener.reloadMessages();
+                                }
                             }
                         }
-                    }
-                });
+                    });
+        }catch (Exception err){
+                Log.d("Glacier","Synchronization Exception "+ err.getMessage());
+            }
     }
 
     private final ConversationsClientListener mConversationsClientListener =
@@ -476,9 +478,10 @@ public class ConversationsManager {
                     }
 
                 }
-                if(!conversation.getSid().equals(message.getConversationSid()))
-                    conversationsManagerListener.receivedNewMessage("New sms from " + message.getAuthor() + " : " + message.getMessageBody(),message.getConversationSid(),message.getAuthor());
-                else {
+
+                conversationsManagerListener.receivedNewMessage("New sms from " + message.getAuthor() + " : " + message.getMessageBody(),message.getConversationSid(),message.getConversation().getFriendlyName());
+                //conversationsManagerListener.reloadMessages();
+                /*else {
                     conversationsManagerListener.reloadMessages();
                     conversation.setAllMessagesRead(new CallbackListener<Long>() {
                         @Override
@@ -486,7 +489,7 @@ public class ConversationsManager {
 
                         }
                     });
-                }
+                }*/
             }
         }
 

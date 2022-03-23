@@ -21,6 +21,9 @@ public class ConversationModel extends Application {
     public void setNotificationManager(NotificationManagerCompat notificationManager){
         this.notificationManager = notificationManager;
     }
+    public NotificationManagerCompat getNotificationManager(){
+        return notificationManager;
+    }
     public void clearNotification(int notId){
         notificationManager.cancel(notId);
     }

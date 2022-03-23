@@ -16,11 +16,13 @@ import android.widget.TextView;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import com.glaciersecurity.glaciermessenger.R;
+import com.twilio.conversations.CallbackListener;
 import com.twilio.conversations.Conversation;
 import com.twilio.conversations.ConversationsClient;
 import com.twilio.conversations.Message;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,7 +44,7 @@ public class smsConvActivity extends AppCompatActivity implements ConversationsM
     ConversationModel model;
     private Context mContext = this;
     RecyclerView recyclerView;
-
+    Map<String, String> convContList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +68,13 @@ public class smsConvActivity extends AppCompatActivity implements ConversationsM
         ConversationsClient conversationsClient = model.getConversationsClient();
         //Conversation co = model.getConversationsClient();
         if(conversationsClient != null){
+            convContList = model.getContConv();
+            if(convContList != null && convContList.size() > 0){
+                String sid = convContList.get(convSid);
+                if(sid != null && !(sid.trim().equals("No sid"))){
+                    convSid = sid;
+                }
+            }
             ConversationsManager.getConversation(convSid,false,conversationsClient);
         }else {
             ConversationsManager.initializeWithAccessToken(this, Convtoken,convSid);
@@ -148,12 +157,25 @@ public class smsConvActivity extends AppCompatActivity implements ConversationsM
 
     @Override
     public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor) {
+        Log.d("Glacier","getFriendlyName"+ConversationsManager.conversation.getFriendlyName()+ConversationsManager.conversation.getFriendlyName().substring(2,5));
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // need to modify user interface elements on the UI thread
-                messagesAdapter.notifyDataSetChanged();
-                recyclerView.scrollToPosition(ConversationsManager.getMessages().size()-1);
+                Conversation current_conv = model.getConversation();
+                if(current_conv != null && current_conv.getSid().equals(messageConversationSid)) {
+                    messagesAdapter.notifyDataSetChanged();
+                    recyclerView.scrollToPosition(ConversationsManager.getMessages().size() - 1);
+                    ConversationsManager.conversation.setAllMessagesRead(new CallbackListener<Long>() {
+                        @Override
+                        public void onSuccess(Long result) {
+                            if(model.getNotificationManager() != null) {
+                                Log.d("Glacier","getFriendlyName "+ Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5))+" "+model.getNotificationManager());
+                                model.clearNotification(Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5)));
+                            }
+                        }
+                    });
+                }
             }
         });
     }
@@ -161,17 +183,27 @@ public class smsConvActivity extends AppCompatActivity implements ConversationsM
     @Override
     public void reloadMessages() {
         model.setConversation(ConversationsManager.conversation);
-        model.clearNotification(Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2,5)));
-        if(convSid.trim().length() < 13 && convSid.length() > 9 && newMessageBody.trim().length() > 0){
+        Log.d("Glacier","getFriendlyName"+ConversationsManager.conversation.getFriendlyName()+ConversationsManager.conversation.getFriendlyName().substring(2,5));
+        if(model.getNotificationManager() != null) {
+            Log.d("Glacier","getFriendlyName "+ Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5))+" "+model.getNotificationManager());
+            model.clearNotification(Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5)));
+        }
+        /*if(convSid.trim().length() < 13 && convSid.length() > 9 && newMessageBody != null){
             ConversationsManager.sendMessage(newMessageBody);
             convSid = "Sent";
-        }
+        }*/
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 // need to modify user interface elements on the UI thread
                 messagesAdapter.notifyDataSetChanged();
                 recyclerView.scrollToPosition(ConversationsManager.getMessages().size()-1);
+                ConversationsManager.conversation.setAllMessagesRead(new CallbackListener<Long>() {
+                    @Override
+                    public void onSuccess(Long result) {
+
+                    }
+                });
             }
         });
     }

@@ -93,7 +93,7 @@ public class ContactListActivity extends AppCompatActivity implements OnSMSConve
                         String number = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                         ContactModel model = new ContactModel();
                         model.setName(name);
-                        model.setNumber(number);
+
                         arrayList.add(model);
                         Log.d("Glacier","convContList "+convContList);
 
@@ -102,7 +102,7 @@ public class ContactListActivity extends AppCompatActivity implements OnSMSConve
                         number = number.replace("(","");
                         number = number.replace(")","");
                         number = number.replace("-","");
-
+                        model.setNumber(number);
                         if(number.length() > 8 && ( convContList == null || !(convContList.size() > 0) || !convContList.containsKey(number))) {
                             if(convContList == null){
                                 convContList = new HashMap<>();

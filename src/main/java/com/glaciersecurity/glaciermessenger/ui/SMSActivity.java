@@ -89,7 +89,7 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
         builder.setAutoCancel(true);
         builder.setContentIntent(pendingIntent);
         managerCompat = NotificationManagerCompat.from(this);
-        Log.d("Glacier", "New notification");
+        Log.d("Glacier", "New notification "+Integer.parseInt(messageAuthor.substring(2,5)));
         managerCompat.notify(Integer.parseInt(messageAuthor.substring(2,5)), builder.build());
         model.setNotificationManager(managerCompat);
     }
@@ -125,7 +125,7 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
     @RequiresApi(api = Build.VERSION_CODES.O)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.list_sms1);
+        setContentView(R.layout.list_sms);
         setTitle("SMS");
         toolbar = (Toolbar) findViewById(R.id.aToolbar);
         model = (ConversationModel) getApplicationContext();
@@ -359,8 +359,8 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
     private class EventDetailSortByDate implements java.util.Comparator<Conversation> {
         @Override
         public int compare(Conversation customerEvents1, Conversation customerEvents2) {
-            Date DateObject1 = customerEvents1.getLastMessageDate();
-            Date DateObject2 = customerEvents2.getLastMessageDate();
+            Date DateObject1 = (customerEvents1.getLastMessageDate() == null)?customerEvents1.getDateCreatedAsDate():customerEvents1.getLastMessageDate();
+            Date DateObject2 = (customerEvents2.getLastMessageDate() == null)?customerEvents2.getDateCreatedAsDate():customerEvents2.getLastMessageDate();;
             if(DateObject1 == null || DateObject2 == null){
                 Log.d("Glacier","DateObject1 "+DateObject1+" DateObject2 "+DateObject2+" other "+customerEvents1.getFriendlyName());
                 return 1;
@@ -372,10 +372,13 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
 
                 int month1 = cal1.get(Calendar.MONTH);
                 int month2 = cal2.get(Calendar.MONTH);
+                Log.d("Glacier","month1 "+month1+" month2 "+month2+" other "+customerEvents1.getFriendlyName());
 
                 if (month1 < month2)
                     return -1;
                 else if (month1 == month2) {
+                    Log.d("Glacier","DAY_OF_MONTH1 "+cal1.get(Calendar.DAY_OF_MONTH)+" DAY_OF_MONTH2 "+cal2.get(Calendar.DAY_OF_MONTH)+" other "+customerEvents1.getFriendlyName()+" returning "+(cal1.get(Calendar.DAY_OF_MONTH) - cal2.get(Calendar.DAY_OF_MONTH)));
+
                     if(cal1.get(Calendar.DAY_OF_MONTH) != cal2.get(Calendar.DAY_OF_MONTH))
                         return cal1.get(Calendar.DAY_OF_MONTH) - cal2.get(Calendar.DAY_OF_MONTH);
                     else if(cal1.get(Calendar.HOUR_OF_DAY) != cal1.get(Calendar.HOUR_OF_DAY))
