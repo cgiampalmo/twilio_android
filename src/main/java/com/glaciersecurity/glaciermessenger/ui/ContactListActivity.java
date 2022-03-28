@@ -50,7 +50,12 @@ public class ContactListActivity extends AppCompatActivity implements OnSMSConve
         actionbar.setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationOnClickListener(view -> onBackPressed());
         cModel = (ConversationModel) getApplicationContext();
-        checkPermission();
+        //checkPermission();
+        arrayList = cModel.getArrayList();
+        recyclerView.setLayoutManager((new LinearLayoutManager(this)));
+        adapter = new ContactAdapter(this,arrayList,(OnSMSConversationClickListener) this);
+        recyclerView.setAdapter(adapter);
+
         if (getIntent().hasExtra("conv_sid")) {
             convSid = getIntent().getExtras().getString("conv_sid");
             identity = getIntent().getExtras().getString("identity");
@@ -66,7 +71,7 @@ public class ContactListActivity extends AppCompatActivity implements OnSMSConve
             }
         });
     }
-    private void checkPermission() {
+    /*private void checkPermission() {
         if (ContextCompat.checkSelfPermission(ContactListActivity.this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(ContactListActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, 100);
         } else {
@@ -133,7 +138,7 @@ public class ContactListActivity extends AppCompatActivity implements OnSMSConve
             //Toast.makeText(ContactListActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
             checkPermission();
         }
-    }
+    }*/
     public void OnSMSConversationClick(String conv_sid,String conv_name) {
         Log.d("Glacier","onConversationClick called ");
         String token = Convtoken;

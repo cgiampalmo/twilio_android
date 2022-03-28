@@ -17,6 +17,25 @@ public class ConversationModel extends Application {
     private ConversationsClient conversationsClient;
     private Map<String,String> contConv;
     private NotificationManagerCompat notificationManager;
+    private ArrayList<ContactModel> arrayList;
+
+    public Map<String, String> getcList() {
+        return cList;
+    }
+
+    public void setcList(Map<String, String> cList) {
+        this.cList = cList;
+    }
+
+    private Map<String, String> cList;
+
+    public ArrayList<ContactModel> getArrayList() {
+        return arrayList;
+    }
+
+    public void setArrayList(ArrayList<ContactModel> arrayList) {
+        this.arrayList = arrayList;
+    }
 
     public void setNotificationManager(NotificationManagerCompat notificationManager){
         this.notificationManager = notificationManager;
@@ -58,4 +77,5 @@ public class ConversationModel extends Application {
     public void setConversationsClient(ConversationsClient conversationsClient) {
         this.conversationsClient = conversationsClient;
     }
+
 }

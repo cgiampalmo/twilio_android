@@ -45,11 +45,13 @@ public class smsConvActivity extends AppCompatActivity implements ConversationsM
     private Context mContext = this;
     RecyclerView recyclerView;
     Map<String, String> convContList;
+    Map<String, String> cList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sms_conv);
         model = (ConversationModel) getApplicationContext();
+        cList = model.getcList();
         toolbar = (Toolbar) findViewById(R.id.aToolbar);
         setSupportActionBar(toolbar);
         ActionBar actionbar = getSupportActionBar();
@@ -106,7 +108,9 @@ public class smsConvActivity extends AppCompatActivity implements ConversationsM
             }
         });
         if(getIntent().hasExtra("title")){
-            setTitle(getIntent().getStringExtra("title"));
+            //setTitle(getIntent().getStringExtra("title"));
+            String Contact_name = (cList.get(getIntent().getStringExtra("title")) != null) ? cList.get(getIntent().getStringExtra("title")) : getIntent().getStringExtra("title");
+            setTitle(Contact_name);
         }
         if(getIntent().hasExtra("phoneNumber")){
             convSid = getIntent().getStringExtra("phoneNumber");

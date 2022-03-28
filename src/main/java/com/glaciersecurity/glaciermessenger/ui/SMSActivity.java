@@ -1,14 +1,20 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,8 +28,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
 import org.jetbrains.annotations.Nullable;
@@ -67,7 +75,9 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
     RecyclerView recyclerView;
     NotificationManagerCompat managerCompat;
     NotificationCompat.Builder builder = new NotificationCompat.Builder(this,"Glacier");
-
+    //ContactAdapter adapter;
+    Map<String, String> cList =new HashMap<>();
+    ArrayList<ContactModel> arrayList = new ArrayList<ContactModel>();
     @Override
     public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor) {
         messagesAdapter.notifyDataSetChanged();
@@ -100,7 +110,15 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
 
     @Override
     public void reloadMessages() {
-        messagesAdapter.notifyDataSetChanged();
+        //getContactList();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // need to modify user interface elements on the UI thread
+                messagesAdapter.notifyDataSetChanged();
+            }
+        });
+
     }
 
     public void showList() {
@@ -141,12 +159,12 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
             model.setConversation(null);
             Log.d("Glacier","Identity "+identity);
         }
+
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("Glacier", "Glacier", NotificationManager.IMPORTANCE_DEFAULT);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
         }
-
         recyclerView = findViewById(R.id.choose_conversation_list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setStackFromEnd(true);
@@ -182,6 +200,74 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
             }
         });
     }
+    private void checkPermission() {
+        Log.d("Glacier","checkPermission called");
+        if (ContextCompat.checkSelfPermission(SMSActivity.this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(SMSActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, 100);
+        } else {
+            Log.d("Glacier","getContactList ");
+            getContactList();
+        }
+    }
+    private void getContactList(){
+        Uri uri = ContactsContract.Contacts.CONTENT_URI;
+        String sort = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME+" ASC";
+        Cursor cursor = getContentResolver().query(uri,null,null,null,sort);
+        Log.d("Glacier","cursor "+cursor.getCount());
+        Map<String, String> convContList = new HashMap<>();
+        convContList = model.getContConv();
+        if(cursor.getCount() > 0){
+            while (cursor.moveToNext()){
+                String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                if (cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
+                    Uri uriPhone = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+                    String selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " =?";
+                    Cursor phoneCursor = getContentResolver().query(uriPhone, null, selection, new String[]{id}, null);
+                    if (phoneCursor.moveToNext()) {
+                        String number = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        ContactModel model = new ContactModel();
+                        model.setName(name);
+
+                        arrayList.add(model);
+                        Log.d("Glacier","convContList "+convContList);
+
+                        number = number.replaceAll(" ","");
+                        number = number.replace("+1","");
+                        number = number.replace("(","");
+                        number = number.replace(")","");
+                        number = number.replace("-","");
+                        model.setNumber(number);
+                        if(number.length() > 8 && ( convContList == null || !(convContList.size() > 0) || !convContList.containsKey(number))) {
+                            if(convContList == null){
+                                convContList = new HashMap<>();
+                            }
+                            convContList.put(number,"No sid");
+                        }
+                        phoneCursor.close();
+                        cList.put(number,name);
+                    }
+                    Log.d("Glacier", "cursor arrayList " + arrayList.size());
+                }
+            }
+            Log.d("Glacier","cursor final arrayList "+arrayList.size());
+            cursor.close();
+        }
+        model.setContConv(convContList);
+        model.setArrayList(arrayList);
+        model.setcList(cList);
+    }
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == 100 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            Log.d("Glacier","getContactList ");
+            getContactList();
+        }else{
+            //Toast.makeText(ContactListActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
+            checkPermission();
+        }
+    }
     public void onResume(){
         super.onResume();
         Log.d("Glacier","onResum is called");
@@ -208,6 +294,7 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
                         @Override
                         public void run() {
                             // need to modify user interface elements on the UI thread
+                            checkPermission();
                             setTitle(identity);
                         }
                     });
@@ -238,7 +325,7 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
         android.text.format.DateFormat df = new android.text.format.DateFormat();
         private OnSMSConversationClickListener listener;
         private List<Conversation> conversations;
-
+        Map<String, String> cList = model.getcList();
         //final public Map<String,String> conversations = new HashMap<>();
 //        ConversationsManager.conversationsClient.getMyConversations();
 
@@ -296,12 +383,13 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
             Conversation conversation = conversations.get(position);
             Map conv_last_msg = ConversationsManager.conv_last_msg;
             Map conv_last_msg_sent = ConversationsManager.conv_last_msg_sent;
-            Log.d("Glacier","ConversationsManager "+conversation.getFriendlyName()+"----------"+conversation.getLastMessageDate());
+            Log.d("Glacier","ConversationsManager "+conversation.getFriendlyName()+"----------"+conversation.getLastMessageDate()+"============= cList"+cList);
             conversation_name = holder.conView.findViewById(R.id.conversation_name);
             sender_name = holder.conView.findViewById(R.id.sender_name);
             conversation_lastmsg = holder.conView.findViewById(R.id.conversation_lastmsg);
             dateText = holder.conView.findViewById(R.id.conversation_lastupdate);
-            conversation_name.setText(conversation.getFriendlyName());
+            String Contact_name = (cList != null && cList.get(conversation.getFriendlyName()) != null) ? cList.get(conversation.getFriendlyName()) : conversation.getFriendlyName();
+            conversation_name.setText(Contact_name);
             conversation_lastmsg.setText((CharSequence) conv_last_msg.get(conversation.getSid()));
             unreadcount = holder.conView.findViewById(R.id.unread_count);
             Log.d("Glacier ","unreadcount 12344"+unreadcount);
@@ -313,6 +401,7 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
                         if(result > 0) {
                             unreadcount.setVisibility(View.VISIBLE);
                             unreadcount.setUnreadCount(Math.toIntExact(result));
+                            conversation_lastmsg.setTypeface(Typeface.DEFAULT_BOLD);
                         }
                         else{
                             unreadcount.setVisibility(View.GONE);
