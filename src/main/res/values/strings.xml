@@ -860,6 +860,7 @@
     <string name="action_copy_location">Copy Location</string>
     <string name="action_share_location">Share Location</string>
     <string name="action_directions">Directions</string>
+    <string name="title_activity_security_hub">Security Hub</string>
     <string name="title_activity_share_location">Share location</string>
     <string name="title_activity_show_location">Show location</string>
     <string name="share">Share</string>
