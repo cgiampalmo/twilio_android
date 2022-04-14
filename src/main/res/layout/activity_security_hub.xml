@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/color_background_primary">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/color_background_primary"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/main_filesafe_layout"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/button_bar"
+                android:layout_below="@id/toolbar"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:background="?attr/color_background_primary">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/color_background_primary"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <FrameLayout
+                        android:id="@+id/no_issues_image_wrapper"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/security_hub_top_margin"
+                        android:layout_marginBottom="8dp">
+
+                        <com.makeramen.roundedimageview.RoundedImageView
+                            android:id="@+id/no_issues_found"
+                            android:layout_width="@dimen/security_hub_icon_size"
+                            android:layout_height="@dimen/security_hub_icon_size"
+                            android:src="@drawable/ic_baseline_check_circle_24" />
+
+                        <com.makeramen.roundedimageview.RoundedImageView
+                            android:id="@+id/issues_found"
+                            android:layout_width="@dimen/security_hub_icon_size"
+                            android:layout_height="@dimen/security_hub_icon_size"
+                            android:src="@drawable/ic_baseline_warning_24"
+                            android:visibility="invisible" />
+
+
+                    </FrameLayout>
+
+                    <ScrollView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:paddingRight="5dp"
+                        android:scrollbars="vertical">
+
+                        <TextView
+                            android:id="@+id/is_issues_found"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_horizontal"
+                            android:text="@string/no_issues_found"
+                            android:textAlignment="center"
+                            android:textAppearance="@style/TextAppearance.Conversations.Title" />
+
+                    </ScrollView>
+
+                    <TextView
+                        android:id="@+id/security_hub_about"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/security_hub_message"
+                        android:textAppearance="@style/TextAppearance.Conversations.Body1" />
+
+
+                </LinearLayout>
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+
+
+    </RelativeLayout>
+</layout>

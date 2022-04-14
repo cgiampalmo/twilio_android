@@ -1104,6 +1104,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				startActivity(settingsActivity);
 				break;
 			}
+			case R.id.SecurityHub: {
+				Intent securityHubActivity = new Intent(getApplicationContext(), SecurityHubActivity.class);
+				startActivity(securityHubActivity);
+				break;
+			}
 			case R.id.Support: {
 				Intent intent = new Intent(Intent.ACTION_VIEW);
 				intent.setData(Uri.parse("https://glacier.chat/support"));
