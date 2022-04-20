@@ -24,14 +24,12 @@
             <ImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                app:srcCompat="@drawable/shape_circle"
-                app:tint="@color/grey_40" />
+                 />
 
             <ImageView
                 android:id="@+id/image"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:padding="@dimen/spacing_middle"
                 app:srcCompat="@drawable/ic_baseline_warning_24" />
 
         </RelativeLayout>
