@@ -1,9 +1,11 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,6 +27,8 @@ public class SecurityHubActivity extends AppCompatActivity {
 
     private AdapterListExpand mAdapter;
     private RecyclerView recyclerView;
+    private View parent_view;
+
 
     private TextView issuesTitle;
     private RoundedImageView issuesIcon;
@@ -39,12 +43,15 @@ public class SecurityHubActivity extends AppCompatActivity {
         setSupportActionBar(findViewById(R.id.toolbar));
         configureActionBar(getSupportActionBar());
         setTitle(R.string.title_activity_security_hub);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         initComponent();
 
     }
 
     private void initComponent() {
+        parent_view = findViewById(android.R.id.content);
         issuesTitle = (TextView) findViewById(R.id.issues_title);
         issuesIcon = (RoundedImageView) findViewById(R.id.issues_icon);
 
@@ -64,7 +71,7 @@ public class SecurityHubActivity extends AppCompatActivity {
         mAdapter.setOnItemClickListener(new AdapterListExpand.OnItemClickListener() {
             @Override
             public void onItemClick(View view, ExpandableListItem obj, int position) {
-
+                Snackbar.make(parent_view, "Item " + obj.name + " clicked", Snackbar.LENGTH_SHORT).show();
             }
         });
 
@@ -137,7 +144,15 @@ public class SecurityHubActivity extends AppCompatActivity {
         }
     }
 
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        } else {
+            Toast.makeText(getApplicationContext(), item.getTitle(), Toast.LENGTH_SHORT).show();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
 
 }
