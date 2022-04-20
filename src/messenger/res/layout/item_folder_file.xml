@@ -66,15 +66,16 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
                 android:textColor="@color/grey_40" />
 
+
         </LinearLayout>
 
         <View
             android:layout_width="@dimen/spacing_large"
             android:layout_height="0dp" />
 
-<!--        <RelativeLayout-->
-<!--            android:layout_width="@dimen/spacing_mlarge"-->
-<!--            android:layout_height="@dimen/spacing_mlarge">-->
+        <RelativeLayout
+            android:layout_width="@dimen/spacing_mlarge"
+            android:layout_height="@dimen/spacing_mlarge">
 
 <!--            <ImageView-->
 <!--                android:layout_width="match_parent"-->
@@ -90,12 +91,25 @@
 <!--                android:textAppearance="@style/TextAppearance.AppCompat.Caption"-->
 <!--                android:textColor="@android:color/white"-->
 <!--                android:textStyle="bold" />-->
+            <ImageButton
+                android:id="@+id/bt_expand"
+                android:layout_width="?attr/actionBarSize"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="?attr/edit_text_color"
+                app:srcCompat="@drawable/ic_expand" />
+        </RelativeLayout>
 
-<!--        </RelativeLayout>-->
+        <LinearLayout
+            android:id="@+id/lyt_expand"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
 
-        <View
-            android:layout_width="@dimen/spacing_large"
-            android:layout_height="0dp" />
+
+        </LinearLayout>
+
 
     </LinearLayout>
 

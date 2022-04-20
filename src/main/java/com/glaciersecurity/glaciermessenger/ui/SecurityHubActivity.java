@@ -93,41 +93,41 @@ public class SecurityHubActivity extends AppCompatActivity {
 
     private ExpandableListItem isNoAnomoliesDetected(){
         if (true) {
-            return new ExpandableListItem(R.drawable.ic_baseline_security_24, getString(R.string.system_safe),getString(R.string.no_anomalies));
+            return new ExpandableListItem(R.drawable.shield_system_safe_128, getString(R.string.system_safe),getString(R.string.no_anomalies));
         } else {
-            return new ExpandableListItem(R.drawable.ic_baseline_gpp_bad_24, getString(R.string.system_unsafe),getString(R.string.anomalies));
+            return new ExpandableListItem(R.drawable.shield_system_safe_disabled_128, getString(R.string.system_unsafe),getString(R.string.anomalies));
         }
     }
 
     private ExpandableListItem isScreenLock(){
         if (true) {
-            return new ExpandableListItem(R.drawable.ic_lock_white_18dp, getString(R.string.screen_lock),getString(R.string.screen_lock_enabled));
+            return new ExpandableListItem(R.drawable.smartphone_screen_lock_128, getString(R.string.screen_lock),getString(R.string.screen_lock_enabled));
         } else {
-            return new ExpandableListItem(R.drawable.ic_lock_open_white_24dp, getString(R.string.screen_lock),getString(R.string.screen_lock_disabled));
+            return new ExpandableListItem(R.drawable.smartphone_screen_lock_disabled_128, getString(R.string.screen_lock),getString(R.string.screen_lock_disabled));
         }
     }
 
     private ExpandableListItem isLatestOS(){
         if (true) {
-            return new ExpandableListItem(R.drawable.ic_baseline_security_update_good_24, getString(R.string.latest_updates),getString(R.string.up_to_date));
+            return new ExpandableListItem(R.drawable.ic_gchat_icon_blue, getString(R.string.latest_updates),getString(R.string.up_to_date));
         } else {
-            return new ExpandableListItem(R.drawable.ic_baseline_security_update_24, getString(R.string.latest_updates),getString(R.string.update_both));
+            return new ExpandableListItem(R.drawable.ic_gchat_icon, getString(R.string.latest_updates),getString(R.string.update_both));
         }
     }
 
     private ExpandableListItem isFingerPrintEnabled(){
         if (true) {
-            return new ExpandableListItem(R.drawable.ic_baseline_fingerprint_24, getString(R.string.biometrics), getString(R.string.bio_lock_disabled));
+            return new ExpandableListItem(R.drawable.fingerprint_biometric_lock_128, getString(R.string.biometrics), getString(R.string.bio_lock_enabled));
         } else {
-            return new ExpandableListItem(R.drawable.ic_baseline_security_update_warning_24,  getString(R.string.biometrics), getString(R.string.bio_lock_disabled));
+            return new ExpandableListItem(R.drawable.fingerprint_biometric_lock_disabled_128,  getString(R.string.biometrics), getString(R.string.bio_lock_disabled));
         }
     }
 
     private ExpandableListItem isCoreConnectionEnabled(){
         if (true) {
-            return new ExpandableListItem(R.drawable.ic_baseline_vpn_lock_24,  getString(R.string.core_connect), getString(R.string.core_connect_enabled));
+            return new ExpandableListItem(R.drawable.global_core_connection_128,  getString(R.string.core_connect), getString(R.string.core_connect_enabled));
         } else {
-            return new ExpandableListItem(R.drawable.ic_baseline_vpn_key_off_24, getString(R.string.core_connect), getString(R.string.core_connect_disabled));
+            return new ExpandableListItem(R.drawable.global_core_connection_128_disabled, getString(R.string.core_connect), getString(R.string.core_connect_disabled));
         }
     }
 
@@ -135,11 +135,11 @@ public class SecurityHubActivity extends AppCompatActivity {
         // if (isLatestOS() && isNoAnomoliesDetected() && isScreenLock()){
         if (true){
             issuesTitle.setText(R.string.no_issues_found);
-            issuesIcon.setImageResource(R.drawable.ic_baseline_check_circle_24);
+            issuesIcon.setImageResource(R.drawable.securityhub_safe);
             return true;
         } else {
             issuesTitle.setText(R.string.issues_found);
-            issuesIcon.setImageResource(R.drawable.ic_baseline_warning_24);
+            issuesIcon.setImageResource(R.drawable.securithhub_notsafe);
             return false;
         }
     }
