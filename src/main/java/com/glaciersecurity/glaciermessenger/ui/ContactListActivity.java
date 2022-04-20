@@ -31,7 +31,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class ContactListActivity extends AppCompatActivity implements OnSMSConversationClickListener{
+public class ContactListActivity extends XmppActivity implements OnSMSConversationClickListener{
     private String identity, convSid, Convtoken;
     RecyclerView recyclerView;
     ArrayList<ContactModel> arrayList = new ArrayList<ContactModel>();
@@ -39,6 +39,17 @@ public class ContactListActivity extends AppCompatActivity implements OnSMSConve
     Toolbar toolbar;
     private Context mContext = this;
     ConversationModel cModel;
+
+    @Override
+    protected void refreshUiReal() {
+
+    }
+
+    @Override
+    void onBackendConnected() {
+
+    }
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.contacts_list_view);

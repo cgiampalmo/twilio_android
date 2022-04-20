@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.ContactsContract;
+import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +32,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.RemoteInput;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 
@@ -63,7 +65,7 @@ import com.twilio.conversations.ConversationsClient;
 import com.twilio.conversations.Message;
 import com.twilio.conversations.Participant;
 
-public class SMSActivity  extends AppCompatActivity implements ConversationsManagerListener,OnSMSConversationClickListener {
+public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener {
     private MessagesAdapter messagesAdapter;
     private String accessToken;
     private Context mContext = this;
@@ -73,6 +75,8 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
     TokenModel Atoken = new TokenModel();
     public String AccessToken;
     RecyclerView recyclerView;
+    private static final String KEY_TEXT_REPLY = "key_text_reply";
+    private static final String MARK_AS_READ = "mark_as_read";
     NotificationManagerCompat managerCompat;
     NotificationCompat.Builder builder = new NotificationCompat.Builder(this,"Glacier");
     //ContactAdapter adapter;
@@ -82,22 +86,45 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
     public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor) {
         messagesAdapter.notifyDataSetChanged();
         Conversation current_conv = model.getConversation();
+        Log.d("Glacier","receivedNewMessage called----"+current_conv+"----"+messageConversationSid);
         if(current_conv != null)
             Log.d("Glacier","Current Conversation new message "+current_conv.getSid()+" : "+messageConversationSid+" : "+current_conv.getSid().equals(messageConversationSid)+" : "+messageAuthor);
         if (current_conv == null)
             notifyMessage(newMessage,messageAuthor);
-        else if(!current_conv.getSid().equals(messageConversationSid) && identity != messageAuthor) {
+        else if(identity != messageAuthor) {
             notifyMessage(newMessage,messageAuthor);
         }
     }
     private void notifyMessage(String newMessage,String messageAuthor){
+        Log.d("Glacier", "New notification notifyMessage called");
         Intent intent = new Intent(mContext, SMSActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+        Intent broadcastIntent = new Intent(this, NotificationReceiver.class);
+        PendingIntent actionIntent = PendingIntent.getBroadcast(this,
+                0, broadcastIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+// Create the RemoteInput specifying this key
+        Log.d("Glacier", "New notification before remoteInput");
+        RemoteInput remoteInput = new RemoteInput.Builder(KEY_TEXT_REPLY).setLabel("Reply").build();
+        RemoteInput remoteInput2 = new RemoteInput.Builder(MARK_AS_READ).setLabel("Mark as read").build();
+        Intent replyIntent = new Intent(this,RemoteReceiver.class);
+        Log.d("Glacier", "New notification before replyIntent");
+        replyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent replyPendingIntent = PendingIntent.getActivity(this,0,replyIntent,PendingIntent.FLAG_ONE_SHOT);
+        NotificationCompat.Action action = new NotificationCompat.Action.Builder(R.drawable.ic_launcher,"Reply",replyPendingIntent).addRemoteInput(remoteInput).build();
+        Log.d("Glacier", "New notification before action");
+        builder.addAction(action);
+        Log.d("Glacier", "New notification after action");
         builder.setContentTitle("Glacier");
+        builder.setPriority(NotificationCompat.PRIORITY_HIGH);
         builder.setContentText(newMessage);
+        Log.d("Glacier", "New notification after newMessage");
         builder.setSmallIcon(R.drawable.ic_launcher_foreground);
         builder.setAutoCancel(true);
         builder.setContentIntent(pendingIntent);
+        NotificationCompat.Action action2 = new NotificationCompat.Action.Builder(R.drawable.ic_launcher,"Reply",actionIntent).addRemoteInput(remoteInput2).build();
+        builder.addAction(action2);
         managerCompat = NotificationManagerCompat.from(this);
         Log.d("Glacier", "New notification "+Integer.parseInt(messageAuthor.substring(2,5)));
         managerCompat.notify(Integer.parseInt(messageAuthor.substring(2,5)), builder.build());
@@ -122,24 +149,41 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
     }
 
     public void showList() {
-        Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation());
-
-        List<Conversation> conversationList = ConversationsManager.conversationsClient.getMyConversations();
-        Map<String, String> aList =new HashMap<>();
-        for (Conversation conv:conversationList) {
-            aList.put(conv.getFriendlyName(),conv.getSid());
+        Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation()+"------"+ConversationsManager.conversationsClient.getMyConversations().size());
+        if(ConversationsManager.conversationsClient.getMyConversations().size() > 0) {
+            List<Conversation> conversationList = ConversationsManager.conversationsClient.getMyConversations();
+            Map<String, String> aList = new HashMap<>();
+            for (Conversation conv : conversationList) {
+                aList.put(conv.getFriendlyName(), conv.getSid());
+            }
+            model.setContConv(aList);
+            sortconv(conversationList);
+            model.setConversationsClient(ConversationsManager.conversationsClient);
+            messagesAdapter = new SMSActivity.MessagesAdapter((OnSMSConversationClickListener) this, conversationList);
+            recyclerView.setAdapter(messagesAdapter);
+            View emptyLayout = findViewById(R.id.empty_list);
+            emptyLayout.setVisibility(View.GONE);
+        }else{
+            View emptyLayout = findViewById(R.id.empty_list);
+            emptyLayout.setVisibility(View.VISIBLE);
         }
-        model.setContConv(aList);
-        sortconv(conversationList);
-        model.setConversationsClient(ConversationsManager.conversationsClient);
-        messagesAdapter = new SMSActivity.MessagesAdapter((OnSMSConversationClickListener) this,conversationList);
         ProgressBar progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
-        recyclerView.setAdapter(messagesAdapter);
     }
     private final ConversationsManager ConversationsManager = new ConversationsManager(this);
     Toolbar toolbar;
     ConversationModel model;
+
+    @Override
+    protected void refreshUiReal() {
+
+    }
+
+    @Override
+    void onBackendConnected() {
+
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -161,9 +205,10 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
         }
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("Glacier", "Glacier", NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationChannel channel = new NotificationChannel("Glacier", "Glacier", NotificationManager.IMPORTANCE_HIGH);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
+
         }
         recyclerView = findViewById(R.id.choose_conversation_list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -177,6 +222,7 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
         ConversationsManager.setListener(this);
         Log.d("Glacier","Twilio ConversationsClient "+conversationsClient);
         if(conversationsClient != null){
+            model.setConversation(null);
             ConversationsManager.loadChannels(conversationsClient);
         }else{
             retrieveTokenFromServer();
@@ -341,7 +387,7 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
                 con_view.setOnClickListener(this);
             }
             public void onClick(View view) {
-                sortconv(conversations);
+                //sortconv(conversations);
                 Conversation conversation = conversations.get(getAdapterPosition());
                 String conversation_sid = conversation.getSid();
                 String conversation_name = conversation.getFriendlyName();
@@ -361,7 +407,8 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
 
         MessagesAdapter(OnSMSConversationClickListener listener,List conversationList) {
             this.listener = listener;
-            conversations = conversationList;
+            sortconv(conversationList);
+            this.conversations = conversationList;
         }
         public void setConversationClickListener(OnSMSConversationClickListener listener) {
             this.listener = listener;
@@ -379,7 +426,7 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
 
             TextView conversation_name,sender_name,conversation_lastmsg,dateText,conv_Sid;
             com.glaciersecurity.glaciermessenger.ui.widget.UnreadCountCustomView unreadcount;
-            sortconv(conversations);
+            //sortconv(conversations);
             Conversation conversation = conversations.get(position);
             Map conv_last_msg = ConversationsManager.conv_last_msg;
             Map conv_last_msg_sent = ConversationsManager.conv_last_msg_sent;
@@ -392,31 +439,25 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
             conversation_name.setText(Contact_name);
             conversation_lastmsg.setText((CharSequence) conv_last_msg.get(conversation.getSid()));
             unreadcount = holder.conView.findViewById(R.id.unread_count);
-            Log.d("Glacier ","unreadcount 12344"+unreadcount);
+            unreadcount.setVisibility(View.GONE);
+            conversation_lastmsg.setTypeface(Typeface.DEFAULT);
             conversation.getUnreadMessagesCount(new CallbackListener<Long>() {
                 @Override
                 public void onSuccess(Long result) {
-                    Log.d("Glacier","setUnreadCount "+result);
+                    Log.d("Glacier","setUnreadCount "+result + conversation.getFriendlyName());
                     if(result != null) {
                         if(result > 0) {
+                            Log.d("Glacier ","unreadcount 12344"+unreadcount+conversation.getFriendlyName()+position);
                             unreadcount.setVisibility(View.VISIBLE);
                             unreadcount.setUnreadCount(Math.toIntExact(result));
                             conversation_lastmsg.setTypeface(Typeface.DEFAULT_BOLD);
                         }
                         else{
-                            unreadcount.setVisibility(View.GONE);
+
                         }
                     }
                     else{
-                        /*conversation.setLastReadMessageIndex(0, new CallbackListener<Long>() {
-                            @Override
-                            public void onSuccess(Long result) {
-                                Log.d("Glacier","setUnreadCount "+result);
-                                if(result != null) {
-                                    unreadcount.setUnreadCount(Math.toIntExact(result));
-                                }
-                            }
-                        });*/
+                        //unreadcount.setVisibility(View.GONE);
                     }
                     }
             });
@@ -450,8 +491,8 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
         public int compare(Conversation customerEvents1, Conversation customerEvents2) {
             Date DateObject1 = (customerEvents1.getLastMessageDate() == null)?customerEvents1.getDateCreatedAsDate():customerEvents1.getLastMessageDate();
             Date DateObject2 = (customerEvents2.getLastMessageDate() == null)?customerEvents2.getDateCreatedAsDate():customerEvents2.getLastMessageDate();;
+            Log.d("Glacier","DateObject1 "+DateObject1+" DateObject2 "+DateObject2+" other "+customerEvents1.getLastMessageDate()+" "+customerEvents2.getLastMessageDate());
             if(DateObject1 == null || DateObject2 == null){
-                Log.d("Glacier","DateObject1 "+DateObject1+" DateObject2 "+DateObject2+" other "+customerEvents1.getFriendlyName());
                 return 1;
             }else{
                 Calendar cal1 = Calendar.getInstance();
@@ -463,15 +504,20 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
                 int month2 = cal2.get(Calendar.MONTH);
                 Log.d("Glacier","month1 "+month1+" month2 "+month2+" other "+customerEvents1.getFriendlyName());
 
-                if (month1 < month2)
+                if (month1 < month2){
+                    Log.d("Glacier","Inside DAY_OF_MONTH1 "+cal1.get(Calendar.HOUR_OF_DAY)+" DAY_OF_MONTH2 "+cal2.get(Calendar.HOUR_OF_DAY)+" other "+customerEvents1.getFriendlyName()+" returning "+(cal1.get(Calendar.HOUR_OF_DAY) - cal2.get(Calendar.HOUR_OF_DAY)));
                     return -1;
+                }
                 else if (month1 == month2) {
-                    Log.d("Glacier","DAY_OF_MONTH1 "+cal1.get(Calendar.DAY_OF_MONTH)+" DAY_OF_MONTH2 "+cal2.get(Calendar.DAY_OF_MONTH)+" other "+customerEvents1.getFriendlyName()+" returning "+(cal1.get(Calendar.DAY_OF_MONTH) - cal2.get(Calendar.DAY_OF_MONTH)));
-
-                    if(cal1.get(Calendar.DAY_OF_MONTH) != cal2.get(Calendar.DAY_OF_MONTH))
+                    Log.d("Glacier","DAY_OF_MONTH1 "+cal1.get(Calendar.HOUR_OF_DAY)+" DAY_OF_MONTH2 "+cal2.get(Calendar.HOUR_OF_DAY)+" other "+customerEvents1.getFriendlyName()+" returning "+(cal1.get(Calendar.HOUR_OF_DAY) - cal2.get(Calendar.HOUR_OF_DAY)));
+                    if(cal1.get(Calendar.DAY_OF_MONTH) != cal2.get(Calendar.DAY_OF_MONTH)) {
                         return cal1.get(Calendar.DAY_OF_MONTH) - cal2.get(Calendar.DAY_OF_MONTH);
-                    else if(cal1.get(Calendar.HOUR_OF_DAY) != cal1.get(Calendar.HOUR_OF_DAY))
-                        return cal1.get(Calendar.HOUR_OF_DAY) - cal2.get(Calendar.HOUR_OF_DAY);
+                    }
+                    else if(cal1.get(Calendar.HOUR_OF_DAY) != cal2.get(Calendar.HOUR_OF_DAY)) {
+                        int returning = (cal1.get(Calendar.HOUR_OF_DAY) - cal2.get(Calendar.HOUR_OF_DAY)) > 0 ? 0 : -1;
+                        Log.d("Glacier","DAY_OF_MONTH1 "+cal1.get(Calendar.HOUR_OF_DAY)+" DAY_OF_MONTH2 "+cal2.get(Calendar.HOUR_OF_DAY)+" other "+customerEvents1.getFriendlyName()+" returning "+returning);
+                        return returning;
+                    }
                     else if(cal1.get(Calendar.AM_PM) != cal2.get(Calendar.AM_PM))
                         return cal1.get(Calendar.AM_PM) - cal2.get(Calendar.AM_PM);
                     else if(cal1.get(Calendar.MINUTE) != cal2.get(Calendar.MINUTE))
@@ -479,7 +525,7 @@ public class SMSActivity  extends AppCompatActivity implements ConversationsMana
                     else
                         return cal1.get(Calendar.SECOND) - cal2.get(Calendar.SECOND);
                 }
-                else return 1;
+                else return -1;
             }
         }
     }

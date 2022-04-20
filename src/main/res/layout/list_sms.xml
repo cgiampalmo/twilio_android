@@ -11,6 +11,11 @@
         <include
             android:id="@+id/aToolbar"
             layout="@layout/toolbar"/>
+        <include
+            android:id="@+id/empty_list"
+            layout="@layout/empty_list"
+            app:layout_constraintTop_toBottomOf="@+id/aToolbar"
+            android:visibility="gone"/>
 
 
         <androidx.recyclerview.widget.RecyclerView

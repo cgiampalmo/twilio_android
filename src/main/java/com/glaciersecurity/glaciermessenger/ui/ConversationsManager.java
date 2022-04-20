@@ -3,9 +3,12 @@ package com.glaciersecurity.glaciermessenger.ui;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.ui.util.Attachment;
 import com.google.gson.Gson;
 import com.twilio.conversations.CallbackListener;
 import com.twilio.conversations.Conversation;
@@ -20,9 +23,13 @@ import com.twilio.conversations.User;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -151,7 +158,9 @@ public class ConversationsManager {
     void sendMessage(String messageBody) {
         Log.d("Glacier","Message created "+messageBody);
         if (conversation != null) {
+            //Message.options().withMedia()
             Message.Options options = Message.options().withBody(messageBody);
+
             Log.d("Glacier","Message created");
             conversation.sendMessage(options, new CallbackListener<Message>() {
                 @Override
@@ -170,20 +179,56 @@ public class ConversationsManager {
         }
     }
 
+    void sendMMSMessage(List<Attachment> attachments) {
+        Log.d("Glacier","Message created "+attachments.size());
+        if (conversation != null) {
+            for (Iterator<Attachment> i = attachments.iterator(); i.hasNext(); i.remove()) {
+                final Attachment attachment = i.next();
+                Bitmap bitmap = null;
+                try {
+                    bitmap = MediaStore.Images.Media.getBitmap(mContext.getContentResolver(), attachment.getUri());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.d("Glacier","Exception occured "+e.getMessage());
+                    return ;
+                }
+                ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, arrayOutputStream);
+                InputStream is = new ByteArrayInputStream(arrayOutputStream.toByteArray());
+                Message.Options options = Message.options().withMedia(is, attachment.getMime());
+                conversation.sendMessage(options, new CallbackListener<Message>() {
+                    @Override
+                    public void onSuccess(Message message) {
+                        conversation.setAllMessagesRead(new CallbackListener<Long>() {
+                            @Override
+                            public void onSuccess(Long result) {
+                                Log.d("Glacier","onSuccess message sent");
+                            }
+                        });
+                        if (conversationsManagerListener != null) {
+                            conversationsManagerListener.messageSentCallback();
+                        }
+                    }
+                });
+            }
+        }
+    }
 
     protected void loadChannels(ConversationsClient conversationsClient) {
         ConversationsManager.this.conversationsClient = conversationsClient;
         Log.d("Glacier","conversationsClient "+conversationsClient.getMyConversations() + " conversationsClient size"+conversationsClient.getMyConversations().size());
-        if (conversationsClient == null || conversationsClient.getMyConversations() == null || conversationsClient.getMyConversations().size() == 0) {
+        if (conversationsClient == null || conversationsClient.getMyConversations() == null) {
 //            createConversation();
             return;
         }
-        Log.d("Glacier","conversationsClient "+conversationsClient.getMyConversations().get(0).getUniqueName()+"---"+conversationsClient.getMyConversations().get(0).getFriendlyName()+"----"+conversationsClient.getMyConversations().get(0).getSid());
-        conv_list.addAll(conversationsClient.getMyConversations());
-        Log.d("Glacier","conv_list "+conv_list +"---"+conv_list.size());
+        if(conversationsClient.getMyConversations().size() > 0) {
+            Log.d("Glacier","conversationsClient "+conversationsClient.getMyConversations().get(0).getUniqueName()+"---"+conversationsClient.getMyConversations().get(0).getFriendlyName()+"----"+conversationsClient.getMyConversations().get(0).getSid());
+            conv_list.addAll(conversationsClient.getMyConversations());
+            Log.d("Glacier","conv_list "+conv_list +"---"+conv_list.size());
         //conversationsManagerListener.reloadMessages();
-        for (int i = 0; i<conv_list.size(); i++){
-            getConversation(conversationsClient.getMyConversations().get(i).getSid(),true,conversationsClient);
+            for (int i = 0; i < conv_list.size(); i++) {
+                getConversation(conversationsClient.getMyConversations().get(i).getSid(), true, conversationsClient);
+            }
         }
         conversationsManagerListener.showList();
 //        Log.d("Glacier","conv_list "+conv_list +"---"+conv_list.size());

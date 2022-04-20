@@ -43,6 +43,27 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:visibility="gone"
+            android:id="@+id/media_preview"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            tools:listitem="@layout/media_preview"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:paddingTop="8dp"
+            android:requiresFadingEdge="horizontal"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/button_gchat_send">
+        </androidx.recyclerview.widget.RecyclerView>
+
+        <ImageButton
+            android:id="@+id/attachbtn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@null"
+            android:src="@drawable/ic_attach_photo" />
 
         <EditText
             android:id="@+id/edit_gchat_message"
@@ -51,6 +72,7 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="16dp"
             android:layout_toStartOf="@+id/button_gchat_send"
+            android:layout_toEndOf="@+id/attachbtn"
             android:background="@android:color/transparent"
             android:hint="Enter Message"
             android:inputType="text"

@@ -17,6 +17,7 @@
         <include layout="@layout/empty_list"
             android:id="@+id/empty_list"
             android:visibility="gone"/>
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
             app:backgroundTint="#27a1cb"

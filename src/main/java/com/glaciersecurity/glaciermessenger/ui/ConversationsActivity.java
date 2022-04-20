@@ -98,8 +98,10 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -407,10 +409,12 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		// logout of Cognito
 		// sometimes if it's been too long, I believe pool doesn't
 		// exists and user is no longer logged in
+		Log.d("Glacier","User is not null and logging out");
 		CognitoUserPool userPool = AppHelper.getPool();
 		if (userPool != null) {
 			CognitoUser user = userPool.getCurrentUser();
 			if (user != null) {
+
 				user.signOut();
 			}
 		}
@@ -1180,6 +1184,16 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	//ALF AM-143
 	private void doLogout() {
 		LogoutListener activity = (LogoutListener) this;
+		Log.d("Glacier","User is not null and logging out");
+		ConversationModel model = (ConversationModel) getApplicationContext();
+		ArrayList<ContactModel> arrayList = new ArrayList<>();
+		Map<String, String> cList = new HashMap<>();
+		model.setArrayList(arrayList);
+		model.setcList(cList);
+		model.setConversation(null);
+		model.setIdentity("");
+		model.setConversationsClient(null);
+		model.setContConv(null);
 		activity.onLogout();
 	}
 
