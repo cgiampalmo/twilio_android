@@ -86,9 +86,9 @@ public class SecurityHubActivity extends AppCompatActivity {
 
     private ExpandableListItem isNoAnomoliesDetected(){
         if (true) {
-            return new ExpandableListItem(R.drawable.ic_safe, getString(R.string.system_safe),getString(R.string.no_anomalies));
+            return new ExpandableListItem(R.drawable.ic_baseline_security_24, getString(R.string.system_safe),getString(R.string.no_anomalies));
         } else {
-            return new ExpandableListItem(R.drawable.ic_lock_open_white_24dp, getString(R.string.system_unsafe),getString(R.string.anomalies));
+            return new ExpandableListItem(R.drawable.ic_baseline_gpp_bad_24, getString(R.string.system_unsafe),getString(R.string.anomalies));
         }
     }
 
@@ -104,23 +104,23 @@ public class SecurityHubActivity extends AppCompatActivity {
         if (true) {
             return new ExpandableListItem(R.drawable.ic_baseline_security_update_good_24, getString(R.string.latest_updates),getString(R.string.up_to_date));
         } else {
-            return new ExpandableListItem(R.drawable.ic_baseline_security_update_warning_24, getString(R.string.latest_updates),getString(R.string.update_both));
+            return new ExpandableListItem(R.drawable.ic_baseline_security_update_24, getString(R.string.latest_updates),getString(R.string.update_both));
         }
     }
 
     private ExpandableListItem isFingerPrintEnabled(){
         if (true) {
-            return new ExpandableListItem(R.drawable.ic_verified_fingerprint, getString(R.string.biometrics), getString(R.string.bio_lock_disabled));
+            return new ExpandableListItem(R.drawable.ic_baseline_fingerprint_24, getString(R.string.biometrics), getString(R.string.bio_lock_disabled));
         } else {
-            return new ExpandableListItem(R.drawable.ic_verified_fingerprint,  getString(R.string.biometrics), getString(R.string.bio_lock_disabled));
+            return new ExpandableListItem(R.drawable.ic_baseline_security_update_warning_24,  getString(R.string.biometrics), getString(R.string.bio_lock_disabled));
         }
     }
 
     private ExpandableListItem isCoreConnectionEnabled(){
         if (true) {
-            return new ExpandableListItem(R.drawable.app_icon_glacier_chat,  getString(R.string.core_connect), getString(R.string.core_connect_enabled));
+            return new ExpandableListItem(R.drawable.ic_baseline_vpn_lock_24,  getString(R.string.core_connect), getString(R.string.core_connect_enabled));
         } else {
-            return new ExpandableListItem(R.drawable.app_icon_glacier_chat, getString(R.string.core_connect), getString(R.string.core_connect_disabled));
+            return new ExpandableListItem(R.drawable.ic_baseline_vpn_key_off_24, getString(R.string.core_connect), getString(R.string.core_connect_disabled));
         }
     }
 
