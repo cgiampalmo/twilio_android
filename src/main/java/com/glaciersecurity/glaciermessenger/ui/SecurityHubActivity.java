@@ -1,5 +1,7 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.app.KeyguardManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,8 +13,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.glaciersecurity.glaciercore.api.IOpenVPNAPIService;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.ExpandableListItem;
+import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.ui.adapter.AdapterListExpand;
 import com.glaciersecurity.glaciermessenger.utils.ThemeHelper;
 import com.google.android.material.snackbar.Snackbar;
@@ -23,7 +27,7 @@ import java.util.List;
 
 import static com.glaciersecurity.glaciermessenger.ui.ActionBarActivity.configureActionBar;
 
-public class SecurityHubActivity extends AppCompatActivity {
+public class SecurityHubActivity extends XmppActivity {
 
     private AdapterListExpand mAdapter;
     private RecyclerView recyclerView;
@@ -79,52 +83,77 @@ public class SecurityHubActivity extends AppCompatActivity {
 
     private ArrayList<ExpandableListItem> initSecurityCheck() {
         ArrayList<ExpandableListItem> security_results = new ArrayList<>();
-        security_results.add(isNoAnomoliesDetected());
-        security_results.add(isScreenLock());
-        security_results.add(isLatestOS());
-        security_results.add(isFingerPrintEnabled());
-        security_results.add(isCoreConnectionEnabled());
+        security_results.add(anomoliesDetectedListItem());
+        security_results.add(screenLockListItem());
+        security_results.add(latestDownloadListItem());
+        security_results.add(fingerPrintListItem());
+        security_results.add(coreConnectionListItem());
 
         isSecure();
 
         return security_results;
     };
 
+    private boolean isNoAnomoliesDetected(){
+        return true;
+    }
 
-    private ExpandableListItem isNoAnomoliesDetected(){
-        if (true) {
+    private boolean isScreenLock(){
+//        KeyguardManager myKM = (KeyguardManager) getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
+//        if( myKM.inKeyguardRestrictedInputMode()) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+        return true;
+    }
+
+    private boolean isLatestOS() {
+        return true;
+    }
+
+    private boolean isBiometric() {
+        return getBooleanPreference(SettingsActivity.USE_BIOMETRICS, R.bool.enable_biometrics);
+    }
+
+    private boolean isCoreConnection() {
+        return false;
+    }
+
+    private ExpandableListItem anomoliesDetectedListItem(){
+        if (isNoAnomoliesDetected()) {
             return new ExpandableListItem(R.drawable.shield_system_safe_128, getString(R.string.system_safe),getString(R.string.no_anomalies));
         } else {
             return new ExpandableListItem(R.drawable.shield_system_safe_disabled_128, getString(R.string.system_unsafe),getString(R.string.anomalies));
         }
     }
 
-    private ExpandableListItem isScreenLock(){
-        if (true) {
+    private ExpandableListItem screenLockListItem(){
+        if (isScreenLock()) {
             return new ExpandableListItem(R.drawable.smartphone_screen_lock_128, getString(R.string.screen_lock),getString(R.string.screen_lock_enabled));
         } else {
             return new ExpandableListItem(R.drawable.smartphone_screen_lock_disabled_128, getString(R.string.screen_lock),getString(R.string.screen_lock_disabled));
         }
     }
 
-    private ExpandableListItem isLatestOS(){
-        if (true) {
-            return new ExpandableListItem(R.drawable.ic_gchat_icon_blue, getString(R.string.latest_updates),getString(R.string.up_to_date));
+    private ExpandableListItem latestDownloadListItem(){
+        if (isLatestOS()) {
+            return new ExpandableListItem(R.drawable.ic_gchat_icon_security, getString(R.string.latest_updates),getString(R.string.up_to_date));
         } else {
             return new ExpandableListItem(R.drawable.ic_gchat_icon, getString(R.string.latest_updates),getString(R.string.update_both));
         }
     }
 
-    private ExpandableListItem isFingerPrintEnabled(){
-        if (true) {
+    private ExpandableListItem fingerPrintListItem(){
+        if (isBiometric()) {
             return new ExpandableListItem(R.drawable.fingerprint_biometric_lock_128, getString(R.string.biometrics), getString(R.string.bio_lock_enabled));
         } else {
             return new ExpandableListItem(R.drawable.fingerprint_biometric_lock_disabled_128,  getString(R.string.biometrics), getString(R.string.bio_lock_disabled));
         }
     }
 
-    private ExpandableListItem isCoreConnectionEnabled(){
-        if (true) {
+    private ExpandableListItem coreConnectionListItem(){
+        if (isCoreConnection()) {
             return new ExpandableListItem(R.drawable.global_core_connection_128,  getString(R.string.core_connect), getString(R.string.core_connect_enabled));
         } else {
             return new ExpandableListItem(R.drawable.global_core_connection_128_disabled, getString(R.string.core_connect), getString(R.string.core_connect_disabled));
@@ -132,8 +161,7 @@ public class SecurityHubActivity extends AppCompatActivity {
     }
 
     private boolean isSecure(){
-        // if (isLatestOS() && isNoAnomoliesDetected() && isScreenLock()){
-        if (true){
+        if (isLatestOS() && isNoAnomoliesDetected() && isScreenLock()){
             issuesTitle.setText(R.string.no_issues_found);
             issuesIcon.setImageResource(R.drawable.securityhub_safe);
             return true;
@@ -145,6 +173,15 @@ public class SecurityHubActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void refreshUiReal() {
+
+    }
+
+    @Override
+    void onBackendConnected() {
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
@@ -153,6 +190,8 @@ public class SecurityHubActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 
 
 }
