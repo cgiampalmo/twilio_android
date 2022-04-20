@@ -23,7 +23,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-public class NewSMSActivity extends AppCompatActivity implements OnSMSConversationClickListener {
+public class NewSMSActivity extends XmppActivity implements OnSMSConversationClickListener {
     private String identity, convSid, Convtoken;
     private EditText writeMessageEditText,phoneNumber;
     private Context mContext = this;
@@ -32,6 +32,17 @@ public class NewSMSActivity extends AppCompatActivity implements OnSMSConversati
     RecyclerView recyclerView;
     ConversationModel cModel;
     Map<String, String> convContList;
+
+    @Override
+    protected void refreshUiReal() {
+
+    }
+
+    @Override
+    void onBackendConnected() {
+
+    }
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.new_sms);

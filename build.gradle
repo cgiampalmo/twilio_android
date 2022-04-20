@@ -93,6 +93,8 @@ ext {
 
 dependencies {
 
+    implementation 'com.google.firebase:firebase-storage:20.0.1'
+    implementation 'com.google.firebase:firebase-database:20.0.4'
     messengerFreeCompatImplementation('com.google.firebase:firebase-messaging:20.1.5') {
         exclude group: 'com.google.firebase', module: 'firebase-core'
         exclude group: 'com.google.firebase', module: 'firebase-analytics'

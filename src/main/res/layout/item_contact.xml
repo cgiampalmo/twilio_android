@@ -28,7 +28,7 @@
             android:id="@+id/tv_name"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="@color/almost_black"
+            android:textColor="@color/white"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"/>
         <TextView

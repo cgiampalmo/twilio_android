@@ -88,7 +88,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
         return attr;
     }
 
-    static void renderPreview(Context context, Attachment attachment, ImageView imageView) {
+    public static void renderPreview(Context context, Attachment attachment, ImageView imageView) {
         imageView.setBackgroundColor(StyledAttributes.getColor(context, R.attr.color_background_tertiary));
         imageView.setImageAlpha(Math.round(StyledAttributes.getFloat(context, R.attr.icon_alpha) * 255));
         imageView.setImageDrawable(StyledAttributes.getDrawable(context, getImageAttr(attachment)));
