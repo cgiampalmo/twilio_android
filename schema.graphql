@@ -33,9 +33,9 @@ type Query {
 }
 
 type Subscription {
-  onCreateGlacierUsers(email: String, extension_voiceserver: String, first_name: String, organization: String, username: String): GlacierUsers
-  onDeleteGlacierUsers(email: String, extension_voiceserver: String, first_name: String, organization: String, username: String): GlacierUsers
-  onUpdateGlacierUsers(email: String, extension_voiceserver: String, first_name: String, organization: String, username: String): GlacierUsers
+  onCreateGlacierUsers(email: String, extension_voiceserver: String, first_name: String, organization: String, username: String): GlacierUsers @aws_subscribe(mutations : ["createGlacierUsers"])
+  onDeleteGlacierUsers(email: String, extension_voiceserver: String, first_name: String, organization: String, username: String): GlacierUsers @aws_subscribe(mutations : ["deleteGlacierUsers"])
+  onUpdateGlacierUsers(email: String, extension_voiceserver: String, first_name: String, organization: String, username: String): GlacierUsers @aws_subscribe(mutations : ["updateGlacierUsers"])
 }
 
 input CreateGlacierUsersInput {

@@ -54,7 +54,7 @@ public class Util {
                     Constants.REGION);
 
             Map<String, String> logins = new HashMap<String, String>();
-            logins.put("cognito-idp.us-east-1.amazonaws.com/" + Constants.COGNITO_USER_POOL_ID, token);
+            logins.put("cognito-idp.us-east-2.amazonaws.com/" + Constants.COGNITO_USER_POOL_ID, token);
             sCredProvider.setLogins(logins);
         }
         return sCredProvider;

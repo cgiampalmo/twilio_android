@@ -32,7 +32,7 @@ public class Constants {
     /*
      * Region of your Cognito identity pool ID.
      */
-    public static final Regions REGION = Regions.US_EAST_1;
+    public static final Regions REGION = Regions.US_EAST_2;
 
     /*
      * Note, you must first create a bucket using the S3 console before running
@@ -107,6 +107,6 @@ public class Constants {
 
     public static boolean hasProperties() {
         return COGNITO_IDENTITY_POOL_ID != null && COGNITO_USER_POOL_ID != null && BUCKET_NAME != null && KEY_PREFIX != null
-                && COGNITO_CLIENT_SECRET != null && COGNITO_CLIENT_ID != null  && FILESAFE_PREFIX != null;
+                && COGNITO_CLIENT_ID != null  && FILESAFE_PREFIX != null;
     }
 }
