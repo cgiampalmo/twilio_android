@@ -170,6 +170,7 @@ dependencies {
     implementation 'org.hsluv:hsluv:0.2'
     implementation 'org.osmdroid:osmdroid-android:6.0.3'
     implementation 'org.whispersystems:signal-protocol-java:2.6.2'
+    implementation 'org.apache.maven:maven-artifact:3.6.3'
 
     //implementation project(':libs:xmpp-addr')
 }
@@ -186,7 +187,7 @@ android {
         minSdkVersion 24
         targetSdkVersion 31
         versionCode 509
-        versionName "3.4.1-RC8"
+        versionName "3.4.1-RC11"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
 

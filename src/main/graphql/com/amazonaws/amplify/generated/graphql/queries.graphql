@@ -10,25 +10,6 @@ query GetGlacierUsers($organization: String!, $username: String!) {
     last_name
     messenger_id
     user_name
-  }
-}
-query ListGlacierUsers(
-  $filter: TableGlacierUsersFilterInput
-  $limit: Int
-  $nextToken: String
-) {
-  listGlacierUsers(filter: $filter, limit: $limit, nextToken: $nextToken) {
-    items {
-      organization
-      username
-      email
-      extension_voiceserver
-      first_name
-      glacierpwd
-      last_name
-      messenger_id
-      user_name
-    }
-    nextToken
+    securityInfo
   }
 }

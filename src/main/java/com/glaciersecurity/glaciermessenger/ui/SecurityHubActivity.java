@@ -2,6 +2,7 @@ package com.glaciersecurity.glaciermessenger.ui;
 
 import android.app.KeyguardManager;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.glaciersecurity.glaciercore.api.IOpenVPNAPIService;
+import com.glaciersecurity.glaciermessenger.BuildConfig;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.ExpandableListItem;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
@@ -24,8 +26,6 @@ import com.makeramen.roundedimageview.RoundedImageView;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.glaciersecurity.glaciermessenger.ui.ActionBarActivity.configureActionBar;
 
 public class SecurityHubActivity extends XmppActivity {
 
@@ -49,9 +49,7 @@ public class SecurityHubActivity extends XmppActivity {
         setTitle(R.string.title_activity_security_hub);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
         initComponent();
-
     }
 
     private void initComponent() {
@@ -64,7 +62,7 @@ public class SecurityHubActivity extends XmppActivity {
         recyclerView.addItemDecoration(new LineItemDecoration(this, LinearLayout.VERTICAL));
         recyclerView.setHasFixedSize(true);
 
-        List<ExpandableListItem> items = new ArrayList<ExpandableListItem>(initSecurityCheck());
+        /*List<ExpandableListItem> items = new ArrayList<ExpandableListItem>(initSecurityCheck());
 
 
         //set data and list adapter
@@ -77,13 +75,29 @@ public class SecurityHubActivity extends XmppActivity {
             public void onItemClick(View view, ExpandableListItem obj, int position) {
                 Snackbar.make(parent_view, "Item " + obj.name + " clicked", Snackbar.LENGTH_SHORT).show();
             }
-        });
+        });*/
 
+    }
+
+    private void initSecurityComponents() {
+        List<ExpandableListItem> items = new ArrayList<ExpandableListItem>(initSecurityCheck());
+
+        //set data and list adapter
+        mAdapter = new AdapterListExpand(this, items);
+        recyclerView.setAdapter(mAdapter);
+
+        // on item list clicked
+        mAdapter.setOnItemClickListener(new AdapterListExpand.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, ExpandableListItem obj, int position) {
+                Snackbar.make(parent_view, "Item " + obj.name + " clicked", Snackbar.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private ArrayList<ExpandableListItem> initSecurityCheck() {
         ArrayList<ExpandableListItem> security_results = new ArrayList<>();
-        security_results.add(anomoliesDetectedListItem());
+        security_results.add(anomaliesDetectedListItem());
         security_results.add(screenLockListItem());
         security_results.add(latestDownloadListItem());
         security_results.add(fingerPrintListItem());
@@ -94,22 +108,12 @@ public class SecurityHubActivity extends XmppActivity {
         return security_results;
     };
 
-    private boolean isNoAnomoliesDetected(){
-        return true;
+    private boolean isNoAnomaliesDetected(){
+        return !xmppConnectionService.getSecurityInfo().hasAnomalies();
     }
 
-    private boolean isScreenLock(){
-//        KeyguardManager myKM = (KeyguardManager) getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
-//        if( myKM.inKeyguardRestrictedInputMode()) {
-//            return true;
-//        } else {
-//            return false;
-//        }
-        return true;
-    }
-
-    private boolean isLatestOS() {
-        return true;
+    private boolean hasScreenLock(){
+        return xmppConnectionService.getSecurityInfo().hasScreenLock();
     }
 
     private boolean isBiometric() {
@@ -117,11 +121,11 @@ public class SecurityHubActivity extends XmppActivity {
     }
 
     private boolean isCoreConnection() {
-        return false;
+        return xmppConnectionService.getSecurityInfo().isCoreEnabled();
     }
 
-    private ExpandableListItem anomoliesDetectedListItem(){
-        if (isNoAnomoliesDetected()) {
+    private ExpandableListItem anomaliesDetectedListItem(){
+        if (isNoAnomaliesDetected()) {
             return new ExpandableListItem(R.drawable.shield_system_safe_128, getString(R.string.system_safe),getString(R.string.no_anomalies));
         } else {
             return new ExpandableListItem(R.drawable.shield_system_safe_disabled_128, getString(R.string.system_unsafe),getString(R.string.anomalies));
@@ -129,7 +133,7 @@ public class SecurityHubActivity extends XmppActivity {
     }
 
     private ExpandableListItem screenLockListItem(){
-        if (isScreenLock()) {
+        if (hasScreenLock()) {
             return new ExpandableListItem(R.drawable.smartphone_screen_lock_128, getString(R.string.screen_lock),getString(R.string.screen_lock_enabled));
         } else {
             return new ExpandableListItem(R.drawable.smartphone_screen_lock_disabled_128, getString(R.string.screen_lock),getString(R.string.screen_lock_disabled));
@@ -137,8 +141,14 @@ public class SecurityHubActivity extends XmppActivity {
     }
 
     private ExpandableListItem latestDownloadListItem(){
-        if (isLatestOS()) {
+        boolean latestOs = xmppConnectionService.getSecurityInfo().isLatestOS();
+        boolean latestGlacier = xmppConnectionService.getSecurityInfo().isLatestGlacier();
+        if (latestOs && latestGlacier) {
             return new ExpandableListItem(R.drawable.ic_gchat_icon_security, getString(R.string.latest_updates),getString(R.string.up_to_date));
+        } else if (latestOs) {
+            return new ExpandableListItem(R.drawable.ic_gchat_icon, getString(R.string.latest_updates),getString(R.string.update_glacier));
+        } else if (latestGlacier) {
+            return new ExpandableListItem(R.drawable.ic_gchat_icon, getString(R.string.latest_updates),getString(R.string.update_os));
         } else {
             return new ExpandableListItem(R.drawable.ic_gchat_icon, getString(R.string.latest_updates),getString(R.string.update_both));
         }
@@ -161,7 +171,7 @@ public class SecurityHubActivity extends XmppActivity {
     }
 
     private boolean isSecure(){
-        if (isLatestOS() && isNoAnomoliesDetected() && isScreenLock()){
+        if (xmppConnectionService.getSecurityInfo().isSecure()){
             issuesTitle.setText(R.string.no_issues_found);
             issuesIcon.setImageResource(R.drawable.securityhub_safe);
             return true;
@@ -179,6 +189,13 @@ public class SecurityHubActivity extends XmppActivity {
 
     @Override
     void onBackendConnected() {
+        try {
+            if (xmppConnectionService != null) {
+                initSecurityComponents();
+            }
+        } catch (Exception e){
+
+        }
     }
 
     @Override
