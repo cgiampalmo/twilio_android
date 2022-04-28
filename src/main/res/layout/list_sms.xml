@@ -10,7 +10,8 @@
 
         <include
             android:id="@+id/aToolbar"
-            layout="@layout/toolbar"/>
+            layout="@layout/toolbar_sms"
+            android:visibility="gone"/>
         <include
             android:id="@+id/empty_list"
             layout="@layout/empty_list"

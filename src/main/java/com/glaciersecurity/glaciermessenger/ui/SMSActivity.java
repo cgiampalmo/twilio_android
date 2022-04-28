@@ -1,6 +1,7 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -13,11 +14,14 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -28,12 +32,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.RemoteInput;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
 import androidx.databinding.DataBindingUtil;
 
 import org.jetbrains.annotations.Nullable;
@@ -51,6 +57,7 @@ import java.util.Map;
 import java.util.Set;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -58,7 +65,9 @@ import com.glaciersecurity.glaciermessenger.R;
 //import com.glaciersecurity.glaciermessenger.databinding.ActivityChooseContactBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.ui.NewSMSActivity;
+import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.twilio.conversations.CallbackListener;
 import com.twilio.conversations.Conversation;
 import com.twilio.conversations.ConversationsClient;
@@ -66,6 +75,12 @@ import com.twilio.conversations.Message;
 import com.twilio.conversations.Participant;
 
 public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener {
+    private ActionBar actionBar;
+    private Toolbar toolbar;
+    private View nav_view, main_content;
+    private boolean isHide = true;
+    private int animation_duration = 250;
+
     private MessagesAdapter messagesAdapter;
     private String accessToken;
     private Context mContext = this;
@@ -112,7 +127,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         Log.d("Glacier", "New notification before replyIntent");
         replyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent replyPendingIntent = PendingIntent.getActivity(this,0,replyIntent,PendingIntent.FLAG_ONE_SHOT);
-        NotificationCompat.Action action = new NotificationCompat.Action.Builder(R.drawable.ic_launcher,"Reply",replyPendingIntent).addRemoteInput(remoteInput).build();
+        NotificationCompat.Action action = new NotificationCompat.Action.Builder(R.drawable.ic_baseline_sms_24,"Reply",replyPendingIntent).addRemoteInput(remoteInput).build();
         Log.d("Glacier", "New notification before action");
         builder.addAction(action);
         Log.d("Glacier", "New notification after action");
@@ -120,10 +135,10 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         builder.setPriority(NotificationCompat.PRIORITY_HIGH);
         builder.setContentText(newMessage);
         Log.d("Glacier", "New notification after newMessage");
-        builder.setSmallIcon(R.drawable.ic_launcher_foreground);
+        builder.setSmallIcon(R.drawable.ic_baseline_sms_24);
         builder.setAutoCancel(true);
         builder.setContentIntent(pendingIntent);
-        NotificationCompat.Action action2 = new NotificationCompat.Action.Builder(R.drawable.ic_launcher,"Reply",actionIntent).addRemoteInput(remoteInput2).build();
+        NotificationCompat.Action action2 = new NotificationCompat.Action.Builder(R.drawable.ic_baseline_sms_24,"Reply",actionIntent).addRemoteInput(remoteInput2).build();
         builder.addAction(action2);
         managerCompat = NotificationManagerCompat.from(this);
         Log.d("Glacier", "New notification "+Integer.parseInt(messageAuthor.substring(2,5)));
@@ -171,7 +186,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         progressBar.setVisibility(View.GONE);
     }
     private final ConversationsManager ConversationsManager = new ConversationsManager(this);
-    Toolbar toolbar;
     ConversationModel model;
 
     @Override
@@ -187,13 +201,18 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     @RequiresApi(api = Build.VERSION_CODES.O)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.list_sms);
+        setContentView(R.layout.activity_menu_drawer_simple_dark);
         setTitle("SMS");
         toolbar = (Toolbar) findViewById(R.id.aToolbar);
+
+
         model = (ConversationModel) getApplicationContext();
         setSupportActionBar(toolbar);
-        ActionBar actionbar = getSupportActionBar();
-        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
+        //Tools.setSystemBarColor(this);
+        initNavigationMenu();
         if(getIntent().hasExtra("account")) {
             identity = getIntent().getExtras().getString("account");
             model.setIdentity(identity);
@@ -246,6 +265,96 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             }
         });
     }
+
+    private void initNavigationMenu() {
+        nav_view = findViewById(R.id.nav_view_sms);
+        nav_view.post(new Runnable() {
+            @Override
+            public void run() {
+                nav_view.setTranslationX(-nav_view.getWidth());
+            }
+        });
+
+        main_content = findViewById(R.id.main_content);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isHide) {
+                    showMenu(nav_view, main_content);
+                } else {
+                    hideMenu(nav_view, main_content);
+                }
+            }
+        });
+
+        new Handler(this.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                showMenu(nav_view, main_content);
+            }
+        }, 1000);
+    }
+
+    public ObjectAnimator hideMenu(View menu_view, View content_view) {
+        isHide = true;
+        // menu animation
+        ObjectAnimator animation = ObjectAnimator.ofFloat(menu_view, "translationX", -menu_view.getWidth());
+        animation.setDuration(300);
+        animation.start();
+
+        // content animation
+        ObjectAnimator animationContent = ObjectAnimator.ofFloat(content_view, "translationX", 0);
+        animationContent.setDuration(300);
+        animationContent.start();
+
+        return animation;
+    }
+
+    public ObjectAnimator showMenu(View menu_view, View content_view) {
+        isHide = false;
+        ObjectAnimator animation = ObjectAnimator.ofFloat(menu_view, "translationX", 0);
+        animation.setDuration(animation_duration);
+        animation.start();
+
+        // content animation
+        ObjectAnimator animationContent = ObjectAnimator.ofFloat(content_view, "translationX", menu_view.getWidth());
+        animationContent.setDuration(animation_duration);
+        animationContent.start();
+
+        return animation;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_navigation_drawer_news, menu);
+        Tools.changeMenuIconColor(menu, getResources().getColor(R.color.grey_40));
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            //finish();
+        } else {
+            Toast.makeText(getApplicationContext(), item.getTitle(), Toast.LENGTH_SHORT).show();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+//    @Override
+//    public void onBackPressed() {
+//        if(!isHide){
+//            hideMenu(nav_view, main_content);
+//        } else {
+//            super.onBackPressed();
+//        }
+//    }
+
+    public void onMenuClick(View view) {
+        hideMenu(nav_view, main_content);
+    }
+
+
     private void checkPermission() {
         Log.d("Glacier","checkPermission called");
         if (ContextCompat.checkSelfPermission(SMSActivity.this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
@@ -316,7 +425,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
     public void onResume(){
         super.onResume();
-        Log.d("Glacier","onResum is called");
+        Log.d("Glacier","onResume is called");
     }
     public void onRestart(){
         super.onRestart();
