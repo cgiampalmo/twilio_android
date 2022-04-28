@@ -44,8 +44,8 @@ public class AdapterListExpand extends RecyclerView.Adapter<RecyclerView.ViewHol
         public TextView name;
         public TextView description;
 
-        public ImageButton bt_expand;
-        public View lyt_expand;
+//        public ImageButton bt_expand;
+//        public View lyt_expand;
         public View lyt_parent;
 
         public OriginalViewHolder(View v) {
@@ -53,8 +53,8 @@ public class AdapterListExpand extends RecyclerView.Adapter<RecyclerView.ViewHol
             image = (ImageView) v.findViewById(R.id.image);
             name = (TextView) v.findViewById(R.id.name);
             description = (TextView) v.findViewById(R.id.description);
-            bt_expand = (ImageButton) v.findViewById(R.id.bt_expand);
-            lyt_expand = (View) v.findViewById(R.id.lyt_expand);
+//            bt_expand = (ImageButton) v.findViewById(R.id.bt_expand);
+//            lyt_expand = (View) v.findViewById(R.id.lyt_expand);
             lyt_parent = (View) v.findViewById(R.id.lyt_parent);
         }
     }

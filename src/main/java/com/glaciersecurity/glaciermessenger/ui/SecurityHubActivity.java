@@ -87,12 +87,12 @@ public class SecurityHubActivity extends XmppActivity {
         recyclerView.setAdapter(mAdapter);
 
         // on item list clicked
-        mAdapter.setOnItemClickListener(new AdapterListExpand.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, ExpandableListItem obj, int position) {
-                Snackbar.make(parent_view, "Item " + obj.name + " clicked", Snackbar.LENGTH_SHORT).show();
-            }
-        });
+//        mAdapter.setOnItemClickListener(new AdapterListExpand.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(View view, ExpandableListItem obj, int position) {
+//                Snackbar.make(parent_view, "Item " + obj.name + " clicked", Snackbar.LENGTH_SHORT).show();
+//            }
+//        });
     }
 
     private ArrayList<ExpandableListItem> initSecurityCheck() {
