@@ -35,8 +35,9 @@
             android:title="Glacier Dial"/>
         <item
             android:id="@+id/SMS"
-            android:icon="@drawable/ic_chat_white_24dp"
+            android:icon="@drawable/ic_baseline_sms_24"
             android:title="SMS" />
+
         <item
             android:id="@+id/Settings"
             android:icon="@drawable/ic_settings"

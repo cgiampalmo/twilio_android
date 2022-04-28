@@ -1,6 +1,8 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -13,6 +15,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.os.Handler;
+import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,12 +31,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.RemoteInput;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.databinding.DataBindingUtil;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -44,6 +51,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -51,12 +61,21 @@ import com.glaciersecurity.glaciermessenger.R;
 //import com.glaciersecurity.glaciermessenger.databinding.ActivityChooseContactBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.utils.LogoutListener;
+import com.glaciersecurity.glaciermessenger.ui.NewSMSActivity;
+import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.twilio.conversations.CallbackListener;
 import com.twilio.conversations.Conversation;
 import com.twilio.conversations.ConversationsClient;
 
 public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, LogoutListener {
+    private ActionBar actionBar;
+    private Toolbar toolbar;
+    private View nav_view, main_content;
+    private boolean isHide = true;
+    private int animation_duration = 250;
+
     private MessagesAdapter messagesAdapter;
     private String accessToken;
     private Context mContext = this;
@@ -114,10 +133,10 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         builder.setPriority(NotificationCompat.PRIORITY_HIGH);
         builder.setContentText(newMessage);
         Log.d("Glacier", "New notification after newMessage");
-        builder.setSmallIcon(R.drawable.ic_launcher_foreground);
+        builder.setSmallIcon(R.drawable.ic_baseline_sms_24);
         builder.setAutoCancel(true);
         builder.setContentIntent(pendingIntent);
-        NotificationCompat.Action action2 = new NotificationCompat.Action.Builder(R.drawable.ic_launcher,"Reply",actionIntent).addRemoteInput(remoteInput2).build();
+        NotificationCompat.Action action2 = new NotificationCompat.Action.Builder(R.drawable.ic_baseline_sms_24,"Reply",actionIntent).addRemoteInput(remoteInput2).build();
         builder.addAction(action2);
         managerCompat = NotificationManagerCompat.from(this);
         if(messageAuthor.length() > 5) {
@@ -168,7 +187,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         progressBar.setVisibility(View.GONE);
     }
     private final ConversationsManager ConversationsManager = new ConversationsManager(this);
-    Toolbar toolbar;
     ConversationModel model;
 
     @Override
@@ -184,7 +202,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     @RequiresApi(api = Build.VERSION_CODES.O)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.list_sms);
+        setContentView(R.layout.activity_menu_drawer_simple_dark);
         if (android.os.Build.VERSION.SDK_INT > 9)
         {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -194,8 +212,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         toolbar = (Toolbar) findViewById(R.id.aToolbar);
         model = (ConversationModel) getApplicationContext();
         setSupportActionBar(toolbar);
-        ActionBar actionbar = getSupportActionBar();
-        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
+        //Tools.setSystemBarColor(this);
+        initNavigationMenu();
         if(getIntent().hasExtra("account")) {
             identity = getIntent().getExtras().getString("account");
             model.setIdentity(identity);
@@ -250,6 +271,9 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_add_group, menu);
+
+//        getMenuInflater().inflate(R.menu.menu_navigation_drawer_news, menu);
+//        Tools.changeMenuIconColor(menu, getResources().getColor(R.color.grey_40));
         return super.onCreateOptionsMenu(menu);
     }
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -263,7 +287,82 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         }
         return super.onOptionsItemSelected(item);
     }
-        private void checkPermission() {
+
+    private void initNavigationMenu() {
+        nav_view = findViewById(R.id.nav_view_sms);
+        nav_view.post(new Runnable() {
+            @Override
+            public void run() {
+                nav_view.setTranslationX(-nav_view.getWidth());
+            }
+        });
+
+        main_content = findViewById(R.id.main_content);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isHide) {
+                    showMenu(nav_view, main_content);
+                } else {
+                    hideMenu(nav_view, main_content);
+                }
+            }
+        });
+
+        new Handler(this.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                showMenu(nav_view, main_content);
+            }
+        }, 1000);
+    }
+
+    public ObjectAnimator hideMenu(View menu_view, View content_view) {
+        isHide = true;
+        // menu animation
+        ObjectAnimator animation = ObjectAnimator.ofFloat(menu_view, "translationX", -menu_view.getWidth());
+        animation.setDuration(300);
+        animation.start();
+
+        // content animation
+        ObjectAnimator animationContent = ObjectAnimator.ofFloat(content_view, "translationX", 0);
+        animationContent.setDuration(300);
+        animationContent.start();
+
+        return animation;
+    }
+
+    public ObjectAnimator showMenu(View menu_view, View content_view) {
+        isHide = false;
+        ObjectAnimator animation = ObjectAnimator.ofFloat(menu_view, "translationX", 0);
+        animation.setDuration(animation_duration);
+        animation.start();
+
+        // content animation
+        ObjectAnimator animationContent = ObjectAnimator.ofFloat(content_view, "translationX", menu_view.getWidth());
+        animationContent.setDuration(animation_duration);
+        animationContent.start();
+
+        return animation;
+    }
+
+
+
+//    @Override
+//    public void onBackPressed() {
+//        if(!isHide){
+//            hideMenu(nav_view, main_content);
+//        } else {
+//            super.onBackPressed();
+//        }
+//    }
+
+    public void onMenuClick(View view) {
+        hideMenu(nav_view, main_content);
+    }
+
+
+    private void checkPermission() {
         Log.d("Glacier","checkPermission called");
         if (ContextCompat.checkSelfPermission(SMSActivity.this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(SMSActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, 100);
@@ -333,7 +432,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
     public void onResume(){
         super.onResume();
-        Log.d("Glacier","onResum is called");
+        Log.d("Glacier","onResume is called");
     }
     public void onRestart(){
         super.onRestart();
