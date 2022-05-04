@@ -72,9 +72,9 @@ import com.twilio.conversations.ConversationsClient;
 public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, LogoutListener {
     private ActionBar actionBar;
     private Toolbar toolbar;
-    private View nav_view_sms, main_content_sms;
-    private boolean isHide = true;
-    private int animation_duration = 250;
+    private NavigationView nav_view_sms;
+    private View main_content_sms;
+    private DrawerLayout drawer_sms;
 
     private MessagesAdapter messagesAdapter;
     private String accessToken;
@@ -294,79 +294,17 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     private void initNavigationMenu() {
         nav_view_sms = findViewById(R.id.nav_view_sms);
-//        nav_view_sms.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                nav_view_sms.setTranslationX(-nav_view_sms.getWidth());
-//            }
-//        });
-
+        drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
         main_content_sms = findViewById(R.id.main_content_sms);
-//        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (isHide) {
-//                    showMenu(nav_view_sms, main_content_sms);
-//                } else {
-//                    hideMenu(nav_view_sms, main_content_sms);
-//                }
-//            }
-//        });
-
-        new Handler(this.getMainLooper()).postDelayed(new Runnable() {
+        toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
-
-
-               // showMenu(nav_view_sms, main_content_sms);
+            public void onClick(View v) {
+                drawer_sms.openDrawer(GravityCompat.START);
             }
-        }, 1000);
+    });
+
     }
 
-    public ObjectAnimator hideMenu(View menu_view, View content_view) {
-        isHide = true;
-        // menu animation
-        ObjectAnimator animation = ObjectAnimator.ofFloat(menu_view, "translationX", -menu_view.getWidth());
-        animation.setDuration(300);
-        animation.start();
-
-        // content animation
-        ObjectAnimator animationContent = ObjectAnimator.ofFloat(content_view, "translationX", 0);
-        animationContent.setDuration(300);
-        animationContent.start();
-
-        return animation;
-    }
-
-    public ObjectAnimator showMenu(View menu_view, View content_view) {
-        isHide = false;
-        ObjectAnimator animation = ObjectAnimator.ofFloat(menu_view, "translationX", 0);
-        animation.setDuration(animation_duration);
-        animation.start();
-
-        // content animation
-        ObjectAnimator animationContent = ObjectAnimator.ofFloat(content_view, "translationX", menu_view.getWidth());
-        animationContent.setDuration(animation_duration);
-        animationContent.start();
-
-        return animation;
-    }
-
-
-
-//    @Override
-//    public void onBackPressed() {
-//        if(!isHide){
-//            hideMenu(nav_view, main_content);
-//        } else {
-//            super.onBackPressed();
-//        }
-//    }
-
-    public void onMenuClick(View view) {
-
-        hideMenu(nav_view_sms, main_content_sms);
-    }
 
 
     private void checkPermission() {
