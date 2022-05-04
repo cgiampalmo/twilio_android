@@ -72,7 +72,7 @@ import com.twilio.conversations.ConversationsClient;
 public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, LogoutListener {
     private ActionBar actionBar;
     private Toolbar toolbar;
-    private View nav_view, main_content;
+    private View nav_view_sms, main_content_sms;
     private boolean isHide = true;
     private int animation_duration = 250;
 
@@ -219,6 +219,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         initNavigationMenu();
         if(getIntent().hasExtra("account")) {
             identity = getIntent().getExtras().getString("account");
+            setTitle(identity);
             model.setIdentity(identity);
             Log.d("Glacier ","Twilio Conversation "+model.getConversation());
         }else{
@@ -279,6 +280,9 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.d("Glacier","menu_group_call_participants_list "+item.getItemId()+"======="+R.id.menu_group_call_participants_list);
         switch (item.getItemId()){
+            case android.R.id.home:
+                finish();
+                break;
             case R.id.group_add_sms:
                 Intent intent = new Intent(mContext, GroupSMS.class);
                 String token = Atoken.getAccessToken();
@@ -289,30 +293,32 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
 
     private void initNavigationMenu() {
-        nav_view = findViewById(R.id.nav_view_sms);
-        nav_view.post(new Runnable() {
-            @Override
-            public void run() {
-                nav_view.setTranslationX(-nav_view.getWidth());
-            }
-        });
+        nav_view_sms = findViewById(R.id.nav_view_sms);
+//        nav_view_sms.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                nav_view_sms.setTranslationX(-nav_view_sms.getWidth());
+//            }
+//        });
 
-        main_content = findViewById(R.id.main_content);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isHide) {
-                    showMenu(nav_view, main_content);
-                } else {
-                    hideMenu(nav_view, main_content);
-                }
-            }
-        });
+        main_content_sms = findViewById(R.id.main_content_sms);
+//        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (isHide) {
+//                    showMenu(nav_view_sms, main_content_sms);
+//                } else {
+//                    hideMenu(nav_view_sms, main_content_sms);
+//                }
+//            }
+//        });
 
         new Handler(this.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
-                showMenu(nav_view, main_content);
+
+
+               // showMenu(nav_view_sms, main_content_sms);
             }
         }, 1000);
     }
@@ -358,7 +364,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 //    }
 
     public void onMenuClick(View view) {
-        hideMenu(nav_view, main_content);
+
+        hideMenu(nav_view_sms, main_content_sms);
     }
 
 
@@ -468,10 +475,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                         errorMessage = errorMessage + " " + exception.getLocalizedMessage();
                     }
                     Log.d("Glacier","errorMessage "+errorMessage);
-                    /*Toast.makeText(MainActivity.this,
-                            errorMessage,
-                            Toast.LENGTH_LONG)
-                            .show();*/
                 }
             }
         });
