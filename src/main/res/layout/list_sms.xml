@@ -11,7 +11,7 @@
         <include
             android:id="@+id/aToolbar"
             layout="@layout/toolbar_sms"
-            android:visibility="gone"/>
+            android:visibility="invisible"/>
         <include
             android:id="@+id/empty_list"
             layout="@layout/empty_list"
