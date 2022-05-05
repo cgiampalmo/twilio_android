@@ -427,6 +427,7 @@ public class SystemSecurityInfo {
         }
 
         String mydeviceid = securityInfo.getDeviceId();
+        boolean foundme = false;
 
         for (String deviceinfo : securityInfoList) {
             try {
@@ -440,6 +441,7 @@ public class SystemSecurityInfo {
                         return null; //no update needed
                     }
                     seclist.add(securityInfo.toJsonString());
+                    foundme = true;
                 } else {
                     seclist.add(deviceinfo);
                 }
@@ -450,13 +452,15 @@ public class SystemSecurityInfo {
             }
         }
 
+        if (!foundme) {
+            seclist.add(securityInfo.toJsonString());
+        }
+
         return seclist;
     }
 
     private void updateSecurityHubInfo(GetGlacierUsersQuery.GetGlacierUsers gusers, List<String> seclist) {
-        //List<String> seclist = new ArrayList<>();
         //String secinfoString = "{\"glacier_version_outdated\":false,\"os_version\":\"12\",\"biometric_lock\":true,\"deviceid\":\"12345\",\"core_enabled\":false,\"screen_lock\":true,\"organization\":\"glacierEast\",\"compromised\":false,\"compromised_detail\":false,\"os_version_outdated\":false,\"device\":\"Pixel 3a\",\"glacier_version\":\"3.4.1-RC11-dev\",\"username\":\"alexsuperadmin\"}";
-        //seclist.add(secinfoString);
         UpdateGlacierUsersInput ginput = UpdateGlacierUsersInput.builder().organization(gusers.organization())
                 .username(gusers.username())
                 .securityInfo(seclist)
@@ -469,18 +473,16 @@ public class SystemSecurityInfo {
     private GraphQLCall.Callback<UpdateGlacierUsersMutation.Data> updateUsersCallback = new GraphQLCall.Callback<UpdateGlacierUsersMutation.Data>() {
         @Override
         public void onResponse(@Nonnull Response<UpdateGlacierUsersMutation.Data> response) {
-            new Thread(() -> {
-                if (response != null) {
-                    if (response.data().updateGlacierUsers() != null) {
-                        Log.d("SecurityInfo", "SecurityInfo updated");
-                        needsUpdate = false;
-                    } else {
-                        Log.i("SecurityInfo", "No SecurityInfo update response from server");
-                    }
+            if (response != null) {
+                if (response.data().updateGlacierUsers() != null) {
+                    Log.d("SecurityInfo", "SecurityInfo updated");
+                    needsUpdate = false;
                 } else {
                     Log.i("SecurityInfo", "No SecurityInfo update response from server");
                 }
-            }).start();
+            } else {
+                Log.i("SecurityInfo", "No SecurityInfo update response from server");
+            }
         }
 
         @Override
