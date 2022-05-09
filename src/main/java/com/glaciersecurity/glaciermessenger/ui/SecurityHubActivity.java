@@ -179,7 +179,6 @@ public class SecurityHubActivity extends XmppActivity {
         } else {
             issuesTitle.setText(R.string.issues_found);
             issuesIcon.setImageResource(R.drawable.securithhub_notsafe);
-            issuesTitle.setTextColor(Color.RED);
             return false;
         }
     }

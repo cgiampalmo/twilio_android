@@ -90,7 +90,7 @@ public class AdapterListExpand extends RecyclerView.Adapter<RecyclerView.ViewHol
             }
 
             if (p.isMajorIssue) {
-                view.description.setTextColor(Color.RED);
+                view.description.setTextColor(Color.rgb(234, 122, 98));
             } else {
                 view.description.setTextColor(Color.GRAY);
             }
