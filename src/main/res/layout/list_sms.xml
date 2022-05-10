@@ -9,13 +9,13 @@
         android:layout_height="match_parent">
 
         <include
-            android:id="@+id/toolbar_sms"
-            layout="@layout/toolbar"
+            android:id="@+id/aToolbar"
+            layout="@layout/toolbar_sms"
             />
         <include
             android:id="@+id/empty_list"
             layout="@layout/empty_list"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar_sms"
+            app:layout_constraintTop_toBottomOf="@+id/aToolbar"
             android:visibility="gone"/>
 
 
@@ -28,7 +28,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar_sms"
+            app:layout_constraintTop_toBottomOf="@+id/aToolbar"
             app:layout_constraintVertical_bias="0.0" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -50,7 +50,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar_sms" />
+            app:layout_constraintTop_toBottomOf="@+id/aToolbar" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout></layout>
