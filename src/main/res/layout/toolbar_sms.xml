@@ -8,6 +8,7 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     app:popupTheme="@style/ThemeOverlay.AppCompat.Dark">
 
+
     <ImageButton
         android:id="@+id/down_arrow"
         android:layout_width="7.5dp"

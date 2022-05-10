@@ -43,6 +43,7 @@ import androidx.core.view.GravityCompat;
 import androidx.databinding.DataBindingUtil;
 
 import org.jetbrains.annotations.Nullable;
+import org.w3c.dom.Text;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -77,8 +78,10 @@ import com.twilio.conversations.Participant;
 public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener {
     private ActionBar actionBar;
     private Toolbar toolbar;
+    //private Toolbar toolbarSMS;
     private NavigationView nav_view_sms;
     private View main_content_sms;
+    private TextView sms_friendly_name;
     private DrawerLayout drawer_sms;
 
     private MessagesAdapter messagesAdapter;
@@ -202,8 +205,10 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu_drawer_simple_dark);
+
         setTitle("SMS");
         toolbar = (Toolbar) findViewById(R.id.aToolbar);
+        //toolbarSMS = (Toolbar) findViewById(R.id.toolbar_sms);
 
 
         model = (ConversationModel) getApplicationContext();
@@ -212,7 +217,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
         //Tools.setSystemBarColor(this);
-        initNavigationMenu();
+
+
         if(getIntent().hasExtra("account")) {
             identity = getIntent().getExtras().getString("account");
             setTitle(identity);
@@ -223,6 +229,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             model.setConversation(null);
             Log.d("Glacier","Identity "+identity);
         }
+
+        initNavigationMenu();
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("Glacier", "Glacier", NotificationManager.IMPORTANCE_HIGH);
@@ -277,7 +285,19 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 drawer_sms.openDrawer(GravityCompat.START);
             }
     });
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer_sms, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                sms_friendly_name = (TextView) findViewById(R.id.sms_friendly_name);
+                sms_friendly_name.setText(identity);
 
+            }
+                public void onDrawerClosed (View drawerView){
+                    super.onDrawerClosed(drawerView);
+            }
+        };
+        drawer_sms.setDrawerListener(toggle);
+        toggle.syncState();
     }
 
     @Override
