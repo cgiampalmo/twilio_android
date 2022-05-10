@@ -20,6 +20,7 @@
             android:layout_height="wrap_content"
             android:textColor="?colorAccent4"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
             <include
             android:id="@+id/aToolbar"
             layout="@layout/toolbar_sms"/>
@@ -39,6 +40,9 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="false"
+        app:headerLayout="@layout/include_drawer_header_sms"
+
+
         app:menu="@menu/menu_navigation_drawer_news" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
