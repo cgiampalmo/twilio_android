@@ -22,8 +22,10 @@
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
             <include
-            android:id="@+id/aToolbar"
-            layout="@layout/toolbar_sms"/>
+                android:id="@+id/toolbar_sms_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                layout="@layout/toolbar_sms"/>
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -32,17 +34,31 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-
-    <!--navigation drawer menu-->
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view_sms"
-        android:layout_width="220dp"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="false"
-        app:headerLayout="@layout/include_drawer_header_sms"
+        android:layout_gravity="start">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_marginTop="@dimen/actionBarSize"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/sms_recycler_view"
+            >
+        </androidx.recyclerview.widget.RecyclerView>
+    </LinearLayout>
 
 
-        app:menu="@menu/menu_navigation_drawer_news" />
+<!--    &lt;!&ndash;navigation drawer menu&ndash;&gt;-->
+<!--    <com.google.android.material.navigation.NavigationView-->
+<!--        android:id="@+id/nav_view_sms"-->
+<!--        android:layout_width="220dp"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:layout_gravity="start"-->
+<!--        android:fitsSystemWindows="false"-->
+<!--        app:headerLayout="@layout/include_drawer_header_sms"-->
+
+
+<!--        app:menu="@menu/menu_navigation_drawer_news" />-->
 
 </androidx.drawerlayout.widget.DrawerLayout>

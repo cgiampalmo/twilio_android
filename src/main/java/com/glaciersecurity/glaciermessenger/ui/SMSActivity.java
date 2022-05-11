@@ -1,8 +1,6 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
-import android.animation.ObjectAnimator;
-import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -14,17 +12,13 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Parcelable;
 import android.provider.ContactsContract;
-import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,24 +34,17 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.RemoteInput;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
-import androidx.databinding.DataBindingUtil;
 
 import org.jetbrains.annotations.Nullable;
-import org.w3c.dom.Text;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -65,24 +52,29 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.glaciersecurity.glaciermessenger.R;
 //import com.glaciersecurity.glaciermessenger.databinding.ActivityChooseContactBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
-import com.glaciersecurity.glaciermessenger.ui.NewSMSActivity;
+import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
+import com.glaciersecurity.glaciermessenger.ui.adapter.SmsProfileAdapter;
 import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
 import com.twilio.conversations.CallbackListener;
 import com.twilio.conversations.Conversation;
 import com.twilio.conversations.ConversationsClient;
-import com.twilio.conversations.Message;
-import com.twilio.conversations.Participant;
 
 public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener {
     private ActionBar actionBar;
+    private ActionBarDrawerToggle smsDrawerToggle;
     private Toolbar toolbar;
     //private Toolbar toolbarSMS;
-    private NavigationView nav_view_sms;
-    private View main_content_sms;
     private TextView sms_friendly_name;
+
+    RecyclerView recyclerViewConversations;
+    RecyclerView recyclerViewSMS;
+
     private DrawerLayout drawer_sms;
+    RecyclerView.Adapter adapter_sms;
+    RecyclerView.LayoutManager layoutManagerSMS;
+    ArrayList<SmsProfile> profileList= new ArrayList<>();
+
 
     private MessagesAdapter messagesAdapter;
     private String accessToken;
@@ -92,7 +84,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     private String mSavedInstanceAccount;
     TokenModel Atoken = new TokenModel();
     public String AccessToken;
-    RecyclerView recyclerView;
     private static final String KEY_TEXT_REPLY = "key_text_reply";
     private static final String MARK_AS_READ = "mark_as_read";
     NotificationManagerCompat managerCompat;
@@ -178,7 +169,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             sortconv(conversationList);
             model.setConversationsClient(ConversationsManager.conversationsClient);
             messagesAdapter = new SMSActivity.MessagesAdapter((OnSMSConversationClickListener) this, conversationList);
-            recyclerView.setAdapter(messagesAdapter);
+            recyclerViewConversations.setAdapter(messagesAdapter);
             View emptyLayout = findViewById(R.id.empty_list);
             emptyLayout.setVisibility(View.GONE);
         }else{
@@ -204,10 +195,10 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     @RequiresApi(api = Build.VERSION_CODES.O)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_menu_drawer_simple_dark);
+        setContentView(R.layout.activity_menu_drawer_sms);
 
         setTitle("SMS");
-        toolbar = (Toolbar) findViewById(R.id.aToolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar_sms_view);
         //toolbarSMS = (Toolbar) findViewById(R.id.toolbar_sms);
 
 
@@ -217,6 +208,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
         //Tools.setSystemBarColor(this);
+
 
 
         if(getIntent().hasExtra("account")) {
@@ -230,19 +222,28 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             Log.d("Glacier","Identity "+identity);
         }
 
-        initNavigationMenu();
-
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("Glacier", "Glacier", NotificationManager.IMPORTANCE_HIGH);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
 
         }
-        recyclerView = findViewById(R.id.choose_conversation_list);
+
+        recyclerViewSMS = (RecyclerView) findViewById(R.id.sms_recycler_view);
+        layoutManagerSMS = new LinearLayoutManager(this);
+        recyclerViewSMS.setLayoutManager(layoutManagerSMS);
+        drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
+        initSMS();
+        adapter_sms = new SmsProfileAdapter(profileList);
+        recyclerViewSMS.setAdapter(adapter_sms);
+        smsDrawerToggle = new ActionBarDrawerToggle(this, drawer_sms, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer_sms.setDrawerListener(smsDrawerToggle);
+
+        recyclerViewConversations = findViewById(R.id.choose_conversation_list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setStackFromEnd(true);
         layoutManager.setReverseLayout(true);
-        recyclerView.setLayoutManager(layoutManager);
+        recyclerViewConversations.setLayoutManager(layoutManager);
 
         Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation());
         ConversationsClient conversationsClient = model.getConversationsClient();
@@ -275,36 +276,19 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         });
     }
 
-    private void initNavigationMenu() {
-        nav_view_sms = findViewById(R.id.nav_view_sms);
-        drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
-        main_content_sms = findViewById(R.id.main_content_sms);
-        toolbar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawer_sms.openDrawer(GravityCompat.START);
-            }
-    });
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer_sms, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                sms_friendly_name = (TextView) findViewById(R.id.sms_friendly_name);
-                sms_friendly_name.setText(identity);
+    private void initSMS(){
+        SmsProfile test = new SmsProfile("(999)999-999", "City, State");
+        profileList.add(test);
 
-            }
-                public void onDrawerClosed (View drawerView){
-                    super.onDrawerClosed(drawerView);
-            }
-        };
-        drawer_sms.setDrawerListener(toggle);
-        toggle.syncState();
+        SmsProfile test2 = new SmsProfile("(000)000-0000", "City1, State1");
+        profileList.add(test2);
     }
 
+
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_navigation_drawer_news, menu);
-        Tools.changeMenuIconColor(menu, getResources().getColor(R.color.grey_40));
-        return true;
+    protected void onPostCreate(Bundle savedInstanceState){
+        super.onPostCreate(savedInstanceState);
+        smsDrawerToggle.syncState();
     }
 
     @Override
