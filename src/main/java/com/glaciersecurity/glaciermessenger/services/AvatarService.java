@@ -552,6 +552,7 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 		letter = letter.toUpperCase(Locale.getDefault());
 		Paint tilePaint = new Paint(), textPaint = new Paint();
 		tilePaint.setColor(tileColor);
+		tilePaint.setColor(tileColor);
 		textPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
 		textPaint.setColor(FG_COLOR);
 		textPaint.setTypeface(Typeface.create("sans-serif-light",

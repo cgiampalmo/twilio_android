@@ -4,9 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
     android:background="?attr/colorPrimary"
-    app:contentInsetStartWithNavigation="0dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-    app:popupTheme="@style/ThemeOverlay.AppCompat.Dark">
+    app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
+    android:fitsSystemWindows="true">
 
 
     <ImageButton
@@ -19,3 +19,4 @@
         app:srcCompat="@drawable/ic_expand" />
 
 </androidx.appcompat.widget.Toolbar>
+

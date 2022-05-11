@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/color_background_secondary"
+    android:id="@+id/sms_profile_view"
+    android:padding="2dp"
+
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:textAppearance="@style/TextAppearance.Conversations.Body2"
+        android:textSize="25dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="5dp"
+        android:textColor="?attr/edit_text_color"
+        android:id="@+id/sms_profile_number"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:textAppearance="@style/TextAppearance.Conversations.Body2"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="5dp"
+        android:textColor="?attr/edit_text_color"
+        android:id="@+id/sms_profile_location"
+        />
+</LinearLayout>
