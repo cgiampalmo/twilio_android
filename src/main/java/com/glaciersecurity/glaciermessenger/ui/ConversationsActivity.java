@@ -224,7 +224,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	}
 
 	@Override
-	void onBackendConnected() {
+	protected void onBackendConnected() {
 		if (performRedirectIfNecessary(true)) {
 			return;
 		}
@@ -1188,18 +1188,21 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		ConversationModel model = (ConversationModel) getApplicationContext();
 		ArrayList<ContactModel> arrayList = new ArrayList<>();
 		Map<String, String> cList = new HashMap<>();
+		model.cancelAllNotification();
 		model.setArrayList(arrayList);
 		model.setcList(cList);
 		model.setConversation(null);
 		model.setIdentity("");
 		model.setConversationsClient(null);
 		model.setContConv(null);
+		model.setNotificationManager(null);
 		activity.onLogout();
 	}
 
 	//ALF AM-143 here to end
 	@Override
 	public void onLogout() {
+		Log.d("Glacier","Logout called");
 		//AM-517
 		getPreferences().edit().putBoolean("use_core_connect", false).apply();
 

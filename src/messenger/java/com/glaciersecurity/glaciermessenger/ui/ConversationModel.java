@@ -18,6 +18,25 @@ public class ConversationModel extends Application {
     private Map<String,String> contConv;
     private NotificationManagerCompat notificationManager;
     private ArrayList<ContactModel> arrayList;
+    private String proxyNumber;
+
+    public ArrayList<ContactModel> getGroupArrayList() {
+        return groupArrayList;
+    }
+
+    public void setGroupArrayList(ArrayList<ContactModel> groupArrayList) {
+        this.groupArrayList = groupArrayList;
+    }
+
+    private ArrayList<ContactModel> groupArrayList;
+
+    public String getProxyNumber() {
+        return proxyNumber;
+    }
+
+    public void setProxyNumber(String proxyNumber) {
+        this.proxyNumber = proxyNumber;
+    }
 
     public Map<String, String> getcList() {
         return cList;
@@ -77,5 +96,9 @@ public class ConversationModel extends Application {
     public void setConversationsClient(ConversationsClient conversationsClient) {
         this.conversationsClient = conversationsClient;
     }
-
+    public void cancelAllNotification(){
+        if(notificationManager != null) {
+            notificationManager.cancelAll();
+        }
+    }
 }

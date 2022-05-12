@@ -39,7 +39,7 @@ public class NewSMSActivity extends XmppActivity implements OnSMSConversationCli
     }
 
     @Override
-    void onBackendConnected() {
+    protected void onBackendConnected() {
 
     }
 

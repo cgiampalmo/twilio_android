@@ -46,7 +46,7 @@ public class ContactListActivity extends XmppActivity implements OnSMSConversati
     }
 
     @Override
-    void onBackendConnected() {
+    protected void onBackendConnected() {
 
     }
 

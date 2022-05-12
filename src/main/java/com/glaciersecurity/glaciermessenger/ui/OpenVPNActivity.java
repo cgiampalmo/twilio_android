@@ -76,7 +76,7 @@ protected void onStart() {
 //        }
 //    }
     @Override
-    void onBackendConnected() {
+    protected void onBackendConnected() {
         // nothing to do
     }
 

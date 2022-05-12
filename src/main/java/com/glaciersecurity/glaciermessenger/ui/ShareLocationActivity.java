@@ -305,7 +305,7 @@ public class ShareLocationActivity extends XmppActivity implements OnMapReadyCal
 	}
 
 	@Override
-	void onBackendConnected() {
+    protected void onBackendConnected() {
 
 	}
 

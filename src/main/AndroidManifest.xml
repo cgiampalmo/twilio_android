@@ -160,6 +160,14 @@
             android:parentActivityName=".ui.SMSActivity"
             android:label="@string/app_name"/>
         <activity
+            android:name=".ui.GroupSMS"
+            android:parentActivityName=".ui.SMSActivity"
+            android:label="@string/app_name"/>
+        <activity
+            android:name=".ui.EditGroup"
+            android:parentActivityName=".ui.GroupSMS"
+            android:label="@string/app_name"/>
+        <activity
             android:name=".ui.ConversationsActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"

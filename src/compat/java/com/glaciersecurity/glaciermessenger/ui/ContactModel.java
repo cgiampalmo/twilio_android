@@ -19,5 +19,5 @@ public class ContactModel {
         this.number = number;
     }
 
-
+//    public
 }

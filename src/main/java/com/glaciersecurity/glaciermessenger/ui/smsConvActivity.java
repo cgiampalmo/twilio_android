@@ -9,10 +9,14 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.NetworkOnMainThreadException;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -23,12 +27,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.glaciersecurity.glaciermessenger.R;
-import com.glaciersecurity.glaciermessenger.ui.util.Drawable;
 import com.twilio.conversations.CallbackListener;
 import com.twilio.conversations.Conversation;
 import com.twilio.conversations.ConversationsClient;
 import com.twilio.conversations.Message;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -38,14 +42,17 @@ import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 interface toggleInputMethodListner {
@@ -82,6 +89,8 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
     boolean isBlocked = false;
     private MMSmediaAdapter mediaPreviewAdapter;
     RecyclerView mediaPreview;
+    private boolean groupConv = false;
+    private String[] groupParticipants;
 
     @Override
     protected void refreshUiReal() {
@@ -89,10 +98,11 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
     }
 
     @Override
-    void onBackendConnected() {
+    protected void onBackendConnected() {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,7 +130,18 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
             Convtoken = getIntent().getExtras().getString("conversationToken");
         }
         ConversationsClient conversationsClient = model.getConversationsClient();
-        //Conversation co = model.getConversationsClient();
+        if(getIntent().hasExtra("title")){
+            String Contact_name = (cList.get(getIntent().getStringExtra("title")) != null) ? cList.get(getIntent().getStringExtra("title")) : getIntent().getStringExtra("title");
+            setTitle(Contact_name);
+        }
+        if(getIntent().hasExtra("phoneNumber")){
+            convSid = getIntent().getStringExtra("phoneNumber");
+        }
+        if(getIntent().hasExtra("messageBody")){
+            newMessageBody = getIntent().getStringExtra("messageBody");
+            Log.d("Glacier "," To phoneNumber "+convSid+" sendedMessage "+newMessageBody);
+        }
+
         if(conversationsClient != null){
             convContList = model.getContConv();
             if(convContList != null && convContList.size() > 0){
@@ -129,10 +150,18 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                     convSid = sid;
                 }
             }
-            ConversationsManager.getConversation(convSid,false,conversationsClient);
+            if(convSid != null && convSid.equals("Group")){
+                convSid = getIntent().getStringExtra("groupName");
+                groupParticipants = getIntent().getStringArrayExtra("GroupContact");
+                Log.d("Glacier","groupParticipants "+String.join(",",groupParticipants));
+                groupConv = true;
+
+            }
+            ConversationsManager.getConversation(convSid, false, conversationsClient);
         }else {
             ConversationsManager.initializeWithAccessToken(this, Convtoken,convSid);
         }
+
         recyclerView = findViewById(R.id.recycler_gchat);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -168,18 +197,31 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                 }
             }
         });
-        if(getIntent().hasExtra("title")){
-            //setTitle(getIntent().getStringExtra("title"));
-            String Contact_name = (cList.get(getIntent().getStringExtra("title")) != null) ? cList.get(getIntent().getStringExtra("title")) : getIntent().getStringExtra("title");
-            setTitle(Contact_name);
+
+    }
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_group_sms, menu);
+        MenuItem menuItem = menu.findItem(R.id.group_edit_sms);
+        if(getIntent().hasExtra("is_group") && getIntent().getExtras().getBoolean("is_group")) {
+            Log.d("Glacier","ConvSid group SMS");
+            menuItem.setVisible(true);
+        }else
+            menuItem.setVisible(false);
+        return super.onCreateOptionsMenu(menu);
+    }
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.group_edit_sms :
+                //add_participant();
+                //ConversationsManager.conversation.getParticipantsList();
+                Intent intent = new Intent(mContext, EditGroup.class);
+                startActivity(intent.putExtra("account",identity));
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + item.getItemId());
         }
-        if(getIntent().hasExtra("phoneNumber")){
-            convSid = getIntent().getStringExtra("phoneNumber");
-        }
-        if(getIntent().hasExtra("messageBody")){
-            newMessageBody = getIntent().getStringExtra("messageBody");
-            Log.d("Glacier "," To phoneNumber "+convSid+" sendedMessage "+newMessageBody);
-        }
+        return super.onOptionsItemSelected(item);
     }
     public void showImagePicDialog(){
         String options[] = {"Camera", "Gallery"};
@@ -235,14 +277,42 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         galleryIntent.setType("image/*");
         startActivityForResult(galleryIntent, IMAGEPICK_GALLERY_REQUEST);
     }
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void showList() {
         /*Intent SMSActivity = new Intent(getApplicationContext(), SMSActivity.class);
         startActivity(SMSActivity);*/
         ProgressBar progressBar = findViewById(R.id.progressBar2);
         progressBar.setVisibility(View.GONE);
-        Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation());
+        Log.d("Glacier","smsConvActivity ConversationsManager "+ConversationsManager.getConversation());
+        if(groupConv) {
+            add_participant(groupParticipants);
+        }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void add_participant(String[] participant_list){
+        String addParticipantUrl = mContext.getString(R.string.add_participant_url);
+        OkHttpClient client = new OkHttpClient();
+        RequestBody requestBody = new FormBody.Builder()
+                .add("ConvSid", ConversationsManager.conversation.getSid())
+                .add("participants", String.join(",",participant_list))
+                .add("identity",identity)
+                .build();
+        Request request = new Request.Builder()
+                .url(addParticipantUrl)
+                .post(requestBody)
+                .build();
+        Log.d("Glacier","request "+request);
+        try (Response response = client.newCall(request).execute()) {
+            String responseBody = "";
+            if (response != null && response.body() != null) {
+                responseBody = response.body().string();
+            }
+            Log.d("Glacier", "Response from server: " + responseBody);
+        }catch (Exception e){
+            Log.d("Glacier", "Response from server: " + e.getMessage());
+        }
+    }
     private void retrieveTokenFromServer() {
         ConversationsManager.retrieveAccessTokenFromServer(this, identity, new TokenResponseListener() {
             @Override
@@ -295,89 +365,14 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         boolean hasAttachments = mediaPreviewAdapter.hasAttachments();
         writeMessageEditText.setVisibility(hasAttachments ? View.GONE : View.VISIBLE);
         mediaPreview.setVisibility(hasAttachments ? View.VISIBLE : View.GONE);
-        //updateSendButton();
     }
     private void sendImageMessage(Uri imageuri) throws IOException {
         mediaPreviewAdapter.addMediaPreviews(com.glaciersecurity.glaciermessenger.ui.util.Attachment.of(this, imageuri, com.glaciersecurity.glaciermessenger.ui.util.Attachment.Type.FILE));
         toggleInputMethod();
-        /*notify = true;
-        final ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setMessage("Sending Image");
-        dialog.show();
-
-        // If we are sending image as a message
-        // then we need to find the url of
-        // image after uploading the
-        // image in firebase storage
-        final String timestamp = "" + System.currentTimeMillis();
-        String filepathandname = "ChatImages/" + "post" + timestamp; // filename
-        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageuri);
-        ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, arrayOutputStream); // compressing the image using bitmap
-        Log.d("Glacier","Upload bitmap compressed "+filepathandname+" imageuri "+imageuri);
-        final byte[] data = arrayOutputStream.toByteArray();
-
-        StorageReference ref = FirebaseStorage.getInstance().getReferenceFromUrl(String.valueOf(imageuri));
-        Log.d("Glacier","Upload bitmap compressed "+filepathandname+" imageuri "+imageuri);
-        StorageReference mRef = ref.child(filepathandname);
-        mRef.putBytes(data).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                dialog.dismiss();
-                Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
-                while (!uriTask.isSuccessful()) ;
-                String downloadUri = uriTask.getResult().toString(); // getting url if task is successful
-
-                if (uriTask.isSuccessful()) {
-                    DatabaseReference re = FirebaseDatabase.getInstance().getReference();
-                    HashMap<String, Object> hashMap = new HashMap<>();
-                    hashMap.put("sender", myuid);
-                    hashMap.put("receiver", uid);
-                    hashMap.put("message", downloadUri);
-                    hashMap.put("timestamp", timestamp);
-                    hashMap.put("dilihat", false);
-                    hashMap.put("type", "images");
-                    re.child("Chats").push().setValue(hashMap); // push in firebase using unique id
-                    final DatabaseReference ref1 = FirebaseDatabase.getInstance().getReference("ChatList").child(uid).child(myuid);
-                    ref1.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            if (!dataSnapshot.exists()) {
-                                ref1.child("id").setValue(myuid);
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
-                    final DatabaseReference ref2 = FirebaseDatabase.getInstance().getReference("ChatList").child(myuid).child(uid);
-                    ref2.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            if (!dataSnapshot.exists()) {
-                                ref2.child("id").setValue(uid);
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d("Glacier ","Upload image Exception "+e.getMessage());
-            }
-        });*/
     }
     @Override
     public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor) {
-        Log.d("Glacier","getFriendlyName"+ConversationsManager.conversation.getFriendlyName()+ConversationsManager.conversation.getFriendlyName().substring(2,5));
+        Log.d("Glacier","getFriendlyName"+ConversationsManager.conversation.getFriendlyName());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -389,7 +384,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                     ConversationsManager.conversation.setAllMessagesRead(new CallbackListener<Long>() {
                         @Override
                         public void onSuccess(Long result) {
-                            if(model.getNotificationManager() != null) {
+                            if(model.getNotificationManager() != null && ConversationsManager.conversation.getFriendlyName().length() > 5) {
                                 Log.d("Glacier","getFriendlyName "+ Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5))+" "+model.getNotificationManager());
                                 model.clearNotification(Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5)));
                             }
@@ -403,14 +398,15 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
     @Override
     public void reloadMessages() {
         model.setConversation(ConversationsManager.conversation);
-        Log.d("Glacier","getFriendlyName"+ConversationsManager.conversation.getFriendlyName()+ConversationsManager.conversation.getFriendlyName().substring(2,5));
+        Log.d("Glacier","getFriendlyName"+ConversationsManager.conversation.getFriendlyName());
         if(model.getNotificationManager() != null) {
-            Log.d("Glacier","getFriendlyName "+ Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5))+" "+model.getNotificationManager());
-            model.clearNotification(Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5)));
+            if(ConversationsManager.conversation.getFriendlyName().length() > 5) {
+                Log.d("Glacier", "getFriendlyName " + Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5)) + " " + model.getNotificationManager());
+                model.clearNotification(Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5)));
+            }else{
+                model.clearNotification(123);
+            }
         }
-        /*if(convSid.trim().length() < 13 && convSid.length() > 9 && newMessageBody != null){
-            convSid = "Sent";
-        }*/
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -450,16 +446,6 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         private static final int VIEW_TYPE_MESSAGE_SENT = 1;
         private static final int VIEW_TYPE_MESSAGE_RECEIVED = 2;
 
-        /*class ViewHolder extends RecyclerView.ViewHolder {
-
-            final TextView messageTextView;
-
-            ViewHolder(TextView textView) {
-                super(textView);
-                messageTextView = textView;
-            }
-        }*/
-
         MessagesAdapter() {
 
         }
@@ -469,9 +455,6 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                           int viewType) {
             View view;
-            /*TextView messageTextView = (TextView) LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.message_text_view, parent, false);
-            return new ViewHolder(messageTextView);*/
             if (viewType == VIEW_TYPE_MESSAGE_SENT) {
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.sms_chat_me, parent, false);
@@ -525,12 +508,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
             return ConversationsManager.getMessages().size();
         }
 
-//        @Override
-        /*public void run() {
-
-        }*/
-
-        class SentMessageHolder extends RecyclerView.ViewHolder {
+        class SentMessageHolder extends RecyclerView.ViewHolder implements Runnable{
             TextView messageText, timeText,dateText;
             ImageView sentImg;
 
@@ -549,50 +527,16 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                     message.getMediaContentTemporaryUrl(new CallbackListener<String>() {
                         @Override
                         public void onSuccess(String result) {
-                            Log.d("Glacier","media result"+Uri.parse(result));
-                            messageText.setText(result);
-                            new DownloadImageTask(sentImg,result).execute();
-                            /*OkHttpClient client = new OkHttpClient();
-                            Request request = new Request.Builder()
-                                    .url(result).get().build();
-                            try (Response response = client.newCall(request).execute()) {
-                                Log.d("Glacier","media result"+result);
-                                *//*Bitmap bitmap = null;
-                                bitmap = MediaStore.Images.Media.getBitmap(mContext.getContentResolver(), Uri.parse(result));
-                                sentImg.setImageBitmap(bitmap);*//*
-                                messageText.setText(response.body().contentType().toString());
-                                //sentImg.setImageURI (Uri.parse(result));
+                            if (result != null) {
+                                Log.d("Glacier", "result "+result);
+                                downloadMedia(result,new ImgResponseListener(){
+                                    public void receivedImgResponse(Bitmap bmpImg){
+                                        messageText.setText("");
+                                        sentImg.setVisibility(View.VISIBLE);
+                                        sentImg.setImageBitmap(bmpImg);
+                                    }
+                                });
                             }
-                            catch (IOException ex) {
-                                Log.e("Glacier", ex.getLocalizedMessage(),ex);
-                            }*/
-                            /*sentImg.setVisibility(View.VISIBLE);
-                            sentImg.setImageURI (Uri.parse(result));*/
-                            /*try {
-                                InputStream is = (InputStream) new URL(result).getContent();
-                                Drawable d = Drawable.createFromS
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }*/
-//                            var image: Bitmap? = null;
-                            /*Bitmap image;
-                            try {
-                             //   var in = new URL(result).openStream();
-                                URL url = new URL(result);
-                                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                                connection.setDoInput(true);
-                                *//*connection.connect();*//*
-                                connection.setConnectTimeout(30000);
-                                connection.setReadTimeout(30000);
-                                connection.setInstanceFollowRedirects(true);
-                                InputStream is = connection.getInputStream();
-                                image = BitmapFactory.decodeStream(is);
-                                sentImg.setImageBitmap(image);
-                            } catch (Exception e) {
-                                Log.d("Glacier","media Exception "+e.getMessage());
-                                e.printStackTrace();
-                            }*/
-                            //messageText.setVisibility(View.GONE);
                         }
                     });
                 }else
@@ -607,11 +551,18 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                     dateText.setVisibility(View.GONE);
                 //timeText.setText(Utils.formatDateTime(message.getCreatedAt()));
             }
+
+
+            @Override
+            public void run() {
+
+            }
         }
 
         class ReceivedMessageHolder extends RecyclerView.ViewHolder {
             TextView messageText, timeText, nameText,dateText;
             ImageView profileImage;
+            ImageView sentImg;
 
             ReceivedMessageHolder(View itemView) {
                 super(itemView);
@@ -621,15 +572,23 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                 nameText = (TextView) itemView.findViewById(R.id.text_gchat_user_other);
                 profileImage = (ImageView) itemView.findViewById(R.id.image_gchat_profile_other);
                 dateText = (TextView) itemView.findViewById(R.id.text_gchat_date_other);
+                sentImg = itemView.findViewById(R.id.text_gchat_media_other);
             }
 
             void bind(Message message,boolean new_date) {
+                Log.d("Glacier","Message has media"+message.hasMedia());
                 if(message.hasMedia()){
                     message.getMediaContentTemporaryUrl(new CallbackListener<String>() {
                         @Override
                         public void onSuccess(String result) {
-                            Log.d("Glacier",result);
-                            messageText.setText(result);
+                            Log.d("Glacier", result);
+                            downloadMedia(result, new ImgResponseListener() {
+                                public void receivedImgResponse(Bitmap bmpImg) {
+                                    messageText.setText("");
+                                    sentImg.setVisibility(View.VISIBLE);
+                                    sentImg.setImageBitmap(bmpImg);
+                                }
+                            });
                         }
                     });
                 }else
@@ -647,6 +606,34 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                 //Utils.displayRoundImageFromUrl(mContext, message.getSender().getProfileUrl(), profileImage);
             }
         }
+        private void downloadMedia(String mediaURL, ImgResponseListener imgResponseListener) {
+            smsConvActivity.this.runOnUiThread(new Runnable(){
+                @Override
+                public void run() {
+                    try {
+                        URL url = new URL(mediaURL);
+                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                        connection.setDoInput(true);
+                        connection.setConnectTimeout(30000);
+                        connection.setReadTimeout(30000);
+                        connection.setInstanceFollowRedirects(true);
+                        InputStream is = connection.getInputStream();
+                        BufferedInputStream buf = new BufferedInputStream(is);
+                        Bitmap bMap = BitmapFactory.decodeStream(buf);
+                        Log.d("Glacier", "bMap "+bMap.toString());
+                        imgResponseListener.receivedImgResponse(bMap);
+                        Log.d("Glacier", "bMap imgResponseListener"+bMap);
+                    } catch (NetworkOnMainThreadException e) {
+                        Log.d("Glacier", "NetworkOnMainThreadException "+e);
+                    } catch (Exception e) {
+                        Log.e("Glacier", "Exception "+e.getMessage());
+                    }
+                }
+            });
+        }
     }
 }
 
+interface ImgResponseListener {
+    void receivedImgResponse(Bitmap bmpImg);
+}

@@ -73,13 +73,15 @@ public class ConversationsManager {
 
     private ConversationsManagerListener conversationsManagerListener;
 
-    private String tokenURL = "";
+    private String tokenURL;
 
     private String conv_identity;
 
     private String conversationSid = "";
     private Context mContext;
+    protected String proxyAddress;
     protected class TokenResponse {
+        public String user_number;
         String token;
     }
     ConversationsManager(final Context context){
@@ -127,7 +129,7 @@ public class ConversationsManager {
     }
 
     private void retrieveToken(AccessTokenListener listener) {
-        Log.d("Glacier","identiy "+conv_identity);
+        Log.d("Glacier","identiy "+conv_identity+" "+tokenURL+"----------"+mContext.getClass());
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = new FormBody.Builder()
                 .add("identity", conv_identity)
@@ -136,6 +138,7 @@ public class ConversationsManager {
                 .url(tokenURL)
                 .post(requestBody)
                 .build();
+        Log.d("Glacier","request "+request);
         try (Response response = client.newCall(request).execute()) {
             String responseBody = "";
             if (response != null && response.body() != null) {
@@ -145,6 +148,7 @@ public class ConversationsManager {
             Gson gson = new Gson();
             TokenResponse tokenResponse = gson.fromJson(responseBody,TokenResponse.class);
             String accessToken = tokenResponse.token;
+            this.proxyAddress = tokenResponse.user_number;
             Log.d("Glacier", "Retrieved access token from server: " + accessToken);
             listener.receivedAccessToken(accessToken, null);
 
@@ -280,6 +284,7 @@ public class ConversationsManager {
                         if (conversation != null) {
                             Log.d("Glacier", "Joining Conversation: " + DEFAULT_CONVERSATION_NAME);
                             joinConversation(conversation);
+                            ConversationsManager.this.conversation = conversation;
                             conversation.setLastReadMessageIndex(0, new CallbackListener<Long>() {
                                 @Override
                                 public void onSuccess(Long result) {
@@ -467,6 +472,7 @@ public class ConversationsManager {
 
                 @Override
                 public void onTokenAboutToExpire() {
+                    Log.d("Glacier","onTokenAboutToExpire "+tokenURL + "========"+conv_identity);
                     retrieveToken(new AccessTokenListener() {
                         @Override
                         public void receivedAccessToken(@Nullable String token, @Nullable Exception exception) {
@@ -550,6 +556,7 @@ public class ConversationsManager {
 
         @Override
         public void onParticipantAdded(Participant participant) {
+            //conversation.addParticipantByIdentity();
             Log.d("Glacier", "Participant added: " + participant.getIdentity());
         }
 
