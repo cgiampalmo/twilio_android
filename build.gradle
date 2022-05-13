@@ -103,9 +103,9 @@ dependencies {
 
     //ALF AM-313, AM-346
     implementation 'com.amazonaws:aws-android-sdk-appsync:3.3.0'  //AppSync SDK
-    implementation 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.14.2'   // NEEDS UPDATE from 2.14.2 to 2.16.6
-    implementation 'com.amazonaws:aws-android-sdk-core:2.16.3'  //Base SDK          // NEEDS UPDATE from 2.16.3 to 2.16.6
-    implementation 'com.amazonaws:aws-android-sdk-s3:2.14.2'                        // NEEDS UPDATE from 2.14.2 to 2.16.6
+    implementation 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.16.6'   // NEEDS UPDATE from 2.14.2 to 2.16.6
+    implementation 'com.amazonaws:aws-android-sdk-core:2.16.6'  //Base SDK          // NEEDS UPDATE from 2.16.3 to 2.16.6
+    implementation 'com.amazonaws:aws-android-sdk-s3:2.16.6'                        // NEEDS UPDATE from 2.14.2 to 2.16.6
 
     implementation 'androidx.appcompat:appcompat:1.0.0'                         // NEEDS UPDATE from 1.0.0 to 1.4.0
     implementation 'androidx.cardview:cardview:1.0.0'
@@ -187,7 +187,7 @@ android {
         minSdkVersion 24
         targetSdkVersion 31
         versionCode 509
-        versionName "3.4.1-RC14"
+        versionName "3.4.1-RC16"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
 
