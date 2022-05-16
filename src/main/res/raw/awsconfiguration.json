@@ -6,21 +6,21 @@
     },
     "AppSync": {
         "Default": {
-            "ApiUrl": "https://gchd4c6oajd6bkzp5crmovv62q.appsync-api.us-east-1.amazonaws.com/graphql",
-            "Region": "us-east-1",
+            "ApiUrl": "https://gscpopey5ngpzgdou26slhd67i.appsync-api.us-east-2.amazonaws.com/graphql",
+            "Region": "us-east-2",
             "AuthMode": "API_KEY",
-            "ApiKey": "da2-pefesos7o5eixmnv4pxpoabcuq",
-            "ClientDatabasePrefix": "GlacierAppSyncAPI_API_KEY"
+            "ApiKey": "da2-nt2x2fwwabcllbw6hx7g2jlajy",
+            "ClientDatabasePrefix": "fetchUserDetails_API_KEY"
         }
     },
     "S3TransferUtility": {
         "Default": {
-            "Region": "us-east-1"
+            "Region": "us-east-2"
         }
     },
     "S3TransferManager": {
         "Default": {
-            "Region": "us-east-1"
+            "Region": "us-east-2"
         }
     },
     "CognitoUserPool": {
@@ -33,17 +33,17 @@
             "CognitoAuthSignInRedirectUri": "glaciermessenger://",
             "CognitoAuthSignOutRedirectUri": "glaciermessenger://",
             "CognitoAuthWebDomain": "https://glaciersec.auth.us-east-1.amazoncognito.com",
-            "CognitoUserPoolAppClientId": "4o3p01m37i9omnuo27vg4fh8gt",
-            "CognitoUserPoolAppClientSecret": "9qv3ceupufgr6j54n476bk2orprlmva8vnu1a4limps4g3gb90g",
-            "CognitoUserPoolId": "us-east-1_g1AdCGbFH",
-            "Region": "us-east-1"
+            "CognitoUserPoolAppClientId": "7do03imiuf476simvketoi2s1u",
+            "CognitoUserPoolAppClientSecret": "1o2phe3u0red3sb9jf0l43pu72r30u46ejh1d0l6cfd53ua78tq9",
+            "CognitoUserPoolId": "us-east-2_SIdjRFQg0",
+            "Region": "us-east-2"
         }
     },
     "CredentialsProvider": {
         "CognitoIdentity": {
             "Default": {
-                "PoolId": "us-east-1:967acd81-c1f7-44f8-a582-1c2541a95081",
-                "Region": "us-east-1"
+                "PoolId": "us-east-2:dc96034a-9e8b-4b73-b937-48492144da7d",
+                "Region": "us-east-2"
             }
         }
     }

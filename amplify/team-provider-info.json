@@ -1,27 +1,28 @@
 {
-    "dev": {
-        "awscloudformation": {
-            "AuthRoleName": "glacierdashboard-dev-20200120114930-authRole",
-            "UnauthRoleArn": "arn:aws:iam::840786921545:role/glacierdashboard-dev-20200120114930-unauthRole",
-            "AuthRoleArn": "arn:aws:iam::840786921545:role/glacierdashboard-dev-20200120114930-authRole",
-            "Region": "us-east-2",
-            "DeploymentBucketName": "glacierdashboard-dev-20200120114930-deployment",
-            "UnauthRoleName": "glacierdashboard-dev-20200120114930-unauthRole",
-            "StackName": "glacierdashboard-dev-20200120114930",
-            "StackId": "arn:aws:cloudformation:us-east-2:840786921545:stack/glacierdashboard-dev-20200120114930/d2f9c900-3b4c-11ea-9f21-0213e0bd929e"
-        }
-    },
-    "prod": {
-        "awscloudformation": {
-            "AuthRoleName": "amplify-android-messenger-prod-125317-authRole",
-            "UnauthRoleArn": "arn:aws:iam::436047375239:role/amplify-android-messenger-prod-125317-unauthRole",
-            "AuthRoleArn": "arn:aws:iam::436047375239:role/amplify-android-messenger-prod-125317-authRole",
-            "Region": "us-east-1",
-            "DeploymentBucketName": "amplify-android-messenger-prod-125317-deployment",
-            "UnauthRoleName": "amplify-android-messenger-prod-125317-unauthRole",
-            "StackName": "amplify-android-messenger-prod-125317",
-            "StackId": "arn:aws:cloudformation:us-east-1:436047375239:stack/amplify-android-messenger-prod-125317/f8586890-6938-11ea-b3e5-0ad6b76236b1",
-            "AmplifyAppId": "deu9gzwctzas0"
-        }
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-android-messenger-dev-113342-authRole",
+      "UnauthRoleArn": "arn:aws:iam::840786921545:role/amplify-android-messenger-dev-113342-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::840786921545:role/amplify-android-messenger-dev-113342-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-android-messenger-dev-113342-deployment",
+      "UnauthRoleName": "amplify-android-messenger-dev-113342-unauthRole",
+      "StackName": "amplify-android-messenger-dev-113342",
+      "StackId": "arn:aws:cloudformation:us-east-2:840786921545:stack/amplify-android-messenger-dev-113342/77778150-3622-11ea-bbba-0ade6091f9d8",
+      "AmplifyAppId": "d4q65xbrc8xbd"
     }
+  },
+  "prod": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-android-messenger-prod-130453-authRole",
+      "UnauthRoleArn": "arn:aws:iam::840786921545:role/amplify-android-messenger-prod-130453-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::840786921545:role/amplify-android-messenger-prod-130453-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-android-messenger-prod-130453-deployment",
+      "UnauthRoleName": "amplify-android-messenger-prod-130453-unauthRole",
+      "StackName": "amplify-android-messenger-prod-130453",
+      "StackId": "arn:aws:cloudformation:us-east-2:840786921545:stack/amplify-android-messenger-prod-130453/80515a10-540b-11ea-8a89-02582149edd0",
+      "AmplifyAppId": "dovqg9kqnclum"
+    }
+  }
 }

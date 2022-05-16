@@ -1,7 +1,6 @@
 ﻿schema {
   query: Query
   mutation: Mutation
-  subscription: Subscription
 }
 
 type GlacierUsers {
@@ -12,30 +11,19 @@ type GlacierUsers {
   last_name: String
   messenger_id: String
   organization: String!
+  securityInfo: [AWSJSON]
+  selected_twilionumber: [AWSJSON]
   user_name: String
   username: String!
 }
 
-type GlacierUsersConnection {
-  items: [GlacierUsers]
-  nextToken: String
-}
-
 type Mutation {
   createGlacierUsers(input: CreateGlacierUsersInput!): GlacierUsers
-  deleteGlacierUsers(input: DeleteGlacierUsersInput!): GlacierUsers
   updateGlacierUsers(input: UpdateGlacierUsersInput!): GlacierUsers
 }
 
 type Query {
   getGlacierUsers(organization: String!, username: String!): GlacierUsers
-  listGlacierUsers(filter: TableGlacierUsersFilterInput, limit: Int, nextToken: String): GlacierUsersConnection
-}
-
-type Subscription {
-  onCreateGlacierUsers(email: String, extension_voiceserver: String, first_name: String, organization: String, username: String): GlacierUsers
-  onDeleteGlacierUsers(email: String, extension_voiceserver: String, first_name: String, organization: String, username: String): GlacierUsers
-  onUpdateGlacierUsers(email: String, extension_voiceserver: String, first_name: String, organization: String, username: String): GlacierUsers
 }
 
 input CreateGlacierUsersInput {
@@ -46,12 +34,8 @@ input CreateGlacierUsersInput {
   last_name: String
   messenger_id: String
   organization: String!
+  securityInfo: [AWSJSON]
   user_name: String
-  username: String!
-}
-
-input DeleteGlacierUsersInput {
-  organization: String!
   username: String!
 }
 
@@ -70,18 +54,6 @@ input TableFloatFilterInput {
   lt: Float
   ne: Float
   notContains: Float
-}
-
-input TableGlacierUsersFilterInput {
-  email: TableStringFilterInput
-  extension_voiceserver: TableStringFilterInput
-  first_name: TableStringFilterInput
-  glacierpwd: TableStringFilterInput
-  last_name: TableStringFilterInput
-  messenger_id: TableStringFilterInput
-  organization: TableStringFilterInput
-  user_name: TableStringFilterInput
-  username: TableStringFilterInput
 }
 
 input TableIDFilterInput {
@@ -130,6 +102,8 @@ input UpdateGlacierUsersInput {
   last_name: String
   messenger_id: String
   organization: String!
+  securityInfo: [AWSJSON]
+  selected_twilionumber: [AWSJSON]
   user_name: String
   username: String!
 }

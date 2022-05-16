@@ -189,7 +189,7 @@ android {
         minSdkVersion 24
         targetSdkVersion 31
         versionCode 509
-        versionName "3.4.1-RC7"
+        versionName "3.4.1-RC17"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
 
@@ -210,7 +210,7 @@ android {
 
     node {
         download = true
-        version = "12.18.2"
+        version = "17.3.0"
     }
 
     buildTypes {

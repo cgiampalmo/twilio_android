@@ -1,17 +1,17 @@
 projects:
-  GlacierAppSyncAPI:
-    schemaPath: src/main/graphql/schema.json
+  fetchUserDetails:
+    schemaPath: app/src/main/graphql/schema.json
     includes:
-      - src/main/graphql/**/*.graphql
+      - app/src/main/graphql/**/*.graphql
     excludes:
       - ./amplify/**
     extensions:
       amplify:
         codeGenTarget: ''
         generatedFileName: ''
-        docsFilePath: src/main/graphql/com/amazonaws/amplify/generated/graphql
-        region: us-east-1
-        apiId: yj3jdpw2fjeirlrepieu3kkhna
+        docsFilePath: app/src/main/graphql/com/amazonaws/amplify/generated/graphql
+        region: us-east-2
+        apiId: qysbquafrffudaqixh3sbbyosu
         maxDepth: 2
 extensions:
   amplify:
