@@ -1,4 +1,4 @@
-{
+﻿{
     "UserAgent": "aws-amplify-cli/0.1.0",
     "Version": "0.1.0",
     "IdentityManager": {
@@ -32,9 +32,9 @@
             ],
             "CognitoAuthSignInRedirectUri": "glaciermessenger://",
             "CognitoAuthSignOutRedirectUri": "glaciermessenger://",
-            "CognitoAuthWebDomain": "https://glaciersec.auth.us-east-1.amazoncognito.com",
-            "CognitoUserPoolAppClientId": "7do03imiuf476simvketoi2s1u",
-            "CognitoUserPoolAppClientSecret": "1o2phe3u0red3sb9jf0l43pu72r30u46ejh1d0l6cfd53ua78tq9",
+            "CognitoAuthWebDomain": "https://glaciersec.auth.us-east-2.amazoncognito.com",
+            "CognitoUserPoolAppClientId": "6jbo72qqpehqhu9sm21toc1m4j",
+            "CognitoUserPoolAppClientSecret": "",
             "CognitoUserPoolId": "us-east-2_SIdjRFQg0",
             "Region": "us-east-2"
         }

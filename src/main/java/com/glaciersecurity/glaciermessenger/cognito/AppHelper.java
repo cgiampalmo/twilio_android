@@ -62,7 +62,7 @@ public class AppHelper {
      * Set Your User Pools region.
      * e.g. if your user pools are in US East (N Virginia) then set cognitoRegion = Regions.US_EAST_1.
      */
-    private static final Regions cognitoRegion = Regions.US_EAST_1;
+    private static final Regions cognitoRegion = Regions.US_EAST_2;
 
     // User details from the service
     private static CognitoUserSession currSession;
@@ -101,7 +101,6 @@ public class AppHelper {
         PropertyLoader propertyLoader = new PropertyLoader(context);
         Properties properties = propertyLoader.getProperties(Constants.CONFIG_PROPERTIES_FILE);
 
-        Constants.setCognitoIdentityPoolId(properties.getProperty("COGNITO_IDENTITY_POOL_ID"));
         Constants.setCognitoUserPoolId(properties.getProperty("COGNITO_USER_POOL_ID"));
         Constants.setCognitoIdentityPoolId(properties.getProperty("COGNITO_IDENTITY_POOL_ID"));
         Constants.setBucketName(properties.getProperty("BUCKET_NAME"));

@@ -32,7 +32,7 @@ public class Constants {
     /*
      * Region of your Cognito identity pool ID.
      */
-    public static final Regions REGION = Regions.US_EAST_1;
+    public static final Regions REGION = Regions.US_EAST_2;
 
     /*
      * Note, you must first create a bucket using the S3 console before running
