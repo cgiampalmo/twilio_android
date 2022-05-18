@@ -20,6 +20,7 @@ public class CognitoAccount extends AbstractEntity {
     public static final String TABLENAME = "cognito_account";
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
+    public static final String ORGANIZATION = "organization"; //added throughout for AM#53
     public static final String ACCOUNT = "account";
 
     //AM-487
@@ -29,30 +30,33 @@ public class CognitoAccount extends AbstractEntity {
     protected String username;
     protected String password;
     protected String account;
+    protected String organization;
 
     private Context cacontext;
 
-    public CognitoAccount(final String name, final String password, final String account, Context context) {
-        this(java.util.UUID.randomUUID().toString(), name, password, account, context);
+    public CognitoAccount(final String name, final String password, final String organization, final String account, Context context) {
+        this(java.util.UUID.randomUUID().toString(), name, password, organization, account, context);
     }
 
     private CognitoAccount(final String uuid, final String name,
-                           final String password, final String account) {
+                           final String password, final String organization, final String account) {
         this.uuid = uuid;
         this.username = name;
         this.password = password;
+        this.organization = organization;
         this.account = account;
     }
 
     //AM-487
     private CognitoAccount(final String uuid, final String name,
-                    final String password, final String account, Context context) {
+                           final String password, final String organization, final String account, Context context) {
         this.cacontext = context;
         updateSharedPreferences(uuid, password, context);
 
         this.uuid = uuid;
         this.username = name;
         this.password = password;
+        this.organization = organization;
         this.account = account;
     }
 
@@ -61,6 +65,7 @@ public class CognitoAccount extends AbstractEntity {
         ContentValues values = new ContentValues();
         values.put(USERNAME, this.username);
         values.put(PASSWORD, "gibberish"); //store this in database and use encryptedSharedPreferences
+        values.put(ORGANIZATION, this.organization);
         values.put(ACCOUNT, this.account);
         values.put(UUID, uuid);
         return values;
@@ -70,6 +75,7 @@ public class CognitoAccount extends AbstractEntity {
         return new CognitoAccount(cursor.getString(cursor.getColumnIndex(UUID)),
                 cursor.getString(cursor.getColumnIndex(USERNAME)),
                 cursor.getString(cursor.getColumnIndex(PASSWORD)),
+                cursor.getString(cursor.getColumnIndex(ORGANIZATION)),
                 cursor.getString(cursor.getColumnIndex(ACCOUNT)));
     }
 
@@ -89,6 +95,7 @@ public class CognitoAccount extends AbstractEntity {
         return new CognitoAccount(cauuid,
                 cursor.getString(cursor.getColumnIndex(USERNAME)),
                 capass,
+                cursor.getString(cursor.getColumnIndex(ORGANIZATION)),
                 cursor.getString(cursor.getColumnIndex(ACCOUNT)));
     }
 
@@ -136,6 +143,10 @@ public class CognitoAccount extends AbstractEntity {
         }
 
         return capassword;
+    }
+
+    public String getOrganization() {
+        return organization;
     }
 
     //AM-487 (next two)

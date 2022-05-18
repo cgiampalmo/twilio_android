@@ -73,7 +73,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
     ConversationModel model;
     private Context mContext = this;
     RecyclerView recyclerView;
-//    Med
+    //    Med
     Map<String, String> convContList;
     Map<String, String> cList;
     ImageButton attach;

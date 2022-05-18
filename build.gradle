@@ -175,6 +175,8 @@ dependencies {
     implementation 'com.twilio:conversations-android:1.4.1'
     implementation 'com.squareup.okhttp3:okhttp:4.4.0'
     //implementation project(':libs:xmpp-addr')
+    implementation 'org.apache.maven:maven-artifact:3.6.3'
+
 }
 
 
@@ -189,7 +191,7 @@ android {
         minSdkVersion 24
         targetSdkVersion 31
         versionCode 509
-        versionName "3.4.1-RC13-dev"
+        versionName "3.4.1-RC18"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
 

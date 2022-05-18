@@ -37,11 +37,15 @@
             android:id="@+id/SMS"
             android:icon="@drawable/ic_baseline_sms_24"
             android:title="SMS" />
-
+        <item
+            android:id="@+id/SecurityHub"
+            android:icon="@drawable/ic_baseline_security_24"
+            android:title="Security Hub" />
         <item
             android:id="@+id/Settings"
             android:icon="@drawable/ic_settings"
             android:title="Settings" />
+
         <item
             android:id="@+id/Support"
             android:icon="@drawable/ic_help"

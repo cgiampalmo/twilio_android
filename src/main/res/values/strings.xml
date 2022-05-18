@@ -860,6 +860,7 @@
     <string name="action_copy_location">Copy Location</string>
     <string name="action_share_location">Share Location</string>
     <string name="action_directions">Directions</string>
+    <string name="title_activity_security_hub">Security Hub</string>
     <string name="title_activity_share_location">Share location</string>
     <string name="title_activity_show_location">Show location</string>
     <string name="share">Share</string>
@@ -1089,6 +1090,35 @@
 
     <!-- ALF AM-321 -->
     <string name="compressing_file_dialog_message">Compressing video...</string>
+
+    <!-- CMG AM-52 -->
+    <string name="issues_found">Issues found</string>
+    <string name="no_issues_found">No issues found</string>
+    <string name="security_hub_message">The Glacier Security Hub protects your device, data, and communications by detecting if your device has been compromised.  In addition, Glacier will verify that your device security setting are configured for optimal security.  When a threat or issue is detected, Glacier will send you a notification within the app.</string>
+    <string name="system_safe">Your system is safe</string>
+    <string name="system_unsafe">Your system might not be safe</string>
+    <string name="no_anomalies">No anomalies detected</string>
+    <string name="anomalies">Shows signs of being jailbroken
+    Shows signs of being proxied
+    Shows signs of being reverse engineered
+    Shows signs of being run in emulator
+    Shows signs of being debugged</string>
+    <string name="screen_lock">Screen Lock</string>
+    <string name="screen_lock_enabled">Screen lock enabled</string>
+    <string name="screen_lock_disabled">Screen lock is disabled</string>
+    <string name="latest_updates">Latest Glacier/Android OS</string>
+    <string name="up_to_date">Glacier and Android OS up to date</string>
+    <string name="update_glacier">Glacier is not up to date</string>
+    <string name="update_os">Android OS is not up to date</string>
+    <string name="update_both">Both Glacier and Android OS are not up to date</string>
+    <string name="biometrics">Biometric Lock</string>
+    <string name="bio_lock_disabled">Biometric lock is disabled</string>
+    <string name="face_lock_enabled">Touch ID enabled</string>
+    <string name="touch_lock_enabled">Face ID enabled</string>
+    <string name="bio_lock_enabled">Biometrics enabled</string>
+    <string name="core_connect">Core Connection</string>
+    <string name="core_connect_enabled">Core is enabled</string>
+    <string name="core_connect_disabled">Core is disabled</string>
 
     <!-- ALF AM-277 -->
     <string name="action_filesafe">FileSafe</string>

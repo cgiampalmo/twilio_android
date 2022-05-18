@@ -65,7 +65,7 @@ import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 public class DatabaseBackend extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "history";
-	private static final int DATABASE_VERSION = 47; //ALF AM-388 changed to 45, AM-422 to 46, AM-487 to 47
+	private static final int DATABASE_VERSION = 48; //ALF AM-388 changed to 45, AM-422 to 46, AM-487 to 47, AM#53 to 48
 	private static DatabaseBackend instance = null;
 	private static Context dbcontext = null; //AM-487
 	private static String CREATE_CONTATCS_STATEMENT = "create table "
@@ -169,7 +169,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 	//ALF AM-388
 	private static String CREATE_COGNITO_ACCOUNT_TABLE = "create table " + CognitoAccount.TABLENAME + " ("
 			+ CognitoAccount.UUID + " TEXT PRIMARY KEY, " + CognitoAccount.USERNAME + " TEXT, " + CognitoAccount.PASSWORD
-				+ " TEXT, " + CognitoAccount.ACCOUNT + " TEXT, FOREIGN KEY("
+			+ " TEXT, " + CognitoAccount.ORGANIZATION
+			+ " TEXT, " + CognitoAccount.ACCOUNT + " TEXT, FOREIGN KEY("
 			+ CognitoAccount.ACCOUNT + ") REFERENCES " + Account.TABLENAME
 				+ "(" + Account.UUID + ") ON DELETE CASCADE);";
 
@@ -578,6 +579,10 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 		//AM-487
 		if (oldVersion < 47 && newVersion >= 47) {
 			updateCognitoAccounts(db);
+		}
+
+		if (oldVersion < 48 && newVersion >= 48) { //AM#53
+			db.execSQL("ALTER TABLE " + CognitoAccount.TABLENAME + " ADD COLUMN " + CognitoAccount.ORGANIZATION + " TEXT");
 		}
 	}
 
@@ -1077,6 +1082,15 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 		CognitoAccount cognitoAccount = CognitoAccount.fromCursor(cursor, dbcontext);
 		cursor.close();
 		return cognitoAccount;
+	}
+
+	//AM#53
+	public void updateCognitoAccountOrg(final Account account, final String org) { //AM#53
+		CognitoAccount cacct = getCognitoAccount(account);
+		ContentValues vals = cacct.getContentValues();
+		vals.put(CognitoAccount.ORGANIZATION, org);
+		String args[] = {account.getUuid()};
+		this.getWritableDatabase().update(CognitoAccount.TABLENAME, vals, CognitoAccount.ACCOUNT + "=?", args);
 	}
 
 	/**
