@@ -44,6 +44,8 @@ import androidx.core.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+
+import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.LruCache;
 import android.util.Pair;
@@ -268,7 +270,14 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	private boolean ignoreLifecycleUpdate = false;
 	private boolean lastBioauthFailed = false;
 	private AtomicLong mLastGlacierUsage = new AtomicLong(0);
+
 	public static final long BIOAUTH_INTERVAL_DEFAULT = 0L;
+
+	//AM#52, AM#53
+	private AtomicLong mLastSecInfoUpdate = new AtomicLong(0);
+	public static final long SECHUB_INTERVAL = 86400L;
+	private SystemSecurityInfo secInfo;
+	private boolean needsSecurityInfoUpdate = false;
 
 	private ConversationsFileObserver fileObserver; //ALF AM-603 moved to onCreate and changed mechanism
 	/*private final ConversationsFileObserver fileObserver = new ConversationsFileObserver(
@@ -1065,6 +1074,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 					updateProcessLifecycle();
 				}
 				ignoreLifecycleUpdate = false; //activity won't need to track return to app this way
+				updateSecurityInfo(); //AM#52, AM#53
 				break;
 			case STOP: // app moved to background
 				mLastGlacierUsage.set(SystemClock.elapsedRealtime());
@@ -1361,6 +1371,11 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		editor.putBoolean(EventReceiver.SETTING_ENABLED_ACCOUNTS, hasEnabledAccounts()).apply();
 		editor.apply();
 		toggleSetProfilePictureActivity(hasEnabledAccounts);
+
+		//AM#52, AM#53
+		if (accounts.size() > 0 && needsSecurityInfoUpdate) {
+			updateSecurityInfo();
+		}
 
 		restoreFromDatabase();
 
@@ -2422,6 +2437,15 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		updateAccountUi();
 		syncEnabledAccountSetting();
 		toggleForegroundService();
+	}
+
+	//AM#52, AM#53
+	public void createCognitoAccount(CognitoAccount cacct) {
+		databaseBackend.createCognitoAccount(cacct);
+
+		if (needsSecurityInfoUpdate) {
+			updateSecurityInfo();
+		}
 	}
 
 	private void syncEnabledAccountSetting() {
@@ -4365,6 +4389,28 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				listener.onProcessLifecycleUpdate();
 			}
 		}
+	}
+
+	//AM#52, AM#53 (next 2)
+	public void updateSecurityInfo() {
+		if (accounts == null || accounts.size() == 0) {
+			needsSecurityInfoUpdate = true;
+			return;
+		}
+		needsSecurityInfoUpdate = false;
+
+		long lastupdate = mLastSecInfoUpdate.get();
+		if (lastupdate == 0L || SystemClock.elapsedRealtime() - lastupdate >= (SECHUB_INTERVAL*1000)) {
+			mLastSecInfoUpdate.set(SystemClock.elapsedRealtime());
+			getSecurityInfo().checkCurrentSecurityInfo();
+		}
+	}
+
+	public SystemSecurityInfo getSecurityInfo() {
+		if (secInfo == null) {
+			secInfo = new SystemSecurityInfo(this);
+		}
+		return secInfo;
 	}
 
 	public Account findAccountByJid(final Jid accountJid) {

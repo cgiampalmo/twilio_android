@@ -2888,14 +2888,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			mAccount.setOption(Account.OPTION_USETLS, true);
 			mAccount.setOption(Account.OPTION_USECOMPRESSION, true);
 			mAccount.setOption(Account.OPTION_REGISTER, registerNewAccount);
-			//newAccount = true;
 
-			//}
 			xmppConnectionService.createAccount(mAccount, true);
 
 			//ALF AM-388
-			CognitoAccount cacct = new CognitoAccount(cognitoUsername, cognitoPassword, mAccount.getUuid(), getApplicationContext());
-			xmppConnectionService.databaseBackend.createCognitoAccount(cacct);
+			CognitoAccount cacct = new CognitoAccount(cognitoUsername, cognitoPassword, organization, mAccount.getUuid(), getApplicationContext());
+			xmppConnectionService.createCognitoAccount(cacct);
 		}
 		mHostnameLayout.setError(null);
 		mPortLayout.setError(null);

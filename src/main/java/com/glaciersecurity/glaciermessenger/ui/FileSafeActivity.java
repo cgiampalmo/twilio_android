@@ -356,7 +356,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
     private void uploadFileSafe() {
 
         String bucketName = Constants.BUCKET_NAME.replace(REPLACEMENT_ORG_ID,organization);
-        TransferUtility transferUtility = Util.getTransferUtility(this, bucketName);
+        TransferUtility transferUtility = Util.getTransferUtility(this.getApplicationContext(), bucketName);
         int totalForCompletion = fileSafeUris.size() * 100;
         int[] transferIds = new int[fileSafeUris.size()];
         int[] completion = new int[fileSafeUris.size()];

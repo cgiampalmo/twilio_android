@@ -29,6 +29,8 @@
 
 	<dimen name="publish_filesafe_size">48dp</dimen>
 	<dimen name="publish_filesafe_top_margin">4dp</dimen>
+	<dimen name="security_hub_icon_size">48dp</dimen>
+	<dimen name="security_hub_top_margin">4dp</dimen>
 
 	<dimen name="publish_avatar_top_margin">8dp</dimen>
 	<dimen name="publish_avatar_size">96dp</dimen>
