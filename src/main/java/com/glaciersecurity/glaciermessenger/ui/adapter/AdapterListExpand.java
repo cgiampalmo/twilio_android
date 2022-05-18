@@ -3,18 +3,17 @@ package com.glaciersecurity.glaciermessenger.ui.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.ExpandableListItem;
-import com.glaciersecurity.glaciermessenger.ui.util.Tools;
-import com.glaciersecurity.glaciermessenger.ui.util.ViewAnimation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +43,7 @@ public class AdapterListExpand extends RecyclerView.Adapter<RecyclerView.ViewHol
         public TextView name;
         public TextView description;
 
-        public ImageButton bt_expand;
-        public View lyt_expand;
+        public ImageView bt_expand;
         public View lyt_parent;
 
         public OriginalViewHolder(View v) {
@@ -53,8 +51,7 @@ public class AdapterListExpand extends RecyclerView.Adapter<RecyclerView.ViewHol
             image = (ImageView) v.findViewById(R.id.image);
             name = (TextView) v.findViewById(R.id.name);
             description = (TextView) v.findViewById(R.id.description);
-            bt_expand = (ImageButton) v.findViewById(R.id.bt_expand);
-            lyt_expand = (View) v.findViewById(R.id.lyt_expand);
+            bt_expand = (ImageView) v.findViewById(R.id.bt_expand);
             lyt_parent = (View) v.findViewById(R.id.lyt_parent);
         }
     }
@@ -62,7 +59,7 @@ public class AdapterListExpand extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder vh;
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_folder_file, parent, false);
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_expand, parent, false);
             vh = new OriginalViewHolder(v);
         return vh;
     }
@@ -86,34 +83,18 @@ public class AdapterListExpand extends RecyclerView.Adapter<RecyclerView.ViewHol
                 }
             });
 
-//            view.bt_expand.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    boolean show = toggleLayoutExpand(!p.expanded, v, view.lyt_expand);
-//                    items.get(position).expanded = show;
-//                }
-//            });
+            if (p.isExpandable) {
+               view.bt_expand.setVisibility(View.VISIBLE);
+            } else {
+               view.bt_expand.setVisibility(View.INVISIBLE);
+            }
 
-
-            // void recycling view
-//            if(p.expanded){
-//                view.lyt_expand.setVisibility(View.VISIBLE);
-//            } else {
-//                view.lyt_expand.setVisibility(View.GONE);
-//            }
-//            Tools.toggleArrow(p.expanded, view.bt_expand, false);
-
+            if (p.isMajorIssue) {
+                view.description.setTextColor(Color.rgb(234, 122, 98));
+            } else {
+                view.description.setTextColor(Color.GRAY);
+            }
         }
-    }
-
-    private boolean toggleLayoutExpand(boolean show, View view, View lyt_expand) {
-        Tools.toggleArrow(show, view);
-        if (show) {
-            ViewAnimation.expand(lyt_expand);
-        } else {
-            ViewAnimation.collapse(lyt_expand);
-        }
-        return show;
     }
 
     @Override
@@ -126,20 +107,10 @@ public class AdapterListExpand extends RecyclerView.Adapter<RecyclerView.ViewHol
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                on_attach = false;
                 super.onScrollStateChanged(recyclerView, newState);
             }
         });
         super.onAttachedToRecyclerView(recyclerView);
     }
 
-    private int lastPosition = -1;
-    private boolean on_attach = true;
-
-//    private void setAnimation(View view, int position) {
-//        if (position > lastPosition) {
-//            ItemAnimation.animate(view, on_attach ? position : -1, animation_type);
-//            lastPosition = position;
-//        }
-//    }
 }

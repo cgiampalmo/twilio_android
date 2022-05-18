@@ -1106,7 +1106,7 @@
     <string name="screen_lock">Screen Lock</string>
     <string name="screen_lock_enabled">Screen lock enabled</string>
     <string name="screen_lock_disabled">Screen lock is disabled</string>
-    <string name="latest_updates">Latest Glacier/Android OS</string>
+    <string name="latest_updates">Latest Glacier/OS</string>
     <string name="up_to_date">Glacier and Android OS up to date</string>
     <string name="update_glacier">Glacier is not up to date</string>
     <string name="update_os">Android OS is not up to date</string>

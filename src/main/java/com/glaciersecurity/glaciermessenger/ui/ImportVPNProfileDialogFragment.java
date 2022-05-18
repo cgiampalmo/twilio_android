@@ -40,6 +40,7 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.Mult
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.AuthenticationHandler;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GetDetailsHandler;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHandler;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
@@ -110,6 +111,8 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
     protected IOpenVPNAPIService mService = null;
     private Handler mHandler;
 
+    private Context appContext;
+
     //private ProgressDialog waitDialog;
 
     @Override
@@ -128,10 +131,17 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        Util.clearS3Client(appContext);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Cognito
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
+        cognitoCurrentUserSignout();
 
         getDialog().setTitle(getString(R.string.open_vpn_profile_dialog_title));
         View v = inflater.inflate(R.layout.import_vpn_profile_dialog, container, false);
@@ -172,6 +182,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
      * Retrieve Cognito account information from file
      */
     private void getCognitoInfo() {
+        appContext = getActivity().getApplicationContext();
         //ALF AM-388 get account from database if exists
         Account firstacct = null;
         DatabaseBackend databaseBackend = DatabaseBackend.getInstance(mContext);
@@ -190,7 +201,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
         //if not found, go to login screen. With jid or without? and how to come back here?
         //or setup open a different login screen?
         if (firstacct != null) {
-            Intent intent = new Intent(getActivity().getApplicationContext(), EditAccountActivity.class);
+            Intent intent = new Intent(appContext, EditAccountActivity.class);
             intent.putExtra("jid", firstacct.getJid().asBareJid().toString());
             startActivity(intent);
         }
@@ -214,7 +225,8 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
 
     private void downloadAllVPNs(String prof){
         String bucketName = Constants.BUCKET_NAME.replace(REPLACEMENT_ORG_ID,organization);
-        TransferUtility transferUtility = Util.getTransferUtility(getActivity(), bucketName);
+        TransferNetworkLossHandler.getInstance(appContext);
+        TransferUtility transferUtility = Util.getTransferUtility(appContext, bucketName);
 
         // retrieve spinner value and add extension back on
         String selectedProfile = (String) prof + ".ovpn";
@@ -224,16 +236,17 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
         // set where file is going on phone
        // File destFile = new File(Environment.getExternalStorageDirectory() + "/" + selectedProfile);
         File destFile = new File(mContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + "/" + destFilename); //ALF AM-603
+        String key = Constants.KEY_PREFIX + "/" + selectedProfile;
 
         // start the transfer
-        TransferObserver observer = transferUtility.download( Constants.KEY_PREFIX + "/" + selectedProfile, destFile, new DownloadListener(selectedProfile));
+        TransferObserver observer = transferUtility.download( key, destFile, new DownloadListener(selectedProfile));
     }
     /**
      * Sign into Cognito
      */
     private void signInUser() {
         // Cognito - Initialize application
-        AppHelper.init(getActivity().getApplicationContext());
+        AppHelper.init(appContext);
         AppHelper.setUser(username);
         AppHelper.getPool().getUser(username).getSessionInBackground(authenticationHandler);
     }
@@ -247,7 +260,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
         cognitoCurrentUserSignout();
 
         // clear s3bucket client
-        Util.clearS3Client(getActivity());
+        //Util.clearS3Client(getActivity());
     }
 
     private void cognitoCurrentUserSignout() {
@@ -312,7 +325,7 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
     private boolean doesBucketExist() {
         try {
             String bucketName = Constants.BUCKET_NAME.replace(REPLACEMENT_ORG_ID,organization);
-            AmazonS3 sS3Client = Util.getS3Client(getActivity());
+            AmazonS3 sS3Client = Util.getS3Client(appContext);
 
             return sS3Client.doesBucketExist(bucketName);
         } catch (Exception e) {
@@ -329,8 +342,8 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
         List<String> fileList = new ArrayList<String>();
 
         String bucketName = Constants.BUCKET_NAME.replace(REPLACEMENT_ORG_ID,organization);
-        AmazonS3 sS3Client = Util.getS3Client(getActivity());
-        TransferUtility transferUtility = Util.getTransferUtility(getActivity(), bucketName);
+        AmazonS3 sS3Client = Util.getS3Client(appContext);
+        TransferUtility transferUtility = Util.getTransferUtility(appContext, bucketName);
 
         try {
             // with correct login, I can get that bucket exists
@@ -774,6 +787,10 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
 
     private void showFailedDialog(String body) {
         //closeWaitDialog();
+        if (getActivity() == null) {
+            return;
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(body)
                 .setTitle("Adding VPN Profile Error")
