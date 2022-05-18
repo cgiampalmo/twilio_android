@@ -34,10 +34,6 @@
             "CognitoAuthSignOutRedirectUri": "glaciermessenger://",
             "CognitoAuthWebDomain": "https://glaciersec.auth.us-east-2.amazoncognito.com",
             "CognitoUserPoolAppClientId": "6jbo72qqpehqhu9sm21toc1m4j",
-<<<<<<< HEAD
-            "CognitoUserPoolAppClientSecret": "",
-=======
->>>>>>> 2d839c84 (built for dev sms)
             "CognitoUserPoolId": "us-east-2_SIdjRFQg0",
             "Region": "us-east-2"
         }
