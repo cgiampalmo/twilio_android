@@ -60,10 +60,12 @@ import com.glaciersecurity.glaciermessenger.ui.NewSMSActivity;
 import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.ui.adapter.SmsProfileAdapter;
 import com.glaciersecurity.glaciermessenger.ui.util.Tools;
+import com.glaciersecurity.glaciermessenger.utils.SMSdbInfo;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.twilio.conversations.CallbackListener;
 import com.twilio.conversations.Conversation;
 import com.twilio.conversations.ConversationsClient;
+
 
 public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, LogoutListener {
     private ActionBar actionBar;
@@ -76,7 +78,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     RecyclerView recyclerViewSMS;
 
     private DrawerLayout drawer_sms;
-    RecyclerView.Adapter adapter_sms;
+    SmsProfileAdapter adapter_sms;
     RecyclerView.LayoutManager layoutManagerSMS;
     ArrayList<SmsProfile> profileList= new ArrayList<>();
 
@@ -200,7 +202,13 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     @Override
     protected void onBackendConnected() {
+        SMSdbInfo info = xmppConnectionService.getSmsInfo();
+        for (SmsProfile smsProfile: info.getExistingProfs()){
+            profileList.add(0, smsProfile);
+            adapter_sms.notifyItemInserted(0);
 
+        }
+        adapter_sms.notifyDataSetChanged();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -248,6 +256,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
         initSMS();
         adapter_sms = new SmsProfileAdapter(profileList);
+
         recyclerViewSMS.setAdapter(adapter_sms);
         smsDrawerToggle = new ActionBarDrawerToggle(this, drawer_sms, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer_sms.setDrawerListener(smsDrawerToggle);
@@ -311,7 +320,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
 
     private void initSMS(){
-        SmsProfile test = new SmsProfile("(999)999-999", "City, State");
+        SmsProfile test = new SmsProfile("(999)999-989", "City, State");
         profileList.add(test);
 
         SmsProfile test2 = new SmsProfile("(000)000-0000", "City1, State1");

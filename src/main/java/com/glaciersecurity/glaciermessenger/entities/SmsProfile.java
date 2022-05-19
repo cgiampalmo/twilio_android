@@ -2,6 +2,9 @@ package com.glaciersecurity.glaciermessenger.entities;
 
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class SmsProfile {
 
     protected String number;
@@ -11,6 +14,12 @@ public class SmsProfile {
     public SmsProfile(String number, String location) {
         this.number = number;
         this.location = location;
+        color = UIHelper.getColorForName(number + " " + location);
+    }
+
+    public SmsProfile(JSONObject jsmsinfo) throws JSONException, Exception {
+        number = (String) jsmsinfo.get("text");
+        location = (String) jsmsinfo.get("id");
         color = UIHelper.getColorForName(number + " " + location);
     }
 
@@ -33,4 +42,11 @@ public class SmsProfile {
     public int getColor(){
         return color;
     }
+
+    public String toJsonString() {
+        return "{\"color\":\"" + getColor() + "\"," +
+                "\"number\":\"" + getNumber() + "\"," +
+                "\"location\":\"" + getLocation() + "}";
+    }
+
 }
