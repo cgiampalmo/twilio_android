@@ -228,9 +228,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
-        //Tools.setSystemBarColor(this);
-
-
 
         if(getIntent().hasExtra("account")) {
             identity = getIntent().getExtras().getString("account");
@@ -299,9 +296,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_add_group, menu);
-
-//        getMenuInflater().inflate(R.menu.menu_navigation_drawer_news, menu);
-//        Tools.changeMenuIconColor(menu, getResources().getColor(R.color.grey_40));
         return super.onCreateOptionsMenu(menu);
     }
     public boolean onOptionsItemSelected(MenuItem item) {

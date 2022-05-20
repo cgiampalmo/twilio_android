@@ -1379,6 +1379,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			updateSecurityInfo();
 		}
 
+		if (accounts.size() > 0) {
+			getSmsInfo();
+		}
+
 		restoreFromDatabase();
 
 		if ((ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED )) {
@@ -2448,6 +2452,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		if (needsSecurityInfoUpdate) {
 			updateSecurityInfo();
 		}
+
+		getSmsInfo();
 	}
 
 	private void syncEnabledAccountSetting() {

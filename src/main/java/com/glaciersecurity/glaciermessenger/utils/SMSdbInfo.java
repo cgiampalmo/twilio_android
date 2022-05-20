@@ -51,47 +51,11 @@ public class SMSdbInfo {
         return dbProfs;
     }
 
-//    private GraphQLCall.Callback<GetGlacierUsersQuery.Data> getUserCallback = new GraphQLCall.Callback<GetGlacierUsersQuery.Data>() {
-//        @Override
-//        public void onResponse(@Nonnull Response<GetGlacierUsersQuery.Data> response) {
-//            Log.i("Results", "RES...");
-//            runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    if (response != null) {
-//                        if (response.data().getGlacierUsers() != null) {
-//                            List<String> smsprofile = updateSmsDeviceList(response.data().getGlacierUsers().selected_twilionumber());
-//
-//                            }
-//                        }
-//
-//                }
-//            });
-//
-//
-//
-//
-//        }
-//
-//        @Override
-//        public void onFailure(@Nonnull ApolloException e) {
-//            Log.i("Results", e.toString());
-//            runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    handleLoginFailure();
-//                }
-//            });
-//
-//
-//
-//        }
-//    };
-
-
-
-
     private void trySmsInfoUpload() {
+
+        if (xmppConnectionService == null || !(xmppConnectionService.getAccounts().size() > 0)){
+            return;
+        }
 
         final Account account = xmppConnectionService.getAccounts().get(0);
         CognitoAccount myCogAccount = xmppConnectionService.databaseBackend.getCognitoAccount(account);
@@ -135,8 +99,7 @@ public class SMSdbInfo {
         public void onResponse(@Nonnull Response<GetGlacierUsersQuery.Data> response) {
             new Thread(() -> {
                 if (response.data().getGlacierUsers() != null) {
-                    dbProfs.addAll(getSmsProfileList(response.data().getGlacierUsers().selected_twilionumber()));
-//
+                    dbProfs = (getSmsProfileList(response.data().getGlacierUsers().selected_twilionumber()));
                 } else {
                     Log.i("SmsInfo", "No sms profiles in response from server");
                 }
@@ -145,25 +108,18 @@ public class SMSdbInfo {
 
         @Override
         public void onFailure(@Nonnull ApolloException e) {
-            Log.e("SecurityInfo", "Error getting SecurityInfo");
+            Log.e("SecurityInfo", "Error getting SMSInfo");
         }
     };
 
     private ArrayList<SmsProfile> getSmsProfileList(List<String> smsInfoList) {
         ArrayList<SmsProfile> smsProfList = new ArrayList<>();
-//        if (securityInfoList == null || securityInfoList.size() == 0) {
-//            seclist.add(smsInfo.toJsonString());
-//            return seclist;
-//        }
 
         for (String deviceinfo : smsInfoList) {
             try {
-                JSONObject jsonObject = null;
-                    jsonObject = new JSONObject(deviceinfo);
-                    String number = (String) jsonObject.get("text");
-                    String id = (String) jsonObject.get("id");
-                    SmsProfile prof = new SmsProfile(jsonObject);
-                    smsProfList.add(prof);
+                JSONObject jsonObject = new JSONObject(deviceinfo);
+                SmsProfile prof = new SmsProfile(jsonObject);
+                smsProfList.add(prof);
 
 
 
@@ -174,37 +130,6 @@ public class SMSdbInfo {
         }
         return smsProfList;
     }
-
-//    private void updateSecurityHubInfo(GetGlacierUsersQuery.GetGlacierUsers gusers, List<String> seclist) {
-//        UpdateGlacierUsersInput ginput = UpdateGlacierUsersInput.builder().organization(gusers.organization())
-//                .username(gusers.username())
-//                .securityInfo(seclist)
-//                .build();
-//        UpdateGlacierUsersMutation updateMutation = UpdateGlacierUsersMutation.builder().input(ginput).build();
-//
-//        appsyncclient.mutate(updateMutation).enqueue(updateUsersCallback);
-//    }
-
-//    private GraphQLCall.Callback<UpdateGlacierUsersMutation.Data> updateUsersCallback = new GraphQLCall.Callback<UpdateGlacierUsersMutation.Data>() {
-//        @Override
-//        public void onResponse(@Nonnull Response<UpdateGlacierUsersMutation.Data> response) {
-//            if (response != null) {
-//                if (response.data().updateGlacierUsers() != null) {
-//                    Log.d("SecurityInfo", "SecurityInfo updated");
-//                    needsUpdate = false;
-//                } else {
-//                    Log.i("SecurityInfo", "No SecurityInfo update response from server");
-//                }
-//            } else {
-//                Log.i("SecurityInfo", "No SecurityInfo update response from server");
-//            }
-//        }
-//
-//        @Override
-//        public void onFailure(@Nonnull ApolloException e) {
-//            Log.e("SmsInfo", "Error updating SmsInfo");
-//        }
-//    };
 
     /**
      * Callbacks
