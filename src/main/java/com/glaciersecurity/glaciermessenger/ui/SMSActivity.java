@@ -90,7 +90,7 @@ import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
 
 public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener {
     private ActionBar actionBar;
-    private ActionBarDrawerToggle smsDrawerToggle;
+  //  private ActionBarDrawerToggle smsDrawerToggle;
     private float mSwipeEscapeVelocity = 0f;
     private PendingActionHelper pendingActionHelper = new PendingActionHelper();
     private final PendingItem<Conversation> swipedSMSConversation = new PendingItem<>();
@@ -327,6 +327,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
+        toolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawer_sms.openDrawer(GravityCompat.START);
+            }
+        });
 
         if(getIntent().hasExtra("account")) {
             identity = getIntent().getExtras().getString("account");
@@ -353,8 +359,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         adapter_sms = new SmsProfileAdapter((OnSMSProfileClickListener) this, profileList);
 
         recyclerViewSMS.setAdapter(adapter_sms);
-        smsDrawerToggle = new ActionBarDrawerToggle(this, drawer_sms, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer_sms.setDrawerListener(smsDrawerToggle);
+//        smsDrawerToggle = new ActionBarDrawerToggle(this, drawer_sms, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+//        drawer_sms.setDrawerListener(smsDrawerToggle);
 
         recyclerViewConversations = findViewById(R.id.choose_conversation_list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -421,10 +427,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 }
                 break;
 
-            case R.id.profile_details:
-                drawer_sms.openDrawer(GravityCompat.START);
-                break;
-
         }
         return super.onOptionsItemSelected(item);
     }
@@ -438,11 +440,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
 
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState){
-        super.onPostCreate(savedInstanceState);
-        smsDrawerToggle.syncState();
-    }
+//    @Override
+//    protected void onPostCreate(Bundle savedInstanceState){
+//        super.onPostCreate(savedInstanceState);
+//        smsDrawerToggle.syncState();
+//    }
 
 
     private void checkPermission() {
