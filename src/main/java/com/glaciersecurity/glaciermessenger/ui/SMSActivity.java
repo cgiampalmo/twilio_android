@@ -471,8 +471,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
 
     @Override
-    public void OnSMSProfileClick(String id, String number) {
-        toolbar.setBackgroundColor(Color.RED);
+    public void OnSMSProfileClick(String id, String number, int color) {
+        toolbar.setBackgroundColor(color);
         drawer_sms.closeDrawers();
     }
 

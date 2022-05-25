@@ -1,5 +1,6 @@
 package com.glaciersecurity.glaciermessenger.ui.adapter;
 
+import android.provider.Telephony;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,11 +24,9 @@ import java.util.List;
 
 public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SMSRecyclerViewHolder> implements OnSMSProfileClickListener {
 
-	ArrayList<SmsProfile> smsProfileList = new ArrayList<>();
+	private List<SmsProfile> smsProfileList = new ArrayList<>();
 	private OnSMSProfileClickListener listener;
-	public SmsProfileAdapter(ArrayList<SmsProfile> smsProfileList) {
-		this.smsProfileList = smsProfileList;
-	}
+
 	public SmsProfileAdapter(OnSMSProfileClickListener listener, ArrayList<SmsProfile> smsProfileList) {
 		this.smsProfileList = smsProfileList;
 		this.listener = listener;
@@ -55,17 +54,18 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 	}
 
 	@Override
-	public void OnSMSProfileClick(String id, String number) {
+	public void OnSMSProfileClick(String id, String number, int color) {
 		Log.e("onClick", " -- profile clicked2");
 
 	}
 
-	public static class SMSRecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+	public class SMSRecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 		final View profView;
 		TextView numberView;
 		TextView locationView;
 		LinearLayout profileView;
 		private OnSMSProfileClickListener listener;
+
 
 		public SMSRecyclerViewHolder(View view, OnSMSProfileClickListener listener){
 			super(view);
@@ -84,12 +84,9 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 
 		@Override
 		public void onClick(View view) {
-			Log.e("onclick", "click");
-//			SmsProfile smsProfile = smsProfileList.get(getAdapterPosition());
-//			String sid = smsProfile.getNumber();
-//			String number = smsProfile.getNumber();
-//			String number = smsProfile.getNumber();
-			listener.OnSMSProfileClick(numberView.getText().toString(),numberView.getText().toString());
+			SmsProfile smsProf = smsProfileList.get(getAdapterPosition());
+			int color = smsProf.getColor();
+			listener.OnSMSProfileClick(numberView.getText().toString(),numberView.getText().toString(), color);
 		}
 	}
 }
