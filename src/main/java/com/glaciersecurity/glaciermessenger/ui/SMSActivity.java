@@ -8,7 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
@@ -18,9 +22,11 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -50,27 +56,45 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
+
 
 import com.glaciersecurity.glaciermessenger.R;
 //import com.glaciersecurity.glaciermessenger.databinding.ActivityChooseContactBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
+import com.glaciersecurity.glaciermessenger.entities.Conversational;
+import com.glaciersecurity.glaciermessenger.ui.interfaces.OnConversationArchived;
+import com.glaciersecurity.glaciermessenger.ui.interfaces.OnConversationSelected;
+import com.glaciersecurity.glaciermessenger.ui.util.PendingActionHelper;
+import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
+import com.glaciersecurity.glaciermessenger.ui.util.ScrollState;
+import com.glaciersecurity.glaciermessenger.ui.util.StyledAttributes;
 import com.glaciersecurity.glaciermessenger.utils.LogoutListener;
 import com.glaciersecurity.glaciermessenger.ui.NewSMSActivity;
 import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.ui.adapter.SmsProfileAdapter;
 import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.utils.SMSdbInfo;
+import com.glaciersecurity.glaciermessenger.utils.ThemeHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.twilio.conversations.CallbackListener;
 import com.twilio.conversations.Conversation;
 import com.twilio.conversations.ConversationsClient;
+
+import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
 
 
 public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener {
     private ActionBar actionBar;
     private ActionBarDrawerToggle smsDrawerToggle;
+    private float mSwipeEscapeVelocity = 0f;
+    private PendingActionHelper pendingActionHelper = new PendingActionHelper();
+    private final PendingItem<Conversation> swipedSMSConversation = new PendingItem<>();
+    private final PendingItem<ScrollState> pendingScrollState = new PendingItem<>();
     private Toolbar toolbar;
     //private Toolbar toolbarSMS;
     private TextView sms_friendly_name;
@@ -82,6 +106,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     SmsProfileAdapter adapter_sms;
     RecyclerView.LayoutManager layoutManagerSMS;
     ArrayList<SmsProfile> profileList= new ArrayList<>();
+
 
 
     private MessagesAdapter messagesAdapter;
@@ -99,6 +124,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     //ContactAdapter adapter;
     Map<String, String> cList =new HashMap<>();
     ArrayList<ContactModel> arrayList = new ArrayList<ContactModel>();
+    private int swipedPos = -1;
 
     @Override
     public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor) {
@@ -185,6 +211,76 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             model.setConversationsClient(ConversationsManager.conversationsClient);
             messagesAdapter = new SMSActivity.MessagesAdapter((OnSMSConversationClickListener) this, conversationList);
             recyclerViewConversations.setAdapter(messagesAdapter);
+
+
+            this.recyclerViewConversations.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    if (swipedPos < 0) return false;
+                    Point point = new Point((int) motionEvent.getRawX(), (int) motionEvent.getRawY());
+
+                    RecyclerView.ViewHolder swipedViewHolder = recyclerViewConversations.findViewHolderForAdapterPosition(swipedPos);
+                    View swipedItem = swipedViewHolder.itemView;
+                    Rect rect = new Rect();
+                    swipedItem.getGlobalVisibleRect(rect);
+
+                    if (motionEvent.getAction() == MotionEvent.ACTION_DOWN || motionEvent.getAction() == MotionEvent.ACTION_UP ||motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
+
+                    }
+                    return false;
+                }
+            });
+
+            ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0,RIGHT) {
+                @Override
+                public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                    return false;
+                }
+
+                @Override
+                public float getSwipeEscapeVelocity (float defaultValue) {
+                    return mSwipeEscapeVelocity;
+                }
+
+                @Override
+                public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
+                                        float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                    super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+                    if(actionState != ItemTouchHelper.ACTION_STATE_IDLE){
+                        Paint paint = new Paint();
+                        paint.setColor(StyledAttributes.getColor(getApplicationContext(),R.attr.conversations_overview_background));
+                        paint.setStyle(Paint.Style.FILL);
+                        c.drawRect(viewHolder.itemView.getLeft(),viewHolder.itemView.getTop()
+                                ,viewHolder.itemView.getRight(),viewHolder.itemView.getBottom(), paint);
+                    }
+                }
+
+                @Override
+                public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                    super.clearView(recyclerView, viewHolder);
+                    viewHolder.itemView.setAlpha(1f);
+                }
+
+                @Override
+                public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                    pendingActionHelper.execute();
+                    int position = viewHolder.getLayoutPosition();
+                    try {
+                        swipedSMSConversation.push(conversationList.get(position));
+                    } catch (IndexOutOfBoundsException e) {
+                        return;
+                    }
+                    messagesAdapter.remove(swipedSMSConversation.peek(),position);
+
+                }
+            };
+           ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+            touchHelper.attachToRecyclerView(recyclerViewConversations);
+
+
+
+
+
             View emptyLayout = findViewById(R.id.empty_list);
             emptyLayout.setVisibility(View.GONE);
         }else{
@@ -196,6 +292,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
     private final ConversationsManager ConversationsManager = new ConversationsManager(this);
     ConversationModel model;
+
 
     @Override
     protected void refreshUiReal() {
@@ -253,7 +350,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         layoutManagerSMS = new LinearLayoutManager(this);
         recyclerViewSMS.setLayoutManager(layoutManagerSMS);
         drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
-        initSMS();
         adapter_sms = new SmsProfileAdapter((OnSMSProfileClickListener) this, profileList);
 
         recyclerViewSMS.setAdapter(adapter_sms);
@@ -278,6 +374,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             retrieveTokenFromServer();
         }
         Log.d("Glacier","identity sdns n "+identity);
+        initSMS();
 
         FloatingActionButton ContactNumber = findViewById(R.id.button_contact_sms);
         ContactNumber.setOnClickListener(new View.OnClickListener() {
@@ -311,6 +408,23 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 String token = Atoken.getAccessToken();
                 startActivity(intent.putExtra("identity",identity).putExtra("conversationToken",token));
                 break;
+            case R.id.start_new_message:
+                accessToken = Atoken.getAccessToken();
+                Log.d("Glacier","conversationsClient "+ConversationsManager.conversationsClient);
+                if (ConversationsManager.conversationsClient != null){
+                    model.setConversationsClient(ConversationsManager.conversationsClient);
+                    Intent intent2 = new Intent(mContext, ContactListActivity.class);
+                    String conv_Sid = "new";
+                    startActivity(intent2.putExtra("conv_sid", conv_Sid).putExtra("identity", identity).putExtra("conversationToken", accessToken).putExtra("title", "New message"));
+                }else{
+                    Toast.makeText(mContext, "Please wait the SMS is not loaded successfully", Toast.LENGTH_SHORT).show();
+                }
+                break;
+
+            case R.id.profile_details:
+                drawer_sms.openDrawer(GravityCompat.START);
+                break;
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -484,7 +598,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         //final public Map<String,String> conversations = new HashMap<>();
 //        ConversationsManager.conversationsClient.getMyConversations();
 
-        class ViewHolder extends RecyclerView.ViewHolder  implements View.OnClickListener {
+        class ViewHolder extends RecyclerView.ViewHolder  implements View.OnClickListener, View.OnTouchListener {
             final View conView;
             //            public Activity unreadCount;
             private OnSMSConversationClickListener listener;
@@ -495,6 +609,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 conView = con_view;
                 con_view.setOnClickListener(this);
             }
+
+
             public void onClick(View view) {
                 //sortconv(conversations);
                 Conversation conversation = conversations.get(getAdapterPosition());
@@ -509,6 +625,13 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                     }
                 });
                 listener.OnSMSConversationClick(conversation_sid,conversation_name);
+            }
+
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Log.d("Glacier","touch");
+
+                return false;
             }
         }
 
@@ -595,6 +718,10 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         public int getItemCount() {
             //Log.d("Glacier","conversationsClient "+ConversationsManager.getConversation());
             return ConversationsManager.getConversation().size();
+        }
+        public void remove(Conversation conversation, int position) {
+            ConversationsManager.getConversation().remove(conversation);
+            notifyItemRemoved(position);;
         }
     }
     private void sortconv(List conversations){

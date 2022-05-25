@@ -3,9 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/profile_details"
+        android:icon="@drawable/ic_baseline_expand_more_24"
+        android:orderInCategory="50"
+        app:showAsAction="always"
+        android:title="SMS profiles"/>
+
+    <item
         android:id="@+id/group_add_sms"
         android:icon="@drawable/ic_group_add_white_24dp"
         android:orderInCategory="50"
         app:showAsAction="always"
         android:title="Create group SMS"/>
+
+
+    <item
+        android:id="@+id/start_new_message"
+        android:icon="@drawable/ic_baseline_open_in_new_24"
+        android:orderInCategory="50"
+        app:showAsAction="always"
+        android:title="Create SMS"/>
 </menu>
