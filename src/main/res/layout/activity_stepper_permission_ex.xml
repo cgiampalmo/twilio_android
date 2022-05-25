@@ -163,7 +163,7 @@
             android:onClick="continuePerm"
             android:textColor="@color/blue_grey_800"
             android:textStyle="bold"
-            android:layout_marginTop="@dimen/spacing_large"
+            android:layout_margin="@dimen/spacing_large"
             />
 
     </LinearLayout>

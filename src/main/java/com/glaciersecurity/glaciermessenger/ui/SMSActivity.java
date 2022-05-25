@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
@@ -67,7 +68,7 @@ import com.twilio.conversations.Conversation;
 import com.twilio.conversations.ConversationsClient;
 
 
-public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, LogoutListener {
+public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener {
     private ActionBar actionBar;
     private ActionBarDrawerToggle smsDrawerToggle;
     private Toolbar toolbar;
@@ -98,6 +99,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     //ContactAdapter adapter;
     Map<String, String> cList =new HashMap<>();
     ArrayList<ContactModel> arrayList = new ArrayList<ContactModel>();
+
     @Override
     public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor) {
         messagesAdapter.notifyDataSetChanged();
@@ -252,7 +254,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         recyclerViewSMS.setLayoutManager(layoutManagerSMS);
         drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
         initSMS();
-        adapter_sms = new SmsProfileAdapter(profileList);
+        adapter_sms = new SmsProfileAdapter((OnSMSProfileClickListener) this, profileList);
 
         recyclerViewSMS.setAdapter(adapter_sms);
         smsDrawerToggle = new ActionBarDrawerToggle(this, drawer_sms, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -468,6 +470,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         System.exit(0);
     }
 
+    @Override
+    public void OnSMSProfileClick(String id, String number) {
+        toolbar.setBackgroundColor(Color.RED);
+        drawer_sms.closeDrawers();
+    }
+
     class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder>{
         android.text.format.DateFormat df = new android.text.format.DateFormat();
         private OnSMSConversationClickListener listener;
@@ -639,3 +647,5 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 interface OnSMSConversationClickListener {
     void OnSMSConversationClick(String connv_sid,String conv_name);
 }
+
+
