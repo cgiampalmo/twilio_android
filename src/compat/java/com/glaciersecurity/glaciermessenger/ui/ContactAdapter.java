@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.viewHolder> {
     Activity activity;
-    ArrayList<ContactModel> arrayList;
+    ArrayList<ContactModel> arrayList = new ArrayList<>();
     private OnSMSConversationClickListener listener;
 
     public ContactAdapter(Activity activity,ArrayList<ContactModel> arrayList,OnSMSConversationClickListener listener){

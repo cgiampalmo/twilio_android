@@ -10,8 +10,8 @@
 
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/conversation_image"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_alignParentLeft="true"
             android:src="@drawable/ic_baseline_person_24"
             android:scaleType="centerCrop"

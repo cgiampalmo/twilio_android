@@ -22,7 +22,6 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,7 +35,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -66,6 +64,7 @@ import com.glaciersecurity.glaciermessenger.R;
 //import com.glaciersecurity.glaciermessenger.databinding.ActivityChooseContactBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.Conversational;
+import com.glaciersecurity.glaciermessenger.ui.adapter.SwipeItemTouchHelper;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnConversationArchived;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.OnConversationSelected;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingActionHelper;
@@ -81,11 +80,13 @@ import com.glaciersecurity.glaciermessenger.utils.SMSdbInfo;
 import com.glaciersecurity.glaciermessenger.utils.ThemeHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.makeramen.roundedimageview.RoundedImageView;
 import com.twilio.conversations.CallbackListener;
 import com.twilio.conversations.Conversation;
 import com.twilio.conversations.ConversationsClient;
 
-import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
+
 
 
 public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener {
@@ -246,6 +247,17 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
                                         float dX, float dY, int actionState, boolean isCurrentlyActive) {
                     super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+
+                    new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                            .addSwipeRightBackgroundColor(Color.rgb(234, 122, 98))
+
+                            .addSwipeRightActionIcon(R.drawable.ic_delete)
+
+                            .create()
+                            .decorate();
+
+                    super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+
                     if(actionState != ItemTouchHelper.ACTION_STATE_IDLE){
                         Paint paint = new Paint();
                         paint.setColor(StyledAttributes.getColor(getApplicationContext(),R.attr.conversations_overview_background));
@@ -270,6 +282,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                     } catch (IndexOutOfBoundsException e) {
                         return;
                     }
+
                     messagesAdapter.remove(swipedSMSConversation.peek(),position);
 
                 }
@@ -292,7 +305,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
     private final ConversationsManager ConversationsManager = new ConversationsManager(this);
     ConversationModel model;
-
 
     @Override
     protected void refreshUiReal() {
@@ -380,7 +392,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             retrieveTokenFromServer();
         }
         Log.d("Glacier","identity sdns n "+identity);
-        initSMS();
 
         FloatingActionButton ContactNumber = findViewById(R.id.button_contact_sms);
         ContactNumber.setOnClickListener(new View.OnClickListener() {
@@ -438,13 +449,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         SmsProfile test2 = new SmsProfile("(000)000-0000", "City1, State1");
         profileList.add(test2);
     }
-
-
-//    @Override
-//    protected void onPostCreate(Bundle savedInstanceState){
-//        super.onPostCreate(savedInstanceState);
-//        smsDrawerToggle.syncState();
-//    }
 
 
     private void checkPermission() {
@@ -592,27 +596,42 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         drawer_sms.closeDrawers();
     }
 
-    class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder>{
+    class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder> implements SwipeItemTouchHelper.SwipeHelperAdapter{
         android.text.format.DateFormat df = new android.text.format.DateFormat();
         private OnSMSConversationClickListener listener;
         private List<Conversation> conversations;
         Map<String, String> cList = model.getcList();
+
+        @Override
+        public void onItemDismiss(int position) {
+
+        }
+
+
         //final public Map<String,String> conversations = new HashMap<>();
 //        ConversationsManager.conversationsClient.getMyConversations();
 
-        class ViewHolder extends RecyclerView.ViewHolder  implements View.OnClickListener, View.OnTouchListener {
+        class ViewHolder extends RecyclerView.ViewHolder  implements View.OnClickListener, View.OnTouchListener, SwipeItemTouchHelper.TouchViewHolder {
             final View conView;
             //            public Activity unreadCount;
             private OnSMSConversationClickListener listener;
+            @Override
+            public void onItemSelected() {
+                itemView.setBackgroundColor(getApplicationContext().getResources().getColor(R.color.grey_5));
+            }
+
+            @Override
+            public void onItemClear() {
+                itemView.setBackgroundColor(0);
+            }
 
             ViewHolder(View con_view,OnSMSConversationClickListener listener) {
                 super(con_view);
                 this.listener = listener;
                 conView = con_view;
                 con_view.setOnClickListener(this);
+
             }
-
-
             public void onClick(View view) {
                 //sortconv(conversations);
                 Conversation conversation = conversations.get(getAdapterPosition());
@@ -631,8 +650,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                Log.d("Glacier","touch");
-
                 return false;
             }
         }
@@ -665,9 +682,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             Log.d("Glacier","ConversationsManager "+conversation.getFriendlyName()+"----------"+conversation.getLastMessageDate());
             conversation_name = holder.conView.findViewById(R.id.conversation_name);
             sender_name = holder.conView.findViewById(R.id.sender_name);
+
             conversation_lastmsg = holder.conView.findViewById(R.id.conversation_lastmsg);
             dateText = holder.conView.findViewById(R.id.conversation_lastupdate);
             String Contact_name = (cList != null && cList.get(conversation.getFriendlyName()) != null) ? cList.get(conversation.getFriendlyName()) : conversation.getFriendlyName();
+
             String sender_name_text = "";
             if(conv_last_msg_sent.containsKey(conversation.getSid()) && conv_last_msg_sent.get(conversation.getSid()).toString().equals(identity))
                 sender_name_text = "Me :";
@@ -723,7 +742,20 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         }
         public void remove(Conversation conversation, int position) {
             ConversationsManager.getConversation().remove(conversation);
-            notifyItemRemoved(position);;
+            notifyItemRemoved(position);
+            Snackbar.make(recyclerViewConversations, conversation.getFriendlyName() + ", Archived.", Snackbar.LENGTH_LONG)
+
+                    .setAction("Undo", new View.OnClickListener() {
+
+                        @Override
+
+                        public void onClick(View view) {
+
+                            ConversationsManager.getConversation().add(position, conversation);
+                            notifyItemInserted(position);
+                        }
+
+                    }).show();
         }
     }
     private void sortconv(List conversations){
@@ -776,5 +808,3 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 interface OnSMSConversationClickListener {
     void OnSMSConversationClick(String connv_sid,String conv_name);
 }
-
-
