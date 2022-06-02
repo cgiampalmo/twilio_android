@@ -1204,6 +1204,7 @@
     <string name="connect_button_label">Connect</string>
 
     <string name="view_participants">View participants</string>
+    <string name="start_chat">Start chat</string>
 
 
 </resources>

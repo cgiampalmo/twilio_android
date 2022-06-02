@@ -134,7 +134,7 @@ dependencies {
     implementation 'com.github.omadahealth.typefaceview:typefaceview:1.5.0@aar'
 
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
-    implementation 'com.google.android.material:material:1.4.0'                 // NEEDS UPDATE from 1.0.0 to 1.4.0
+    implementation 'com.google.android.material:material:1.6.1'                 // NEEDS UPDATE from 1.0.0 to 1.4.0
     implementation 'com.google.guava:guava:30.1.1-android'
     implementation 'com.google.zxing:core:3.3.3'
 

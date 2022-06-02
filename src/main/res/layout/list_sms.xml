@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools"
+<layout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -15,8 +15,10 @@
         <include
             android:id="@+id/empty_list"
             layout="@layout/empty_list"
-            app:layout_constraintTop_toBottomOf="@+id/aToolbar"
-            android:visibility="gone"/>
+            android:layout_marginTop="@dimen/actionBarSize"
+            android:visibility="gone"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent" />
 
 
         <androidx.recyclerview.widget.RecyclerView

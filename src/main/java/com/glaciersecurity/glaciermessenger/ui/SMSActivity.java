@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -18,8 +19,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.os.Handler;
-import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -63,24 +62,17 @@ import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
 import com.glaciersecurity.glaciermessenger.R;
 //import com.glaciersecurity.glaciermessenger.databinding.ActivityChooseContactBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
-import com.glaciersecurity.glaciermessenger.entities.Conversational;
 import com.glaciersecurity.glaciermessenger.ui.adapter.SwipeItemTouchHelper;
-import com.glaciersecurity.glaciermessenger.ui.interfaces.OnConversationArchived;
-import com.glaciersecurity.glaciermessenger.ui.interfaces.OnConversationSelected;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingActionHelper;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.ScrollState;
 import com.glaciersecurity.glaciermessenger.ui.util.StyledAttributes;
 import com.glaciersecurity.glaciermessenger.utils.LogoutListener;
-import com.glaciersecurity.glaciermessenger.ui.NewSMSActivity;
 import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.ui.adapter.SmsProfileAdapter;
-import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.utils.SMSdbInfo;
-import com.glaciersecurity.glaciermessenger.utils.ThemeHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.makeramen.roundedimageview.RoundedImageView;
 import com.twilio.conversations.CallbackListener;
 import com.twilio.conversations.Conversation;
 import com.twilio.conversations.ConversationsClient;
@@ -91,14 +83,12 @@ import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 
 public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener {
     private ActionBar actionBar;
-  //  private ActionBarDrawerToggle smsDrawerToggle;
     private float mSwipeEscapeVelocity = 0f;
     private PendingActionHelper pendingActionHelper = new PendingActionHelper();
     private final PendingItem<Conversation> swipedSMSConversation = new PendingItem<>();
     private final PendingItem<ScrollState> pendingScrollState = new PendingItem<>();
     private Toolbar toolbar;
-    //private Toolbar toolbarSMS;
-    private TextView sms_friendly_name;
+    public FloatingActionButton startChatFab;
 
     RecyclerView recyclerViewConversations;
     RecyclerView recyclerViewSMS;
@@ -225,9 +215,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                     Rect rect = new Rect();
                     swipedItem.getGlobalVisibleRect(rect);
 
-                    if (motionEvent.getAction() == MotionEvent.ACTION_DOWN || motionEvent.getAction() == MotionEvent.ACTION_UP ||motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
-
-                    }
                     return false;
                 }
             });
@@ -332,7 +319,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         }
         setTitle("SMS");
         toolbar = (Toolbar) findViewById(R.id.toolbar_sms_view);
-        //toolbarSMS = (Toolbar) findViewById(R.id.toolbar_sms);
 
         model = (ConversationModel) getApplicationContext();
         setSupportActionBar(toolbar);
@@ -357,22 +343,13 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             Log.d("Glacier","Identity "+identity);
         }
 
+
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("Glacier", "Glacier", NotificationManager.IMPORTANCE_HIGH);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
 
         }
-
-        recyclerViewSMS = (RecyclerView) findViewById(R.id.sms_recycler_view);
-        layoutManagerSMS = new LinearLayoutManager(this);
-        recyclerViewSMS.setLayoutManager(layoutManagerSMS);
-        drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
-        adapter_sms = new SmsProfileAdapter((OnSMSProfileClickListener) this, profileList);
-
-        recyclerViewSMS.setAdapter(adapter_sms);
-//        smsDrawerToggle = new ActionBarDrawerToggle(this, drawer_sms, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-//        drawer_sms.setDrawerListener(smsDrawerToggle);
 
         recyclerViewConversations = findViewById(R.id.choose_conversation_list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -391,10 +368,20 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         }else{
             retrieveTokenFromServer();
         }
+
+
+        recyclerViewSMS = (RecyclerView) findViewById(R.id.sms_recycler_view);
+        layoutManagerSMS = new LinearLayoutManager(this);
+        recyclerViewSMS.setLayoutManager(layoutManagerSMS);
+        drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
+        adapter_sms = new SmsProfileAdapter((OnSMSProfileClickListener) this, profileList);
+
+        recyclerViewSMS.setAdapter(adapter_sms);
+        initSMS();
         Log.d("Glacier","identity sdns n "+identity);
 
-        FloatingActionButton ContactNumber = findViewById(R.id.button_contact_sms);
-        ContactNumber.setOnClickListener(new View.OnClickListener() {
+        startChatFab = findViewById(R.id.button_contact_sms);
+        startChatFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 accessToken = Atoken.getAccessToken();
@@ -593,9 +580,19 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     @Override
     public void OnSMSProfileClick(String id, String number, int color) {
         toolbar.setBackgroundColor(color);
+        startChatFab.setBackgroundTintList(ColorStateList.valueOf(color));
         drawer_sms.closeDrawers();
     }
 
+    public void checkEmptyView(){
+        if(ConversationsManager.getConversation().size() > 0){
+            View emptyLayout = findViewById(R.id.empty_list);
+            emptyLayout.setVisibility(View.GONE);
+        } else {
+            View emptyLayout = findViewById(R.id.empty_list);
+            emptyLayout.setVisibility(View.VISIBLE);
+        }
+    }
     class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder> implements SwipeItemTouchHelper.SwipeHelperAdapter{
         android.text.format.DateFormat df = new android.text.format.DateFormat();
         private OnSMSConversationClickListener listener;
@@ -743,7 +740,10 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         public void remove(Conversation conversation, int position) {
             ConversationsManager.getConversation().remove(conversation);
             notifyItemRemoved(position);
-            Snackbar.make(recyclerViewConversations, conversation.getFriendlyName() + ", Archived.", Snackbar.LENGTH_LONG)
+            checkEmptyView();
+            String contactName = (cList != null && cList.get(conversation.getFriendlyName()) != null) ? cList.get(conversation.getFriendlyName()) : conversation.getFriendlyName();
+
+            Snackbar.make(recyclerViewConversations, contactName + ", DELETED.", Snackbar.LENGTH_LONG)
 
                     .setAction("Undo", new View.OnClickListener() {
 
@@ -753,6 +753,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
                             ConversationsManager.getConversation().add(position, conversation);
                             notifyItemInserted(position);
+                            checkEmptyView();
                         }
 
                     }).show();
