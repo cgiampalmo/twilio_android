@@ -183,7 +183,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                 showImagePicDialog();
             }
         });
-        Button sendChatMessageButton = findViewById(R.id.button_gchat_send);
+        ImageButton sendChatMessageButton = findViewById(R.id.button_gchat_send);
         sendChatMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -281,8 +281,8 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
     public void showList() {
         /*Intent SMSActivity = new Intent(getApplicationContext(), SMSActivity.class);
         startActivity(SMSActivity);*/
-        ProgressBar progressBar = findViewById(R.id.progressBar2);
-        progressBar.setVisibility(View.GONE);
+        //ProgressBar progressBar = findViewById(R.id.progressBar2);
+        //progressBar.setVisibility(View.GONE);
         Log.d("Glacier","smsConvActivity ConversationsManager "+ConversationsManager.getConversation());
         if(groupConv) {
             add_participant(groupParticipants);
