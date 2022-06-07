@@ -29,7 +29,7 @@ buildscript {
             'retrofit'           : '2.0.0-beta4',
             'okhttp'             : '3.6.0',
             'ion'                : '2.1.8',
-            'videoAndroid'       : '7.0.3',
+            'videoAndroid'       : '7.1.1',
             'audioSwitch'        : '1.1.2',
             'lifecycle_version'  : '2.4.0'
     ]
@@ -186,8 +186,8 @@ android {
     defaultConfig {
         minSdkVersion 24
         targetSdkVersion 31
-        versionCode 509
-        versionName "3.4.1-RC16"
+        versionCode 511
+        versionName "3.4.2"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
 

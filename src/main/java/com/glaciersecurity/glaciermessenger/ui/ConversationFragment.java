@@ -1099,9 +1099,10 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 
 			if (!checkPermissionForCameraAndMicrophone()) {
 				requestPermissionForCameraAndMicrophone();
-			} else if (!checkPermissionForBluetooth()) { //AM-581b
+			}
+			if (!checkPermissionForBluetooth()) { //AM-581b
 				requestPermissionForBluetooth();
-			} else {
+			}
 				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 				builder.setTitle(R.string.start_call);
 				builder.setNegativeButton(R.string.cancel, null);
@@ -1110,7 +1111,7 @@ public class ConversationFragment extends XmppFragment implements EditMessage.Ke
 							makeCall();
 						});
 				builder.create().show();
-			}
+
 			return true;
 
 		});
