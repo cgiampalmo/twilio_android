@@ -11,9 +11,9 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 510,
-      "versionName": "3.4.2-RC2",
-      "outputFile": "glacierMessenger-3.4.2-RC2-messenger-free-compat-release.apk"
+      "versionCode": 512,
+      "versionName": "3.4.2",
+      "outputFile": "glacierMessenger-3.4.2-messenger-free-compat-release.apk"
     }
   ],
   "elementType": "File"
