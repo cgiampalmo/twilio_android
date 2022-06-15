@@ -158,9 +158,9 @@ public class SecurityHubActivity extends XmppActivity {
     private ExpandableListItem latestOsListItem(){
         boolean latestOs = xmppConnectionService.getSecurityInfo().isLatestOS();
         if (latestOs) {
-            return new ExpandableListItem(R.drawable.ic_gchat_icon_security, getString(R.string.latest_updates_os),getString(R.string.up_to_date_os));
+            return new ExpandableListItem(R.drawable.ic_baseline_system_security_update_good_24, getString(R.string.latest_updates_os),getString(R.string.up_to_date_os));
         }
-            return new ExpandableListItem(R.drawable.ic_gchat_icon, getString(R.string.latest_updates_os),getString(R.string.update_os), true);
+            return new ExpandableListItem(R.drawable.ic_baseline_system_update_24_gray, getString(R.string.latest_updates_os),getString(R.string.update_os), true);
     }
 
     private ExpandableListItem appBioLockListItem(){
