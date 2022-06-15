@@ -19,7 +19,7 @@
         android:layout_marginLeft="15dp"
         android:layout_marginRight="5dp"
         android:textColor="?attr/edit_text_color"
-        android:id="@+id/sms_profile_number"
+        android:id="@+id/sms_profile_location"
         />
 
     <TextView
@@ -30,6 +30,6 @@
         android:layout_marginLeft="15dp"
         android:layout_marginRight="5dp"
         android:textColor="?attr/edit_text_color"
-        android:id="@+id/sms_profile_location"
+        android:id="@+id/sms_profile_number"
         />
 </LinearLayout>

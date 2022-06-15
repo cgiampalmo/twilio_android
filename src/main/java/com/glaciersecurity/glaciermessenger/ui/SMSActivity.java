@@ -28,6 +28,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +64,7 @@ import com.glaciersecurity.glaciermessenger.R;
 //import com.glaciersecurity.glaciermessenger.databinding.ActivityChooseContactBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.ui.adapter.SwipeItemTouchHelper;
+import com.glaciersecurity.glaciermessenger.ui.util.Drawable;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingActionHelper;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.ScrollState;
@@ -71,6 +73,7 @@ import com.glaciersecurity.glaciermessenger.utils.LogoutListener;
 import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.ui.adapter.SmsProfileAdapter;
 import com.glaciersecurity.glaciermessenger.utils.SMSdbInfo;
+import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.twilio.conversations.CallbackListener;
@@ -151,7 +154,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         Log.d("Glacier", "New notification before replyIntent");
         replyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent replyPendingIntent = PendingIntent.getActivity(this,0,replyIntent,PendingIntent.FLAG_MUTABLE);
-        NotificationCompat.Action action = new NotificationCompat.Action.Builder(R.drawable.ic_launcher,"Reply",replyPendingIntent).addRemoteInput(remoteInput).build();
+        NotificationCompat.Action action = new NotificationCompat.Action.Builder(R.drawable.ic_baseline_sms_24,"Reply",replyPendingIntent).addRemoteInput(remoteInput).build();
         Log.d("Glacier", "New notification before action");
         builder.addAction(action);
         Log.d("Glacier", "New notification after action");
@@ -627,6 +630,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 super(con_view);
                 this.listener = listener;
                 conView = con_view;
+
                 con_view.setOnClickListener(this);
             }
             public void onClick(View view) {
@@ -672,16 +676,19 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         public void onBindViewHolder(ViewHolder holder, int position) {
 
             TextView conversation_name,sender_name,conversation_lastmsg,dateText,conv_Sid;
+            RelativeLayout avatar_circle;
             com.glaciersecurity.glaciermessenger.ui.widget.UnreadCountCustomView unreadcount;
             Conversation conversation = conversations.get(holder.getAdapterPosition());
             Map conv_last_msg = ConversationsManager.conv_last_msg;
             Map conv_last_msg_sent = ConversationsManager.conv_last_msg_sent;
             Log.d("Glacier","ConversationsManager "+conversation.getFriendlyName()+"----------"+conversation.getLastMessageDate());
             conversation_name = holder.conView.findViewById(R.id.conversation_name);
+            avatar_circle = holder.conView.findViewById(R.id.avatar_circle);
             sender_name = holder.conView.findViewById(R.id.sender_name);
             conversation_lastmsg = holder.conView.findViewById(R.id.conversation_lastmsg);
             dateText = holder.conView.findViewById(R.id.conversation_lastupdate);
             String Contact_name = (cList != null && cList.get(conversation.getFriendlyName()) != null) ? cList.get(conversation.getFriendlyName()) : conversation.getFriendlyName();
+            avatar_circle.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForName(Contact_name)));
             String sender_name_text = "";
             if(conv_last_msg_sent.containsKey(conversation.getSid()) && conv_last_msg_sent.get(conversation.getSid()).toString().equals(identity))
                 sender_name_text = "Me :";

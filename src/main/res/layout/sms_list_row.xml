@@ -16,7 +16,6 @@
         android:layout_margin="3dp"
         android:padding="4px"
         android:background="@drawable/shape_circle"
-        android:backgroundTint="@color/red_500"
         >
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/conversation_image"
