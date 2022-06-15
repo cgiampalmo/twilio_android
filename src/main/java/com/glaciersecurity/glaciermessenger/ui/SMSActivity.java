@@ -126,6 +126,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             Log.d("Glacier", "receivedNewMessage called----" + current_conv + "----" + messageConversationSid);
             if (current_conv != null)
                 Log.d("Glacier", "Current Conversation new message " + current_conv.getSid() + " : " + messageConversationSid + " : " + current_conv.getSid().equals(messageConversationSid) + " : " + messageAuthor);
+            Log.d("Glacier", "Current Conversation new message" +identity+" : " + messageAuthor + "---"+identity.equals(messageAuthor));
             if (current_conv == null)
                 notifyMessage(newMessage, messageAuthor);
             else if (!identity.equals(messageAuthor)) {
@@ -136,10 +137,10 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     private void notifyMessage(String newMessage,String messageAuthor){
         Log.d("Glacier", "New notification notifyMessage called");
         Intent intent = new Intent(mContext, SMSActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE);
         Intent broadcastIntent = new Intent(this, NotificationReceiver.class);
         PendingIntent actionIntent = PendingIntent.getBroadcast(this,
-                0, broadcastIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                0, broadcastIntent, PendingIntent.FLAG_MUTABLE);
 
 
 // Create the RemoteInput specifying this key
@@ -149,7 +150,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         Intent replyIntent = new Intent(this,RemoteReceiver.class);
         Log.d("Glacier", "New notification before replyIntent");
         replyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent replyPendingIntent = PendingIntent.getActivity(this,0,replyIntent,PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent replyPendingIntent = PendingIntent.getActivity(this,0,replyIntent,PendingIntent.FLAG_MUTABLE);
         NotificationCompat.Action action = new NotificationCompat.Action.Builder(R.drawable.ic_launcher,"Reply",replyPendingIntent).addRemoteInput(remoteInput).build();
         Log.d("Glacier", "New notification before action");
         builder.addAction(action);
@@ -343,7 +344,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             Log.d("Glacier","Identity "+identity);
         }
 
-
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("Glacier", "Glacier", NotificationManager.IMPORTANCE_HIGH);
             NotificationManager manager = getSystemService(NotificationManager.class);
@@ -408,6 +408,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 finish();
                 break;
             case R.id.group_add_sms:
+                model.setConversationsClient(ConversationsManager.conversationsClient);
                 Intent intent = new Intent(mContext, GroupSMS.class);
                 String token = Atoken.getAccessToken();
                 startActivity(intent.putExtra("identity",identity).putExtra("conversationToken",token));
@@ -627,7 +628,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 this.listener = listener;
                 conView = con_view;
                 con_view.setOnClickListener(this);
-
             }
             public void onClick(View view) {
                 //sortconv(conversations);
@@ -679,11 +679,9 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             Log.d("Glacier","ConversationsManager "+conversation.getFriendlyName()+"----------"+conversation.getLastMessageDate());
             conversation_name = holder.conView.findViewById(R.id.conversation_name);
             sender_name = holder.conView.findViewById(R.id.sender_name);
-
             conversation_lastmsg = holder.conView.findViewById(R.id.conversation_lastmsg);
             dateText = holder.conView.findViewById(R.id.conversation_lastupdate);
             String Contact_name = (cList != null && cList.get(conversation.getFriendlyName()) != null) ? cList.get(conversation.getFriendlyName()) : conversation.getFriendlyName();
-
             String sender_name_text = "";
             if(conv_last_msg_sent.containsKey(conversation.getSid()) && conv_last_msg_sent.get(conversation.getSid()).toString().equals(identity))
                 sender_name_text = "Me :";
@@ -740,6 +738,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         public void remove(Conversation conversation, int position) {
             ConversationsManager.getConversation().remove(conversation);
             notifyItemRemoved(position);
+            //TODO implement removal on conversation
             checkEmptyView();
             String contactName = (cList != null && cList.get(conversation.getFriendlyName()) != null) ? cList.get(conversation.getFriendlyName()) : conversation.getFriendlyName();
 
