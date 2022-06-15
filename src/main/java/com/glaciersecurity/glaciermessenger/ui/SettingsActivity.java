@@ -92,7 +92,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 	}
 
 	@Override
-    protected void onBackendConnected() {
+	void onBackendConnected() {
 		//CMG AM-223
 //		final EditTextPreference displayNamePreference = (EditTextPreference)mSettingsFragment.findPreference("displayname");
 //		if (displayNamePreference != null && xmppConnectionService != null) {

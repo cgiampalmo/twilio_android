@@ -65,7 +65,7 @@ public class PublishGroupChatProfilePictureActivity extends XmppActivity impleme
     }
 
     @Override
-    protected void onBackendConnected() {
+    void onBackendConnected() {
         String uuid = pendingConversationUuid.pop();
         if (uuid != null) {
             this.conversation = xmppConnectionService.findConversationByUuid(uuid);

@@ -430,7 +430,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
 
     private void initSMS(){
-        SmsProfile test = new SmsProfile("(999)999-989", "City, State");
+        SmsProfile test = new SmsProfile("(999)999-999", "City, State");
         profileList.add(test);
 
         SmsProfile test2 = new SmsProfile("(000)000-0000", "City1, State1");

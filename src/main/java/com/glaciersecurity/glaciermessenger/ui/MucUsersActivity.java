@@ -45,7 +45,7 @@ public class MucUsersActivity extends XmppActivity implements XmppConnectionServ
     }
 
     @Override
-    protected void onBackendConnected() {
+    void onBackendConnected() {
         final Intent intent = getIntent();
         final String uuid = intent == null ? null : intent.getStringExtra("uuid");
         if (uuid != null) {

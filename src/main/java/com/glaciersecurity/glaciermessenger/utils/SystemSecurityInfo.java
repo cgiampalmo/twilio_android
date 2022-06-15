@@ -73,6 +73,7 @@ public class SystemSecurityInfo {
     private XmlReader tagReader;
     private String latestOs;
     private String latestGlacier;
+    private String latestAlt;
     private boolean hasAnomalies;
     private String anomalyString;
 
@@ -127,6 +128,8 @@ public class SystemSecurityInfo {
                             latestGlacier = tagReader.readElement(nextTag).getContent();
                         } else if (nextTag.isStart("android_os")) {
                             latestOs = tagReader.readElement(nextTag).getContent();
+                        }  else if (nextTag.isStart("alt_os")) {
+                            latestAlt = tagReader.readElement(nextTag).getContent();
                         }
                         nextTag = tagReader.readTag();
                     }
@@ -167,6 +170,11 @@ public class SystemSecurityInfo {
             ComparableVersion latestCompOs = new ComparableVersion(latestOs);
             String myOsVer = Build.VERSION.RELEASE;
             ComparableVersion myOs = new ComparableVersion(myOsVer);
+            if (latestAlt != null) {
+                ComparableVersion latestCompAltOs = new ComparableVersion(latestAlt);
+                return myOs.compareTo(latestCompAltOs) == 0;
+            }
+
             return myOs.compareTo(latestCompOs) >= 0;
         }
         return true;

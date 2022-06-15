@@ -3,11 +3,13 @@ package com.glaciersecurity.glaciermessenger.ui;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.ui.widget.MultiContactAdapter;
 import com.twilio.conversations.Attributes;
 import com.twilio.conversations.Conversation;
+import com.twilio.conversations.ErrorInfo;
 import com.twilio.conversations.Participant;
 import com.twilio.conversations.StatusListener;
 
@@ -47,19 +49,23 @@ public class EditGroup extends XmppActivity implements AddParticipantClickListen
         cModel = (ConversationModel) getApplicationContext();
         cList = cModel.getcList();
         conversation = cModel.getConversation();
-        setTitle(conversation.getFriendlyName());
-        participants = conversation.getParticipantsList();
-        recyclerView1 = findViewById(R.id.recycler_view_existing);
-        recyclerView1.setLayoutManager((new LinearLayoutManager(this)));
-        adapter1 = new ParticipantAdapter(this,conversation,cList);
-        recyclerView1.setAdapter(adapter1);
-        cModel = (ConversationModel) getApplicationContext();
-        arrayList = cModel.getArrayList();
-        recyclerView2 = findViewById(R.id.recycler_view);
-        recyclerView2.setLayoutManager((new LinearLayoutManager(this)));
-        adapter2 = new AddContactToGroupAdapter(this,arrayList,cModel);
-        recyclerView2.setAdapter(adapter2);
-        getArrayList();
+        if(conversation == null){
+            onBackPressed();
+        }else {
+            setTitle(conversation.getFriendlyName());
+            participants = conversation.getParticipantsList();
+            recyclerView1 = findViewById(R.id.recycler_view_existing);
+            recyclerView1.setLayoutManager((new LinearLayoutManager(this)));
+            adapter1 = new ParticipantAdapter(this, conversation, cList);
+            recyclerView1.setAdapter(adapter1);
+            cModel = (ConversationModel) getApplicationContext();
+            arrayList = cModel.getArrayList();
+            recyclerView2 = findViewById(R.id.recycler_view);
+            recyclerView2.setLayoutManager((new LinearLayoutManager(this)));
+            adapter2 = new AddContactToGroupAdapter(this, arrayList, cModel);
+            recyclerView2.setAdapter(adapter2);
+            getArrayList();
+        }
     }
     public void getArrayList(){
         ArrayList<String> pList = new ArrayList<String>();
@@ -101,6 +107,7 @@ public class EditGroup extends XmppActivity implements AddParticipantClickListen
     @Override
     public void AddParticipant(String number,int position) {
         String proxyNumber = cModel.getProxyNumber();
+        String phoneNumber = (number.length() == 10) ? "+1"+number : number;
         JSONObject part_json = new JSONObject();
         try {
             part_json.put("participant_number",number);
@@ -108,29 +115,39 @@ public class EditGroup extends XmppActivity implements AddParticipantClickListen
             e.printStackTrace();
         }
         Attributes attributes = new Attributes(part_json);
-        conversation.addParticipantByAddress(number, proxyNumber, attributes, new StatusListener() {
+        conversation.addParticipantByAddress(phoneNumber, proxyNumber, attributes, new StatusListener() {
             @Override
             public void onSuccess() {
                 getArrayList();
-                Log.d("Glacier","Participant added address "+number);
-
+                Log.d("Glacier","Participant added address "+phoneNumber);
+            }
+            public void onError(ErrorInfo errorInfo) {
+                Log.e("Glacier", "Error on adding Participant: " + errorInfo.getMessage());
+                Toast.makeText(EditGroup.this,"This user already exists in another conversation.", Toast.LENGTH_LONG).show();
             }
         });
     }
 
     @Override
     public void RemoveParticipant(Participant participant,int position) {
-        conversation.removeParticipant(participant, new StatusListener() {
-            @Override
-            public void onSuccess() {
-                Log.d("Glacier","Participant deleted address "+participant.getAttributes()+" "+participant.getSid());
-                getArrayList();
+        Log.d("Glacier","Remove participant "+participant.getIdentity().isEmpty() + " " + participant.getIdentity());
+        if(participant.getIdentity().isEmpty()) {
+            conversation.removeParticipant(participant, new StatusListener() {
+                @Override
+                public void onSuccess() {
+                    Log.d("Glacier", "Participant deleted address " + participant.getAttributes() + " " + participant.getSid() + " " + participant.getIdentity());
+                    getArrayList();
+
                 /*adapter1.notifyDataSetChanged();
                 adapter2.notifyDataSetChanged();*/
-                //adapter1.notifyItemRemoved(position);
-                //adapter2.notifyItemInserted();
-            }
-        });
+                    //adapter1.notifyItemRemoved(position);
+                    //adapter2.notifyItemInserted();
+                }
+            });
+        }
+        else{
+            Toast.makeText(this, "Admin participant cannot be deleted.", Toast.LENGTH_LONG).show();
+        }
     }
 }
 interface AddParticipantClickListener {

@@ -8,20 +8,31 @@
         android:orientation="horizontal"
         android:padding="8dp">
 
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/avatar_circle"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="right"
+        android:layout_margin="3dp"
+        android:padding="4px"
+        android:background="@drawable/shape_circle"
+        android:backgroundTint="@color/red_500"
+        >
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/conversation_image"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:src="@drawable/ic_baseline_person_24"
             android:scaleType="centerCrop"
-            app:riv_corner_radius="30dip" />
+            app:riv_corner_radius="50dip"/>
+        </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/conversation_image"
+            android:layout_toRightOf="@+id/avatar_circle"
             android:paddingLeft="@dimen/avatar_item_distance">
 
             <TextView

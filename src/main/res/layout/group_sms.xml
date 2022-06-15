@@ -19,7 +19,17 @@
         android:layout_marginBottom="8dp"
         android:hint="Group Name"
         android:inputType="text" />
-
+    <EditText
+        android:id="@+id/edit_gchat_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_toStartOf="@+id/button_gchat_add"
+        android:hint="Add numbers seperate by comma"
+        android:inputType="phone" />
     <!--<RelativeLayout
         android:id="@+id/layout_gchat_chatbox"
         android:layout_width="match_parent"
@@ -28,17 +38,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-        <EditText
-            android:id="@+id/edit_gchat_number"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:layout_toStartOf="@+id/button_gchat_add"
-            android:hint="Add Number"
-            android:inputType="phone" />
+
 
         <Button
             android:id="@+id/button_gchat_add"

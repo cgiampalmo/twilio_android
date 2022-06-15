@@ -178,7 +178,7 @@ public class ShowLocationActivity extends XmppActivity implements OnMapReadyCall
 	}
 
 	@Override
-    protected void onBackendConnected() {
+	void onBackendConnected() {
 
 	}
 

@@ -53,7 +53,7 @@ public class ChooseAccountForProfilePictureActivity extends XmppActivity {
     }
 
     @Override
-    protected void onBackendConnected() {
+    void onBackendConnected() {
         loadEnabledAccounts();
         if (accountList.size() == 1) {
             goToProfilePictureActivity(accountList.get(0));

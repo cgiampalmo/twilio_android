@@ -2009,7 +2009,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 									}
 								});
 							}
-						} else {
+							} else {
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
@@ -2019,9 +2019,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 						}
 					}
 				});
-
-
-
 
             }
 

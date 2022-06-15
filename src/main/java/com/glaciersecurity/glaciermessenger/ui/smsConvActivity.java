@@ -25,8 +25,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.ui.util.ViewUtil;
+import com.google.gson.Gson;
 import com.twilio.conversations.CallbackListener;
 import com.twilio.conversations.Conversation;
 import com.twilio.conversations.ConversationsClient;
@@ -36,6 +39,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
@@ -73,7 +77,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
     ConversationModel model;
     private Context mContext = this;
     RecyclerView recyclerView;
-    //    Med
+//    Med
     Map<String, String> convContList;
     Map<String, String> cList;
     ImageButton attach;
@@ -91,7 +95,9 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
     RecyclerView mediaPreview;
     private boolean groupConv = false;
     private String[] groupParticipants;
-
+    protected class addParticipant {
+        public String message;
+    }
     @Override
     protected void refreshUiReal() {
 
@@ -125,37 +131,40 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         if(getIntent().hasExtra("conv_sid")) {
             convSid = getIntent().getExtras().getString("conv_sid");
         }
+        Log.d("Glacier","convSid "+convSid);
         if(getIntent().hasExtra("identity")){
             identity = getIntent().getExtras().getString("identity");
             Convtoken = getIntent().getExtras().getString("conversationToken");
         }
         ConversationsClient conversationsClient = model.getConversationsClient();
         if(getIntent().hasExtra("title")){
-            String Contact_name = (cList.get(getIntent().getStringExtra("title")) != null) ? cList.get(getIntent().getStringExtra("title")) : getIntent().getStringExtra("title");
+            String Contact_name = (cList != null && cList.get(getIntent().getStringExtra("title")) != null) ? cList.get(getIntent().getStringExtra("title")) : getIntent().getStringExtra("title");
             setTitle(Contact_name);
         }
         if(getIntent().hasExtra("phoneNumber")){
             convSid = getIntent().getStringExtra("phoneNumber");
         }
+        Log.d("Glacier","convSid "+convSid);
         if(getIntent().hasExtra("messageBody")){
             newMessageBody = getIntent().getStringExtra("messageBody");
             Log.d("Glacier "," To phoneNumber "+convSid+" sendedMessage "+newMessageBody);
         }
-
+        Log.d("Glacier","convSid "+convSid);
         if(conversationsClient != null){
-            convContList = model.getContConv();
-            if(convContList != null && convContList.size() > 0){
-                String sid = convContList.get(convSid);
-                if(sid != null && !(sid.trim().equals("No sid"))){
-                    convSid = sid;
-                }
-            }
+            Log.d("Glacier","convSid "+convSid);
             if(convSid != null && convSid.equals("Group")){
                 convSid = getIntent().getStringExtra("groupName");
                 groupParticipants = getIntent().getStringArrayExtra("GroupContact");
                 Log.d("Glacier","groupParticipants "+String.join(",",groupParticipants));
                 groupConv = true;
-
+            }else {
+                convContList = model.getContConv();
+                if (convContList != null && convContList.size() > 0) {
+                    String sid = convContList.get(convSid);
+                    if (sid != null && !(sid.trim().equals("No sid"))) {
+                        convSid = sid;
+                    }
+                }
             }
             ConversationsManager.getConversation(convSid, false, conversationsClient);
         }else {
@@ -183,7 +192,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                 showImagePicDialog();
             }
         });
-        ImageButton sendChatMessageButton = findViewById(R.id.button_gchat_send);
+        ImageView sendChatMessageButton = findViewById(R.id.button_gchat_send);
         sendChatMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -213,10 +222,11 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.group_edit_sms :
-                //add_participant();
-                //ConversationsManager.conversation.getParticipantsList();
-                Intent intent = new Intent(mContext, EditGroup.class);
-                startActivity(intent.putExtra("account",identity));
+                Conversation conversation = model.getConversation();
+                if(conversation != null) {
+                    Intent intent = new Intent(mContext, EditGroup.class);
+                    startActivity(intent.putExtra("account", identity));
+                }
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + item.getItemId());
@@ -281,8 +291,8 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
     public void showList() {
         /*Intent SMSActivity = new Intent(getApplicationContext(), SMSActivity.class);
         startActivity(SMSActivity);*/
-        //ProgressBar progressBar = findViewById(R.id.progressBar2);
-        //progressBar.setVisibility(View.GONE);
+//        ProgressBar progressBar = findViewById(R.id.progressBar2);
+//        progressBar.setVisibility(View.GONE);
         Log.d("Glacier","smsConvActivity ConversationsManager "+ConversationsManager.getConversation());
         if(groupConv) {
             add_participant(groupParticipants);
@@ -307,6 +317,11 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
             String responseBody = "";
             if (response != null && response.body() != null) {
                 responseBody = response.body().string();
+                Gson gson = new Gson();
+                addParticipant responsBod = gson.fromJson(responseBody,  addParticipant.class);
+                if(!(responsBod.message.equals("success"))){
+                    Toast.makeText(this,responsBod.message, Toast.LENGTH_LONG).show();
+                }
             }
             Log.d("Glacier", "Response from server: " + responseBody);
         }catch (Exception e){
@@ -430,6 +445,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
             public void run() {
                 // need to modify user interface elements on the UI thread
                 writeMessageEditText.setText("");
+                mediaPreviewAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -524,16 +540,22 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
 
                 Log.d(TAG,"onBindViewHolder "+message.getAuthor()+"-----------"+message.getMessageBody()+messageText+"------"+itemView);
                 if(message.hasMedia()){
+                    messageText.setVisibility(View.INVISIBLE);
+                    sentImg.setScaleType(ImageView.ScaleType.FIT_XY);
                     message.getMediaContentTemporaryUrl(new CallbackListener<String>() {
                         @Override
                         public void onSuccess(String result) {
                             if (result != null) {
                                 Log.d("Glacier", "result "+result);
                                 downloadMedia(result,new ImgResponseListener(){
+                                    Uri resultUri = Uri.parse(result);
                                     public void receivedImgResponse(Bitmap bmpImg){
                                         messageText.setText("");
                                         sentImg.setVisibility(View.VISIBLE);
-                                        sentImg.setImageBitmap(bmpImg);
+                                        int nh = (int) ( bmpImg.getHeight() * (512.0 / bmpImg.getWidth()) );
+                                        Bitmap bitmap = bmpImg.createScaledBitmap(bmpImg, 512, nh, true);
+                                        sentImg.setImageBitmap(bitmap);
+                                        sentImg.setOnClickListener(v -> ViewUtil.view(smsConvActivity.this, resultUri));
                                     }
                                 });
                             }

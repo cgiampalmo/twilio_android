@@ -22,8 +22,6 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.core.widget.NestedScrollView;
 import androidx.appcompat.widget.Toolbar;
-
-import android.telephony.PhoneNumberUtils;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.View;
@@ -40,7 +38,6 @@ import com.glaciersecurity.glaciermessenger.R;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import com.glaciersecurity.glaciermessenger.xmpp.Jid;
 
@@ -55,11 +52,11 @@ public class Tools {
     
     public static String reformatNumber(String number){
         String formattedNumber = number;
-        try {
-            formattedNumber = number.substring(0, number.length() - 11) + " (" + number.substring(number.length() - 11, number.length() - 8) + ") " + number.substring(number.length() - 8, number.length() - 5) + "-" + number.substring(number.length() - 5, number.length() - 1);
-        } catch (Exception e){
-            
-        }
+//        try {
+//            formattedNumber = number.substring(0, number.length() - 11) + " (" + number.substring(number.length() - 11, number.length() - 8) + ") " + number.substring(number.length() - 8, number.length() - 5) + "-" + number.substring(number.length() - 5, number.length() - 1);
+//        } catch (Exception e){
+//
+//        }
         return formattedNumber;
     }
 

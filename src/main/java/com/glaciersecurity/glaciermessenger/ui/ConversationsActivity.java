@@ -224,7 +224,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	}
 
 	@Override
-	protected void onBackendConnected() {
+	void onBackendConnected() {
 		if (performRedirectIfNecessary(true)) {
 			return;
 		}

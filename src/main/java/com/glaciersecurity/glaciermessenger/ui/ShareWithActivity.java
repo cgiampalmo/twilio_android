@@ -145,7 +145,7 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 	}
 
 	@Override
-    protected void onBackendConnected() {
+	void onBackendConnected() {
 		if (xmppConnectionServiceBound && share != null && ((share.contact != null && share.account != null))) {
 			share();
 			return;

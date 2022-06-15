@@ -191,15 +191,19 @@ public class ConversationsManager {
                 Bitmap bitmap = null;
                 try {
                     bitmap = MediaStore.Images.Media.getBitmap(mContext.getContentResolver(), attachment.getUri());
+                    /*int nh = (int) ( bitImg.getHeight() * (512.0 / bitImg.getWidth()) );
+                    bitmap = bitImg.createScaledBitmap(bitImg, 512, nh, true);*/
                 } catch (IOException e) {
                     e.printStackTrace();
                     Log.d("Glacier","Exception occured "+e.getMessage());
                     return ;
                 }
                 ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, arrayOutputStream);
+                int nh = (int) ( bitmap.getHeight() * (512.0 / bitmap.getWidth()) );
+                bitmap = bitmap.createScaledBitmap(bitmap, 512, nh, true);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 50, arrayOutputStream);
                 InputStream is = new ByteArrayInputStream(arrayOutputStream.toByteArray());
-                Message.Options options = Message.options().withMedia(is, attachment.getMime());
+                Message.Options options = Message.options().withMedia(is, "image/bmp");
                 conversation.sendMessage(options, new CallbackListener<Message>() {
                     @Override
                     public void onSuccess(Message message) {
@@ -285,6 +289,7 @@ public class ConversationsManager {
                             Log.d("Glacier", "Joining Conversation: " + DEFAULT_CONVERSATION_NAME);
                             joinConversation(conversation);
                             ConversationsManager.this.conversation = conversation;
+                            conversationsManagerListener.reloadMessages();
                             conversation.setLastReadMessageIndex(0, new CallbackListener<Long>() {
                                 @Override
                                 public void onSuccess(Long result) {
@@ -530,7 +535,7 @@ public class ConversationsManager {
 
                 }
 
-                conversationsManagerListener.receivedNewMessage("New sms from " + message.getAuthor() + " : " + message.getMessageBody(),message.getConversationSid(),message.getConversation().getFriendlyName());
+                conversationsManagerListener.receivedNewMessage("New sms from " + message.getAuthor() + " : " + message.getMessageBody(),message.getConversationSid(),message.getAuthor());
                 //conversationsManagerListener.reloadMessages();
                 /*else {
                     conversationsManagerListener.reloadMessages();

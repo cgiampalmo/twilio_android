@@ -22,7 +22,7 @@ public class SmsProfile {
         number = (String) jsmsinfo.get("text");
         number = Tools.reformatNumber(number);
         location = (String) jsmsinfo.get("id");
-        color = UIHelper.getColorForName(number + " " + location);
+        color = UIHelper.getColorForName(Integer.toString(location.hashCode()));
     }
 
     public String getNumber() {

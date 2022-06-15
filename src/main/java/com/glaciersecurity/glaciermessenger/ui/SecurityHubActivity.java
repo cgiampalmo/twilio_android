@@ -189,7 +189,7 @@ public class SecurityHubActivity extends XmppActivity {
     }
 
     @Override
-    protected void onBackendConnected() {
+    void onBackendConnected() {
         try {
             if (xmppConnectionService != null) {
                 initSecurityComponents();

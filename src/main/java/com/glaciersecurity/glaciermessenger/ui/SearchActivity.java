@@ -250,7 +250,7 @@ public class SearchActivity extends XmppActivity implements TextWatcher, OnSearc
 	}
 
 	@Override
-    protected void onBackendConnected() {
+	void onBackendConnected() {
 		final List<String> searchTerm = pendingSearch.pop();
 		if (searchTerm != null && currentSearch.watch(searchTerm)) {
 			xmppConnectionService.search(searchTerm, this);

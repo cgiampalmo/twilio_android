@@ -64,9 +64,10 @@ public class ContactListActivity extends XmppActivity implements OnSMSConversati
         //checkPermission();
         arrayList = cModel.getArrayList();
         recyclerView.setLayoutManager((new LinearLayoutManager(this)));
-        adapter = new ContactAdapter(this,arrayList,(OnSMSConversationClickListener) this);
-        recyclerView.setAdapter(adapter);
-
+        if(arrayList != null && !(arrayList.isEmpty())) {
+            adapter = new ContactAdapter(this, arrayList, (OnSMSConversationClickListener) this);
+            recyclerView.setAdapter(adapter);
+        }
         if (getIntent().hasExtra("conv_sid")) {
             convSid = getIntent().getExtras().getString("conv_sid");
             identity = getIntent().getExtras().getString("identity");

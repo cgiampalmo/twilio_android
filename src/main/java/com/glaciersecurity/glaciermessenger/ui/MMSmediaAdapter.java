@@ -57,9 +57,13 @@ public class MMSmediaAdapter extends RecyclerView.Adapter<MMSmediaAdapter.MediaP
         }
         holder.binding.deleteButton.setOnClickListener(v -> {
             int pos = mediaPreviews.indexOf(attachment);
-            mediaPreviews.remove(pos);
-            notifyItemRemoved(pos);
-            listener.toggleInputMethod();
+            if(pos > -1) {
+                mediaPreviews.remove(pos);
+                notifyItemRemoved(pos);
+                listener.toggleInputMethod();
+            }else{
+                notifyDataSetChanged();
+            }
         });
     }
 
