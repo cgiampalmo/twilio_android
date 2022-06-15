@@ -151,8 +151,26 @@ public class UIHelper {
 //			0xFFF694C1, //pink
 //			0xFF9678D3, //light purple
 
-
-//
+	private static int[] SMS_COLORS  = {
+			0xFF5BB974, // green
+			0xFF64B5F6, 0xFF42A5F5, 0xFF2196F3, 0xFF1E88E5, //blues
+			0xFFA4343A, //rutabaga
+			0xFF009688, //teal 500,
+			0xFF00897B, //teal 600
+			0xFF00ACC1, //cyan 600
+			0xFFFDAA63, //orange
+			0xFF0097A7, //cyan 700
+			0xFF00838F, //cyan 800
+			0xFFEE675C, // red
+			0xFFFFAF92, //orange
+			0xFF0277BD, //light blue 800
+			0xFF00796B, //teal 700
+			0xFF00695C, //teal 800
+			0xFFBBDEFB, 0xFF90CAF9, //blue
+			0xFFFA903E, // orange
+			0xFF1976D2, 0xFF1565C0, 0xFF0D47A1,
+			0xFFF694C1, 0xFF9678D3
+	};
 
 	private static final List<Character> PUNCTIONATION = Arrays.asList('.', ',', '?', '!', ';', ':');
 
@@ -287,6 +305,17 @@ public class UIHelper {
 		return AVATAR_COLORS[(int) (getLongForName(name) % AVATAR_COLORS.length)];
 	}
 
+	public static int getColorForSMS(String name) {
+		//CMG AM-255
+// 		if (Config.XEP_0392) {
+//			return XEP0392Helper.rgbFromNick(name);
+//		}
+		if (name == null || name.isEmpty()) {
+			return 0xFF202020;
+		}
+
+		return SMS_COLORS[(int) (getLongForName(name) % SMS_COLORS.length)];
+	}
 
 	public static int getColorForName(String name, boolean safe) {
 		if (name == null || name.isEmpty()) {

@@ -52,11 +52,11 @@ public class Tools {
     
     public static String reformatNumber(String number){
         String formattedNumber = number;
-//        try {
-//            formattedNumber = number.substring(0, number.length() - 11) + " (" + number.substring(number.length() - 11, number.length() - 8) + ") " + number.substring(number.length() - 8, number.length() - 5) + "-" + number.substring(number.length() - 5, number.length() - 1);
-//        } catch (Exception e){
-//
-//        }
+        try {
+            formattedNumber = number.substring(0, number.length() - 10) + " (" + number.substring(number.length() - 10, number.length() - 7) + ") " + number.substring(number.length() - 7, number.length() - 4) + "-" + number.substring(number.length() - 4);
+        } catch (Exception e){
+
+        }
         return formattedNumber;
     }
 

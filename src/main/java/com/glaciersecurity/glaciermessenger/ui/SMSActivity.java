@@ -433,11 +433,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         return super.onOptionsItemSelected(item);
     }
 
+    //TODO remove only included to demo ui
     private void initSMS(){
-        SmsProfile test = new SmsProfile("(999)999-999", "City, State");
+        SmsProfile test = new SmsProfile("(999) 999-9999", "City1, State1");
         profileList.add(test);
 
-        SmsProfile test2 = new SmsProfile("(000)000-0000", "City1, State1");
+        SmsProfile test2 = new SmsProfile("(000) 000-0000", "City2, State2");
         profileList.add(test2);
     }
 
@@ -688,7 +689,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             conversation_lastmsg = holder.conView.findViewById(R.id.conversation_lastmsg);
             dateText = holder.conView.findViewById(R.id.conversation_lastupdate);
             String Contact_name = (cList != null && cList.get(conversation.getFriendlyName()) != null) ? cList.get(conversation.getFriendlyName()) : conversation.getFriendlyName();
-            avatar_circle.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForName(Contact_name)));
+            avatar_circle.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(Contact_name)));
             String sender_name_text = "";
             if(conv_last_msg_sent.containsKey(conversation.getSid()) && conv_last_msg_sent.get(conversation.getSid()).toString().equals(identity))
                 sender_name_text = "Me :";

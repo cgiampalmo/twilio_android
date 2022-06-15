@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"
             android:layout_margin="16dp"
-            android:src="@drawable/ic_chat_white_24dp"
+            android:src="@drawable/ic_baseline_sms_24"
             android:text="Start chat"
             app:backgroundTint="#27a1cb"
             app:layout_constraintBottom_toBottomOf="parent"

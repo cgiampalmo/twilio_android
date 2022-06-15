@@ -10,23 +10,34 @@ public class SmsProfile {
 
     protected String number;
     protected String location;
+    protected String id;
     final int color;
 
     public SmsProfile(String number, String location) {
         this.number = number;
         this.location = location;
-        color = UIHelper.getColorForName(number + " " + location);
+        color = UIHelper.getColorForSMS(number);
     }
 
     public SmsProfile(JSONObject jsmsinfo) throws JSONException, Exception {
         number = (String) jsmsinfo.get("text");
         number = Tools.reformatNumber(number);
-        location = (String) jsmsinfo.get("id");
-        color = UIHelper.getColorForName(Integer.toString(location.hashCode()));
+        id = (String) jsmsinfo.get("id");
+        color = UIHelper.getColorForSMS(jsmsinfo.toString());
+
+        /*TODO pull location from db
+        //hardcoded for now
+        location = (String) jsmsinfo.get("location")
+        */
+        location = "City, State";
     }
 
     public String getNumber() {
         return number;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public void setNumber(String number) {
@@ -48,7 +59,8 @@ public class SmsProfile {
     public String toJsonString() {
         return "{\"color\":\"" + getColor() + "\"," +
                 "\"number\":\"" + getNumber() + "\"," +
-                "\"location\":\"" + getLocation() + "}";
+                "\"location\":\"" + getLocation() + "}" +
+                "\"id\":\"" + getId() + "}" ;
     }
 
 }
