@@ -22,7 +22,6 @@ import android.os.StrictMode;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -64,11 +63,11 @@ import com.glaciersecurity.glaciermessenger.R;
 //import com.glaciersecurity.glaciermessenger.databinding.ActivityChooseContactBinding;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.ui.adapter.SwipeItemTouchHelper;
-import com.glaciersecurity.glaciermessenger.ui.util.Drawable;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingActionHelper;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.ScrollState;
 import com.glaciersecurity.glaciermessenger.ui.util.StyledAttributes;
+import com.glaciersecurity.glaciermessenger.ui.util.ViewAnimation;
 import com.glaciersecurity.glaciermessenger.utils.LogoutListener;
 import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.ui.adapter.SmsProfileAdapter;
@@ -91,10 +90,17 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     private final PendingItem<Conversation> swipedSMSConversation = new PendingItem<>();
     private final PendingItem<ScrollState> pendingScrollState = new PendingItem<>();
     private Toolbar toolbar;
-    public FloatingActionButton startChatFab;
+    public FloatingActionButton fab_contact;
+    public FloatingActionButton fab_group;
+    public FloatingActionButton fab_add;
 
     RecyclerView recyclerViewConversations;
     RecyclerView recyclerViewSMS;
+
+    private View back_drop;
+    private boolean rotate = false;
+    private View lyt_group;
+    private View lyt_chat;
 
     private DrawerLayout drawer_sms;
     SmsProfileAdapter adapter_sms;
@@ -383,8 +389,14 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         initSMS();
         Log.d("Glacier","identity sdns n "+identity);
 
-        startChatFab = findViewById(R.id.button_contact_sms);
-        startChatFab.setOnClickListener(new View.OnClickListener() {
+        fab_contact = (FloatingActionButton) findViewById(R.id.fab_chat);
+        fab_group = (FloatingActionButton) findViewById(R.id.fab_group);
+        fab_add = (FloatingActionButton) findViewById(R.id.fab_add);
+        lyt_group = findViewById(R.id.lyt_mic);
+        lyt_chat = findViewById(R.id.lyt_call);
+        ViewAnimation.initShowOut(lyt_group);
+        ViewAnimation.initShowOut(lyt_chat);
+        fab_contact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 accessToken = Atoken.getAccessToken();
@@ -399,10 +411,39 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 }
             }
         });
-    }
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_add_group, menu);
-        return super.onCreateOptionsMenu(menu);
+        fab_group.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                model.setConversationsClient(ConversationsManager.conversationsClient);
+                Intent intent = new Intent(mContext, GroupSMS.class);
+                String token = Atoken.getAccessToken();
+                startActivity(intent.putExtra("identity", identity).putExtra("conversationToken", token));
+            }
+            });
+
+                fab_add.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            toggleFabMode(view);
+        }
+    });
+}
+    //    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.menu_add_group, menu);
+//        return super.onCreateOptionsMenu(menu);
+//    }
+
+    private void toggleFabMode(View v) {
+        rotate = ViewAnimation.rotateFab(v, !rotate);
+        if (rotate) {
+            ViewAnimation.showIn(lyt_group);
+            ViewAnimation.showIn(lyt_chat);
+            //back_drop.setVisibility(View.VISIBLE);
+        } else {
+            ViewAnimation.showOut(lyt_group);
+            ViewAnimation.showOut(lyt_chat);
+            //back_drop.setVisibility(View.GONE);
+        }
     }
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.d("Glacier","menu_group_call_participants_list "+item.getItemId()+"======="+R.id.menu_group_call_participants_list);
@@ -410,24 +451,24 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             case android.R.id.home:
                 finish();
                 break;
-            case R.id.group_add_sms:
-                model.setConversationsClient(ConversationsManager.conversationsClient);
-                Intent intent = new Intent(mContext, GroupSMS.class);
-                String token = Atoken.getAccessToken();
-                startActivity(intent.putExtra("identity",identity).putExtra("conversationToken",token));
-                break;
-            case R.id.start_new_message:
-                accessToken = Atoken.getAccessToken();
-                Log.d("Glacier","conversationsClient "+ConversationsManager.conversationsClient);
-                if (ConversationsManager.conversationsClient != null){
-                    model.setConversationsClient(ConversationsManager.conversationsClient);
-                    Intent intent2 = new Intent(mContext, ContactListActivity.class);
-                    String conv_Sid = "new";
-                    startActivity(intent2.putExtra("conv_sid", conv_Sid).putExtra("identity", identity).putExtra("conversationToken", accessToken).putExtra("title", "New message"));
-                }else{
-                    Toast.makeText(mContext, "Please wait the SMS is not loaded successfully", Toast.LENGTH_SHORT).show();
-                }
-                break;
+//            case R.id.group_add_sms:
+//                model.setConversationsClient(ConversationsManager.conversationsClient);
+//                Intent intent = new Intent(mContext, GroupSMS.class);
+//                String token = Atoken.getAccessToken();
+//                startActivity(intent.putExtra("identity",identity).putExtra("conversationToken",token));
+//                break;
+//            case R.id.start_new_message:
+//                accessToken = Atoken.getAccessToken();
+//                Log.d("Glacier","conversationsClient "+ConversationsManager.conversationsClient);
+//                if (ConversationsManager.conversationsClient != null){
+//                    model.setConversationsClient(ConversationsManager.conversationsClient);
+//                    Intent intent2 = new Intent(mContext, ContactListActivity.class);
+//                    String conv_Sid = "new";
+//                    startActivity(intent2.putExtra("conv_sid", conv_Sid).putExtra("identity", identity).putExtra("conversationToken", accessToken).putExtra("title", "New message"));
+//                }else{
+//                    Toast.makeText(mContext, "Please wait the SMS is not loaded successfully", Toast.LENGTH_SHORT).show();
+//                }
+//                break;
 
         }
         return super.onOptionsItemSelected(item);
@@ -585,7 +626,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     @Override
     public void OnSMSProfileClick(String id, String number, int color) {
         toolbar.setBackgroundColor(color);
-        startChatFab.setBackgroundTintList(ColorStateList.valueOf(color));
+        fab_add.setBackgroundTintList(ColorStateList.valueOf(color));
         drawer_sms.closeDrawers();
     }
 

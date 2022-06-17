@@ -169,7 +169,7 @@ public class UIHelper {
 			0xFFBBDEFB, 0xFF90CAF9, //blue
 			0xFFFA903E, // orange
 			0xFF1976D2, 0xFF1565C0, 0xFF0D47A1,
-			0xFFF694C1, 0xFF9678D3
+			0xFF9678D3
 	};
 
 	private static final List<Character> PUNCTIONATION = Arrays.asList('.', ',', '?', '!', ';', ':');
