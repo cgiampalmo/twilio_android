@@ -532,7 +532,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                 super(itemView);
                 messageText = (TextView) itemView.findViewById(R.id.text_gchat_message_me);
                 timeText = (TextView) itemView.findViewById(R.id.text_gchat_timestamp_me);
-                dateText = (TextView) itemView.findViewById(R.id.text_gchat_date_me);
+                dateText = (TextView) itemView.findViewById(R.id.text_gchat_timestamp_me);
                 sentImg = itemView.findViewById(R.id.text_gchat_media_me);
             }
 
