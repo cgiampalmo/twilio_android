@@ -172,15 +172,20 @@ public class SystemSecurityInfo {
     }*/
 
     public boolean isLatestOS() {
+
+        if (latestAlt != null) {
+            String myOsBuild= Build.DISPLAY;
+
+            ComparableVersion latestCompAltOs = new ComparableVersion(latestAlt);
+            ComparableVersion myOsB = new ComparableVersion(myOsBuild);
+            if (myOsB.compareTo(latestCompAltOs) == 0){
+                return true;
+            }
+        }
         if (latestOs != null) {
             ComparableVersion latestCompOs = new ComparableVersion(latestOs);
             String myOsVer = Build.VERSION.RELEASE;
             ComparableVersion myOs = new ComparableVersion(myOsVer);
-            if (latestAlt != null) {
-                ComparableVersion latestCompAltOs = new ComparableVersion(latestAlt);
-                return myOs.compareTo(latestCompAltOs) == 0;
-            }
-
             return myOs.compareTo(latestCompOs) >= 0;
         }
         return true;

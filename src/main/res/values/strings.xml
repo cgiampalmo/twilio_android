@@ -1103,7 +1103,7 @@
     Shows signs of being reverse engineered
     Shows signs of being run in emulator
     Shows signs of being debugged</string>
-    <string name="screen_lock">Screen Lock</string>
+    <string name="screen_lock">Device Lock</string>
     <string name="screen_lock_enabled">Screen lock enabled</string>
     <string name="screen_lock_disabled">Screen lock is disabled</string>
     <string name="latest_updates_app">Latest Glacier</string>
@@ -1116,13 +1116,13 @@
     <string name="update_os">Android OS is not up to date</string>
     <string name="update_both">Both Glacier and Android OS are not up to date</string>
     <string name="biometrics_app">Application Lock</string>
-    <string name="biometrics_dev">Device Lock</string>
+    <string name="biometrics_dev">Biometric Lock</string>
     <string name="bio_lock_disabled">Biometric lock is disabled for device</string>
     <string name="face_lock_enabled">Touch ID enabled</string>
     <string name="touch_lock_enabled">Face ID enabled</string>
     <string name="bio_lock_enabled">Biometrics enabled for device</string>
-    <string name="app_lock_enabled">Biometrics enabled for application</string>
-    <string name="app_lock_disabled">Biometric lock is disabled for application</string>
+    <string name="app_lock_enabled">Glacier app lock is enabled</string>
+    <string name="app_lock_disabled">Glacier app lock is disabled</string>
 
     <string name="core_connect">Core Connection</string>
     <string name="core_connect_enabled">Core is enabled</string>

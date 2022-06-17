@@ -1,6 +1,7 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -165,9 +166,9 @@ public class SecurityHubActivity extends XmppActivity {
 
     private ExpandableListItem appBioLockListItem(){
         if (isApplock()) {
-            return new ExpandableListItem(R.drawable.fingerprint_biometric_lock_128, getString(R.string.biometrics_app), getString(R.string.app_lock_enabled));
+            return new ExpandableListItem(R.drawable.ic_twotone_phonelink_lock_24, getString(R.string.biometrics_app), getString(R.string.app_lock_enabled));
         } else {
-            return new ExpandableListItem(R.drawable.fingerprint_biometric_lock_disabled_128,  getString(R.string.biometrics_app), getString(R.string.app_lock_disabled));
+            return new ExpandableListItem(R.drawable.ic_baseline_phonelink_lock_24,  getString(R.string.biometrics_app), getString(R.string.app_lock_disabled));
         }
     }
 
