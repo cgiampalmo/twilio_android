@@ -65,7 +65,8 @@
             <LinearLayout
                 android:id="@+id/layout_gchat_chatbox"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/spacing_xmlarge"
+                android:layout_height="wrap_content"
+                android:minHeight="40dp"
                 android:paddingLeft="@dimen/spacing_small"
                 android:paddingRight="@dimen/spacing_small"
                 android:background="@color/secondary_bg_color"
@@ -107,6 +108,7 @@
                     android:clickable="true"
                     app:tint="?attr/send_msg_button"
                     android:padding="@dimen/spacing_middle"
+                    android:layout_gravity="clip_vertical"
                     app:srcCompat="@drawable/ic_baseline_send_24" />
 
             </LinearLayout>
