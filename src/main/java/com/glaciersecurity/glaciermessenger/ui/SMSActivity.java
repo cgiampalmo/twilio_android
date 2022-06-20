@@ -130,7 +130,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor) {
         messagesAdapter.notifyDataSetChanged();
         String checkIdentity = model.getIdentity();
-        if(checkIdentity.equals(identity)) {
+        if(checkIdentity.equals(identity) && !(messageAuthor.equals(identity))) {
             Conversation current_conv = model.getConversation();
             Log.d("Glacier", "receivedNewMessage called----" + current_conv + "----" + messageConversationSid);
             if (current_conv != null)
@@ -143,7 +143,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             }
         }
     }
-    private void notifyMessage(String newMessage,String messageAuthor){
+    public void notifyMessage(String newMessage,String messageAuthor){
         Log.d("Glacier", "New notification notifyMessage called");
         Intent intent = new Intent(mContext, SMSActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE);
@@ -193,6 +193,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             @Override
             public void run() {
                 // need to modify user interface elements on the UI thread
+                Log.d("Glacier","Reload messages called");
                 messagesAdapter.notifyDataSetChanged();
             }
         });
@@ -201,6 +202,14 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     public void showList() {
         Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation()+"------"+ConversationsManager.conversationsClient.getMyConversations().size());
+        if(messagesAdapter == null) {
+            Log.d("Glacier","New Message adapter");
+            messagesAdapter = new SMSActivity.MessagesAdapter((OnSMSConversationClickListener) this);
+            recyclerViewConversations.setAdapter(messagesAdapter);
+        }else{
+            Log.d("Glacier","old Message adapter");
+            messagesAdapter.notifyDataSetChanged();
+        }
         if(ConversationsManager.conversationsClient.getMyConversations().size() > 0) {
             List<Conversation> conversationList = ConversationsManager.conversationsClient.getMyConversations();
             Map<String, String> aList = new HashMap<>();
@@ -208,91 +217,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 aList.put(conv.getFriendlyName(), conv.getSid());
             }
             model.setContConv(aList);
-            sortconv(conversationList);
             model.setConversationsClient(ConversationsManager.conversationsClient);
-            messagesAdapter = new SMSActivity.MessagesAdapter((OnSMSConversationClickListener) this, conversationList);
-            recyclerViewConversations.setAdapter(messagesAdapter);
-
-
-            this.recyclerViewConversations.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    if (swipedPos < 0) return false;
-                    Point point = new Point((int) motionEvent.getRawX(), (int) motionEvent.getRawY());
-
-                    RecyclerView.ViewHolder swipedViewHolder = recyclerViewConversations.findViewHolderForAdapterPosition(swipedPos);
-                    View swipedItem = swipedViewHolder.itemView;
-                    Rect rect = new Rect();
-                    swipedItem.getGlobalVisibleRect(rect);
-
-                    return false;
-                }
-            });
-
-            ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0,RIGHT) {
-                @Override
-                public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                    return false;
-                }
-
-                @Override
-                public float getSwipeEscapeVelocity (float defaultValue) {
-                    return mSwipeEscapeVelocity;
-                }
-
-                @Override
-                public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
-                                        float dX, float dY, int actionState, boolean isCurrentlyActive) {
-                    super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-
-                    new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-                            .addSwipeRightBackgroundColor(Color.rgb(234, 122, 98))
-
-                            .addSwipeRightActionIcon(R.drawable.ic_delete)
-
-                            .create()
-                            .decorate();
-
-                    super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-
-                    if(actionState != ItemTouchHelper.ACTION_STATE_IDLE){
-                        Paint paint = new Paint();
-                        paint.setColor(StyledAttributes.getColor(getApplicationContext(),R.attr.conversations_overview_background));
-                        paint.setStyle(Paint.Style.FILL);
-                        c.drawRect(viewHolder.itemView.getLeft(),viewHolder.itemView.getTop()
-                                ,viewHolder.itemView.getRight(),viewHolder.itemView.getBottom(), paint);
-                    }
-                }
-
-                @Override
-                public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-                    super.clearView(recyclerView, viewHolder);
-                    viewHolder.itemView.setAlpha(1f);
-                }
-
-                @Override
-                public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                    pendingActionHelper.execute();
-                    int position = viewHolder.getLayoutPosition();
-                    try {
-                        swipedSMSConversation.push(conversationList.get(position));
-                    } catch (IndexOutOfBoundsException e) {
-                        return;
-                    }
-
-                    messagesAdapter.remove(swipedSMSConversation.peek(),position);
-
-                }
-            };
-           ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-            touchHelper.attachToRecyclerView(recyclerViewConversations);
-
-
-
-
-
+            Log.d("Glacier","conversationList " +conversationList.size() + messagesAdapter);
             View emptyLayout = findViewById(R.id.empty_list);
             emptyLayout.setVisibility(View.GONE);
+            Log.d("Glacier","conversationsClient emptyLayout " +conversationList.size() + emptyLayout.getVisibility());
         }else{
             View emptyLayout = findViewById(R.id.empty_list);
             emptyLayout.setVisibility(View.VISIBLE);
@@ -300,6 +229,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         ProgressBar progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
     }
+
+    @Override
+    public void notifyMessages(String newMessage,String messageAuthor) {
+        notifyMessage(newMessage,messageAuthor);
+    }
+
     private final ConversationsManager ConversationsManager = new ConversationsManager(this);
     ConversationModel model;
 
@@ -373,7 +308,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         Log.d("Glacier","Twilio ConversationsClient "+conversationsClient);
         if(conversationsClient != null){
             model.setConversation(null);
-            ConversationsManager.loadChannels(conversationsClient);
+            ConversationsManager.addListenerLoadChannels(conversationsClient);
         }else{
             retrieveTokenFromServer();
         }
@@ -417,7 +352,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 model.setConversationsClient(ConversationsManager.conversationsClient);
                 Intent intent = new Intent(mContext, GroupSMS.class);
                 String token = Atoken.getAccessToken();
-                startActivity(intent.putExtra("identity", identity).putExtra("conversationToken", token));
+                startActivity(intent.putExtra("identity",identity).putExtra("conversationToken",token));
             }
             });
 
@@ -451,25 +386,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             case android.R.id.home:
                 finish();
                 break;
-//            case R.id.group_add_sms:
-//                model.setConversationsClient(ConversationsManager.conversationsClient);
-//                Intent intent = new Intent(mContext, GroupSMS.class);
-//                String token = Atoken.getAccessToken();
-//                startActivity(intent.putExtra("identity",identity).putExtra("conversationToken",token));
-//                break;
-//            case R.id.start_new_message:
-//                accessToken = Atoken.getAccessToken();
-//                Log.d("Glacier","conversationsClient "+ConversationsManager.conversationsClient);
-//                if (ConversationsManager.conversationsClient != null){
-//                    model.setConversationsClient(ConversationsManager.conversationsClient);
-//                    Intent intent2 = new Intent(mContext, ContactListActivity.class);
-//                    String conv_Sid = "new";
-//                    startActivity(intent2.putExtra("conv_sid", conv_Sid).putExtra("identity", identity).putExtra("conversationToken", accessToken).putExtra("title", "New message"));
-//                }else{
-//                    Toast.makeText(mContext, "Please wait the SMS is not loaded successfully", Toast.LENGTH_SHORT).show();
-//                }
-//                break;
-
         }
         return super.onOptionsItemSelected(item);
     }
@@ -589,6 +505,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                     if (exception != null) {
                         errorMessage = errorMessage + " " + exception.getLocalizedMessage();
                     }
+                    else
                     Log.d("Glacier","errorMessage "+errorMessage);
                 }
             }
@@ -677,7 +594,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             }
             public void onClick(View view) {
                 //sortconv(conversations);
-                Conversation conversation = conversations.get(getAdapterPosition());
+                Conversation conversation = ConversationsManager.getConversation().get(getAdapterPosition());
                 String conversation_sid = conversation.getSid();
                 String conversation_name = conversation.getFriendlyName();
                 model.setConversationsClient(ConversationsManager.conversationsClient);
@@ -698,10 +615,9 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         }
 
 
-        MessagesAdapter(OnSMSConversationClickListener listener,List conversationList) {
+        MessagesAdapter(OnSMSConversationClickListener listener) {
             this.listener = listener;
-            sortconv(conversationList);
-            this.conversations = conversationList;
+            Log.d("Glacier","IN message adapter");
         }
         public void setConversationClickListener(OnSMSConversationClickListener listener) {
             this.listener = listener;
@@ -720,7 +636,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             TextView conversation_name,sender_name,conversation_lastmsg,dateText,conv_Sid;
             RelativeLayout avatar_circle;
             com.glaciersecurity.glaciermessenger.ui.widget.UnreadCountCustomView unreadcount;
-            Conversation conversation = conversations.get(holder.getAdapterPosition());
+            Conversation conversation = ConversationsManager.getConversation().get(holder.getAdapterPosition());
             Map conv_last_msg = ConversationsManager.conv_last_msg;
             Map conv_last_msg_sent = ConversationsManager.conv_last_msg_sent;
             Log.d("Glacier","ConversationsManager "+conversation.getFriendlyName()+"----------"+conversation.getLastMessageDate());
@@ -747,26 +663,36 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             conversation.getUnreadMessagesCount(new CallbackListener<Long>() {
                 @Override
                 public void onSuccess(Long result) {
-                    //Log.d("Glacier","setUnreadCount "+result +" "+conversation.getFriendlyName()+" adapter position "+holder.getAdapterPosition());
-                    if(result != null) {
-                        if(result > 0) {
-                            if(holder.getAdapterPosition() > -1){
-                                Log.d("Glacier ","unreadcount 12344"+unreadcount+conversation.getFriendlyName()+" "+holder.getAdapterPosition()+" "+conversations.get(holder.getAdapterPosition()).getFriendlyName());
-                                if(conversation.getFriendlyName().equals(conversations.get(holder.getAdapterPosition()).getFriendlyName())) {
+                    Log.d("Glacier", "setUnreadCount " + result + " " + conversation.getFriendlyName() + " adapter position " + holder.getAdapterPosition());
+                    if (result != null) {
+                        if (result > 0) {
+                            if (holder.getAdapterPosition() > -1) {
+                                Log.d("Glacier ", "unreadcount 12344" + unreadcount + conversation.getFriendlyName() + " " + holder.getAdapterPosition() + " " + ConversationsManager.getConversation().get(holder.getAdapterPosition()).getFriendlyName());
+                                if (conversation.getFriendlyName().equals(ConversationsManager.getConversation().get(holder.getAdapterPosition()).getFriendlyName())) {
                                     unreadcount.setVisibility(View.VISIBLE);
                                     unreadcount.setUnreadCount(Math.toIntExact(result));
                                     conversation_lastmsg.setTypeface(Typeface.DEFAULT_BOLD);
                                 }
                             }
-                        }
-                        else{
+                        } else {
 
                         }
-                    }
-                    else{
+                    } else {
                         //unreadcount.setVisibility(View.GONE);
+                        if (holder.getAdapterPosition() > -1) {
+                            if (conversation.getFriendlyName().equals(ConversationsManager.getConversation().get(holder.getAdapterPosition()).getFriendlyName())) {
+                                unreadcount.setVisibility(View.VISIBLE);
+                                conversation.getMessagesCount(new CallbackListener<Long>() {
+                                    @Override
+                                    public void onSuccess(Long result) {
+                                        unreadcount.setUnreadCount(Math.toIntExact(result));
+                                    }
+                                });
+                                conversation_lastmsg.setTypeface(Typeface.DEFAULT_BOLD);
+                            }
+                        }
                     }
-                    }
+                }
             });
 
 
@@ -781,7 +707,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
         @Override
         public int getItemCount() {
-            //Log.d("Glacier","conversationsClient "+ConversationsManager.getConversation());
+            Log.d("Glacier","conversationsClient getItemCount "+ConversationsManager.getConversation().size());
             return ConversationsManager.getConversation().size();
         }
         public void remove(Conversation conversation, int position) {
@@ -806,53 +732,10 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
                     }).show();
         }
-    }
-    private void sortconv(List conversations){
-        Collections.sort(conversations,new EventDetailSortByDate());
-    }
-    private class EventDetailSortByDate implements java.util.Comparator<Conversation> {
-        @Override
-        public int compare(Conversation customerEvents1, Conversation customerEvents2) {
-            Date DateObject1 = (customerEvents1.getLastMessageDate() == null)?customerEvents1.getDateCreatedAsDate():customerEvents1.getLastMessageDate();
-            Date DateObject2 = (customerEvents2.getLastMessageDate() == null)?customerEvents2.getDateCreatedAsDate():customerEvents2.getLastMessageDate();;
-            //Log.d("Glacier","DateObject1 "+DateObject1+" DateObject2 "+DateObject2+" other "+customerEvents1.getLastMessageDate()+" "+customerEvents2.getLastMessageDate());
-            if(DateObject1 == null || DateObject2 == null){
-                return 1;
-            }else{
-                Calendar cal1 = Calendar.getInstance();
-                cal1.setTime(DateObject1);
-                Calendar cal2 = Calendar.getInstance();
-                cal2.setTime(DateObject2);
 
-                int month1 = cal1.get(Calendar.MONTH);
-                int month2 = cal2.get(Calendar.MONTH);
-                //Log.d("Glacier","month1 "+month1+" month2 "+month2+" other "+customerEvents1.getFriendlyName());
-
-                if (month1 < month2){
-                    //Log.d("Glacier","Inside DAY_OF_MONTH1 "+cal1.get(Calendar.HOUR_OF_DAY)+" DAY_OF_MONTH2 "+cal2.get(Calendar.HOUR_OF_DAY)+" other "+customerEvents1.getFriendlyName()+" returning "+(cal1.get(Calendar.HOUR_OF_DAY) - cal2.get(Calendar.HOUR_OF_DAY)));
-                    return -1;
-                }
-                else if (month1 == month2) {
-                    //Log.d("Glacier","DAY_OF_MONTH1 "+cal1.get(Calendar.HOUR_OF_DAY)+" DAY_OF_MONTH2 "+cal2.get(Calendar.HOUR_OF_DAY)+" other "+customerEvents1.getFriendlyName()+" returning "+(cal1.get(Calendar.HOUR_OF_DAY) - cal2.get(Calendar.HOUR_OF_DAY)));
-                    if(cal1.get(Calendar.DAY_OF_MONTH) != cal2.get(Calendar.DAY_OF_MONTH)) {
-                        return cal1.get(Calendar.DAY_OF_MONTH) - cal2.get(Calendar.DAY_OF_MONTH);
-                    }
-                    else if(cal1.get(Calendar.HOUR_OF_DAY) != cal2.get(Calendar.HOUR_OF_DAY)) {
-                        int returning = (cal1.get(Calendar.HOUR_OF_DAY) - cal2.get(Calendar.HOUR_OF_DAY)) > 0 ? 0 : -1;
-                        //Log.d("Glacier","DAY_OF_MONTH1 "+cal1.get(Calendar.HOUR_OF_DAY)+" DAY_OF_MONTH2 "+cal2.get(Calendar.HOUR_OF_DAY)+" other "+customerEvents1.getFriendlyName()+" returning "+returning);
-                        return returning;
-                    }
-                    else if(cal1.get(Calendar.AM_PM) != cal2.get(Calendar.AM_PM))
-                        return cal1.get(Calendar.AM_PM) - cal2.get(Calendar.AM_PM);
-                    else if(cal1.get(Calendar.MINUTE) != cal2.get(Calendar.MINUTE))
-                        return cal1.get(Calendar.MINUTE) - cal2.get(Calendar.MINUTE);
-                    else
-                        return cal1.get(Calendar.SECOND) - cal2.get(Calendar.SECOND);
-                }
-                else return -1;
-            }
-        }
     }
+
+
 }
 interface OnSMSConversationClickListener {
     void OnSMSConversationClick(String connv_sid,String conv_name);

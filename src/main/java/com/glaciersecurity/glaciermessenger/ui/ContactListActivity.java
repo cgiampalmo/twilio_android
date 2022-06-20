@@ -159,7 +159,6 @@ public class ContactListActivity extends XmppActivity implements OnSMSConversati
     }
     public void onBackPressed(){
         super.onBackPressed();
-        Toast.makeText(getApplicationContext(),"onBackPressed",Toast.LENGTH_SHORT).show();
         finish();
         Intent intent = new Intent(mContext, SMSActivity.class);
         startActivity(intent.putExtra("account",identity));

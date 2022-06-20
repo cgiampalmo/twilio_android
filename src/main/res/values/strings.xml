@@ -145,7 +145,7 @@
     <string name="send_unencrypted_message">Send unencrypted message</string>
     <string name="send_message">Send message</string>
     <string name="send_message_to_x">Send message to %s</string>
-    <string name="send_glacier_message">Send Glacier message</string>
+    <string name="send_glacier_message">Send encrypted message</string>
     <string name="send_glacier_x509_message">Send v\\Glacier encrypted message</string>
     <string name="send_pgp_message">Send OpenPGP encrypted message</string>
     <string name="your_nick_has_been_changed">Your nickname has been changed</string>
@@ -521,7 +521,7 @@
     <string name="mark_as_read">Mark as read</string>
     <string name="pref_input_options">Input</string>
     <string name="pref_enter_is_send">Enter is send</string>
-    <string name="pref_enter_is_send_summary">Use enter key to send message</string>
+    <string name="pref_enter_is_send_summary">Use enter key to seend message</string>
     <string name="pref_display_enter_key">Show enter key</string>
     <string name="pref_display_enter_key_summary">Change the emoticons key to an enter key</string>
     <string name="audio">audio</string>

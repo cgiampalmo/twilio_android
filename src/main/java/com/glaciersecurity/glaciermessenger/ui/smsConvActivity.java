@@ -1,8 +1,10 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,6 +13,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.NetworkOnMainThreadException;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -28,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
+import android.content.ContextWrapper;
 import com.glaciersecurity.glaciermessenger.ui.util.ViewUtil;
 import com.google.gson.Gson;
 import com.twilio.conversations.CallbackListener;
@@ -36,6 +40,8 @@ import com.twilio.conversations.ConversationsClient;
 import com.twilio.conversations.Message;
 
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -168,7 +174,11 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
             }
             ConversationsManager.getConversation(convSid, false, conversationsClient);
         }else {
-            ConversationsManager.initializeWithAccessToken(this, Convtoken,convSid);
+            if(Convtoken != null) {
+                ConversationsManager.initializeWithAccessToken(this, Convtoken, convSid);
+            }else{
+                retrieveTokenFromServer();
+            }
         }
 
         recyclerView = findViewById(R.id.recycler_gchat);
@@ -299,6 +309,11 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         }
     }
 
+    @Override
+    public void notifyMessages(String newMessage,String messageAuthor) {
+
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void add_participant(String[] participant_list){
         String addParticipantUrl = mContext.getString(R.string.add_participant_url);
@@ -409,13 +424,20 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
             }
         });
     }
-
+    public static boolean isNumeric(String str){
+        try{
+            Double.parseDouble(str);
+            return true;
+        }catch (NumberFormatException e){
+            return false;
+        }
+    }
     @Override
     public void reloadMessages() {
         model.setConversation(ConversationsManager.conversation);
         Log.d("Glacier","getFriendlyName"+ConversationsManager.conversation.getFriendlyName());
         if(model.getNotificationManager() != null) {
-            if(ConversationsManager.conversation.getFriendlyName().length() > 5) {
+            if(ConversationsManager.conversation.getFriendlyName().length() > 5 && isNumeric(ConversationsManager.conversation.getFriendlyName().substring(2, 5)) ) {
                 Log.d("Glacier", "getFriendlyName " + Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5)) + " " + model.getNotificationManager());
                 model.clearNotification(Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5)));
             }else{
@@ -446,6 +468,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                 // need to modify user interface elements on the UI thread
                 writeMessageEditText.setText("");
                 mediaPreviewAdapter.notifyDataSetChanged();
+                toggleInputMethod();
             }
         });
     }
@@ -509,13 +532,13 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
             Log.d(TAG,"onBindViewHolder "+new_data+"---"+old_data+"--"+new_data.equals(old_data)+"--"+((getItemCount()-1) != position)+"---"+getItemCount()+"==="+position+"-------"+new_one);
             switch (holder.getItemViewType()) {
                 case VIEW_TYPE_MESSAGE_SENT:
-                    ((SentMessageHolder) holder).bind(message,new_one);
+                    ((SentMessageHolder) holder).bind(message,new_one,(SentMessageHolder) holder,position);
                     break;
                 case VIEW_TYPE_MESSAGE_RECEIVED:
-                    ((ReceivedMessageHolder) holder).bind(message,new_one);
+                    ((ReceivedMessageHolder) holder).bind(message,new_one,(ReceivedMessageHolder) holder,position);
                     break;
                 default:
-                    ((SentMessageHolder) holder).bind(message,new_one);
+                    ((SentMessageHolder) holder).bind(message,new_one,(SentMessageHolder) holder,position);
             }
         }
 
@@ -536,34 +559,62 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                 sentImg = itemView.findViewById(R.id.text_gchat_media_me);
             }
 
-            void bind(Message message,boolean new_date) {
+            void bind(Message message, boolean new_date, SentMessageHolder holder, int position) {
 
-                Log.d(TAG,"onBindViewHolder "+message.getAuthor()+"-----------"+message.getMessageBody()+messageText+"------"+itemView);
+                Log.d(TAG,"onBindViewHolder bind "+message.getAuthor()+"-----------"+message.getMessageBody()+messageText+"------"+itemView+"------"+message.hasMedia()+"-------");
                 if(message.hasMedia()){
-                    messageText.setVisibility(View.INVISIBLE);
+                    messageText.setVisibility(View.GONE);
                     sentImg.setScaleType(ImageView.ScaleType.FIT_XY);
-                    message.getMediaContentTemporaryUrl(new CallbackListener<String>() {
-                        @Override
-                        public void onSuccess(String result) {
-                            if (result != null) {
-                                Log.d("Glacier", "result "+result);
-                                downloadMedia(result,new ImgResponseListener(){
-                                    Uri resultUri = Uri.parse(result);
-                                    public void receivedImgResponse(Bitmap bmpImg){
-                                        messageText.setText("");
-                                        sentImg.setVisibility(View.VISIBLE);
-                                        int nh = (int) ( bmpImg.getHeight() * (512.0 / bmpImg.getWidth()) );
-                                        Bitmap bitmap = bmpImg.createScaledBitmap(bmpImg, 512, nh, true);
-                                        sentImg.setImageBitmap(bitmap);
-                                        sentImg.setOnClickListener(v -> ViewUtil.view(smsConvActivity.this, resultUri));
-                                    }
-                                });
-                            }
-                        }
-                    });
-                }else
-                    messageText.setText(message.getMessageBody());
+                    ContextWrapper cw = new ContextWrapper(getApplicationContext());
+                    File directory = cw.getDir("GlacierSMS", Context.BIND_ADJUST_WITH_ACTIVITY);
+                    File file = new File(directory,  message.getSid()+".PNG");
+                    if(!file.exists()) {
+                        message.getMediaContentTemporaryUrl(new CallbackListener<String>() {
+                            @Override
+                            public void onSuccess(String result) {
+                                // Log.d(TAG, "onBindViewHolder bind " + message.getAuthor() + "-----------" + message.getMessageBody() + "------" + message.hasMedia() + "-------" + holder.getAdapterPosition() + "---------" + message.getMessageIndex() + "-------" + ConversationsManager.getMessages().get(holder.getAdapterPosition()).getMessageBody());
+                                if (message.hasMedia()) {
+                                    if (result != null) {
+                                        Log.d("Glacier", "result " + result);
+                                        downloadMedia(result, new ImgResponseListener() {
+                                            Uri resultUri = Uri.parse(result);
 
+                                            public void receivedImgResponse(Bitmap bmpImg) {
+                                                FileOutputStream fos = null;
+                                                try {
+                                                    fos = new FileOutputStream(file);
+                                                    bmpImg.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                                                    fos.flush();
+                                                    fos.close();
+                                                } catch (IOException e) {
+                                                    e.printStackTrace();
+                                                }
+                                                int nh = (int) (bmpImg.getHeight() * (512.0 / bmpImg.getWidth()));
+                                                Bitmap bitmap = bmpImg.createScaledBitmap(bmpImg, 512, nh, true);
+                                                    messageText.setText("");
+                                                    sentImg.setVisibility(View.VISIBLE);
+                                                    sentImg.setImageBitmap(bitmap);
+                                                    // sentImg.setOnClickListener(v -> ViewUtil.view(smsConvActivity.this, resultUri));
+                                            }
+                                        });
+                                    }
+                                } else {
+
+                                }
+                            }
+                        });
+                    }else{
+                        Log.d("Glacier","BitmapFactory file "+file);
+                        Bitmap myBitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                        sentImg.setVisibility(View.VISIBLE);
+                        sentImg.setImageBitmap(myBitmap);
+                        // sentImg.setOnClickListener(v -> ViewUtil.view(smsConvActivity.this, file,"PNG"));
+                    }
+                }else {
+                    sentImg.setVisibility(View.GONE);
+                    messageText.setVisibility(View.VISIBLE);
+                    messageText.setText(message.getMessageBody());
+                }
                 // Format the stored timestamp into a readable String using method.
 
                 timeText.setText(df.format("hh:mm", message.getDateCreatedAsDate()).toString());
@@ -597,25 +648,50 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                 sentImg = itemView.findViewById(R.id.text_gchat_media_other);
             }
 
-            void bind(Message message,boolean new_date) {
+            void bind(Message message,boolean new_date,ReceivedMessageHolder holder,int position) {
                 Log.d("Glacier","Message has media"+message.hasMedia());
                 if(message.hasMedia()){
-                    message.getMediaContentTemporaryUrl(new CallbackListener<String>() {
-                        @Override
-                        public void onSuccess(String result) {
-                            Log.d("Glacier", result);
-                            downloadMedia(result, new ImgResponseListener() {
-                                public void receivedImgResponse(Bitmap bmpImg) {
-                                    messageText.setText("");
-                                    sentImg.setVisibility(View.VISIBLE);
-                                    sentImg.setImageBitmap(bmpImg);
-                                }
-                            });
-                        }
-                    });
-                }else
+                    ContextWrapper cw = new ContextWrapper(getApplicationContext());
+                    //String path = Environment.getExternalStorageDirectory().toString()+"/Pictures/Glacier/";
+                    File directory = cw.getDir("GlacierSMS", Context.BIND_ADJUST_WITH_ACTIVITY);
+                    File file = new File(directory,  message.getSid()+".PNG");
+                    if(!file.exists()) {
+                        message.getMediaContentTemporaryUrl(new CallbackListener<String>() {
+                            @Override
+                            public void onSuccess(String result) {
+                                Log.d("Glacier", result);
+                                downloadMedia(result, new ImgResponseListener() {
+                                    public void receivedImgResponse(Bitmap bmpImg) {
+                                        FileOutputStream fos = null;
+                                        try {
+                                            fos = new FileOutputStream(file);
+                                            bmpImg.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                                            fos.flush();
+                                            fos.close();
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                        int nh = (int) (bmpImg.getHeight() * (512.0 / bmpImg.getWidth()));
+                                        Bitmap bitmap = bmpImg.createScaledBitmap(bmpImg, 512, nh, true);
+                                        messageText.setText("");
+                                        sentImg.setVisibility(View.VISIBLE);
+                                        sentImg.setImageBitmap(bitmap);
+                                    }
+                                });
+                            }
+                        });
+                    }else{
+                        Log.d("Glacier","BitmapFactory file "+file);
+                        Bitmap myBitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                        sentImg.setVisibility(View.VISIBLE);
+                        sentImg.setImageBitmap(myBitmap);
+                    }
+                }else {
                     messageText.setText(message.getMessageBody());
-
+                    sentImg.setVisibility(View.GONE);
+                    messageText.setVisibility(View.VISIBLE);
+                    messageText.setText(message.getMessageBody());
+                }
                 // Format the stored timestamp into a readable String using method.
                 timeText.setText(df.format("hh:mm", message.getDateCreatedAsDate()).toString());
                 if(new_date)

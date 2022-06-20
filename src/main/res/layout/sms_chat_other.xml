@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/spacing_small"
         android:minHeight="32dp"
-        app:cardBackgroundColor="@color/colorA"
+        app:cardBackgroundColor="?attr/message_rcvd_bubble_color"
         app:cardCornerRadius="5dp"
         app:cardElevation="1dp"
         app:cardUseCompatPadding="false"
