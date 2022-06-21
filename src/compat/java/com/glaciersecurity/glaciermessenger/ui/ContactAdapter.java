@@ -1,12 +1,15 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.app.Activity;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.twilio.conversations.Conversation;
 
 import java.util.ArrayList;
@@ -37,6 +40,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.viewHold
         ContactModel model = arrayList.get(position);
         holder.tvName.setText(model.getName());
         holder.tvNumber.setText(model.getNumber());
+        holder.tvAvatar.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(model.getNumber() + model.getName())));
     }
 
     @Override
@@ -46,12 +50,14 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.viewHold
 
     class viewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         TextView tvName,tvNumber;
+        RelativeLayout tvAvatar;
         private OnSMSConversationClickListener listener;
 
         viewHolder(@NonNull View itemView,OnSMSConversationClickListener listener) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tv_name);
             tvNumber = itemView.findViewById(R.id.tv_number);
+            tvAvatar = itemView.findViewById(R.id.avatar_circle);
             this.listener = listener;
             itemView.setOnClickListener(this);
         }

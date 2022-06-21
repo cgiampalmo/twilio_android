@@ -54,7 +54,7 @@ public class ContactListActivity extends XmppActivity implements OnSMSConversati
         super.onCreate(savedInstanceState);
         setContentView(R.layout.contacts_list_view);
         recyclerView = findViewById(R.id.recycler_view);
-        setTitle("Select contacts ");
+        setTitle("New conversation ");
         toolbar = (Toolbar) findViewById(R.id.aToolbar );
         setSupportActionBar(toolbar);
         ActionBar actionbar = getSupportActionBar();
