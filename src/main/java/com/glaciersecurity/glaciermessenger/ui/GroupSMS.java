@@ -53,14 +53,14 @@ public class GroupSMS  extends XmppActivity implements OnSMSConversationClickLis
         toolbar.setNavigationOnClickListener(view -> onBackPressed());
         cModel = (ConversationModel) getApplicationContext();
         arrayList = cModel.getArrayList();
-        Log.d("Glacier","ArrayList size "+ arrayList.isEmpty() + arrayList);
+        Log.d("Glacier","ArrayList size "+ arrayList);
         recyclerView.setLayoutManager((new LinearLayoutManager(this)));
         if (getIntent().hasExtra("identity")) {
             identity = getIntent().getExtras().getString("identity");
             Convtoken = getIntent().getExtras().getString("conversationToken");
         }
         tvEmpty = findViewById(R.id.tv_empty);
-        if(!arrayList.isEmpty()) {
+        if(arrayList != null && !(arrayList.isEmpty())) {
             adapter = new MultiContactAdapter(this, arrayList, tvEmpty);
             recyclerView.setAdapter(adapter);
         }

@@ -665,7 +665,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 super(con_view);
                 this.listener = listener;
                 conView = con_view;
-
                 con_view.setOnClickListener(this);
             }
             public void onClick(View view) {

@@ -31,7 +31,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
-import android.content.ContextWrapper;
 import com.glaciersecurity.glaciermessenger.ui.util.ViewUtil;
 import com.google.gson.Gson;
 import com.twilio.conversations.CallbackListener;
@@ -41,6 +40,7 @@ import com.twilio.conversations.Message;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -521,6 +521,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             Message message = ConversationsManager.getMessages().get(position);
             Message old_message = position == 0 ? ConversationsManager.getMessages().get(position) : ConversationsManager.getMessages().get(position - 1);
+
             boolean new_one = false;
             Log.d(TAG,"onBindViewHolder "+message.getAuthor()+"---"+message.getMessageBody()+"---"+message);
             String new_data = df.format("dd/MM/yyyy", message.getDateCreatedAsDate()).toString();
