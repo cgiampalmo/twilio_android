@@ -51,6 +51,7 @@
             app:backgroundTint="@color/primary_bg_color"
             app:elevation="1dp"
             app:fabSize="mini"
+            android:layout_gravity="center_vertical"
             android:src="@drawable/ic_baseline_insert_photo_24"
             app:useCompatPadding="false" />
 
