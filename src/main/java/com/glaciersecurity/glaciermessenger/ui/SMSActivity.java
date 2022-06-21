@@ -218,6 +218,82 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             }
             model.setContConv(aList);
             model.setConversationsClient(ConversationsManager.conversationsClient);
+            messagesAdapter = new SMSActivity.MessagesAdapter((OnSMSConversationClickListener) this, conversationList);
+            recyclerViewConversations.setAdapter(messagesAdapter);
+
+
+            this.recyclerViewConversations.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    if (swipedPos < 0) return false;
+                    Point point = new Point((int) motionEvent.getRawX(), (int) motionEvent.getRawY());
+
+                    RecyclerView.ViewHolder swipedViewHolder = recyclerViewConversations.findViewHolderForAdapterPosition(swipedPos);
+                    View swipedItem = swipedViewHolder.itemView;
+                    Rect rect = new Rect();
+                    swipedItem.getGlobalVisibleRect(rect);
+
+                    return false;
+                }
+            });
+
+            ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0,RIGHT) {
+                @Override
+                public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                    return false;
+                }
+
+                @Override
+                public float getSwipeEscapeVelocity (float defaultValue) {
+                    return mSwipeEscapeVelocity;
+                }
+
+                @Override
+                public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
+                                        float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                    super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+
+                    new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                            .addSwipeRightBackgroundColor(Color.rgb(234, 122, 98))
+
+                            .addSwipeRightActionIcon(R.drawable.ic_delete)
+
+                            .create()
+                            .decorate();
+
+                    super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+
+                    if(actionState != ItemTouchHelper.ACTION_STATE_IDLE){
+                        Paint paint = new Paint();
+                        paint.setColor(StyledAttributes.getColor(getApplicationContext(),R.attr.conversations_overview_background));
+                        paint.setStyle(Paint.Style.FILL);
+                        c.drawRect(viewHolder.itemView.getLeft(),viewHolder.itemView.getTop()
+                                ,viewHolder.itemView.getRight(),viewHolder.itemView.getBottom(), paint);
+                    }
+                }
+
+                @Override
+                public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                    super.clearView(recyclerView, viewHolder);
+                    viewHolder.itemView.setAlpha(1f);
+                }
+
+                @Override
+                public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                    pendingActionHelper.execute();
+                    int position = viewHolder.getLayoutPosition();
+                    try {
+                        swipedSMSConversation.push(conversationList.get(position));
+                    } catch (IndexOutOfBoundsException e) {
+                        return;
+                    }
+
+                    messagesAdapter.remove(swipedSMSConversation.peek(),position);
+
+                }
+            };
+            ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+            touchHelper.attachToRecyclerView(recyclerViewConversations);
             Log.d("Glacier","conversationList " +conversationList.size() + messagesAdapter);
             View emptyLayout = findViewById(R.id.empty_list);
             emptyLayout.setVisibility(View.GONE);
@@ -614,8 +690,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             }
         }
 
-
         MessagesAdapter(OnSMSConversationClickListener listener) {
+            this.listener = listener;
+            Log.d("Glacier","IN message adapter");
+        }
+        MessagesAdapter(OnSMSConversationClickListener listener, List<Conversation> conversations) {
             this.listener = listener;
             Log.d("Glacier","IN message adapter");
         }

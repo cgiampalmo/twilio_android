@@ -192,7 +192,7 @@ android {
         minSdkVersion 24
         targetSdkVersion 31
         versionCode 509
-        versionName "3.4.1-RC18-dev"
+        versionName "3.4.1-RC19-dev"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
 
