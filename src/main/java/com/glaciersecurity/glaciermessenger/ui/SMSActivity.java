@@ -763,7 +763,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                         //unreadcount.setVisibility(View.GONE);
                         if (holder.getAdapterPosition() > -1) {
                             if (conversation.getFriendlyName().equals(ConversationsManager.getConversation().get(holder.getAdapterPosition()).getFriendlyName())) {
-                                unreadcount.setVisibility(View.VISIBLE);
+                                //unreadcount.setVisibility(View.VISIBLE);
                                 conversation.getMessagesCount(new CallbackListener<Long>() {
                                     @Override
                                     public void onSuccess(Long result) {

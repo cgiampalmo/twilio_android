@@ -101,7 +101,7 @@ public class GroupSMS  extends XmppActivity implements OnSMSConversationClickLis
     }
     public void onBackPressed(){
         super.onBackPressed();
-        Toast.makeText(getApplicationContext(),"onBackPressed",Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(),"onBackPressed",Toast.LENGTH_SHORT).show();
         finish();
         Intent intent = new Intent(mContext, SMSActivity.class);
         startActivity(intent.putExtra("account",identity));

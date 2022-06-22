@@ -9,9 +9,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
@@ -37,8 +41,12 @@ public class ContactListActivity extends XmppActivity implements OnSMSConversati
     ArrayList<ContactModel> arrayList = new ArrayList<ContactModel>();
     ContactAdapter adapter;
     Toolbar toolbar;
+    private EditText phoneNumber;
     private Context mContext = this;
     ConversationModel cModel;
+    FilterAdapter adapterSearch;
+    RecyclerView recyclerViewSearch;
+    Map<String, String> convContList;
 
     @Override
     protected void refreshUiReal() {
@@ -73,6 +81,50 @@ public class ContactListActivity extends XmppActivity implements OnSMSConversati
             identity = getIntent().getExtras().getString("identity");
             Convtoken = getIntent().getExtras().getString("conversationToken");
         }
+        ArrayList aList = new ArrayList();
+        convContList = cModel.getContConv();
+        if(convContList.size() > 0) {
+            for (Map.Entry<String, String> numList : convContList.entrySet()) {
+                aList.add(numList.getKey());
+            }
+        }
+        recyclerViewSearch = findViewById(R.id.choose_conversation_list);
+        LinearLayoutManager layoutManagerSearch = new LinearLayoutManager(this);
+        layoutManagerSearch .setStackFromEnd(true);
+        layoutManagerSearch .setReverseLayout(true);
+        recyclerViewSearch.setLayoutManager(layoutManagerSearch);
+        adapterSearch = new FilterAdapter((OnSMSConversationClickListener) this,aList);
+        recyclerViewSearch.setAdapter(adapterSearch);
+
+        phoneNumber = findViewById(R.id.edit_gchat_number);
+        phoneNumber.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Log.d("Glacier","onTextChanged "+charSequence);
+                adapterSearch.getFilter().filter(charSequence.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        ImageView sendChatMessageButton = findViewById(R.id.button_gchat_send);
+        sendChatMessageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String toNumber = phoneNumber.getText().toString().replace("+1","").replace("(","").replace(")","").replace(" ","").replace("-","");
+                if(toNumber.length() > 9)
+                    OnSMSConversationClick("", toNumber);
+                else
+                    Toast.makeText(ContactListActivity.this, "Please enter valid number", Toast.LENGTH_SHORT).show();
+            }
+        });
         TokenModel Atoken = new TokenModel();
         FloatingActionButton NewEnterNumber = findViewById(R.id.add_group_sms);
         NewEnterNumber.setOnClickListener(new View.OnClickListener() {

@@ -108,7 +108,8 @@
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/add_number"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="0.0"
+            android:visibility="gone"/>
 
         <View android:id="@+id/separator"
             android:background="@color/secondary_bg_color"
@@ -120,7 +121,8 @@
             android:layout_centerVertical ="true"
             android:layout_alignParentTop="true"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/choose_conversation_list"/>
+            app:layout_constraintTop_toBottomOf="@+id/choose_conversation_list"
+            android:visibility="gone"/>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
