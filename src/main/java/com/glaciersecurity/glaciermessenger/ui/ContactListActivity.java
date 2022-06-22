@@ -73,13 +73,18 @@ public class ContactListActivity extends XmppActivity implements OnSMSConversati
             identity = getIntent().getExtras().getString("identity");
             Convtoken = getIntent().getExtras().getString("conversationToken");
         }
-        FloatingActionButton NewEnterNumber = findViewById(R.id.button_num_no_sms);
+        TokenModel Atoken = new TokenModel();
+        FloatingActionButton NewEnterNumber = findViewById(R.id.add_group_sms);
         NewEnterNumber.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext, NewSMSActivity.class);
-                String conv_Sid = "new";
-                startActivity(intent.putExtra("conv_sid",conv_Sid).putExtra("identity",identity).putExtra("conversationToken", Convtoken).putExtra("title","New message"));
+//                Intent intent = new Intent(mContext, NewSMSActivity.class);
+//                String conv_Sid = "new";
+//                startActivity(intent.putExtra("conv_sid",conv_Sid).putExtra("identity",identity).putExtra("conversationToken", Convtoken).putExtra("title","New message"));
+                cModel.setConversationsClient(ConversationsManager.conversationsClient);
+                Intent intent = new Intent(mContext, GroupSMS.class);
+                String token = Atoken.getAccessToken();
+                startActivity(intent.putExtra("identity",identity).putExtra("conversationToken",token));
             }
         });
     }

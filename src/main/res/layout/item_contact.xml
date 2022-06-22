@@ -13,6 +13,7 @@
         android:layout_margin="3dp"
         android:padding="4px"
         android:background="@drawable/shape_circle"
+        android:backgroundTint="?message_rcvd_bubble_color"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

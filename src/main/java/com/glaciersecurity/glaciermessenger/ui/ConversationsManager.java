@@ -71,7 +71,7 @@ public class ConversationsManager {
     final public Map<String,String> conv_last_msg_sent = new HashMap<>();
     final public Map<String, Integer> conv_last_msg_count = new HashMap<>();
 
-    public ConversationsClient conversationsClient;
+    public static ConversationsClient conversationsClient;
 
     protected Conversation conversation;
 

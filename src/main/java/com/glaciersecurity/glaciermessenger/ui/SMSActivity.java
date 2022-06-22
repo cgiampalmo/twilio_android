@@ -91,16 +91,16 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     private final PendingItem<ScrollState> pendingScrollState = new PendingItem<>();
     private Toolbar toolbar;
     public FloatingActionButton fab_contact;
-    public FloatingActionButton fab_group;
-    public FloatingActionButton fab_add;
+//    public FloatingActionButton fab_group;
+//    public FloatingActionButton fab_add;
 
     RecyclerView recyclerViewConversations;
     RecyclerView recyclerViewSMS;
 
     private View back_drop;
     private boolean rotate = false;
-    private View lyt_group;
-    private View lyt_chat;
+//    private View lyt_group;
+//    private View lyt_chat;
 
     private DrawerLayout drawer_sms;
     SmsProfileAdapter adapter_sms;
@@ -401,12 +401,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         Log.d("Glacier","identity sdns n "+identity);
 
         fab_contact = (FloatingActionButton) findViewById(R.id.fab_chat);
-        fab_group = (FloatingActionButton) findViewById(R.id.fab_group);
-        fab_add = (FloatingActionButton) findViewById(R.id.fab_add);
-        lyt_group = findViewById(R.id.lyt_mic);
-        lyt_chat = findViewById(R.id.lyt_call);
-        ViewAnimation.initShowOut(lyt_group);
-        ViewAnimation.initShowOut(lyt_chat);
+//        fab_group = (FloatingActionButton) findViewById(R.id.fab_group);
+//        fab_add = (FloatingActionButton) findViewById(R.id.fab_add);
+//        lyt_group = findViewById(R.id.lyt_mic);
+//        lyt_chat = findViewById(R.id.lyt_call);
+//        ViewAnimation.initShowOut(lyt_group);
+//        ViewAnimation.initShowOut(lyt_chat);
         fab_contact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -422,40 +422,40 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 }
             }
         });
-        fab_group.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                model.setConversationsClient(ConversationsManager.conversationsClient);
-                Intent intent = new Intent(mContext, GroupSMS.class);
-                String token = Atoken.getAccessToken();
-                startActivity(intent.putExtra("identity",identity).putExtra("conversationToken",token));
-            }
-            });
-
-                fab_add.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            toggleFabMode(view);
-        }
-    });
+//        fab_group.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                model.setConversationsClient(ConversationsManager.conversationsClient);
+//                Intent intent = new Intent(mContext, GroupSMS.class);
+//                String token = Atoken.getAccessToken();
+//                startActivity(intent.putExtra("identity",identity).putExtra("conversationToken",token));
+//            }
+//            });
+//
+//                fab_add.setOnClickListener(new View.OnClickListener() {
+//        @Override
+//        public void onClick(View view) {
+//            toggleFabMode(view);
+//        }
+//    });
 }
     //    public boolean onCreateOptionsMenu(Menu menu) {
 //        getMenuInflater().inflate(R.menu.menu_add_group, menu);
 //        return super.onCreateOptionsMenu(menu);
 //    }
 
-    private void toggleFabMode(View v) {
-        rotate = ViewAnimation.rotateFab(v, !rotate);
-        if (rotate) {
-            ViewAnimation.showIn(lyt_group);
-            ViewAnimation.showIn(lyt_chat);
-            //back_drop.setVisibility(View.VISIBLE);
-        } else {
-            ViewAnimation.showOut(lyt_group);
-            ViewAnimation.showOut(lyt_chat);
-            //back_drop.setVisibility(View.GONE);
-        }
-    }
+//    private void toggleFabMode(View v) {
+//        rotate = ViewAnimation.rotateFab(v, !rotate);
+//        if (rotate) {
+//            ViewAnimation.showIn(lyt_group);
+//            ViewAnimation.showIn(lyt_chat);
+//            //back_drop.setVisibility(View.VISIBLE);
+//        } else {
+//            ViewAnimation.showOut(lyt_group);
+//            ViewAnimation.showOut(lyt_chat);
+//            //back_drop.setVisibility(View.GONE);
+//        }
+//    }
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.d("Glacier","menu_group_call_participants_list "+item.getItemId()+"======="+R.id.menu_group_call_participants_list);
         switch (item.getItemId()){
@@ -619,7 +619,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     @Override
     public void OnSMSProfileClick(String id, String number, int color) {
         toolbar.setBackgroundColor(color);
-        fab_add.setBackgroundTintList(ColorStateList.valueOf(color));
+        fab_contact.setBackgroundTintList(ColorStateList.valueOf(color));
         drawer_sms.closeDrawers();
     }
 
@@ -747,8 +747,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                             if (holder.getAdapterPosition() > -1) {
                                 Log.d("Glacier ", "unreadcount 12344" + unreadcount + conversation.getFriendlyName() + " " + holder.getAdapterPosition() + " " + ConversationsManager.getConversation().get(holder.getAdapterPosition()).getFriendlyName());
                                 if (conversation.getFriendlyName().equals(ConversationsManager.getConversation().get(holder.getAdapterPosition()).getFriendlyName())) {
-                                    unreadcount.setVisibility(View.VISIBLE);
                                     unreadcount.setUnreadCount(Math.toIntExact(result));
+                                    if (Math.toIntExact(result) > 0){
+                                        unreadcount.setVisibility(View.VISIBLE);
+                                    } else {
+                                        unreadcount.setVisibility(View.GONE);
+                                    }
                                     conversation_lastmsg.setTypeface(Typeface.DEFAULT_BOLD);
                                 }
                             }
@@ -763,7 +767,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                                 conversation.getMessagesCount(new CallbackListener<Long>() {
                                     @Override
                                     public void onSuccess(Long result) {
-                                        unreadcount.setUnreadCount(Math.toIntExact(result));
+                                        if (Math.toIntExact(result) > 0){
+                                            unreadcount.setVisibility(View.VISIBLE);
+                                        } else {
+                                            unreadcount.setVisibility(View.GONE);
+                                        }
                                     }
                                 });
                                 conversation_lastmsg.setTypeface(Typeface.DEFAULT_BOLD);
