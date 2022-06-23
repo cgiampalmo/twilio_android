@@ -27,7 +27,7 @@
                 android:id="@+id/toolbar_sms_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                layout="@layout/toolbar_sms"/>
+                layout="@layout/toolbar"/>
 
         </com.google.android.material.appbar.AppBarLayout>
 
