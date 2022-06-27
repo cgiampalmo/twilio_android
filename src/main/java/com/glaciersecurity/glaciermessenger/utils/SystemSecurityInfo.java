@@ -270,6 +270,12 @@ public class SystemSecurityInfo {
             needsUpdate = true;
         }
 
+        boolean hasDeviceLock = hasBioLock();
+        if (hasDeviceLock != securityInfo.getDeviceLock()) {
+            securityInfo.setDeviceLock(hasDeviceLock);
+            needsUpdate = true;
+        }
+
         boolean hasCoreEnabled = isCoreEnabled();
         if (hasCoreEnabled != securityInfo.getCoreEnabled()) {
             securityInfo.setCoreEnabled(hasCoreEnabled);

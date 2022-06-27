@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.ExpandableListItem;
 import com.glaciersecurity.glaciermessenger.ui.adapter.AdapterListExpand;
+import com.glaciersecurity.glaciermessenger.utils.PhoneHelper;
 import com.glaciersecurity.glaciermessenger.utils.ThemeHelper;
 import com.makeramen.roundedimageview.RoundedImageView;
 
@@ -41,6 +42,7 @@ public class SecurityHubActivity extends XmppActivity {
         setSupportActionBar(findViewById(R.id.toolbar));
         configureActionBar(getSupportActionBar());
         setTitle(R.string.title_activity_security_hub);
+        //setTitle(Build.MANUFACTURER + " " + Build.MODEL + " " + PhoneHelper.getAndroidId(this));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         initComponent();
@@ -159,16 +161,16 @@ public class SecurityHubActivity extends XmppActivity {
     private ExpandableListItem latestOsListItem(){
         boolean latestOs = xmppConnectionService.getSecurityInfo().isLatestOS();
         if (latestOs) {
-            return new ExpandableListItem(R.drawable.ic_baseline_system_security_update_good_24, getString(R.string.latest_updates_os),getString(R.string.up_to_date_os));
+            return new ExpandableListItem(R.drawable.os_up_to_date2, getString(R.string.latest_updates_os),getString(R.string.up_to_date_os));
         }
-            return new ExpandableListItem(R.drawable.ic_baseline_system_update_24_gray, getString(R.string.latest_updates_os),getString(R.string.update_os), true);
+            return new ExpandableListItem(R.drawable.os_out_of_date2, getString(R.string.latest_updates_os),getString(R.string.update_os), true);
     }
 
     private ExpandableListItem appBioLockListItem(){
         if (isApplock()) {
-            return new ExpandableListItem(R.drawable.ic_twotone_phonelink_lock_24, getString(R.string.biometrics_app), getString(R.string.app_lock_enabled));
+            return new ExpandableListItem(R.drawable.glacier_app_lock_enabled, getString(R.string.biometrics_app), getString(R.string.app_lock_enabled));
         } else {
-            return new ExpandableListItem(R.drawable.ic_baseline_phonelink_lock_24,  getString(R.string.biometrics_app), getString(R.string.app_lock_disabled));
+            return new ExpandableListItem(R.drawable.glacier_app_lock_disabled,  getString(R.string.biometrics_app), getString(R.string.app_lock_disabled));
         }
     }
 
