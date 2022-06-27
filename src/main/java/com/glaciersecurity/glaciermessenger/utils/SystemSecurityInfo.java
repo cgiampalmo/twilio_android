@@ -173,6 +173,10 @@ public class SystemSecurityInfo {
 
     public boolean isLatestOS() {
 
+        if(Build.BRAND.equals("chromium") && Build.MANUFACTURER.equals("chromium")){
+            return true;
+        }
+
         if (latestAlt != null) {
             String myOsBuild= Build.DISPLAY;
 
@@ -216,7 +220,7 @@ public class SystemSecurityInfo {
         if (securityInfo == null) {
             final Account account = xmppConnectionService.getAccounts().get(0);
             CognitoAccount myCogAccount = xmppConnectionService.databaseBackend.getCognitoAccount(account);
-            securityInfo = new SecurityInfo(myCogAccount.getUuid());
+            securityInfo = new SecurityInfo(PhoneHelper.getAndroidId(xmppConnectionService.getApplicationContext()));
 
             //fill the basics
             //device
