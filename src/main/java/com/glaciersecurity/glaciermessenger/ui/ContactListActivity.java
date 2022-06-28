@@ -83,7 +83,7 @@ public class ContactListActivity extends XmppActivity implements OnSMSConversati
         }
         ArrayList aList = new ArrayList();
         convContList = cModel.getContConv();
-        if(convContList.size() > 0) {
+        if(convContList != null && convContList.size() > 0) {
             for (Map.Entry<String, String> numList : convContList.entrySet()) {
                 aList.add(numList.getKey());
             }
