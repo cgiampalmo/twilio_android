@@ -1,7 +1,6 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.ExpandableListItem;
 import com.glaciersecurity.glaciermessenger.ui.adapter.AdapterListExpand;
-import com.glaciersecurity.glaciermessenger.utils.PhoneHelper;
 import com.glaciersecurity.glaciermessenger.utils.ThemeHelper;
 import com.makeramen.roundedimageview.RoundedImageView;
 
@@ -163,7 +161,7 @@ public class SecurityHubActivity extends XmppActivity {
         if (latestOs) {
             return new ExpandableListItem(R.drawable.os_up_to_date2, getString(R.string.latest_updates_os),getString(R.string.up_to_date_os));
         }
-            return new ExpandableListItem(R.drawable.os_out_of_date2, getString(R.string.latest_updates_os),getString(R.string.update_os), true);
+            return new ExpandableListItem(R.drawable.os_out_of_date3, getString(R.string.latest_updates_os),getString(R.string.update_os), true);
     }
 
     private ExpandableListItem appBioLockListItem(){
@@ -193,11 +191,11 @@ public class SecurityHubActivity extends XmppActivity {
     private boolean isSecure(){
         if (xmppConnectionService.getSecurityInfo().isSecure()){
             issuesTitle.setText(R.string.no_issues_found);
-            issuesIcon.setImageResource(R.drawable.securityhub_safe);
+            issuesIcon.setImageResource(R.drawable.securityhub_safe2);
             return true;
         } else {
             issuesTitle.setText(R.string.issues_found);
-            issuesIcon.setImageResource(R.drawable.securithhub_notsafe);
+            issuesIcon.setImageResource(R.drawable.securityhub_notsafe2);
             return false;
         }
     }
