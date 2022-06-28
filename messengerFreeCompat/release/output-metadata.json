@@ -11,9 +11,9 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 509,
-      "versionName": "3.4.2-SMS3-dev",
-      "outputFile": "glacierMessenger-3.4.2-SMS3-dev-messenger-free-compat-release.apk"
+      "versionCode": 513,
+      "versionName": "3.4.2-SMS4",
+      "outputFile": "glacierMessenger-3.4.2-SMS4-messenger-free-compat-release.apk"
     }
   ],
   "elementType": "File"

@@ -95,6 +95,12 @@ public class SystemSecurityInfo {
         KeyguardManager myKM = (KeyguardManager) xmppConnectionService.getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
         return myKM.isDeviceSecure();
     }
+    public boolean hasBioLock(){
+        KeyguardManager myKM = (KeyguardManager) xmppConnectionService.getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
+        //return myKM.isDeviceSecure();
+        BiometricManager myBM = BiometricManager.from(xmppConnectionService.getApplicationContext());
+        return (myBM.canAuthenticate() == BiometricManager.BIOMETRIC_SUCCESS);
+    }
 
     public boolean isCoreEnabled(){
         return PreferenceManager.getDefaultSharedPreferences(xmppConnectionService).getBoolean(USE_CORE_CONNECT, false);
@@ -166,15 +172,24 @@ public class SystemSecurityInfo {
     }*/
 
     public boolean isLatestOS() {
+
+        if(Build.BRAND.equals("chromium") && Build.MANUFACTURER.equals("chromium")){
+            return true;
+        }
+
+        if (latestAlt != null) {
+            String myOsBuild= Build.DISPLAY;
+
+            ComparableVersion latestCompAltOs = new ComparableVersion(latestAlt);
+            ComparableVersion myOsB = new ComparableVersion(myOsBuild);
+            if (myOsB.compareTo(latestCompAltOs) == 0){
+                return true;
+            }
+        }
         if (latestOs != null) {
             ComparableVersion latestCompOs = new ComparableVersion(latestOs);
             String myOsVer = Build.VERSION.RELEASE;
             ComparableVersion myOs = new ComparableVersion(myOsVer);
-            if (latestAlt != null) {
-                ComparableVersion latestCompAltOs = new ComparableVersion(latestAlt);
-                return myOs.compareTo(latestCompAltOs) == 0;
-            }
-
             return myOs.compareTo(latestCompOs) >= 0;
         }
         return true;
@@ -205,7 +220,7 @@ public class SystemSecurityInfo {
         if (securityInfo == null) {
             final Account account = xmppConnectionService.getAccounts().get(0);
             CognitoAccount myCogAccount = xmppConnectionService.databaseBackend.getCognitoAccount(account);
-            securityInfo = new SecurityInfo(myCogAccount.getUuid());
+            securityInfo = new SecurityInfo(PhoneHelper.getAndroidId(xmppConnectionService.getApplicationContext()));
 
             //fill the basics
             //device
@@ -256,6 +271,12 @@ public class SystemSecurityInfo {
         boolean hasBioLock = isBiometricPINOn(xmppConnectionService.getApplicationContext());
         if (hasBioLock != securityInfo.getBiometricLock()) {
             securityInfo.setBiometricLock(hasBioLock);
+            needsUpdate = true;
+        }
+
+        boolean hasDeviceLock = hasBioLock();
+        if (hasDeviceLock != securityInfo.getDeviceLock()) {
+            securityInfo.setDeviceLock(hasDeviceLock);
             needsUpdate = true;
         }
 
