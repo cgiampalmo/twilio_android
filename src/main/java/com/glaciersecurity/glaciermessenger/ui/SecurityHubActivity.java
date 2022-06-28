@@ -141,9 +141,9 @@ public class SecurityHubActivity extends XmppActivity {
 
     private ExpandableListItem screenLockListItem(){
         if (hasScreenLock()) {
-            return new ExpandableListItem(R.drawable.smartphone_screen_lock_128, getString(R.string.screen_lock),getString(R.string.screen_lock_enabled));
+            return new ExpandableListItem(R.drawable.device_lock_enabled, getString(R.string.screen_lock),getString(R.string.screen_lock_enabled));
         } else {
-            return new ExpandableListItem(R.drawable.smartphone_screen_lock_disabled_128, getString(R.string.screen_lock),getString(R.string.screen_lock_disabled), true);
+            return new ExpandableListItem(R.drawable.device_lock_disabled, getString(R.string.screen_lock),getString(R.string.screen_lock_disabled), true);
         }
     }
 
@@ -195,7 +195,7 @@ public class SecurityHubActivity extends XmppActivity {
             return true;
         } else {
             issuesTitle.setText(R.string.issues_found);
-            issuesIcon.setImageResource(R.drawable.securityhub_notsafe2);
+            issuesIcon.setImageResource(R.drawable.securityhub_notsafe_gray);
             return false;
         }
     }
