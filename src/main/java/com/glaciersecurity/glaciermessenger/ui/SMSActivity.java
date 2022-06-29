@@ -604,7 +604,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                                 proxyNumber = ConversationsManager.proxyAddress[0].toString();
                             }else
                                 proxyNumber = model.getProxyNumber();
-                            model.setProxyNumber(ConversationsManager.proxyAddress);
                         }
                     });
                 }

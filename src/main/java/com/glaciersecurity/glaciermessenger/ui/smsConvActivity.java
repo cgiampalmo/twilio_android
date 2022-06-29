@@ -211,6 +211,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                 String messageBody = writeMessageEditText.getText().toString().trim();
                 if(mediaPreviewAdapter.hasAttachments()){
                     ConversationsManager.sendMMSMessage(mediaPreviewAdapter.getAttachments());
+                    Toast.makeText(smsConvActivity.this, "Please wait. Sending an image", Toast.LENGTH_LONG).show();
                 }
                 else if (messageBody.length() > 0) {
                     ConversationsManager.sendMessage(messageBody);
