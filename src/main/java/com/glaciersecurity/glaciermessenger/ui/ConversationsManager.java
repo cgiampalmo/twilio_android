@@ -1,7 +1,5 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
-import android.app.Notification;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.provider.MediaStore;
@@ -10,6 +8,7 @@ import android.util.Log;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.ui.util.Attachment;
 import com.google.gson.Gson;
+import com.twilio.conversations.Attributes;
 import com.twilio.conversations.CallbackListener;
 import com.twilio.conversations.Conversation;
 import com.twilio.conversations.ConversationListener;
@@ -22,6 +21,8 @@ import com.twilio.conversations.StatusListener;
 import com.twilio.conversations.User;
 
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,7 +37,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import androidx.core.app.NotificationCompat;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -66,7 +66,8 @@ public class ConversationsManager {
     private final static String DEFAULT_CONVERSATION_NAME = "general";
 
     final private ArrayList<Message> messages = new ArrayList<>();
-    final public ArrayList<Conversation> conv_list = new ArrayList<>();
+    final public Map<String,ArrayList<Conversation>> conv_list = new HashMap<>();
+
     final public Map<String,String> conv_last_msg = new HashMap<>();
     final public Map<String,String> conv_last_msg_sent = new HashMap<>();
     final public Map<String, Integer> conv_last_msg_count = new HashMap<>();
@@ -83,9 +84,10 @@ public class ConversationsManager {
 
     private String conversationSid = "";
     private Context mContext;
-    protected String proxyAddress;
+    protected Object[] proxyAddress;
+    public Map<String, Integer> unread_conv_count = new HashMap<>();
     protected class TokenResponse {
-        public String user_number;
+        public Object[] user_numbers;
         String token;
     }
     ConversationsManager(final Context context){
@@ -156,9 +158,10 @@ public class ConversationsManager {
                 Log.d("Glacier", "Response from server: " + responseBody);
                 Gson gson = new Gson();
                 TokenResponse tokenResponse = gson.fromJson(responseBody, TokenResponse.class);
+                Log.d("Glacier", "tokenResponse from server: " + tokenResponse);
                 String accessToken = tokenResponse.token;
-                this.proxyAddress = tokenResponse.user_number;
-                Log.d("Glacier", "Retrieved access token from server: " + accessToken);
+                this.proxyAddress = tokenResponse.user_numbers;
+                Log.d("Glacier", "Retrieved access token from server: " + accessToken + proxyAddress );
                 listener.receivedAccessToken(accessToken, null);
 
             } catch (IOException ex) {
@@ -233,9 +236,11 @@ public class ConversationsManager {
         }
     }
 
-    protected void addListenerLoadChannels(final ConversationsClient conversationsClient){
+    protected void addListenerLoadChannels(final ConversationsClient conversationsClient,Object[] proxyNumbers){
+        ConversationsManager.this.proxyAddress = proxyNumbers;
         ConversationsManager.this.conversationsClient = conversationsClient;
         conversationsClient.removeAllListeners();
+        //conversationsClient.removeListener(ConversationsManager.this.mConversationsClientListener);
         conversationsClient.addListener(ConversationsManager.this.mConversationsClientListener);
 
         //loadChannels(conversationsClient);
@@ -247,22 +252,49 @@ public class ConversationsManager {
 //            createConversation();
             return;
         }
+        //conversationsClient.updateToken();
+
         if(conversationsClient.getMyConversations().size() > 0) {
             conv_list.clear();
+            unread_conv_count.clear();
             Log.d("Glacier","conversationsClient "+conversationsClient.getMyConversations().get(0).getUniqueName()+"---"+conversationsClient.getMyConversations().get(0).getFriendlyName()+"----"+conversationsClient.getMyConversations().get(0).getSid());
-            conv_list.addAll(conversationsClient.getMyConversations());
-            Log.d("Glacier","conv_list "+conv_list +"---"+conv_list.size());
-        //conversationsManagerListener.reloadMessages();
-            for (int i = 0; i < conv_list.size(); i++) {
-                getConversation(conversationsClient.getMyConversations().get(i).getSid(), true, conversationsClient);
+            for (int i = 0; i < conversationsClient.getMyConversations().size(); i++) {
+                String identity_number = "";
+                Conversation conv = conversationsClient.getMyConversations().get(i);
+                JSONObject ConvProxyNumber = conv.getAttributes().getJSONObject();
+                if(ConvProxyNumber!=null) {
+                    try {
+                        identity_number = ConvProxyNumber.getString("identity_number");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                ArrayList<Conversation> get_exist_conv = new ArrayList<>();
+                if(conv_list.get(identity_number) != null){
+                    get_exist_conv = conv_list.get(identity_number);
+                }
+                Log.d("Glacier","get_unread_message --- "+ conv.getFriendlyName() +" --- getLastReadMessageIndex --- "+conv.getLastReadMessageIndex()+" --- getLastMessageIndex -- "+conv.getLastMessageIndex());
+                if(conv.getLastReadMessageIndex() == null || ( (conv.getLastMessageIndex() != null) && (conv.getLastMessageIndex() > conv.getLastReadMessageIndex()) )){
+                    Integer unread_count = 1;
+                    if(unread_conv_count.get(identity_number) != null) {
+                        unread_count = unread_conv_count.get(identity_number)+1;
+                    }
+                    unread_conv_count.put(identity_number,unread_count);
+                }
+                conv.getLastReadMessageIndex();
+                conv.getLastMessageIndex();
+                //get_unread_message
+                get_exist_conv.add(conv);
+                Log.d("Glacier","get_exist_conv---"+get_exist_conv.get(0).getFriendlyName()+"---------"+identity_number);
+                conv_list.put(identity_number,get_exist_conv);
+                getConversation(conv.getSid(), true, conversationsClient,identity_number);
             }
         }
         conversationsManagerListener.showList();
-//        Log.d("Glacier","conv_list "+conv_list +"---"+conv_list.size());
-        //getConversation(conversationsClient.getMyConversations().get(0).getSid());
     }
 
-    protected void getConversation(String convSid, boolean lastmsg, ConversationsClient conversationsClient){
+    protected void getConversation(String convSid, boolean lastmsg, ConversationsClient conversationsClient,String number){
         ConversationsManager.this.conversationsClient = conversationsClient;
         conversationsClient.getConversation(convSid, new CallbackListener<Conversation>() {
             @Override
@@ -292,33 +324,44 @@ public class ConversationsManager {
             @Override
             public void onError(ErrorInfo errorInfo) {
                 Log.e("Glacier", "Error retrieving conversation: " + errorInfo.getMessage());
-                createConversation(convSid);
+                createConversation(convSid,number);
             }
 
         });
     }
-    private void createConversation(String convSid) {
+    private void createConversation(String convSid,String number) {
         Log.d("Glacier", "Creating Conversation: " + DEFAULT_CONVERSATION_NAME);
-
+        String proxynum = number.replace(" ","").replace("(","").replace("-","").replace(")","");
         conversationsClient.createConversation(convSid,
                 new CallbackListener<Conversation>() {
                     @Override
                     public void onSuccess(Conversation conversation) {
                         if (conversation != null) {
-                            Log.d("Glacier", "Joining Conversation: " + DEFAULT_CONVERSATION_NAME);
-                            joinConversation(conversation);
-                            ConversationsManager.this.conversation = conversation;
-                            conversationsManagerListener.reloadMessages();
-                            conversation.setLastReadMessageIndex(0, new CallbackListener<Long>() {
+                            JSONObject conv_attr = new JSONObject();
+                            try {
+                                conv_attr.put("identity_number",proxynum);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            Attributes attributes = new Attributes(conv_attr);
+                            conversation.setAttributes(attributes, new StatusListener() {
                                 @Override
-                                public void onSuccess(Long result) {
-                                    Log.d("Glacier","setUnreadCount "+result);
-                                    conversationsManagerListener.showList();
+                                public void onSuccess() {
+                                    Log.d("Glacier", "Joining Conversation: Attributes " + attributes);
+                                    joinConversation(conversation);
+                                    ConversationsManager.this.conversation = conversation;
+                                    conversationsManagerListener.reloadMessages();
+                                    conversation.setLastReadMessageIndex(0, new CallbackListener<Long>() {
+                                        @Override
+                                        public void onSuccess(Long result) {
+                                            Log.d("Glacier","setUnreadCount "+result);
+                                            conversationsManagerListener.showList();
+                                        }
+                                    });
                                 }
                             });
                         }
                     }
-
                     @Override
                     public void onError(ErrorInfo errorInfo) {
                         Log.e("Glacier", "Error creating conversation: " + errorInfo.getMessage());
@@ -404,12 +447,23 @@ public class ConversationsManager {
                                     @Override
                                     public void onSuccess(Long result) {
                                         Log.d("Glacier", "setUnreadCount " + result);
+
                                         loadChannels(conversationsClient);
                                         conversation.getLastMessages(10, new CallbackListener<List<Message>>() {
 
                                             @Override
                                             public void onSuccess(List<Message> result) {
-                                                conversationsManagerListener.notifyMessages("New message from "+result.get(0).getAuthor() + " : "+result.get(0).getMessageBody(),result.get(0).getAuthor());
+                                                JSONObject ConvProxyNumber = conversation.getAttributes().getJSONObject();
+                                                String identity_number = "";
+                                                if(ConvProxyNumber!=null) {
+                                                    try {
+                                                        String ide_num = ConvProxyNumber.getString("identity_number");
+                                                        identity_number = ide_num.substring(ide_num.length() - 4);
+                                                    } catch (JSONException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                                conversationsManagerListener.notifyMessages("New sms for "+ identity_number +" from "+result.get(0).getAuthor() + " : "+result.get(0).getMessageBody(),result.get(0).getAuthor());
                                             }
 
                                             @Override
@@ -466,7 +520,7 @@ public class ConversationsManager {
 //                        startAdapter();
                         loadChannels(conversationsClient);
                     }else if(synchronizationStatus == ConversationsClient.SynchronizationStatus.COMPLETED){
-                        getConversation(conversationSid,false,conversationsClient);
+                        getConversation(conversationSid,false,conversationsClient,proxyAddress[0].toString());
                     }
                 }
 
@@ -584,8 +638,17 @@ public class ConversationsManager {
                     }
 
                 }
-
-                conversationsManagerListener.receivedNewMessage("New sms from " + message.getAuthor() + " : " + message.getMessageBody(),message.getConversationSid(),message.getAuthor());
+                JSONObject ConvProxyNumber = message.getConversation().getAttributes().getJSONObject();
+                String identity_number = "";
+                if(ConvProxyNumber!=null) {
+                    try {
+                        String ide_num = ConvProxyNumber.getString("identity_number");
+                        identity_number = ide_num.substring(ide_num.length() - 4);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                conversationsManagerListener.receivedNewMessage("New sms for " + identity_number +" from " + message.getAuthor() + " : " + message.getMessageBody(),message.getConversationSid(),message.getAuthor());
                 //conversationsManagerListener.reloadMessages();
                 /*else {
                     conversationsManagerListener.reloadMessages();
@@ -645,9 +708,19 @@ public class ConversationsManager {
         Log.d("Glacier","getMessages getConversation "+conv_list +"---------"+messages);
         return messages;
     }
-    public ArrayList<Conversation> getConversation() {
-        sortconv(conv_list);
-        return conv_list;
+    public ArrayList<Conversation> getConversation(String proxyNumber) {
+        ArrayList<Conversation> current_conv_list = new ArrayList<Conversation>();
+        String proxynum = "";
+        if(proxyNumber != null) {
+            proxynum = proxyNumber.replace(" ", "").replace("(", "").replace("-", "").replace(")", "");
+        }else{
+            proxynum = proxyNumber;
+        }
+        if (conv_list.get(proxynum) != null) {
+            current_conv_list = conv_list.get(proxynum);
+            sortconv(current_conv_list);
+        }
+        return current_conv_list;
     }
     private void sortconv(List conversations){
         Collections.sort(conversations,new ConversationsManager.EventDetailSortByDate());

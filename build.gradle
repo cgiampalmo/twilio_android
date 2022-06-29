@@ -213,7 +213,7 @@ android {
 
     node {
         download = true
-        version = "17.3.0"
+        version = "12.18.2"
     }
 
     buildTypes {

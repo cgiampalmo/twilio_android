@@ -172,7 +172,8 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                     }
                 }
             }
-            ConversationsManager.getConversation(convSid, false, conversationsClient);
+            String proxynumber = model.getProxyNumber();
+            ConversationsManager.getConversation(convSid, false, conversationsClient,proxynumber);
         }else {
             if(Convtoken != null) {
                 ConversationsManager.initializeWithAccessToken(this, Convtoken, convSid);
@@ -303,7 +304,8 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         startActivity(SMSActivity);*/
 //        ProgressBar progressBar = findViewById(R.id.progressBar2);
 //        progressBar.setVisibility(View.GONE);
-        Log.d("Glacier","smsConvActivity ConversationsManager "+ConversationsManager.getConversation());
+        String proxyNumber = model.getProxyNumber();
+        Log.d("Glacier","smsConvActivity ConversationsManager "+ConversationsManager.getConversation(proxyNumber));
         if(groupConv) {
             add_participant(groupParticipants);
         }
@@ -414,7 +416,8 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                     ConversationsManager.conversation.setAllMessagesRead(new CallbackListener<Long>() {
                         @Override
                         public void onSuccess(Long result) {
-                            if(model.getNotificationManager() != null && ConversationsManager.conversation.getFriendlyName().length() > 5) {
+
+                            if(model.getNotificationManager() != null && ConversationsManager.conversation.getFriendlyName().length() > 5 && isNumeric(ConversationsManager.conversation.getFriendlyName().substring(2, 5))){
                                 Log.d("Glacier","getFriendlyName "+ Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5))+" "+model.getNotificationManager());
                                 model.clearNotification(Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5)));
                             }

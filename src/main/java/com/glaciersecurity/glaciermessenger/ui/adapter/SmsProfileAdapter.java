@@ -16,6 +16,7 @@ import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.ui.ChangePasswordActivity;
 import com.glaciersecurity.glaciermessenger.ui.OnSMSProfileClickListener;
+import com.glaciersecurity.glaciermessenger.ui.widget.UnreadCountCustomView;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import com.twilio.conversations.Conversation;
 
@@ -24,7 +25,7 @@ import java.util.List;
 
 public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SMSRecyclerViewHolder> implements OnSMSProfileClickListener {
 
-	private List<SmsProfile> smsProfileList = new ArrayList<>();
+	private ArrayList<SmsProfile> smsProfileList = new ArrayList<>();
 	private OnSMSProfileClickListener listener;
 
 	public SmsProfileAdapter(OnSMSProfileClickListener listener, ArrayList<SmsProfile> smsProfileList) {
@@ -44,6 +45,11 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 		holder.numberView.setText(smsProfileList.get(position).getNumber());
 		holder.locationView.setText(smsProfileList.get(position).getLocation());
 		holder.profileView.setBackgroundColor(smsProfileList.get(position).getColor());
+		Log.d("Glacier","unread_conv_count----"+smsProfileList.get(position).getUnread_count()+"---"+smsProfileList.get(position).getNumber());
+		if(smsProfileList.get(position).getUnread_count() > 0) {
+			holder.unreadCount.setUnreadCount(smsProfileList.get(position).getUnread_count());
+			holder.unreadCount.setVisibility(View.VISIBLE);
+		}
 		SmsProfile smsPro = smsProfileList.get(holder.getAdapterPosition());
 
 	}
@@ -63,6 +69,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 		final View profView;
 		TextView numberView;
 		TextView locationView;
+		UnreadCountCustomView unreadCount;
 		LinearLayout profileView;
 		private OnSMSProfileClickListener listener;
 
@@ -73,6 +80,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 			profileView = (LinearLayout) view.findViewById(R.id.sms_profile_view);
 			numberView = (TextView) view.findViewById(R.id.sms_profile_number);
 			locationView = (TextView) view.findViewById(R.id.sms_profile_location);
+			unreadCount = (UnreadCountCustomView) view.findViewById(R.id.sms_unread_count);
 			profView = view;
 			profView.setOnClickListener(this);
 		}

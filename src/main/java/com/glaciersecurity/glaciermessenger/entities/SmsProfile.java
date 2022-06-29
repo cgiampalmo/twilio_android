@@ -11,7 +11,16 @@ public class SmsProfile {
     protected String number;
     protected String location;
     protected String id;
+    protected Integer unread_count;
     final int color;
+
+    public Integer getUnread_count() {
+        return unread_count;
+    }
+
+    public void setUnread_count(Integer unread_count) {
+        this.unread_count = unread_count;
+    }
 
     public SmsProfile(String number, String location) {
         this.number = number;
