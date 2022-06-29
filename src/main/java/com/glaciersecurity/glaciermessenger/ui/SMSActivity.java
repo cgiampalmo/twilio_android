@@ -22,6 +22,7 @@ import android.os.StrictMode;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -369,10 +370,9 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 drawer_sms.openDrawer(GravityCompat.START);
             }
         });
-
         if(getIntent().hasExtra("account")) {
             identity = getIntent().getExtras().getString("account");
-            setTitle(identity);
+            //setTitle(identity);
             model.setIdentity(identity);
             Log.d("Glacier ","Twilio Conversation "+model.getConversation());
         }else{
@@ -462,10 +462,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 //        }
 //    });
 }
-    //    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.menu_add_group, menu);
-//        return super.onCreateOptionsMenu(menu);
-//    }
+
+        public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_add_group, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
 //    private void toggleFabMode(View v) {
 //        rotate = ViewAnimation.rotateFab(v, !rotate);
@@ -484,6 +485,9 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         switch (item.getItemId()){
             case android.R.id.home:
                 finish();
+                break;
+            case R.id.sms_accounts:
+                drawer_sms.openDrawer(GravityCompat.START);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -594,12 +598,13 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                         public void run() {
                             // need to modify user interface elements on the UI thread
                             checkPermission();
-                            setTitle(identity);
+                            //setTitle(identity);
                             if(model.getProxyNumber() == null || model.getProxyNumber().equals("") ) {
                                 model.setProxyNumber(ConversationsManager.proxyAddress[0].toString());
                                 proxyNumber = ConversationsManager.proxyAddress[0].toString();
                             }else
                                 proxyNumber = model.getProxyNumber();
+                            model.setProxyNumber(ConversationsManager.proxyAddress);
                         }
                     });
                 }

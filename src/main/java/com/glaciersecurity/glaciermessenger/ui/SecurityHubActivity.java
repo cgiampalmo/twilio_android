@@ -100,8 +100,10 @@ public class SecurityHubActivity extends XmppActivity {
         ArrayList<ExpandableListItem> security_results = new ArrayList<>();
         security_results.add(anomaliesDetectedListItem());
         security_results.add(screenLockListItem());
-        security_results.add(latestDownloadListItem());
-        security_results.add(fingerPrintListItem());
+        security_results.add(latestGlacierListItem());
+        security_results.add(latestOsListItem());
+        security_results.add(appBioLockListItem());
+        security_results.add(deviceBioLockListItem());
         security_results.add(coreConnectionListItem());
 
         isSecure();
@@ -117,8 +119,12 @@ public class SecurityHubActivity extends XmppActivity {
         return xmppConnectionService.getSecurityInfo().hasScreenLock();
     }
 
-    private boolean isBiometric() {
+    private boolean isApplock() {
         return getBooleanPreference(SettingsActivity.USE_BIOMETRICS, R.bool.enable_biometrics);
+    }
+
+    private boolean isDevicelock() {
+        return xmppConnectionService.getSecurityInfo().hasBioLock();
     }
 
     private boolean isCoreConnection() {
@@ -135,31 +141,42 @@ public class SecurityHubActivity extends XmppActivity {
 
     private ExpandableListItem screenLockListItem(){
         if (hasScreenLock()) {
-            return new ExpandableListItem(R.drawable.smartphone_screen_lock_128, getString(R.string.screen_lock),getString(R.string.screen_lock_enabled));
+            return new ExpandableListItem(R.drawable.device_lock_enabled, getString(R.string.screen_lock),getString(R.string.screen_lock_enabled));
         } else {
-            return new ExpandableListItem(R.drawable.smartphone_screen_lock_disabled_128, getString(R.string.screen_lock),getString(R.string.screen_lock_disabled), true);
+            return new ExpandableListItem(R.drawable.device_lock_disabled, getString(R.string.screen_lock),getString(R.string.screen_lock_disabled), true);
         }
     }
 
-    private ExpandableListItem latestDownloadListItem(){
-        boolean latestOs = xmppConnectionService.getSecurityInfo().isLatestOS();
+    private ExpandableListItem latestGlacierListItem(){
         boolean latestGlacier = xmppConnectionService.getSecurityInfo().isLatestGlacier();
-        if (latestOs && latestGlacier) {
-            return new ExpandableListItem(R.drawable.ic_gchat_icon_security, getString(R.string.latest_updates),getString(R.string.up_to_date));
-        } else if (latestOs) {
-            return new ExpandableListItem(R.drawable.ic_gchat_icon, getString(R.string.latest_updates),getString(R.string.update_glacier), true);
-        } else if (latestGlacier) {
-            return new ExpandableListItem(R.drawable.ic_gchat_icon, getString(R.string.latest_updates),getString(R.string.update_os), true);
+        if (latestGlacier) {
+            return new ExpandableListItem(R.drawable.ic_gchat_icon_security, getString(R.string.latest_updates_app),getString(R.string.up_to_date_app));
+        }
+            return new ExpandableListItem(R.drawable.ic_gchat_icon, getString(R.string.latest_updates_app),getString(R.string.update_glacier), true);
+
+    }
+
+    private ExpandableListItem latestOsListItem(){
+        boolean latestOs = xmppConnectionService.getSecurityInfo().isLatestOS();
+        if (latestOs) {
+            return new ExpandableListItem(R.drawable.os_up_to_date2, getString(R.string.latest_updates_os),getString(R.string.up_to_date_os));
+        }
+            return new ExpandableListItem(R.drawable.os_out_of_date3, getString(R.string.latest_updates_os),getString(R.string.update_os), true);
+    }
+
+    private ExpandableListItem appBioLockListItem(){
+        if (isApplock()) {
+            return new ExpandableListItem(R.drawable.glacier_app_lock_enabled, getString(R.string.biometrics_app), getString(R.string.app_lock_enabled));
         } else {
-            return new ExpandableListItem(R.drawable.ic_gchat_icon, getString(R.string.latest_updates),getString(R.string.update_both), true);
+            return new ExpandableListItem(R.drawable.glacier_app_lock_disabled,  getString(R.string.biometrics_app), getString(R.string.app_lock_disabled));
         }
     }
 
-    private ExpandableListItem fingerPrintListItem(){
-        if (isBiometric()) {
-            return new ExpandableListItem(R.drawable.fingerprint_biometric_lock_128, getString(R.string.biometrics), getString(R.string.bio_lock_enabled));
+    private ExpandableListItem deviceBioLockListItem(){
+        if (isDevicelock()) {
+            return new ExpandableListItem(R.drawable.fingerprint_biometric_lock_128, getString(R.string.biometrics_dev), getString(R.string.bio_lock_enabled));
         } else {
-            return new ExpandableListItem(R.drawable.fingerprint_biometric_lock_disabled_128,  getString(R.string.biometrics), getString(R.string.bio_lock_disabled));
+            return new ExpandableListItem(R.drawable.fingerprint_biometric_lock_disabled_128,  getString(R.string.biometrics_dev), getString(R.string.bio_lock_disabled));
         }
     }
 
@@ -174,11 +191,11 @@ public class SecurityHubActivity extends XmppActivity {
     private boolean isSecure(){
         if (xmppConnectionService.getSecurityInfo().isSecure()){
             issuesTitle.setText(R.string.no_issues_found);
-            issuesIcon.setImageResource(R.drawable.securityhub_safe);
+            issuesIcon.setImageResource(R.drawable.securityhub_safe2);
             return true;
         } else {
             issuesTitle.setText(R.string.issues_found);
-            issuesIcon.setImageResource(R.drawable.securithhub_notsafe);
+            issuesIcon.setImageResource(R.drawable.securityhub_notsafe_gray);
             return false;
         }
     }
