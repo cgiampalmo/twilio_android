@@ -179,21 +179,29 @@ public class ConversationsManager {
             //Message.options().withMedia()
             Message.Options options = Message.options().withBody(messageBody);
 
-            Log.d("Glacier","Message created");
-            conversation.sendMessage(options, new CallbackListener<Message>() {
-                @Override
-                public void onSuccess(Message message) {
-                    conversation.setAllMessagesRead(new CallbackListener<Long>() {
-                        @Override
-                        public void onSuccess(Long result) {
+            Log.d("Glacier", "Message created ==== " + conversation.getStatus() + "==========" + conversation.getState() + "=======" + conversation.getSynchronizationStatus());
+            try {
+                conversation.sendMessage(options, new CallbackListener<Message>() {
+                    @Override
+                    public void onSuccess(Message message) {
+                        conversation.setAllMessagesRead(new CallbackListener<Long>() {
+                            @Override
+                            public void onSuccess(Long result) {
 
+                            }
+                        });
+                        if (conversationsManagerListener != null) {
+                            conversationsManagerListener.messageSentCallback();
                         }
-                    });
-                    if (conversationsManagerListener != null) {
-                        conversationsManagerListener.messageSentCallback();
                     }
-                }
-            });
+
+                    public void onError(ErrorInfo errorInfo) {
+                        Log.d("Glacier", "errorInfo -- " + errorInfo.getMessage());
+                    }
+                });
+            }catch(Exception ex){
+                Log.e("Glacier","Exception === "+ex.getMessage());
+            }
         }
     }
 
@@ -288,19 +296,34 @@ public class ConversationsManager {
                 get_exist_conv.add(conv);
                 Log.d("Glacier","get_exist_conv---"+get_exist_conv.get(0).getFriendlyName()+"---------"+identity_number);
                 conv_list.put(identity_number,get_exist_conv);
-                getConversation(conv.getSid(), true, conversationsClient,identity_number);
+                getConversation(conv.getSid(), true, conversationsClient,identity_number,"");
             }
         }
         conversationsManagerListener.showList();
     }
 
-    protected void getConversation(String convSid, boolean lastmsg, ConversationsClient conversationsClient,String number){
+    protected void getConversation(String convSid, boolean lastmsg, ConversationsClient conversationsClient,String number,String phoneNum){
         ConversationsManager.this.conversationsClient = conversationsClient;
         conversationsClient.getConversation(convSid, new CallbackListener<Conversation>() {
             @Override
             public void onSuccess(Conversation conversation) {
                 if (conversation != null) {
-                    if (conversation.getStatus() == Conversation.ConversationStatus.JOINED
+                    String identity_number = "";
+                    if(phoneNum.length() > 3) {
+                        JSONObject ConvProxyNumber = conversation.getAttributes().getJSONObject();
+                        if (ConvProxyNumber != null) {
+                            try {
+                                identity_number = ConvProxyNumber.getString("identity_number");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    Log.d("glacier","identity_number-- "+identity_number+"-- number --"+number+"-- phoneNumber --"+phoneNum);
+                    if(!(identity_number.equals(number)) && phoneNum.length() > 3){
+                        createConversation(phoneNum,number);
+                    }
+                    else if (conversation.getStatus() == Conversation.ConversationStatus.JOINED
                             || conversation.getStatus() == Conversation.ConversationStatus.NOT_PARTICIPATING) {
                         Log.d("Glacier", "Already Exists in Conversation: " + DEFAULT_CONVERSATION_NAME);
                         ConversationsManager.this.conversation = conversation;
@@ -520,7 +543,7 @@ public class ConversationsManager {
 //                        startAdapter();
                         loadChannels(conversationsClient);
                     }else if(synchronizationStatus == ConversationsClient.SynchronizationStatus.COMPLETED){
-                        getConversation(conversationSid,false,conversationsClient,proxyAddress[0].toString());
+                        getConversation(conversationSid,false,conversationsClient,proxyAddress[0].toString(),"");
                     }
                 }
 

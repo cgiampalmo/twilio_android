@@ -197,6 +197,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 // need to modify user interface elements on the UI thread
                 Log.d("Glacier","Reload messages called");
                 messagesAdapter.notifyDataSetChanged();
+                checkPermission();
             }
         });
 
@@ -654,7 +655,9 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         model.setProxyNumber(number);
         proxyNumber = number;
         drawer_sms.closeDrawers();
-        messagesAdapter.notifyDataSetChanged();
+        if(messagesAdapter != null) {
+            messagesAdapter.notifyDataSetChanged();
+        }
     }
 
     public void checkEmptyView(){
@@ -828,6 +831,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             ConversationsManager.getConversation(proxyNumber).remove(conversation);
             notifyItemRemoved(position);
             //TODO implement removal on conversation
+
             checkEmptyView();
             String contactName = (cList != null && cList.get(conversation.getFriendlyName()) != null) ? cList.get(conversation.getFriendlyName()) : conversation.getFriendlyName();
 

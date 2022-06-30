@@ -173,7 +173,13 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                 }
             }
             String proxynumber = model.getProxyNumber();
-            ConversationsManager.getConversation(convSid, false, conversationsClient,proxynumber);
+            if(getIntent().hasExtra("phoneNumber")){
+                String phoneNumber = getIntent().getStringExtra("phoneNumber");
+                Log.d("Glacier","phoneNumber"+phoneNumber);
+                ConversationsManager.getConversation(convSid, false, conversationsClient,proxynumber,phoneNumber);
+            }else {
+                ConversationsManager.getConversation(convSid, false, conversationsClient, proxynumber, "");
+            }
         }else {
             if(Convtoken != null) {
                 ConversationsManager.initializeWithAccessToken(this, Convtoken, convSid);

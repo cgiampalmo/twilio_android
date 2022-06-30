@@ -83,11 +83,13 @@ public class EditGroup extends XmppActivity implements AddParticipantClickListen
                 }
             }
         }
-        for (ContactModel conList : arrayList) {
-            if(!pList.contains(conList.getNumber())) {
-                groupArrayList.add(conList);
-            }else{
-                Log.d("Glacier","pList contains "+conList.getNumber());
+        if(arrayList != null) {
+            for (ContactModel conList : arrayList) {
+                if (!pList.contains(conList.getNumber())) {
+                    groupArrayList.add(conList);
+                } else {
+                    Log.d("Glacier", "pList contains " + conList.getNumber());
+                }
             }
         }
         cModel.setGroupArrayList(groupArrayList);
