@@ -28,9 +28,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -290,8 +295,8 @@ public class ConversationsManager {
                     }
                     unread_conv_count.put(identity_number,unread_count);
                 }
-                conv.getLastReadMessageIndex();
-                conv.getLastMessageIndex();
+                /*conv.getLastReadMessageIndex();
+                conv.getLastMessageIndex();*/
                 //get_unread_message
                 get_exist_conv.add(conv);
                 Log.d("Glacier","get_exist_conv---"+get_exist_conv.get(0).getFriendlyName()+"---------"+identity_number);
@@ -731,7 +736,22 @@ public class ConversationsManager {
         Log.d("Glacier","getMessages getConversation "+conv_list +"---------"+messages);
         return messages;
     }
-    public ArrayList<Conversation> getConversation(String proxyNumber) {
+    public List<Conversation> getConversation(String proxyNumber) {
+        Log.d("Glacier","getConversation proxyNumber "+proxyNumber);
+        List<Conversation> current_conv_list = null;
+        String proxynum = "";
+        if(proxyNumber != null) {
+            proxynum = proxyNumber.replace(" ", "").replace("(", "").replace("-", "").replace(")", "");
+        }else{
+            proxynum = proxyNumber;
+        }
+        current_conv_list = conv_list.get(proxynum);
+        /*sortconv(current_conv_list);*/
+        sortconv(current_conv_list);
+        Log.d("Glacier","getConversation proxyNumber "+current_conv_list);
+        return current_conv_list;
+    }
+    public ArrayList<Conversation> getConversation_size(String proxyNumber){
         ArrayList<Conversation> current_conv_list = new ArrayList<Conversation>();
         String proxynum = "";
         if(proxyNumber != null) {
@@ -741,12 +761,27 @@ public class ConversationsManager {
         }
         if (conv_list.get(proxynum) != null) {
             current_conv_list = conv_list.get(proxynum);
-            sortconv(current_conv_list);
         }
         return current_conv_list;
     }
     private void sortconv(List conversations){
-        Collections.sort(conversations,new ConversationsManager.EventDetailSortByDate());
+        Collections.sort(conversations,new Comparator<Conversation>(){
+            android.text.format.DateFormat d_f = new android.text.format.DateFormat();
+            DateFormat df = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
+            @Override
+            public int compare(Conversation conversation, Conversation t1) {
+                try{
+                    Date DateObject1 = (conversation.getLastMessageDate() == null)?conversation.getDateCreatedAsDate():conversation.getLastMessageDate();
+                    Date DateObject2 = (t1.getLastMessageDate() == null)?t1.getDateCreatedAsDate():t1.getLastMessageDate();
+                    String date_1 = (String) d_f.format("dd/MM/yyyy hh:mm a", DateObject1);
+                    String date_2 = (String) d_f.format("dd/MM/yyyy hh:mm a", DateObject2);
+                    return df.parse(date_1).compareTo(df.parse(date_2));
+                }catch (ParseException ex){
+                    Log.d("Glacier","Error occurred"+ex.getMessage());
+                }
+                return 0;
+            }
+        });
     }
     public void setListener(ConversationsManagerListener listener)  {
         ConversationsManager.this.conversationsManagerListener = listener;
@@ -754,9 +789,10 @@ public class ConversationsManager {
     private class EventDetailSortByDate implements java.util.Comparator<Conversation> {
         @Override
         public int compare(Conversation customerEvents1, Conversation customerEvents2) {
+
             Date DateObject1 = (customerEvents1.getLastMessageDate() == null)?customerEvents1.getDateCreatedAsDate():customerEvents1.getLastMessageDate();
             Date DateObject2 = (customerEvents2.getLastMessageDate() == null)?customerEvents2.getDateCreatedAsDate():customerEvents2.getLastMessageDate();;
-            //Log.d("Glacier","DateObject1 "+DateObject1+" DateObject2 "+DateObject2+" other "+customerEvents1.getLastMessageDate()+" "+customerEvents2.getLastMessageDate());
+            Log.d("Glacier","getConversation proxyNumber DateObject1 "+DateObject1+" DateObject2 "+DateObject2+" other "+customerEvents1.getLastMessageDate()+" "+customerEvents2.getLastMessageDate());
             if(DateObject1 == null || DateObject2 == null){
                 return 1;
             }else{
@@ -770,17 +806,17 @@ public class ConversationsManager {
                 //Log.d("Glacier","month1 "+month1+" month2 "+month2+" other "+customerEvents1.getFriendlyName());
 
                 if (month1 < month2){
-                    //Log.d("Glacier","Inside DAY_OF_MONTH1 "+cal1.get(Calendar.HOUR_OF_DAY)+" DAY_OF_MONTH2 "+cal2.get(Calendar.HOUR_OF_DAY)+" other "+customerEvents1.getFriendlyName()+" returning "+(cal1.get(Calendar.HOUR_OF_DAY) - cal2.get(Calendar.HOUR_OF_DAY)));
-                    return -1;
+                    Log.d("Glacier","getConversation proxyNumber DateObject1 "+month1 +" "+ month2);
+                    return month1-month2;
                 }
                 else if (month1 == month2) {
-                    //Log.d("Glacier","DAY_OF_MONTH1 "+cal1.get(Calendar.HOUR_OF_DAY)+" DAY_OF_MONTH2 "+cal2.get(Calendar.HOUR_OF_DAY)+" other "+customerEvents1.getFriendlyName()+" returning "+(cal1.get(Calendar.HOUR_OF_DAY) - cal2.get(Calendar.HOUR_OF_DAY)));
+                    Log.d("Glacier","DAY_OF_MONTH1 "+cal1.get(Calendar.HOUR_OF_DAY)+" DAY_OF_MONTH2 "+cal2.get(Calendar.HOUR_OF_DAY)+" other "+customerEvents1.getFriendlyName()+" returning "+(cal1.get(Calendar.HOUR_OF_DAY) - cal2.get(Calendar.HOUR_OF_DAY)));
                     if(cal1.get(Calendar.DAY_OF_MONTH) != cal2.get(Calendar.DAY_OF_MONTH)) {
                         return cal1.get(Calendar.DAY_OF_MONTH) - cal2.get(Calendar.DAY_OF_MONTH);
                     }
                     else if(cal1.get(Calendar.HOUR_OF_DAY) != cal2.get(Calendar.HOUR_OF_DAY)) {
                         int returning = (cal1.get(Calendar.HOUR_OF_DAY) - cal2.get(Calendar.HOUR_OF_DAY)) > 0 ? 0 : -1;
-                        //Log.d("Glacier","DAY_OF_MONTH1 "+cal1.get(Calendar.HOUR_OF_DAY)+" DAY_OF_MONTH2 "+cal2.get(Calendar.HOUR_OF_DAY)+" other "+customerEvents1.getFriendlyName()+" returning "+returning);
+                        Log.d("Glacier","DAY_OF_MONTH1 "+cal1.get(Calendar.HOUR_OF_DAY)+" DAY_OF_MONTH2 "+cal2.get(Calendar.HOUR_OF_DAY)+" other "+customerEvents1.getFriendlyName()+" returning "+returning);
                         return returning;
                     }
                     else if(cal1.get(Calendar.AM_PM) != cal2.get(Calendar.AM_PM))

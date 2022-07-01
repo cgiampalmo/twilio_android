@@ -131,6 +131,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     @Override
     public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor) {
         messagesAdapter.notifyDataSetChanged();
+        onBackendConnected();
         String checkIdentity = model.getIdentity();
         if(checkIdentity.equals(identity) && !(messageAuthor.equals(identity))) {
             Conversation current_conv = model.getConversation();
@@ -197,14 +198,13 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 // need to modify user interface elements on the UI thread
                 Log.d("Glacier","Reload messages called");
                 messagesAdapter.notifyDataSetChanged();
-                checkPermission();
             }
         });
 
     }
 
     public void showList() {
-        Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation(proxyNumber)+"------"+ConversationsManager.conversationsClient.getMyConversations().size());
+        //Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation(proxyNumber)+"------"+ConversationsManager.conversationsClient.getMyConversations().size());
         if(messagesAdapter == null) {
             Log.d("Glacier","New Message adapter");
             messagesAdapter = new SMSActivity.MessagesAdapter((OnSMSConversationClickListener) this);
@@ -307,11 +307,18 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         }
         ProgressBar progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
+        /*runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                checkPermission();
+            }
+        });*/
     }
 
     @Override
     public void notifyMessages(String newMessage,String messageAuthor) {
         notifyMessage(newMessage,messageAuthor);
+        onBackendConnected();
     }
 
     private final ConversationsManager ConversationsManager = new ConversationsManager(this);
@@ -324,29 +331,33 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     @Override
     protected void onBackendConnected() {
+        ArrayList<SmsProfile> smSdbInfo;
         if(xmppConnectionService != null) {
             SMSdbInfo info = xmppConnectionService.getSmsInfo();
-//        Log.d()
-            profileList.clear();
-            proxyNumbers.clear();
-            Log.d("Glacier", "unread_conv_count----" + ConversationsManager.unread_conv_count);
-            for (SmsProfile smsProfile : info.getExistingProfs()) {
-                smsProfile.setUnread_count(0);
-                if (ConversationsManager.unread_conv_count == null || ConversationsManager.unread_conv_count.isEmpty()) {
-                } else {
-                    String number = smsProfile.getNumber().replaceAll(" ", "").replace("(", "").replace(")", "").replace("-", "");
-                    Integer unread_count = ConversationsManager.unread_conv_count.get(number);
-                    Log.d("Glacier", "unread_conv_count---- " + unread_count);
-                    if (unread_count != null) {
-                        smsProfile.setUnread_count(unread_count);
-                    }
-                }
-                profileList.add(0, smsProfile);
-                proxyNumbers.add(smsProfile.getNumber());
-                adapter_sms.notifyItemInserted(0);
-            }
-            adapter_sms.notifyDataSetChanged();
+            smSdbInfo = info.getExistingProfs();
+        }else{
+            smSdbInfo = profileList;
         }
+        profileList.clear();
+        proxyNumbers.clear();
+        Log.d("Glacier", "unread_conv_count----" + ConversationsManager.unread_conv_count);
+        for (SmsProfile smsProfile : smSdbInfo) {
+            smsProfile.setUnread_count(0);
+            if (ConversationsManager.unread_conv_count == null || ConversationsManager.unread_conv_count.isEmpty()) {
+            } else {
+                String number = smsProfile.getNumber().replaceAll(" ", "").replace("(", "").replace(")", "").replace("-", "");
+                Integer unread_count = ConversationsManager.unread_conv_count.get(number);
+                Log.d("Glacier", "unread_conv_count---- " + unread_count);
+                if (unread_count != null) {
+                    smsProfile.setUnread_count(unread_count);
+                }
+            }
+            profileList.add(0, smsProfile);
+            proxyNumbers.add(smsProfile.getNumber());
+            adapter_sms.notifyItemInserted(0);
+        }
+        if(adapter_sms != null)
+            adapter_sms.notifyDataSetChanged();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -359,7 +370,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         }
         setTitle("SMS");
         toolbar = (Toolbar) findViewById(R.id.toolbar_sms_view);
-
         model = (ConversationModel) getApplicationContext();
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
@@ -395,7 +405,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         layoutManager.setReverseLayout(true);
         recyclerViewConversations.setLayoutManager(layoutManager);
 
-        Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation(proxyNumber));
+        //Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation(proxyNumber));
         ConversationsClient conversationsClient = model.getConversationsClient();
 
         ConversationsManager.setListener(this);
@@ -681,9 +691,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         }
 
 
-        //final public Map<String,String> conversations = new HashMap<>();
-//        ConversationsManager.conversationsClient.getMyConversations();
-
         class ViewHolder extends RecyclerView.ViewHolder  implements View.OnClickListener, View.OnTouchListener, SwipeItemTouchHelper.TouchViewHolder {
             final View conView;
             //            public Activity unreadCount;
@@ -705,7 +712,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 con_view.setOnClickListener(this);
             }
             public void onClick(View view) {
-                //sortconv(conversations);
                 Conversation conversation = ConversationsManager.getConversation(proxyNumber).get(getAdapterPosition());
                 String conversation_sid = conversation.getSid();
                 String conversation_name = conversation.getFriendlyName();
@@ -728,7 +734,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
         MessagesAdapter(OnSMSConversationClickListener listener) {
             this.listener = listener;
-            Log.d("Glacier","IN message adapter");
+            Log.d("Glacier","IN message adapter"+proxyNumber);
         }
         public void setConversationClickListener(OnSMSConversationClickListener listener) {
             this.listener = listener;
@@ -736,6 +742,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent,
                                              int viewType) {
+            Log.d("Glacier","onCreateViewHolder called");
             View conView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.sms_list_row, parent, false);
             return new ViewHolder(conView,listener);
@@ -747,7 +754,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             TextView conversation_name,sender_name,conversation_lastmsg,dateText,conv_Sid;
             RelativeLayout avatar_circle;
             com.glaciersecurity.glaciermessenger.ui.widget.UnreadCountCustomView unreadcount;
-            Conversation conversation = ConversationsManager.getConversation(proxyNumber).get(holder.getAdapterPosition());
+            conversations = ConversationsManager.getConversation(proxyNumber);
+            Conversation conversation = conversations.get(holder.getAdapterPosition());
             Map conv_last_msg = ConversationsManager.conv_last_msg;
             Map conv_last_msg_sent = ConversationsManager.conv_last_msg_sent;
             Log.d("Glacier","ConversationsManager "+conversation.getFriendlyName()+"----------"+conversation.getLastMessageDate());
@@ -777,8 +785,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                     if (result != null) {
                         if (result > 0) {
                             if (holder.getAdapterPosition() > -1) {
-                                Log.d("Glacier ", "unreadcount 12344" + unreadcount + conversation.getFriendlyName() + " " + holder.getAdapterPosition() + " " + ConversationsManager.getConversation(proxyNumber).get(holder.getAdapterPosition()).getFriendlyName());
-                                if (conversation.getFriendlyName().equals(ConversationsManager.getConversation(proxyNumber).get(holder.getAdapterPosition()).getFriendlyName())) {
+                                if (conversation.getFriendlyName().equals(conversations.get(holder.getAdapterPosition()).getFriendlyName())) {
                                     unreadcount.setUnreadCount(Math.toIntExact(result));
                                     if (Math.toIntExact(result) > 0){
                                         unreadcount.setVisibility(View.VISIBLE);
@@ -793,7 +800,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                         }
                     } else {
                         if (holder.getAdapterPosition() > -1) {
-                            if (conversation.getFriendlyName().equals(ConversationsManager.getConversation(proxyNumber).get(holder.getAdapterPosition()).getFriendlyName())) {
+                            if (conversation.getFriendlyName().equals(conversations.get(holder.getAdapterPosition()).getFriendlyName())) {
                                 conversation.getMessagesCount(new CallbackListener<Long>() {
                                     @Override
                                     public void onSuccess(Long result) {
@@ -824,8 +831,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
         @Override
         public int getItemCount() {
-            Log.d("Glacier","conversationsClient getItemCount "+ConversationsManager.getConversation(proxyNumber).size());
-            return ConversationsManager.getConversation(proxyNumber).size();
+            Log.d("Glacier","conversationsClient getItemCount "+ConversationsManager.getConversation_size(proxyNumber).size());
+            return ConversationsManager.getConversation_size(proxyNumber).size();
         }
         public void remove(Conversation conversation, int position) {
             ConversationsManager.getConversation(proxyNumber).remove(conversation);
