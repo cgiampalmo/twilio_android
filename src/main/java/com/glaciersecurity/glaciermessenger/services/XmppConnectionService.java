@@ -4427,6 +4427,9 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 		return smsInfo;
 	}
+	public void setSmsInfo(SMSdbInfo smsDBInfo){
+		smsInfo = smsDBInfo;
+	}
 	public Account findAccountByJid(final Jid accountJid) {
 		for (Account account : this.accounts) {
 			if (account.getJid().asBareJid().equals(accountJid.asBareJid())) {

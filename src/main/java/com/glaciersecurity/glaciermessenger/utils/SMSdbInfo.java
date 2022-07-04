@@ -56,7 +56,6 @@ public class SMSdbInfo {
         if (xmppConnectionService == null || !(xmppConnectionService.getAccounts().size() > 0)){
             return;
         }
-
         final Account account = xmppConnectionService.getAccounts().get(0);
         CognitoAccount myCogAccount = xmppConnectionService.databaseBackend.getCognitoAccount(account);
 

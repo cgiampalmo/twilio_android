@@ -325,8 +325,9 @@ public class ConversationsManager {
                         }
                     }
                     Log.d("glacier","identity_number-- "+identity_number+"-- number --"+number+"-- phoneNumber --"+phoneNum);
-                    if(!(identity_number.equals(number)) && phoneNum.length() > 3){
-                        createConversation(phoneNum,number);
+                    String proxyNum = number.replace(" ", "").replace("(", "").replace("-", "").replace(")", "");
+                    if(!(identity_number.equals(proxyNum)) && phoneNum.length() > 3){
+                        createConversation(phoneNum,proxyNum);
                     }
                     else if (conversation.getStatus() == Conversation.ConversationStatus.JOINED
                             || conversation.getStatus() == Conversation.ConversationStatus.NOT_PARTICIPATING) {
@@ -348,7 +349,6 @@ public class ConversationsManager {
                     return;
                 }
             }
-
             @Override
             public void onError(ErrorInfo errorInfo) {
                 Log.e("Glacier", "Error retrieving conversation: " + errorInfo.getMessage());
@@ -747,7 +747,9 @@ public class ConversationsManager {
         }
         current_conv_list = conv_list.get(proxynum);
         /*sortconv(current_conv_list);*/
-        sortconv(current_conv_list);
+        if(current_conv_list != null) {
+            sortconv(current_conv_list);
+        }
         Log.d("Glacier","getConversation proxyNumber "+current_conv_list);
         return current_conv_list;
     }

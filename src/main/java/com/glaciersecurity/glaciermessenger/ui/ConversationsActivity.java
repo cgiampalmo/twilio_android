@@ -225,6 +225,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	@Override
 	void onBackendConnected() {
+		Log.d("Glacier","onBackendConnected "+xmppConnectionService);
 		if (performRedirectIfNecessary(true)) {
 			return;
 		}

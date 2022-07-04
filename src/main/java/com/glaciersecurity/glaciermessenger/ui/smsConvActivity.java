@@ -307,12 +307,8 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
     }
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void showList() {
-        /*Intent SMSActivity = new Intent(getApplicationContext(), SMSActivity.class);
-        startActivity(SMSActivity);*/
-//        ProgressBar progressBar = findViewById(R.id.progressBar2);
-//        progressBar.setVisibility(View.GONE);
         String proxyNumber = model.getProxyNumber();
-        Log.d("Glacier","smsConvActivity ConversationsManager "+ConversationsManager.getConversation(proxyNumber));
+        Log.d("Glacier","smsConvActivity ConversationsManager proxyNumber "+proxyNumber);
         if(groupConv) {
             add_participant(groupParticipants);
         }

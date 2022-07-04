@@ -335,12 +335,15 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         if(xmppConnectionService != null) {
             SMSdbInfo info = xmppConnectionService.getSmsInfo();
             smSdbInfo = info.getExistingProfs();
+            SMSdbInfo smsinfo = new SMSdbInfo(xmppConnectionService);
+            xmppConnectionService.setSmsInfo(smsinfo);
+            Log.d("Glacier", "onBackendConnected" + xmppConnectionService + smSdbInfo);
         }else{
             smSdbInfo = profileList;
         }
         profileList.clear();
         proxyNumbers.clear();
-        Log.d("Glacier", "unread_conv_count----" + ConversationsManager.unread_conv_count);
+        Log.d("Glacier", "unread_conv_count----" + ConversationsManager.unread_conv_count + xmppConnectionService + smSdbInfo);
         for (SmsProfile smsProfile : smSdbInfo) {
             smsProfile.setUnread_count(0);
             if (ConversationsManager.unread_conv_count == null || ConversationsManager.unread_conv_count.isEmpty()) {
@@ -611,8 +614,10 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                             checkPermission();
                             //setTitle(identity);
                             if(model.getProxyNumber() == null || model.getProxyNumber().equals("") ) {
-                                model.setProxyNumber(ConversationsManager.proxyAddress[0].toString());
-                                proxyNumber = ConversationsManager.proxyAddress[0].toString();
+                                if(ConversationsManager.proxyAddress.length > 0) {
+                                    model.setProxyNumber(ConversationsManager.proxyAddress[0].toString());
+                                    proxyNumber = ConversationsManager.proxyAddress[0].toString();
+                                }
                             }else
                                 proxyNumber = model.getProxyNumber();
                         }
