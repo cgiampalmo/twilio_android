@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.ui.util.Attachment;
@@ -91,6 +92,7 @@ public class ConversationsManager {
     private Context mContext;
     protected Object[] proxyAddress;
     public Map<String, Integer> unread_conv_count = new HashMap<>();
+    public Map<String, ArrayList> unread_conv = new HashMap<>();
     protected class TokenResponse {
         public Object[] user_numbers;
         String token;
@@ -270,6 +272,7 @@ public class ConversationsManager {
         if(conversationsClient.getMyConversations().size() > 0) {
             conv_list.clear();
             unread_conv_count.clear();
+            unread_conv.clear();
             Log.d("Glacier","conversationsClient "+conversationsClient.getMyConversations().get(0).getUniqueName()+"---"+conversationsClient.getMyConversations().get(0).getFriendlyName()+"----"+conversationsClient.getMyConversations().get(0).getSid());
             for (int i = 0; i < conversationsClient.getMyConversations().size(); i++) {
                 String identity_number = "";
@@ -290,9 +293,13 @@ public class ConversationsManager {
                 Log.d("Glacier","get_unread_message --- "+ conv.getFriendlyName() +" --- getLastReadMessageIndex --- "+conv.getLastReadMessageIndex()+" --- getLastMessageIndex -- "+conv.getLastMessageIndex());
                 if(conv.getLastReadMessageIndex() == null || ( (conv.getLastMessageIndex() != null) && (conv.getLastMessageIndex() > conv.getLastReadMessageIndex()) )){
                     Integer unread_count = 1;
+                    ArrayList<String> unread_num = new ArrayList();
                     if(unread_conv_count.get(identity_number) != null) {
                         unread_count = unread_conv_count.get(identity_number)+1;
                     }
+                    unread_num.add(conv.getSid());
+                    unread_conv.put(identity_number,unread_num);
+                    Log.d("Glacier","unread_conv"+unread_conv.get(identity_number));
                     unread_conv_count.put(identity_number,unread_count);
                 }
                 /*conv.getLastReadMessageIndex();
@@ -672,6 +679,23 @@ public class ConversationsManager {
                     try {
                         String ide_num = ConvProxyNumber.getString("identity_number");
                         identity_number = ide_num.substring(ide_num.length() - 4);
+                        Log.d("Glacier","ConvProxyNumber ide_num" + ide_num + unread_conv.get(ide_num) + message.getConversation().getSid());
+                        Toast.makeText(mContext, message.getConversation().getLastMessageIndex() +"----"+ message.getConversation().getLastReadMessageIndex() +"----"+(message.getConversation().getLastMessageIndex() - message.getConversation().getLastReadMessageIndex()), Toast.LENGTH_SHORT).show();
+                        ArrayList unread_num = new ArrayList();
+                        if(unread_conv_count.get(ide_num) == null){
+                            unread_conv_count.put(ide_num,1);
+                            unread_num.add(message.getConversation().getSid());
+                            unread_conv.put(ide_num,unread_num);
+                        }
+                        else{
+                            if(unread_conv.containsKey(ide_num) && (!(unread_conv.get(ide_num).contains(message.getConversation().getSid())))) {
+                                unread_conv_count.put(ide_num, (unread_conv_count.get(ide_num) + 1));
+                                unread_num = unread_conv.get(ide_num);
+                                unread_num.add(message.getConversation().getSid());
+                                unread_conv.put(ide_num,unread_num);
+                            }
+                        }
+                        Log.d("Glacier","ConvProxyNumber ide_num" + ide_num + unread_conv.get(ide_num));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

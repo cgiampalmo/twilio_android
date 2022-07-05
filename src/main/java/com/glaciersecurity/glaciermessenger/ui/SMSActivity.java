@@ -131,7 +131,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     @Override
     public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor) {
         messagesAdapter.notifyDataSetChanged();
-        onBackendConnected();
+        Log.d("Glacier","unread_conv_count----"+profileList);
+        reload_adapter_sms(profileList);
         String checkIdentity = model.getIdentity();
         if(checkIdentity.equals(identity) && !(messageAuthor.equals(identity))) {
             Conversation current_conv = model.getConversation();
@@ -209,7 +210,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             Log.d("Glacier","New Message adapter");
             messagesAdapter = new SMSActivity.MessagesAdapter((OnSMSConversationClickListener) this);
             recyclerViewConversations.setAdapter(messagesAdapter);
-            onBackendConnected();
+            reload_adapter_sms(profileList);
+            //onBackendConnected();
         }else{
             Log.d("Glacier","old Message adapter");
             messagesAdapter.notifyDataSetChanged();
@@ -318,7 +320,36 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     @Override
     public void notifyMessages(String newMessage,String messageAuthor) {
         notifyMessage(newMessage,messageAuthor);
-        onBackendConnected();
+        reload_adapter_sms(profileList);
+    }
+
+    public void reload_adapter_sms(ArrayList<SmsProfile> smSdbInfo){
+        ArrayList<SmsProfile> smSInfo;
+        Log.d("Glacier", "unread_conv_count----" + ConversationsManager.unread_conv_count + xmppConnectionService + smSdbInfo);
+        smSInfo = smSdbInfo;
+        proxyNumbers.clear();
+        //profileList.clear();
+        Log.d("Glacier", "unread_conv_count----" + ConversationsManager.unread_conv_count + xmppConnectionService + smSInfo);
+        for (SmsProfile smsProfile : smSdbInfo) {
+            Log.d("Glacier", "unread_conv_count---- " + ConversationsManager.unread_conv_count + profileList.contains(smsProfile));
+            if(!(profileList.contains(smsProfile)))
+                profileList.add(0, smsProfile);
+            smsProfile.setUnread_count(0);
+            if (ConversationsManager.unread_conv_count == null || ConversationsManager.unread_conv_count.isEmpty()) {
+            } else {
+                String number = smsProfile.getNumber().replaceAll(" ", "").replace("(", "").replace(")", "").replace("-", "");
+                Integer unread_count = ConversationsManager.unread_conv_count.get(number);
+                Log.d("Glacier", "unread_conv_count---- " + unread_count);
+                if (unread_count != null) {
+                    smsProfile.setUnread_count(unread_count);
+                }
+            }
+
+            proxyNumbers.add(smsProfile.getNumber());
+            adapter_sms.notifyItemInserted(0);
+        }
+        if(adapter_sms != null)
+            adapter_sms.notifyDataSetChanged();
     }
 
     private final ConversationsManager ConversationsManager = new ConversationsManager(this);
@@ -338,29 +369,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             SMSdbInfo smsinfo = new SMSdbInfo(xmppConnectionService);
             xmppConnectionService.setSmsInfo(smsinfo);
             Log.d("Glacier", "onBackendConnected" + xmppConnectionService + smSdbInfo);
+            proxyNumbers.clear();
+            profileList.clear();
         }else{
             smSdbInfo = profileList;
         }
-        profileList.clear();
-        proxyNumbers.clear();
-        Log.d("Glacier", "unread_conv_count----" + ConversationsManager.unread_conv_count + xmppConnectionService + smSdbInfo);
-        for (SmsProfile smsProfile : smSdbInfo) {
-            smsProfile.setUnread_count(0);
-            if (ConversationsManager.unread_conv_count == null || ConversationsManager.unread_conv_count.isEmpty()) {
-            } else {
-                String number = smsProfile.getNumber().replaceAll(" ", "").replace("(", "").replace(")", "").replace("-", "");
-                Integer unread_count = ConversationsManager.unread_conv_count.get(number);
-                Log.d("Glacier", "unread_conv_count---- " + unread_count);
-                if (unread_count != null) {
-                    smsProfile.setUnread_count(unread_count);
-                }
-            }
-            profileList.add(0, smsProfile);
-            proxyNumbers.add(smsProfile.getNumber());
-            adapter_sms.notifyItemInserted(0);
-        }
-        if(adapter_sms != null)
-            adapter_sms.notifyDataSetChanged();
+        reload_adapter_sms(smSdbInfo);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
