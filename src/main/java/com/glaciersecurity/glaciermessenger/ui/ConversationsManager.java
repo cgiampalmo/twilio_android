@@ -679,19 +679,19 @@ public class ConversationsManager {
                     try {
                         String ide_num = ConvProxyNumber.getString("identity_number");
                         identity_number = ide_num.substring(ide_num.length() - 4);
-                        Log.d("Glacier","ConvProxyNumber ide_num" + ide_num + unread_conv.get(ide_num) + message.getConversation().getSid());
+                        Log.d("Glacier","ConvProxyNumber ide_num" + ide_num + unread_conv.get(ide_num) + message.getConversationSid());
 //                        Toast.makeText(mContext, message.getConversation().getLastMessageIndex() +"----"+ message.getConversation().getLastReadMessageIndex() +"----"+(message.getConversation().getLastMessageIndex() - message.getConversation().getLastReadMessageIndex()), Toast.LENGTH_SHORT).show();
                         ArrayList unread_num = new ArrayList();
                         if(unread_conv_count.get(ide_num) == null){
                             unread_conv_count.put(ide_num,1);
-                            unread_num.add(message.getConversation().getSid());
+                            unread_num.add(message.getConversationSid());
                             unread_conv.put(ide_num,unread_num);
                         }
                         else{
                             if(unread_conv.containsKey(ide_num) && (!(unread_conv.get(ide_num).contains(message.getConversation().getSid())))) {
                                 unread_conv_count.put(ide_num, (unread_conv_count.get(ide_num) + 1));
                                 unread_num = unread_conv.get(ide_num);
-                                unread_num.add(message.getConversation().getSid());
+                                unread_num.add(message.getConversationSid());
                                 unread_conv.put(ide_num,unread_num);
                             }
                         }
