@@ -680,7 +680,7 @@ public class ConversationsManager {
                         String ide_num = ConvProxyNumber.getString("identity_number");
                         identity_number = ide_num.substring(ide_num.length() - 4);
                         Log.d("Glacier","ConvProxyNumber ide_num" + ide_num + unread_conv.get(ide_num) + message.getConversation().getSid());
-                        Toast.makeText(mContext, message.getConversation().getLastMessageIndex() +"----"+ message.getConversation().getLastReadMessageIndex() +"----"+(message.getConversation().getLastMessageIndex() - message.getConversation().getLastReadMessageIndex()), Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(mContext, message.getConversation().getLastMessageIndex() +"----"+ message.getConversation().getLastReadMessageIndex() +"----"+(message.getConversation().getLastMessageIndex() - message.getConversation().getLastReadMessageIndex()), Toast.LENGTH_SHORT).show();
                         ArrayList unread_num = new ArrayList();
                         if(unread_conv_count.get(ide_num) == null){
                             unread_conv_count.put(ide_num,1);
