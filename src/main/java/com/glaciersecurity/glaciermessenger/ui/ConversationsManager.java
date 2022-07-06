@@ -290,17 +290,19 @@ public class ConversationsManager {
                 if(conv_list.get(identity_number) != null){
                     get_exist_conv = conv_list.get(identity_number);
                 }
-                Log.d("Glacier","get_unread_message --- "+ conv.getFriendlyName() +" --- getLastReadMessageIndex --- "+conv.getLastReadMessageIndex()+" --- getLastMessageIndex -- "+conv.getLastMessageIndex());
-                if(conv.getLastReadMessageIndex() == null || ( (conv.getLastMessageIndex() != null) && (conv.getLastMessageIndex() > conv.getLastReadMessageIndex()) )){
-                    Integer unread_count = 1;
-                    ArrayList<String> unread_num = new ArrayList();
-                    if(unread_conv_count.get(identity_number) != null) {
-                        unread_count = unread_conv_count.get(identity_number)+1;
+                if(conv.getSynchronizationStatus().isAtLeast(Conversation.SynchronizationStatus.ALL) == true) {
+                    Log.d("Glacier", "get_unread_message --- " + conv.getFriendlyName() + " --- getLastReadMessageIndex --- " + conv.getLastReadMessageIndex() + " --- getLastMessageIndex -- " + conv.getLastMessageIndex());
+                    if (conv.getLastReadMessageIndex() == null || ((conv.getLastMessageIndex() != null) && (conv.getLastMessageIndex() > conv.getLastReadMessageIndex()))) {
+                        Integer unread_count = 1;
+                        ArrayList<String> unread_num = new ArrayList();
+                        if (unread_conv_count.get(identity_number) != null) {
+                            unread_count = unread_conv_count.get(identity_number) + 1;
+                        }
+                        unread_num.add(conv.getSid());
+                        unread_conv.put(identity_number, unread_num);
+                        Log.d("Glacier", "unread_conv" + unread_conv.get(identity_number));
+                        unread_conv_count.put(identity_number, unread_count);
                     }
-                    unread_num.add(conv.getSid());
-                    unread_conv.put(identity_number,unread_num);
-                    Log.d("Glacier","unread_conv"+unread_conv.get(identity_number));
-                    unread_conv_count.put(identity_number,unread_count);
                 }
                 /*conv.getLastReadMessageIndex();
                 conv.getLastMessageIndex();*/
@@ -680,7 +682,6 @@ public class ConversationsManager {
                         String ide_num = ConvProxyNumber.getString("identity_number");
                         identity_number = ide_num.substring(ide_num.length() - 4);
                         Log.d("Glacier","ConvProxyNumber ide_num" + ide_num + unread_conv.get(ide_num) + message.getConversationSid());
-//                        Toast.makeText(mContext, message.getConversation().getLastMessageIndex() +"----"+ message.getConversation().getLastReadMessageIndex() +"----"+(message.getConversation().getLastMessageIndex() - message.getConversation().getLastReadMessageIndex()), Toast.LENGTH_SHORT).show();
                         ArrayList unread_num = new ArrayList();
                         if(unread_conv_count.get(ide_num) == null){
                             unread_conv_count.put(ide_num,1);
