@@ -173,7 +173,7 @@ public class SystemSecurityInfo {
 
     public boolean isLatestOS() {
 
-        if(Build.BRAND.equals("chromium") && Build.MANUFACTURER.equals("chromium")){
+        if(Build.MODEL.contains("Pixelbook")){
             return true;
         }
 
