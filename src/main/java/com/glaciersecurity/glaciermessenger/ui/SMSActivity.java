@@ -113,17 +113,14 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     private MessagesAdapter messagesAdapter;
     private String accessToken;
     private Context mContext = this;
-    private Account account;
     private String identity;
     private String proxyNumber;
-    private String mSavedInstanceAccount;
+    private boolean PurchaseNumber;
     TokenModel Atoken = new TokenModel();
-    public String AccessToken;
     private static final String KEY_TEXT_REPLY = "key_text_reply";
     private static final String MARK_AS_READ = "mark_as_read";
     NotificationManagerCompat managerCompat;
     NotificationCompat.Builder builder = new NotificationCompat.Builder(this,"Glacier");
-    //ContactAdapter adapter;
     Map<String, String> cList =new HashMap<>();
     ArrayList<ContactModel> arrayList = new ArrayList<ContactModel>();
     private int swipedPos = -1;
@@ -211,7 +208,9 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             messagesAdapter = new SMSActivity.MessagesAdapter((OnSMSConversationClickListener) this);
             recyclerViewConversations.setAdapter(messagesAdapter);
             reload_adapter_sms(profileList);
-            //onBackendConnected();
+            if(PurchaseNumber){
+                initSMS();
+            }
         }else{
             Log.d("Glacier","old Message adapter");
             messagesAdapter.notifyDataSetChanged();
@@ -328,7 +327,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         Log.d("Glacier", "unread_conv_count----" + ConversationsManager.unread_conv_count + xmppConnectionService + smSdbInfo);
         smSInfo = smSdbInfo;
         proxyNumbers.clear();
-        //profileList.clear();
         Log.d("Glacier", "unread_conv_count----" + ConversationsManager.unread_conv_count + xmppConnectionService + smSInfo);
         for (SmsProfile smsProfile : smSdbInfo) {
             Log.d("Glacier", "unread_conv_count---- " + ConversationsManager.unread_conv_count + profileList.contains(smsProfile));
@@ -371,6 +369,9 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             Log.d("Glacier", "onBackendConnected" + xmppConnectionService + smSdbInfo);
             proxyNumbers.clear();
             profileList.clear();
+            if(PurchaseNumber){
+                initSMS();
+            }
         }else{
             smSdbInfo = profileList;
         }
@@ -388,10 +389,15 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         setTitle("SMS");
         toolbar = (Toolbar) findViewById(R.id.toolbar_sms_view);
         model = (ConversationModel) getApplicationContext();
+        if(model.getPurchaseNumber() != null)
+            PurchaseNumber = model.getPurchaseNumber();
+        else
+            PurchaseNumber = false;
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
+
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -448,16 +454,9 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         adapter_sms = new SmsProfileAdapter((OnSMSProfileClickListener) this, profileList);
 
         recyclerViewSMS.setAdapter(adapter_sms);
-        initSMS();
         Log.d("Glacier","identity sdns n "+identity);
 
         fab_contact = (FloatingActionButton) findViewById(R.id.fab_chat);
-//        fab_group = (FloatingActionButton) findViewById(R.id.fab_group);
-//        fab_add = (FloatingActionButton) findViewById(R.id.fab_add);
-//        lyt_group = findViewById(R.id.lyt_mic);
-//        lyt_chat = findViewById(R.id.lyt_call);
-//        ViewAnimation.initShowOut(lyt_group);
-//        ViewAnimation.initShowOut(lyt_chat);
         fab_contact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -473,22 +472,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 }
             }
         });
-//        fab_group.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                model.setConversationsClient(ConversationsManager.conversationsClient);
-//                Intent intent = new Intent(mContext, GroupSMS.class);
-//                String token = Atoken.getAccessToken();
-//                startActivity(intent.putExtra("identity",identity).putExtra("conversationToken",token));
-//            }
-//            });
-//
-//                fab_add.setOnClickListener(new View.OnClickListener() {
-//        @Override
-//        public void onClick(View view) {
-//            toggleFabMode(view);
-//        }
-//    });
 }
 
         public boolean onCreateOptionsMenu(Menu menu) {
@@ -496,18 +479,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         return super.onCreateOptionsMenu(menu);
     }
 
-//    private void toggleFabMode(View v) {
-//        rotate = ViewAnimation.rotateFab(v, !rotate);
-//        if (rotate) {
-//            ViewAnimation.showIn(lyt_group);
-//            ViewAnimation.showIn(lyt_chat);
-//            //back_drop.setVisibility(View.VISIBLE);
-//        } else {
-//            ViewAnimation.showOut(lyt_group);
-//            ViewAnimation.showOut(lyt_chat);
-//            //back_drop.setVisibility(View.GONE);
-//        }
-//    }
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.d("Glacier","menu_group_call_participants_list "+item.getItemId()+"======="+R.id.menu_group_call_participants_list);
         switch (item.getItemId()){
@@ -521,12 +492,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         return super.onOptionsItemSelected(item);
     }
 
-    //TODO remove only included to demo ui
     private void initSMS(){
-        /*SmsProfile test = new SmsProfile("(999) 999-9999", "City1, State1");
+        SmsProfile test = new SmsProfile("purchase twilio number", "Add Number");
         profileList.add(test);
 
-        SmsProfile test2 = new SmsProfile("(000) 000-0000", "City2, State2");
+        /*SmsProfile test2 = new SmsProfile("(000) 000-0000", "City2, State2");
         profileList.add(test2);*/
     }
 
@@ -632,6 +602,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                                     model.setProxyNumber(ConversationsManager.proxyAddress[0].toString());
                                     proxyNumber = ConversationsManager.proxyAddress[0].toString();
                                 }
+                                model.setPurchaseNumber(ConversationsManager.PurchaseNumber);
+                                PurchaseNumber = ConversationsManager.PurchaseNumber;
                             }else
                                 proxyNumber = model.getProxyNumber();
                         }
@@ -681,11 +653,16 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     public void OnSMSProfileClick(String id, String number, int color) {
         toolbar.setBackgroundColor(color);
         fab_contact.setBackgroundTintList(ColorStateList.valueOf(color));
-        model.setProxyNumber(number);
-        proxyNumber = number;
-        drawer_sms.closeDrawers();
-        if(messagesAdapter != null) {
-            messagesAdapter.notifyDataSetChanged();
+        if(number == "purchase twilio number"){
+            Intent intent = new Intent(mContext, PurchaseNumbers.class);
+            startActivity(intent);
+        }else {
+            model.setProxyNumber(number);
+            proxyNumber = number;
+            drawer_sms.closeDrawers();
+            if (messagesAdapter != null) {
+                messagesAdapter.notifyDataSetChanged();
+            }
         }
     }
 

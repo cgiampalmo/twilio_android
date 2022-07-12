@@ -1194,7 +1194,9 @@
     <string name= "tap_to_return_to_call">TAP TO RETURN TO CALL</string>
     <string name="chat_token_url">http://3.236.203.6:3000/getAccessToken</string>
     <string name="add_participant_url">http://3.236.203.6:3000/addParticipant</string>
-
+    <string name="get_available_num_list_url">https://api.twilio.com/2010-04-01/Accounts/AC8b37c601eac58ca636fb58328216e1f4/AvailablePhoneNumbers/</string>
+    <string name="Twilio_account_sid">AC8b37c601eac58ca636fb58328216e1f4</string>
+    <string name="Twilio_account_token">d105ea9b14201225c2b248ecb785b77a</string>
     <!--    CMG AM-261-->
     <string name= "mapbox_token">pk.eyJ1IjoiYWxmcmllZG1hbiIsImEiOiJjaXp5YWJxZDQwM2FqMzJxcm9scGh3N3U5In0.NoRKK6Uf4BZz54sZJXwDlA</string>
     <string name="current_location">Current Location</string>
@@ -1213,6 +1215,77 @@
 
     <string name="view_participants">View participants</string>
     <string name="start_chat">Start chat</string>
+    <string name="purchase_number_url">http://3.236.203.6:3000/PurchaseNumber</string>
 
+    <string-array name="country_codes">
+        <item>United States - US</item>
+        <item>Canada - CA</item>
+        <item>Portugal - PT</item>
+        <item>Sweden - SE</item>
+        <item>Ireland - IE</item>
+        <item>Romania - RO</item>
+        <item>United Arab Emirates - AE</item>
+        <item>Finland - FI</item>
+        <item>United Kingdom - GB</item>
+        <item>Panama - PA</item>
+        <item>Peru - PE</item>
+        <item>France - FR</item>
+        <item>Czech Republic - CZ</item>
+        <item>Belgium - BE</item>
+        <item>Germany - DE</item>
+        <item>Ghana - GH</item>
+        <item>Denmark - DK</item>
+        <item>Uganda - UG</item>
+        <item>Poland - PL</item>
+        <item>Mexico - MX</item>
+        <item>Iceland - IS</item>
+        <item>Algeria - DZ</item>
+        <item>South Africa - ZA</item>
+        <item>Japan - JP</item>
+        <item>Croatia - HR</item>
+        <item>Indonesia - ID</item>
+        <item>Austria - AT</item>
+        <item>Ecuador - EC</item>
+        <item>Kenya - KE</item>
+        <item>Netherlands - NL</item>
+        <item>Chile - CL</item>
+        <item>Switzerland - CH</item>
+        <item>Tunisia - TN</item>
+        <item>Trinidad and Tobago - TT</item>
+        <item>Thailand - TH</item>
+        <item>Slovenia - SI</item>
+        <item>Slovakia - SK</item>
+        <item>Singapore - SG</item>
+        <item>Puerto Rico - PR</item>
+        <item>Philippines - PH</item>
+        <item>New Zealand - NZ</item>
+        <item>Namibia - NA</item>
+        <item>Mauritius - MU</item>
+        <item>Mali - ML</item>
+        <item>Macau - MO</item>
+        <item>Luxembourg - LU</item>
+        <item>Lithuania - LT</item>
+        <item>Jamaica - JM</item>
+        <item>Israel - IL</item>
+        <item>Hungary - HU</item>
+        <item>Hong Kong - HK</item>
+        <item>Guinea - GN</item>
+        <item>Grenada - GD</item>
+        <item>Greece - GR</item>
+        <item>Georgia - GE</item>
+        <item>Estonia - EE</item>
+        <item>El Salvador - SV</item>
+        <item>Dominican Republic - DO</item>
+        <item>Cyprus - CY</item>
+        <item>Colombia - CO</item>
+        <item>Cayman Islands - KY</item>
+        <item>Bulgaria - BG</item>
+        <item>Botswana - BW</item>
+        <item>Bosnia and Herzegovina - BA</item>
+        <item>Benin - BJ</item>
+        <item>Barbados - BB</item>
+        <item>Australia - AU</item>
+        <item>Argentina - AG</item>
+    </string-array>
 
 </resources>

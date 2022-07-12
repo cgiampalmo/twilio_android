@@ -46,7 +46,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 		holder.locationView.setText(smsProfileList.get(position).getLocation());
 		holder.profileView.setBackgroundColor(smsProfileList.get(position).getColor());
 		Log.d("Glacier","unread_conv_count----"+smsProfileList.get(position).getUnread_count()+"---"+smsProfileList.get(position).getNumber());
-		if(smsProfileList.get(position).getUnread_count() > 0) {
+		if(smsProfileList.get(position).getUnread_count() != null && smsProfileList.get(position).getUnread_count() > 0) {
 			holder.unreadCount.setUnreadCount(smsProfileList.get(position).getUnread_count());
 			holder.unreadCount.setVisibility(View.VISIBLE);
 		}

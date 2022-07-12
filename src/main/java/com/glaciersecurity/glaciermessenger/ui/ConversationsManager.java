@@ -91,11 +91,13 @@ public class ConversationsManager {
     private String conversationSid = "";
     private Context mContext;
     protected Object[] proxyAddress;
+    protected boolean PurchaseNumber;
     public Map<String, Integer> unread_conv_count = new HashMap<>();
     public Map<String, ArrayList> unread_conv = new HashMap<>();
     protected class TokenResponse {
         public Object[] user_numbers;
         String token;
+        Boolean add_purchase_numbers;
     }
     ConversationsManager(final Context context){
         mContext = context;
@@ -168,6 +170,7 @@ public class ConversationsManager {
                 Log.d("Glacier", "tokenResponse from server: " + tokenResponse);
                 String accessToken = tokenResponse.token;
                 this.proxyAddress = tokenResponse.user_numbers;
+                this.PurchaseNumber = tokenResponse.add_purchase_numbers;
                 Log.d("Glacier", "Retrieved access token from server: " + accessToken + proxyAddress );
                 listener.receivedAccessToken(accessToken, null);
 
@@ -292,7 +295,7 @@ public class ConversationsManager {
                 }
                 if(conv.getSynchronizationStatus().isAtLeast(Conversation.SynchronizationStatus.ALL) == true) {
                     Log.d("Glacier", "get_unread_message --- " + conv.getFriendlyName() + " --- getLastReadMessageIndex --- " + conv.getLastReadMessageIndex() + " --- getLastMessageIndex -- " + conv.getLastMessageIndex());
-                    if (conv.getLastReadMessageIndex() == null || ((conv.getLastMessageIndex() != null) && (conv.getLastMessageIndex() > conv.getLastReadMessageIndex()))) {
+                    if ( (conv.getLastReadMessageIndex() == null && conv.getLastMessageIndex() != null) || ((conv.getLastMessageIndex() != null) && (conv.getLastMessageIndex() > conv.getLastReadMessageIndex()))) {
                         Integer unread_count = 1;
                         ArrayList<String> unread_num = new ArrayList();
                         if (unread_conv_count.get(identity_number) != null) {
