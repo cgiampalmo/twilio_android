@@ -45,9 +45,9 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     }
     NumberListAdapter numberListAdapter;
     protected class phone_num_details{
-        String phone_number;
+        String phoneNumber;
         public String getPhone_number() {
-            return phone_number;
+            return phoneNumber;
         }
     }
     private class PurchaseNumResponse{
@@ -87,13 +87,16 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             search_area_code = "&AreaCode="+area_code;
         }
         Log.d("Glacier","getPhoneNumberList for "+countryCode +" areacode "+area_code);
-        String getAvailableNumListUrl = this.getString(R.string.get_available_num_list_url) + countryCode + "/Local.json?SmsEnabled=true&MmsEnabled=true" + search_area_code;
+        String getAvailableNumListUrl = this.getString(R.string.get_available_num_list_url);
         OkHttpClient client = new OkHttpClient();
+        RequestBody requestBody = new FormBody.Builder()
+                .add("areacode", area_code)
+                .add("countryCode",countryCode)
+                .build();
         Log.d("Glacier","getPhoneNumberList for "+countryCode + "adnd its url "+getAvailableNumListUrl);
         Request request = new Request.Builder()
                 .url(getAvailableNumListUrl)
-                .addHeader("Authorization", "Basic QUM4YjM3YzYwMWVhYzU4Y2E2MzZmYjU4MzI4MjE2ZTFmNDpkMTA1ZWE5YjE0MjAxMjI1YzJiMjQ4ZWNiNzg1Yjc3YQ==")
-                .get()
+                .post(requestBody)
                 .build();
         try (Response response = client.newCall(request).execute()) {
             String responseBody = "";
@@ -197,9 +200,11 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
                 String areaCode = getAreaCode.getText().toString().trim();
                 Log.d("Glacier","Areacode entered : "+areaCode);
                 Toast.makeText(PurchaseNumbers.this,"Areacode entered : " + areaCode,Toast.LENGTH_LONG).show();
-                if(areaCode.length() == 3){
-                    getPhoneNumberList("US", areaCode);
-                }
+                TextView getcountrycode = findViewById(R.id.countrycode);
+                String countryNamecode = getcountrycode.getText().toString().trim();
+                String[] countrySplitCode = countryNamecode.split("-");
+                String countryCode = countrySplitCode[1].trim();
+                getPhoneNumberList(countryCode, areaCode);
             }
         });
     }
@@ -218,12 +223,10 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         String[] countrySplitCode = countryNamecode.split("-");
         String countryCode = countrySplitCode[1].trim();
         Toast.makeText(this, "Item Clicked " + countryCode, Toast.LENGTH_SHORT).show();
-        if(countryCode.equals("US")){
-            area_code.setVisibility(View.VISIBLE);
-        }else{
-            area_code.setVisibility(View.GONE);
-        }
-        getPhoneNumberList(countryCode,"");
+        TextView getAreaCode = findViewById(R.id.edit_gchat_number);
+        area_code.setVisibility(View.VISIBLE);
+        String areacode = getAreaCode.getText().toString().trim();
+        getPhoneNumberList(countryCode,areacode);
     }
 
     @Override
