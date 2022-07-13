@@ -37,7 +37,7 @@
                 android:layout_weight="1"
                 android:inputType="none"
                 android:textColor="@color/white"
-                android:hint="Type Country code"
+                android:hint="Type a Country code eg: US or GB"
                 android:textColorHint="@color/white"
                 android:layout_margin="3dp"
                 android:background="@color/secondary_bg_color"
