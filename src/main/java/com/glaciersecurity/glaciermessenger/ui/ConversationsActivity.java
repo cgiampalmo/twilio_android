@@ -70,6 +70,7 @@ import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
 import com.glaciersecurity.glaciermessenger.services.CallManager;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
+import com.glaciersecurity.glaciermessenger.utils.SMSdbInfo;
 import com.glaciersecurity.glaciermessenger.utils.SystemSecurityInfo;
 import com.google.android.material.navigation.NavigationView;
 import androidx.core.content.ContextCompat;
@@ -226,6 +227,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	@Override
 	void onBackendConnected() {
 		Log.d("Glacier","onBackendConnected "+xmppConnectionService);
+		SMSdbInfo smsinfo = new SMSdbInfo(xmppConnectionService);
+		xmppConnectionService.setSmsInfo(smsinfo);
 		if (performRedirectIfNecessary(true)) {
 			return;
 		}

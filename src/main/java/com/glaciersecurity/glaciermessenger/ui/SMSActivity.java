@@ -79,6 +79,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.twilio.conversations.CallbackListener;
 import com.twilio.conversations.Conversation;
 import com.twilio.conversations.ConversationsClient;
+import com.twilio.conversations.ErrorInfo;
+import com.twilio.conversations.StatusListener;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
@@ -438,8 +440,10 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             Log.d("Glacier","proxyNumbers"+ proxyNumbers.toArray());
             ConversationsManager.addListenerLoadChannels(conversationsClient,proxyNumbers.toArray());
             if(model.getProxyNumber() == null || model.getProxyNumber().equals("") ) {
-                model.setProxyNumber(proxyNumbers.get(0));
-                proxyNumber = proxyNumbers.get(0);
+                if(proxyNumbers != null && proxyNumber.length() > 0) {
+                    model.setProxyNumber(proxyNumbers.get(0));
+                    proxyNumber = proxyNumbers.get(0);
+                }
             }else
                 proxyNumber = model.getProxyNumber();
         }else{
@@ -494,7 +498,9 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     private void initSMS(){
         SmsProfile test = new SmsProfile("purchase twilio number", "Add Number");
-        profileList.add(test);
+        if(! (profileList.contains(test))) {
+            profileList.add(test);
+        }
 
         /*SmsProfile test2 = new SmsProfile("(000) 000-0000", "City2, State2");
         profileList.add(test2);*/
@@ -646,6 +652,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         model.setConversationsClient(null);
         model.setContConv(null);
         model.setNotificationManager(null);
+        model.setProxyNumber(null);
         System.exit(0);
     }
 
@@ -831,24 +838,37 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             return ConversationsManager.getConversation_size(proxyNumber).size();
         }
         public void remove(Conversation conversation, int position) {
-            ConversationsManager.getConversation(proxyNumber).remove(conversation);
-            notifyItemRemoved(position);
+            Conversation remove_conv =  ConversationsManager.getConversation(proxyNumber).get(position);
+            Log.d("Glacier","Removing conversation "+remove_conv.getFriendlyName());
+            remove_conv.destroy(new StatusListener() {
+                @Override
+                public void onSuccess() {
+                    ConversationsManager.getConversation(proxyNumber).remove(remove_conv);
+                    notifyItemRemoved(position);
+                    Log.d("Glacier","Conversation deleted" + remove_conv.getFriendlyName());
+                }
+
+                @Override
+                public void onError(ErrorInfo errorInfo) {
+                    Log.d("Glacier","Deleting conversation error info "+errorInfo.getMessage());
+                }
+            });
             //TODO implement removal on conversation
 
             checkEmptyView();
-            String contactName = (cList != null && cList.get(conversation.getFriendlyName()) != null) ? cList.get(conversation.getFriendlyName()) : conversation.getFriendlyName();
+            String contactName = (cList != null && cList.get(remove_conv.getFriendlyName()) != null) ? cList.get(remove_conv.getFriendlyName()) : remove_conv.getFriendlyName();
 
             Snackbar.make(recyclerViewConversations, contactName + ", DELETED.", Snackbar.LENGTH_LONG)
 
-                    .setAction("Undo", new View.OnClickListener() {
+                    .setAction("OK", new View.OnClickListener() {
 
                         @Override
 
                         public void onClick(View view) {
 
-                            ConversationsManager.getConversation(proxyNumber).add(position, conversation);
+                            /*ConversationsManager.getConversation(proxyNumber).add(position, conversation);
                             notifyItemInserted(position);
-                            checkEmptyView();
+                            checkEmptyView();*/
                         }
 
                     }).show();
