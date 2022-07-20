@@ -8,6 +8,7 @@ import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -26,12 +27,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.ui.util.ViewUtil;
+import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.google.gson.Gson;
 import com.twilio.conversations.CallbackListener;
 import com.twilio.conversations.Conversation;
@@ -127,6 +131,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         actionbar.setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         toolbar.setNavigationOnClickListener(view -> onBackPressed());
+        toolbar.setBackgroundColor(getColorForNumber(model.getProxyNumber()));
         ConversationsManager.setListener(this);
         cameraPermission = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -225,6 +230,11 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
             }
         });
 
+    }
+
+    public int getColorForNumber(String number){
+        String formattedNumber = Tools.reformatNumber(number);
+        return UIHelper.getColorForSMS(formattedNumber);
     }
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_group_sms, menu);
@@ -557,6 +567,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         class SentMessageHolder extends RecyclerView.ViewHolder implements Runnable{
             TextView messageText, timeText,dateText;
             ImageView sentImg;
+            LinearLayout sentBubble;
 
             SentMessageHolder(View itemView) {
                 super(itemView);
@@ -564,6 +575,8 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                 timeText = (TextView) itemView.findViewById(R.id.text_gchat_timestamp_me);
                 dateText = (TextView) itemView.findViewById(R.id.text_gchat_date_me);
                 sentImg = itemView.findViewById(R.id.text_gchat_media_me);
+                sentBubble = itemView.findViewById(R.id.layout_gchat_container_me);
+                //sentBubble.setBackgroundColor(getColorForNumber(model.getProxyNumber()));
             }
 
             void bind(Message message, boolean new_date, SentMessageHolder holder, int position) {

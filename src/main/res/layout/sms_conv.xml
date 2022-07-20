@@ -93,7 +93,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
-                    android:hint="Send unencrypted text message"
+                    android:hint="Send unencrypted message"
                     android:textColor="?attr/edit_text_color"
                     android:padding="@dimen/spacing_middle"
                     android:inputType="text"
