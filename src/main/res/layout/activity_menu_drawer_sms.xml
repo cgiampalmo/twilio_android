@@ -39,15 +39,33 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="start">
+        android:background="@color/colorA"
+        android:layout_gravity="start"
+        android:orientation="vertical">
 
         <androidx.recyclerview.widget.RecyclerView
             android:layout_marginTop="@dimen/actionBarSize"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/sms_recycler_view"
             >
         </androidx.recyclerview.widget.RecyclerView>
+
+        <Button
+        android:id="@+id/add_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:background="@color/transparent"
+        android:text="Add Number"
+        android:drawableLeft="@drawable/ic_add_white_24dp"
+            android:textAppearance="@style/TextAppearance.Conversations.Body2"
+            android:textColor="?attr/edit_text_color"
+            android:textSize="20dp"
+
+            />
+
+
     </LinearLayout>
 
 

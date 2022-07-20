@@ -27,6 +27,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -46,9 +47,6 @@ import androidx.core.view.GravityCompat;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,13 +60,11 @@ import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
 
 import com.glaciersecurity.glaciermessenger.R;
 //import com.glaciersecurity.glaciermessenger.databinding.ActivityChooseContactBinding;
-import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.ui.adapter.SwipeItemTouchHelper;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingActionHelper;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.ScrollState;
 import com.glaciersecurity.glaciermessenger.ui.util.StyledAttributes;
-import com.glaciersecurity.glaciermessenger.ui.util.ViewAnimation;
 import com.glaciersecurity.glaciermessenger.utils.LogoutListener;
 import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.ui.adapter.SmsProfileAdapter;
@@ -94,6 +90,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     private final PendingItem<ScrollState> pendingScrollState = new PendingItem<>();
     private Toolbar toolbar;
     public FloatingActionButton fab_contact;
+    private Button addNumberBtn;
 //    public FloatingActionButton fab_group;
 //    public FloatingActionButton fab_add;
 
@@ -210,9 +207,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             messagesAdapter = new SMSActivity.MessagesAdapter((OnSMSConversationClickListener) this);
             recyclerViewConversations.setAdapter(messagesAdapter);
             reload_adapter_sms(profileList);
-            if(PurchaseNumber){
-                initSMS();
-            }
+
         }else{
             Log.d("Glacier","old Message adapter");
             messagesAdapter.notifyDataSetChanged();
@@ -371,9 +366,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             Log.d("Glacier", "onBackendConnected" + xmppConnectionService + smSdbInfo);
             proxyNumbers.clear();
             profileList.clear();
-            if(PurchaseNumber){
-                initSMS();
-            }
+//            if(PurchaseNumber){
+//                addNumberBtn.setVisibility(View.VISIBLE);
+//            } else {
+//                addNumberBtn.setVisibility(View.GONE);
+//            }
         }else{
             smSdbInfo = profileList;
         }
@@ -404,6 +401,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             @Override
             public void onClick(View view) {
                 drawer_sms.openDrawer(GravityCompat.START);
+                if(PurchaseNumber){
+                    addNumberBtn.setVisibility(View.VISIBLE);
+                } else {
+                    addNumberBtn.setVisibility(View.GONE);
+                }
             }
         });
         if(getIntent().hasExtra("account")) {
@@ -456,6 +458,13 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         recyclerViewSMS.setLayoutManager(layoutManagerSMS);
         drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
         adapter_sms = new SmsProfileAdapter((OnSMSProfileClickListener) this, profileList);
+        addNumberBtn = (Button) findViewById(R.id.add_number);
+        addNumberBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, PurchaseNumbers.class);
+                startActivity(intent);
+            }});
 
         recyclerViewSMS.setAdapter(adapter_sms);
         Log.d("Glacier","identity sdns n "+identity);
@@ -496,15 +505,15 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         return super.onOptionsItemSelected(item);
     }
 
-    private void initSMS(){
-        SmsProfile test = new SmsProfile("purchase twilio number", "Add Number");
-        if(! (profileList.contains(test))) {
-            profileList.add(test);
-        }
-
-        /*SmsProfile test2 = new SmsProfile("(000) 000-0000", "City2, State2");
-        profileList.add(test2);*/
-    }
+//    private void initSMS(){
+//        SmsProfile test = new SmsProfile("purchase twilio number", "Add Number");
+//        if(! (profileList.contains(test))) {
+//            profileList.add(test);
+//        }
+//
+//        /*SmsProfile test2 = new SmsProfile("(000) 000-0000", "City2, State2");
+//        profileList.add(test2);*/
+//    }
 
 
     private void checkPermission() {
@@ -660,17 +669,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     public void OnSMSProfileClick(String id, String number, int color) {
         toolbar.setBackgroundColor(color);
         fab_contact.setBackgroundTintList(ColorStateList.valueOf(color));
-        if(number == "purchase twilio number"){
-            Intent intent = new Intent(mContext, PurchaseNumbers.class);
-            startActivity(intent);
-        }else {
             model.setProxyNumber(number);
             proxyNumber = number;
             drawer_sms.closeDrawers();
             if (messagesAdapter != null) {
                 messagesAdapter.notifyDataSetChanged();
             }
-        }
     }
 
     public void checkEmptyView(){
