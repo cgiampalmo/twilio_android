@@ -502,6 +502,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		UriHandlerActivity.onRequestPermissionResult(this, requestCode, grantResults);
 		if (grantResults.length > 0) {
 			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -1546,7 +1547,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					return true;
 				}
 				break;
-			//HONEYBADGER AM-120 Remove the top right barcode scanning feature
+			// AM-120 Remove the top right barcode scanning feature
 //			case R.id.action_scan_qr_code:
 //				UriHandlerActivity.scan(this);
 //				return true;
@@ -1863,7 +1864,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				final Conversation conversation = ((ConversationFragment) mainFragment).getConversation();
 				if (conversation != null) {
 					actionBar.setTitle(EmojiWrapper.transform(conversation.getName()));
-					//HONEYBADGER AM-120 leading # if group
+					// AM-120 leading # if group
 					if (conversation.getMode() == Conversation.MODE_MULTI) {
 						actionBar.setTitle(EmojiWrapper.transform("#"+conversation.getName()));
 						//CMG AM-286

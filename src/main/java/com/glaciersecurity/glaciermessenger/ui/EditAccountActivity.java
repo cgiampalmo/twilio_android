@@ -510,7 +510,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			//} else {
 				Log.d(Config.LOGTAG, "pgp result not ok");
 			//}
-		} else if (requestCode == ICS_OPENVPN_PERMISSION) { //HONEYBADGER AM-76
+		} else if (requestCode == ICS_OPENVPN_PERMISSION) { // AM-76
 			if (resultCode == Activity.RESULT_OK) {
 				try {
 					mService.registerStatusCallback(mCallback);
@@ -624,7 +624,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.mAvatar.setOnClickListener(this.mAvatarClickListener);
 		this.mDisableOsOptimizationsButton = (Button) findViewById(R.id.os_optimization_disable);
 		this.getmDisableOsOptimizationsBody = (TextView) findViewById(R.id.os_optimization_body);
-		//HONEYBADGER AM-120 rm fingerprint info
+		// AM-120 rm fingerprint info
 		this.mPgpFingerprintBox = (RelativeLayout) findViewById(R.id.pgp_fingerprint_box);
 		this.mPgpFingerprint = (TextView) findViewById(R.id.pgp_fingerprint);
 		this.getmPgpFingerprintDesc = (TextView) findViewById(R.id.pgp_fingerprint_desc);
@@ -851,7 +851,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 				ActionBar ab = getSupportActionBar();
 				configureActionBar(ab, !openedFromNotification);
-				//HONEYBADGER AM-120 rm "using account ... "
+				// AM-120 rm "using account ... "
 //				if (getSupportActionBar() != null) {
 //					getSupportActionBar().setTitle(getString(R.string.account_details));
 //				}
@@ -881,7 +881,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					ab.setDisplayShowHomeEnabled(false);
 					ab.setDisplayHomeAsUpEnabled(false);
 
-					//HONEYBADGER AM-125 remove "Messenger" Title bar
+					// AM-125 remove "Messenger" Title bar
 					//ab.setTitle(R.string.app_name); //ALF changed from action_add_account, maybe part of AM-173
 				}
 			}
@@ -2699,15 +2699,15 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				dialog.show();
 			} else {
 				shouldShowOpenVPNDialog = true; //ALF AM-76
-				doCoreErrorAction(); //HONEYBADGER AM-76
+				doCoreErrorAction(); // AM-76
 			}
 		} catch (RemoteException e) {
-			doCoreErrorAction(); //HONEYBADGER AM-76
+			doCoreErrorAction(); // AM-76
 		}
 	}
 
 	/**
-	 * HONEYBADGER AM-76
+	 *  AM-76
 	 */
 	private void doCoreErrorAction() {
 		androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
@@ -2932,7 +2932,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		try {
 			mService.disconnect();
 		} catch (RemoteException e) {
-			doCoreErrorAction(); //HONEYBADGER AM-76
+			doCoreErrorAction(); // AM-76
 		}
 
 		// try to start up VPN if valid
@@ -2957,7 +2957,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				}
 
 			} catch (RemoteException e) {
-				doCoreErrorAction(); //HONEYBADGER AM-76
+				doCoreErrorAction(); // AM-76
 			}
 		} else {
 			// try logging in anyway in case user has own vpn running
@@ -3015,7 +3015,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				showVPNProfileDialog();
 			}
 		} catch (RuntimeException e){
-			doCoreErrorAction(); //HONEYBADGER AM-76
+			doCoreErrorAction(); // AM-76
 		}
 	}
 
@@ -3050,11 +3050,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				/*try {
 					mService.registerStatusCallback(mCallback);
 				} catch (RemoteException | SecurityException e) { //ALF AM-194 added Security for UVP
-					doCoreErrorAction(); //HONEYBADGER AM-76
+					doCoreErrorAction(); // AM-76
 				}*/
 
 			} catch (RemoteException | SecurityException e) { //ALF AM-194 added Security for UVP
-				doCoreErrorAction(); //HONEYBADGER AM-76
+				doCoreErrorAction(); // AM-76
 			}
 		}
 
@@ -3111,6 +3111,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 */
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		// restore accounts from file if exists
 		//I think this ONLY works for single sign on so probably irrelevant for us
 		if (restoreAccountsFromFile() == true) { //ALF AM-388 this indicates getting actual account info

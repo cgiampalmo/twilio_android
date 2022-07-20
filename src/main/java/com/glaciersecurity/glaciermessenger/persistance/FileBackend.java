@@ -1,5 +1,6 @@
 package com.glaciersecurity.glaciermessenger.persistance;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -96,7 +97,7 @@ public class FileBackend {
         try {
             final Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
             if (cursor != null && cursor.moveToFirst()) {
-                long size = cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE));
+                @SuppressLint("Range") long size = cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE));
                 cursor.close();
                 return size;
             } else {
@@ -445,7 +446,7 @@ public class FileBackend {
             return null;
         }
         if (cursor != null && cursor.moveToFirst()) {
-            final int id = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
+            @SuppressLint("Range") final int id = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
             cursor.close();
             return Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, String.valueOf(id));
         } else {
