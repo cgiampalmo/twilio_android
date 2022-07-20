@@ -65,6 +65,7 @@ import com.glaciersecurity.glaciermessenger.ui.util.PendingActionHelper;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
 import com.glaciersecurity.glaciermessenger.ui.util.ScrollState;
 import com.glaciersecurity.glaciermessenger.ui.util.StyledAttributes;
+import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.utils.LogoutListener;
 import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.ui.adapter.SmsProfileAdapter;
@@ -386,7 +387,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             StrictMode.setThreadPolicy(policy);
         }
         setTitle("SMS");
-        toolbar = (Toolbar) findViewById(R.id.toolbar_sms_view);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         model = (ConversationModel) getApplicationContext();
         if(model.getPurchaseNumber() != null)
             PurchaseNumber = model.getPurchaseNumber();
@@ -395,7 +396,25 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        fab_contact = (FloatingActionButton) findViewById(R.id.fab_chat);
+        fab_contact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                accessToken = Atoken.getAccessToken();
+                Log.d("Glacier","conversationsClient "+ConversationsManager.conversationsClient);
+                if (ConversationsManager.conversationsClient != null){
+                    model.setConversationsClient(ConversationsManager.conversationsClient);
+                    Intent intent = new Intent(mContext, ContactListActivity.class);
+                    String conv_Sid = "new";
+                    startActivity(intent.putExtra("conv_sid", conv_Sid).putExtra("identity", identity).putExtra("conversationToken", accessToken).putExtra("title", "New message"));
+                }else{
+                    Toast.makeText(mContext, "Please wait the SMS is not loaded successfully", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         actionBar.setHomeButtonEnabled(true);
+
+
 
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -410,7 +429,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         });
         if(getIntent().hasExtra("account")) {
             identity = getIntent().getExtras().getString("account");
-            //setTitle(identity);
             model.setIdentity(identity);
             Log.d("Glacier ","Twilio Conversation "+model.getConversation());
         }else{
@@ -448,6 +466,10 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 }
             }else
                 proxyNumber = model.getProxyNumber();
+
+            if(proxyNumber != null) {
+                setColorForNumber(proxyNumber);
+            }
         }else{
             retrieveTokenFromServer();
         }
@@ -469,22 +491,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         recyclerViewSMS.setAdapter(adapter_sms);
         Log.d("Glacier","identity sdns n "+identity);
 
-        fab_contact = (FloatingActionButton) findViewById(R.id.fab_chat);
-        fab_contact.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                accessToken = Atoken.getAccessToken();
-                Log.d("Glacier","conversationsClient "+ConversationsManager.conversationsClient);
-                if (ConversationsManager.conversationsClient != null){
-                    model.setConversationsClient(ConversationsManager.conversationsClient);
-                    Intent intent = new Intent(mContext, ContactListActivity.class);
-                    String conv_Sid = "new";
-                    startActivity(intent.putExtra("conv_sid", conv_Sid).putExtra("identity", identity).putExtra("conversationToken", accessToken).putExtra("title", "New message"));
-                }else{
-                    Toast.makeText(mContext, "Please wait the SMS is not loaded successfully", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+
 }
 
         public boolean onCreateOptionsMenu(Menu menu) {
@@ -621,6 +628,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                                 PurchaseNumber = ConversationsManager.PurchaseNumber;
                             }else
                                 proxyNumber = model.getProxyNumber();
+
+                            setColorForNumber(proxyNumber);
                         }
                     });
                 }
@@ -635,6 +644,13 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             }
         });
 
+    }
+
+    public void setColorForNumber(String number){
+        String formattedNumber = Tools.reformatNumber(number);
+        setTitle(formattedNumber);
+        toolbar.setBackgroundColor(UIHelper.getColorForSMS(formattedNumber));
+        fab_contact.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(formattedNumber)));
     }
     public void OnSMSConversationClick(String conv_sid,String conv_name) {
         Log.d("Glacier","OnSMSConversationClick called "+Atoken.getAccessToken()+" conv_sid "+conv_sid);
@@ -666,11 +682,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
 
     @Override
-    public void OnSMSProfileClick(String id, String number, int color) {
-        toolbar.setBackgroundColor(color);
-        fab_contact.setBackgroundTintList(ColorStateList.valueOf(color));
+    public void OnSMSProfileClick(String id, String number) {
+
             model.setProxyNumber(number);
             proxyNumber = number;
+            setColorForNumber(proxyNumber);
             drawer_sms.closeDrawers();
             if (messagesAdapter != null) {
                 messagesAdapter.notifyDataSetChanged();
@@ -772,7 +788,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             conversation_lastmsg = holder.conView.findViewById(R.id.conversation_lastmsg);
             dateText = holder.conView.findViewById(R.id.conversation_lastupdate);
             String Contact_name = (cList != null && cList.get(conversation.getFriendlyName()) != null) ? cList.get(conversation.getFriendlyName()) : conversation.getFriendlyName();
-            avatar_circle.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(Contact_name)));
+            avatar_circle.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForName(Contact_name)));
             String sender_name_text = "";
             if(conv_last_msg_sent.containsKey(conversation.getSid()) && conv_last_msg_sent.get(conversation.getSid()).toString().equals(identity))
                 sender_name_text = "Me :";

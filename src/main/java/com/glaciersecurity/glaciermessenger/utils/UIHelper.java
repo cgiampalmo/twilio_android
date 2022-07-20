@@ -306,15 +306,10 @@ public class UIHelper {
 	}
 
 	public static int getColorForSMS(String name) {
-		//CMG AM-255
-// 		if (Config.XEP_0392) {
-//			return XEP0392Helper.rgbFromNick(name);
-//		}
 		if (name == null || name.isEmpty()) {
 			return 0xFF202020;
 		}
-
-		return SMS_COLORS[(int) (getLongForName(name) % SMS_COLORS.length)];
+		return SMS_COLORS[Math.abs(name.hashCode()) % SMS_COLORS.length];
 	}
 
 	public static int getColorForName(String name, boolean safe) {

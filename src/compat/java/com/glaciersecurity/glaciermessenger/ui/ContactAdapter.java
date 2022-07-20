@@ -40,7 +40,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.viewHold
         ContactModel model = arrayList.get(position);
         holder.tvName.setText(model.getName());
         holder.tvNumber.setText(model.getNumber());
-        holder.tvAvatar.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(model.getNumber() + model.getName())));
+        holder.tvAvatar.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(model.getName())));
     }
 
     @Override
