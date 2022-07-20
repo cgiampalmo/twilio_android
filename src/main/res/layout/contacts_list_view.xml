@@ -43,7 +43,9 @@
                 android:hint="Type a phone number"
                 android:textColor="?attr/edit_text_color"
                 android:padding="@dimen/spacing_middle"
-                android:inputType="number"
+                android:inputType="number|phone"
+                android:imeOptions="actionDone"
+                android:focusable="true"
                 style="@style/Widget.Conversations.EditText"
                 tools:ignore="Autofill"/>
 
@@ -142,7 +144,8 @@
             android:src="@drawable/ic_group_add_white_24dp"
             app:backgroundTint="#27a1cb"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="invisible"/>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout></layout>
