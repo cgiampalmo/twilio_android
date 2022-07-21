@@ -1205,6 +1205,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		model.setConversationsClient(null);
 		model.setContConv(null);
 		model.setNotificationManager(null);
+		model.setProxyNumber(null);
 		activity.onLogout();
 	}
 

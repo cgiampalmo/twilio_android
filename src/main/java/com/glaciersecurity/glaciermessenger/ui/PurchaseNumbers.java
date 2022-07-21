@@ -199,7 +199,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             public void onClick(View view) {
                 String areaCode = getAreaCode.getText().toString().trim();
                 Log.d("Glacier","Areacode entered : "+areaCode);
-                Toast.makeText(PurchaseNumbers.this,"Areacode entered : " + areaCode,Toast.LENGTH_LONG).show();
+                //Toast.makeText(PurchaseNumbers.this,"Areacode entered : " + areaCode,Toast.LENGTH_LONG).show();
                 TextView getcountrycode = findViewById(R.id.countrycode);
                 String countryNamecode = getcountrycode.getText().toString().trim();
                 String[] countrySplitCode = countryNamecode.split("-");
@@ -217,12 +217,12 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     }
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        Toast.makeText(this, "Item Clicked " , Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Item Clicked " , Toast.LENGTH_SHORT).show();
         TextView getcountrycode = findViewById(R.id.countrycode);
         String countryNamecode = getcountrycode.getText().toString().trim();
         String[] countrySplitCode = countryNamecode.split("-");
         String countryCode = countrySplitCode[1].trim();
-        Toast.makeText(this, "Item Clicked " + countryCode, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Item Clicked " + countryCode, Toast.LENGTH_SHORT).show();
         TextView getAreaCode = findViewById(R.id.edit_gchat_number);
         area_code.setVisibility(View.VISIBLE);
         String areacode = getAreaCode.getText().toString().trim();
