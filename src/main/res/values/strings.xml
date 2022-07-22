@@ -371,10 +371,10 @@
     <string name="one_hour">1 hour</string>
     <string name="four_hours">4 hours</string>
     <string name="pref_biometrics_summary">Unlock Glacier with fingerprint, facial recognition, or PIN</string>
-    <string name="pref_biometrics_title">Device Biometric/PIN</string>
+    <string name="pref_biometrics_title">Application Lock</string>
     <string name="pref_biometric_summary">Unlock with fingerprint, facial recognition, or PIN if configured on device</string>
-    <string name="title_pref_biometric">Enable biometric/PIN authentication</string>
-    <string name="biometrics_options">Biometric</string>
+    <string name="title_pref_biometric">Enable application lock</string>
+    <string name="biometrics_options">Enable Lock</string>
     <string name="pref_pin_summary">Default is the device PIN. This allows you to set a PIN different from the device PIN as the backup for biometric authentication</string>
     <string name="title_pref_pin">Set Glacier PIN</string>
     <string name="pin_options">PIN Code</string>
@@ -1103,19 +1103,27 @@
     Shows signs of being reverse engineered
     Shows signs of being run in emulator
     Shows signs of being debugged</string>
-    <string name="screen_lock">Screen Lock</string>
-    <string name="screen_lock_enabled">Screen lock enabled</string>
-    <string name="screen_lock_disabled">Screen lock is disabled</string>
-    <string name="latest_updates">Latest Glacier/OS</string>
-    <string name="up_to_date">Glacier and Android OS up to date</string>
+    <string name="screen_lock">Device Lock</string>
+    <string name="screen_lock_enabled">Device lock enabled</string>
+    <string name="screen_lock_disabled">Device lock is disabled</string>
+    <string name="latest_updates_app">Latest Glacier</string>
+    <string name="latest_updates_os">Latest OS</string>
+
+    <string name="up_to_date_app">Glacier is up to date</string>
+    <string name="up_to_date_os">Android OS is up to date</string>
+
     <string name="update_glacier">Glacier is not up to date</string>
     <string name="update_os">Android OS is not up to date</string>
     <string name="update_both">Both Glacier and Android OS are not up to date</string>
-    <string name="biometrics">Biometric Lock</string>
-    <string name="bio_lock_disabled">Biometric lock is disabled</string>
+    <string name="biometrics_app">Application Lock</string>
+    <string name="biometrics_dev">Biometric Lock</string>
+    <string name="bio_lock_disabled">Device biometric lock is disabled</string>
     <string name="face_lock_enabled">Touch ID enabled</string>
     <string name="touch_lock_enabled">Face ID enabled</string>
-    <string name="bio_lock_enabled">Biometrics enabled</string>
+    <string name="bio_lock_enabled">Device biometric lock is enabled</string>
+    <string name="app_lock_enabled">Glacier app lock is enabled</string>
+    <string name="app_lock_disabled">Glacier app lock is disabled</string>
+
     <string name="core_connect">Core Connection</string>
     <string name="core_connect_enabled">Core is enabled</string>
     <string name="core_connect_disabled">Core is disabled</string>

@@ -28,7 +28,9 @@ public class SecurityInfo {
     protected String sCompromisedDetail;
     protected boolean sScreenLock;
     protected boolean sBiometricLock;
+    protected boolean sDeviceLock;
     protected boolean sCoreEnabled;
+
 
     public SecurityInfo(String deviceid) {
         sDeviceId = deviceid;
@@ -50,6 +52,7 @@ public class SecurityInfo {
         sCompromisedDetail = (String) jsecinfo.get("compromised_detail");
         sScreenLock = Boolean.parseBoolean(String.valueOf(jsecinfo.get("screen_lock")));
         sBiometricLock = Boolean.parseBoolean(String.valueOf(jsecinfo.get("biometric_lock")));
+        sDeviceLock = Boolean.parseBoolean(String.valueOf(jsecinfo.get("device_lock")));
         sCoreEnabled = Boolean.parseBoolean(String.valueOf(jsecinfo.get("core_enabled")));
     }
 
@@ -65,6 +68,7 @@ public class SecurityInfo {
                 "\"compromised_detail\":\"" + getCompromisedDetail() + "\"," +
                 "\"screen_lock\":" + getScreenLock() + "," +
                 "\"biometric_lock\":" + getBiometricLock() + "," +
+                "\"device_lock\":" + getDeviceLock() + "," +
                 "\"core_enabled\":" + getCoreEnabled() + "}";
     }
 
@@ -152,6 +156,13 @@ public class SecurityInfo {
         sBiometricLock = biolock;
     }
 
+    public boolean getDeviceLock() {
+        return sDeviceLock;
+    }
+
+    public void setDeviceLock(boolean biolock) {
+        sDeviceLock = biolock;
+    }
     public boolean getCoreEnabled() {
         return sCoreEnabled;
     }
@@ -192,6 +203,7 @@ public class SecurityInfo {
                 sinfo.getCompromisedDetail().equals(this.sCompromisedDetail) &&
                 sinfo.getScreenLock() == this.sScreenLock &&
                 sinfo.getBiometricLock() == this.sBiometricLock &&
+                sinfo.getDeviceLock() == this.sDeviceLock &&
                 sinfo.getCoreEnabled() == this.sCoreEnabled;
     }
 }

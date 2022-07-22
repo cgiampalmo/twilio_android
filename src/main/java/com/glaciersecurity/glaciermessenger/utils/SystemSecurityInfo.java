@@ -73,6 +73,7 @@ public class SystemSecurityInfo {
     private XmlReader tagReader;
     private String latestOs;
     private String latestGlacier;
+    private String latestAlt;
     private boolean hasAnomalies;
     private String anomalyString;
 
@@ -93,6 +94,12 @@ public class SystemSecurityInfo {
     public boolean hasScreenLock(){
         KeyguardManager myKM = (KeyguardManager) xmppConnectionService.getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
         return myKM.isDeviceSecure();
+    }
+    public boolean hasBioLock(){
+        KeyguardManager myKM = (KeyguardManager) xmppConnectionService.getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
+        //return myKM.isDeviceSecure();
+        BiometricManager myBM = BiometricManager.from(xmppConnectionService.getApplicationContext());
+        return (myBM.canAuthenticate() == BiometricManager.BIOMETRIC_SUCCESS);
     }
 
     public boolean isCoreEnabled(){
@@ -127,6 +134,8 @@ public class SystemSecurityInfo {
                             latestGlacier = tagReader.readElement(nextTag).getContent();
                         } else if (nextTag.isStart("android_os")) {
                             latestOs = tagReader.readElement(nextTag).getContent();
+                        }  else if (nextTag.isStart("alt_os")) {
+                            latestAlt = tagReader.readElement(nextTag).getContent();
                         }
                         nextTag = tagReader.readTag();
                     }
@@ -163,6 +172,20 @@ public class SystemSecurityInfo {
     }*/
 
     public boolean isLatestOS() {
+
+        if(Build.MODEL.contains("Pixelbook")){
+            return true;
+        }
+
+        if (latestAlt != null) {
+            String myOsBuild= Build.DISPLAY;
+
+            ComparableVersion latestCompAltOs = new ComparableVersion(latestAlt);
+            ComparableVersion myOsB = new ComparableVersion(myOsBuild);
+            if (myOsB.compareTo(latestCompAltOs) == 0){
+                return true;
+            }
+        }
         if (latestOs != null) {
             ComparableVersion latestCompOs = new ComparableVersion(latestOs);
             String myOsVer = Build.VERSION.RELEASE;
@@ -197,7 +220,7 @@ public class SystemSecurityInfo {
         if (securityInfo == null) {
             final Account account = xmppConnectionService.getAccounts().get(0);
             CognitoAccount myCogAccount = xmppConnectionService.databaseBackend.getCognitoAccount(account);
-            securityInfo = new SecurityInfo(myCogAccount.getUuid());
+            securityInfo = new SecurityInfo(PhoneHelper.getAndroidId(xmppConnectionService.getApplicationContext()));
 
             //fill the basics
             //device
@@ -248,6 +271,12 @@ public class SystemSecurityInfo {
         boolean hasBioLock = isBiometricPINOn(xmppConnectionService.getApplicationContext());
         if (hasBioLock != securityInfo.getBiometricLock()) {
             securityInfo.setBiometricLock(hasBioLock);
+            needsUpdate = true;
+        }
+
+        boolean hasDeviceLock = hasBioLock();
+        if (hasDeviceLock != securityInfo.getDeviceLock()) {
+            securityInfo.setDeviceLock(hasDeviceLock);
             needsUpdate = true;
         }
 
