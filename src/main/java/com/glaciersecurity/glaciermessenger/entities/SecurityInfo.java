@@ -31,6 +31,7 @@ public class SecurityInfo {
     protected boolean sDeviceLock;
     protected boolean sCoreEnabled;
 
+
     public SecurityInfo(String deviceid) {
         sDeviceId = deviceid;
     }
