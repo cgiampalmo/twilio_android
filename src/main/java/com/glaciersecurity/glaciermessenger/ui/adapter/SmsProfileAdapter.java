@@ -4,6 +4,8 @@ import android.provider.Telephony;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,7 +46,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 	@Override
 	public void onBindViewHolder(@NonNull SMSRecyclerViewHolder holder, int position) {
 		holder.numberView.setText(smsProfileList.get(position).getNumber());
-		holder.locationView.setText(smsProfileList.get(position).getLocation());
+		//holder.locationView.setText(smsProfileList.get(position).getLocation());
 		holder.profileView.setBackgroundColor(UIHelper.getColorForSMS(smsProfileList.get(position).getNumber()));
 		Log.d("Glacier","unread_conv_count----"+smsProfileList.get(position).getUnread_count()+"---"+smsProfileList.get(position).getNumber());
 		if(smsProfileList.get(position).getUnread_count() != null && smsProfileList.get(position).getUnread_count() > 0) {
@@ -69,8 +71,9 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 	public class SMSRecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 		final View profView;
 		TextView numberView;
-		TextView locationView;
+		//TextView locationView;
 		UnreadCountCustomView unreadCount;
+		ImageButton removeNumBtn;
 		LinearLayout profileView;
 		private OnSMSProfileClickListener listener;
 
@@ -80,8 +83,9 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 			this.listener = listener;
 			profileView = (LinearLayout) view.findViewById(R.id.sms_profile_view);
 			numberView = (TextView) view.findViewById(R.id.sms_profile_number);
-			locationView = (TextView) view.findViewById(R.id.sms_profile_location);
+			//locationView = (TextView) view.findViewById(R.id.sms_profile_location);
 			unreadCount = (UnreadCountCustomView) view.findViewById(R.id.sms_unread_count);
+			removeNumBtn = view.findViewById(R.id.remove_sms_btn);
 			profView = view;
 			profView.setOnClickListener(this);
 		}

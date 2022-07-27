@@ -40,7 +40,7 @@
                 android:maxLines="1"
                 android:lines="1"
                 android:singleLine="true"
-                android:hint="Type Country code or name(US or France)"
+                android:hint="Search for number, i.e. US"
                 android:textColorHint="@color/white"
                 android:layout_margin="3dp"
                 android:background="@color/secondary_bg_color"
@@ -98,7 +98,7 @@
                     android:clickable="true"
                     android:padding="@dimen/spacing_middle"
                     android:layout_gravity="clip_vertical"
-                    app:srcCompat="@drawable/ic_baseline_dialpad_24" />
+                    app:srcCompat="@drawable/ic_baseline_search_24" />
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>

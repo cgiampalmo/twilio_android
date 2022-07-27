@@ -28,6 +28,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -92,6 +93,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     private Toolbar toolbar;
     public FloatingActionButton fab_contact;
     private Button addNumberBtn;
+    private Button releaseNumberBtn;
 //    public FloatingActionButton fab_group;
 //    public FloatingActionButton fab_add;
 
@@ -422,8 +424,10 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 drawer_sms.openDrawer(GravityCompat.START);
                 if(PurchaseNumber){
                     addNumberBtn.setVisibility(View.VISIBLE);
+                    releaseNumberBtn.setVisibility(View.VISIBLE);
                 } else {
                     addNumberBtn.setVisibility(View.GONE);
+                    releaseNumberBtn.setVisibility(View.GONE);
                 }
             }
         });
@@ -480,6 +484,13 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         recyclerViewSMS.setLayoutManager(layoutManagerSMS);
         drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
         adapter_sms = new SmsProfileAdapter((OnSMSProfileClickListener) this, profileList);
+        releaseNumberBtn = (Button) findViewById(R.id.release_number);
+        releaseNumberBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            }
+        });
+
         addNumberBtn = (Button) findViewById(R.id.add_number);
         addNumberBtn.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -120,9 +120,9 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         }
     }
     protected void OnNumberClick(String number){
-        Toast.makeText(this,"Purchasing number "+number,Toast.LENGTH_LONG).show();
+        Toast.makeText(this,"Acquiring number "+number,Toast.LENGTH_LONG).show();
         AlertDialog.Builder builder = new AlertDialog.Builder(PurchaseNumbers.this);
-        builder.setMessage("Do you want to purchase number ?");
+        builder.setMessage("Do you want to acquire number ?");
         builder.setTitle("Confirmation");
         builder.setCancelable(true);
         builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
@@ -156,9 +156,9 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             Gson gson = new Gson();
             PurchaseNumResponse purchaseNumResponse = gson.fromJson(responseBody, PurchaseNumResponse.class);
             if(purchaseNumResponse.message.equals("success")){
-                Toast.makeText(PurchaseNumbers.this,"Number purchased successfully",Toast.LENGTH_LONG).show();
+                Toast.makeText(PurchaseNumbers.this,"Number acquired successfully",Toast.LENGTH_LONG).show();
             }else{
-                Toast.makeText(PurchaseNumbers.this,"Failed to purchase. Please try again",Toast.LENGTH_LONG).show();
+                Toast.makeText(PurchaseNumbers.this,"Failed to acquire. Please try again",Toast.LENGTH_LONG).show();
             }
             numberPurchased = true;
             onBackendConnected();
@@ -171,7 +171,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_purchase_number);
-        setTitle("Purchase Twilio number");
+        setTitle("Acquire number");
         model = (ConversationModel) getApplicationContext();
         String[] country_codes = getResources().getStringArray(R.array.country_codes);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.dropdown_cc, country_codes);
