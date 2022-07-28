@@ -338,7 +338,7 @@ public class ConversationsManager {
                     }
                     Log.d("glacier","identity_number-- "+identity_number+"-- number --"+number+"-- phoneNumber --"+phoneNum);
                     String proxyNum = number.replace(" ", "").replace("(", "").replace("-", "").replace(")", "");
-                    if(!(identity_number.equals(proxyNum)) && phoneNum.length() > 3){
+                    if(!(identity_number.equals(proxyNum)) && phoneNum.length() > 3 && phoneNum.length() < 15){
                         createConversation(phoneNum,proxyNum);
                     }
                     else if (conversation.getStatus() == Conversation.ConversationStatus.JOINED
@@ -364,7 +364,11 @@ public class ConversationsManager {
             @Override
             public void onError(ErrorInfo errorInfo) {
                 Log.e("Glacier", "Error retrieving conversation: " + errorInfo.getMessage());
-                createConversation(convSid,number);
+                //if(convSid.length() > 3 && convSid.length() < 13) {
+                    createConversation(convSid, number);
+                //}else{
+
+                //}
             }
 
         });

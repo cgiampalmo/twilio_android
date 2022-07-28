@@ -41,6 +41,7 @@ public class SMSdbInfo {
     private AWSAppSyncClient appsyncclient;
     private SmsProfile smsInfo;
     private ArrayList<SmsProfile> dbProfs = new ArrayList<>();
+    private boolean dbPurchaseNum;
 
     public SMSdbInfo(XmppConnectionService xmppConn) {
         xmppConnectionService = xmppConn;
@@ -99,6 +100,7 @@ public class SMSdbInfo {
             new Thread(() -> {
                 if (response.data().getGlacierUsers() != null) {
                     dbProfs = (getSmsProfileList(response.data().getGlacierUsers().selected_twilionumber()));
+                    //dbPurchaseNum = response.data().getGlacierUsers().add_user_to_additional_teams();
                 } else {
                     Log.i("SmsInfo", "No sms profiles in response from server");
                 }

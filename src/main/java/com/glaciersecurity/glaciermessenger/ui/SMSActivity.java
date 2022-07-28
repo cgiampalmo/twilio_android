@@ -876,7 +876,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 public void onSuccess() {
                     ConversationsManager.getConversation(proxyNumber).remove(remove_conv);
                     notifyItemRemoved(position);
-                    Log.d("Glacier","Conversation deleted" + remove_conv.getFriendlyName());
+                    Map<String, String> aList = model.getContConv();
+                    if(aList != null){
+                        aList.remove(remove_conv.getFriendlyName());
+                        model.setContConv(aList);
+                    }
+                    Log.d("Glacier","Conversation deleted" + remove_conv.getFriendlyName() + aList);
                 }
 
                 @Override
