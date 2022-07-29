@@ -129,7 +129,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     private int swipedPos = -1;
 
     @Override
-    public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor) {
+    public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor,String messageTo) {
         messagesAdapter.notifyDataSetChanged();
         Log.d("Glacier","unread_conv_count----"+profileList);
         reload_adapter_sms(profileList);
@@ -141,22 +141,21 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 Log.d("Glacier", "Current Conversation new message " + current_conv.getSid() + " : " + messageConversationSid + " : " + current_conv.getSid().equals(messageConversationSid) + " : " + messageAuthor);
             Log.d("Glacier", "Current Conversation new message" +identity+" : " + messageAuthor + "---"+identity.equals(messageAuthor));
             if (current_conv == null)
-                notifyMessage(newMessage, messageAuthor);
+                notifyMessage(newMessage, messageAuthor,messageTo);
             else if (!identity.equals(messageAuthor)) {
-                notifyMessage(newMessage, messageAuthor);
+                notifyMessage(newMessage, messageAuthor,messageTo);
             }
         }
     }
-    public void notifyMessage(String newMessage,String messageAuthor){
+    public void notifyMessage(String newMessage,String messageAuthor,String messageTo){
         Log.d("Glacier", "New notification notifyMessage called");
         Intent intent = new Intent(mContext, SMSActivity.class);
+        intent.putExtra("ProxyNum",messageTo);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE);
         Intent broadcastIntent = new Intent(this, NotificationReceiver.class);
         PendingIntent actionIntent = PendingIntent.getBroadcast(this,
                 0, broadcastIntent, PendingIntent.FLAG_MUTABLE);
 
-
-// Create the RemoteInput specifying this key
         Log.d("Glacier", "New notification before remoteInput");
         RemoteInput remoteInput = new RemoteInput.Builder(KEY_TEXT_REPLY).setLabel("Reply").build();
         RemoteInput remoteInput2 = new RemoteInput.Builder(MARK_AS_READ).setLabel("Mark as read").build();
@@ -166,7 +165,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         PendingIntent replyPendingIntent = PendingIntent.getActivity(this,0,replyIntent,PendingIntent.FLAG_MUTABLE);
         NotificationCompat.Action action = new NotificationCompat.Action.Builder(R.drawable.ic_baseline_sms_24,"Reply",replyPendingIntent).addRemoteInput(remoteInput).build();
         Log.d("Glacier", "New notification before action");
-        builder.addAction(action);
+        //builder.addAction(action);
         Log.d("Glacier", "New notification after action");
         builder.setContentTitle("Glacier");
         builder.setPriority(NotificationCompat.PRIORITY_HIGH);
@@ -176,7 +175,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         builder.setAutoCancel(true);
         builder.setContentIntent(pendingIntent);
         NotificationCompat.Action action2 = new NotificationCompat.Action.Builder(R.drawable.ic_baseline_sms_24,"Reply",actionIntent).addRemoteInput(remoteInput2).build();
-        builder.addAction(action2);
+        //builder.addAction(action2);
         managerCompat = NotificationManagerCompat.from(this);
         if(messageAuthor.length() > 5) {
             Log.d("Glacier", "New notification " + Integer.parseInt(messageAuthor.substring(2, 5)));
@@ -210,12 +209,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             Log.d("Glacier","New Message adapter");
             messagesAdapter = new SMSActivity.MessagesAdapter((OnSMSConversationClickListener) this);
             recyclerViewConversations.setAdapter(messagesAdapter);
-            reload_adapter_sms(profileList);
 
         }else{
             Log.d("Glacier","old Message adapter");
             messagesAdapter.notifyDataSetChanged();
         }
+        reload_adapter_sms(profileList);
         if(ConversationsManager.conversationsClient.getMyConversations().size() > 0) {
             List<Conversation> conversationList = ConversationsManager.conversationsClient.getMyConversations();
             Map<String, String> aList = new HashMap<>();
@@ -224,9 +223,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             }
             model.setContConv(aList);
             model.setConversationsClient(ConversationsManager.conversationsClient);
-//            messagesAdapter = new SMSActivity.MessagesAdapter((OnSMSConversationClickListener) this);
-//            recyclerViewConversations.setAdapter(messagesAdapter);
-
             this.recyclerViewConversations.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -340,8 +336,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
 
     @Override
-    public void notifyMessages(String newMessage,String messageAuthor) {
-        notifyMessage(newMessage,messageAuthor);
+    public void notifyMessages(String newMessage,String messageAuthor,String messageTo) {
+        notifyMessage(newMessage,messageAuthor,messageTo);
         reload_adapter_sms(profileList);
     }
 
@@ -357,6 +353,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 profileList.add(0, smsProfile);
             smsProfile.setUnread_count(0);
             if (ConversationsManager.unread_conv_count == null || ConversationsManager.unread_conv_count.isEmpty()) {
+                smsProfile.setUnread_count(0);
             } else {
                 String number = smsProfile.getNumber().replaceAll(" ", "").replace("(", "").replace(")", "").replace("-", "");
                 Integer unread_count = ConversationsManager.unread_conv_count.get(number);
@@ -371,6 +368,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         }
         if(adapter_sms != null)
             adapter_sms.notifyDataSetChanged();
+        else
+            Log.d("Glacier","adapter_sms is null");
     }
 
     private final ConversationsManager ConversationsManager = new ConversationsManager(this);
@@ -401,6 +400,23 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             smSdbInfo = profileList;
         }
         reload_adapter_sms(smSdbInfo);
+    }
+
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        proxyNumber = model.getProxyNumber();
+        Log.d("Glacier","onNewIntent "+intent.hasExtra("ProxyNum"));
+        if(intent.hasExtra("ProxyNum") && (!(intent.getExtras().getString("ProxyNum").equals(proxyNumber)))){
+            Log.d("Glacier","onNewIntent proxy num not equal");
+            OnSMSProfileClick("", intent.getExtras().getString("ProxyNum"));
+        }else{
+            if(!intent.hasExtra("ProxyNum")) {
+                ConversationsManager.loadChannels(model.getConversationsClient());
+            }
+            /*if(proxyNumber != null){
+                OnSMSProfileClick("", proxyNumber);
+            }*/
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -463,7 +479,14 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             model.setConversation(null);
             Log.d("Glacier","Identity "+identity);
         }
-
+        if(getIntent().hasExtra("ProxyNum")) {
+            proxyNumber = getIntent().getExtras().getString("ProxyNum");
+            model.setProxyNumber(proxyNumber);
+            setColorForNumber(proxyNumber);
+            if (messagesAdapter != null) {
+                messagesAdapter.notifyDataSetChanged();
+            }
+        }
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("Glacier", "Glacier", NotificationManager.IMPORTANCE_HIGH);
             NotificationManager manager = getSystemService(NotificationManager.class);

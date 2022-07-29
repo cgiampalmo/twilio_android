@@ -50,11 +50,11 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 interface ConversationsManagerListener {
-    void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor);
+    void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor,String messageTo);
     void messageSentCallback();
     void reloadMessages();
     void showList();
-    void notifyMessages(String newMessage,String messageAuthor);
+    void notifyMessages(String newMessage,String messageAuthor,String messageTo);
 }
 
 interface TokenResponseListener {
@@ -315,6 +315,7 @@ public class ConversationsManager {
                 conv_list.put(identity_number,get_exist_conv);
                 getConversation(conv.getSid(), true, conversationsClient,identity_number,"");
             }
+            Log.d("Glacier","get_unread_conv---"+unread_conv_count);
         }
         conversationsManagerListener.showList();
     }
@@ -499,15 +500,16 @@ public class ConversationsManager {
                                             public void onSuccess(List<Message> result) {
                                                 JSONObject ConvProxyNumber = conversation.getAttributes().getJSONObject();
                                                 String identity_number = "";
+                                                String ide_num = "";
                                                 if(ConvProxyNumber!=null) {
                                                     try {
-                                                        String ide_num = ConvProxyNumber.getString("identity_number");
+                                                        ide_num = ConvProxyNumber.getString("identity_number");
                                                         identity_number = ide_num.substring(ide_num.length() - 4);
                                                     } catch (JSONException e) {
                                                         e.printStackTrace();
                                                     }
                                                 }
-                                                conversationsManagerListener.notifyMessages("New sms for "+ identity_number +" from "+result.get(0).getAuthor() + " : "+result.get(0).getMessageBody(),result.get(0).getAuthor());
+                                                conversationsManagerListener.notifyMessages("New sms for "+ identity_number +" from "+result.get(0).getAuthor() + " : "+result.get(0).getMessageBody(),result.get(0).getAuthor(),ide_num);
                                             }
 
                                             @Override
@@ -684,9 +686,10 @@ public class ConversationsManager {
                 }
                 JSONObject ConvProxyNumber = message.getConversation().getAttributes().getJSONObject();
                 String identity_number = "";
+                String ide_num = "";
                 if(ConvProxyNumber!=null) {
                     try {
-                        String ide_num = ConvProxyNumber.getString("identity_number");
+                        ide_num = ConvProxyNumber.getString("identity_number");
                         identity_number = ide_num.substring(ide_num.length() - 4);
                         Log.d("Glacier","ConvProxyNumber ide_num" + ide_num + unread_conv.get(ide_num) + message.getConversationSid());
                         ArrayList unread_num = new ArrayList();
@@ -708,7 +711,7 @@ public class ConversationsManager {
                         e.printStackTrace();
                     }
                 }
-                conversationsManagerListener.receivedNewMessage("New sms for " + identity_number +" from " + message.getAuthor() + " : " + message.getMessageBody(),message.getConversationSid(),message.getAuthor());
+                conversationsManagerListener.receivedNewMessage("New sms for " + identity_number +" from " + message.getAuthor() + " : " + message.getMessageBody(),message.getConversationSid(),message.getAuthor(),ide_num);
                 //conversationsManagerListener.reloadMessages();
                 /*else {
                     conversationsManagerListener.reloadMessages();

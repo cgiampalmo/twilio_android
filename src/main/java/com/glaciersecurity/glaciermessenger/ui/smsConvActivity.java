@@ -325,7 +325,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
     }
 
     @Override
-    public void notifyMessages(String newMessage,String messageAuthor) {
+    public void notifyMessages(String newMessage,String messageAuthor,String messageTo) {
 
     }
 
@@ -416,7 +416,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         toggleInputMethod();
     }
     @Override
-    public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor) {
+    public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor,String messageTo) {
         Log.d("Glacier","getFriendlyName"+ConversationsManager.conversation.getFriendlyName());
         runOnUiThread(new Runnable() {
             @Override
