@@ -195,6 +195,17 @@
           },
           "isDeprecated" : false,
           "deprecationReason" : null
+        }, {
+          "name" : "add_user_to_purchase_numbers",
+          "description" : null,
+          "args" : [ ],
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "Boolean",
+            "ofType" : null
+          },
+          "isDeprecated" : false,
+          "deprecationReason" : null
         } ],
         "inputFields" : null,
         "interfaces" : [ ],
@@ -370,6 +381,15 @@
           },
           "defaultValue" : null
         }, {
+          "name" : "add_user_to_purchase_numbers",
+          "description" : null,
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "Boolean",
+            "ofType" : null
+          },
+          "defaultValue" : null
+        }, {
           "name" : "securityInfo",
           "description" : null,
           "type" : {
@@ -506,6 +526,14 @@
             }
           },
           "defaultValue" : null
+        }, {
+          "name" : "add_user_to_purchase_numbers",
+          "description" : null,
+          "type" : {
+            "kind" : "SCALAR",
+            "name" : "Boolean",
+            "ofType" : null
+          }
         } ],
         "interfaces" : null,
         "enumValues" : null,

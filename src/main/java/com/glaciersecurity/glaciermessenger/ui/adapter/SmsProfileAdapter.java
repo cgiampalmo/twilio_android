@@ -52,6 +52,8 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 		if(smsProfileList.get(position).getUnread_count() != null && smsProfileList.get(position).getUnread_count() > 0) {
 			holder.unreadCount.setUnreadCount(smsProfileList.get(position).getUnread_count());
 			holder.unreadCount.setVisibility(View.VISIBLE);
+		}else{
+			holder.unreadCount.setVisibility(View.INVISIBLE);
 		}
 		SmsProfile smsPro = smsProfileList.get(holder.getAdapterPosition());
 
