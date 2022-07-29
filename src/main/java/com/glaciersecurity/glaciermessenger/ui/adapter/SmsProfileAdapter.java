@@ -28,7 +28,7 @@ import java.util.List;
 
 public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SMSRecyclerViewHolder> implements OnSMSProfileClickListener {
 
-	private ArrayList<SmsProfile> smsProfileList = new ArrayList<>();
+	public ArrayList<SmsProfile> smsProfileList = new ArrayList<>();
 	private OnSMSProfileClickListener listener;
 
 	public SmsProfileAdapter(OnSMSProfileClickListener listener, ArrayList<SmsProfile> smsProfileList) {
@@ -69,7 +69,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 	}
 
 	public class SMSRecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-		final View profView;
+		public final View profView;
 		TextView numberView;
 		//TextView locationView;
 		UnreadCountCustomView unreadCount;

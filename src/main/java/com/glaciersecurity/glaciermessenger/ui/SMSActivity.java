@@ -5,6 +5,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -37,6 +38,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -89,7 +91,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     private float mSwipeEscapeVelocity = 0f;
     private PendingActionHelper pendingActionHelper = new PendingActionHelper();
     private final PendingItem<Conversation> swipedSMSConversation = new PendingItem<>();
-    private final PendingItem<ScrollState> pendingScrollState = new PendingItem<>();
     private Toolbar toolbar;
     public FloatingActionButton fab_contact;
     private Button addNumberBtn;
@@ -291,9 +292,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                     } catch (IndexOutOfBoundsException e) {
                         return;
                     }
-
                     messagesAdapter.remove(swipedSMSConversation.peek(),position);
-
                 }
             };
             ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
@@ -314,6 +313,30 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 checkPermission();
             }
         });*/
+    }
+
+    protected void swipeDelete(int position){
+        AlertDialog.Builder builder = new AlertDialog.Builder(SMSActivity.this);
+        builder.setMessage(R.string.delete_sms_convo_dialog);
+        builder.setTitle("Confirmation");
+        builder.setCancelable(true);
+        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i)    {
+                messagesAdapter.remove(swipedSMSConversation.peek(),position);
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i)    {
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            public void onCancel(DialogInterface dialog) {
+            }
+        });
+        alertDialog.show();
     }
 
     @Override
@@ -488,6 +511,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         releaseNumberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //recyclerViewSMS.findViewById(R.id.remove_sms_btn).setVisibility(View.VISIBLE);
+
+                for (int i = 0; i < adapter_sms.smsProfileList.size(); i++) {
+                    SmsProfile prof = adapter_sms.smsProfileList.get(i);
+
+                }
             }
         });
 

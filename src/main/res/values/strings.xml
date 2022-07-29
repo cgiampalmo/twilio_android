@@ -307,6 +307,8 @@
     <string name="destroy_room">Destroy group chat</string>
     <string name="destroy_channel">Destroy channel</string>
     <string name="destroy_room_dialog">Are you sure you want to destroy this group chat?\n\n<b>Warning:</b> The group chat will be completely removed on the server.</string>
+    <string name="delete_sms_convo_dialog">Are you sure you want to delete this conversation?\n\n<b>Warning:</b> The conversation will be completely removed on the server.</string>
+
     <string name="destroy_channel_dialog">Are you sure you want to destroy this public channel?\n\n<b>Warning:</b> The channel will be completely removed on the server.</string>
     <string name="could_not_destroy_room">Could not destroy group chat</string>
     <string name="could_not_destroy_channel">Could not destroy channel</string>
