@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -1129,7 +1130,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	public void gotoSupportPage(View view){
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setData(Uri.parse("https://glacier.chat/support"));
-		startActivity(intent);
+		try {
+			startActivity(intent);
+		} catch (java.lang.Exception ex) {
+			displayToast("Your device cannot access the web. Contact your device administrator to request web access.",Toast.LENGTH_LONG);
+		}
 	}
 
 	private void gotoChangePassword(String newPassword) {
@@ -1786,14 +1791,28 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	//CMG AM-433
 	public void gotoSignUp(View view) {
 		Intent intent = new Intent(Intent.ACTION_VIEW);
-		intent.setData(Uri.parse("https://glacier.chat/product#signup"));
-		startActivity(intent);
+		// intent.setData(Uri.parse("https://glacier.chat/product#signup"));
+		// intent.setData(Uri.parse("https://glacier.chat/app"));
+		intent.setData(Uri.parse("https://glacier.chat/sign-up"));
+		try {
+			startActivity(intent);
+		} catch (java.lang.Exception ex) {
+			displayToast("Your device cannot access the web. Contact your device administrator to request web access.",Toast.LENGTH_LONG);
+		}
 	}
 
 	public void forgotPassword(View view) {
 		Intent intent = new Intent(Intent.ACTION_VIEW);
-		intent.setData(Uri.parse("https://console.glaciersec.cc/forget-password"));
-		startActivity(intent);
+		intent.setData(Uri.parse("https://console.glacier.chat/forget-password"));
+		try {
+			startActivity(intent);
+		} catch (java.lang.Exception ex) {
+			displayToast("Your device cannot access the web console. Contact your device administrator to request web access and to reset your password.",Toast.LENGTH_LONG);
+		}
+	}
+
+	private void displayToast(final String msg, int toastLen) {
+		runOnUiThread(() -> Toast.makeText(EditAccountActivity.this, msg, toastLen).show());
 	}
 
 	public void resetAvatar(View view) {
@@ -2714,14 +2733,12 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		builder.setTitle(R.string.core_missing);
 		builder.setMessage(R.string.glacier_core_install);
 		builder.setPositiveButton(R.string.next, (dialog, which) -> {
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+			intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
 			try {
 				dialog.dismiss();
-				Intent intent = new Intent(Intent.ACTION_VIEW);
-				intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
 				startActivity(intent);
-
-			}
-			catch(Exception e2){
+			} catch(Exception e2){
 				e2.printStackTrace();
 			}
 		});

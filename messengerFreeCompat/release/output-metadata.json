@@ -11,9 +11,9 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 512,
-      "versionName": "3.4.3-RC8",
-      "outputFile": "glacierMessenger-3.4.3-RC8-messenger-free-compat-release.apk"
+      "versionCode": 513,
+      "versionName": "3.4.3",
+      "outputFile": "glacierMessenger-3.4.3-messenger-free-compat-release.apk"
     }
   ],
   "elementType": "File"

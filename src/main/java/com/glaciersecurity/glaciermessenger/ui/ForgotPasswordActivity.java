@@ -10,6 +10,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
 
@@ -39,10 +40,18 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 			public void onClick(View v) {
 				Intent intent = new Intent(Intent.ACTION_VIEW);
 				intent.setData(Uri.parse("https://glacier.chat/support"));
-				startActivity(intent);
+				try {
+					startActivity(intent);
+				} catch (java.lang.Exception ex) {
+					displayToast("Your device cannot access the web. Contact your device administrator to request web access.", Toast.LENGTH_LONG);
+				}
 			}
 		});
 		checkEnabledSignUpButton();
+	}
+
+	private void displayToast(final String msg, int toastLen) {
+		runOnUiThread(() -> Toast.makeText(ForgotPasswordActivity.this, msg, toastLen).show());
 	}
 
 	private TextWatcher resetTextWatcher = new TextWatcher() {

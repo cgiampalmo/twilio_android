@@ -145,7 +145,11 @@ public class UriHandlerActivity extends AppCompatActivity {
 			return;
 		}
 
-		startActivity(intent);
+		try {
+			startActivity(intent);
+		} catch (Exception e7) {
+			e7.printStackTrace();
+		}
 	}
 
 	private void handleIntent(Intent data) {

@@ -164,7 +164,11 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
             public void onClick(View view) {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(getString(R.string.core_link)));
-                startActivity(intent);
+                try {
+                    startActivity(intent);
+                } catch(Exception e3){
+                    e3.printStackTrace();
+                }
             }
         });
 
@@ -337,12 +341,12 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
      * HONEYBADGER AM-76
      */
     private void doCoreErrorAction() {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
             try {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
                 startActivity(intent);
-            } catch (Exception e2) {
-                e2.printStackTrace();
+            } catch (Exception e4) {
+                e4.printStackTrace();
             }
     }
 
@@ -722,7 +726,11 @@ public class OpenVPNFragment extends Fragment implements View.OnClickListener, H
     public void launchPlayStoreCore(){
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(getString(R.string.glacier_core_https)));
-        startActivity(intent);
+        try {
+            startActivity(intent);
+        } catch (Exception e5) {
+            e5.printStackTrace();
+        }
     }
 
     /**
