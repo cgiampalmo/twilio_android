@@ -1195,6 +1195,7 @@
     <string name="chat_token_url">http://3.236.203.6:3000/getAccessToken</string>
     <string name="add_participant_url">http://3.236.203.6:3000/addParticipant</string>
     <string name="get_available_num_list_url">http://3.236.203.6:3000/availableNumList</string>
+    <string name="release_num_url">http://3.236.203.6:3000/releaseNumber</string>
     <!--    CMG AM-261-->
     <string name= "mapbox_token">pk.eyJ1IjoiYWxmcmllZG1hbiIsImEiOiJjaXp5YWJxZDQwM2FqMzJxcm9scGh3N3U5In0.NoRKK6Uf4BZz54sZJXwDlA</string>
     <string name="current_location">Current Location</string>
