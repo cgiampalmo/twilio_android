@@ -13,7 +13,6 @@ type GlacierUsers {
   organization: String!
   securityInfo: [AWSJSON]
   selected_twilionumber: [AWSJSON]
-  add_user_to_purchase_numbers: Boolean
   user_name: String
   username: String!
 }
@@ -25,13 +24,6 @@ type Mutation {
 
 type Query {
   getGlacierUsers(organization: String!, username: String!): GlacierUsers
-  listGlacierUsers(filter: TableGlacierUsersFilterInput, limit: Int, nextToken: String): GlacierUsersConnection
-}
-
-type Subscription {
-  onCreateGlacierUsers(email: String, extension_voiceserver: String, first_name: String, organization: String, username: String): GlacierUsers @aws_subscribe(mutations : ["createGlacierUsers"])
-  onDeleteGlacierUsers(email: String, extension_voiceserver: String, first_name: String, organization: String, username: String): GlacierUsers @aws_subscribe(mutations : ["deleteGlacierUsers"])
-  onUpdateGlacierUsers(email: String, extension_voiceserver: String, first_name: String, organization: String, username: String): GlacierUsers @aws_subscribe(mutations : ["updateGlacierUsers"])
 }
 
 input CreateGlacierUsersInput {
@@ -42,7 +34,6 @@ input CreateGlacierUsersInput {
   last_name: String
   messenger_id: String
   organization: String!
-  add_user_to_purchase_numbers: Boolean
   securityInfo: [AWSJSON]
   user_name: String
   username: String!
@@ -112,8 +103,6 @@ input UpdateGlacierUsersInput {
   messenger_id: String
   organization: String!
   securityInfo: [AWSJSON]
-  selected_twilionumber: [AWSJSON]
-  add_user_to_purchase_numbers: Boolean
   user_name: String
   username: String!
 }

@@ -12,6 +12,7 @@ mutation CreateGlacierUsers($input: CreateGlacierUsersInput!) {
     user_name
     securityInfo
     selected_twilionumber
+    add_user_to_purchase_numbers
   }
 }
 mutation UpdateGlacierUsers($input: UpdateGlacierUsersInput!) {
@@ -27,5 +28,6 @@ mutation UpdateGlacierUsers($input: UpdateGlacierUsersInput!) {
     user_name
     securityInfo
     selected_twilionumber
+    add_user_to_purchase_numbers
   }
 }

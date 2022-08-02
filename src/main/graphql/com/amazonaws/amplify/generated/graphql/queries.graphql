@@ -12,5 +12,6 @@ query GetGlacierUsers($organization: String!, $username: String!) {
     user_name
     securityInfo
     selected_twilionumber
+    add_user_to_purchase_numbers
   }
 }

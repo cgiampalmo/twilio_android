@@ -2,7 +2,7 @@ projects:
   fetchUserDetails:
     schemaPath: src/main/graphql/schema.json
     includes:
-      - app/src/main/graphql/**/*.graphql
+      - src/main/graphql/**/*.graphql
     excludes:
       - ./amplify/**
     extensions:
