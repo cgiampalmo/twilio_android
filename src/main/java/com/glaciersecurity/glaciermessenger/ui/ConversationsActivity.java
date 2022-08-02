@@ -510,6 +510,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		UriHandlerActivity.onRequestPermissionResult(this, requestCode, grantResults);
 		if (grantResults.length > 0) {
 			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -1119,28 +1120,47 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			case R.id.Support: {
 				Intent intent = new Intent(Intent.ACTION_VIEW);
 				intent.setData(Uri.parse("https://glacier.chat/support"));
-				startActivity(intent);
+				try {
+					startActivity(intent);
+				} catch (java.lang.Exception ex) {
+					for (int i = 0; i < nav_view.getMenu().size(); i++) {
+						nav_view.getMenu().getItem(i).setChecked(false);
+					}
+					displayToast("Your device cannot access the web. Contact your device administrator to request web access.",Toast.LENGTH_LONG);
+
+					FragmentManager fm3 = getFragmentManager();
+					if (fm3.getBackStackEntryCount() > 0) {
+						try {
+							fm3.popBackStack();
+						} catch (IllegalStateException excep) {
+							Log.w(Config.LOGTAG,"Unable to pop back stack");
+						}
+					}
+					Intent chatsActivity3 = new Intent(getApplicationContext(), ConversationsActivity.class);
+					startActivity(chatsActivity3);
+					break;
+				}
 				break;
 			}
 			case R.id.VoiceApp: {
+				PackageManager pm = getPackageManager();
+				Intent intent = pm.getLaunchIntentForPackage("com.glaciersecurity.glaciervoice");
 				try {
-					PackageManager pm = getPackageManager();
-					Intent intent = pm.getLaunchIntentForPackage("com.glaciersecurity.glaciervoice");
 					startActivity(intent);
 				} catch (java.lang.NullPointerException e) {
 					// If not installed, then download Voice from Play store
 					// DJF 02-02-2021 - Added try/catch so Copperhead OS does not crash if click to go to Glacier Dial
+					Intent intent2 = new Intent(Intent.ACTION_VIEW);
+					intent2.setData(Uri.parse(
+							"https://play.google.com/store/apps/details?id=com.glaciersecurity.glaciervoice"));
+					intent2.setPackage("com.android.vending");
 					try {
-						Intent intent = new Intent(Intent.ACTION_VIEW);
-						intent.setData(Uri.parse(
-								"https://play.google.com/store/apps/details?id=com.glaciersecurity.glaciervoice"));
-						intent.setPackage("com.android.vending");
-						startActivity(intent);
+						startActivity(intent2);
 					} catch (java.lang.Exception ex) {
 						for (int i = 0; i < nav_view.getMenu().size(); i++) {
 							nav_view.getMenu().getItem(i).setChecked(false);
 						}
-						displayToast("Your device cannot access the Play Store. To use Glacier Dial, install the apk directly.");
+						displayToast("Your device cannot access the Play Store. To use Glacier Dial, install the apk directly.",Toast.LENGTH_LONG);
 
 						FragmentManager fm2 = getFragmentManager();
 						if (fm2.getBackStackEntryCount() > 0) {
@@ -1153,7 +1173,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 						Intent chatsActivity2 = new Intent(getApplicationContext(), ConversationsActivity.class);
 						startActivity(chatsActivity2);
 						break;
-
 					}
 				}
 				break;
@@ -1496,8 +1515,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		}
 	}
 
-	private void displayToast(final String msg) {
-		runOnUiThread(() -> Toast.makeText(ConversationsActivity.this, msg, Toast.LENGTH_SHORT).show());
+	private void displayToast(final String msg, int toastLen) {
+		runOnUiThread(() -> Toast.makeText(ConversationsActivity.this, msg, toastLen).show());
 	}
 
 	@Override
@@ -1507,7 +1526,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	@Override
 	public void onAffiliationChangeFailed(Jid jid, int resId) {
-		displayToast(getString(resId, jid.asBareJid().toString()));
+		displayToast(getString(resId, jid.asBareJid().toString()),Toast.LENGTH_SHORT);
 	}
 
 	private void openConversation(Conversation conversation, Bundle extras) {
@@ -1572,7 +1591,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					return true;
 				}
 				break;
-			//HONEYBADGER AM-120 Remove the top right barcode scanning feature
+			// AM-120 Remove the top right barcode scanning feature
 //			case R.id.action_scan_qr_code:
 //				UriHandlerActivity.scan(this);
 //				return true;
@@ -1889,7 +1908,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				final Conversation conversation = ((ConversationFragment) mainFragment).getConversation();
 				if (conversation != null) {
 					actionBar.setTitle(EmojiWrapper.transform(conversation.getName()));
-					//HONEYBADGER AM-120 leading # if group
+					// AM-120 leading # if group
 					if (conversation.getMode() == Conversation.MODE_MULTI) {
 						actionBar.setTitle(EmojiWrapper.transform("#"+conversation.getName()));
 						//CMG AM-286

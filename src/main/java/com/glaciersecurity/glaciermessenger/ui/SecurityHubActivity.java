@@ -1,7 +1,6 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,6 +40,7 @@ public class SecurityHubActivity extends XmppActivity {
         setSupportActionBar(findViewById(R.id.toolbar));
         configureActionBar(getSupportActionBar());
         setTitle(R.string.title_activity_security_hub);
+        //setTitle(Build.MANUFACTURER + " " + Build.MODEL + " " + PhoneHelper.getAndroidId(this));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         initComponent();

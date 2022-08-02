@@ -438,9 +438,9 @@ public abstract class XmppActivity extends ActionBarActivity implements XmppConn
 		builder.setTitle(R.string.core_missing);
 		builder.setMessage(R.string.glacier_core_install);
 		builder.setPositiveButton(R.string.next, (dialog, which) -> {
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+			intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
 			try {
-				Intent intent = new Intent(Intent.ACTION_VIEW);
-				intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
 				startActivity(intent);
 				dialog.dismiss();
 			}
@@ -1120,10 +1120,11 @@ public abstract class XmppActivity extends ActionBarActivity implements XmppConn
 	//HONEYBADGER retry actions that their  permission might have been updated/granted and additional service is possible
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		UriHandlerActivity.onRequestPermissionResult(this, requestCode, grantResults);
 		if (grantResults.length > 0) {
 			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-				if (xmppConnectionService != null){
+				if (xmppConnectionService != null) {
 					xmppConnectionService.checkNewPermission();
 				}
 				this.isCameraFeatureAvailable = getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);

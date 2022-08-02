@@ -79,8 +79,12 @@ public class ChooseAccountForProfilePictureActivity extends XmppActivity {
             intent.putExtra(EXTRA_ACCOUNT, account.getJid().asBareJid().toString());
             intent.setData(uri);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(intent);
-        }
+            try {
+                startActivity(intent);
+            } catch(Exception e2){
+                e2.printStackTrace();
+            }
+    }
         finish();
     }
 }

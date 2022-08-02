@@ -175,7 +175,11 @@ public class ImportVPNProfileDialogFragment extends DialogFragment {
     private void doCoreErrorAction() {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
-        startActivity(intent);
+        try {
+            startActivity(intent);
+        } catch(Exception e2){
+            e2.printStackTrace();
+        }
     }
 
     /**

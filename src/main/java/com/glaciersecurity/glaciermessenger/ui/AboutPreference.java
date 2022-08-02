@@ -13,14 +13,16 @@ public class AboutPreference extends Preference {
 		super(context, attrs, defStyle);
 		final String appName = context.getString(R.string.app_name);
 		setSummary(appName +' '+ PhoneHelper.getVersionName(context));
-		setTitle(context.getString(R.string.title_activity_about_x, appName));
+//		setTitle(context.getString(R.string.title_activity_about_x, appName));
+		setTitle(R.string.title_activity_about_x);
 	}
 
 	public AboutPreference(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
 		final String appName = context.getString(R.string.app_name);
 		setSummary(appName +' '+ PhoneHelper.getVersionName(context));
-		setTitle(context.getString(R.string.title_activity_about_x, appName));
+//		setTitle(context.getString(R.string.title_activity_about_x, appName));
+		setTitle(R.string.title_activity_about_x);
 	}
 
     @Override

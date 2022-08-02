@@ -459,7 +459,11 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 	private boolean cleanCache() {
 		Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
 		intent.setData(Uri.parse("package:" + getPackageName()));
-		startActivity(intent);
+		try {
+			startActivity(intent);
+		} catch (Exception e6) {
+			e6.printStackTrace();
+		}
 		return true;
 	}
 
@@ -625,6 +629,7 @@ public class SettingsActivity extends XmppActivity implements OnSharedPreference
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		if (grantResults.length > 0)
 			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 				if (requestCode == REQUEST_CREATE_BACKUP) {

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -510,7 +511,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			//} else {
 				Log.d(Config.LOGTAG, "pgp result not ok");
 			//}
-		} else if (requestCode == ICS_OPENVPN_PERMISSION) { //HONEYBADGER AM-76
+		} else if (requestCode == ICS_OPENVPN_PERMISSION) { // AM-76
 			if (resultCode == Activity.RESULT_OK) {
 				try {
 					mService.registerStatusCallback(mCallback);
@@ -624,7 +625,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		this.mAvatar.setOnClickListener(this.mAvatarClickListener);
 		this.mDisableOsOptimizationsButton = (Button) findViewById(R.id.os_optimization_disable);
 		this.getmDisableOsOptimizationsBody = (TextView) findViewById(R.id.os_optimization_body);
-		//HONEYBADGER AM-120 rm fingerprint info
+		// AM-120 rm fingerprint info
 		this.mPgpFingerprintBox = (RelativeLayout) findViewById(R.id.pgp_fingerprint_box);
 		this.mPgpFingerprint = (TextView) findViewById(R.id.pgp_fingerprint);
 		this.getmPgpFingerprintDesc = (TextView) findViewById(R.id.pgp_fingerprint_desc);
@@ -851,7 +852,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 
 				ActionBar ab = getSupportActionBar();
 				configureActionBar(ab, !openedFromNotification);
-				//HONEYBADGER AM-120 rm "using account ... "
+				// AM-120 rm "using account ... "
 //				if (getSupportActionBar() != null) {
 //					getSupportActionBar().setTitle(getString(R.string.account_details));
 //				}
@@ -881,7 +882,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 					ab.setDisplayShowHomeEnabled(false);
 					ab.setDisplayHomeAsUpEnabled(false);
 
-					//HONEYBADGER AM-125 remove "Messenger" Title bar
+					// AM-125 remove "Messenger" Title bar
 					//ab.setTitle(R.string.app_name); //ALF changed from action_add_account, maybe part of AM-173
 				}
 			}
@@ -1129,7 +1130,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	public void gotoSupportPage(View view){
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setData(Uri.parse("https://glacier.chat/support"));
-		startActivity(intent);
+		try {
+			startActivity(intent);
+		} catch (java.lang.Exception ex) {
+			displayToast("Your device cannot access the web. Contact your device administrator to request web access.",Toast.LENGTH_LONG);
+		}
 	}
 
 	private void gotoChangePassword(String newPassword) {
@@ -1786,14 +1791,28 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	//CMG AM-433
 	public void gotoSignUp(View view) {
 		Intent intent = new Intent(Intent.ACTION_VIEW);
-		intent.setData(Uri.parse("https://glacier.chat/product#signup"));
-		startActivity(intent);
+		// intent.setData(Uri.parse("https://glacier.chat/product#signup"));
+		// intent.setData(Uri.parse("https://glacier.chat/app"));
+		intent.setData(Uri.parse("https://glacier.chat/sign-up"));
+		try {
+			startActivity(intent);
+		} catch (java.lang.Exception ex) {
+			displayToast("Your device cannot access the web. Contact your device administrator to request web access.",Toast.LENGTH_LONG);
+		}
 	}
 
 	public void forgotPassword(View view) {
 		Intent intent = new Intent(Intent.ACTION_VIEW);
-		intent.setData(Uri.parse("https://console.glaciersec.cc/forget-password"));
-		startActivity(intent);
+		intent.setData(Uri.parse("https://console.glacier.chat/forget-password"));
+		try {
+			startActivity(intent);
+		} catch (java.lang.Exception ex) {
+			displayToast("Your device cannot access the web console. Contact your device administrator to request web access and to reset your password.",Toast.LENGTH_LONG);
+		}
+	}
+
+	private void displayToast(final String msg, int toastLen) {
+		runOnUiThread(() -> Toast.makeText(EditAccountActivity.this, msg, toastLen).show());
 	}
 
 	public void resetAvatar(View view) {
@@ -2710,29 +2729,27 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				dialog.show();
 			} else {
 				shouldShowOpenVPNDialog = true; //ALF AM-76
-				doCoreErrorAction(); //HONEYBADGER AM-76
+				doCoreErrorAction(); // AM-76
 			}
 		} catch (RemoteException e) {
-			doCoreErrorAction(); //HONEYBADGER AM-76
+			doCoreErrorAction(); // AM-76
 		}
 	}
 
 	/**
-	 * HONEYBADGER AM-76
+	 *  AM-76
 	 */
 	private void doCoreErrorAction() {
 		androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
 		builder.setTitle(R.string.core_missing);
 		builder.setMessage(R.string.glacier_core_install);
 		builder.setPositiveButton(R.string.next, (dialog, which) -> {
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+			intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
 			try {
 				dialog.dismiss();
-				Intent intent = new Intent(Intent.ACTION_VIEW);
-				intent.setData(Uri.parse(getString(R.string.glacier_core_https))); //ALF getString fix
 				startActivity(intent);
-
-			}
-			catch(Exception e2){
+			} catch(Exception e2){
 				e2.printStackTrace();
 			}
 		});
@@ -2943,7 +2960,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 		try {
 			mService.disconnect();
 		} catch (RemoteException e) {
-			doCoreErrorAction(); //HONEYBADGER AM-76
+			doCoreErrorAction(); // AM-76
 		}
 
 		// try to start up VPN if valid
@@ -2968,7 +2985,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				}
 
 			} catch (RemoteException e) {
-				doCoreErrorAction(); //HONEYBADGER AM-76
+				doCoreErrorAction(); // AM-76
 			}
 		} else {
 			// try logging in anyway in case user has own vpn running
@@ -3026,7 +3043,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				showVPNProfileDialog();
 			}
 		} catch (RuntimeException e){
-			doCoreErrorAction(); //HONEYBADGER AM-76
+			doCoreErrorAction(); // AM-76
 		}
 	}
 
@@ -3061,11 +3078,11 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 				/*try {
 					mService.registerStatusCallback(mCallback);
 				} catch (RemoteException | SecurityException e) { //ALF AM-194 added Security for UVP
-					doCoreErrorAction(); //HONEYBADGER AM-76
+					doCoreErrorAction(); // AM-76
 				}*/
 
 			} catch (RemoteException | SecurityException e) { //ALF AM-194 added Security for UVP
-				doCoreErrorAction(); //HONEYBADGER AM-76
+				doCoreErrorAction(); // AM-76
 			}
 		}
 
@@ -3122,6 +3139,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	 */
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		// restore accounts from file if exists
 		//I think this ONLY works for single sign on so probably irrelevant for us
 		if (restoreAccountsFromFile() == true) { //ALF AM-388 this indicates getting actual account info
