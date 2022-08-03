@@ -293,11 +293,14 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                     pendingActionHelper.execute();
                     int position = viewHolder.getLayoutPosition();
                     try {
-                        swipedSMSConversation.push(conversationList.get(position));
+                       swipedSMSConversation.push(conversationList.get(position));
                     } catch (IndexOutOfBoundsException e) {
                         return;
                     }
-                    messagesAdapter.remove(swipedSMSConversation.peek(),position);
+
+                    swipeDelete(swipedSMSConversation, position);
+                    //messagesAdapter.remove(swipedSMSConversation.peek(),position);
+
                 }
             };
             ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
@@ -320,11 +323,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         });*/
     }
 
-    protected void swipeDelete(int position){
+    protected void swipeDelete(PendingItem<Conversation> swipedConversation, int position){
         AlertDialog.Builder builder = new AlertDialog.Builder(SMSActivity.this);
         builder.setMessage(R.string.delete_sms_convo_dialog);
         builder.setTitle("Confirmation");
-        builder.setCancelable(true);
+        builder.setCancelable(false);
         builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i)    {
@@ -334,13 +337,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i)    {
+                pendingActionHelper.undo();
+                Conversation conversation = swipedConversation.pop();
+                messagesAdapter.insert(conversation, position);
             }
         });
         AlertDialog alertDialog = builder.create();
-        alertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            public void onCancel(DialogInterface dialog) {
-            }
-        });
         alertDialog.show();
     }
 
@@ -578,18 +580,20 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         releaseNumberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(SMSActivity.this);
-                builder.setMessage("Do you want to release number ?");
-                builder.setTitle("Confirmation");
-                builder.setCancelable(true);
-                builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        ReleaseNum(proxyNumber);
-                    }
-                });
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
+               adapter_sms.toggleDeleteVisible();
+                //recyclerViewSMS.findViewById(R.id.delete_button).setVisibility(V);
+//                AlertDialog.Builder builder = new AlertDialog.Builder(SMSActivity.this);
+//                builder.setMessage("Do you want to release number ?");
+//                builder.setTitle("Confirmation");
+//                builder.setCancelable(true);
+//                builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        ReleaseNum(proxyNumber);
+//                    }
+//                });
+//                AlertDialog alertDialog = builder.create();
+//                alertDialog.show();
             }
         });
 
@@ -972,6 +976,10 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         public int getItemCount() {
             Log.d("Glacier","conversationsClient getItemCount "+ConversationsManager.getConversation_size(proxyNumber).size());
             return ConversationsManager.getConversation_size(proxyNumber).size();
+        }
+
+        public void insert(Conversation conversation, int position){
+            notifyDataSetChanged();
         }
         public void remove(Conversation conversation, int position) {
             Conversation remove_conv =  ConversationsManager.getConversation(proxyNumber).get(position);

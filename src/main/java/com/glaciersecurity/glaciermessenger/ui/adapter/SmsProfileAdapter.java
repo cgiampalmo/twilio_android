@@ -1,13 +1,19 @@
 package com.glaciersecurity.glaciermessenger.ui.adapter;
 
+import android.content.DialogInterface;
 import android.provider.Telephony;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.Button;
+import android.widget.CheckedTextView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,6 +27,7 @@ import com.glaciersecurity.glaciermessenger.ui.OnSMSProfileClickListener;
 import com.glaciersecurity.glaciermessenger.ui.widget.UnreadCountCustomView;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
+import com.google.android.material.transition.Hold;
 import com.twilio.conversations.Conversation;
 
 import java.util.ArrayList;
@@ -30,6 +37,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 
 	public ArrayList<SmsProfile> smsProfileList = new ArrayList<>();
 	private OnSMSProfileClickListener listener;
+	private ViewGroup viewGroup;
 
 	public SmsProfileAdapter(OnSMSProfileClickListener listener, ArrayList<SmsProfile> smsProfileList) {
 		this.smsProfileList = smsProfileList;
@@ -40,6 +48,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 	@Override
 	public SMSRecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.sms_profile, parent, false);
+		viewGroup = parent;
 		return new SMSRecyclerViewHolder(view, listener);
 	}
 
@@ -55,6 +64,31 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 		}else{
 			holder.unreadCount.setVisibility(View.INVISIBLE);
 		}
+		holder.removeNumBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                builder.setMessage("Do you want to release number " + smsProfileList.get(position).getNumber() + "?");
+                builder.setTitle("Confirmation");
+                builder.setCancelable(true);
+                builder.setPositiveButton("Release", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //TODO
+						toggleDeleteVisible();
+
+					}
+                });
+				builder.setNegativeButton( "Cancel", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialogInterface, int i) {
+						toggleDeleteVisible();
+					}
+				});
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+			}
+		});
 		SmsProfile smsPro = smsProfileList.get(holder.getAdapterPosition());
 
 	}
@@ -68,6 +102,19 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 	public void OnSMSProfileClick(String id, String number) {
 		Log.e("onClick", " -- profile clicked2");
 
+	}
+
+	public void toggleDeleteVisible(){
+
+		for(int i = 0; i< viewGroup.getChildCount(); i++){
+			View v =  viewGroup.getChildAt(i);
+			ImageButton removeNumBtn = v.findViewById(R.id.remove_sms_btn);
+			if (removeNumBtn.getVisibility() == View.VISIBLE) {
+				removeNumBtn.setVisibility(View.INVISIBLE);
+			} else {
+				removeNumBtn.setVisibility(View.VISIBLE);
+			}
+		}
 	}
 
 	public class SMSRecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
