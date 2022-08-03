@@ -51,6 +51,9 @@ public class SMSdbInfo {
     public ArrayList<SmsProfile> getExistingProfs(){
         return dbProfs;
     }
+    public Boolean getUserPermission(){
+        return dbPurchaseNum;
+    }
 
     private void trySmsInfoUpload() {
 
@@ -100,7 +103,7 @@ public class SMSdbInfo {
             new Thread(() -> {
                 if (response.data().getGlacierUsers() != null) {
                     dbProfs = (getSmsProfileList(response.data().getGlacierUsers().selected_twilionumber()));
-                    //dbPurchaseNum = response.data().getGlacierUsers().add_user_to_additional_teams();
+                    dbPurchaseNum = response.data().getGlacierUsers().add_user_to_purchase_numbers();
                 } else {
                     Log.i("SmsInfo", "No sms profiles in response from server");
                 }

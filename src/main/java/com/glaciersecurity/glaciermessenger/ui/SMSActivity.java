@@ -402,6 +402,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         if(xmppConnectionService != null) {
             SMSdbInfo info = xmppConnectionService.getSmsInfo();
             smSdbInfo = info.getExistingProfs();
+            PurchaseNumber = info.getUserPermission();
             SMSdbInfo smsinfo = new SMSdbInfo(xmppConnectionService);
             xmppConnectionService.setSmsInfo(smsinfo);
             Log.d("Glacier", "onBackendConnected" + xmppConnectionService + smSdbInfo);
@@ -744,11 +745,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
                             }else
                                 proxyNumber = model.getProxyNumber();
-
-                            Log.d("Glacier","setPurchaseNumber "+ConversationsManager.PurchaseNumber);
-                            model.setPurchaseNumber(ConversationsManager.PurchaseNumber);
-                            PurchaseNumber = ConversationsManager.PurchaseNumber;
-
+                            if(model.getPurchaseNumber() == null) {
+                                Log.d("Glacier", "setPurchaseNumber " + ConversationsManager.PurchaseNumber);
+                                model.setPurchaseNumber(ConversationsManager.PurchaseNumber);
+                                PurchaseNumber = ConversationsManager.PurchaseNumber;
+                            }
                             setColorForNumber(proxyNumber);
                         }
                     });
