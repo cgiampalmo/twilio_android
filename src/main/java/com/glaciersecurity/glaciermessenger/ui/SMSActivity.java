@@ -447,11 +447,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             Gson gson = new Gson();
             ReleaseNumResponse releaseNumResponse = gson.fromJson(responseBody, ReleaseNumResponse.class);
             if(releaseNumResponse.message.equals("success")){
-                Toast.makeText(SMSActivity.this,"Number deleted successfully",Toast.LENGTH_LONG).show();
+                Toast.makeText(SMSActivity.this,"Number released successfully",Toast.LENGTH_LONG).show();
                 model.setProxyNumber(null);
                 onBackPressed();
             }else{
-                Toast.makeText(SMSActivity.this,"Failed to delete. Please try again",Toast.LENGTH_LONG).show();
+                Toast.makeText(SMSActivity.this,"Failed to release. Please try again",Toast.LENGTH_LONG).show();
             }
             //onBackendConnected();
             Log.d("Glacier", "Response from server: " + responseBody);

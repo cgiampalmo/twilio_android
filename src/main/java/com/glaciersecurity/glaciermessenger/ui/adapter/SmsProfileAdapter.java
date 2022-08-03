@@ -103,24 +103,26 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 
 
 	public void toggleDeleteVisible(){
-
-		for(int i = 0; i< viewGroup.getChildCount(); i++){
-			View v =  viewGroup.getChildAt(i);
-			ImageButton removeNumBtn = v.findViewById(R.id.remove_sms_btn);
-			if (removeNumBtn.getVisibility() == View.VISIBLE) {
-				removeNumBtn.setVisibility(View.INVISIBLE);
-			} else {
-				removeNumBtn.setVisibility(View.VISIBLE);
+		if (viewGroup != null) {
+			for (int i = 0; i < viewGroup.getChildCount(); i++) {
+				View v = viewGroup.getChildAt(i);
+				ImageButton removeNumBtn = v.findViewById(R.id.remove_sms_btn);
+				if (removeNumBtn.getVisibility() == View.VISIBLE) {
+					removeNumBtn.setVisibility(View.INVISIBLE);
+				} else {
+					removeNumBtn.setVisibility(View.VISIBLE);
+				}
 			}
 		}
 	}
 
 	public void toggleDeleteOff(){
-
-		for(int i = 0; i< viewGroup.getChildCount(); i++){
-			View v =  viewGroup.getChildAt(i);
-			ImageButton removeNumBtn = v.findViewById(R.id.remove_sms_btn);
-			removeNumBtn.setVisibility(View.INVISIBLE);
+		if (viewGroup != null) {
+			for (int i = 0; i < viewGroup.getChildCount(); i++) {
+				View v = viewGroup.getChildAt(i);
+				ImageButton removeNumBtn = v.findViewById(R.id.remove_sms_btn);
+				removeNumBtn.setVisibility(View.INVISIBLE);
+			}
 		}
 	}
 
