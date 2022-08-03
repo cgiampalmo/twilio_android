@@ -92,7 +92,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 
-public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener {
+public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener, OnSMSRemoveClickListener {
     private ActionBar actionBar;
     private float mSwipeEscapeVelocity = 0f;
     private PendingActionHelper pendingActionHelper = new PendingActionHelper();
@@ -106,6 +106,18 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     RecyclerView recyclerViewConversations;
     RecyclerView recyclerViewSMS;
+
+
+    @Override
+    public void OnSMSRemoveClick(String conv_name) {
+        ReleaseNum(conv_name);
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        ReleaseNum(proxyNumber);
+    }
+
     private class ReleaseNumResponse{
         String message;
         String data;
@@ -506,6 +518,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             @Override
             public void onClick(View view) {
                 drawer_sms.openDrawer(GravityCompat.START);
+                adapter_sms.toggleDeleteOff();
                 if(PurchaseNumber){
                     addNumberBtn.setVisibility(View.VISIBLE);
                     releaseNumberBtn.setVisibility(View.VISIBLE);
@@ -575,25 +588,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         layoutManagerSMS = new LinearLayoutManager(this);
         recyclerViewSMS.setLayoutManager(layoutManagerSMS);
         drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
-        adapter_sms = new SmsProfileAdapter((OnSMSProfileClickListener) this, profileList);
+        adapter_sms = new SmsProfileAdapter((OnSMSProfileClickListener) this, (OnSMSRemoveClickListener) this, profileList);
         releaseNumberBtn = (Button) findViewById(R.id.release_number);
         releaseNumberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                adapter_sms.toggleDeleteVisible();
-                //recyclerViewSMS.findViewById(R.id.delete_button).setVisibility(V);
-//                AlertDialog.Builder builder = new AlertDialog.Builder(SMSActivity.this);
-//                builder.setMessage("Do you want to release number ?");
-//                builder.setTitle("Confirmation");
-//                builder.setCancelable(true);
-//                builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialogInterface, int i) {
-//                        ReleaseNum(proxyNumber);
-//                    }
-//                });
-//                AlertDialog alertDialog = builder.create();
-//                alertDialog.show();
             }
         });
 
