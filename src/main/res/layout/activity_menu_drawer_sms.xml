@@ -56,7 +56,7 @@
         android:layout_height="wrap_content"
         android:padding="16dp"
         android:background="@color/transparent"
-        android:text="Acquire Number"
+        android:text="Add Number"
             android:drawablePadding="10dp"
         android:drawableLeft="@drawable/ic_add_white_24dp"
             android:textAppearance="@style/TextAppearance.Conversations.Body2"
