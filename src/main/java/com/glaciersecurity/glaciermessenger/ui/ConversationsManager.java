@@ -265,12 +265,12 @@ public class ConversationsManager {
     }
 
     protected void loadChannels(ConversationsClient conversationsClient) {
-        Log.d("Glacier","conversationsClient "+conversationsClient.getMyConversations() + " conversationsClient size"+conversationsClient.getMyConversations().size());
         if (conversationsClient == null || conversationsClient.getMyConversations() == null) {
 //            createConversation();
             return;
         }
         //conversationsClient.updateToken();
+        //Log.d("Glacier","conversationsClient "+conversationsClient.getMyConversations() + " conversationsClient size"+conversationsClient.getMyConversations().size());
 
         if(conversationsClient.getMyConversations().size() > 0) {
             conv_list.clear();

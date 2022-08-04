@@ -101,7 +101,7 @@ public class SMSdbInfo {
         @Override
         public void onResponse(@Nonnull Response<GetGlacierUsersQuery.Data> response) {
             new Thread(() -> {
-                if (response.data().getGlacierUsers() != null) {
+                if (response.data().getGlacierUsers() != null && response.data().getGlacierUsers().selected_twilionumber() != null && response.data().getGlacierUsers().add_user_to_purchase_numbers() != null) {
                     dbProfs = (getSmsProfileList(response.data().getGlacierUsers().selected_twilionumber()));
                     dbPurchaseNum = response.data().getGlacierUsers().add_user_to_purchase_numbers();
                 } else {
