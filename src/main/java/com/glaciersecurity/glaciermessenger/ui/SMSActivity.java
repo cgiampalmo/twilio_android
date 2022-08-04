@@ -157,10 +157,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         }
     }
     public void notifyMessage(String newMessage,String messageAuthor,String messageTo){
-        Log.d("Glacier", "New notification notifyMessage called");
+        Log.d("Glacier", "New notification notifyMessage called"+messageTo);
         Intent intent = new Intent(mContext, SMSActivity.class);
+        intent.removeExtra("ProxyNum");
         intent.putExtra("ProxyNum",messageTo);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE);
+        //Toast.makeText(mContext, "notifyMessage "+messageTo, Toast.LENGTH_SHORT).show();
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         Intent broadcastIntent = new Intent(this, NotificationReceiver.class);
         PendingIntent actionIntent = PendingIntent.getBroadcast(this,
                 0, broadcastIntent, PendingIntent.FLAG_MUTABLE);
@@ -450,6 +452,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         super.onNewIntent(intent);
         proxyNumber = model.getProxyNumber();
         Log.d("Glacier","onNewIntent "+intent.hasExtra("ProxyNum"));
+        //Toast.makeText(mContext, "onNewIntent "+intent.hasExtra("ProxyNum") + intent.getExtras().getString("ProxyNum"), Toast.LENGTH_SHORT).show();
         if(intent.hasExtra("ProxyNum") && (!(intent.getExtras().getString("ProxyNum").equals(proxyNumber)))){
             Log.d("Glacier","onNewIntent proxy num not equal");
             OnSMSProfileClick("", intent.getExtras().getString("ProxyNum"));
@@ -457,9 +460,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             if(!intent.hasExtra("ProxyNum")) {
                 ConversationsManager.loadChannels(model.getConversationsClient());
             }
-            /*if(proxyNumber != null){
-                OnSMSProfileClick("", proxyNumber);
-            }*/
         }
     }
 

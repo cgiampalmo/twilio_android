@@ -423,6 +423,8 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
             public void run() {
                 // need to modify user interface elements on the UI thread
                 Conversation current_conv = model.getConversation();
+                Toast.makeText(mContext, "current_conv "+current_conv, Toast.LENGTH_SHORT).show();
+                //Log.d("Glacier","current_conv"+current_conv.getFriendlyName() + current_conv.getSid() + messageConversationSid);
                 if(current_conv != null && current_conv.getSid().equals(messageConversationSid)) {
                     messagesAdapter.notifyDataSetChanged();
                     recyclerView.scrollToPosition(ConversationsManager.getMessages().size() - 1);
@@ -494,6 +496,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         finish();
         Intent intent = new Intent(mContext, SMSActivity.class);
         startActivity(intent.putExtra("account",identity));
+        model.setConversation(null);
     }
 
     class MessagesAdapter extends RecyclerView.Adapter{
