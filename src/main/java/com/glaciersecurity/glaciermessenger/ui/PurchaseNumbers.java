@@ -121,13 +121,13 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     }
     protected void OnNumberClick(String number){
         AlertDialog.Builder builder = new AlertDialog.Builder(PurchaseNumbers.this);
-        builder.setMessage("Do you want to acquire number ?");
+        builder.setMessage("Do you want to add number ?");
         builder.setTitle("Confirmation");
         builder.setCancelable(true);
         builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Toast.makeText(getApplicationContext(),"Acquiring number "+number,Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),"Adding number "+number,Toast.LENGTH_LONG).show();
                 PurchaseNum(number);
             }
         });
@@ -157,9 +157,9 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             Gson gson = new Gson();
             PurchaseNumResponse purchaseNumResponse = gson.fromJson(responseBody, PurchaseNumResponse.class);
             if(purchaseNumResponse.message.equals("success")){
-                Toast.makeText(PurchaseNumbers.this,"Number acquired successfully",Toast.LENGTH_LONG).show();
+                Toast.makeText(PurchaseNumbers.this,"Number added successfully",Toast.LENGTH_LONG).show();
             }else{
-                Toast.makeText(PurchaseNumbers.this,"Failed to acquire. Please try again",Toast.LENGTH_LONG).show();
+                Toast.makeText(PurchaseNumbers.this,"Failed to add. Please try again",Toast.LENGTH_LONG).show();
             }
             numberPurchased = true;
             onBackendConnected();
@@ -172,7 +172,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_purchase_number);
-        setTitle("Acquire number");
+        setTitle("Add number");
         model = (ConversationModel) getApplicationContext();
         String[] country_codes = getResources().getStringArray(R.array.country_codes);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.dropdown_cc, country_codes);

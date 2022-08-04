@@ -40,7 +40,7 @@
                 android:maxLines="1"
                 android:lines="1"
                 android:singleLine="true"
-                android:hint="Search for number, i.e. US"
+                android:hint="Search for country, i.e. US"
                 android:textColorHint="@color/white"
                 android:layout_margin="3dp"
                 android:background="@color/secondary_bg_color"
