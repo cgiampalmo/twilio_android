@@ -466,7 +466,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         super.onNewIntent(intent);
         proxyNumber = model.getProxyNumber();
         Log.d("Glacier","onNewIntent "+intent.hasExtra("ProxyNum"));
-        //Toast.makeText(mContext, "onNewIntent "+intent.hasExtra("ProxyNum") + intent.getExtras().getString("ProxyNum"), Toast.LENGTH_SHORT).show();
         if(intent.hasExtra("ProxyNum") && (!(intent.getExtras().getString("ProxyNum").equals(proxyNumber)))){
             Log.d("Glacier","onNewIntent proxy num not equal");
             OnSMSProfileClick("", intent.getExtras().getString("ProxyNum"));
