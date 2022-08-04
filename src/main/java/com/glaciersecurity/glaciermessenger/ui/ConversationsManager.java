@@ -706,6 +706,7 @@ public class ConversationsManager {
                                 unread_conv.put(ide_num,unread_num);
                             }
                         }
+                        //
                         // Toast.makeText(mContext, "ide_num" + ide_num + "--"+identity_number, Toast.LENGTH_SHORT).show();
                         conversationsManagerListener.receivedNewMessage("New sms for " + identity_number +" from " + message.getAuthor() + " : " + message.getMessageBody(),message.getConversationSid(),message.getAuthor(),ide_num);
                         Log.d("Glacier","ConvProxyNumber ide_num" + ide_num + unread_conv.get(ide_num));

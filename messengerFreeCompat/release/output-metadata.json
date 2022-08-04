@@ -12,13 +12,8 @@
       "filters": [],
       "attributes": [],
       "versionCode": 513,
-<<<<<<< HEAD
-      "versionName": "3.4.3-SMS10",
-      "outputFile": "glacierMessenger-3.4.3-SMS10-messenger-free-compat-release.apk"
-=======
-      "versionName": "3.4.3",
-      "outputFile": "glacierMessenger-3.4.3-messenger-free-compat-release.apk"
->>>>>>> origin/main
+      "versionName": "3.4.3-SMS12",
+      "outputFile": "glacierMessenger-3.4.3-SMS12-messenger-free-compat-release.apk"
     }
   ],
   "elementType": "File"

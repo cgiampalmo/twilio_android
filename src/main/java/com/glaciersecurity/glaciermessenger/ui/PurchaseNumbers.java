@@ -120,7 +120,6 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         }
     }
     protected void OnNumberClick(String number){
-        Toast.makeText(this,"Acquiring number "+number,Toast.LENGTH_LONG).show();
         AlertDialog.Builder builder = new AlertDialog.Builder(PurchaseNumbers.this);
         builder.setMessage("Do you want to acquire number ?");
         builder.setTitle("Confirmation");
@@ -128,9 +127,11 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                Toast.makeText(getApplicationContext(),"Acquiring number "+number,Toast.LENGTH_LONG).show();
                 PurchaseNum(number);
             }
         });
+        builder.setNegativeButton("Cancel", null);
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }

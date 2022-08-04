@@ -92,7 +92,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 
-public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener {
+public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener, OnSMSRemoveClickListener {
     private ActionBar actionBar;
     private float mSwipeEscapeVelocity = 0f;
     private PendingActionHelper pendingActionHelper = new PendingActionHelper();
@@ -106,6 +106,18 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     RecyclerView recyclerViewConversations;
     RecyclerView recyclerViewSMS;
+
+
+    @Override
+    public void OnSMSRemoveClick(String conv_name) {
+        ReleaseNum(conv_name);
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        ReleaseNum(proxyNumber);
+    }
+
     private class ReleaseNumResponse{
         String message;
         String data;
@@ -295,11 +307,14 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                     pendingActionHelper.execute();
                     int position = viewHolder.getLayoutPosition();
                     try {
-                        swipedSMSConversation.push(conversationList.get(position));
+                       swipedSMSConversation.push(conversationList.get(position));
                     } catch (IndexOutOfBoundsException e) {
                         return;
                     }
-                    messagesAdapter.remove(swipedSMSConversation.peek(),position);
+
+                    swipeDelete(swipedSMSConversation, position);
+                    //messagesAdapter.remove(swipedSMSConversation.peek(),position);
+
                 }
             };
             ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
@@ -322,11 +337,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         });*/
     }
 
-    protected void swipeDelete(int position){
+    protected void swipeDelete(PendingItem<Conversation> swipedConversation, int position){
         AlertDialog.Builder builder = new AlertDialog.Builder(SMSActivity.this);
         builder.setMessage(R.string.delete_sms_convo_dialog);
         builder.setTitle("Confirmation");
-        builder.setCancelable(true);
+        builder.setCancelable(false);
         builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i)    {
@@ -336,13 +351,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i)    {
+                pendingActionHelper.undo();
+                Conversation conversation = swipedConversation.pop();
+                messagesAdapter.insert(conversation, position);
             }
         });
         AlertDialog alertDialog = builder.create();
-        alertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            public void onCancel(DialogInterface dialog) {
-            }
-        });
         alertDialog.show();
     }
 
@@ -435,11 +449,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             Gson gson = new Gson();
             ReleaseNumResponse releaseNumResponse = gson.fromJson(responseBody, ReleaseNumResponse.class);
             if(releaseNumResponse.message.equals("success")){
-                Toast.makeText(SMSActivity.this,"Number deleted successfully",Toast.LENGTH_LONG).show();
+                Toast.makeText(SMSActivity.this,"Number released successfully",Toast.LENGTH_LONG).show();
                 model.setProxyNumber(null);
                 onBackPressed();
             }else{
-                Toast.makeText(SMSActivity.this,"Failed to delete. Please try again",Toast.LENGTH_LONG).show();
+                Toast.makeText(SMSActivity.this,"Failed to release. Please try again",Toast.LENGTH_LONG).show();
             }
             //onBackendConnected();
             Log.d("Glacier", "Response from server: " + responseBody);
@@ -505,6 +519,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             @Override
             public void onClick(View view) {
                 drawer_sms.openDrawer(GravityCompat.START);
+                adapter_sms.toggleDeleteOff();
                 if(PurchaseNumber){
                     addNumberBtn.setVisibility(View.VISIBLE);
                     releaseNumberBtn.setVisibility(View.VISIBLE);
@@ -574,23 +589,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         layoutManagerSMS = new LinearLayoutManager(this);
         recyclerViewSMS.setLayoutManager(layoutManagerSMS);
         drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
-        adapter_sms = new SmsProfileAdapter((OnSMSProfileClickListener) this, profileList);
+        adapter_sms = new SmsProfileAdapter((OnSMSProfileClickListener) this, (OnSMSRemoveClickListener) this, profileList);
         releaseNumberBtn = (Button) findViewById(R.id.release_number);
         releaseNumberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(SMSActivity.this);
-                builder.setMessage("Do you want to release number ?");
-                builder.setTitle("Confirmation");
-                builder.setCancelable(true);
-                builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        ReleaseNum(proxyNumber);
-                    }
-                });
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
+               adapter_sms.toggleDeleteVisible();
             }
         });
 
@@ -973,6 +977,10 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         public int getItemCount() {
             Log.d("Glacier","conversationsClient getItemCount "+ConversationsManager.getConversation_size(proxyNumber).size());
             return ConversationsManager.getConversation_size(proxyNumber).size();
+        }
+
+        public void insert(Conversation conversation, int position){
+            notifyDataSetChanged();
         }
         public void remove(Conversation conversation, int position) {
             Conversation remove_conv =  ConversationsManager.getConversation(proxyNumber).get(position);
