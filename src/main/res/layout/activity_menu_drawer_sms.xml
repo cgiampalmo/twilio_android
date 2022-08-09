@@ -8,11 +8,14 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
+
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/main_content_sms"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/colorPrimary">
+
 
         <!--toolbar and header-->
         <com.google.android.material.appbar.AppBarLayout
@@ -35,7 +38,10 @@
         <include layout="@layout/list_sms" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fillViewport="true">
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -61,7 +67,7 @@
         android:drawableLeft="@drawable/ic_add_white_24dp"
             android:textAppearance="@style/TextAppearance.Conversations.Body2"
             android:textColor="?attr/edit_text_color"
-            android:textSize="20dp"
+            android:textSize="23dp"
 
             />
 
@@ -80,11 +86,13 @@
             android:drawableLeft="@drawable/ic_delete_white_24dp"
             android:textAppearance="@style/TextAppearance.Conversations.Body2"
             android:textColor="?attr/edit_text_color"
-            android:textSize="20dp"
+            android:textSize="23dp"
 
             />
 
     </LinearLayout>
+    </ScrollView>
+
 
 
 <!--    &lt;!&ndash;navigation drawer menu&ndash;&gt;-->
@@ -98,5 +106,6 @@
 
 
 <!--        app:menu="@menu/menu_navigation_drawer_news" />-->
+
 
 </androidx.drawerlayout.widget.DrawerLayout>

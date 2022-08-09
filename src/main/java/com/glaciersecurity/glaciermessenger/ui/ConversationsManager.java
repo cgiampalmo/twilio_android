@@ -159,7 +159,8 @@ public class ConversationsManager {
                     .post(requestBody)
                     .build();
             Log.d("Glacier", "request " + request);
-            try (Response response = client.newCall(request).execute()) {
+            try  {
+                Response response = client.newCall(request).execute();
                 String responseBody = "";
                 if (response != null && response.body() != null) {
                     responseBody = response.body().string();
