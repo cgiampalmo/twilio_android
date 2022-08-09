@@ -38,10 +38,7 @@
         <include layout="@layout/list_sms" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-    <ScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fillViewport="true">
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -91,8 +88,6 @@
             />
 
     </LinearLayout>
-    </ScrollView>
-
 
 
 <!--    &lt;!&ndash;navigation drawer menu&ndash;&gt;-->
