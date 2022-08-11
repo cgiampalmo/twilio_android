@@ -8,14 +8,11 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
-
-
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/main_content_sms"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/colorPrimary">
-
 
         <!--toolbar and header-->
         <com.google.android.material.appbar.AppBarLayout
@@ -64,7 +61,7 @@
         android:drawableLeft="@drawable/ic_add_white_24dp"
             android:textAppearance="@style/TextAppearance.Conversations.Body2"
             android:textColor="?attr/edit_text_color"
-            android:textSize="23dp"
+            android:textSize="20dp"
 
             />
 
@@ -83,7 +80,7 @@
             android:drawableLeft="@drawable/ic_delete_white_24dp"
             android:textAppearance="@style/TextAppearance.Conversations.Body2"
             android:textColor="?attr/edit_text_color"
-            android:textSize="23dp"
+            android:textSize="20dp"
 
             />
 

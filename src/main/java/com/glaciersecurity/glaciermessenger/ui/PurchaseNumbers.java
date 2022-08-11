@@ -244,7 +244,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         //Toast.makeText(this, "Item Clicked " , Toast.LENGTH_SHORT).show();
-        showWaitDialog("... Searching");
+        showWaitDialog("Searching...");
         TextView getcountrycode = findViewById(R.id.countrycode);
         String countryNamecode = getcountrycode.getText().toString().trim();
         String[] countrySplitCode = countryNamecode.split("-");
