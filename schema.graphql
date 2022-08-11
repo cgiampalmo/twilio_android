@@ -12,6 +12,7 @@ type GlacierUsers {
   messenger_id: String
   organization: String!
   securityInfo: [AWSJSON]
+  selected_twilionumber: [AWSJSON]
   user_name: String
   username: String!
 }
