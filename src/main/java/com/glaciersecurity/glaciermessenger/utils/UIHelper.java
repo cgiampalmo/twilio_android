@@ -151,8 +151,25 @@ public class UIHelper {
 //			0xFFF694C1, //pink
 //			0xFF9678D3, //light purple
 
-
-//
+	private static int[] SMS_COLORS  = {
+			0xFF5BB974, //green
+			0xFF6fa8dc, //blue
+			0xff6fa8dc,	//blue
+			0xff3d85c6, //blue
+			0xFFA4343A, //rutabaga
+			0xFF009688, //teal 500,
+			0xFF408480,	//teal
+			0xFF00ACC1, //cyan 600
+			0xFFFDAA63, //orange
+			0xFF0097A7, //cyan 700
+			0xFFEE675C, //red
+			0xFFc27ba0, //pink
+			0xFFf0973a, //orange
+			0xFF1976D2,	//blue
+			0xFF76a5af,	//mint
+			0xFFdf6756,	//salmon
+			0xFF987b77,	//tan
+	};
 
 	private static final List<Character> PUNCTIONATION = Arrays.asList('.', ',', '?', '!', ';', ':');
 
@@ -287,6 +304,12 @@ public class UIHelper {
 		return AVATAR_COLORS[(int) (getLongForName(name) % AVATAR_COLORS.length)];
 	}
 
+	public static int getColorForSMS(String name) {
+		if (name == null || name.isEmpty()) {
+			return 0xFF202020;
+		}
+		return SMS_COLORS[Math.abs(name.hashCode()) % SMS_COLORS.length];
+	}
 
 	public static int getColorForName(String name, boolean safe) {
 		if (name == null || name.isEmpty()) {

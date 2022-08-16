@@ -1,4 +1,4 @@
-<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+ <resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
 
     <style name="TextAppearance.Conversations.Display2.Monospace" parent="TextAppearance.AppCompat.Display2">
         <item name="android:textSize">?TextSizeDisplay2</item>

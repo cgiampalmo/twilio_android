@@ -137,6 +137,7 @@ import com.glaciersecurity.glaciermessenger.utils.QuickLoader;
 import com.glaciersecurity.glaciermessenger.utils.ReplacingSerialSingleThreadExecutor;
 import com.glaciersecurity.glaciermessenger.utils.ReplacingTaskManager;
 import com.glaciersecurity.glaciermessenger.utils.Resolver;
+import com.glaciersecurity.glaciermessenger.utils.SMSdbInfo;
 import com.glaciersecurity.glaciermessenger.utils.SerialSingleThreadExecutor;
 import com.glaciersecurity.glaciermessenger.utils.StringUtils;
 import com.glaciersecurity.glaciermessenger.utils.SystemSecurityInfo;
@@ -277,6 +278,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	private AtomicLong mLastSecInfoUpdate = new AtomicLong(0);
 	public static final long SECHUB_INTERVAL = 86400L;
 	private SystemSecurityInfo secInfo;
+	private SMSdbInfo smsInfo;
 	private boolean needsSecurityInfoUpdate = false;
 
 	private ConversationsFileObserver fileObserver; //ALF AM-603 moved to onCreate and changed mechanism
@@ -1377,6 +1379,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			updateSecurityInfo();
 		}
 
+		if (accounts.size() > 0) {
+			getSmsInfo();
+		}
+
 		restoreFromDatabase();
 
 		if ((ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED )) {
@@ -2446,6 +2452,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		if (needsSecurityInfoUpdate) {
 			updateSecurityInfo();
 		}
+
+		getSmsInfo();
 	}
 
 	private void syncEnabledAccountSetting() {
@@ -4413,6 +4421,15 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		return secInfo;
 	}
 
+	public SMSdbInfo getSmsInfo() {
+		if (smsInfo == null) {
+			smsInfo = new SMSdbInfo(this);
+		}
+		return smsInfo;
+	}
+	public void setSmsInfo(SMSdbInfo smsDBInfo){
+		smsInfo = smsDBInfo;
+	}
 	public Account findAccountByJid(final Jid accountJid) {
 		for (Account account : this.accounts) {
 			if (account.getJid().asBareJid().equals(accountJid.asBareJid())) {

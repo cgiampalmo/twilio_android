@@ -2020,13 +2020,24 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 								} else {
 									autoLoginMessenger();
 								}
+							} else {
+								runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										handleLoginFailure();
+									}
+								});
 							}
+							} else {
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									handleLoginFailure();
+								}
+							});
 						}
 					}
 				});
-
-
-
 
             }
 

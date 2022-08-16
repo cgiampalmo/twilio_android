@@ -60,5 +60,19 @@ public class ViewUtil {
             Toast.makeText(context, R.string.no_application_found_to_open_file, Toast.LENGTH_SHORT).show();
         }
     }
-
+    public  static void view(Context context, Uri uri){
+        Intent openIntent = new Intent(Intent.ACTION_VIEW);
+        openIntent.setDataAndType(uri, "PNG");
+        openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        PackageManager manager = context.getPackageManager();
+        List<ResolveInfo> info = manager.queryIntentActivities(openIntent, 0);
+        if (info.size() == 0) {
+            openIntent.setDataAndType(uri, "*/*");
+        }
+        try {
+            context.startActivity(openIntent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(context, R.string.no_application_found_to_open_file, Toast.LENGTH_SHORT).show();
+        }
+    }
 }

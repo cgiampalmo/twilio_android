@@ -70,6 +70,7 @@ import com.glaciersecurity.glaciermessenger.entities.TwilioCallParticipant;
 import com.glaciersecurity.glaciermessenger.services.CallManager;
 import com.glaciersecurity.glaciermessenger.ui.interfaces.TwilioCallListener;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
+import com.glaciersecurity.glaciermessenger.utils.SMSdbInfo;
 import com.glaciersecurity.glaciermessenger.utils.SystemSecurityInfo;
 import com.google.android.material.navigation.NavigationView;
 import androidx.core.content.ContextCompat;
@@ -98,8 +99,10 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -223,6 +226,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	@Override
 	void onBackendConnected() {
+		Log.d("Glacier","onBackendConnected "+xmppConnectionService);
+		SMSdbInfo smsinfo = new SMSdbInfo(xmppConnectionService);
+		xmppConnectionService.setSmsInfo(smsinfo);
 		if (performRedirectIfNecessary(true)) {
 			return;
 		}
@@ -407,10 +413,12 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		// logout of Cognito
 		// sometimes if it's been too long, I believe pool doesn't
 		// exists and user is no longer logged in
+		Log.d("Glacier","User is not null and logging out");
 		CognitoUserPool userPool = AppHelper.getPool();
 		if (userPool != null) {
 			CognitoUser user = userPool.getCurrentUser();
 			if (user != null) {
+
 				user.signOut();
 			}
 		}
@@ -616,7 +624,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		} else {
 			intent = savedInstanceState.getParcelable("intent");
 			this.mSavedInstanceAccount = savedInstanceState.getString("account");
-
 		}
 		if (isViewOrShareIntent(intent)) {
 			pendingViewIntent.push(intent);
@@ -845,7 +852,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		List<PresenceTemplate> templates = xmppConnectionService.getPresenceTemplates(mAccount);
 		//CMG AM-365
 //		PresenceTemplateAdapter presenceTemplateAdapter = new PresenceTemplateAdapter(this, R.layout.simple_list_item, templates);
-// 		binding.statusMessage.setAdapter(presenceTemplateAdapter);
+// 		binding.statusMessage.setAdapter(presenceTemplateAdaptreer);
 //		binding.statusMessage.setOnItemClickListener((parent, view, position, id) -> {
 //			PresenceTemplate template = (PresenceTemplate) parent.getItemAtPosition(position);
 //			setAvailabilityRadioButton(template.getStatus(), binding);
@@ -1170,6 +1177,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				}
 				break;
 			}
+			case R.id.SMS:{
+				Intent SMSActivity = new Intent(getApplicationContext(), SMSActivity.class);
+				startActivity(SMSActivity.putExtra("account",getDisplayName()));
+				break;
+			}
 			case R.id.Logout: {
 				showLogoutConfirmationDialog();
 				break;
@@ -1200,12 +1212,26 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	//ALF AM-143
 	private void doLogout() {
 		LogoutListener activity = (LogoutListener) this;
+		Log.d("Glacier","User is not null and logging out");
+		ConversationModel model = (ConversationModel) getApplicationContext();
+		ArrayList<ContactModel> arrayList = new ArrayList<>();
+		Map<String, String> cList = new HashMap<>();
+		model.cancelAllNotification();
+		model.setArrayList(arrayList);
+		model.setcList(cList);
+		model.setConversation(null);
+		model.setIdentity("");
+		model.setConversationsClient(null);
+		model.setContConv(null);
+		model.setNotificationManager(null);
+		model.setProxyNumber(null);
 		activity.onLogout();
 	}
 
 	//ALF AM-143 here to end
 	@Override
 	public void onLogout() {
+		Log.d("Glacier","Logout called");
 		//AM-517
 		getPreferences().edit().putBoolean("use_core_connect", false).apply();
 
