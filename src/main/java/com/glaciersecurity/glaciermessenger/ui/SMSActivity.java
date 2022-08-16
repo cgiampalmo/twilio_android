@@ -471,7 +471,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             OnSMSProfileClick("", intent.getExtras().getString("ProxyNum"));
         }else{
             if(!intent.hasExtra("ProxyNum")) {
-                ConversationsManager.loadChannels(model.getConversationsClient());
+                    ConversationsManager.loadChannels(model.getConversationsClient());
             }
         }
     }

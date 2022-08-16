@@ -99,4 +99,5 @@
 
 <!--        app:menu="@menu/menu_navigation_drawer_news" />-->
 
+
 </androidx.drawerlayout.widget.DrawerLayout>

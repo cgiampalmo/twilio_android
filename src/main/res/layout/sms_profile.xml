@@ -2,13 +2,13 @@
 <LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
-    android:minWidth="230dp"
+    android:minWidth="250dp"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="?attr/color_background_secondary"
     android:id="@+id/sms_profile_view"
-    android:paddingTop="16dp"
-    android:paddingBottom="16dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
     >
 
 
@@ -20,9 +20,10 @@
             android:layout_marginLeft="15dp"
             android:layout_marginRight="5dp"
             android:layout_centerVertical="true"
+            android:layout_gravity="center"
             android:textAppearance="@style/TextAppearance.Conversations.Body2"
             android:textColor="?attr/edit_text_color"
-            android:textSize="23dp" />
+            android:textSize="25dp" />
 
 
     <com.glaciersecurity.glaciermessenger.ui.widget.UnreadCountCustomView
@@ -30,7 +31,7 @@
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:layout_alignParentRight="true"
-        android:layout_gravity="center_vertical"
+        android:layout_gravity="center"
         android:textStyle="bold"
         android:visibility="invisible"
         app:backgroundColor="?attr/colorAccent2" />
@@ -40,10 +41,12 @@
         android:layout_height="wrap_content"
         android:id="@+id/remove_sms_btn"
         android:layout_gravity="center_vertical"
+        android:layout_centerVertical="true"
         android:visibility="invisible"
         android:src="@drawable/ic_baseline_delete_18"
         android:background="?attr/selectableItemBackground"
-        android:layout_marginRight="15dp"
+        android:layout_margin="15dp"
+
 
     />
     </LinearLayout>

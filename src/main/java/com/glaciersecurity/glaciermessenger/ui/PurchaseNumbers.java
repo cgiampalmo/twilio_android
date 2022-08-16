@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -37,6 +38,9 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     protected void refreshUiReal() {
 
     }
+    private String lastWaitMsg = null;
+    private TextView waitTextField = null;
+    private android.app.AlertDialog waitDialog = null;
     CardView area_code;
     Boolean numberPurchased = false;
     ArrayList<phone_num_details> availablePhoneNumbers;
@@ -93,7 +97,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
                 .add("areacode", area_code)
                 .add("countryCode",countryCode)
                 .build();
-        Log.d("Glacier","getPhoneNumberList for "+countryCode + "adnd its url "+getAvailableNumListUrl);
+        Log.d("Glacier","getPhoneNumberList for "+countryCode + "and its url "+getAvailableNumListUrl);
         Request request = new Request.Builder()
                 .url(getAvailableNumListUrl)
                 .post(requestBody)
@@ -107,27 +111,44 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             Gson gson = new Gson();
             AvailableNumberResponse availableNumberResponse = gson.fromJson(responseBody, AvailableNumberResponse.class);
             availablePhoneNumbers = availableNumberResponse.available_phone_numbers;
-            TextView no_num = findViewById(R.id.no_num);
-            if(availablePhoneNumbers.size() > 0){
-                no_num.setVisibility(View.GONE);
-            }else {
-                no_num.setVisibility(View.VISIBLE);
-            }
-            Log.d("Glacier","availablePhoneNumbers size "+availablePhoneNumbers.size()+" Visibility "+no_num.getVisibility());
-            numberListAdapter.notifyDataSetChanged();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        TextView no_num = findViewById(R.id.no_num);
+                        if(availablePhoneNumbers.size() > 0){
+                            no_num.setVisibility(View.GONE);
+                        }else {
+                            no_num.setVisibility(View.VISIBLE);
+                        }
+                        Log.d("Glacier","availablePhoneNumbers size "+availablePhoneNumbers.size()+" Visibility "+no_num.getVisibility());
+                        numberListAdapter.notifyDataSetChanged();
+                        closeWaitDialog();
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(getApplicationContext(),"SMS not currently available" ,Toast.LENGTH_LONG).show();
+                        closeWaitDialog();
+
+                    }
+                }
+            });
+
+
         }catch (IOException ex){
             Log.e("Glacier", ex.getLocalizedMessage(), ex);
+            closeWaitDialog();
         }
     }
     protected void OnNumberClick(String number){
         AlertDialog.Builder builder = new AlertDialog.Builder(PurchaseNumbers.this);
-        builder.setMessage("Do you want to acquire number ?");
+        builder.setMessage("Do you want to add number ?");
         builder.setTitle("Confirmation");
         builder.setCancelable(true);
         builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Toast.makeText(getApplicationContext(),"Acquiring number "+number,Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),"Adding number "+number,Toast.LENGTH_LONG).show();
                 PurchaseNum(number);
             }
         });
@@ -157,9 +178,9 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             Gson gson = new Gson();
             PurchaseNumResponse purchaseNumResponse = gson.fromJson(responseBody, PurchaseNumResponse.class);
             if(purchaseNumResponse.message.equals("success")){
-                Toast.makeText(PurchaseNumbers.this,"Number acquired successfully",Toast.LENGTH_LONG).show();
+                Toast.makeText(PurchaseNumbers.this,"Number added successfully",Toast.LENGTH_LONG).show();
             }else{
-                Toast.makeText(PurchaseNumbers.this,"Failed to acquire. Please try again",Toast.LENGTH_LONG).show();
+                Toast.makeText(PurchaseNumbers.this,"Failed to add. Please try again",Toast.LENGTH_LONG).show();
             }
             numberPurchased = true;
             onBackendConnected();
@@ -172,7 +193,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_purchase_number);
-        setTitle("Acquire number");
+        setTitle("Add number");
         model = (ConversationModel) getApplicationContext();
         String[] country_codes = getResources().getStringArray(R.array.country_codes);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.dropdown_cc, country_codes);
@@ -205,7 +226,11 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
                 String countryNamecode = getcountrycode.getText().toString().trim();
                 String[] countrySplitCode = countryNamecode.split("-");
                 String countryCode = countrySplitCode[1].trim();
-                getPhoneNumberList(countryCode, areaCode);
+                new Thread(new Runnable() {
+                    public void run() {
+                        getPhoneNumberList(countryCode,areaCode);
+                    }
+                }).start();
             }
         });
     }
@@ -219,6 +244,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         //Toast.makeText(this, "Item Clicked " , Toast.LENGTH_SHORT).show();
+        showWaitDialog("Searching...");
         TextView getcountrycode = findViewById(R.id.countrycode);
         String countryNamecode = getcountrycode.getText().toString().trim();
         String[] countrySplitCode = countryNamecode.split("-");
@@ -227,7 +253,52 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         TextView getAreaCode = findViewById(R.id.edit_gchat_number);
         area_code.setVisibility(View.VISIBLE);
         String areacode = getAreaCode.getText().toString().trim();
-        getPhoneNumberList(countryCode,areacode);
+        new Thread(new Runnable() {
+            public void run() {
+                getPhoneNumberList(countryCode,areacode);
+                }
+        }).start();
+
+    }
+
+    public void closeWaitDialog() {
+        if (waitDialog != null) {
+            waitDialog.dismiss();
+            //ALF AM-190
+            waitDialog = null;
+            lastWaitMsg = null;
+            waitTextField = null;
+        }
+    }
+
+    public void showWaitDialog(String message) {
+        //ALF AM-202 extended also check if Activity is finishing
+        if (this.isFinishing()) {
+            return;
+        }
+
+        //ALF AM-190
+        if (lastWaitMsg != null && message.equalsIgnoreCase(lastWaitMsg)) {
+            return;
+        } else if (waitDialog != null && waitTextField != null) {
+            waitTextField.setText(message);
+            return;
+        }
+
+        lastWaitMsg = message;
+        LayoutInflater inflater = getLayoutInflater();
+        View layout = inflater.inflate(R.layout.dialog_wait, null);
+        waitTextField = layout.findViewById(R.id.status_message);
+        waitTextField.setText(message);
+
+        //AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(PurchaseNumbers.this);
+        builder.setView(layout);
+        builder.setCancelable(false); // if you want user to wait for some process to finish,
+        builder.setTitle("Please Wait");
+
+        waitDialog = builder.create();
+        waitDialog.show();
     }
 
     @Override
