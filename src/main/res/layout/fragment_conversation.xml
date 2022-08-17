@@ -147,10 +147,10 @@
                     android:layout_width="@dimen/spacing_xxlarge"
                     android:layout_height="@dimen/spacing_xxlarge"
                     android:background="?attr/selectableItemBackgroundBorderless"
+                    android:tint="?attr/send_msg_button"
                     android:clickable="true"
                     android:padding="@dimen/spacing_midlarge2"
-                    app:srcCompat="@drawable/ic_send"
-                    app:tint="?attr/send_msg_button" />
+                    app:srcCompat="@drawable/ic_send" />
 
             </LinearLayout>
         </RelativeLayout>
