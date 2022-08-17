@@ -170,7 +170,9 @@ public class ConversationsManager {
                 Log.d("Glacier", "tokenResponse from server: " + tokenResponse);
                 String accessToken = tokenResponse.token;
                 this.proxyAddress = tokenResponse.user_numbers;
-                this.PurchaseNumber = tokenResponse.add_purchase_numbers;
+                //this.PurchaseNumber = tokenResponse.add_purchase_numbers;
+                //TODO CHANGE BACK TO "this.PurchaseNumber = tokenResponse.add_purchase_numbers" when field is added to console
+                this.PurchaseNumber = true;
                 Log.d("Glacier", "Retrieved access token from server: " + accessToken + proxyAddress );
                 listener.receivedAccessToken(accessToken, null);
 

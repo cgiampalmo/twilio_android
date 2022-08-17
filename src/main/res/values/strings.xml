@@ -1199,10 +1199,11 @@
     <string name="turn_speaker_on">Speaker ON</string>
     <string name="turn_speaker_off">Speaker OFF</string>
     <string name= "tap_to_return_to_call">TAP TO RETURN TO CALL</string>
-    <string name="chat_token_url">http://3.236.203.6:3000/getAccessToken</string>
-    <string name="add_participant_url">http://3.236.203.6:3000/addParticipant</string>
-    <string name="get_available_num_list_url">http://3.236.203.6:3000/availableNumList</string>
-    <string name="release_num_url">http://3.236.203.6:3000/releaseNumber</string>
+    <string name="chat_token_url">https://console.glaciersec.cc/getAccessToken</string>
+    <string name="add_participant_url">https://console.glaciersec.cc/addParticipant</string>
+    <string name="get_available_num_list_url">>https://console.glaciersec.cc/availableNumList</string>
+    <string name="release_num_url">https://console.glaciersec.cc/releaseNumber</string>
+    <string name="purchase_number_url">https://console.glaciersec.cc/PurchaseNumber</string>
     <!--    CMG AM-261-->
     <string name= "mapbox_token">pk.eyJ1IjoiYWxmcmllZG1hbiIsImEiOiJjaXp5YWJxZDQwM2FqMzJxcm9scGh3N3U5In0.NoRKK6Uf4BZz54sZJXwDlA</string>
     <string name="current_location">Current Location</string>
@@ -1221,7 +1222,7 @@
 
     <string name="view_participants">View participants</string>
     <string name="start_chat">Start chat</string>
-    <string name="purchase_number_url">http://3.236.203.6:3000/PurchaseNumber</string>
+
 
     <string-array name="country_codes">
         <item>United States - US</item>
