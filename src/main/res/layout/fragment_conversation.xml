@@ -14,6 +14,7 @@
             android:layout_height="wrap_content"
             android:layout_above="@+id/snackbar"
             android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:background="?attr/color_background_primary"
             android:divider="@null"
@@ -21,9 +22,7 @@
             android:listSelector="@android:color/transparent"
             android:stackFromBottom="true"
             android:transcriptMode="normal"
-            tools:listitem="@layout/message_sent"
-            android:layout_alignParentLeft="true">
-        </ListView>
+            tools:listitem="@layout/message_sent"></ListView>
 
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -148,10 +147,10 @@
                     android:layout_width="@dimen/spacing_xxlarge"
                     android:layout_height="@dimen/spacing_xxlarge"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:tint="?attr/send_msg_button"
                     android:clickable="true"
                     android:padding="@dimen/spacing_midlarge2"
-                    app:srcCompat="@drawable/ic_send" />
+                    app:srcCompat="@drawable/ic_send"
+                    app:tint="?attr/send_msg_button" />
 
             </LinearLayout>
         </RelativeLayout>

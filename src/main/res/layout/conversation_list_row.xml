@@ -56,12 +56,12 @@
                             android:id="@+id/sender_name"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:minHeight="?attr/IconSize"
-                            android:layout_centerVertical="true"
-                            android:gravity="center_vertical"
                             android:layout_alignParentLeft="true"
-                            android:text="@string/me"
+                            android:layout_centerVertical="true"
                             android:layout_marginRight="?attr/TextSeparation"
+                            android:gravity="center_vertical"
+                            android:minHeight="?attr/IconSize"
+                            android:text="@string/me"
                             android:textAppearance="@style/TextAppearance.Conversations.Body1.Secondary"
                             android:visibility="visible" />
 

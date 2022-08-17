@@ -1,0 +1,22 @@
+<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/toolbar_sms"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="?attr/colorPrimary"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+    app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
+    android:fitsSystemWindows="true">
+
+
+    <ImageButton
+        android:id="@+id/down_arrow"
+        android:layout_width="7.5dp"
+        android:layout_height="7.5dp"
+        android:layout_marginStart="4dp"
+        android:adjustViewBounds="true"
+        android:clickable="false"
+        app:srcCompat="@drawable/ic_expand" />
+
+</androidx.appcompat.widget.Toolbar>
+
