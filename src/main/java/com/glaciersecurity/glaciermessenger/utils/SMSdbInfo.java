@@ -122,6 +122,7 @@ public class SMSdbInfo {
         for (String deviceinfo : smsInfoList) {
             try {
                 JSONObject jsonObject = new JSONObject(deviceinfo);
+
                 SmsProfile prof = new SmsProfile(jsonObject);
                 smsProfList.add(prof);
 

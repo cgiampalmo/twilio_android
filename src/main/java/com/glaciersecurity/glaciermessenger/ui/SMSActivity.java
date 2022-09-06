@@ -459,6 +459,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             Log.d("Glacier", "Response from server: " + responseBody);
         }catch (IOException ex){
             Log.e("Glacier", ex.getLocalizedMessage(), ex);
+            Toast.makeText(SMSActivity.this,"Failed to release. Please try again",Toast.LENGTH_LONG).show();
         }
     }
 
@@ -715,6 +716,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     public void onRestart(){
         super.onRestart();
         Log.d("Glacier","onRestart is called");
+        //TODO
     }
     public void onBackPressed(){
         super.onBackPressed();

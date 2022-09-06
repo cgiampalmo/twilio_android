@@ -4,6 +4,8 @@
 }
 
 type GlacierUsers {
+  add_user_to_SMS: Boolean
+  add_user_to_purchase_numbers: Boolean
   email: String
   extension_voiceserver: String
   first_name: String
@@ -13,6 +15,7 @@ type GlacierUsers {
   organization: String!
   securityInfo: [AWSJSON]
   selected_twilionumber: [AWSJSON]
+  sms_enabled: Boolean
   user_name: String
   username: String!
 }
@@ -95,6 +98,7 @@ input TableStringFilterInput {
 }
 
 input UpdateGlacierUsersInput {
+  add_user_to_purchase_numbers: Boolean
   email: String
   extension_voiceserver: String
   first_name: String
@@ -103,6 +107,7 @@ input UpdateGlacierUsersInput {
   messenger_id: String
   organization: String!
   securityInfo: [AWSJSON]
+  selected_twilionumber: [AWSJSON]
   user_name: String
   username: String!
 }
