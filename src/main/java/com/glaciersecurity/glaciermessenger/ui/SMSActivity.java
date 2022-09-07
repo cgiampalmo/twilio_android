@@ -417,9 +417,9 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             SMSdbInfo info = xmppConnectionService.getSmsInfo();
             smSdbInfo = info.getExistingProfs();
             PurchaseNumber = info.getUserPermission();
-            SMSdbInfo smsinfo = new SMSdbInfo(xmppConnectionService);
-            xmppConnectionService.setSmsInfo(smsinfo);
-            Log.d("Glacier", "onBackendConnected" + xmppConnectionService + smSdbInfo);
+            //SMSdbInfo smsinfo = new SMSdbInfo(xmppConnectionService);
+            //xmppConnectionService.setSmsInfo(smsinfo);
+            Log.d("Glacier", "onBackendConnected" + xmppConnectionService + smSdbInfo+PurchaseNumber);
             proxyNumbers.clear();
             profileList.clear();
         }else{
@@ -518,6 +518,19 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(xmppConnectionService != null){
+                    SMSdbInfo info = xmppConnectionService.getSmsInfo();
+                    ArrayList<SmsProfile> smSdbInfo;
+                    smSdbInfo = info.getExistingProfs();
+                    if(smSdbInfo.size() > 0){
+                        profileList.clear();
+                        proxyNumbers.clear();
+                        reload_adapter_sms(smSdbInfo);
+                        PurchaseNumber = info.getUserPermission();
+                        SMSdbInfo smsinfo = new SMSdbInfo(xmppConnectionService);
+                        xmppConnectionService.setSmsInfo(smsinfo);
+                    }
+                }
                 drawer_sms.openDrawer(GravityCompat.START);
                 adapter_sms.toggleDeleteOff();
                 if(PurchaseNumber){
@@ -625,6 +638,9 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 break;
             case R.id.sms_accounts:
                 drawer_sms.openDrawer(GravityCompat.START);
+                if(xmppConnectionService != null){
+                    //onBackendConnected();
+                }
                 break;
         }
         return super.onOptionsItemSelected(item);
