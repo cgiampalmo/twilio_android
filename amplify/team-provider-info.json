@@ -11,5 +11,18 @@
             "StackId": "arn:aws:cloudformation:us-east-2:840786921545:stack/amplify-glaciermessengerdeva-default-104228/56033a90-1271-11ed-97a5-068b08797350",
             "AmplifyAppId": "d26b8c1bcojyi3"
         }
+    },
+    "chrisdev": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-glaciermessengerdeva-chrisdev-94012-authRole",
+            "UnauthRoleArn": "arn:aws:iam::840786921545:role/amplify-glaciermessengerdeva-chrisdev-94012-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::840786921545:role/amplify-glaciermessengerdeva-chrisdev-94012-authRole",
+            "Region": "us-east-2",
+            "DeploymentBucketName": "amplify-glaciermessengerdeva-chrisdev-94012-deployment",
+            "UnauthRoleName": "amplify-glaciermessengerdeva-chrisdev-94012-unauthRole",
+            "StackName": "amplify-glaciermessengerdeva-chrisdev-94012",
+            "StackId": "arn:aws:cloudformation:us-east-2:840786921545:stack/amplify-glaciermessengerdeva-chrisdev-94012/6fbb2900-2de9-11ed-8a19-02a09498e5ba",
+            "AmplifyAppId": "d26b8c1bcojyi3"
+        }
     }
 }
