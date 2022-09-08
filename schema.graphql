@@ -10,12 +10,12 @@ type GlacierUsers {
   extension_voiceserver: String
   first_name: String
   glacierpwd: String
+  isSMSEnabled: Boolean
   last_name: String
   messenger_id: String
   organization: String!
   securityInfo: [AWSJSON]
   selected_twilionumber: [AWSJSON]
-  sms_enabled: Boolean
   user_name: String
   username: String!
 }
