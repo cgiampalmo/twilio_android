@@ -172,6 +172,7 @@ public class ConversationsManager {
                 this.proxyAddress = tokenResponse.user_numbers;
                 if (tokenResponse.add_purchase_numbers != null) {
                     this.PurchaseNumber = tokenResponse.add_purchase_numbers;
+                    //TODO
                 }
                 Log.d("Glacier", "Retrieved access token from server: " + accessToken + proxyAddress );
                 listener.receivedAccessToken(accessToken, null);

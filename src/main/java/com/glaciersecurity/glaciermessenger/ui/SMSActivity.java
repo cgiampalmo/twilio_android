@@ -29,7 +29,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -67,7 +66,6 @@ import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.ui.adapter.SwipeItemTouchHelper;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingActionHelper;
 import com.glaciersecurity.glaciermessenger.ui.util.PendingItem;
-import com.glaciersecurity.glaciermessenger.ui.util.ScrollState;
 import com.glaciersecurity.glaciermessenger.ui.util.StyledAttributes;
 import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.utils.LogoutListener;
@@ -415,10 +413,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         ArrayList<SmsProfile> smSdbInfo;
         if(xmppConnectionService != null) {
             SMSdbInfo info = xmppConnectionService.getSmsInfo();
+            info.trySmsInfoUpload();
             smSdbInfo = info.getExistingProfs();
-            PurchaseNumber = info.getUserPermission();
+            PurchaseNumber = info.getUserPurchasePermission();
             //SMSdbInfo smsinfo = new SMSdbInfo(xmppConnectionService);
-            //xmppConnectionService.setSmsInfo(smsinfo);
+            //xmppConnectionService.setSmsInfo(info);
             Log.d("Glacier", "onBackendConnected" + xmppConnectionService + smSdbInfo+PurchaseNumber);
             proxyNumbers.clear();
             profileList.clear();
@@ -526,20 +525,13 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                         profileList.clear();
                         proxyNumbers.clear();
                         reload_adapter_sms(smSdbInfo);
-                        PurchaseNumber = info.getUserPermission();
-                        SMSdbInfo smsinfo = new SMSdbInfo(xmppConnectionService);
-                        xmppConnectionService.setSmsInfo(smsinfo);
+                        //PurchaseNumber = smsinfo.getUserPurchasePermission();
+                        showPurchaseView();
                     }
                 }
                 drawer_sms.openDrawer(GravityCompat.START);
                 adapter_sms.toggleDeleteOff();
-                if(PurchaseNumber){
-                    addNumberBtn.setVisibility(View.VISIBLE);
-                    releaseNumberBtn.setVisibility(View.VISIBLE);
-                } else {
-                    addNumberBtn.setVisibility(View.GONE);
-                    releaseNumberBtn.setVisibility(View.GONE);
-                }
+                showPurchaseView();
             }
         });
         if(getIntent().hasExtra("account")) {
@@ -621,7 +613,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
         recyclerViewSMS.setAdapter(adapter_sms);
         Log.d("Glacier","identity sdns n "+identity);
-
+        showPurchaseView();
 
 }
 
@@ -630,6 +622,24 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         return super.onCreateOptionsMenu(menu);
     }
 
+    public void showPurchaseView(){
+        if (xmppConnectionService != null) {
+            SMSdbInfo info = xmppConnectionService.getSmsInfo();
+            ArrayList<SmsProfile> smSdbInfo = info.getExistingProfs();
+            PurchaseNumber = info.getUserPurchasePermission();
+            if (PurchaseNumber) {
+                addNumberBtn.setVisibility(View.VISIBLE);
+                if (smSdbInfo.size() > 0) {
+                    releaseNumberBtn.setVisibility(View.VISIBLE);
+                } else {
+                    releaseNumberBtn.setVisibility(View.GONE);
+                }
+            } else {
+                addNumberBtn.setVisibility(View.GONE);
+                releaseNumberBtn.setVisibility(View.GONE);
+            }
+        }
+    }
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.d("Glacier","menu_group_call_participants_list "+item.getItemId()+"======="+R.id.menu_group_call_participants_list);
         switch (item.getItemId()){

@@ -2,15 +2,13 @@
 <LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
-    android:minWidth="250dp"
-    android:layout_width="wrap_content"
+    android:layout_width="325dp"
     android:layout_height="wrap_content"
     android:background="?attr/color_background_secondary"
     android:id="@+id/sms_profile_view"
     android:paddingTop="10dp"
     android:paddingBottom="10dp"
     >
-
 
         <TextView
             android:id="@+id/sms_profile_number"
@@ -42,6 +40,7 @@
         android:id="@+id/remove_sms_btn"
         android:layout_gravity="center_vertical"
         android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
         android:visibility="invisible"
         android:src="@drawable/ic_baseline_delete_18"
         android:background="?attr/selectableItemBackground"

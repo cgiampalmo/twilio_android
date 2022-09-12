@@ -39,9 +39,12 @@ public class SMSdbInfo {
 
     private XmppConnectionService xmppConnectionService;
     private AWSAppSyncClient appsyncclient;
-    private SmsProfile smsInfo;
+    //private SmsProfile smsInfo;
     private ArrayList<SmsProfile> dbProfs = new ArrayList<>();
     private boolean dbPurchaseNum;
+    private boolean add_user_to_sms;
+    private boolean isSMSEnabled;
+    private static SMSdbInfo smSdbInfo;
 
     public SMSdbInfo(XmppConnectionService xmppConn) {
         xmppConnectionService = xmppConn;
@@ -51,13 +54,21 @@ public class SMSdbInfo {
     public ArrayList<SmsProfile> getExistingProfs(){
         return dbProfs;
     }
-    public Boolean getUserPermission(){
+    public Boolean getUserPurchasePermission(){
         return dbPurchaseNum;
     }
 
-    private void trySmsInfoUpload() {
+    public Boolean getUserHasSMS(){
+        return add_user_to_sms;
+    }
 
-        if (xmppConnectionService == null || !(xmppConnectionService.getAccounts().size() > 0)){
+    public Boolean isSMSEnabled(){
+        return isSMSEnabled;
+    }
+
+    public void trySmsInfoUpload() {
+
+        if (xmppConnectionService == null || xmppConnectionService.getAccounts() == null || !(xmppConnectionService.getAccounts().size() > 0)){
             return;
         }
         final Account account = xmppConnectionService.getAccounts().get(0);
@@ -75,6 +86,7 @@ public class SMSdbInfo {
         } else {
             queryAppSync(myCogAccount);
         }
+        xmppConnectionService.setSmsInfo(this);
     }
 
     private void queryAppSync(CognitoAccount myCogAccount) {
@@ -101,9 +113,19 @@ public class SMSdbInfo {
         @Override
         public void onResponse(@Nonnull Response<GetGlacierUsersQuery.Data> response) {
             new Thread(() -> {
-                if (response.data().getGlacierUsers() != null && response.data().getGlacierUsers().selected_twilionumber() != null && response.data().getGlacierUsers().add_user_to_purchase_numbers() != null) {
-                    dbProfs = (getSmsProfileList(response.data().getGlacierUsers().selected_twilionumber()));
-                    dbPurchaseNum = response.data().getGlacierUsers().add_user_to_purchase_numbers();
+                if (response.data().getGlacierUsers() != null) {
+                    if (response.data().getGlacierUsers().selected_twilionumber() != null) {
+                        dbProfs = (getSmsProfileList(response.data().getGlacierUsers().selected_twilionumber()));
+                    }
+                    if (response.data().getGlacierUsers().add_user_to_purchase_numbers() != null) {
+                        dbPurchaseNum = response.data().getGlacierUsers().add_user_to_purchase_numbers();
+                    }
+                    if (response.data().getGlacierUsers().add_user_to_SMS() != null){
+                        add_user_to_sms = response.data().getGlacierUsers().add_user_to_SMS();
+                  }
+                    if (response.data().getGlacierUsers().isSMSEnabled() != null){
+                        isSMSEnabled = response.data().getGlacierUsers().isSMSEnabled();
+                    }
                 } else {
                     Log.i("SmsInfo", "No sms profiles in response from server");
                 }

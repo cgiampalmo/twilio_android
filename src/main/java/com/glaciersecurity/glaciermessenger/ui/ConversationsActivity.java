@@ -227,8 +227,16 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	@Override
 	void onBackendConnected() {
 		Log.d("Glacier","onBackendConnected "+xmppConnectionService);
-		SMSdbInfo smsinfo = new SMSdbInfo(xmppConnectionService);
-		xmppConnectionService.setSmsInfo(smsinfo);
+		xmppConnectionService.getSmsInfo().trySmsInfoUpload();;
+		//xmppConnectionService.setSmsInfo(smsinfo);
+		MenuItem item = nav_view.getMenu().findItem(R.id.SMS);
+
+		if(xmppConnectionService.getSmsInfo().getUserHasSMS() && xmppConnectionService.getSmsInfo().isSMSEnabled()){
+			Log.d("here", "here");
+			item.setVisible(true);
+		} else {
+			item.setVisible(false);
+		}
 		if (performRedirectIfNecessary(true)) {
 			return;
 		}

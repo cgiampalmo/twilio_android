@@ -1077,6 +1077,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				}
 				ignoreLifecycleUpdate = false; //activity won't need to track return to app this way
 				updateSecurityInfo(); //AM#52, AM#53
+				updateSmsInfo();
 				break;
 			case STOP: // app moved to background
 				mLastGlacierUsage.set(SystemClock.elapsedRealtime());
@@ -2453,7 +2454,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			updateSecurityInfo();
 		}
 
-		getSmsInfo();
+		updateSmsInfo();
 	}
 
 	private void syncEnabledAccountSetting() {
@@ -4422,14 +4423,23 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public SMSdbInfo getSmsInfo() {
-		if (smsInfo == null) {
+		if (smsInfo == null){
 			smsInfo = new SMSdbInfo(this);
 		}
 		return smsInfo;
 	}
-	public void setSmsInfo(SMSdbInfo smsDBInfo){
-		smsInfo = smsDBInfo;
+
+	public void updateSmsInfo(){
+		if (accounts != null) {
+			getSmsInfo().trySmsInfoUpload();
+		}
 	}
+
+	public void setSmsInfo(SMSdbInfo smsInfo){
+		this.smsInfo = smsInfo;
+	}
+
+
 	public Account findAccountByJid(final Jid accountJid) {
 		for (Account account : this.accounts) {
 			if (account.getJid().asBareJid().equals(accountJid.asBareJid())) {
