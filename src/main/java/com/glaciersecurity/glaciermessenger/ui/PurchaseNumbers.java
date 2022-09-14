@@ -250,11 +250,11 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         String countryCode = countrySplitCode[1].trim();
         //Toast.makeText(this, "Item Clicked " + countryCode, Toast.LENGTH_SHORT).show();
         TextView getAreaCode = findViewById(R.id.edit_gchat_number);
-        area_code.setVisibility(View.VISIBLE);
-        String areacode = getAreaCode.getText().toString().trim();
+        //area_code.setVisibility(View.VISIBLE);
+        //String areacode = getAreaCode.getText().toString().trim();
         new Thread(new Runnable() {
             public void run() {
-                getPhoneNumberList(countryCode,areacode);
+                getPhoneNumberList(countryCode,"");
                 }
         }).start();
 
