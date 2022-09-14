@@ -1,5 +1,7 @@
 package com.glaciersecurity.glaciermessenger.utils;
 
+import android.provider.Telephony;
+
 import com.amazonaws.amplify.generated.graphql.GetGlacierUsersQuery;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
@@ -25,6 +27,7 @@ import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
 import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
+import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 
 import org.json.JSONObject;
 
@@ -41,10 +44,9 @@ public class SMSdbInfo {
     private AWSAppSyncClient appsyncclient;
     //private SmsProfile smsInfo;
     private ArrayList<SmsProfile> dbProfs = new ArrayList<>();
-    private boolean dbPurchaseNum;
-    private boolean add_user_to_sms;
-    private boolean isSMSEnabled;
-    private static SMSdbInfo smSdbInfo;
+    private boolean dbPurchaseNum = false;
+    private boolean add_user_to_sms = false;
+    private boolean isSMSEnabled = false;
 
     public SMSdbInfo(XmppConnectionService xmppConn) {
         xmppConnectionService = xmppConn;
@@ -53,6 +55,18 @@ public class SMSdbInfo {
 
     public ArrayList<SmsProfile> getExistingProfs(){
         return dbProfs;
+    }
+
+    public boolean isNumberActive(String number){
+        for (SmsProfile existingProfs : dbProfs){
+            if (existingProfs.getNumber().equals(number)){
+                return true;
+            }
+            if (existingProfs.getNumber().equals(Tools.reformatNumber(number))) {
+                return true;
+            }
+        }
+        return false;
     }
     public Boolean getUserPurchasePermission(){
         return dbPurchaseNum;

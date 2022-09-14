@@ -318,12 +318,10 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
             touchHelper.attachToRecyclerView(recyclerViewConversations);
             Log.d("Glacier","conversationList " +conversationList.size() + messagesAdapter);
-            View emptyLayout = findViewById(R.id.empty_list);
-            emptyLayout.setVisibility(View.GONE);
-            Log.d("Glacier","conversationsClient emptyLayout " +conversationList.size() + emptyLayout.getVisibility());
-        }else{
-            View emptyLayout = findViewById(R.id.empty_list);
-            emptyLayout.setVisibility(View.VISIBLE);
+//            View emptyLayout = findViewById(R.id.empty_list);
+//            emptyLayout.setVisibility(View.GONE);
+//            Log.d("Glacier","conversationsClient emptyLayout " +conversationList.size() + emptyLayout.getVisibility());
+            checkEmptyView();
         }
         ProgressBar progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
@@ -424,6 +422,37 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         }else{
             smSdbInfo = profileList;
         }
+
+        //Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation(proxyNumber));
+        ConversationsClient conversationsClient = model.getConversationsClient();
+
+        ConversationsManager.setListener(this);
+        Log.d("Glacier","Twilio ConversationsClient "+conversationsClient);
+        if(conversationsClient != null){
+            model.setConversation(null);
+            Log.d("Glacier","proxyNumbers"+ proxyNumbers.toArray());
+            ConversationsManager.addListenerLoadChannels(conversationsClient,proxyNumbers.toArray());
+            if(model.getProxyNumber() == null || model.getProxyNumber().equals("") ) {
+                if(proxyNumbers != null && (proxyNumber == null || proxyNumber.length() > 0)) {
+                    if(proxyNumbers.size() > 0) {
+                        model.setProxyNumber(proxyNumbers.get(0));
+                        proxyNumber = proxyNumbers.get(0);
+                    }
+                }
+            }else
+            if (xmppConnectionService.getSmsInfo().isNumberActive(model.getProxyNumber()) ){
+                proxyNumber = model.getProxyNumber();
+            } else {
+                model.setProxyNumber(null);
+            }
+
+            if(proxyNumber != null) {
+                setColorForNumber(proxyNumber);
+            }
+        }else{
+            retrieveTokenFromServer();
+        }
+
         reload_adapter_sms(smSdbInfo);
     }
 
@@ -471,7 +500,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             OnSMSProfileClick("", intent.getExtras().getString("ProxyNum"));
         }else{
             if(!intent.hasExtra("ProxyNum")) {
-                    ConversationsManager.loadChannels(model.getConversationsClient());
+                ConversationsManager.loadChannels(model.getConversationsClient());
             }
         }
     }
@@ -487,10 +516,10 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         setTitle("SMS");
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         model = (ConversationModel) getApplicationContext();
-        if(model.getPurchaseNumber() != null)
-            PurchaseNumber = model.getPurchaseNumber();
-        else
-            PurchaseNumber = false;
+//        if(model.getPurchaseNumber() != null)
+//            PurchaseNumber = model.getPurchaseNumber();
+//        else
+//            PurchaseNumber = false;
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -499,13 +528,19 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             @Override
             public void onClick(View view) {
                 accessToken = Atoken.getAccessToken();
+                getContactList();
                 Log.d("Glacier","conversationsClient "+ConversationsManager.conversationsClient);
                 if (ConversationsManager.conversationsClient != null){
-                    model.setConversationsClient(ConversationsManager.conversationsClient);
-                    Intent intent = new Intent(mContext, ContactListActivity.class);
-                    String conv_Sid = "new";
-                    startActivity(intent.putExtra("conv_sid", conv_Sid).putExtra("identity", identity).putExtra("conversationToken", accessToken).putExtra("title", "New message"));
-                }else{
+                    if (proxyNumber == null){
+                        Toast.makeText(mContext, "No SMS numbers configured for this account", Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        model.setConversationsClient(ConversationsManager.conversationsClient);
+                        Intent intent = new Intent(mContext, ContactListActivity.class);
+                        String conv_Sid = "new";
+                        startActivity(intent.putExtra("conv_sid", conv_Sid).putExtra("identity", identity).putExtra("conversationToken", accessToken).putExtra("title", "New message"));
+
+                    }}else{
                     Toast.makeText(mContext, "Please wait the SMS is not loaded successfully", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -517,21 +552,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(xmppConnectionService != null){
-                    SMSdbInfo info = xmppConnectionService.getSmsInfo();
-                    ArrayList<SmsProfile> smSdbInfo;
-                    smSdbInfo = info.getExistingProfs();
-                    if(smSdbInfo.size() > 0){
-                        profileList.clear();
-                        proxyNumbers.clear();
-                        reload_adapter_sms(smSdbInfo);
-                        //PurchaseNumber = smsinfo.getUserPurchasePermission();
-                        showPurchaseView();
-                    }
-                }
-                drawer_sms.openDrawer(GravityCompat.START);
-                adapter_sms.toggleDeleteOff();
-                showPurchaseView();
+                onDrawerOpened();
             }
         });
         if(getIntent().hasExtra("account")) {
@@ -564,31 +585,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         layoutManager.setReverseLayout(true);
         recyclerViewConversations.setLayoutManager(layoutManager);
 
-        //Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation(proxyNumber));
-        ConversationsClient conversationsClient = model.getConversationsClient();
-
-        ConversationsManager.setListener(this);
-        Log.d("Glacier","Twilio ConversationsClient "+conversationsClient);
-        if(conversationsClient != null){
-            model.setConversation(null);
-            Log.d("Glacier","proxyNumbers"+ proxyNumbers.toArray());
-            ConversationsManager.addListenerLoadChannels(conversationsClient,proxyNumbers.toArray());
-            if(model.getProxyNumber() == null || model.getProxyNumber().equals("") ) {
-                if(proxyNumbers != null && (proxyNumber == null || proxyNumber.length() > 0)) {
-                    if(proxyNumbers.size() > 0) {
-                        model.setProxyNumber(proxyNumbers.get(0));
-                        proxyNumber = proxyNumbers.get(0);
-                    }
-                }
-            }else
-                proxyNumber = model.getProxyNumber();
-
-            if(proxyNumber != null) {
-                setColorForNumber(proxyNumber);
-            }
-        }else{
-            retrieveTokenFromServer();
-        }
 
         recyclerViewSMS = (RecyclerView) findViewById(R.id.sms_recycler_view);
         layoutManagerSMS = new LinearLayoutManager(this);
@@ -648,12 +644,25 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 break;
             case R.id.sms_accounts:
                 drawer_sms.openDrawer(GravityCompat.START);
-                if(xmppConnectionService != null){
-                    //onBackendConnected();
-                }
+                onDrawerOpened();
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void onDrawerOpened(){
+        if(xmppConnectionService != null){
+            xmppConnectionService.getSmsInfo().trySmsInfoUpload();
+            ArrayList<SmsProfile> smSdbInfo;
+            smSdbInfo = xmppConnectionService.getSmsInfo().getExistingProfs();
+            profileList.clear();
+            proxyNumbers.clear();
+            reload_adapter_sms(smSdbInfo);
+        }
+        adapter_sms.toggleDeleteOff();
+        showPurchaseView();
+        drawer_sms.openDrawer(GravityCompat.START);
+
     }
 
 //    private void initSMS(){
@@ -795,10 +804,25 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
 
     public void setColorForNumber(String number){
+        if (xmppConnectionService != null && !xmppConnectionService.getSmsInfo().isNumberActive(number)) {
+            setTitle("SMS");
+            toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
+            //fab_contact.setVisibility(View.INVISIBLE);
+            return;
+        }
         String formattedNumber = Tools.reformatNumber(number);
-        setTitle(formattedNumber);
-        toolbar.setBackgroundColor(UIHelper.getColorForSMS(formattedNumber));
-        fab_contact.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(formattedNumber)));
+        if (formattedNumber != null) {
+            setTitle(formattedNumber);
+            toolbar.setBackgroundColor(UIHelper.getColorForSMS(formattedNumber));
+            fab_contact.setVisibility(View.VISIBLE);
+            fab_contact.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(formattedNumber)));
+        }
+        else {
+            setTitle("SMS");
+            toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
+            //fab_contact.setVisibility(View.INVISIBLE);
+           // fab_contact.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(formattedNumber)));
+        }
     }
     public void OnSMSConversationClick(String conv_sid,String conv_name) {
         Log.d("Glacier","OnSMSConversationClick called "+Atoken.getAccessToken()+" conv_sid "+conv_sid);
@@ -839,15 +863,16 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         if (messagesAdapter != null) {
             messagesAdapter.notifyDataSetChanged();
         }
+        checkEmptyView();
     }
 
     public void checkEmptyView(){
-        if(ConversationsManager.getConversation(proxyNumber).size() > 0){
-            View emptyLayout = findViewById(R.id.empty_list);
-            emptyLayout.setVisibility(View.GONE);
-        } else {
+        if( xmppConnectionService == null || ConversationsManager.getConversation(proxyNumber) == null || ConversationsManager.getConversation(proxyNumber).size() == 0){
             View emptyLayout = findViewById(R.id.empty_list);
             emptyLayout.setVisibility(View.VISIBLE);
+        } else {
+            View emptyLayout = findViewById(R.id.empty_list);
+            emptyLayout.setVisibility(View.GONE);
         }
     }
     class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder> implements SwipeItemTouchHelper.SwipeHelperAdapter{
@@ -1042,10 +1067,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                         @Override
 
                         public void onClick(View view) {
-
-                            /*ConversationsManager.getConversation(proxyNumber).add(position, conversation);
-                            notifyItemInserted(position);
-                            checkEmptyView();*/
                         }
 
                     }).show();
