@@ -321,7 +321,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 //            View emptyLayout = findViewById(R.id.empty_list);
 //            emptyLayout.setVisibility(View.GONE);
 //            Log.d("Glacier","conversationsClient emptyLayout " +conversationList.size() + emptyLayout.getVisibility());
-            checkEmptyView();
+
         }
         ProgressBar progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
@@ -331,6 +331,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 checkPermission();
             }
         });*/
+        checkEmptyView();
     }
 
     protected void swipeDelete(PendingItem<Conversation> swipedConversation, int position){
@@ -396,6 +397,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             adapter_sms.notifyDataSetChanged();
         else
             Log.d("Glacier","adapter_sms is null");
+
+        checkEmptyView();
     }
 
     private final ConversationsManager ConversationsManager = new ConversationsManager(this);
@@ -454,6 +457,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         }
 
         reload_adapter_sms(smSdbInfo);
+        checkEmptyView();
     }
 
     private void ReleaseNum(String number){
@@ -1057,7 +1061,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             });
             //TODO implement removal on conversation
 
-            checkEmptyView();
             String contactName = (cList != null && cList.get(remove_conv.getFriendlyName()) != null) ? cList.get(remove_conv.getFriendlyName()) : remove_conv.getFriendlyName();
 
             Snackbar.make(recyclerViewConversations, contactName + ", DELETED.", Snackbar.LENGTH_LONG)
