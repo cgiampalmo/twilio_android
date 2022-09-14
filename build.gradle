@@ -29,7 +29,7 @@ buildscript {
             'retrofit'           : '2.0.0-beta4',
             'okhttp'             : '3.6.0',
             'ion'                : '2.1.8',
-            'videoAndroid'       : '7.1.1',
+            'videoAndroid'       : '7.3.1',
             'audioSwitch'        : '1.1.2',
             'lifecycle_version'  : '2.4.0'
     ]

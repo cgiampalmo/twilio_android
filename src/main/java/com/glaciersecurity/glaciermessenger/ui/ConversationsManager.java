@@ -170,9 +170,10 @@ public class ConversationsManager {
                 Log.d("Glacier", "tokenResponse from server: " + tokenResponse);
                 String accessToken = tokenResponse.token;
                 this.proxyAddress = tokenResponse.user_numbers;
-                //this.PurchaseNumber = tokenResponse.add_purchase_numbers;
-                //TODO CHANGE BACK TO "this.PurchaseNumber = tokenResponse.add_purchase_numbers" when field is added to console
-                this.PurchaseNumber = true;
+                if (tokenResponse.add_purchase_numbers != null) {
+                    this.PurchaseNumber = tokenResponse.add_purchase_numbers;
+                    //TODO
+                }
                 Log.d("Glacier", "Retrieved access token from server: " + accessToken + proxyAddress );
                 listener.receivedAccessToken(accessToken, null);
 
@@ -319,6 +320,7 @@ public class ConversationsManager {
             }
             Log.d("Glacier","get_unread_conv---"+unread_conv_count);
         }
+
         conversationsManagerListener.showList();
     }
 

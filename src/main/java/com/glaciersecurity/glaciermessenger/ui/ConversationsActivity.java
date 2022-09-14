@@ -227,8 +227,15 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	@Override
 	void onBackendConnected() {
 		Log.d("Glacier","onBackendConnected "+xmppConnectionService);
-		SMSdbInfo smsinfo = new SMSdbInfo(xmppConnectionService);
-		xmppConnectionService.setSmsInfo(smsinfo);
+		xmppConnectionService.getSmsInfo().trySmsInfoUpload();;
+		//xmppConnectionService.setSmsInfo(smsinfo);
+		MenuItem item = nav_view.getMenu().findItem(R.id.SMS);
+
+		if(xmppConnectionService.getSmsInfo().getUserHasSMS() && xmppConnectionService.getSmsInfo().isSMSEnabled()){
+			item.setVisible(true);
+		} else {
+			item.setVisible(false);
+		}
 		if (performRedirectIfNecessary(true)) {
 			return;
 		}
@@ -441,6 +448,15 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					password = cacct.getPassword();
 					return;
 				}
+			}
+			xmppConnectionService.getSmsInfo().trySmsInfoUpload();;
+			//xmppConnectionService.setSmsInfo(smsinfo);
+			MenuItem item = nav_view.getMenu().findItem(R.id.SMS);
+
+			if(xmppConnectionService.getSmsInfo().getUserHasSMS() && xmppConnectionService.getSmsInfo().isSMSEnabled()){
+				item.setVisible(true);
+			} else {
+				item.setVisible(false);
 			}
 		}
 	}
@@ -683,7 +699,18 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
 			public void onDrawerOpened(View drawerView) {
 				List<Account> accounts = xmppConnectionService.getAccounts();
+
 				if (!accounts.isEmpty()) {
+
+					xmppConnectionService.getSmsInfo().trySmsInfoUpload();;
+					//xmppConnectionService.setSmsInfo(smsinfo);
+					MenuItem item = nav_view.getMenu().findItem(R.id.SMS);
+
+					if(xmppConnectionService.getSmsInfo().getUserHasSMS() && xmppConnectionService.getSmsInfo().isSMSEnabled()){
+						item.setVisible(true);
+					} else {
+						item.setVisible(false);
+					}
 					mAccount = accounts.get(0);
 					avatar = (ImageView) findViewById(R.id.nav_avatar);
 					avatar.setOnClickListener(mAvatarClickListener);
