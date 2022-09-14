@@ -305,7 +305,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                     pendingActionHelper.execute();
                     int position = viewHolder.getLayoutPosition();
                     try {
-                        swipedSMSConversation.push(conversationList.get(position));
+                       swipedSMSConversation.push(conversationList.get(position));
                     } catch (IndexOutOfBoundsException e) {
                         return;
                     }
