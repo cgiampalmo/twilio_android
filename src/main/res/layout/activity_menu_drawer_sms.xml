@@ -52,7 +52,8 @@
 
         <Button
         android:id="@+id/add_number"
-            android:layout_width="325dp"
+            android:layout_width="320dp"
+            android:gravity="left"
             android:layout_height="wrap_content"
         android:padding="16dp"
         android:background="@color/transparent"
@@ -71,7 +72,8 @@
             android:background="@android:color/darker_gray"/>
         <Button
             android:id="@+id/release_number"
-            android:layout_width="325dp"
+            android:layout_width="320dp"
+            android:gravity="left"
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:background="@color/transparent"
