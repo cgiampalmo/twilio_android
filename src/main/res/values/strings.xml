@@ -1199,11 +1199,17 @@
     <string name="turn_speaker_on">Speaker ON</string>
     <string name="turn_speaker_off">Speaker OFF</string>
     <string name= "tap_to_return_to_call">TAP TO RETURN TO CALL</string>
-    <string name="chat_token_url">https://console.glaciersec.cc/getAccessToken</string>
-    <string name="add_participant_url">https://console.glaciersec.cc/addParticipant</string>
-    <string name="get_available_num_list_url">>https://console.glaciersec.cc/availableNumList</string>
-    <string name="release_num_url">https://console.glaciersec.cc/releaseNumber</string>
-    <string name="purchase_number_url">https://console.glaciersec.cc/PurchaseNumber</string>
+<!--    <string name="chat_token_url">https://console.glaciersec.cc/getAccessToken</string>-->
+<!--    <string name="add_participant_url">https://console.glaciersec.cc/addParticipant</string>-->
+<!--    <string name="get_available_num_list_url">>https://console.glaciersec.cc/availableNumList</string>-->
+<!--    <string name="release_num_url">https://console.glaciersec.cc/releaseNumber</string>-->
+<!--    <string name="purchase_number_url">https://console.glaciersec.cc/PurchaseNumber</string>-->
+
+    <string name="chat_token_url">https://radiantmoon.altamonterosa.com/getAccessToken</string>
+    <string name="add_participant_url">https://radiantmoon.altamonterosa.com/addParticipant</string>
+    <string name="get_available_num_list_url">https://radiantmoon.altamonterosa.com/availableNumList</string>
+    <string name="release_num_url">https://radiantmoon.altamonterosa.com/releaseNumber</string>
+    <string name="purchase_number_url">https://radiantmoon.altamonterosa.com/PurchaseNumber</string>
     <!--    CMG AM-261-->
     <string name= "mapbox_token">pk.eyJ1IjoiYWxmcmllZG1hbiIsImEiOiJjaXp5YWJxZDQwM2FqMzJxcm9scGh3N3U5In0.NoRKK6Uf4BZz54sZJXwDlA</string>
     <string name="current_location">Current Location</string>

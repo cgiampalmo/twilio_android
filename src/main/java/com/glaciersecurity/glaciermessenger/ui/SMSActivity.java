@@ -532,7 +532,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             @Override
             public void onClick(View view) {
                 accessToken = Atoken.getAccessToken();
-                getContactList();
+                //getContactList();
                 Log.d("Glacier","conversationsClient "+ConversationsManager.conversationsClient);
                 if (ConversationsManager.conversationsClient != null){
                     if (proxyNumber == null){
@@ -778,7 +778,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                             checkPermission();
                             //setTitle(identity);
                             if(model.getProxyNumber() == null || model.getProxyNumber().equals("") ) {
-                                if(ConversationsManager.proxyAddress.length > 0) {
+                                if(ConversationsManager.proxyAddress != null && ConversationsManager.proxyAddress.length > 0) {
                                     model.setProxyNumber(ConversationsManager.proxyAddress[0].toString());
                                     proxyNumber = ConversationsManager.proxyAddress[0].toString();
                                 }
