@@ -1,7 +1,5 @@
 package com.glaciersecurity.glaciermessenger.utils;
 
-import android.provider.Telephony;
-
 import com.amazonaws.amplify.generated.graphql.GetGlacierUsersQuery;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;

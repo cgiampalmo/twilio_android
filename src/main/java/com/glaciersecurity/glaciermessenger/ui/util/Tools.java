@@ -49,7 +49,7 @@ public class Tools {
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.setStatusBarColor(act.getResources().getColor(R.color.primary_bg_color));
     }
-    
+
     public static String reformatNumber(String number){
         String formattedNumber = number;
         try {
