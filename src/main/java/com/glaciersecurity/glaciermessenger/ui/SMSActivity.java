@@ -532,7 +532,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             @Override
             public void onClick(View view) {
                 accessToken = Atoken.getAccessToken();
-                getContactList();
+                //getContactList();
                 Log.d("Glacier","conversationsClient "+ConversationsManager.conversationsClient);
                 if (ConversationsManager.conversationsClient != null){
                     if (proxyNumber == null){
