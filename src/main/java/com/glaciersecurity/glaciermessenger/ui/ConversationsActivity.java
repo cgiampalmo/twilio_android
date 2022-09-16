@@ -231,7 +231,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		//xmppConnectionService.setSmsInfo(smsinfo);
 		MenuItem item = nav_view.getMenu().findItem(R.id.SMS);
 
-		if(xmppConnectionService.getSmsInfo().getUserHasSMS() && xmppConnectionService.getSmsInfo().isSMSEnabled()){
+		if(xmppConnectionService.getSmsInfo().isSMSEnabled()){
 			item.setVisible(true);
 		} else {
 			item.setVisible(false);
@@ -453,7 +453,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			//xmppConnectionService.setSmsInfo(smsinfo);
 			MenuItem item = nav_view.getMenu().findItem(R.id.SMS);
 
-			if(xmppConnectionService.getSmsInfo().getUserHasSMS() && xmppConnectionService.getSmsInfo().isSMSEnabled()){
+			if(xmppConnectionService.getSmsInfo().isSMSEnabled()){
 				item.setVisible(true);
 			} else {
 				item.setVisible(false);
@@ -706,7 +706,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					//xmppConnectionService.setSmsInfo(smsinfo);
 					MenuItem item = nav_view.getMenu().findItem(R.id.SMS);
 
-					if(xmppConnectionService.getSmsInfo().getUserHasSMS() && xmppConnectionService.getSmsInfo().isSMSEnabled()){
+					if(xmppConnectionService.getSmsInfo().isSMSEnabled()){
 						item.setVisible(true);
 					} else {
 						item.setVisible(false);
