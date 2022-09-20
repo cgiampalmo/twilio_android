@@ -89,14 +89,14 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         if(!(area_code.isEmpty() || area_code.equals(""))){
             search_area_code = "&AreaCode="+area_code;
         }
-        Log.d("Glacier","getPhoneNumberList for "+countryCode +" areacode "+area_code);
+        //Log.d("Glacier","getPhoneNumberList for "+countryCode +" areacode "+area_code);
         String getAvailableNumListUrl = this.getString(R.string.get_available_num_list_url);
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = new FormBody.Builder()
                 .add("areacode", area_code)
                 .add("countryCode",countryCode)
                 .build();
-        Log.d("Glacier","getPhoneNumberList for "+countryCode + "and its url "+getAvailableNumListUrl);
+        //Log.d("Glacier","getPhoneNumberList for "+countryCode + "and its url "+getAvailableNumListUrl);
         Request request = new Request.Builder()
                 .url(getAvailableNumListUrl)
                 .post(requestBody)
@@ -120,7 +120,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
                         }else {
                             no_num.setVisibility(View.VISIBLE);
                         }
-                        Log.d("Glacier","availablePhoneNumbers size "+availablePhoneNumbers.size()+" Visibility "+no_num.getVisibility());
+                        //Log.d("Glacier","availablePhoneNumbers size "+availablePhoneNumbers.size()+" Visibility "+no_num.getVisibility());
                         numberListAdapter.notifyDataSetChanged();
                         closeWaitDialog();
 
@@ -135,7 +135,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
 
 
         }catch (IOException ex){
-            Log.e("Glacier", ex.getLocalizedMessage(), ex);
+            Log.d("Glacier", ex.getLocalizedMessage(), ex);
             closeWaitDialog();
         }
     }
@@ -168,7 +168,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
                 .url(purchaseNumberUrl)
                 .post(requestBody)
                 .build();
-        Log.d("Glacier", "request " + request);
+        //Log.d("Glacier", "request " + request);
         try (Response response = client.newCall(request).execute()) {
             String responseBody = "";
             if (response != null && response.body() != null) {
@@ -183,7 +183,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             }
             numberPurchased = true;
             onBackendConnected();
-            Log.d("Glacier", "Response from server: " + responseBody);
+            //Log.d("Glacier", "Response from server: " + responseBody);
         }catch (IOException ex){
             Log.e("Glacier", ex.getLocalizedMessage(), ex);
         }
@@ -219,7 +219,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             @Override
             public void onClick(View view) {
                 String areaCode = getAreaCode.getText().toString().trim();
-                Log.d("Glacier","Areacode entered : "+areaCode);
+                //Log.d("Glacier","Areacode entered : "+areaCode);
                 //Toast.makeText(PurchaseNumbers.this,"Areacode entered : " + areaCode,Toast.LENGTH_LONG).show();
                 TextView getcountrycode = findViewById(R.id.countrycode);
                 String countryNamecode = getcountrycode.getText().toString().trim();

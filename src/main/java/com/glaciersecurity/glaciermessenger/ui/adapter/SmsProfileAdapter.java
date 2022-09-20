@@ -61,7 +61,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 		holder.numberView.setText(smsProfileList.get(position).getNumber());
 		//holder.locationView.setText(smsProfileList.get(position).getLocation());
 		holder.profileView.setBackgroundColor(UIHelper.getColorForSMS(smsProfileList.get(position).getNumber()));
-		Log.d("Glacier","unread_conv_count----"+smsProfileList.get(position).getUnread_count()+"---"+smsProfileList.get(position).getNumber());
+		//Log.d("Glacier","unread_conv_count----"+smsProfileList.get(position).getUnread_count()+"---"+smsProfileList.get(position).getNumber());
 		if(smsProfileList.get(position).getUnread_count() != null && smsProfileList.get(position).getUnread_count() > 0) {
 			holder.unreadCount.setUnreadCount(smsProfileList.get(position).getUnread_count());
 			holder.unreadCount.setVisibility(View.VISIBLE);
@@ -92,12 +92,10 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 
 	@Override
 	public void OnSMSProfileClick(String id, String number) {
-		Log.e("onClick", " -- profile clicked2");
 
 	}
 	@Override
 	public void OnSMSRemoveClick(String conv_name) {
-		Log.e("onClick", " -- profile clicked2");
 
 
 	}
@@ -129,7 +127,6 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
-		Log.e("onClick", " -- profile clicked2");
 
 	}
 
