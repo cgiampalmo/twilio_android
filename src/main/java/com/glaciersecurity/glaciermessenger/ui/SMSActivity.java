@@ -413,7 +413,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     protected void onBackendConnected() {
         ArrayList<SmsProfile> smSdbInfo;
         if(xmppConnectionService != null) {
-            xmppConnectionService.getSmsInfo().trySmsInfoUpload();
+            xmppConnectionService.updateSmsInfo();
             SMSdbInfo info = xmppConnectionService.getSmsInfo();
             smSdbInfo = info.getExistingProfs();
             PurchaseNumber = info.getUserPurchasePermission();
@@ -462,8 +462,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     private void ReleaseNum(String number){
         String releaseNumberUrl = SMSActivity.this.getString(R.string.release_num_url);
-        String dc = xmppConnectionService.getAccounts().get(0).getUsername();
-        String identity = model.getIdentity();
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = new FormBody.Builder()
                 .add("releaseNumber", adapter_sms.selectedSMSforRemoval.getUnformattedNumber())
@@ -655,17 +653,18 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
 
     private void onDrawerOpened(){
-        if(xmppConnectionService != null){
-            xmppConnectionService.getSmsInfo().trySmsInfoUpload();
-            ArrayList<SmsProfile> smSdbInfo;
-            smSdbInfo = xmppConnectionService.getSmsInfo().getExistingProfs();
-            profileList.clear();
-            proxyNumbers.clear();
-            reload_adapter_sms(smSdbInfo);
-        }
-        adapter_sms.toggleDeleteOff();
-        showPurchaseView();
-        drawer_sms.openDrawer(GravityCompat.START);
+            if (xmppConnectionService != null) {
+                xmppConnectionService.updateSmsInfo();
+                ArrayList<SmsProfile> smSdbInfo;
+                smSdbInfo = xmppConnectionService.getSmsInfo().getExistingProfs();
+                profileList.clear();
+                proxyNumbers.clear();
+                reload_adapter_sms(smSdbInfo);
+                setColorForNumber(proxyNumber);
+            }
+            adapter_sms.toggleDeleteOff();
+            showPurchaseView();
+            drawer_sms.openDrawer(GravityCompat.START);
 
     }
 
@@ -750,6 +749,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
     public void onResume(){
         super.onResume();
+        drawer_sms.close();
         Log.d("Glacier","onResume is called");
     }
     public void onRestart(){
@@ -808,7 +808,13 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
 
     public void setColorForNumber(String number){
-        if (xmppConnectionService != null && !xmppConnectionService.getSmsInfo().isNumberActive(number)) {
+        if (xmppConnectionService == null) {
+            setTitle("SMS");
+            toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
+            //fab_contact.setVisibility(View.INVISIBLE);
+            return;
+        }
+        if (!xmppConnectionService.getSmsInfo().isNumberActive(number)) {
             setTitle("SMS");
             toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
             //fab_contact.setVisibility(View.INVISIBLE);
@@ -859,6 +865,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     @Override
     public void OnSMSProfileClick(String id, String number) {
+        xmppConnectionService.updateSmsInfo();
         number = number.replace("(","").replace(")","").replace("-","").replace(" ","");
         model.setProxyNumber(number);
         proxyNumber = number;

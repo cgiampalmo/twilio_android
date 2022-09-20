@@ -295,8 +295,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	}
 
 	private void showSmsMenuItem() {
-		xmppConnectionService.getSmsInfo().trySmsInfoUpload();
-		//xmppConnectionService.setSmsInfo(smsinfo);
+		xmppConnectionService.updateSmsInfo();
 		MenuItem item = nav_view.getMenu().findItem(R.id.SMS);
 
 		if(xmppConnectionService.getSmsInfo().isSMSEnabled()){
@@ -696,6 +695,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				List<Account> accounts = xmppConnectionService.getAccounts();
 
 				if (!accounts.isEmpty()) {
+					runOnUiThread(() -> {
 					showSmsMenuItem();
 
 					mAccount = accounts.get(0);
@@ -746,6 +746,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 								status_message.setText(customStr);
 							}
 					}
+				});
 				}
 				super.onDrawerOpened(drawerView);
 			}

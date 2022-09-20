@@ -4431,7 +4431,12 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	public void updateSmsInfo(){
 		if (accounts != null) {
-			getSmsInfo().trySmsInfoUpload();
+			try {
+				getSmsInfo().trySmsInfoUpload();
+			}
+			catch (Exception e){
+
+			}
 		}
 	}
 

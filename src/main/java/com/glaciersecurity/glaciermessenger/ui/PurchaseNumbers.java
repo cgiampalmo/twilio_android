@@ -62,7 +62,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     @Override
     void onBackendConnected() {
         if(xmppConnectionService != null) {
-            //xmppConnectionService.getSmsInfo().trySmsInfoUpload();
+            xmppConnectionService.getSmsInfo();
             try {
                 if (numberPurchased) {
                     Thread thread = new Thread();
