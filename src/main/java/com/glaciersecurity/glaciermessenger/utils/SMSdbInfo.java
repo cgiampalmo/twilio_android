@@ -132,9 +132,11 @@ public class SMSdbInfo {
                     if (response.data().getGlacierUsers().add_user_to_purchase_numbers() != null) {
                         dbPurchaseNum = response.data().getGlacierUsers().add_user_to_purchase_numbers();
                     }
+                    add_user_to_sms = false;
                     if (response.data().getGlacierUsers().add_user_to_SMS() != null){
                         add_user_to_sms = response.data().getGlacierUsers().add_user_to_SMS();
                   }
+                    isSMSEnabled = false;
                     if (response.data().getGlacierUsers().isSMSEnabled() != null){
                         isSMSEnabled = response.data().getGlacierUsers().isSMSEnabled();
                     }
