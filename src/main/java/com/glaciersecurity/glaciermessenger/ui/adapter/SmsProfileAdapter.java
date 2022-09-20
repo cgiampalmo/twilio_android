@@ -40,6 +40,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 	private OnSMSProfileClickListener listener;
 	private OnSMSRemoveClickListener removeListener;
 	private ViewGroup viewGroup;
+	public SmsProfile selectedSMSforRemoval;
 
 	public SmsProfileAdapter(OnSMSProfileClickListener listener, OnSMSRemoveClickListener removeListener, ArrayList<SmsProfile> smsProfileList) {
 		this.smsProfileList = smsProfileList;
@@ -78,9 +79,9 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 				builder.setNegativeButton( "Cancel", null);
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
+				selectedSMSforRemoval = smsProfileList.get(position);
 			}
 		});
-		SmsProfile smsPro = smsProfileList.get(holder.getAdapterPosition());
 
 	}
 

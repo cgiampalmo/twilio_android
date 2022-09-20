@@ -62,7 +62,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     @Override
     void onBackendConnected() {
         if(xmppConnectionService != null) {
-            xmppConnectionService.getSmsInfo().trySmsInfoUpload();
+            //xmppConnectionService.getSmsInfo().trySmsInfoUpload();
             try {
                 if (numberPurchased) {
                     Thread thread = new Thread();
@@ -158,7 +158,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
 
     private void PurchaseNum(String number){
         String purchaseNumberUrl = this.getString(R.string.purchase_number_url);
-        String identity = model.getIdentity();
+        String identity = xmppConnectionService.getAccounts().get(0).getUsername();
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = new FormBody.Builder()
                 .add("purchaseNum", number)

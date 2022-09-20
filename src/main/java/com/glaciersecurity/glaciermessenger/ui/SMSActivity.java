@@ -113,7 +113,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        ReleaseNum(proxyNumber);
+        ReleaseNum(adapter_sms.selectedSMSforRemoval.getNumber());
     }
 
     private class ReleaseNumResponse{
@@ -413,8 +413,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     protected void onBackendConnected() {
         ArrayList<SmsProfile> smSdbInfo;
         if(xmppConnectionService != null) {
+            xmppConnectionService.getSmsInfo().trySmsInfoUpload();
             SMSdbInfo info = xmppConnectionService.getSmsInfo();
-            info.trySmsInfoUpload();
             smSdbInfo = info.getExistingProfs();
             PurchaseNumber = info.getUserPurchasePermission();
             //SMSdbInfo smsinfo = new SMSdbInfo(xmppConnectionService);
@@ -462,11 +462,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     private void ReleaseNum(String number){
         String releaseNumberUrl = SMSActivity.this.getString(R.string.release_num_url);
+        String dc = xmppConnectionService.getAccounts().get(0).getUsername();
         String identity = model.getIdentity();
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = new FormBody.Builder()
-                .add("releaseNumber", number)
-                .add("username",identity)
+                .add("releaseNumber", adapter_sms.selectedSMSforRemoval.getUnformattedNumber())
+                .add("username",xmppConnectionService.getAccounts().get(0).getUsername())
                 .build();
         Request request = new Request.Builder()
                 .url(releaseNumberUrl)
@@ -647,7 +648,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 finish();
                 break;
             case R.id.sms_accounts:
-                drawer_sms.openDrawer(GravityCompat.START);
                 onDrawerOpened();
                 break;
         }
