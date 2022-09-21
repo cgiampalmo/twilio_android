@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary_bg_color"
+    android:background="?attr/color_background_primary"
     android:orientation="vertical">
 
     <include
@@ -23,8 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="16dp"
-            android:scrollbars="vertical"
-            />
+            android:scrollbars="vertical" />
 
         <View
             android:layout_width="match_parent"
@@ -47,12 +46,12 @@
             android:layout_margin="@dimen/spacing_small"
             android:clickable="true"
             android:gravity="center"
-            android:tint="@android:color/white"
-            app:backgroundTint="@color/primary_bg_color"
+            android:textColor="?attr/edit_text_color"
+            app:backgroundTint="?attr/color_background_primary"
             app:elevation="1dp"
             app:fabSize="mini"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/ic_baseline_insert_photo_24"
+            android:src="@drawable/ic_baseline_photo_dynamic"
             app:useCompatPadding="false" />
 
         <androidx.cardview.widget.CardView
@@ -70,7 +69,7 @@
                 android:minHeight="40dp"
                 android:paddingLeft="@dimen/spacing_small"
                 android:paddingRight="@dimen/spacing_small"
-                android:background="@color/secondary_bg_color"
+                android:background="?attr/color_background_secondary"
                 android:orientation="horizontal">
                 <androidx.recyclerview.widget.RecyclerView
                     android:visibility="gone"
