@@ -149,7 +149,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         }
         ConversationsClient conversationsClient = model.getConversationsClient();
         if(getIntent().hasExtra("title")){
-            String Contact_name = (cList != null && cList.get(getIntent().getStringExtra("title")) != null) ? cList.get(getIntent().getStringExtra("title")) : getIntent().getStringExtra("title");
+            String Contact_name = (cList != null && cList.get(getIntent().getStringExtra("title")) != null) ? cList.get(getIntent().getStringExtra("title")) : Tools.reformatNumber(getIntent().getStringExtra("title"));
             setTitle(Contact_name);
         }
         if(getIntent().hasExtra("phoneNumber")){
