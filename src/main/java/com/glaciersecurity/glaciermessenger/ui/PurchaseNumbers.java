@@ -85,15 +85,11 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     }
 
     public void getPhoneNumberList(String countryCode, String area_code) {
-        String search_area_code = "";
-        if(!(area_code.isEmpty() || area_code.equals(""))){
-            search_area_code = "&AreaCode="+area_code;
-        }
         //Log.d("Glacier","getPhoneNumberList for "+countryCode +" areacode "+area_code);
         String getAvailableNumListUrl = this.getString(R.string.get_available_num_list_url);
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = new FormBody.Builder()
-                .add("areacode", area_code)
+                .add("areaCode", area_code)
                 .add("countryCode",countryCode)
                 .build();
         //Log.d("Glacier","getPhoneNumberList for "+countryCode + "and its url "+getAvailableNumListUrl);
@@ -219,7 +215,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             @Override
             public void onClick(View view) {
                 String areaCode = getAreaCode.getText().toString().trim();
-                //Log.d("Glacier","Areacode entered : "+areaCode);
+                Log.d("Glacier","Areacode entered : "+areaCode);
                 //Toast.makeText(PurchaseNumbers.this,"Areacode entered : " + areaCode,Toast.LENGTH_LONG).show();
                 TextView getcountrycode = findViewById(R.id.countrycode);
                 String countryNamecode = getcountrycode.getText().toString().trim();
@@ -250,11 +246,11 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         String countryCode = countrySplitCode[1].trim();
         //Toast.makeText(this, "Item Clicked " + countryCode, Toast.LENGTH_SHORT).show();
         TextView getAreaCode = findViewById(R.id.edit_gchat_number);
-        //area_code.setVisibility(View.VISIBLE);
-        //String areacode = getAreaCode.getText().toString().trim();
+        area_code.setVisibility(View.VISIBLE);
+        String areacode = getAreaCode.getText().toString().trim();
         new Thread(new Runnable() {
             public void run() {
-                getPhoneNumberList(countryCode,"");
+                getPhoneNumberList(countryCode,areacode);
                 }
         }).start();
 
