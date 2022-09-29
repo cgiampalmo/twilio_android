@@ -99,7 +99,7 @@ public class ContactListActivity extends XmppActivity implements OnSMSConversati
         recyclerViewSearch.setLayoutManager(layoutManagerSearch);
         adapterSearch = new FilterAdapter((OnSMSConversationClickListener) this,aList);
         recyclerViewSearch.setAdapter(adapterSearch);
-        sendChatMessageButton = findViewById(R.id.button_gchat_send);
+        sendChatMessageButton = findViewById(R.id.button_submit_phonenumber);
 
 
         phoneNumber = findViewById(R.id.edit_gchat_number);

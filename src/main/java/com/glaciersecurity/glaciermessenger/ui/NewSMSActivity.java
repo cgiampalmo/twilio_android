@@ -93,7 +93,7 @@ public class NewSMSActivity extends XmppActivity implements OnSMSConversationCli
 
             }
         });
-        Button sendChatMessageButton = findViewById(R.id.button_gchat_send);
+        Button sendChatMessageButton = findViewById(R.id.button_submit_phonenumber);
         sendChatMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

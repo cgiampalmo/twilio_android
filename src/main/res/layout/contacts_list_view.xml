@@ -51,7 +51,7 @@
                 tools:ignore="Autofill"/>
 
             <ImageView
-                android:id="@+id/button_gchat_send"
+                android:id="@+id/button_submit_phonenumber"
                 android:layout_width="64dp"
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackground"
