@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
+import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.utils.SMSdbInfo;
 import com.google.gson.Gson;
 
@@ -143,7 +144,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Toast.makeText(getApplicationContext(),"Adding number "+number,Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),"Adding number "+ Tools.reformatNumber(number),Toast.LENGTH_LONG).show();
                 PurchaseNum(number);
             }
         });

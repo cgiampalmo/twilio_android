@@ -142,7 +142,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     private static final String KEY_TEXT_REPLY = "key_text_reply";
     private static final String MARK_AS_READ = "mark_as_read";
     NotificationManagerCompat managerCompat;
-    NotificationCompat.Builder builder = new NotificationCompat.Builder(this,"Glacier");
+    NotificationCompat.Builder builder = new NotificationCompat.Builder(this,"sms");
     Map<String, String> cList =new HashMap<>();
     ArrayList<ContactModel> arrayList = new ArrayList<ContactModel>();
     private int swipedPos = -1;
@@ -188,7 +188,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         Log.d("Glacier", "New notification before action");
         //builder.addAction(action);
         Log.d("Glacier", "New notification after action");
-        builder.setContentTitle("Glacier");
+        builder.setContentTitle("Glacier SMS for "+ Tools.lastFourDigits(messageTo));
         builder.setPriority(NotificationCompat.PRIORITY_HIGH);
         builder.setContentText(newMessage);
         Log.d("Glacier", "New notification after newMessage");
@@ -574,11 +574,18 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             if (messagesAdapter != null) {
                 messagesAdapter.notifyDataSetChanged();
             }
+
         }
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("Glacier", "Glacier", NotificationManager.IMPORTANCE_HIGH);
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(channel);
+            final NotificationChannel smsChannel = new NotificationChannel("sms",
+                    this.getString(R.string.sms_channel_name),
+                    NotificationManager.IMPORTANCE_HIGH);
+            smsChannel.setShowBadge(true);
+            smsChannel.enableVibration(true);
+            smsChannel.enableLights(true);
+            smsChannel.setGroup("sms");
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(smsChannel);
 
         }
 
