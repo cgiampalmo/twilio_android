@@ -4,8 +4,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -42,9 +44,10 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     private String lastWaitMsg = null;
     private TextView waitTextField = null;
     private android.app.AlertDialog waitDialog = null;
-    CardView area_code;
+    CardView area_code_view;
     Boolean numberPurchased = false;
     ArrayList<phone_num_details> availablePhoneNumbers;
+    TextView getAreaCode;
     protected class AvailableNumberResponse {
         public ArrayList<phone_num_details> available_phone_numbers;
     }
@@ -52,7 +55,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     protected class phone_num_details{
         String phoneNumber;
         public String getPhone_number() {
-            return phoneNumber;
+            return Tools.reformatNumber(phoneNumber);
         }
     }
     private class PurchaseNumResponse{
@@ -138,7 +141,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     }
     protected void OnNumberClick(String number){
         AlertDialog.Builder builder = new AlertDialog.Builder(PurchaseNumbers.this);
-        builder.setMessage("Do you want to add number ?");
+        builder.setMessage("Do you want to add number "+Tools.reformatNumber(number)+"?");
         builder.setTitle("Confirmation");
         builder.setCancelable(true);
         builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
@@ -197,8 +200,9 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         autoCompleteTextView.setOnItemSelectedListener(this);
         autoCompleteTextView.setOnItemClickListener(this);
         autoCompleteTextView.setAdapter(arrayAdapter);
-        area_code = findViewById(R.id.area_code);
-        area_code.setVisibility(View.GONE);
+        area_code_view = findViewById(R.id.area_code);
+        getAreaCode = findViewById(R.id.edit_purchase_area_code);
+        area_code_view.setVisibility(View.GONE);
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -210,25 +214,40 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         actionbar.setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         toolbar.setNavigationOnClickListener(view -> onBackPressed());
-        TextView getAreaCode = findViewById(R.id.edit_gchat_number);
+
+        getAreaCode.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    submitAreaCode();
+                    handled = true;
+                }
+                return handled;
+            }
+        });
         ImageView SubmitareaCode = findViewById(R.id.get_area_code_num);
         SubmitareaCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String areaCode = getAreaCode.getText().toString().trim();
-                Log.d("Glacier","Areacode entered : "+areaCode);
-                //Toast.makeText(PurchaseNumbers.this,"Areacode entered : " + areaCode,Toast.LENGTH_LONG).show();
-                TextView getcountrycode = findViewById(R.id.countrycode);
-                String countryNamecode = getcountrycode.getText().toString().trim();
-                String[] countrySplitCode = countryNamecode.split("-");
-                String countryCode = countrySplitCode[1].trim();
-                new Thread(new Runnable() {
-                    public void run() {
-                        getPhoneNumberList(countryCode,areaCode);
-                    }
-                }).start();
+                submitAreaCode();
             }
         });
+    }
+
+    private void submitAreaCode(){
+        String areaCode = getAreaCode.getText().toString().trim();
+        Log.d("Glacier","Areacode entered : "+areaCode);
+        //Toast.makeText(PurchaseNumbers.this,"Areacode entered : " + areaCode,Toast.LENGTH_LONG).show();
+        TextView getcountrycode = findViewById(R.id.countrycode);
+        String countryNamecode = getcountrycode.getText().toString().trim();
+        String[] countrySplitCode = countryNamecode.split("-");
+        String countryCode = countrySplitCode[1].trim();
+        new Thread(new Runnable() {
+            public void run() {
+                getPhoneNumberList(countryCode,areaCode);
+            }
+        }).start();
     }
     public void onBackPressed(){
         super.onBackPressed();
@@ -246,8 +265,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         String[] countrySplitCode = countryNamecode.split("-");
         String countryCode = countrySplitCode[1].trim();
         //Toast.makeText(this, "Item Clicked " + countryCode, Toast.LENGTH_SHORT).show();
-        TextView getAreaCode = findViewById(R.id.edit_gchat_number);
-        area_code.setVisibility(View.VISIBLE);
+        area_code_view.setVisibility(View.VISIBLE);
         String areacode = getAreaCode.getText().toString().trim();
         new Thread(new Runnable() {
             public void run() {

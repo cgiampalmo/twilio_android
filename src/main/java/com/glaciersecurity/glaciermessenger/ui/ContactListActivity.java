@@ -102,7 +102,7 @@ public class ContactListActivity extends XmppActivity implements OnSMSConversati
         sendChatMessageButton = findViewById(R.id.button_submit_phonenumber);
 
 
-        phoneNumber = findViewById(R.id.edit_gchat_number);
+        phoneNumber = findViewById(R.id.search_phone_number);
         phoneNumber.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
