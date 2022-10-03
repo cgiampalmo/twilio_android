@@ -50,6 +50,27 @@ public class Tools {
         window.setStatusBarColor(act.getResources().getColor(R.color.primary_bg_color));
     }
 
+    public static String lastFourDigits(String number){
+        String formattedNumber = number;
+        try {
+            formattedNumber = number.substring(number.length() - 4);
+        } catch (Exception e){
+
+        }
+        return formattedNumber;
+    }
+    public static String reformatNumber(String number){
+        String formattedNumber = number;
+        try {
+            if (!number.contains("(")) {
+                formattedNumber = number.substring(0, number.length() - 10) + " (" + number.substring(number.length() - 10, number.length() - 7) + ") " + number.substring(number.length() - 7, number.length() - 4) + "-" + number.substring(number.length() - 4);
+            }
+        } catch (Exception e){
+
+        }
+        return formattedNumber;
+    }
+
     public static String logJid(Jid jid){
         StringBuilder logJidBuilder = new StringBuilder();
         logJidBuilder.append(jid.getLocal().charAt(0));

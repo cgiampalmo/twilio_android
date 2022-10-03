@@ -29,7 +29,7 @@ buildscript {
             'retrofit'           : '2.0.0-beta4',
             'okhttp'             : '3.6.0',
             'ion'                : '2.1.8',
-            'videoAndroid'       : '7.1.1',
+            'videoAndroid'       : '7.3.1',
             'audioSwitch'        : '1.1.2',
             'lifecycle_version'  : '2.4.0'
     ]
@@ -93,6 +93,8 @@ ext {
 
 dependencies {
 
+    implementation 'com.google.firebase:firebase-storage:20.0.1'
+    implementation 'com.google.firebase:firebase-database:20.0.4'
     messengerFreeCompatImplementation('com.google.firebase:firebase-messaging:20.1.5') {
         exclude group: 'com.google.firebase', module: 'firebase-core'
         exclude group: 'com.google.firebase', module: 'firebase-analytics'
@@ -132,13 +134,14 @@ dependencies {
     implementation 'com.github.omadahealth.typefaceview:typefaceview:1.5.0@aar'
 
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
-    implementation 'com.google.android.material:material:1.0.0'                 // NEEDS UPDATE from 1.0.0 to 1.4.0
+    implementation 'com.google.android.material:material:1.6.1'                 // NEEDS UPDATE from 1.0.0 to 1.4.0
     implementation 'com.google.guava:guava:30.1.1-android'
     implementation 'com.google.zxing:core:3.3.3'
 
     implementation "com.koushikdutta.ion:ion:${versions.ion}"
     //implementation 'com.leinardi.android:speed-dial:2.0.1'
     implementation 'com.makeramen:roundedimageview:2.3.0'
+    implementation 'com.github.xabaras:RecyclerViewSwipeDecorator:1.4'
     implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:9.7.0' //AM-261
     implementation 'com.wefika:flowlayout:0.4.1'
 
@@ -170,9 +173,11 @@ dependencies {
     implementation 'org.hsluv:hsluv:0.2'
     implementation 'org.osmdroid:osmdroid-android:6.0.3'
     implementation 'org.whispersystems:signal-protocol-java:2.6.2'
+    implementation 'com.twilio:conversations-android:1.4.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.4.0'
+    //implementation project(':libs:xmpp-addr')
     implementation 'org.apache.maven:maven-artifact:3.6.3'
 
-    //implementation project(':libs:xmpp-addr')
 }
 
 
@@ -186,8 +191,8 @@ android {
     defaultConfig {
         minSdkVersion 24
         targetSdkVersion 31
-        versionCode 513
-        versionName "3.4.3"
+        versionCode 515
+        versionName "4.0.1"
         archivesBaseName += "-$versionName"
         applicationId "com.glaciersecurity.glaciermessenger"
 
@@ -208,7 +213,7 @@ android {
 
     node {
         download = true
-        version = "17.3.0"
+        version = "12.18.2"
     }
 
     buildTypes {

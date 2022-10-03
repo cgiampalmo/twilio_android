@@ -34,6 +34,7 @@ public class PushMessageReceiver extends FirebaseMessagingService {
 			intent.putExtra("token", data.get("token"));
 			intent.putExtra("calltime", data.get("calltime")); //AM-492
 		} else {
+			Log.d(Config.LOGTAG,"PushMessageReceiver new message recived");
 			intent.setAction(XmppConnectionService.ACTION_FCM_MESSAGE_RECEIVED);
 		}
 

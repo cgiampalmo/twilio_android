@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/group_edit_sms"
+        android:icon="?attr/icon_edit"
+        android:orderInCategory="50"
+        app:showAsAction="always"
+        android:title="Create group SMS"/>
+</menu>

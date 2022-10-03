@@ -11,6 +11,10 @@ mutation CreateGlacierUsers($input: CreateGlacierUsersInput!) {
     messenger_id
     user_name
     securityInfo
+    selected_twilionumber
+    add_user_to_purchase_numbers
+    isSMSEnabled
+    add_user_to_SMS
   }
 }
 mutation UpdateGlacierUsers($input: UpdateGlacierUsersInput!) {
@@ -25,5 +29,9 @@ mutation UpdateGlacierUsers($input: UpdateGlacierUsersInput!) {
     messenger_id
     user_name
     securityInfo
+    selected_twilionumber
+    add_user_to_purchase_numbers
+    isSMSEnabled
+    add_user_to_SMS
   }
 }

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout_sms"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:openDrawer="start">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/main_content_sms"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/colorPrimary">
+
+        <!--toolbar and header-->
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="?colorAccent4"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            >
+
+            <include
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                layout="@layout/toolbar"/>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+
+        <include layout="@layout/list_sms" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/color_background_menu"
+        android:layout_gravity="start"
+        android:orientation="vertical">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/sms_recycler_view"
+            >
+        </androidx.recyclerview.widget.RecyclerView>
+
+        <Button
+        android:id="@+id/add_number"
+            android:layout_width="320dp"
+            android:gravity="left"
+            android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:background="@color/transparent"
+        android:text="Add Number"
+            android:drawablePadding="10dp"
+        android:drawableLeft="@drawable/ic_baseline_add_dynamic"
+            android:textAppearance="@style/TextAppearance.Conversations.Body2"
+            android:textColor="?attr/edit_text_color"
+            android:textSize="20dp"
+
+            />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+        <Button
+            android:id="@+id/release_number"
+            android:layout_width="320dp"
+            android:gravity="left"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:background="@color/transparent"
+            android:text="Release Number"
+            android:drawablePadding="10dp"
+            android:drawableLeft="@drawable/ic_baseline_delete_dynamic"
+            android:textAppearance="@style/TextAppearance.Conversations.Body2"
+            android:textColor="?attr/edit_text_color"
+            android:textSize="20dp"
+
+            />
+
+    </LinearLayout>
+
+
+<!--    &lt;!&ndash;navigation drawer menu&ndash;&gt;-->
+<!--    <com.google.android.material.navigation.NavigationView-->
+<!--        android:id="@+id/nav_view_sms"-->
+<!--        android:layout_width="220dp"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:layout_gravity="start"-->
+<!--        android:fitsSystemWindows="false"-->
+<!--        app:headerLayout="@layout/include_drawer_header_sms"-->
+
+
+<!--        app:menu="@menu/menu_navigation_drawer_news" />-->
+
+
+</androidx.drawerlayout.widget.DrawerLayout>

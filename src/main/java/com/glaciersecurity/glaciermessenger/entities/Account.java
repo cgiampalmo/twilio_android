@@ -1,5 +1,6 @@
 package com.glaciersecurity.glaciermessenger.entities;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.SystemClock;
@@ -281,6 +282,7 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 		this.presenceStatusMessage = statusMessage;
 	}
 
+	@SuppressLint("Range")
 	public static Account fromCursor(final Cursor cursor) {
 		final Jid jid;
 		try {

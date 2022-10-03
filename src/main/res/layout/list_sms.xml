@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="?attr/color_background_primary"
+    >
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <include
+            android:id="@+id/aToolbar"
+            layout="@layout/toolbar"
+            />
+        <include
+            android:id="@+id/empty_list"
+            layout="@layout/empty_list"
+            android:layout_marginTop="@dimen/actionBarSize"
+            android:visibility="gone"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent" />
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/choose_conversation_list"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scrollbars="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/aToolbar"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:gravity="end|right"
+            android:orientation="vertical"
+            app:backgroundTint="#27a1cb"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+<!--            <LinearLayout-->
+<!--                android:id="@+id/lyt_mic"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="horizontal">-->
+
+<!--                <androidx.cardview.widget.CardView-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="center_vertical|end|right"-->
+<!--                    android:layout_margin="@dimen/spacing_middle"-->
+<!--                    app:cardCornerRadius="3dp"-->
+<!--                    app:cardElevation="2dp"-->
+<!--                    app:contentPadding="@dimen/spacing_medium">-->
+
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="match_parent"-->
+<!--                        android:layout_gravity="center"-->
+<!--                        android:gravity="center"-->
+<!--                        android:text="Add group"-->
+<!--                        android:textColor="?attr/edit_text_color"-->
+<!--                        android:textAppearance="@style/TextAppearance.AppCompat.Body2" />-->
+
+<!--                </androidx.cardview.widget.CardView>-->
+
+<!--                <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--                    android:id="@+id/fab_group"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginBottom="@dimen/spacing_middle"-->
+<!--                    android:layout_marginLeft="@dimen/spacing_smlarge"-->
+<!--                    android:layout_marginRight="@dimen/spacing_smlarge"-->
+<!--                    android:layout_marginTop="@dimen/spacing_middle"-->
+<!--                    android:clickable="true"-->
+<!--                    android:backgroundTint="#27a1cb"-->
+<!--                    app:tint="@android:color/white"-->
+<!--                    app:fabSize="mini"-->
+<!--                    app:rippleColor="@android:color/black"-->
+<!--                    app:srcCompat="@drawable/ic_group_add_white_24dp" />-->
+
+<!--                <View-->
+<!--                    android:layout_width="@dimen/spacing_xmedium"-->
+<!--                    android:layout_height="0dp" />-->
+
+<!--            </LinearLayout>-->
+
+<!--            <LinearLayout-->
+<!--                android:id="@+id/lyt_call"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="horizontal">-->
+
+<!--                <androidx.cardview.widget.CardView-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="center_vertical|end|right"-->
+<!--                    android:layout_margin="@dimen/spacing_middle"-->
+<!--                    app:cardCornerRadius="3dp"-->
+<!--                    app:cardElevation="2dp"-->
+<!--                    app:contentPadding="@dimen/spacing_medium">-->
+
+<!--                    <TextView-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="match_parent"-->
+<!--                        android:layout_gravity="center"-->
+<!--                        android:gravity="center"-->
+<!--                        android:text="Start chat"-->
+<!--                        android:textColor="?attr/edit_text_color"-->
+<!--                        android:textAppearance="@style/TextAppearance.AppCompat.Body2" />-->
+
+<!--                </androidx.cardview.widget.CardView>-->
+
+<!--                <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--                    android:id="@+id/fab_chat"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginBottom="@dimen/spacing_middle"-->
+<!--                    android:layout_marginLeft="@dimen/spacing_smlarge"-->
+<!--                    android:layout_marginRight="@dimen/spacing_smlarge"-->
+<!--                    android:layout_marginTop="@dimen/spacing_middle"-->
+<!--                    android:clickable="true"-->
+<!--                    android:backgroundTint="#27a1cb"-->
+<!--                    app:tint="@android:color/white"-->
+<!--                    app:fabSize="mini"-->
+<!--                    app:rippleColor="@android:color/black"-->
+<!--                    app:srcCompat="@drawable/ic_baseline_sms_24_white" />-->
+
+<!--                <View-->
+<!--                    android:layout_width="@dimen/spacing_xmedium"-->
+<!--                    android:layout_height="0dp" />-->
+
+<!--            </LinearLayout>-->
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_chat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_middle"
+                android:layout_marginLeft="@dimen/spacing_smlarge"
+                android:layout_marginRight="@dimen/spacing_smlarge"
+                android:layout_marginTop="@dimen/spacing_middle"
+                android:clickable="true"
+                android:tint="@android:color/white"
+                app:backgroundTint="#27a1cb"
+                app:fabSize="normal"
+                app:rippleColor="@android:color/white"
+                app:srcCompat="@drawable/ic_baseline_sms_24_white" />
+
+        </LinearLayout>
+
+<!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--            android:id="@+id/button_contact_sms"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="end|bottom"-->
+<!--            android:layout_margin="16dp"-->
+<!--            android:src="@drawable/ic_baseline_sms_24_white"-->
+<!--            android:text="Start chat"-->
+<!--            app:backgroundTint="#27a1cb"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent" />-->
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="135dp"
+            android:layout_height="128dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/aToolbar" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout></layout>

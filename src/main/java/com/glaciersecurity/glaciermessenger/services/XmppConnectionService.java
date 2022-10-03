@@ -137,6 +137,7 @@ import com.glaciersecurity.glaciermessenger.utils.QuickLoader;
 import com.glaciersecurity.glaciermessenger.utils.ReplacingSerialSingleThreadExecutor;
 import com.glaciersecurity.glaciermessenger.utils.ReplacingTaskManager;
 import com.glaciersecurity.glaciermessenger.utils.Resolver;
+import com.glaciersecurity.glaciermessenger.utils.SMSdbInfo;
 import com.glaciersecurity.glaciermessenger.utils.SerialSingleThreadExecutor;
 import com.glaciersecurity.glaciermessenger.utils.StringUtils;
 import com.glaciersecurity.glaciermessenger.utils.SystemSecurityInfo;
@@ -277,6 +278,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	private AtomicLong mLastSecInfoUpdate = new AtomicLong(0);
 	public static final long SECHUB_INTERVAL = 86400L;
 	private SystemSecurityInfo secInfo;
+	private SMSdbInfo smsInfo;
 	private boolean needsSecurityInfoUpdate = false;
 
 	private ConversationsFileObserver fileObserver; //ALF AM-603 moved to onCreate and changed mechanism
@@ -1075,6 +1077,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				}
 				ignoreLifecycleUpdate = false; //activity won't need to track return to app this way
 				updateSecurityInfo(); //AM#52, AM#53
+				updateSmsInfo();
 				break;
 			case STOP: // app moved to background
 				mLastGlacierUsage.set(SystemClock.elapsedRealtime());
@@ -1375,6 +1378,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		//AM#52, AM#53
 		if (accounts.size() > 0 && needsSecurityInfoUpdate) {
 			updateSecurityInfo();
+		}
+
+		if (accounts.size() > 0) {
+			getSmsInfo();
 		}
 
 		restoreFromDatabase();
@@ -2446,6 +2453,8 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		if (needsSecurityInfoUpdate) {
 			updateSecurityInfo();
 		}
+
+		updateSmsInfo();
 	}
 
 	private void syncEnabledAccountSetting() {
@@ -4412,6 +4421,29 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 		return secInfo;
 	}
+
+	public SMSdbInfo getSmsInfo() {
+		if (smsInfo == null){
+			smsInfo = new SMSdbInfo(this);
+		}
+		return smsInfo;
+	}
+
+	public void updateSmsInfo(){
+		if (accounts != null) {
+			try {
+				getSmsInfo().trySmsInfoUpload();
+			}
+			catch (Exception e){
+
+			}
+		}
+	}
+
+	public void setSmsInfo(SMSdbInfo smsInfo){
+		this.smsInfo = smsInfo;
+	}
+
 
 	public Account findAccountByJid(final Jid accountJid) {
 		for (Account account : this.accounts) {

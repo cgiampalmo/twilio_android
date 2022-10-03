@@ -11,5 +11,9 @@ query GetGlacierUsers($organization: String!, $username: String!) {
     messenger_id
     user_name
     securityInfo
+    selected_twilionumber
+    add_user_to_purchase_numbers
+    isSMSEnabled
+    add_user_to_SMS
   }
 }

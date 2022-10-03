@@ -56,12 +56,12 @@
                             android:id="@+id/sender_name"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:minHeight="?attr/IconSize"
-                            android:layout_centerVertical="true"
-                            android:gravity="center_vertical"
                             android:layout_alignParentLeft="true"
-                            android:text="@string/me"
+                            android:layout_centerVertical="true"
                             android:layout_marginRight="?attr/TextSeparation"
+                            android:gravity="center_vertical"
+                            android:minHeight="?attr/IconSize"
+                            android:text="@string/me"
                             android:textAppearance="@style/TextAppearance.Conversations.Body1.Secondary"
                             android:visibility="visible" />
 
@@ -94,16 +94,16 @@
                         </LinearLayout>
 
                         <ImageView
-                            android:visibility="visible"
                             android:id="@+id/notification_status"
                             android:layout_width="?attr/IconSize"
                             android:layout_height="?attr/IconSize"
-                            android:layout_toLeftOf="@+id/unread_count"
                             android:layout_alignWithParentIfMissing="true"
                             android:layout_centerVertical="true"
                             android:layout_marginLeft="4dp"
+                            android:layout_toLeftOf="@+id/unread_count"
                             android:alpha="?attr/icon_alpha"
-                            android:src="?attr/icon_notifications" />
+                            android:src="?attr/icon_notifications"
+                            android:visibility="visible" />
 
                         <com.glaciersecurity.glaciermessenger.ui.widget.UnreadCountCustomView
                             android:id="@+id/unread_count"
