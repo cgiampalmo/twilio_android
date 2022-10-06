@@ -18,11 +18,13 @@ import android.os.Environment;
 import android.os.NetworkOnMainThreadException;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -202,6 +204,17 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         recyclerView.setAdapter(messagesAdapter);
 
         writeMessageEditText = findViewById(R.id.edit_gchat_message);
+        writeMessageEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    onSend();
+                    handled = true;
+                }
+                return handled;
+            }
+        });
         attach = findViewById(R.id.attachbtn);
 
         attach.setOnClickListener(new View.OnClickListener() {
@@ -214,17 +227,22 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         sendChatMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Log.d(TAG,"Button clicked "+writeMessageEditText.getText().toString());
-                String messageBody = writeMessageEditText.getText().toString().trim();
-                if(mediaPreviewAdapter.hasAttachments()){
-                    ConversationsManager.sendMMSMessage(mediaPreviewAdapter.getAttachments());
-                    Toast.makeText(smsConvActivity.this, "Please wait. Sending an image", Toast.LENGTH_LONG).show();
-                }
-                else if (messageBody.length() > 0) {
-                    ConversationsManager.sendMessage(messageBody);
-                }
+                onSend();
             }
         });
+
+    }
+    private void onSend(){
+
+        //Log.d(TAG,"Button clicked "+writeMessageEditText.getText().toString());
+        String messageBody = writeMessageEditText.getText().toString().trim();
+        if(mediaPreviewAdapter.hasAttachments()){
+            ConversationsManager.sendMMSMessage(mediaPreviewAdapter.getAttachments());
+            Toast.makeText(smsConvActivity.this, "Please wait. Sending an image", Toast.LENGTH_LONG).show();
+        }
+        else if (messageBody.length() > 0) {
+            ConversationsManager.sendMessage(messageBody);
+        }
 
     }
 
