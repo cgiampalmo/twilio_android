@@ -199,7 +199,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         //builder.addAction(action2);
         managerCompat = NotificationManagerCompat.from(this);
         if(messageAuthor.length() > 5) {
-            Log.d("Glacier", "New notification " + Integer.parseInt(messageAuthor.substring(2, 5)));
+            //Log.d("Glacier", "New notification " + Integer.parseInt(messageAuthor.substring(2, 5)));
             //if()
             managerCompat.notify(Integer.parseInt(messageAuthor.substring(2, 5)), builder.build());
             model.setNotificationManager(managerCompat);
@@ -816,13 +816,13 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     public void setColorForNumber(String number){
         if (xmppConnectionService == null) {
-            setTitle("SMS");
+            setTitle("Glacier SMS");
             toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
             //fab_contact.setVisibility(View.INVISIBLE);
             return;
         }
         if (!xmppConnectionService.getSmsInfo().isNumberActive(number)) {
-            setTitle("SMS");
+            setTitle("Glacier SMS");
             toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
             //fab_contact.setVisibility(View.INVISIBLE);
             return;

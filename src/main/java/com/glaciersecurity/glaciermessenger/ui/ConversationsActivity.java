@@ -1194,7 +1194,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			}
 			case R.id.SMS:{
 				Intent SMSActivity = new Intent(getApplicationContext(), SMSActivity.class);
-				startActivity(SMSActivity.putExtra("account",getDisplayName()));
+				startActivity(SMSActivity.putExtra("account",mAccount.getUsername()));
 				break;
 			}
 			case R.id.Logout: {
