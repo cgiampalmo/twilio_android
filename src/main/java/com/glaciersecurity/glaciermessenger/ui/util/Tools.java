@@ -50,6 +50,15 @@ public class Tools {
         window.setStatusBarColor(act.getResources().getColor(R.color.primary_bg_color));
     }
 
+    public static String lastFourDigits(String number){
+        String formattedNumber = number;
+        try {
+            formattedNumber = number.substring(number.length() - 4);
+        } catch (Exception e){
+
+        }
+        return formattedNumber;
+    }
     public static String reformatNumber(String number){
         String formattedNumber = number;
         try {

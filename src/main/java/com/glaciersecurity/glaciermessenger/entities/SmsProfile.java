@@ -2,6 +2,7 @@ package com.glaciersecurity.glaciermessenger.entities;
 
 import android.content.res.ColorStateList;
 
+import com.glaciersecurity.glaciermessenger.ui.SMSActivity;
 import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 
@@ -11,6 +12,7 @@ import org.json.JSONObject;
 public class SmsProfile {
 
     protected String number;
+    protected String unformatted_number;
     protected String location;
     protected String id;
     protected Integer unread_count;
@@ -25,8 +27,8 @@ public class SmsProfile {
 
 
     public SmsProfile(JSONObject jsmsinfo) throws JSONException, Exception {
-        number = (String) jsmsinfo.get("text");
-        number = Tools.reformatNumber(number);
+        unformatted_number = (String) jsmsinfo.get("text");
+        number = Tools.reformatNumber(unformatted_number);
         id = (String) jsmsinfo.get("id");
 
         /*TODO pull location from db
@@ -34,6 +36,12 @@ public class SmsProfile {
         location = (String) jsmsinfo.get("location")
         */
         location = "City, State";
+    }
+
+    public SmsProfile(String number, String id){
+        this.unformatted_number = number;
+        this.number = Tools.reformatNumber(unformatted_number);
+        this.id = id;
     }
 
     public String getNumber() {
@@ -46,6 +54,10 @@ public class SmsProfile {
 
     public void setNumber(String number) {
         this.number = number;
+    }
+
+    public String getUnformattedNumber(){
+        return unformatted_number;
     }
 
     public String getLocation() {

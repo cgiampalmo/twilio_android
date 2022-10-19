@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.ui.util.Attachment;
+import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.google.gson.Gson;
 import com.twilio.conversations.Attributes;
 import com.twilio.conversations.CallbackListener;
@@ -320,7 +321,6 @@ public class ConversationsManager {
             }
             Log.d("Glacier","get_unread_conv---"+unread_conv_count);
         }
-
         conversationsManagerListener.showList();
     }
 
@@ -513,7 +513,7 @@ public class ConversationsManager {
                                                         e.printStackTrace();
                                                     }
                                                 }
-                                                conversationsManagerListener.notifyMessages("New sms for "+ identity_number +" from "+result.get(0).getAuthor() + " : "+result.get(0).getMessageBody(),result.get(0).getAuthor(),ide_num);
+                                                conversationsManagerListener.notifyMessages(result.get(0).getMessageBody(),result.get(0).getAuthor(),ide_num);
                                             }
 
                                             @Override
@@ -712,7 +712,7 @@ public class ConversationsManager {
                         }
                         //
                         // Toast.makeText(mContext, "ide_num" + ide_num + "--"+identity_number, Toast.LENGTH_SHORT).show();
-                        conversationsManagerListener.receivedNewMessage("New sms for " + identity_number +" from " + message.getAuthor() + " : " + message.getMessageBody(),message.getConversationSid(),message.getAuthor(),ide_num);
+                        conversationsManagerListener.receivedNewMessage(Tools.reformatNumber(message.getAuthor()) + ": " + message.getMessageBody(),message.getConversationSid(),message.getAuthor(),ide_num);
                         Log.d("Glacier","ConvProxyNumber ide_num" + ide_num + unread_conv.get(ide_num));
                     } catch (JSONException e) {
                         e.printStackTrace();

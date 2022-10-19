@@ -18,11 +18,13 @@ import android.os.Environment;
 import android.os.NetworkOnMainThreadException;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -142,31 +144,28 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         if(getIntent().hasExtra("conv_sid")) {
             convSid = getIntent().getExtras().getString("conv_sid");
         }
-        Log.d("Glacier","convSid "+convSid);
+        //Log.d("Glacier","convSid "+convSid);
         if(getIntent().hasExtra("identity")){
             identity = getIntent().getExtras().getString("identity");
             Convtoken = getIntent().getExtras().getString("conversationToken");
         }
         ConversationsClient conversationsClient = model.getConversationsClient();
         if(getIntent().hasExtra("title")){
-            String Contact_name = (cList != null && cList.get(getIntent().getStringExtra("title")) != null) ? cList.get(getIntent().getStringExtra("title")) : getIntent().getStringExtra("title");
-            setTitle(Contact_name);
+            String Contact_name = (cList != null && cList.get(getIntent().getStringExtra("title")) != null) ? cList.get(getIntent().getStringExtra("title")) : Tools.reformatNumber(getIntent().getStringExtra("title"));
+            setTitle("SMS with " + Contact_name);
         }
         if(getIntent().hasExtra("phoneNumber")){
             convSid = getIntent().getStringExtra("phoneNumber");
         }
-        Log.d("Glacier","convSid "+convSid);
+        //Log.d("Glacier","convSid "+convSid);
         if(getIntent().hasExtra("messageBody")){
             newMessageBody = getIntent().getStringExtra("messageBody");
-            Log.d("Glacier "," To phoneNumber "+convSid+" sendedMessage "+newMessageBody);
         }
-        Log.d("Glacier","convSid "+convSid);
         if(conversationsClient != null){
-            Log.d("Glacier","convSid "+convSid);
             if(convSid != null && convSid.equals("Group")){
                 convSid = getIntent().getStringExtra("groupName");
                 groupParticipants = getIntent().getStringArrayExtra("GroupContact");
-                Log.d("Glacier","groupParticipants "+String.join(",",groupParticipants));
+                //Log.d("Glacier","groupParticipants "+String.join(",",groupParticipants));
                 groupConv = true;
             }else {
                 convContList = model.getContConv();
@@ -180,7 +179,6 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
             String proxynumber = model.getProxyNumber();
             if(getIntent().hasExtra("phoneNumber")){
                 String phoneNumber = getIntent().getStringExtra("phoneNumber");
-                Log.d("Glacier","phoneNumber"+phoneNumber);
                 ConversationsManager.getConversation(convSid, false, conversationsClient,proxynumber,phoneNumber);
             }else {
                 ConversationsManager.getConversation(convSid, false, conversationsClient, proxynumber, "");
@@ -206,6 +204,17 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         recyclerView.setAdapter(messagesAdapter);
 
         writeMessageEditText = findViewById(R.id.edit_gchat_message);
+        writeMessageEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    onSend();
+                    handled = true;
+                }
+                return handled;
+            }
+        });
         attach = findViewById(R.id.attachbtn);
 
         attach.setOnClickListener(new View.OnClickListener() {
@@ -218,17 +227,22 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         sendChatMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG,"Button clicked "+writeMessageEditText.getText().toString());
-                String messageBody = writeMessageEditText.getText().toString().trim();
-                if(mediaPreviewAdapter.hasAttachments()){
-                    ConversationsManager.sendMMSMessage(mediaPreviewAdapter.getAttachments());
-                    Toast.makeText(smsConvActivity.this, "Please wait. Sending an image", Toast.LENGTH_LONG).show();
-                }
-                else if (messageBody.length() > 0) {
-                    ConversationsManager.sendMessage(messageBody);
-                }
+                onSend();
             }
         });
+
+    }
+    private void onSend(){
+
+        //Log.d(TAG,"Button clicked "+writeMessageEditText.getText().toString());
+        String messageBody = writeMessageEditText.getText().toString().trim();
+        if(mediaPreviewAdapter.hasAttachments()){
+            ConversationsManager.sendMMSMessage(mediaPreviewAdapter.getAttachments());
+            Toast.makeText(smsConvActivity.this, "Please wait. Sending an image", Toast.LENGTH_LONG).show();
+        }
+        else if (messageBody.length() > 0) {
+            ConversationsManager.sendMessage(messageBody);
+        }
 
     }
 
@@ -318,7 +332,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void showList() {
         String proxyNumber = model.getProxyNumber();
-        Log.d("Glacier","smsConvActivity ConversationsManager proxyNumber "+proxyNumber);
+        //Log.d("Glacier","smsConvActivity ConversationsManager proxyNumber "+proxyNumber);
         if(groupConv) {
             add_participant(groupParticipants);
         }
@@ -342,7 +356,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                 .url(addParticipantUrl)
                 .post(requestBody)
                 .build();
-        Log.d("Glacier","request "+request);
+        //Log.d("Glacier","request "+request);
         try (Response response = client.newCall(request).execute()) {
             String responseBody = "";
             if (response != null && response.body() != null) {
@@ -353,7 +367,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                     Toast.makeText(this,responsBod.message, Toast.LENGTH_LONG).show();
                 }
             }
-            Log.d("Glacier", "Response from server: " + responseBody);
+            //Log.d("Glacier", "Response from server: " + responseBody);
         }catch (Exception e){
             Log.d("Glacier", "Response from server: " + e.getMessage());
         }
@@ -417,7 +431,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
     }
     @Override
     public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor,String messageTo) {
-        Log.d("Glacier","getFriendlyName"+ConversationsManager.conversation.getFriendlyName());
+        //Log.d("Glacier","getFriendlyName"+ConversationsManager.conversation.getFriendlyName());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -433,7 +447,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
                         public void onSuccess(Long result) {
 
                             if(model.getNotificationManager() != null && ConversationsManager.conversation.getFriendlyName().length() > 5 && isNumeric(ConversationsManager.conversation.getFriendlyName().substring(2, 5))){
-                                Log.d("Glacier","getFriendlyName "+ Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5))+" "+model.getNotificationManager());
+                                //Log.d("Glacier","getFriendlyName "+ Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5))+" "+model.getNotificationManager());
                                 model.clearNotification(Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5)));
                             }
                         }
@@ -453,10 +467,10 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
     @Override
     public void reloadMessages() {
         model.setConversation(ConversationsManager.conversation);
-        Log.d("Glacier","getFriendlyName"+ConversationsManager.conversation.getFriendlyName());
+        //Log.d("Glacier","getFriendlyName"+ConversationsManager.conversation.getFriendlyName());
         if(model.getNotificationManager() != null) {
             if(ConversationsManager.conversation.getFriendlyName().length() > 5 && isNumeric(ConversationsManager.conversation.getFriendlyName().substring(2, 5)) ) {
-                Log.d("Glacier", "getFriendlyName " + Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5)) + " " + model.getNotificationManager());
+                //Log.d("Glacier", "getFriendlyName " + Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5)) + " " + model.getNotificationManager());
                 model.clearNotification(Integer.parseInt(ConversationsManager.conversation.getFriendlyName().substring(2, 5)));
             }else{
                 model.clearNotification(123);
@@ -542,14 +556,12 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
             Message old_message = position == 0 ? ConversationsManager.getMessages().get(position) : ConversationsManager.getMessages().get(position - 1);
 
             boolean new_one = false;
-            Log.d(TAG,"onBindViewHolder "+message.getAuthor()+"---"+message.getMessageBody()+"---"+message);
             String new_data = df.format("dd/MM/yyyy", message.getDateCreatedAsDate()).toString();
             String old_data = df.format("dd/MM/yyyy", old_message.getDateCreatedAsDate()).toString();
 
             if(!new_data.equals(old_data) || 0 == position){
                 new_one = true;
             }
-            Log.d(TAG,"onBindViewHolder "+new_data+"---"+old_data+"--"+new_data.equals(old_data)+"--"+((getItemCount()-1) != position)+"---"+getItemCount()+"==="+position+"-------"+new_one);
             switch (holder.getItemViewType()) {
                 case VIEW_TYPE_MESSAGE_SENT:
                     ((SentMessageHolder) holder).bind(message,new_one,(SentMessageHolder) holder,position);
@@ -584,7 +596,6 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
 
             void bind(Message message, boolean new_date, SentMessageHolder holder, int position) {
 
-                Log.d(TAG,"onBindViewHolder bind "+message.getAuthor()+"-----------"+message.getMessageBody()+messageText+"------"+itemView+"------"+message.hasMedia()+"-------");
                 if(message.hasMedia()){
                     messageText.setVisibility(View.GONE);
                     sentImg.setScaleType(ImageView.ScaleType.FIT_XY);

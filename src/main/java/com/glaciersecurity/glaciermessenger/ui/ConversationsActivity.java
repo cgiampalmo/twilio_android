@@ -227,15 +227,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	@Override
 	void onBackendConnected() {
 		Log.d("Glacier","onBackendConnected "+xmppConnectionService);
-		xmppConnectionService.getSmsInfo().trySmsInfoUpload();;
-		//xmppConnectionService.setSmsInfo(smsinfo);
-		MenuItem item = nav_view.getMenu().findItem(R.id.SMS);
-
-		if(xmppConnectionService.getSmsInfo().getUserHasSMS() && xmppConnectionService.getSmsInfo().isSMSEnabled()){
-			item.setVisible(true);
-		} else {
-			item.setVisible(false);
-		}
 		if (performRedirectIfNecessary(true)) {
 			return;
 		}
@@ -271,6 +262,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		invalidateActionBarTitle();
 
 		if (xmppConnectionService != null){
+			showSmsMenuItem();
 			mCallManager = xmppConnectionService.getCallManager();
 			if (mCallManager != null && mCallManager.isOnCall()){
 				returnToCall.setVisibility(View.VISIBLE);
@@ -302,6 +294,16 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	}
 
+	private void showSmsMenuItem() {
+		xmppConnectionService.updateSmsInfo();
+		MenuItem item = nav_view.getMenu().findItem(R.id.SMS);
+
+		if(xmppConnectionService.getSmsInfo().isSMSEnabled()){
+			item.setVisible(true);
+		} else {
+			item.setVisible(false);
+		}
+	}
 	private boolean performRedirectIfNecessary(boolean noAnimation) {
 		return performRedirectIfNecessary(null, noAnimation);
 	}
@@ -449,15 +451,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					return;
 				}
 			}
-			xmppConnectionService.getSmsInfo().trySmsInfoUpload();;
-			//xmppConnectionService.setSmsInfo(smsinfo);
-			MenuItem item = nav_view.getMenu().findItem(R.id.SMS);
-
-			if(xmppConnectionService.getSmsInfo().getUserHasSMS() && xmppConnectionService.getSmsInfo().isSMSEnabled()){
-				item.setVisible(true);
-			} else {
-				item.setVisible(false);
-			}
+			//showSmsMenuItem();
 		}
 	}
 
@@ -701,16 +695,9 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				List<Account> accounts = xmppConnectionService.getAccounts();
 
 				if (!accounts.isEmpty()) {
+					runOnUiThread(() -> {
+					showSmsMenuItem();
 
-					xmppConnectionService.getSmsInfo().trySmsInfoUpload();;
-					//xmppConnectionService.setSmsInfo(smsinfo);
-					MenuItem item = nav_view.getMenu().findItem(R.id.SMS);
-
-					if(xmppConnectionService.getSmsInfo().getUserHasSMS() && xmppConnectionService.getSmsInfo().isSMSEnabled()){
-						item.setVisible(true);
-					} else {
-						item.setVisible(false);
-					}
 					mAccount = accounts.get(0);
 					avatar = (ImageView) findViewById(R.id.nav_avatar);
 					avatar.setOnClickListener(mAvatarClickListener);
@@ -759,6 +746,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 								status_message.setText(customStr);
 							}
 					}
+				});
 				}
 				super.onDrawerOpened(drawerView);
 			}
@@ -1206,7 +1194,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 			}
 			case R.id.SMS:{
 				Intent SMSActivity = new Intent(getApplicationContext(), SMSActivity.class);
-				startActivity(SMSActivity.putExtra("account",getDisplayName()));
+				startActivity(SMSActivity.putExtra("account",mAccount.getUsername()));
 				break;
 			}
 			case R.id.Logout: {

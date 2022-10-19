@@ -12,10 +12,13 @@ import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
@@ -47,6 +50,7 @@ public class ContactListActivity extends XmppActivity implements OnSMSConversati
     FilterAdapter adapterSearch;
     RecyclerView recyclerViewSearch;
     Map<String, String> convContList;
+    ImageView sendChatMessageButton;
 
     @Override
     protected void refreshUiReal() {
@@ -62,7 +66,7 @@ public class ContactListActivity extends XmppActivity implements OnSMSConversati
         super.onCreate(savedInstanceState);
         setContentView(R.layout.contacts_list_view);
         recyclerView = findViewById(R.id.recycler_view);
-        setTitle("New conversation ");
+        setTitle("New conversation");
         toolbar = (Toolbar) findViewById(R.id.aToolbar );
         setSupportActionBar(toolbar);
         ActionBar actionbar = getSupportActionBar();
@@ -95,8 +99,21 @@ public class ContactListActivity extends XmppActivity implements OnSMSConversati
         recyclerViewSearch.setLayoutManager(layoutManagerSearch);
         adapterSearch = new FilterAdapter((OnSMSConversationClickListener) this,aList);
         recyclerViewSearch.setAdapter(adapterSearch);
+        sendChatMessageButton = findViewById(R.id.button_submit_phonenumber);
 
-        phoneNumber = findViewById(R.id.edit_gchat_number);
+
+        phoneNumber = findViewById(R.id.search_phone_number);
+        phoneNumber.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    submitEntry();
+                    handled = true;
+                }
+                return handled;
+            }
+        });
         phoneNumber.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -114,15 +131,10 @@ public class ContactListActivity extends XmppActivity implements OnSMSConversati
 
             }
         });
-        ImageView sendChatMessageButton = findViewById(R.id.button_gchat_send);
         sendChatMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String toNumber = phoneNumber.getText().toString().replace("+1","").replace("(","").replace(")","").replace(" ","").replace("-","");
-                if(toNumber.length() > 9)
-                    OnSMSConversationClick("", toNumber);
-                else
-                    Toast.makeText(ContactListActivity.this, "Please enter valid number", Toast.LENGTH_SHORT).show();
+                submitEntry();
             }
         });
         TokenModel Atoken = new TokenModel();
@@ -139,6 +151,14 @@ public class ContactListActivity extends XmppActivity implements OnSMSConversati
                 startActivity(intent.putExtra("identity",identity).putExtra("conversationToken",token));
             }
         });
+    }
+
+    private void submitEntry(){
+        String toNumber = phoneNumber.getText().toString().replace("+1","").replace("(","").replace(")","").replace(" ","").replace("-","");
+        if(toNumber.length() > 9)
+            OnSMSConversationClick("", toNumber);
+        else
+            Toast.makeText(ContactListActivity.this, "Please enter valid number", Toast.LENGTH_SHORT).show();
     }
     /*private void checkPermission() {
         if (ContextCompat.checkSelfPermission(ContactListActivity.this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {

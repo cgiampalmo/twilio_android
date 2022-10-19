@@ -1095,6 +1095,7 @@ public class NotificationService {
 
 		notificationManager.createNotificationChannelGroup(new NotificationChannelGroup("status", c.getString(R.string.notification_group_status_information)));
 		notificationManager.createNotificationChannelGroup(new NotificationChannelGroup("chats", c.getString(R.string.notification_group_messages)));
+		notificationManager.createNotificationChannelGroup(new NotificationChannelGroup("sms", c.getString(R.string.notification_sms_messages)));
 		final NotificationChannel foregroundServiceChannel = new NotificationChannel("foreground",
 				c.getString(R.string.foreground_service_channel_name),
 				NotificationManager.IMPORTANCE_MIN); //ALF AM-184 changed from MIN
@@ -1140,6 +1141,22 @@ public class NotificationService {
 		messagesChannel.enableLights(true);
 		messagesChannel.setGroup("chats");
 		notificationManager.createNotificationChannel(messagesChannel);
+
+		//CMG
+		final NotificationChannel smsChannel = new NotificationChannel("sms",
+				c.getString(R.string.sms_channel_name),
+				NotificationManager.IMPORTANCE_HIGH);
+		smsChannel.setShowBadge(true);
+		smsChannel.setSound(ringuri, new AudioAttributes.Builder()
+				.setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+				.setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
+				.build());
+		smsChannel.setLightColor(ContextCompat.getColor(mXmppConnectionService, R.color.light_blue_500));
+		smsChannel.setVibrationPattern(pattern);
+		smsChannel.enableVibration(true);
+		smsChannel.enableLights(true);
+		smsChannel.setGroup("sms");
+		notificationManager.createNotificationChannel(smsChannel);
 
 		//ALF AM-410, //AM-618 changed channel and group names
 		notificationManager.createNotificationChannelGroup(new NotificationChannelGroup("callsgroup2", "GlacierCallGroup"));

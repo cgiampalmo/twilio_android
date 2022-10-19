@@ -4,8 +4,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -15,6 +17,7 @@ import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
+import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.utils.SMSdbInfo;
 import com.google.gson.Gson;
 
@@ -41,9 +44,10 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     private String lastWaitMsg = null;
     private TextView waitTextField = null;
     private android.app.AlertDialog waitDialog = null;
-    CardView area_code;
+    CardView area_code_view;
     Boolean numberPurchased = false;
     ArrayList<phone_num_details> availablePhoneNumbers;
+    TextView getAreaCode;
     protected class AvailableNumberResponse {
         public ArrayList<phone_num_details> available_phone_numbers;
     }
@@ -51,7 +55,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     protected class phone_num_details{
         String phoneNumber;
         public String getPhone_number() {
-            return phoneNumber;
+            return Tools.reformatNumber(phoneNumber);
         }
     }
     private class PurchaseNumResponse{
@@ -62,7 +66,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     @Override
     void onBackendConnected() {
         if(xmppConnectionService != null) {
-            xmppConnectionService.getSmsInfo().trySmsInfoUpload();
+            xmppConnectionService.getSmsInfo();
             try {
                 if (numberPurchased) {
                     Thread thread = new Thread();
@@ -85,18 +89,14 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     }
 
     public void getPhoneNumberList(String countryCode, String area_code) {
-        String search_area_code = "";
-        if(!(area_code.isEmpty() || area_code.equals(""))){
-            search_area_code = "&AreaCode="+area_code;
-        }
-        Log.d("Glacier","getPhoneNumberList for "+countryCode +" areacode "+area_code);
+        //Log.d("Glacier","getPhoneNumberList for "+countryCode +" areacode "+area_code);
         String getAvailableNumListUrl = this.getString(R.string.get_available_num_list_url);
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = new FormBody.Builder()
-                .add("areacode", area_code)
+                .add("areaCode", area_code)
                 .add("countryCode",countryCode)
                 .build();
-        Log.d("Glacier","getPhoneNumberList for "+countryCode + "and its url "+getAvailableNumListUrl);
+        //Log.d("Glacier","getPhoneNumberList for "+countryCode + "and its url "+getAvailableNumListUrl);
         Request request = new Request.Builder()
                 .url(getAvailableNumListUrl)
                 .post(requestBody)
@@ -120,7 +120,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
                         }else {
                             no_num.setVisibility(View.VISIBLE);
                         }
-                        Log.d("Glacier","availablePhoneNumbers size "+availablePhoneNumbers.size()+" Visibility "+no_num.getVisibility());
+                        //Log.d("Glacier","availablePhoneNumbers size "+availablePhoneNumbers.size()+" Visibility "+no_num.getVisibility());
                         numberListAdapter.notifyDataSetChanged();
                         closeWaitDialog();
 
@@ -135,19 +135,19 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
 
 
         }catch (IOException ex){
-            Log.e("Glacier", ex.getLocalizedMessage(), ex);
+            Log.d("Glacier", ex.getLocalizedMessage(), ex);
             closeWaitDialog();
         }
     }
     protected void OnNumberClick(String number){
         AlertDialog.Builder builder = new AlertDialog.Builder(PurchaseNumbers.this);
-        builder.setMessage("Do you want to add number ?");
+        builder.setMessage("Do you want to add number "+Tools.reformatNumber(number)+"?");
         builder.setTitle("Confirmation");
         builder.setCancelable(true);
         builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Toast.makeText(getApplicationContext(),"Adding number "+number,Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),"Adding number "+ Tools.reformatNumber(number),Toast.LENGTH_LONG).show();
                 PurchaseNum(number);
             }
         });
@@ -158,7 +158,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
 
     private void PurchaseNum(String number){
         String purchaseNumberUrl = this.getString(R.string.purchase_number_url);
-        String identity = model.getIdentity();
+        String identity = xmppConnectionService.getAccounts().get(0).getUsername();
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = new FormBody.Builder()
                 .add("purchaseNum", number)
@@ -168,7 +168,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
                 .url(purchaseNumberUrl)
                 .post(requestBody)
                 .build();
-        Log.d("Glacier", "request " + request);
+        //Log.d("Glacier", "request " + request);
         try (Response response = client.newCall(request).execute()) {
             String responseBody = "";
             if (response != null && response.body() != null) {
@@ -183,7 +183,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             }
             numberPurchased = true;
             onBackendConnected();
-            Log.d("Glacier", "Response from server: " + responseBody);
+            //Log.d("Glacier", "Response from server: " + responseBody);
         }catch (IOException ex){
             Log.e("Glacier", ex.getLocalizedMessage(), ex);
         }
@@ -200,8 +200,9 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         autoCompleteTextView.setOnItemSelectedListener(this);
         autoCompleteTextView.setOnItemClickListener(this);
         autoCompleteTextView.setAdapter(arrayAdapter);
-        area_code = findViewById(R.id.area_code);
-        area_code.setVisibility(View.GONE);
+        area_code_view = findViewById(R.id.area_code);
+        getAreaCode = findViewById(R.id.edit_purchase_area_code);
+        area_code_view.setVisibility(View.GONE);
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -213,25 +214,40 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         actionbar.setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         toolbar.setNavigationOnClickListener(view -> onBackPressed());
-        TextView getAreaCode = findViewById(R.id.edit_gchat_number);
+
+        getAreaCode.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    submitAreaCode();
+                    handled = true;
+                }
+                return handled;
+            }
+        });
         ImageView SubmitareaCode = findViewById(R.id.get_area_code_num);
         SubmitareaCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String areaCode = getAreaCode.getText().toString().trim();
-                Log.d("Glacier","Areacode entered : "+areaCode);
-                //Toast.makeText(PurchaseNumbers.this,"Areacode entered : " + areaCode,Toast.LENGTH_LONG).show();
-                TextView getcountrycode = findViewById(R.id.countrycode);
-                String countryNamecode = getcountrycode.getText().toString().trim();
-                String[] countrySplitCode = countryNamecode.split("-");
-                String countryCode = countrySplitCode[1].trim();
-                new Thread(new Runnable() {
-                    public void run() {
-                        getPhoneNumberList(countryCode,areaCode);
-                    }
-                }).start();
+                submitAreaCode();
             }
         });
+    }
+
+    private void submitAreaCode(){
+        String areaCode = getAreaCode.getText().toString().trim();
+        Log.d("Glacier","Areacode entered : "+areaCode);
+        //Toast.makeText(PurchaseNumbers.this,"Areacode entered : " + areaCode,Toast.LENGTH_LONG).show();
+        TextView getcountrycode = findViewById(R.id.countrycode);
+        String countryNamecode = getcountrycode.getText().toString().trim();
+        String[] countrySplitCode = countryNamecode.split("-");
+        String countryCode = countrySplitCode[1].trim();
+        new Thread(new Runnable() {
+            public void run() {
+                getPhoneNumberList(countryCode,areaCode);
+            }
+        }).start();
     }
     public void onBackPressed(){
         super.onBackPressed();
@@ -249,12 +265,11 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         String[] countrySplitCode = countryNamecode.split("-");
         String countryCode = countrySplitCode[1].trim();
         //Toast.makeText(this, "Item Clicked " + countryCode, Toast.LENGTH_SHORT).show();
-        TextView getAreaCode = findViewById(R.id.edit_gchat_number);
-        //area_code.setVisibility(View.VISIBLE);
-        //String areacode = getAreaCode.getText().toString().trim();
+        area_code_view.setVisibility(View.VISIBLE);
+        String areacode = getAreaCode.getText().toString().trim();
         new Thread(new Runnable() {
             public void run() {
-                getPhoneNumberList(countryCode,"");
+                getPhoneNumberList(countryCode,areacode);
                 }
         }).start();
 

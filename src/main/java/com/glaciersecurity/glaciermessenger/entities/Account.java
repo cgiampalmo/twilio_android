@@ -250,12 +250,40 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 	private Presence.Status presenceStatus = Presence.Status.ONLINE;
 	private String presenceStatusMessage;
 	private boolean glacierBindAvailable = false; //AM-527
+	private SmsUserInfo smsUserInfo;
+	private String org;
+
+	public SmsUserInfo getSmsUserInfo() {
+		return smsUserInfo;
+	}
+
+	public void setSmsUserInfo(SmsUserInfo smsUserInfo) {
+		this.smsUserInfo = smsUserInfo;
+	}
+
+	public void setSmsUserInfo(boolean is_SMS_enabled, ArrayList<SmsProfile> selected_twilio_numbers, boolean allowUserToPurchase) {
+		this.smsUserInfo = new SmsUserInfo(is_SMS_enabled, selected_twilio_numbers, allowUserToPurchase);
+	}
+
+//	public void setSmsUserInfo(boolean is_SMS_enabled, ArrayList<String> selected_twilio_numbers, boolean allowUserToPurchase) {
+//		this.smsUserInfo = new SmsUserInfo(is_SMS_enabled, selected_twilio_numbers, allowUserToPurchase);
+//	}
+
+	public String getOrg() {
+		return org;
+	}
+
+	public void setOrg(String org) {
+
+		this.org = org;
+	}
 
 	public Account(final Jid jid, final String password) {
 		this(java.util.UUID.randomUUID().toString(), jid,
 				password, 0, null, "", null, null, null, 5222, Message.TIMER_NONE, Presence.Status.ONLINE, null);
 		//ALF AM-53 added TIMER and in params below
 	}
+
 
 	private Account(final String uuid, final Jid jid,
 					final String password, final int options, final String rosterVersion, final String keys,

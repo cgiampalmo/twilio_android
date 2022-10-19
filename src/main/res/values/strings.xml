@@ -916,6 +916,8 @@
     <string name="error_channel_description">This notification category is used to display a notification in case there is a problem connecting to an account.</string>
     <string name="notification_group_messages">Messages</string>
     <string name="messages_channel_name">Messages</string>
+    <string name="notification_sms_messages">sms</string>
+    <string name="sms_channel_name">sms</string>
     <string name="silent_messages_channel_name">Silent messages</string>
     <string name="silent_messages_channel_description">This notification group is used to display notifications that should not trigger any sound. For example when being active on another device (Grace Period).</string>
     <string name="pref_more_notification_settings">Notification Settings</string>
@@ -1204,6 +1206,7 @@
     <string name="get_available_num_list_url">http://3.141.33.151/availableNumList</string>
     <string name="release_num_url">http://3.141.33.151/releaseNumber</string>
     <string name="purchase_number_url">http://3.141.33.151/PurchaseNumber</string>
+    <string name="selected_twilio_numbers_url">http://3.141.33.151/getUserSelectedTwilioNumbers</string>
 
     <!--    CMG AM-261-->
     <string name= "mapbox_token">pk.eyJ1IjoiYWxmcmllZG1hbiIsImEiOiJjaXp5YWJxZDQwM2FqMzJxcm9scGh3N3U5In0.NoRKK6Uf4BZz54sZJXwDlA</string>

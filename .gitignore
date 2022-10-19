@@ -11,6 +11,10 @@ src/quicksyPlaystore/res/values/push.xml
 build/
 captures/
 signing.properties
+glacierKey
+smsToken
+/src/main/res/values/token.xml
+
 # Ignore Gradle GUI config
 gradle-app.setting
 
@@ -63,3 +67,4 @@ awsconfiguration.json
 amplifyconfiguration.json
 amplify-gradle-config.json
 amplifyxc.config
+

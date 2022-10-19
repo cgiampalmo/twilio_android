@@ -76,6 +76,7 @@ import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import com.twilio.conversations.CallbackListener;
 import com.twilio.conversations.Conversation;
 import com.twilio.conversations.ConversationsClient;
@@ -105,6 +106,17 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     RecyclerView recyclerViewConversations;
     RecyclerView recyclerViewSMS;
 
+    protected class SmsResponse {
+        String message;
+        SMS_Twilio_info data;
+    }
+    protected class SMS_Twilio_info {
+        public Object[] selected_twilionumber;
+        Boolean isSMSEnabled;
+        Boolean allow_user_to_purchase_numbers;
+
+    }
+
 
     @Override
     public void OnSMSRemoveClick(String conv_name) {
@@ -113,7 +125,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        ReleaseNum(proxyNumber);
+        ReleaseNum(adapter_sms.selectedSMSforRemoval.getNumber());
     }
 
     private class ReleaseNumResponse{
@@ -142,7 +154,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     private static final String KEY_TEXT_REPLY = "key_text_reply";
     private static final String MARK_AS_READ = "mark_as_read";
     NotificationManagerCompat managerCompat;
-    NotificationCompat.Builder builder = new NotificationCompat.Builder(this,"Glacier");
+    NotificationCompat.Builder builder = new NotificationCompat.Builder(this,"sms");
     Map<String, String> cList =new HashMap<>();
     ArrayList<ContactModel> arrayList = new ArrayList<ContactModel>();
     private int swipedPos = -1;
@@ -188,7 +200,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         Log.d("Glacier", "New notification before action");
         //builder.addAction(action);
         Log.d("Glacier", "New notification after action");
-        builder.setContentTitle("Glacier");
+        builder.setContentTitle("Glacier SMS for"+ Tools.lastFourDigits(messageTo));
         builder.setPriority(NotificationCompat.PRIORITY_HIGH);
         builder.setContentText(newMessage);
         Log.d("Glacier", "New notification after newMessage");
@@ -199,7 +211,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         //builder.addAction(action2);
         managerCompat = NotificationManagerCompat.from(this);
         if(messageAuthor.length() > 5) {
-            Log.d("Glacier", "New notification " + Integer.parseInt(messageAuthor.substring(2, 5)));
+            //Log.d("Glacier", "New notification " + Integer.parseInt(messageAuthor.substring(2, 5)));
             //if()
             managerCompat.notify(Integer.parseInt(messageAuthor.substring(2, 5)), builder.build());
             model.setNotificationManager(managerCompat);
@@ -413,9 +425,10 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     protected void onBackendConnected() {
         ArrayList<SmsProfile> smSdbInfo;
         if(xmppConnectionService != null) {
+            xmppConnectionService.updateSmsInfo();
             SMSdbInfo info = xmppConnectionService.getSmsInfo();
-            info.trySmsInfoUpload();
             smSdbInfo = info.getExistingProfs();
+            getSelectedTwilioNumber(xmppConnectionService.getAccounts().get(0).getUsername(), info.getOrg());
             PurchaseNumber = info.getUserPurchasePermission();
             //SMSdbInfo smsinfo = new SMSdbInfo(xmppConnectionService);
             //xmppConnectionService.setSmsInfo(info);
@@ -460,13 +473,58 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         checkEmptyView();
     }
 
-    private void ReleaseNum(String number){
-        String releaseNumberUrl = SMSActivity.this.getString(R.string.release_num_url);
-        String identity = model.getIdentity();
+    public void getSelectedTwilioNumber(String username, String org) {
+        //Log.d("Glacier","getPhoneNumberList for "+countryCode +" areacode "+area_code);
+        String getUserTwilioNumListUrl = this.getString(R.string.selected_twilio_numbers_url);
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = new FormBody.Builder()
-                .add("releaseNumber", number)
-                .add("username",identity)
+                .add("organization", org)
+                .add("username",username)
+                .build();
+        //Log.d("Glacier","getPhoneNumberList for "+countryCode + "and its url "+getAvailableNumListUrl);
+        Request request = new Request.Builder()
+                .url(getUserTwilioNumListUrl)
+                .addHeader("API-Key", getResources().getString(R.string.twilio_token))
+                .post(requestBody)
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            String responseBody = "";
+            if (response != null && response.body() != null) {
+                responseBody = response.body().string();
+            }
+            Log.d("Glacier", "Response from server: " + responseBody);
+            Gson gson = new Gson();
+            SmsResponse twilio_info = gson.fromJson(responseBody, SmsResponse.class);
+
+            String str  = twilio_info.message;
+            SMS_Twilio_info sti = twilio_info.data;
+            boolean allow = twilio_info.data.allow_user_to_purchase_numbers;
+            boolean isSMSEnabled = twilio_info.data.isSMSEnabled;
+            Object[] numbers = twilio_info.data.selected_twilionumber;
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+
+        }catch (IOException ex){
+            Log.d("Glacier", ex.getLocalizedMessage(), ex);
+        }
+    }
+
+    private void ReleaseNum(String number){
+        String releaseNumberUrl = SMSActivity.this.getString(R.string.release_num_url);
+        OkHttpClient client = new OkHttpClient();
+        RequestBody requestBody = new FormBody.Builder()
+                .add("releaseNumber", adapter_sms.selectedSMSforRemoval.getUnformattedNumber())
+                .add("username",xmppConnectionService.getAccounts().get(0).getUsername())
                 .build();
         Request request = new Request.Builder()
                 .url(releaseNumberUrl)
@@ -575,11 +633,18 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             if (messagesAdapter != null) {
                 messagesAdapter.notifyDataSetChanged();
             }
+
         }
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("Glacier", "Glacier", NotificationManager.IMPORTANCE_HIGH);
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(channel);
+            final NotificationChannel smsChannel = new NotificationChannel("sms",
+                    this.getString(R.string.sms_channel_name),
+                    NotificationManager.IMPORTANCE_HIGH);
+            smsChannel.setShowBadge(true);
+            smsChannel.enableVibration(true);
+            smsChannel.enableLights(true);
+            smsChannel.setGroup("sms");
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(smsChannel);
 
         }
 
@@ -599,7 +664,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         releaseNumberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               adapter_sms.toggleDeleteVisible();
+                adapter_sms.toggleDeleteVisible();
             }
         });
 
@@ -615,9 +680,9 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         Log.d("Glacier","identity sdns n "+identity);
         showPurchaseView();
 
-}
+    }
 
-        public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_add_group, menu);
         return super.onCreateOptionsMenu(menu);
     }
@@ -647,7 +712,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 finish();
                 break;
             case R.id.sms_accounts:
-                drawer_sms.openDrawer(GravityCompat.START);
                 onDrawerOpened();
                 break;
         }
@@ -655,17 +719,18 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
 
     private void onDrawerOpened(){
-        if(xmppConnectionService != null){
-            xmppConnectionService.getSmsInfo().trySmsInfoUpload();
-            ArrayList<SmsProfile> smSdbInfo;
-            smSdbInfo = xmppConnectionService.getSmsInfo().getExistingProfs();
-            profileList.clear();
-            proxyNumbers.clear();
-            reload_adapter_sms(smSdbInfo);
-        }
-        adapter_sms.toggleDeleteOff();
-        showPurchaseView();
-        drawer_sms.openDrawer(GravityCompat.START);
+            if (xmppConnectionService != null) {
+                xmppConnectionService.updateSmsInfo();
+                ArrayList<SmsProfile> smSdbInfo;
+                smSdbInfo = xmppConnectionService.getSmsInfo().getExistingProfs();
+                profileList.clear();
+                proxyNumbers.clear();
+                reload_adapter_sms(smSdbInfo);
+                setColorForNumber(proxyNumber);
+            }
+            adapter_sms.toggleDeleteOff();
+            showPurchaseView();
+            drawer_sms.openDrawer(GravityCompat.START);
 
     }
 
@@ -750,6 +815,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
     public void onResume(){
         super.onResume();
+        drawer_sms.close();
         Log.d("Glacier","onResume is called");
     }
     public void onRestart(){
@@ -800,7 +866,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                         errorMessage = errorMessage + " " + exception.getLocalizedMessage();
                     }
                     else
-                    Log.d("Glacier","errorMessage "+errorMessage);
+                        Log.d("Glacier","errorMessage "+errorMessage);
                 }
             }
         });
@@ -808,8 +874,14 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
 
     public void setColorForNumber(String number){
-        if (xmppConnectionService != null && !xmppConnectionService.getSmsInfo().isNumberActive(number)) {
-            setTitle("SMS");
+        if (xmppConnectionService == null) {
+            setTitle("Glacier SMS");
+            toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
+            //fab_contact.setVisibility(View.INVISIBLE);
+            return;
+        }
+        if (!xmppConnectionService.getSmsInfo().isNumberActive(number)) {
+            setTitle("Glacier SMS");
             toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
             //fab_contact.setVisibility(View.INVISIBLE);
             return;
@@ -825,7 +897,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             setTitle("SMS");
             toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
             //fab_contact.setVisibility(View.INVISIBLE);
-           // fab_contact.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(formattedNumber)));
+            // fab_contact.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(formattedNumber)));
         }
     }
     public void OnSMSConversationClick(String conv_sid,String conv_name) {
@@ -859,6 +931,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     @Override
     public void OnSMSProfileClick(String id, String number) {
+        xmppConnectionService.updateSmsInfo();
         number = number.replace("(","").replace(")","").replace("-","").replace(" ","");
         model.setProxyNumber(number);
         proxyNumber = number;
@@ -964,7 +1037,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             sender_name = holder.conView.findViewById(R.id.sender_name);
             conversation_lastmsg = holder.conView.findViewById(R.id.conversation_lastmsg);
             dateText = holder.conView.findViewById(R.id.conversation_lastupdate);
-            String Contact_name = (cList != null && cList.get(conversation.getFriendlyName()) != null) ? cList.get(conversation.getFriendlyName()) : conversation.getFriendlyName();
+            String Contact_name = (cList != null && cList.get(conversation.getFriendlyName()) != null) ? cList.get(conversation.getFriendlyName()) : Tools.reformatNumber(conversation.getFriendlyName());
             avatar_circle.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForName(Contact_name)));
             String sender_name_text = "";
             if(conv_last_msg_sent.containsKey(conversation.getSid()) && conv_last_msg_sent.get(conversation.getSid()).toString().equals(identity))

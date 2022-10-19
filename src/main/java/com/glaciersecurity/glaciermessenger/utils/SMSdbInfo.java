@@ -20,20 +20,28 @@ import com.apollographql.apollo.GraphQLCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.glaciersecurity.glaciermessenger.Config;
+import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.cognito.AppHelper;
 import com.glaciersecurity.glaciermessenger.entities.Account;
 import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
 import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.ui.util.Tools;
+import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.Nonnull;
+
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 
 
 public class SMSdbInfo {
@@ -45,6 +53,7 @@ public class SMSdbInfo {
     private boolean dbPurchaseNum = false;
     private boolean add_user_to_sms = false;
     private boolean isSMSEnabled = false;
+    private String org;
 
     public SMSdbInfo(XmppConnectionService xmppConn) {
         xmppConnectionService = xmppConn;
@@ -74,11 +83,21 @@ public class SMSdbInfo {
         return add_user_to_sms;
     }
 
+    public String getOrg() {
+        return org;
+    }
+
+    public void setOrg(String org) {
+        this.org = org;
+    }
+
     public Boolean isSMSEnabled(){
         return isSMSEnabled;
     }
 
     public void trySmsInfoUpload() {
+
+
 
         if (xmppConnectionService == null || xmppConnectionService.getAccounts() == null || !(xmppConnectionService.getAccounts().size() > 0)){
             return;
@@ -95,10 +114,39 @@ public class SMSdbInfo {
             AppHelper.init(xmppConnectionService.getApplicationContext());
             AppHelper.setUser(myCogAccount.getUserName());
             AppHelper.getPool().getUser(myCogAccount.getUserName()).getSessionInBackground(orgauthHandler);
+
         } else {
             queryAppSync(myCogAccount);
         }
+        //getSelectedTwilioNumber(myCogAccount.getUserName(), myCogAccount.getOrganization());
+
         xmppConnectionService.setSmsInfo(this);
+    }
+
+
+    public void getSelectedTwilioNumber(String username, String org) {
+        //Log.d("Glacier","getPhoneNumberList for "+countryCode +" areacode "+area_code);
+        String getUserTwilioNumListUrl = "http://3.141.33.151/getUserSelectedTwilioNumbers";
+        OkHttpClient client = new OkHttpClient();
+        RequestBody requestBody = new FormBody.Builder()
+                .add("organization", org)
+                .add("username",username)
+                .build();
+        //Log.d("Glacier","getPhoneNumberList for "+countryCode + "and its url "+getAvailableNumListUrl);
+        Request request = new Request.Builder()
+                .url(getUserTwilioNumListUrl)
+                .post(requestBody)
+                .build();
+        try (okhttp3.Response response = client.newCall(request).execute()) {
+            String responseBody = "";
+            if (response != null && response.body() != null) {
+                responseBody = response.body().string();
+            }
+            android.util.Log.d("Glacier", "Response from server: " + responseBody);
+
+        }catch (IOException ex){
+            android.util.Log.d("Glacier", ex.getLocalizedMessage(), ex);
+        }
     }
 
     private void queryAppSync(CognitoAccount myCogAccount) {
@@ -132,12 +180,16 @@ public class SMSdbInfo {
                     if (response.data().getGlacierUsers().add_user_to_purchase_numbers() != null) {
                         dbPurchaseNum = response.data().getGlacierUsers().add_user_to_purchase_numbers();
                     }
+                    add_user_to_sms = false;
                     if (response.data().getGlacierUsers().add_user_to_SMS() != null){
                         add_user_to_sms = response.data().getGlacierUsers().add_user_to_SMS();
                   }
+                    isSMSEnabled = false;
                     if (response.data().getGlacierUsers().isSMSEnabled() != null){
                         isSMSEnabled = response.data().getGlacierUsers().isSMSEnabled();
                     }
+
+
                 } else {
                     Log.i("SmsInfo", "No sms profiles in response from server");
                 }
@@ -203,6 +255,7 @@ public class SMSdbInfo {
 
                         if (xmppConnectionService != null) {
                             final Account account = xmppConnectionService.getAccounts().get(0);
+                            account.setOrg(org);
                             xmppConnectionService.databaseBackend.updateCognitoAccountOrg(account, org);
                         }
 

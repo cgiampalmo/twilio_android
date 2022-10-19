@@ -77,7 +77,7 @@
 
 
                 <EditText
-                    android:id="@+id/edit_gchat_number"
+                    android:id="@+id/edit_purchase_area_code"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -87,6 +87,7 @@
                     android:textColor="?attr/edit_text_color"
                     android:padding="@dimen/spacing_middle"
                     android:inputType="number"
+                    android:imeOptions="actionDone"
                     style="@style/Widget.Conversations.EditText"
                     tools:ignore="Autofill"/>
 
