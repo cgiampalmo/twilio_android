@@ -76,7 +76,7 @@ import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
+
 import com.twilio.conversations.CallbackListener;
 import com.twilio.conversations.Conversation;
 import com.twilio.conversations.ConversationsClient;
@@ -105,17 +105,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     RecyclerView recyclerViewConversations;
     RecyclerView recyclerViewSMS;
-
-    protected class SmsResponse {
-        String message;
-        SMS_Twilio_info data;
-    }
-    protected class SMS_Twilio_info {
-        public Object[] selected_twilionumber;
-        Boolean isSMSEnabled;
-        Boolean allow_user_to_purchase_numbers;
-
-    }
 
 
     @Override
@@ -428,7 +417,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             xmppConnectionService.updateSmsInfo();
             SMSdbInfo info = xmppConnectionService.getSmsInfo();
             smSdbInfo = info.getExistingProfs();
-            getSelectedTwilioNumber(xmppConnectionService.getAccounts().get(0).getUsername(), info.getOrg());
             PurchaseNumber = info.getUserPurchasePermission();
             //SMSdbInfo smsinfo = new SMSdbInfo(xmppConnectionService);
             //xmppConnectionService.setSmsInfo(info);
@@ -473,51 +461,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         checkEmptyView();
     }
 
-    public void getSelectedTwilioNumber(String username, String org) {
-        //Log.d("Glacier","getPhoneNumberList for "+countryCode +" areacode "+area_code);
-        String getUserTwilioNumListUrl = this.getString(R.string.selected_twilio_numbers_url);
-        OkHttpClient client = new OkHttpClient();
-        RequestBody requestBody = new FormBody.Builder()
-                .add("organization", org)
-                .add("username",username)
-                .build();
-        //Log.d("Glacier","getPhoneNumberList for "+countryCode + "and its url "+getAvailableNumListUrl);
-        Request request = new Request.Builder()
-                .url(getUserTwilioNumListUrl)
-                .addHeader("API-Key", getResources().getString(R.string.twilio_token))
-                .post(requestBody)
-                .build();
-        try (Response response = client.newCall(request).execute()) {
-            String responseBody = "";
-            if (response != null && response.body() != null) {
-                responseBody = response.body().string();
-            }
-            Log.d("Glacier", "Response from server: " + responseBody);
-            Gson gson = new Gson();
-            SmsResponse twilio_info = gson.fromJson(responseBody, SmsResponse.class);
 
-            String str  = twilio_info.message;
-            SMS_Twilio_info sti = twilio_info.data;
-            boolean allow = twilio_info.data.allow_user_to_purchase_numbers;
-            boolean isSMSEnabled = twilio_info.data.isSMSEnabled;
-            Object[] numbers = twilio_info.data.selected_twilionumber;
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-
-
-        }catch (IOException ex){
-            Log.d("Glacier", ex.getLocalizedMessage(), ex);
-        }
-    }
 
     private void ReleaseNum(String number){
         String releaseNumberUrl = SMSActivity.this.getString(R.string.release_num_url);

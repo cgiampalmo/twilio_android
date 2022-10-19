@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import com.glaciersecurity.glaciermessenger.ui.SMSActivity;
 import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
+import com.google.gson.internal.LinkedTreeMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,9 +14,9 @@ public class SmsProfile {
 
     protected String number;
     protected String unformatted_number;
-    protected String location;
     protected String id;
     protected Integer unread_count;
+    protected String nickname;
 
     public Integer getUnread_count() {
         return unread_count;
@@ -25,19 +26,13 @@ public class SmsProfile {
         this.unread_count = unread_count;
     }
 
-
-    public SmsProfile(JSONObject jsmsinfo) throws JSONException, Exception {
-        unformatted_number = (String) jsmsinfo.get("text");
+    public SmsProfile(LinkedTreeMap<String, String> linkedTreeMap) {
+        unformatted_number = linkedTreeMap.get("text");
         number = Tools.reformatNumber(unformatted_number);
-        id = (String) jsmsinfo.get("id");
+        id = linkedTreeMap.get("id");
+        nickname = linkedTreeMap.get("nickname");
 
-        /*TODO pull location from db
-        //hardcoded for now
-        location = (String) jsmsinfo.get("location")
-        */
-        location = "City, State";
     }
-
     public SmsProfile(String number, String id){
         this.unformatted_number = number;
         this.number = Tools.reformatNumber(unformatted_number);
@@ -52,27 +47,9 @@ public class SmsProfile {
         return id;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
-    }
-
     public String getUnformattedNumber(){
         return unformatted_number;
     }
 
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-
-    public String toJsonString() {
-        return "{\"number\":\"" + getNumber() + "\"," +
-                "\"location\":\"" + getLocation() + "}" +
-                "\"id\":\"" + getId() + "}" ;
-    }
 
 }
