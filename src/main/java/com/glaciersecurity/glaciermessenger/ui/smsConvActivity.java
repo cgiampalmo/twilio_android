@@ -118,7 +118,14 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
 
     @Override
     protected void onBackendConnected() {
-
+        if (xmppConnectionService != null){
+            SmsProfile sp = xmppConnectionService.getSmsInfo().getSMSProfilefromNumber(model.getProxyNumber());
+            if (sp != null){
+                toolbar.setBackgroundColor(sp.getColor());
+            } else {
+                toolbar.setBackgroundColor(getColorForNumber(model.getProxyNumber()));
+            }
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

@@ -515,8 +515,11 @@ public class ConversationsManager {
                                                         e.printStackTrace();
                                                     }
                                                 }
-                                                conversationsManagerListener.notifyMessages(result.get(0).getMessageBody(),result.get(0).getAuthor(),ide_num);
-                                            }
+                                                //TODO revisit
+                                                if (!result.isEmpty()) {
+                                                    conversationsManagerListener.notifyMessages(result.get(0).getMessageBody(), result.get(0).getAuthor(), ide_num);
+                                                }
+                                                }
 
                                             @Override
                                             public void onError(ErrorInfo errorInfo) {
