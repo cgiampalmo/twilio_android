@@ -1,9 +1,5 @@
 package com.glaciersecurity.glaciermessenger.utils;
 
-import com.amazonaws.amplify.generated.graphql.GetGlacierUsersQuery;
-import com.amazonaws.mobile.config.AWSConfiguration;
-import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
-import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoDevice;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUser;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserAttributes;
@@ -16,9 +12,6 @@ import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.Chal
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.continuations.MultiFactorAuthenticationContinuation;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.AuthenticationHandler;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.GetDetailsHandler;
-import com.apollographql.apollo.GraphQLCall;
-import com.apollographql.apollo.api.Response;
-import com.apollographql.apollo.exception.ApolloException;
 import com.glaciersecurity.glaciermessenger.Config;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.cognito.AppHelper;
@@ -43,8 +36,6 @@ import okhttp3.RequestBody;
 public class SMSdbInfo {
 
     private XmppConnectionService xmppConnectionService;
-    private AWSAppSyncClient appsyncclient;
-    //private SmsProfile smsInfo;
     private ArrayList<SmsProfile> dbProfs = new ArrayList<>();
     public Object[] selected_twilionumber;
     private boolean dbPurchaseNum = false;
@@ -71,12 +62,21 @@ public class SMSdbInfo {
         return dbProfs;
     }
 
+    public SmsProfile getSMSProfilefromNumber(String number){
+        for (SmsProfile sp: dbProfs){
+            if(sp.equals(number)){
+                return sp;
+            }
+        }
+        return null;
+    }
+
     public boolean isNumberActive(String number){
         for (SmsProfile existingProfs : dbProfs){
-            if (existingProfs.getNumber().equals(number)){
+            if (existingProfs.getFormattedNumber().equals(number)){
                 return true;
             }
-            if (existingProfs.getNumber().equals(Tools.reformatNumber(number))) {
+            if (existingProfs.getFormattedNumber().equals(Tools.reformatNumber(number))) {
                 return true;
             }
         }
@@ -139,7 +139,6 @@ public class SMSdbInfo {
                 .add("organization", org)
                 .add("username",username)
                 .build();
-        //Log.d("Glacier","getPhoneNumberList for "+countryCode + "and its url "+getAvailableNumListUrl);
         Request request = new Request.Builder()
                 .url(getUserTwilioNumListUrl)
                 .addHeader("API-Key", xmppConnectionService.getApplicationContext().getResources().getString(R.string.twilio_token))
@@ -162,61 +161,6 @@ public class SMSdbInfo {
             android.util.Log.d("Glacier", ex.getLocalizedMessage(), ex);
         }
     }
-
-    private void queryAppSync(CognitoAccount myCogAccount) {
-        if (myCogAccount == null) {
-            final Account account = xmppConnectionService.getAccounts().get(0);
-            myCogAccount = xmppConnectionService.databaseBackend.getCognitoAccount(account);
-        }
-
-        appsyncclient = AWSAppSyncClient.builder()
-                .context(xmppConnectionService.getApplicationContext())
-                .awsConfiguration(new AWSConfiguration(xmppConnectionService.getApplicationContext()))
-                .build();
-
-
-//        appsyncclient.query(GetGlacierUsersQuery.builder()
-//                .organization(myCogAccount.getOrganization())
-//                .username(myCogAccount.getUserName())
-//                .build())
-//                .responseFetcher(AppSyncResponseFetchers.NETWORK_ONLY)
-//                .enqueue(getUserCallback);
-    }
-
-    /*private GraphQLCall.Callback<GetGlacierUsersQuery.Data> getUserCallback = new GraphQLCall.Callback<GetGlacierUsersQuery.Data>() {
-        @Override
-        public void onResponse(@Nonnull Response<GetGlacierUsersQuery.Data> response) {
-            new Thread(() -> {
-                if (response.data().getGlacierUsers() != null) {
-                    if (response.data().getGlacierUsers().selected_twilionumber() != null) {
-                        dbProfs = (getSmsProfileList(response.data().getGlacierUsers().selected_twilionumber()));
-                    }
-                    if (response.data().getGlacierUsers().add_user_to_purchase_numbers() != null) {
-                        dbPurchaseNum = response.data().getGlacierUsers().add_user_to_purchase_numbers();
-                    }
-                    add_user_to_sms = false;
-                    if (response.data().getGlacierUsers().add_user_to_SMS() != null){
-                        add_user_to_sms = response.data().getGlacierUsers().add_user_to_SMS();
-                  }
-                    isSMSEnabled = false;
-                    if (response.data().getGlacierUsers().isSMSEnabled() != null){
-                        isSMSEnabled = response.data().getGlacierUsers().isSMSEnabled();
-                    }
-
-
-                } else {
-                    Log.i("SmsInfo", "No sms profiles in response from server");
-                }
-            }).start();
-        }
-
-        @Override
-        public void onFailure(@Nonnull ApolloException e) {
-            Log.e("SecurityInfo", "Error getting SMSInfo");
-        }
-    };
-
-     */
 
     private ArrayList<SmsProfile> getSmsProfileList(Object[] smsInfoList) {
         ArrayList<SmsProfile> smsProfList = new ArrayList<>();
@@ -273,8 +217,6 @@ public class SMSdbInfo {
                             account.setOrg(org);
                             xmppConnectionService.databaseBackend.updateCognitoAccountOrg(account, org);
                         }
-
-                        queryAppSync(null);
                     }
 
                     @Override

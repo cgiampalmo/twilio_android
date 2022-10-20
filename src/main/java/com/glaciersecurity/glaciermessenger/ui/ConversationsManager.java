@@ -154,10 +154,12 @@ public class ConversationsManager {
             OkHttpClient client = new OkHttpClient();
             RequestBody requestBody = new FormBody.Builder()
                     .add("identity", conv_identity)
+                    .add("devicetype", "android")
                     .build();
             Request request = new Request.Builder()
                     .url(tokenURL)
                     .post(requestBody)
+                    .addHeader("API-Key", mContext.getString(R.string.twilio_token))
                     .build();
             Log.d("Glacier", "request " + request);
             try (Response response = client.newCall(request).execute()) {

@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.ui.util.ViewUtil;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
@@ -133,7 +134,6 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         actionbar.setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         toolbar.setNavigationOnClickListener(view -> onBackPressed());
-        toolbar.setBackgroundColor(getColorForNumber(model.getProxyNumber()));
         ConversationsManager.setListener(this);
         cameraPermission = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -355,6 +355,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         Request request = new Request.Builder()
                 .url(addParticipantUrl)
                 .post(requestBody)
+                .addHeader("API-Key", xmppConnectionService.getApplicationContext().getResources().getString(R.string.twilio_token))
                 .build();
         //Log.d("Glacier","request "+request);
         try (Response response = client.newCall(request).execute()) {

@@ -100,6 +100,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         Request request = new Request.Builder()
                 .url(getAvailableNumListUrl)
                 .post(requestBody)
+                .addHeader("API-Key", xmppConnectionService.getApplicationContext().getResources().getString(R.string.twilio_token))
                 .build();
         try (Response response = client.newCall(request).execute()) {
             String responseBody = "";
@@ -167,6 +168,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         Request request = new Request.Builder()
                 .url(purchaseNumberUrl)
                 .post(requestBody)
+                .addHeader("API-Key", xmppConnectionService.getApplicationContext().getResources().getString(R.string.twilio_token))
                 .build();
         //Log.d("Glacier", "request " + request);
         try (Response response = client.newCall(request).execute()) {

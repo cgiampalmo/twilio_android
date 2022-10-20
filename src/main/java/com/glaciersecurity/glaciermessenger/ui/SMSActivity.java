@@ -114,7 +114,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        ReleaseNum(adapter_sms.selectedSMSforRemoval.getNumber());
+        ReleaseNum(adapter_sms.selectedSMSforRemoval.getFormattedNumber());
     }
 
     private class ReleaseNumResponse{
@@ -185,23 +185,15 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         Log.d("Glacier", "New notification before replyIntent");
         replyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent replyPendingIntent = PendingIntent.getActivity(this,0,replyIntent,PendingIntent.FLAG_MUTABLE);
-        NotificationCompat.Action action = new NotificationCompat.Action.Builder(R.drawable.ic_baseline_sms_24,"Reply",replyPendingIntent).addRemoteInput(remoteInput).build();
-        Log.d("Glacier", "New notification before action");
-        //builder.addAction(action);
-        Log.d("Glacier", "New notification after action");
-        builder.setContentTitle("Glacier SMS for"+ Tools.lastFourDigits(messageTo));
+        builder.setContentTitle("Glacier SMS for "+ Tools.lastFourDigits(messageTo));
         builder.setPriority(NotificationCompat.PRIORITY_HIGH);
         builder.setContentText(newMessage);
         Log.d("Glacier", "New notification after newMessage");
         builder.setSmallIcon(R.drawable.ic_baseline_sms_24);
         builder.setAutoCancel(true);
         builder.setContentIntent(pendingIntent);
-        NotificationCompat.Action action2 = new NotificationCompat.Action.Builder(R.drawable.ic_baseline_sms_24,"Reply",actionIntent).addRemoteInput(remoteInput2).build();
-        //builder.addAction(action2);
         managerCompat = NotificationManagerCompat.from(this);
         if(messageAuthor.length() > 5) {
-            //Log.d("Glacier", "New notification " + Integer.parseInt(messageAuthor.substring(2, 5)));
-            //if()
             managerCompat.notify(Integer.parseInt(messageAuthor.substring(2, 5)), builder.build());
             model.setNotificationManager(managerCompat);
         }
@@ -217,7 +209,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                // need to modify user interface elements on the UI thread
                 Log.d("Glacier","Reload messages called");
                 messagesAdapter.notifyDataSetChanged();
             }
@@ -378,7 +369,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             if (ConversationsManager.unread_conv_count == null || ConversationsManager.unread_conv_count.isEmpty()) {
                 smsProfile.setUnread_count(0);
             } else {
-                String number = smsProfile.getNumber().replaceAll(" ", "").replace("(", "").replace(")", "").replace("-", "");
+                String number = smsProfile.getFormattedNumber().replaceAll(" ", "").replace("(", "").replace(")", "").replace("-", "");
                 Integer unread_count = ConversationsManager.unread_conv_count.get(number);
                 Log.d("Glacier", "unread_conv_count---- " + unread_count);
                 if (unread_count != null) {
@@ -386,7 +377,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 }
             }
 
-            proxyNumbers.add(smsProfile.getNumber());
+            proxyNumbers.add(smsProfile.getFormattedNumber());
             adapter_sms.notifyItemInserted(0);
         }
         if(proxyNumber == null){
@@ -473,6 +464,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         Request request = new Request.Builder()
                 .url(releaseNumberUrl)
                 .post(requestBody)
+                .addHeader("API-Key", xmppConnectionService.getApplicationContext().getResources().getString(R.string.twilio_token))
                 .build();
         Log.d("Glacier", "request " + request);
         try (Response response = client.newCall(request).execute()) {
@@ -830,12 +822,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             //fab_contact.setVisibility(View.INVISIBLE);
             return;
         }
-        String formattedNumber = Tools.reformatNumber(number);
-        if (formattedNumber != null) {
-            setTitle(formattedNumber);
-            toolbar.setBackgroundColor(UIHelper.getColorForSMS(formattedNumber));
+        SmsProfile sp_= xmppConnectionService.getSmsInfo().getSMSProfilefromNumber(number);
+        if (sp_ != null) {
+            setTitle(sp_.getFormattedNumber());
+            toolbar.setBackgroundColor(sp_.getColor());
             fab_contact.setVisibility(View.VISIBLE);
-            fab_contact.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(formattedNumber)));
+            fab_contact.setBackgroundTintList(ColorStateList.valueOf(sp_.getColor()));
         }
         else {
             setTitle("SMS");
