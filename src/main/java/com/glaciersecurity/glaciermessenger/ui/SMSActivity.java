@@ -960,14 +960,14 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
 
-            TextView conversation_name,sender_name,conversation_lastmsg,dateText,conv_Sid;
+            TextView conversation_name, sender_name, conversation_lastmsg, dateText, conv_Sid;
             RelativeLayout avatar_circle;
             com.glaciersecurity.glaciermessenger.ui.widget.UnreadCountCustomView unreadcount;
             conversations = ConversationsManager.getConversation(proxyNumber);
             Conversation conversation = conversations.get(holder.getAdapterPosition());
             Map conv_last_msg = ConversationsManager.conv_last_msg;
             Map conv_last_msg_sent = ConversationsManager.conv_last_msg_sent;
-            Log.d("Glacier","ConversationsManager "+conversation.getFriendlyName()+"----------"+conversation.getLastMessageDate());
+            Log.d("Glacier", "ConversationsManager " + conversation.getFriendlyName() + "----------" + conversation.getLastMessageDate());
             conversation_name = holder.conView.findViewById(R.id.conversation_name);
             avatar_circle = holder.conView.findViewById(R.id.avatar_circle);
             sender_name = holder.conView.findViewById(R.id.sender_name);
@@ -976,10 +976,13 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             String Contact_name = (cList != null && cList.get(conversation.getFriendlyName()) != null) ? cList.get(conversation.getFriendlyName()) : Tools.reformatNumber(conversation.getFriendlyName());
             avatar_circle.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForName(Contact_name)));
             String sender_name_text = "";
-            if(conv_last_msg_sent.containsKey(conversation.getSid()) && conv_last_msg_sent.get(conversation.getSid()).toString().equals(identity))
+            if (conv_last_msg_sent.containsKey(conversation.getSid()) && conv_last_msg_sent.get(conversation.getSid()).toString().equals(identity)) {
                 sender_name_text = "Me :";
-            else if(conv_last_msg_sent.containsKey(conversation.getSid()) && conv_last_msg_sent.get(conversation.getSid()) != null)
+                sender_name.setVisibility(View.VISIBLE);
+            } else if (conv_last_msg_sent.containsKey(conversation.getSid()) && conv_last_msg_sent.get(conversation.getSid()) != null){
                 sender_name_text = (CharSequence) conv_last_msg_sent.get(conversation.getSid()) +" :";
+                sender_name.setVisibility(View.GONE);
+            }
             sender_name.setText(sender_name_text);
 
             conversation_name.setText(Contact_name);
