@@ -22,7 +22,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.ui.NewSMSActivity;
+import com.glaciersecurity.glaciermessenger.ui.util.Tools;
+import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -59,7 +62,18 @@ public class ContactListActivity extends XmppActivity implements OnSMSConversati
 
     @Override
     protected void onBackendConnected() {
-
+        if (xmppConnectionService != null){
+            SmsProfile sp = xmppConnectionService.getSmsInfo().getSMSProfilefromNumber(cModel.getProxyNumber());
+            if (sp != null){
+                toolbar.setBackgroundColor(sp.getColor());
+            } else {
+                toolbar.setBackgroundColor(getColorForNumber(cModel.getProxyNumber()));
+            }
+        }
+    }
+    public int getColorForNumber(String number){
+        String formattedNumber = Tools.reformatNumber(number);
+        return UIHelper.getColorForSMS(formattedNumber);
     }
 
     protected void onCreate(Bundle savedInstanceState) {

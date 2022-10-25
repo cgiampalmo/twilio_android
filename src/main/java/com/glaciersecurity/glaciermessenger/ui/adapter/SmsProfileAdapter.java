@@ -1,20 +1,14 @@
 package com.glaciersecurity.glaciermessenger.ui.adapter;
 
 import android.content.DialogInterface;
-import android.provider.Telephony;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
-import android.widget.Button;
-import android.widget.CheckedTextView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,17 +16,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
-import com.glaciersecurity.glaciermessenger.ui.ChangePasswordActivity;
 import com.glaciersecurity.glaciermessenger.ui.OnSMSProfileClickListener;
 import com.glaciersecurity.glaciermessenger.ui.OnSMSRemoveClickListener;
 import com.glaciersecurity.glaciermessenger.ui.widget.UnreadCountCustomView;
-import com.glaciersecurity.glaciermessenger.utils.Log;
-import com.glaciersecurity.glaciermessenger.utils.UIHelper;
-import com.google.android.material.transition.Hold;
-import com.twilio.conversations.Conversation;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SMSRecyclerViewHolder> implements OnSMSProfileClickListener, OnSMSRemoveClickListener {
 
@@ -58,10 +46,8 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 
 	@Override
 	public void onBindViewHolder(@NonNull SMSRecyclerViewHolder holder, int position) {
-		holder.numberView.setText(smsProfileList.get(position).getNumber());
-		//holder.locationView.setText(smsProfileList.get(position).getLocation());
-		holder.profileView.setBackgroundColor(UIHelper.getColorForSMS(smsProfileList.get(position).getNumber()));
-		//Log.d("Glacier","unread_conv_count----"+smsProfileList.get(position).getUnread_count()+"---"+smsProfileList.get(position).getNumber());
+		holder.numberView.setText(smsProfileList.get(position).getFormattedNumber());
+		holder.profileView.setBackgroundColor(smsProfileList.get(position).getColor());
 		if(smsProfileList.get(position).getUnread_count() != null && smsProfileList.get(position).getUnread_count() > 0) {
 			holder.unreadCount.setUnreadCount(smsProfileList.get(position).getUnread_count());
 			holder.unreadCount.setVisibility(View.VISIBLE);
@@ -72,7 +58,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 			@Override
 			public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-                builder.setMessage("Do you want to release number " + smsProfileList.get(position).getNumber() + "?");
+                builder.setMessage("Do you want to release number " + smsProfileList.get(position).getFormattedNumber() + "?");
                 builder.setTitle("Confirmation");
                 builder.setCancelable(true);
                 builder.setPositiveButton("Release", removeListener);

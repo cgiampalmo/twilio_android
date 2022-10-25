@@ -1334,7 +1334,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			//CMG AM-172 Stop using the gui text fields to store the VPN login info
 			password = this.mAccount.getPassword();
 			//this.mPassword.getEditableText().append(this.mAccount.getPassword());
-
 			this.mHostname.setText("");
 			this.mHostname.getEditableText().append(this.mAccount.getHostname());
 			this.mPort.setText("");
@@ -2889,6 +2888,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			mAccount.setHostname(hostname);
 			mAccountJidLayout.setError(null);
 			mAccount.setPassword(password);
+			mAccount.setOrg(organization);
 			mAccount.setOption(Account.OPTION_REGISTER, registerNewAccount);
 			if (!xmppConnectionService.updateAccount(mAccount)) {
 				Toast.makeText(EditAccountActivity.this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
@@ -2916,6 +2916,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			mAccount.setOption(Account.OPTION_USETLS, true);
 			mAccount.setOption(Account.OPTION_USECOMPRESSION, true);
 			mAccount.setOption(Account.OPTION_REGISTER, registerNewAccount);
+			mAccount.setOrg(organization);
 
 			xmppConnectionService.createAccount(mAccount, true);
 
