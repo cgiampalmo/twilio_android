@@ -94,4 +94,5 @@ public class SmsProfile {
     public int hashCode() {
         return Objects.hash(formattedNumber, unformatted_number, id);
     }
+
 }

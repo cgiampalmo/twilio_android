@@ -284,7 +284,6 @@ public class Account extends AbstractEntity implements AvatarService.Avatarable 
 		//ALF AM-53 added TIMER and in params below
 	}
 
-
 	private Account(final String uuid, final Jid jid,
 					final String password, final int options, final String rosterVersion, final String keys,
 					final String avatar, String displayName, String hostname, int port, int timer,

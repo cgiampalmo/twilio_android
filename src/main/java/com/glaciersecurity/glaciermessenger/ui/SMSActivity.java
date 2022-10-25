@@ -76,7 +76,6 @@ import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
-
 import com.twilio.conversations.CallbackListener;
 import com.twilio.conversations.Conversation;
 import com.twilio.conversations.ConversationsClient;
@@ -209,6 +208,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                // need to modify user interface elements on the UI thread
                 Log.d("Glacier","Reload messages called");
                 messagesAdapter.notifyDataSetChanged();
             }
@@ -452,8 +452,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         checkEmptyView();
     }
 
-
-
     private void ReleaseNum(String number){
         String releaseNumberUrl = SMSActivity.this.getString(R.string.release_num_url);
         OkHttpClient client = new OkHttpClient();
@@ -636,6 +634,9 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                     releaseNumberBtn.setVisibility(View.GONE);
                 }
             } else {
+                if (smSdbInfo.isEmpty()){
+                    Toast.makeText(this,R.string.no_auth_sms,Toast.LENGTH_LONG).show();
+                }
                 addNumberBtn.setVisibility(View.GONE);
                 releaseNumberBtn.setVisibility(View.GONE);
             }
