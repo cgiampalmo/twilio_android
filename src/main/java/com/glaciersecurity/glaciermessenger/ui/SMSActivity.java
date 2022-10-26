@@ -99,6 +99,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     public FloatingActionButton fab_contact;
     private Button addNumberBtn;
     private Button releaseNumberBtn;
+    protected static final int REQUEST_PURCHASE_SMS = 0x0401;
 //    public FloatingActionButton fab_group;
 //    public FloatingActionButton fab_add;
 
@@ -439,6 +440,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 proxyNumber = model.getProxyNumber();
             } else {
                 model.setProxyNumber(null);
+
             }
 
             if(proxyNumber != null) {
@@ -475,11 +477,21 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             if(releaseNumResponse.message.equals("success")){
                 Toast.makeText(SMSActivity.this,"Number released successfully",Toast.LENGTH_LONG).show();
                 model.setProxyNumber(null);
-                onBackPressed();
+                if(model.getProxyNumber() == null || model.getProxyNumber().equals("") ) {
+                    if(proxyNumbers != null && (proxyNumber == null || proxyNumber.length() > 0)) {
+                        proxyNumbers.remove(number);
+                        if(proxyNumbers.size() > 0) {
+                            model.setProxyNumber(proxyNumbers.get(0));
+                            proxyNumber = proxyNumbers.get(0);
+                        }
+                    }
+                }
+                //onBackPressed();
             }else{
                 Toast.makeText(SMSActivity.this,"Failed to release. Please try again",Toast.LENGTH_LONG).show();
             }
-            //onBackendConnected();
+            onBackendConnected();
+            drawer_sms.close();
             Log.d("Glacier", "Response from server: " + responseBody);
         }catch (IOException ex){
             Log.e("Glacier", ex.getLocalizedMessage(), ex);
@@ -607,13 +619,33 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(mContext, PurchaseNumbers.class);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_PURCHASE_SMS);
             }});
 
         recyclerViewSMS.setAdapter(adapter_sms);
         Log.d("Glacier","identity sdns n "+identity);
         showPurchaseView();
 
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_PURCHASE_SMS) {
+            if (resultCode == RESULT_OK) { // Activity.RESULT_OK
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // get String data from Intent
+                        String returnPurchasedNumber = data.getStringExtra("purchase_number");
+                        returnPurchasedNumber = returnPurchasedNumber.replace("(", "").replace(")", "").replace("-", "").replace(" ", "");
+                        model.setProxyNumber(returnPurchasedNumber);
+                        proxyNumber = model.getProxyNumber();
+                        onBackendConnected();
+                    }
+                });
+            }
+        }
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -831,7 +863,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             fab_contact.setBackgroundTintList(ColorStateList.valueOf(sp_.getColor()));
         }
         else {
-            setTitle("SMS");
+            setTitle("Glacier SMS");
             toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
             //fab_contact.setVisibility(View.INVISIBLE);
             // fab_contact.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(formattedNumber)));
