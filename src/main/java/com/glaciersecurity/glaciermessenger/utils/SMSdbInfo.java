@@ -181,6 +181,15 @@ public class SMSdbInfo {
         return smsProfList;
     }
 
+    public ArrayList<String> getProxyNumList() {
+        ArrayList<String> proxyList = new ArrayList<>();
+
+        for (SmsProfile smsProfile : dbProfs) {
+            proxyList.add(smsProfile.getUnformattedNumber());
+        }
+
+        return proxyList;
+    }
     /**
      * Callbacks
      */

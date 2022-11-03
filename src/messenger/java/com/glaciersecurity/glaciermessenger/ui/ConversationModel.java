@@ -20,16 +20,6 @@ public class ConversationModel extends Application {
     private ArrayList<ContactModel> arrayList;
     private String proxyNumber;
 
-    public Boolean getPurchaseNumber() {
-        return PurchaseNumber;
-    }
-
-    public void setPurchaseNumber(Boolean purchaseNumber) {
-        PurchaseNumber = purchaseNumber;
-    }
-
-    private Boolean PurchaseNumber;
-
     public ArrayList<ContactModel> getGroupArrayList() {
         return groupArrayList;
     }
