@@ -17,3 +17,11 @@ query GetGlacierUsers($organization: String!, $username: String!) {
     add_user_to_SMS
   }
 }
+query GetGlacierOrganization($organization: String!) {
+  getGlacierOrganization(organization: $organization) {
+    organization
+    securityhub_data_enabled
+    sms_enabled
+    upload_enabled
+  }
+}

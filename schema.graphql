@@ -1,6 +1,13 @@
-﻿schema {
+schema {
   query: Query
   mutation: Mutation
+}
+
+type GlacierOrganization {
+  organization: String!
+  securityhub_data_enabled: Boolean
+  sms_enabled: Boolean
+  upload_enabled: Boolean
 }
 
 type GlacierUsers {
@@ -26,6 +33,7 @@ type Mutation {
 }
 
 type Query {
+  getGlacierOrganization(organization: String!): GlacierOrganization
   getGlacierUsers(organization: String!, username: String!): GlacierUsers
 }
 
