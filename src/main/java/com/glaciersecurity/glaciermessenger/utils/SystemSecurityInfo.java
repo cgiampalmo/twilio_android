@@ -9,8 +9,10 @@ import android.provider.Settings;
 import android.provider.Settings.Secure;
 
 import androidx.annotation.BoolRes;
+import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 
+import com.amazonaws.amplify.generated.graphql.GetGlacierOrganizationQuery;
 import com.amazonaws.amplify.generated.graphql.GetGlacierUsersQuery;
 import com.amazonaws.amplify.generated.graphql.UpdateGlacierUsersMutation;
 import com.amazonaws.mobile.config.AWSConfiguration;
@@ -81,6 +83,9 @@ public class SystemSecurityInfo {
     private AWSAppSyncClient appsyncclient;
     private SecurityInfo securityInfo;
     private boolean needsUpdate;
+    List<String> secinfo;
+
+    private boolean securityhub_data_enabled = false;
 
     public SystemSecurityInfo(XmppConnectionService xmppConn) {
         xmppConnectionService = xmppConn;
@@ -419,21 +424,56 @@ public class SystemSecurityInfo {
                 .build();
 
 
+
+        appsyncclient.query(GetGlacierOrganizationQuery.builder()
+                        .organization(myCogAccount.getOrganization())
+                        .build())
+                .responseFetcher(AppSyncResponseFetchers.NETWORK_ONLY)
+                .enqueue(getOrganizationCallback);
+
         appsyncclient.query(GetGlacierUsersQuery.builder()
-                .organization(myCogAccount.getOrganization())
-                .username(myCogAccount.getUserName())
-                .build())
+                        .organization(myCogAccount.getOrganization())
+                        .username(myCogAccount.getUserName())
+                        .build())
                 .responseFetcher(AppSyncResponseFetchers.NETWORK_ONLY)
                 .enqueue(getUserCallback);
     }
+
+
+    private GraphQLCall.Callback<GetGlacierOrganizationQuery.Data> getOrganizationCallback = new GraphQLCall.Callback<GetGlacierOrganizationQuery.Data>() {
+        @Override
+        public void onResponse(@NonNull Response<GetGlacierOrganizationQuery.Data> response) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if (response != null) {
+                        if (response.data().getGlacierOrganization() != null) {
+                            securityhub_data_enabled = response.data().getGlacierOrganization().securityhub_data_enabled();
+
+                        }
+                    }
+                }
+
+            });
+
+
+
+        }
+
+        @Override
+        public void onFailure(@NonNull ApolloException e) {
+
+        }
+    };
+
 
     private GraphQLCall.Callback<GetGlacierUsersQuery.Data> getUserCallback = new GraphQLCall.Callback<GetGlacierUsersQuery.Data>() {
         @Override
         public void onResponse(@Nonnull Response<GetGlacierUsersQuery.Data> response) {
             new Thread(() -> {
                 if (response.data().getGlacierUsers() != null) {
-                    List<String> secinfo = updateSecInfoList (response.data().getGlacierUsers().securityInfo());
-                    if (secinfo != null) {
+                    secinfo = updateSecInfoList (response.data().getGlacierUsers().securityInfo());
+                    if (secinfo != null ) {
                         updateSecurityHubInfo(response.data().getGlacierUsers(), secinfo);
                     }
                 } else {
