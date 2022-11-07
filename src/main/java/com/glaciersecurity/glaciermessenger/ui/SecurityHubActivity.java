@@ -1,6 +1,7 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.ExpandableListItem;
 import com.glaciersecurity.glaciermessenger.ui.adapter.AdapterListExpand;
+import com.glaciersecurity.glaciermessenger.utils.PhoneHelper;
 import com.glaciersecurity.glaciermessenger.utils.ThemeHelper;
 import com.makeramen.roundedimageview.RoundedImageView;
 
@@ -55,21 +57,6 @@ public class SecurityHubActivity extends XmppActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new LineItemDecoration(this, LinearLayout.VERTICAL));
         recyclerView.setHasFixedSize(true);
-
-        /*List<ExpandableListItem> items = new ArrayList<ExpandableListItem>(initSecurityCheck());
-
-
-        //set data and list adapter
-        mAdapter = new AdapterListExpand(this, items);
-        recyclerView.setAdapter(mAdapter);
-
-        // on item list clicked
-        mAdapter.setOnItemClickListener(new AdapterListExpand.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, ExpandableListItem obj, int position) {
-                Snackbar.make(parent_view, "Item " + obj.name + " clicked", Snackbar.LENGTH_SHORT).show();
-            }
-        });*/
 
     }
 
