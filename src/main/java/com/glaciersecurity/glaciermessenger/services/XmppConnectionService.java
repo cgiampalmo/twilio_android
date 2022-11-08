@@ -132,6 +132,7 @@ import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.utils.ExceptionHelper;
 import com.glaciersecurity.glaciermessenger.utils.MimeUtils;
+import com.glaciersecurity.glaciermessenger.utils.OrgInfo;
 import com.glaciersecurity.glaciermessenger.utils.PhoneHelper;
 import com.glaciersecurity.glaciermessenger.utils.QuickLoader;
 import com.glaciersecurity.glaciermessenger.utils.ReplacingSerialSingleThreadExecutor;
@@ -276,8 +277,11 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	//AM#52, AM#53
 	private AtomicLong mLastSecInfoUpdate = new AtomicLong(0);
+	private AtomicLong mLastOrgInfoUpdate = new AtomicLong(0);
 	public static final long SECHUB_INTERVAL = 86400L;
+	public static final long ORG_INTERVAL = 86400L;
 	private SystemSecurityInfo secInfo;
+	private OrgInfo orgInfo;
 	private SMSdbInfo smsInfo;
 	private boolean needsSecurityInfoUpdate = false;
 
@@ -1077,7 +1081,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				}
 				ignoreLifecycleUpdate = false; //activity won't need to track return to app this way
 				updateSecurityInfo(); //AM#52, AM#53
-				updateSmsInfo();
+				updateOrgInfo();
 				break;
 			case STOP: // app moved to background
 				mLastGlacierUsage.set(SystemClock.elapsedRealtime());
@@ -1382,6 +1386,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 		if (accounts.size() > 0) {
 			getSmsInfo();
+			updateOrgInfo();
 		}
 
 		restoreFromDatabase();
@@ -2453,7 +2458,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		if (needsSecurityInfoUpdate) {
 			updateSecurityInfo();
 		}
-
+		updateOrgInfo();
 		updateSmsInfo();
 	}
 
@@ -4415,11 +4420,31 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 	}
 
+	public void updateOrgInfo() {
+		if (accounts == null || accounts.size() == 0) {
+			return;
+		}
+
+		long lastupdate = mLastOrgInfoUpdate.get();
+		if (lastupdate == 0L || SystemClock.elapsedRealtime() - lastupdate >= (ORG_INTERVAL*1000)) {
+			mLastOrgInfoUpdate.set(SystemClock.elapsedRealtime());
+			getOrgInfo().checkCurrentOrgInfo();
+		}
+	}
+
 	public SystemSecurityInfo getSecurityInfo() {
 		if (secInfo == null) {
 			secInfo = new SystemSecurityInfo(this);
 		}
 		return secInfo;
+	}
+
+	public OrgInfo getOrgInfo() {
+		if (orgInfo == null) {
+			orgInfo = new OrgInfo(this);
+		}
+		orgInfo.checkCurrentOrgInfo();
+		return orgInfo;
 	}
 
 	public SMSdbInfo getSmsInfo() {
@@ -4430,18 +4455,18 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public void updateSmsInfo(){
-		if (accounts != null) {
-			try {
-				getSmsInfo().trySmsInfoUpload();
-			}
-			catch (Exception e){
-
-			}
+		if (accounts == null || accounts.size() == 0) {
+			return;
 		}
+		getSmsInfo().trySmsInfoUpload();
 	}
 
 	public void setSmsInfo(SMSdbInfo smsInfo){
 		this.smsInfo = smsInfo;
+	}
+
+	public void setOrgInfo(OrgInfo orgInfo){
+		this.orgInfo = orgInfo;
 	}
 
 

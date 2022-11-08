@@ -41,7 +41,6 @@ import android.security.KeyChainAliasCallback;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 
-import com.amazonaws.amplify.generated.graphql.GetGlacierOrganizationQuery;
 import com.amazonaws.amplify.generated.graphql.GetGlacierUsersQuery;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.appsync.AWSAppSyncClient;
@@ -1953,12 +1952,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 								.responseFetcher(AppSyncResponseFetchers.NETWORK_ONLY)
 								.enqueue(getUserCallback);
 
-						client.query(GetGlacierOrganizationQuery.builder()
-										.organization(org)
-										.build())
-								.responseFetcher(AppSyncResponseFetchers.NETWORK_ONLY)
-								.enqueue(getOrganizationCallback);
-
 					}
 
 					@Override
@@ -2000,36 +1993,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 			continuation.setAuthenticationDetails(authenticationDetails);
 			continuation.continueTask();
 		}
-
-
-
-		private GraphQLCall.Callback<GetGlacierOrganizationQuery.Data> getOrganizationCallback = new GraphQLCall.Callback<GetGlacierOrganizationQuery.Data>() {
-			@Override
-			public void onResponse(@NonNull Response<GetGlacierOrganizationQuery.Data> response) {
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						if (response != null) {
-							if (response.data().getGlacierOrganization() != null) {
-								securityhub_data_enabled = response.data().getGlacierOrganization().securityhub_data_enabled();
-								sms_enabled = response.data().getGlacierOrganization().sms_enabled();
-								upload_enabled = response.data().getGlacierOrganization().upload_enabled();
-							}
-						}
-					}
-
-				});
-
-
-
-			}
-
-			@Override
-			public void onFailure(@NonNull ApolloException e) {
-
-			}
-		};
-
 
         private GraphQLCall.Callback<GetGlacierUsersQuery.Data> getUserCallback = new GraphQLCall.Callback<GetGlacierUsersQuery.Data>() {
 			@Override

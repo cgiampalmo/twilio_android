@@ -262,7 +262,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		invalidateActionBarTitle();
 
 		if (xmppConnectionService != null){
-			showSmsMenuItem();
 			mCallManager = xmppConnectionService.getCallManager();
 			if (mCallManager != null && mCallManager.isOnCall()){
 				returnToCall.setVisibility(View.VISIBLE);
@@ -697,6 +696,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				if (!accounts.isEmpty()) {
 					runOnUiThread(() -> {
 					showSmsMenuItem();
+					xmppConnectionService.updateOrgInfo();
 
 					mAccount = accounts.get(0);
 					avatar = (ImageView) findViewById(R.id.nav_avatar);

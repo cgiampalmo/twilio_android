@@ -42,7 +42,6 @@ public class SecurityHubActivity extends XmppActivity {
         setSupportActionBar(findViewById(R.id.toolbar));
         configureActionBar(getSupportActionBar());
         setTitle(R.string.title_activity_security_hub);
-        //setTitle(Build.MANUFACTURER + " " + Build.MODEL + " " + PhoneHelper.getAndroidId(this));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         initComponent();
@@ -196,6 +195,7 @@ public class SecurityHubActivity extends XmppActivity {
     void onBackendConnected() {
         try {
             if (xmppConnectionService != null) {
+                xmppConnectionService.getOrgInfo().checkCurrentOrgInfo();
                 initSecurityComponents();
             }
         } catch (Exception e){

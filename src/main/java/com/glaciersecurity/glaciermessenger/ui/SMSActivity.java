@@ -274,12 +274,18 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         drawer_sms.close();
         Log.d("Glacier","onResume is called");
     }
+
+    public void onStart() {
+        super.onStart();
+    }
     public void onRestart(){
+
         super.onRestart();
     }
     @Override
     protected void refreshUiReal() {
     }
+
     public void onBackPressed(){
         super.onBackPressed();
         finish();

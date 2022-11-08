@@ -12,7 +12,6 @@ import androidx.annotation.BoolRes;
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 
-import com.amazonaws.amplify.generated.graphql.GetGlacierOrganizationQuery;
 import com.amazonaws.amplify.generated.graphql.GetGlacierUsersQuery;
 import com.amazonaws.amplify.generated.graphql.UpdateGlacierUsersMutation;
 import com.amazonaws.mobile.config.AWSConfiguration;
@@ -85,7 +84,6 @@ public class SystemSecurityInfo {
     private boolean needsUpdate;
     List<String> secinfo;
 
-    private boolean securityhub_data_enabled = false;
 
     public SystemSecurityInfo(XmppConnectionService xmppConn) {
         xmppConnectionService = xmppConn;
@@ -424,13 +422,6 @@ public class SystemSecurityInfo {
                 .build();
 
 
-
-        appsyncclient.query(GetGlacierOrganizationQuery.builder()
-                        .organization(myCogAccount.getOrganization())
-                        .build())
-                .responseFetcher(AppSyncResponseFetchers.NETWORK_ONLY)
-                .enqueue(getOrganizationCallback);
-
         appsyncclient.query(GetGlacierUsersQuery.builder()
                         .organization(myCogAccount.getOrganization())
                         .username(myCogAccount.getUserName())
@@ -440,31 +431,6 @@ public class SystemSecurityInfo {
     }
 
 
-    private GraphQLCall.Callback<GetGlacierOrganizationQuery.Data> getOrganizationCallback = new GraphQLCall.Callback<GetGlacierOrganizationQuery.Data>() {
-        @Override
-        public void onResponse(@NonNull Response<GetGlacierOrganizationQuery.Data> response) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    if (response != null) {
-                        if (response.data().getGlacierOrganization() != null) {
-                            securityhub_data_enabled = response.data().getGlacierOrganization().securityhub_data_enabled();
-                        }
-                    }
-                }
-
-            });
-
-
-
-        }
-
-        @Override
-        public void onFailure(@NonNull ApolloException e) {
-
-        }
-    };
-
 
     private GraphQLCall.Callback<GetGlacierUsersQuery.Data> getUserCallback = new GraphQLCall.Callback<GetGlacierUsersQuery.Data>() {
         @Override
@@ -472,7 +438,7 @@ public class SystemSecurityInfo {
             new Thread(() -> {
                 if (response.data().getGlacierUsers() != null) {
                     secinfo = updateSecInfoList (response.data().getGlacierUsers().securityInfo());
-                    if (secinfo != null ) {
+                    if (secinfo != null) {
                         updateSecurityHubInfo(response.data().getGlacierUsers(), secinfo);
                     }
                 } else {
@@ -528,6 +494,10 @@ public class SystemSecurityInfo {
     }
 
     private void updateSecurityHubInfo(GetGlacierUsersQuery.GetGlacierUsers gusers, List<String> seclist) {
+
+        if (!xmppConnectionService.getOrgInfo().isSecurityhub_data_enabled()){
+            return;
+        }
         //String secinfoString = "{\"glacier_version_outdated\":false,\"os_version\":\"12\",\"biometric_lock\":true,\"deviceid\":\"12345\",\"core_enabled\":false,\"screen_lock\":true,\"organization\":\"glacierEast\",\"compromised\":false,\"compromised_detail\":false,\"os_version_outdated\":false,\"device\":\"Pixel 3a\",\"glacier_version\":\"3.4.1-RC11-dev\",\"username\":\"alexsuperadmin\"}";
         UpdateGlacierUsersInput ginput = UpdateGlacierUsersInput.builder().organization(gusers.organization())
                 .username(gusers.username())
