@@ -260,10 +260,14 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             xmppConnectionService.updateSmsInfo();
             ArrayList<SmsProfile> smSdbInfo;
             smSdbInfo = xmppConnectionService.getSmsInfo().getExistingProfs();
+            if (smSdbInfo.isEmpty()){
+                Toast.makeText(this,R.string.no_auth_sms,Toast.LENGTH_LONG).show();
+            }
             reload_adapter_sms(smSdbInfo);
             setColorForNumber(proxyNumber);
         }
         adapter_sms.toggleDeleteOff();
+
         showPurchaseView();
         drawer_sms.openDrawer(GravityCompat.START);
 
@@ -446,9 +450,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                     releaseNumberBtn.setVisibility(View.GONE);
                 }
             } else {
-                if (info.getExistingProfs().isEmpty()){
-                    Toast.makeText(this,R.string.no_auth_sms,Toast.LENGTH_LONG).show();
-                }
                 addNumberBtn.setVisibility(View.GONE);
                 releaseNumberBtn.setVisibility(View.GONE);
             }
