@@ -110,6 +110,12 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             Log.d("Glacier", "Response from server: " + responseBody);
             Gson gson = new Gson();
             AvailableNumberResponse availableNumberResponse = gson.fromJson(responseBody, AvailableNumberResponse.class);
+
+            if (availableNumberResponse == null){
+                Toast.makeText(getApplicationContext(),"SMS not currently available" ,Toast.LENGTH_LONG).show();
+                closeWaitDialog();
+                return;
+            }
             availablePhoneNumbers = availableNumberResponse.available_phone_numbers;
             runOnUiThread(new Runnable() {
                 @Override
@@ -178,19 +184,18 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             }
             Gson gson = new Gson();
             PurchaseNumResponse purchaseNumResponse = gson.fromJson(responseBody, PurchaseNumResponse.class);
-            if(purchaseNumResponse.message.equals("success")){
+            if(purchaseNumResponse.message != null && purchaseNumResponse.message.equals("success")){
                 Toast.makeText(PurchaseNumbers.this,"Number added successfully",Toast.LENGTH_LONG).show();
                 Intent intent = new Intent();
                 intent.putExtra("purchase_number", number);
                 setResult(RESULT_OK, intent);
-                finish();
 
             }else{
                 Toast.makeText(PurchaseNumbers.this,"Failed to add. Please try again",Toast.LENGTH_LONG).show();
                 Intent intent = new Intent();
                 setResult(RESULT_CANCELED, intent);
-                finish();
             }
+            finish();
             numberPurchased = true;
             onBackendConnected();
             //Log.d("Glacier", "Response from server: " + responseBody);

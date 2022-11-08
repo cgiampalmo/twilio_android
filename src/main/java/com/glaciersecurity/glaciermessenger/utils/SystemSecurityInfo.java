@@ -430,8 +430,6 @@ public class SystemSecurityInfo {
                 .enqueue(getUserCallback);
     }
 
-
-
     private GraphQLCall.Callback<GetGlacierUsersQuery.Data> getUserCallback = new GraphQLCall.Callback<GetGlacierUsersQuery.Data>() {
         @Override
         public void onResponse(@Nonnull Response<GetGlacierUsersQuery.Data> response) {

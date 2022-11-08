@@ -1,7 +1,5 @@
 package com.glaciersecurity.glaciermessenger.entities;
 
-import com.glaciersecurity.glaciermessenger.ui.SMSActivity;
-
 import java.util.ArrayList;
 
 public class SmsUserInfo {

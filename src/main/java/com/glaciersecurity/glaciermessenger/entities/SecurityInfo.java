@@ -58,7 +58,6 @@ public class SecurityInfo {
         sBiometricLock = Boolean.parseBoolean(String.valueOf(jsecinfo.get("biometric_lock")));
         sDeviceLock = Boolean.parseBoolean(String.valueOf(jsecinfo.get("device_lock")));
         sCoreEnabled = Boolean.parseBoolean(String.valueOf(jsecinfo.get("core_enabled")));
-
     }
 
     public String toJsonString() {
