@@ -153,7 +153,7 @@ public class SMSdbInfo {
             android.util.Log.d("Glacier", "Response from server: " + responseBody);
             Gson gson = new Gson();
             SmsResponse twilio_info = gson.fromJson(responseBody, SmsResponse.class);
-            if (twilio_info != null) {
+            if (twilio_info != null && twilio_info.data != null) {
                 dbPurchaseNum = twilio_info.data.allow_user_to_purchase_numbers;
                 isSMSEnabled = twilio_info.data.isSMSEnabled;
                 dbProfs = getSmsProfileList(twilio_info.data.selected_twilionumber);
