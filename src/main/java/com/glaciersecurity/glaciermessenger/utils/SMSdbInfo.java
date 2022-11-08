@@ -124,9 +124,10 @@ public class SMSdbInfo {
                 AppHelper.setUser(myCogAccount.getUserName());
                 AppHelper.getPool().getUser(myCogAccount.getUserName()).getSessionInBackground(orgauthHandler);
 
+            } else {
+                getSelectedTwilioNumber(myCogAccount.getUserName(), myCogAccount.getOrganization());
+                xmppConnectionService.setSmsInfo(this);
             }
-            getSelectedTwilioNumber(myCogAccount.getUserName(), myCogAccount.getOrganization());
-            xmppConnectionService.setSmsInfo(this);
         }).start();
     }
 
@@ -152,9 +153,11 @@ public class SMSdbInfo {
             android.util.Log.d("Glacier", "Response from server: " + responseBody);
             Gson gson = new Gson();
             SmsResponse twilio_info = gson.fromJson(responseBody, SmsResponse.class);
-            dbPurchaseNum = twilio_info.data.allow_user_to_purchase_numbers;
-            isSMSEnabled = twilio_info.data.isSMSEnabled;
-            dbProfs = getSmsProfileList(twilio_info.data.selected_twilionumber);
+            if (twilio_info != null) {
+                dbPurchaseNum = twilio_info.data.allow_user_to_purchase_numbers;
+                isSMSEnabled = twilio_info.data.isSMSEnabled;
+                dbProfs = getSmsProfileList(twilio_info.data.selected_twilionumber);
+            }
 
 
         }catch (IOException ex){

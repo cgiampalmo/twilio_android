@@ -828,7 +828,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             fab_contact.setBackgroundTintList(ColorStateList.valueOf(sp_.getColor()));
         }
         else {
-            setTitle("SMS");
+            setTitle("Glacier SMS");
             toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
             //fab_contact.setVisibility(View.INVISIBLE);
             // fab_contact.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(formattedNumber)));

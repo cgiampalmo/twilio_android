@@ -110,6 +110,12 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             Log.d("Glacier", "Response from server: " + responseBody);
             Gson gson = new Gson();
             AvailableNumberResponse availableNumberResponse = gson.fromJson(responseBody, AvailableNumberResponse.class);
+
+            if (availableNumberResponse == null){
+                Toast.makeText(getApplicationContext(),"SMS not currently available" ,Toast.LENGTH_LONG).show();
+                closeWaitDialog();
+                return;
+            }
             availablePhoneNumbers = availableNumberResponse.available_phone_numbers;
             runOnUiThread(new Runnable() {
                 @Override
