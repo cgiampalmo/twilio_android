@@ -180,7 +180,7 @@ public class ConversationsManager {
                 Log.d("Glacier", "Retrieved access token from server: " + accessToken + proxyAddress );
                 listener.receivedAccessToken(accessToken, null);
 
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 Log.e("Glacier", ex.getLocalizedMessage(), ex);
                 listener.receivedAccessToken(null, ex);
             }

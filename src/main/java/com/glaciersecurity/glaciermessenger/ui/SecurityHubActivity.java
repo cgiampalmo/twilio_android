@@ -1,7 +1,6 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.ExpandableListItem;
 import com.glaciersecurity.glaciermessenger.ui.adapter.AdapterListExpand;
-import com.glaciersecurity.glaciermessenger.utils.PhoneHelper;
 import com.glaciersecurity.glaciermessenger.utils.ThemeHelper;
 import com.makeramen.roundedimageview.RoundedImageView;
 
@@ -195,7 +193,6 @@ public class SecurityHubActivity extends XmppActivity {
     void onBackendConnected() {
         try {
             if (xmppConnectionService != null) {
-                xmppConnectionService.getOrgInfo().checkCurrentOrgInfo();
                 initSecurityComponents();
             }
         } catch (Exception e){

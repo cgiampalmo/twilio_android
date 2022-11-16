@@ -141,7 +141,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             });
 
 
-        }catch (IOException ex){
+        }catch (Exception ex){
             Log.d("Glacier", ex.getLocalizedMessage(), ex);
             closeWaitDialog();
         }
@@ -186,20 +186,13 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             PurchaseNumResponse purchaseNumResponse = gson.fromJson(responseBody, PurchaseNumResponse.class);
             if(purchaseNumResponse.message != null && purchaseNumResponse.message.equals("success")){
                 Toast.makeText(PurchaseNumbers.this,"Number added successfully",Toast.LENGTH_LONG).show();
-                Intent intent = new Intent();
-                intent.putExtra("purchase_number", number);
-                setResult(RESULT_OK, intent);
-
             }else{
                 Toast.makeText(PurchaseNumbers.this,"Failed to add. Please try again",Toast.LENGTH_LONG).show();
-                Intent intent = new Intent();
-                setResult(RESULT_CANCELED, intent);
             }
-            finish();
             numberPurchased = true;
             onBackendConnected();
             //Log.d("Glacier", "Response from server: " + responseBody);
-        }catch (IOException ex){
+        }catch (Exception ex){
             Log.e("Glacier", ex.getLocalizedMessage(), ex);
         }
     }

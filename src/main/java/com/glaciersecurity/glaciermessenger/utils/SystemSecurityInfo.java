@@ -9,7 +9,6 @@ import android.provider.Settings;
 import android.provider.Settings.Secure;
 
 import androidx.annotation.BoolRes;
-import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 
 import com.amazonaws.amplify.generated.graphql.GetGlacierUsersQuery;
@@ -82,8 +81,6 @@ public class SystemSecurityInfo {
     private AWSAppSyncClient appsyncclient;
     private SecurityInfo securityInfo;
     private boolean needsUpdate;
-    List<String> secinfo;
-
 
     public SystemSecurityInfo(XmppConnectionService xmppConn) {
         xmppConnectionService = xmppConn;
@@ -423,9 +420,9 @@ public class SystemSecurityInfo {
 
 
         appsyncclient.query(GetGlacierUsersQuery.builder()
-                        .organization(myCogAccount.getOrganization())
-                        .username(myCogAccount.getUserName())
-                        .build())
+                .organization(myCogAccount.getOrganization())
+                .username(myCogAccount.getUserName())
+                .build())
                 .responseFetcher(AppSyncResponseFetchers.NETWORK_ONLY)
                 .enqueue(getUserCallback);
     }
@@ -435,7 +432,7 @@ public class SystemSecurityInfo {
         public void onResponse(@Nonnull Response<GetGlacierUsersQuery.Data> response) {
             new Thread(() -> {
                 if (response.data().getGlacierUsers() != null) {
-                    secinfo = updateSecInfoList (response.data().getGlacierUsers().securityInfo());
+                    List<String> secinfo = updateSecInfoList (response.data().getGlacierUsers().securityInfo());
                     if (secinfo != null) {
                         updateSecurityHubInfo(response.data().getGlacierUsers(), secinfo);
                     }
@@ -492,10 +489,6 @@ public class SystemSecurityInfo {
     }
 
     private void updateSecurityHubInfo(GetGlacierUsersQuery.GetGlacierUsers gusers, List<String> seclist) {
-
-        if (!xmppConnectionService.getOrgInfo().isSecurityhub_data_enabled()){
-            return;
-        }
         //String secinfoString = "{\"glacier_version_outdated\":false,\"os_version\":\"12\",\"biometric_lock\":true,\"deviceid\":\"12345\",\"core_enabled\":false,\"screen_lock\":true,\"organization\":\"glacierEast\",\"compromised\":false,\"compromised_detail\":false,\"os_version_outdated\":false,\"device\":\"Pixel 3a\",\"glacier_version\":\"3.4.1-RC11-dev\",\"username\":\"alexsuperadmin\"}";
         UpdateGlacierUsersInput ginput = UpdateGlacierUsersInput.builder().organization(gusers.organization())
                 .username(gusers.username())

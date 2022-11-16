@@ -918,7 +918,6 @@
     <string name="messages_channel_name">Messages</string>
     <string name="notification_sms_messages">sms</string>
     <string name="sms_channel_name">sms</string>
-    <string name="no_auth_sms">You are not authorized to add a number. Please contact your administrator.</string>
     <string name="silent_messages_channel_name">Silent messages</string>
     <string name="silent_messages_channel_description">This notification group is used to display notifications that should not trigger any sound. For example when being active on another device (Grace Period).</string>
     <string name="pref_more_notification_settings">Notification Settings</string>

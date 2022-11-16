@@ -160,7 +160,7 @@ public class SMSdbInfo {
             }
 
 
-        }catch (IOException ex){
+        }catch (Exception ex){
             android.util.Log.d("Glacier", ex.getLocalizedMessage(), ex);
         }
     }
@@ -184,15 +184,6 @@ public class SMSdbInfo {
         return smsProfList;
     }
 
-    public ArrayList<String> getProxyNumList() {
-        ArrayList<String> proxyList = new ArrayList<>();
-
-        for (SmsProfile smsProfile : dbProfs) {
-            proxyList.add(smsProfile.getUnformattedNumber());
-        }
-
-        return proxyList;
-    }
     /**
      * Callbacks
      */

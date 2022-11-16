@@ -1,7 +1,6 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -92,422 +91,129 @@ import okhttp3.Response;
 
 
 public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener, OnSMSRemoveClickListener {
-    private static final String KEY_TEXT_REPLY = "key_text_reply";
-    private static final String MARK_AS_READ = "mark_as_read";
-    protected static final int REQUEST_PURCHASE_SMS = 0x0401;
-
-
     private ActionBar actionBar;
-
+    private float mSwipeEscapeVelocity = 0f;
+    private PendingActionHelper pendingActionHelper = new PendingActionHelper();
+    private final PendingItem<Conversation> swipedSMSConversation = new PendingItem<>();
     private Toolbar toolbar;
     public FloatingActionButton fab_contact;
     private Button addNumberBtn;
     private Button releaseNumberBtn;
-    private DrawerLayout drawer_sms;
-    SmsProfileAdapter adapter_sms;
-    private MessagesAdapter messagesAdapter;
+//    public FloatingActionButton fab_group;
+//    public FloatingActionButton fab_add;
 
-    RecyclerView.LayoutManager layoutManagerSMS;
     RecyclerView recyclerViewConversations;
     RecyclerView recyclerViewSMS;
 
+
+    @Override
+    public void OnSMSRemoveClick(String conv_name) {
+        ReleaseNum(conv_name);
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        ReleaseNum(adapter_sms.selectedSMSforRemoval.getFormattedNumber());
+    }
+
+    private class ReleaseNumResponse{
+        String message;
+        String data;
+    }
+    private View back_drop;
+    private boolean rotate = false;
+//    private View lyt_group;
+//    private View lyt_chat;
+
+    private DrawerLayout drawer_sms;
+    SmsProfileAdapter adapter_sms;
+    RecyclerView.LayoutManager layoutManagerSMS;
+    ArrayList<SmsProfile> profileList= new ArrayList<>();
+    ArrayList<String> proxyNumbers = new ArrayList<>();
+
+
+    private MessagesAdapter messagesAdapter;
     private String accessToken;
     private Context mContext = this;
     private String identity;
     private String proxyNumber;
+    private boolean PurchaseNumber;
     TokenModel Atoken = new TokenModel();
-
-    private int swipedPos = -1;
-    private float mSwipeEscapeVelocity = 0f;
-    private PendingActionHelper pendingActionHelper = new PendingActionHelper();
-    private final PendingItem<Conversation> swipedSMSConversation = new PendingItem<>();
+    private static final String KEY_TEXT_REPLY = "key_text_reply";
+    private static final String MARK_AS_READ = "mark_as_read";
     NotificationManagerCompat managerCompat;
     NotificationCompat.Builder builder = new NotificationCompat.Builder(this,"sms");
     Map<String, String> cList =new HashMap<>();
     ArrayList<ContactModel> arrayList = new ArrayList<ContactModel>();
-    ArrayList<SmsProfile> profileList= new ArrayList<>();
-    ArrayList<String> proxyNumbers = new ArrayList<>();
+    private int swipedPos = -1;
 
-    private final ConversationsManager ConversationsManager = new ConversationsManager(this);
-    ConversationModel model;
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_menu_drawer_sms);
-        if (android.os.Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
-        setTitle("SMS");
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        model = (ConversationModel) getApplicationContext();;
-        setSupportActionBar(toolbar);
-        actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        fab_contact = (FloatingActionButton) findViewById(R.id.fab_chat);
-        fab_contact.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                accessToken = Atoken.getAccessToken();
-                //getContactList();
-                Log.d("Glacier","conversationsClient "+ConversationsManager.conversationsClient);
-                if (ConversationsManager.conversationsClient != null){
-                    if (proxyNumber == null){
-                        Toast.makeText(mContext, "No SMS numbers configured for this account", Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-                        model.setConversationsClient(ConversationsManager.conversationsClient);
-                        Intent intent = new Intent(mContext, ContactListActivity.class);
-                        String conv_Sid = "new";
-                        startActivity(intent.putExtra("conv_sid", conv_Sid).putExtra("identity", identity).putExtra("conversationToken", accessToken).putExtra("title", "New message"));
-
-                    }}else{
-                    Toast.makeText(mContext, "Please wait the SMS is not loaded successfully", Toast.LENGTH_SHORT).show();
-                }
+    @Override
+    public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor,String messageTo) {
+        messagesAdapter.notifyDataSetChanged();
+        Log.d("Glacier","unread_conv_count----"+profileList);
+        reload_adapter_sms(profileList);
+        String checkIdentity = model.getIdentity();
+        if(checkIdentity.equals(identity) && !(messageAuthor.equals(identity))) {
+            Conversation current_conv = model.getConversation();
+            Log.d("Glacier", "receivedNewMessage called----" + current_conv + "----" + messageConversationSid);
+            if (current_conv != null)
+                Log.d("Glacier", "Current Conversation new message " + current_conv.getSid() + " : " + messageConversationSid + " : " + current_conv.getSid().equals(messageConversationSid) + " : " + messageAuthor);
+            Log.d("Glacier", "Current Conversation new message" +identity+" : " + messageAuthor + "---"+identity.equals(messageAuthor));
+            if (current_conv == null)
+                notifyMessage(newMessage, messageAuthor,messageTo);
+            else if (!identity.equals(messageAuthor)) {
+                notifyMessage(newMessage, messageAuthor,messageTo);
             }
-        });
-        actionBar.setHomeButtonEnabled(true);
-
-
-
-        toolbar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onDrawerOpened();
-            }
-        });
-        if(getIntent().hasExtra("account")) {
-            identity = getIntent().getExtras().getString("account");
-            model.setIdentity(identity);
-            Log.d("Glacier ","Twilio Conversation "+model.getConversation());
-        }else{
-            identity = model.getIdentity();
-            model.setConversation(null);
-            Log.d("Glacier","Identity "+identity);
         }
-        if(getIntent().hasExtra("ProxyNum")) {
-            proxyNumber = getIntent().getExtras().getString("ProxyNum");
-            model.setProxyNumber(proxyNumber);
-            setColorForNumber(proxyNumber);
-            if (messagesAdapter != null) {
+    }
+    public void notifyMessage(String newMessage,String messageAuthor,String messageTo){
+        Log.d("Glacier", "New notification notifyMessage called"+messageTo);
+        Intent intent = new Intent(mContext, SMSActivity.class);
+        intent.removeExtra("ProxyNum");
+        intent.putExtra("ProxyNum",messageTo);
+        //Toast.makeText(mContext, "notifyMessage "+messageTo, Toast.LENGTH_SHORT).show();
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent broadcastIntent = new Intent(this, NotificationReceiver.class);
+        PendingIntent actionIntent = PendingIntent.getBroadcast(this,
+                0, broadcastIntent, PendingIntent.FLAG_MUTABLE);
+
+        Log.d("Glacier", "New notification before remoteInput");
+        RemoteInput remoteInput = new RemoteInput.Builder(KEY_TEXT_REPLY).setLabel("Reply").build();
+        RemoteInput remoteInput2 = new RemoteInput.Builder(MARK_AS_READ).setLabel("Mark as read").build();
+        Intent replyIntent = new Intent(this,RemoteReceiver.class);
+        Log.d("Glacier", "New notification before replyIntent");
+        replyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent replyPendingIntent = PendingIntent.getActivity(this,0,replyIntent,PendingIntent.FLAG_MUTABLE);
+        builder.setContentTitle("Glacier SMS for "+ Tools.lastFourDigits(messageTo));
+        builder.setPriority(NotificationCompat.PRIORITY_HIGH);
+        builder.setContentText(newMessage);
+        Log.d("Glacier", "New notification after newMessage");
+        builder.setSmallIcon(R.drawable.ic_baseline_sms_24);
+        builder.setAutoCancel(true);
+        builder.setContentIntent(pendingIntent);
+        managerCompat = NotificationManagerCompat.from(this);
+        if(messageAuthor.length() > 5) {
+            managerCompat.notify(Integer.parseInt(messageAuthor.substring(2, 5)), builder.build());
+            model.setNotificationManager(managerCompat);
+        }
+    }
+    @Override
+    public void messageSentCallback() {
+        messagesAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void reloadMessages() {
+        //getContactList();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // need to modify user interface elements on the UI thread
+                Log.d("Glacier","Reload messages called");
                 messagesAdapter.notifyDataSetChanged();
             }
-
-        }
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            final NotificationChannel smsChannel = new NotificationChannel("sms",
-                    this.getString(R.string.sms_channel_name),
-                    NotificationManager.IMPORTANCE_HIGH);
-            smsChannel.setShowBadge(true);
-            smsChannel.enableVibration(true);
-            smsChannel.enableLights(true);
-            smsChannel.setGroup("sms");
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(smsChannel);
-
-        }
-
-        recyclerViewConversations = findViewById(R.id.choose_conversation_list);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setStackFromEnd(true);
-        layoutManager.setReverseLayout(true);
-        recyclerViewConversations.setLayoutManager(layoutManager);
-
-
-        recyclerViewSMS = (RecyclerView) findViewById(R.id.sms_recycler_view);
-        layoutManagerSMS = new LinearLayoutManager(this);
-        recyclerViewSMS.setLayoutManager(layoutManagerSMS);
-        drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
-        adapter_sms = new SmsProfileAdapter((OnSMSProfileClickListener) this, (OnSMSRemoveClickListener) this, profileList);
-        releaseNumberBtn = (Button) findViewById(R.id.release_number);
-        releaseNumberBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                adapter_sms.toggleDeleteVisible();
-            }
         });
 
-        addNumberBtn = (Button) findViewById(R.id.add_number);
-        addNumberBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(mContext, PurchaseNumbers.class);
-                startActivityForResult(intent, REQUEST_PURCHASE_SMS);
-            }});
-
-        recyclerViewSMS.setAdapter(adapter_sms);
-        Log.d("Glacier","identity sdns n "+identity);
-    }
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_add_group, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Log.d("Glacier","menu_group_call_participants_list "+item.getItemId()+"======="+R.id.menu_group_call_participants_list);
-        switch (item.getItemId()){
-            case android.R.id.home:
-                finish();
-                break;
-            case R.id.sms_accounts:
-                onDrawerOpened();
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-    private void onDrawerOpened(){
-        if (xmppConnectionService != null) {
-            xmppConnectionService.updateSmsInfo();
-            ArrayList<SmsProfile> smSdbInfo;
-            smSdbInfo = xmppConnectionService.getSmsInfo().getExistingProfs();
-            if (smSdbInfo.isEmpty()){
-                Toast.makeText(this,R.string.no_auth_sms,Toast.LENGTH_LONG).show();
-            }
-            reload_adapter_sms(smSdbInfo);
-            setColorForNumber(proxyNumber);
-        }
-        adapter_sms.toggleDeleteOff();
-
-        showPurchaseView();
-        drawer_sms.openDrawer(GravityCompat.START);
-
-    }
-
-    public void onResume(){
-        super.onResume();
-        drawer_sms.close();
-        Log.d("Glacier","onResume is called");
-    }
-
-    public void onStart() {
-        super.onStart();
-    }
-    public void onRestart(){
-
-        super.onRestart();
-    }
-    @Override
-    protected void refreshUiReal() {
-    }
-
-    public void onBackPressed(){
-        super.onBackPressed();
-        finish();
-        Intent intent = new Intent(mContext, ConversationsActivity.class);
-        startActivity(intent.putExtra("account",identity));
-    }
-    @Override
-    protected void onBackendConnected() {
-        if(xmppConnectionService != null) {
-            xmppConnectionService.updateSmsInfo();
-            SMSdbInfo info = xmppConnectionService.getSmsInfo();
-            profileList = info.getExistingProfs();
-            proxyNumbers = info.getProxyNumList();
-            adapter_sms.smsProfileList = profileList;
-            adapter_sms.notifyDataSetChanged();
-            showPurchaseView();
-        }
-
-        //Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation(proxyNumber));
-        ConversationsClient conversationsClient = model.getConversationsClient();
-
-        ConversationsManager.setListener(this);
-        Log.d("Glacier","Twilio ConversationsClient "+conversationsClient);
-        if(conversationsClient != null){
-            model.setConversation(null);
-            Log.d("Glacier","proxyNumbers"+ proxyNumbers.toArray());
-            ConversationsManager.addListenerLoadChannels(conversationsClient,proxyNumbers.toArray());
-            if(model.getProxyNumber() == null || model.getProxyNumber().equals("") ) {
-                if(proxyNumbers != null && (proxyNumber == null || proxyNumber.length() > 0)) {
-                    if(proxyNumbers.size() > 0) {
-                        model.setProxyNumber(proxyNumbers.get(0));
-                        proxyNumber = proxyNumbers.get(0);
-                    }
-                }
-            }else
-            if (xmppConnectionService.getSmsInfo().isNumberActive(model.getProxyNumber()) ){
-                proxyNumber = model.getProxyNumber();
-            } else {
-                model.setProxyNumber(null);
-            }
-
-            if(proxyNumber != null) {
-                setColorForNumber(proxyNumber);
-            }
-        }else{
-            retrieveTokenFromServer();
-        }
-
-        //reload_adapter_sms(profileList);
-        checkEmptyView();
-    }
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_PURCHASE_SMS) {
-            if (resultCode == RESULT_OK) { // Activity.RESULT_OK
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // get String data from Intent
-                        String returnPurchasedNumber = data.getStringExtra("purchase_number");
-                        returnPurchasedNumber = returnPurchasedNumber.replace("(", "").replace(")", "").replace("-", "").replace(" ", "");
-                        model.setProxyNumber(returnPurchasedNumber);
-                        proxyNumber = model.getProxyNumber();
-                        adapter_sms.notifyDataSetChanged();
-                        checkEmptyView();
-                    }
-                });
-            }
-        }
-    }
-    private void checkPermission() {
-        Log.d("Glacier","checkPermission called");
-        if (ContextCompat.checkSelfPermission(SMSActivity.this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(SMSActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, 100);
-        } else {
-            Log.d("Glacier","getContactList ");
-            getContactList();
-        }
-    }
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == 100 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-            Log.d("Glacier","getContactList ");
-            getContactList();
-        }else{
-            //Toast.makeText(ContactListActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
-            checkPermission();
-        }
-    }
-
-
-
-
-
-    private void retrieveTokenFromServer() {
-        ConversationsManager.retrieveAccessTokenFromServer(this, identity, new TokenResponseListener() {
-            @Override
-            public void receivedTokenResponse(boolean success, @Nullable Exception exception,String token) {
-                if (success) {
-//                    SMSActivity.accessToken = token;
-                    Atoken.setAccessToken(token);
-                    //ConversationsManager.initializeWithAccessToken(this,)
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // need to modify user interface elements on the UI thread
-                            checkPermission();
-                            //setTitle(identity);
-                            if(model.getProxyNumber() == null || model.getProxyNumber().equals("") ) {
-                                if(ConversationsManager.proxyAddress != null && ConversationsManager.proxyAddress.length > 0) {
-                                    model.setProxyNumber(ConversationsManager.proxyAddress[0].toString());
-                                    proxyNumber = ConversationsManager.proxyAddress[0].toString();
-                                }
-
-                            }else
-                                proxyNumber = model.getProxyNumber();
-                            setColorForNumber(proxyNumber);
-                        }
-                    });
-                }
-                else {
-                    String errorMessage = getString(R.string.error_retrieving_access_token);
-                    if (exception != null) {
-                        errorMessage = errorMessage + " " + exception.getLocalizedMessage();
-                    }
-                    else
-                        Log.d("Glacier","errorMessage "+errorMessage);
-                }
-            }
-        });
-
-    }
-
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        proxyNumber = model.getProxyNumber();
-        Log.d("Glacier","onNewIntent "+intent.hasExtra("ProxyNum"));
-        if(intent.hasExtra("ProxyNum") && (!(intent.getExtras().getString("ProxyNum").equals(proxyNumber)))){
-            Log.d("Glacier","onNewIntent proxy num not equal");
-            OnSMSProfileClick("", intent.getExtras().getString("ProxyNum"));
-        }else{
-            if(!intent.hasExtra("ProxyNum")) {
-                ConversationsManager.loadChannels(model.getConversationsClient());
-            }
-        }
-    }
-
-
-    public void showPurchaseView(){
-        if (xmppConnectionService != null) {
-            SMSdbInfo info = xmppConnectionService.getSmsInfo();
-            if (info.getUserPurchasePermission()) {
-                addNumberBtn.setVisibility(View.VISIBLE);
-                if (info.getExistingProfs().size() > 0) {
-                    releaseNumberBtn.setVisibility(View.VISIBLE);
-                } else {
-                    releaseNumberBtn.setVisibility(View.GONE);
-                }
-            } else {
-                addNumberBtn.setVisibility(View.GONE);
-                releaseNumberBtn.setVisibility(View.GONE);
-            }
-        }
-    }
-    public void checkEmptyView(){
-        if(proxyNumbers != null && (proxyNumber == null || proxyNumber.length() > 0)) {
-            if(proxyNumbers.size() > 0) {
-                model.setProxyNumber(proxyNumbers.get(0));
-                proxyNumber = proxyNumbers.get(0);
-            }
-        }
-        if( xmppConnectionService == null || ConversationsManager.getConversation(proxyNumber) == null || ConversationsManager.getConversation(proxyNumber).size() == 0){
-            View emptyLayout = findViewById(R.id.empty_list);
-            emptyLayout.setVisibility(View.VISIBLE);
-        } else {
-            View emptyLayout = findViewById(R.id.empty_list);
-            emptyLayout.setVisibility(View.GONE);
-        }
-    }
-
-
-
-    public void reload_adapter_sms(ArrayList<SmsProfile> smSdbInfo){
-        ArrayList<SmsProfile> smSInfo;
-        Log.d("Glacier", "unread_conv_count----" + ConversationsManager.unread_conv_count + xmppConnectionService + smSdbInfo);
-        smSInfo = smSdbInfo;
-        Log.d("Glacier", "unread_conv_count----" + ConversationsManager.unread_conv_count + xmppConnectionService + smSInfo);
-        for (SmsProfile smsProfile : smSdbInfo) {
-            Log.d("Glacier", "unread_conv_count---- " + ConversationsManager.unread_conv_count + profileList.contains(smsProfile));
-            if(!(profileList.contains(smsProfile)))
-                profileList.add(0, smsProfile);
-            smsProfile.setUnread_count(0);
-            if (ConversationsManager.unread_conv_count == null || ConversationsManager.unread_conv_count.isEmpty()) {
-                smsProfile.setUnread_count(0);
-            } else {
-                String number = smsProfile.getFormattedNumber().replaceAll(" ", "").replace("(", "").replace(")", "").replace("-", "");
-                Integer unread_count = ConversationsManager.unread_conv_count.get(number);
-                Log.d("Glacier", "unread_conv_count---- " + unread_count);
-                if (unread_count != null) {
-                    smsProfile.setUnread_count(unread_count);
-                }
-            }
-
-            proxyNumbers.add(smsProfile.getFormattedNumber());
-            adapter_sms.notifyItemInserted(0);
-        }
-        if(proxyNumber == null){
-            if(proxyNumbers.size() > 0) {
-                OnSMSProfileClick("", proxyNumbers.get(0));
-            }
-        }
-        if(adapter_sms != null)
-            adapter_sms.notifyDataSetChanged();
-        else
-            Log.d("Glacier","adapter_sms is null");
-
-        checkEmptyView();
     }
 
     public void showList() {
@@ -604,61 +310,384 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
             touchHelper.attachToRecyclerView(recyclerViewConversations);
             Log.d("Glacier","conversationList " +conversationList.size() + messagesAdapter);
+//            View emptyLayout = findViewById(R.id.empty_list);
+//            emptyLayout.setVisibility(View.GONE);
+//            Log.d("Glacier","conversationsClient emptyLayout " +conversationList.size() + emptyLayout.getVisibility());
 
         }
         ProgressBar progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
+        /*runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                checkPermission();
+            }
+        });*/
         checkEmptyView();
     }
 
+    protected void swipeDelete(PendingItem<Conversation> swipedConversation, int position){
+        AlertDialog.Builder builder = new AlertDialog.Builder(SMSActivity.this);
+        builder.setMessage(R.string.delete_sms_convo_dialog);
+        builder.setTitle("Confirmation");
+        builder.setCancelable(false);
+        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i)    {
+                messagesAdapter.remove(swipedSMSConversation.peek(),position);
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i)    {
+                pendingActionHelper.undo();
+                Conversation conversation = swipedConversation.pop();
+                messagesAdapter.insert(conversation, position);
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
 
     @Override
-    public void OnSMSProfileClick(String id, String number) {
-        xmppConnectionService.updateSmsInfo();
-        number = number.replace("(","").replace(")","").replace("-","").replace(" ","");
-        model.setProxyNumber(number);
-        proxyNumber = number;
-        setColorForNumber(proxyNumber);
-        drawer_sms.closeDrawers();
-        if (messagesAdapter != null) {
-            messagesAdapter.notifyDataSetChanged();
+    public void notifyMessages(String newMessage,String messageAuthor,String messageTo) {
+        notifyMessage(newMessage,messageAuthor,messageTo);
+        reload_adapter_sms(profileList);
+    }
+
+    public void reload_adapter_sms(ArrayList<SmsProfile> smSdbInfo){
+        ArrayList<SmsProfile> smSInfo;
+        Log.d("Glacier", "unread_conv_count----" + ConversationsManager.unread_conv_count + xmppConnectionService + smSdbInfo);
+        smSInfo = smSdbInfo;
+        proxyNumbers.clear();
+        Log.d("Glacier", "unread_conv_count----" + ConversationsManager.unread_conv_count + xmppConnectionService + smSInfo);
+        for (SmsProfile smsProfile : smSdbInfo) {
+            Log.d("Glacier", "unread_conv_count---- " + ConversationsManager.unread_conv_count + profileList.contains(smsProfile));
+            if(!(profileList.contains(smsProfile)))
+                profileList.add(0, smsProfile);
+            smsProfile.setUnread_count(0);
+            if (ConversationsManager.unread_conv_count == null || ConversationsManager.unread_conv_count.isEmpty()) {
+                smsProfile.setUnread_count(0);
+            } else {
+                String number = smsProfile.getFormattedNumber().replaceAll(" ", "").replace("(", "").replace(")", "").replace("-", "");
+                Integer unread_count = ConversationsManager.unread_conv_count.get(number);
+                Log.d("Glacier", "unread_conv_count---- " + unread_count);
+                if (unread_count != null) {
+                    smsProfile.setUnread_count(unread_count);
+                }
+            }
+
+            proxyNumbers.add(smsProfile.getFormattedNumber());
+            adapter_sms.notifyItemInserted(0);
         }
+        if(proxyNumber == null){
+            if(proxyNumbers.size() > 0) {
+                OnSMSProfileClick("", proxyNumbers.get(0));
+            }
+        }
+        if(adapter_sms != null)
+            adapter_sms.notifyDataSetChanged();
+        else
+            Log.d("Glacier","adapter_sms is null");
+
         checkEmptyView();
     }
 
+    private final ConversationsManager ConversationsManager = new ConversationsManager(this);
+    ConversationModel model;
 
+    @Override
+    protected void refreshUiReal() {
 
+    }
 
-
-    public void setColorForNumber(String number){
-        if (xmppConnectionService == null) {
-            setTitle("Glacier SMS");
-            toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
-            //fab_contact.setVisibility(View.INVISIBLE);
-            return;
+    @Override
+    protected void onBackendConnected() {
+        ArrayList<SmsProfile> smSdbInfo;
+        if(xmppConnectionService != null) {
+            xmppConnectionService.updateSmsInfo();
+            SMSdbInfo info = xmppConnectionService.getSmsInfo();
+            smSdbInfo = info.getExistingProfs();
+            PurchaseNumber = info.getUserPurchasePermission();
+            //SMSdbInfo smsinfo = new SMSdbInfo(xmppConnectionService);
+            //xmppConnectionService.setSmsInfo(info);
+            Log.d("Glacier", "onBackendConnected" + xmppConnectionService + smSdbInfo+PurchaseNumber);
+            proxyNumbers.clear();
+            profileList.clear();
+        }else{
+            smSdbInfo = profileList;
         }
-        if (!xmppConnectionService.getSmsInfo().isNumberActive(number)) {
-            setTitle("Glacier SMS");
-            toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
-            //fab_contact.setVisibility(View.INVISIBLE);
-            return;
+
+        //Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation(proxyNumber));
+        ConversationsClient conversationsClient = model.getConversationsClient();
+
+        ConversationsManager.setListener(this);
+        Log.d("Glacier","Twilio ConversationsClient "+conversationsClient);
+        if(conversationsClient != null){
+            model.setConversation(null);
+            Log.d("Glacier","proxyNumbers"+ proxyNumbers.toArray());
+            ConversationsManager.addListenerLoadChannels(conversationsClient,proxyNumbers.toArray());
+            if(model.getProxyNumber() == null || model.getProxyNumber().equals("") ) {
+                if(proxyNumbers != null && (proxyNumber == null || proxyNumber.length() > 0)) {
+                    if(proxyNumbers.size() > 0) {
+                        model.setProxyNumber(proxyNumbers.get(0));
+                        proxyNumber = proxyNumbers.get(0);
+                    }
+                }
+            }else
+            if (xmppConnectionService.getSmsInfo().isNumberActive(model.getProxyNumber()) ){
+                proxyNumber = model.getProxyNumber();
+            } else {
+                model.setProxyNumber(null);
+            }
+
+            if(proxyNumber != null) {
+                setColorForNumber(proxyNumber);
+            }
+        }else{
+            retrieveTokenFromServer();
         }
-        SmsProfile sp_= xmppConnectionService.getSmsInfo().getSMSProfilefromNumber(number);
-        if (sp_ != null) {
-            setTitle(sp_.getFormattedNumber());
-            toolbar.setBackgroundColor(sp_.getColor());
-            fab_contact.setVisibility(View.VISIBLE);
-            fab_contact.setBackgroundTintList(ColorStateList.valueOf(sp_.getColor()));
-        }
-        else {
-            setTitle("Glacier SMS");
-            toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
-            //fab_contact.setVisibility(View.INVISIBLE);
-            // fab_contact.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(formattedNumber)));
+
+        reload_adapter_sms(smSdbInfo);
+        checkEmptyView();
+    }
+
+    private void ReleaseNum(String number){
+        String releaseNumberUrl = SMSActivity.this.getString(R.string.release_num_url);
+        OkHttpClient client = new OkHttpClient();
+        RequestBody requestBody = new FormBody.Builder()
+                .add("releaseNumber", adapter_sms.selectedSMSforRemoval.getUnformattedNumber())
+                .add("username",xmppConnectionService.getAccounts().get(0).getUsername())
+                .build();
+        Request request = new Request.Builder()
+                .url(releaseNumberUrl)
+                .post(requestBody)
+                .addHeader("API-Key", xmppConnectionService.getApplicationContext().getResources().getString(R.string.twilio_token))
+                .build();
+        Log.d("Glacier", "request " + request);
+        try (Response response = client.newCall(request).execute()) {
+            String responseBody = "";
+            if (response != null && response.body() != null) {
+                responseBody = response.body().string();
+            }
+            Gson gson = new Gson();
+            ReleaseNumResponse releaseNumResponse = gson.fromJson(responseBody, ReleaseNumResponse.class);
+            if(releaseNumResponse.message.equals("success")){
+                Toast.makeText(SMSActivity.this,"Number released successfully",Toast.LENGTH_LONG).show();
+                model.setProxyNumber(null);
+                onBackPressed();
+            }else{
+                Toast.makeText(SMSActivity.this,"Failed to release. Please try again",Toast.LENGTH_LONG).show();
+            }
+            //onBackendConnected();
+            Log.d("Glacier", "Response from server: " + responseBody);
+        }catch (Exception ex){
+            Log.e("Glacier", ex.getLocalizedMessage(), ex);
+            Toast.makeText(SMSActivity.this,"Failed to release. Please try again",Toast.LENGTH_LONG).show();
         }
     }
 
-    @SuppressLint("Range")
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        proxyNumber = model.getProxyNumber();
+        Log.d("Glacier","onNewIntent "+intent.hasExtra("ProxyNum"));
+        if(intent.hasExtra("ProxyNum") && (!(intent.getExtras().getString("ProxyNum").equals(proxyNumber)))){
+            Log.d("Glacier","onNewIntent proxy num not equal");
+            OnSMSProfileClick("", intent.getExtras().getString("ProxyNum"));
+        }else{
+            if(!intent.hasExtra("ProxyNum")) {
+                ConversationsManager.loadChannels(model.getConversationsClient());
+            }
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_menu_drawer_sms);
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
+        setTitle("SMS");
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        model = (ConversationModel) getApplicationContext();
+//        if(model.getPurchaseNumber() != null)
+//            PurchaseNumber = model.getPurchaseNumber();
+//        else
+//            PurchaseNumber = false;
+        setSupportActionBar(toolbar);
+        actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        fab_contact = (FloatingActionButton) findViewById(R.id.fab_chat);
+        fab_contact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                accessToken = Atoken.getAccessToken();
+                //getContactList();
+                Log.d("Glacier","conversationsClient "+ConversationsManager.conversationsClient);
+                if (ConversationsManager.conversationsClient != null){
+                    if (proxyNumber == null){
+                        Toast.makeText(mContext, "No SMS numbers configured for this account", Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        model.setConversationsClient(ConversationsManager.conversationsClient);
+                        Intent intent = new Intent(mContext, ContactListActivity.class);
+                        String conv_Sid = "new";
+                        startActivity(intent.putExtra("conv_sid", conv_Sid).putExtra("identity", identity).putExtra("conversationToken", accessToken).putExtra("title", "New message"));
+
+                    }}else{
+                    Toast.makeText(mContext, "Please wait the SMS is not loaded successfully", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        actionBar.setHomeButtonEnabled(true);
+
+
+
+        toolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onDrawerOpened();
+            }
+        });
+        if(getIntent().hasExtra("account")) {
+            identity = getIntent().getExtras().getString("account");
+            model.setIdentity(identity);
+            Log.d("Glacier ","Twilio Conversation "+model.getConversation());
+        }else{
+            identity = model.getIdentity();
+            model.setConversation(null);
+            Log.d("Glacier","Identity "+identity);
+        }
+        if(getIntent().hasExtra("ProxyNum")) {
+            proxyNumber = getIntent().getExtras().getString("ProxyNum");
+            model.setProxyNumber(proxyNumber);
+            setColorForNumber(proxyNumber);
+            if (messagesAdapter != null) {
+                messagesAdapter.notifyDataSetChanged();
+            }
+
+        }
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            final NotificationChannel smsChannel = new NotificationChannel("sms",
+                    this.getString(R.string.sms_channel_name),
+                    NotificationManager.IMPORTANCE_HIGH);
+            smsChannel.setShowBadge(true);
+            smsChannel.enableVibration(true);
+            smsChannel.enableLights(true);
+            smsChannel.setGroup("sms");
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(smsChannel);
+
+        }
+
+        recyclerViewConversations = findViewById(R.id.choose_conversation_list);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setStackFromEnd(true);
+        layoutManager.setReverseLayout(true);
+        recyclerViewConversations.setLayoutManager(layoutManager);
+
+
+        recyclerViewSMS = (RecyclerView) findViewById(R.id.sms_recycler_view);
+        layoutManagerSMS = new LinearLayoutManager(this);
+        recyclerViewSMS.setLayoutManager(layoutManagerSMS);
+        drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
+        adapter_sms = new SmsProfileAdapter((OnSMSProfileClickListener) this, (OnSMSRemoveClickListener) this, profileList);
+        releaseNumberBtn = (Button) findViewById(R.id.release_number);
+        releaseNumberBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                adapter_sms.toggleDeleteVisible();
+            }
+        });
+
+        addNumberBtn = (Button) findViewById(R.id.add_number);
+        addNumberBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, PurchaseNumbers.class);
+                startActivity(intent);
+            }});
+
+        recyclerViewSMS.setAdapter(adapter_sms);
+        Log.d("Glacier","identity sdns n "+identity);
+        showPurchaseView();
+
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_add_group, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    public void showPurchaseView(){
+        if (xmppConnectionService != null) {
+            SMSdbInfo info = xmppConnectionService.getSmsInfo();
+            ArrayList<SmsProfile> smSdbInfo = info.getExistingProfs();
+            PurchaseNumber = info.getUserPurchasePermission();
+            if (PurchaseNumber) {
+                addNumberBtn.setVisibility(View.VISIBLE);
+                if (smSdbInfo.size() > 0) {
+                    releaseNumberBtn.setVisibility(View.VISIBLE);
+                } else {
+                    releaseNumberBtn.setVisibility(View.GONE);
+                }
+            } else {
+                addNumberBtn.setVisibility(View.GONE);
+                releaseNumberBtn.setVisibility(View.GONE);
+            }
+        }
+    }
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d("Glacier","menu_group_call_participants_list "+item.getItemId()+"======="+R.id.menu_group_call_participants_list);
+        switch (item.getItemId()){
+            case android.R.id.home:
+                finish();
+                break;
+            case R.id.sms_accounts:
+                onDrawerOpened();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void onDrawerOpened(){
+        if (xmppConnectionService != null) {
+            xmppConnectionService.updateSmsInfo();
+            ArrayList<SmsProfile> smSdbInfo;
+            smSdbInfo = xmppConnectionService.getSmsInfo().getExistingProfs();
+            profileList.clear();
+            proxyNumbers.clear();
+            reload_adapter_sms(smSdbInfo);
+            setColorForNumber(proxyNumber);
+        }
+        adapter_sms.toggleDeleteOff();
+        showPurchaseView();
+        drawer_sms.openDrawer(GravityCompat.START);
+
+    }
+
+//    private void initSMS(){
+//        SmsProfile test = new SmsProfile("purchase twilio number", "Add Number");
+//        if(! (profileList.contains(test))) {
+//            profileList.add(test);
+//        }
+//
+//        /*SmsProfile test2 = new SmsProfile("(000) 000-0000", "City2, State2");
+//        profileList.add(test2);*/
+//    }
+
+
+    private void checkPermission() {
+        Log.d("Glacier","checkPermission called");
+        if (ContextCompat.checkSelfPermission(SMSActivity.this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(SMSActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, 100);
+        } else {
+            Log.d("Glacier","getContactList ");
+            getContactList();
+        }
+    }
     private void getContactList(){
         Uri uri = ContactsContract.Contacts.CONTENT_URI;
         String sort = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME+" ASC";
@@ -707,6 +736,115 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         model.setArrayList(arrayList);
         model.setcList(cList);
     }
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == 100 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            Log.d("Glacier","getContactList ");
+            getContactList();
+        }else{
+            //Toast.makeText(ContactListActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
+            checkPermission();
+        }
+    }
+    public void onResume(){
+        super.onResume();
+        drawer_sms.close();
+        Log.d("Glacier","onResume is called");
+    }
+    public void onRestart(){
+        super.onRestart();
+        Log.d("Glacier","onRestart is called");
+        //TODO
+    }
+    public void onBackPressed(){
+        super.onBackPressed();
+        finish();
+        Intent intent = new Intent(mContext, ConversationsActivity.class);
+        startActivity(intent.putExtra("account",identity));
+    }
+    private void retrieveTokenFromServer() {
+        ConversationsManager.retrieveAccessTokenFromServer(this, identity, new TokenResponseListener() {
+            @Override
+            public void receivedTokenResponse(boolean success, @Nullable Exception exception,String token) {
+                if (success) {
+//                    SMSActivity.accessToken = token;
+                    Atoken.setAccessToken(token);
+                    //ConversationsManager.initializeWithAccessToken(this,)
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // need to modify user interface elements on the UI thread
+                            checkPermission();
+                            //setTitle(identity);
+                            if(model.getProxyNumber() == null || model.getProxyNumber().equals("") ) {
+                                if(ConversationsManager.proxyAddress != null && ConversationsManager.proxyAddress.length > 0) {
+                                    model.setProxyNumber(ConversationsManager.proxyAddress[0].toString());
+                                    proxyNumber = ConversationsManager.proxyAddress[0].toString();
+                                }
+
+                            }else
+                                proxyNumber = model.getProxyNumber();
+                            if(model.getPurchaseNumber() == null) {
+                                Log.d("Glacier", "setPurchaseNumber " + ConversationsManager.PurchaseNumber);
+                                model.setPurchaseNumber(ConversationsManager.PurchaseNumber);
+                                PurchaseNumber = ConversationsManager.PurchaseNumber;
+                            }
+                            setColorForNumber(proxyNumber);
+                        }
+                    });
+                }
+                else {
+                    String errorMessage = getString(R.string.error_retrieving_access_token);
+                    if (exception != null) {
+                        errorMessage = errorMessage + " " + exception.getLocalizedMessage();
+                    }
+                    else
+                        Log.d("Glacier","errorMessage "+errorMessage);
+                }
+            }
+        });
+
+    }
+
+    public void setColorForNumber(String number){
+        if (xmppConnectionService == null) {
+            setTitle("Glacier SMS");
+            toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
+            //fab_contact.setVisibility(View.INVISIBLE);
+            return;
+        }
+        if (!xmppConnectionService.getSmsInfo().isNumberActive(number)) {
+            setTitle("Glacier SMS");
+            toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
+            //fab_contact.setVisibility(View.INVISIBLE);
+            return;
+        }
+        SmsProfile sp_= xmppConnectionService.getSmsInfo().getSMSProfilefromNumber(number);
+        if (sp_ != null) {
+            setTitle(sp_.getFormattedNumber());
+            toolbar.setBackgroundColor(sp_.getColor());
+            fab_contact.setVisibility(View.VISIBLE);
+            fab_contact.setBackgroundTintList(ColorStateList.valueOf(sp_.getColor()));
+        }
+        else {
+            setTitle("Glacier SMS");
+            toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
+            //fab_contact.setVisibility(View.INVISIBLE);
+            // fab_contact.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(formattedNumber)));
+        }
+    }
+    public void OnSMSConversationClick(String conv_sid,String conv_name) {
+        Log.d("Glacier","OnSMSConversationClick called "+Atoken.getAccessToken()+" conv_sid "+conv_sid);
+        String token = Atoken.getAccessToken();
+        Intent intent = new Intent(this,smsConvActivity.class);
+        String check_group = conv_name.replace("+","");
+        if(check_group.matches("\\d+(?:\\.\\d+)?"))
+            startActivity(intent.putExtra("conv_sid",conv_sid).putExtra("identity",identity).putExtra("conversationToken", token).putExtra("title","New message").putExtra("title",conv_name));
+        else
+            startActivity(intent.putExtra("conv_sid",conv_sid).putExtra("is_group",true).putExtra("identity",identity).putExtra("conversationToken", token).putExtra("title","New message").putExtra("title",conv_name));
+    }
+
     @Override
     public void onLogout() {
         Log.d("Glacier","User is not null and logging out");
@@ -725,170 +863,28 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         System.exit(0);
     }
 
-    protected void swipeDelete(PendingItem<Conversation> swipedConversation, int position){
-        AlertDialog.Builder builder = new AlertDialog.Builder(SMSActivity.this);
-        builder.setMessage(R.string.delete_sms_convo_dialog);
-        builder.setTitle("Confirmation");
-        builder.setCancelable(false);
-        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i)    {
-                messagesAdapter.remove(swipedSMSConversation.peek(),position);
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i)    {
-                pendingActionHelper.undo();
-                Conversation conversation = swipedConversation.pop();
-                messagesAdapter.insert(conversation, position);
-            }
-        });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }
-
-
-    //RELEASE NUMBER
-    private class ReleaseNumResponse{
-        String message;
-        String data;
-    }
     @Override
-    public void OnSMSRemoveClick(String conv_name) {
-        ReleaseNum(conv_name);
-    }
-    @Override
-    public void onClick(DialogInterface dialog, int which) {
-        ReleaseNum(adapter_sms.selectedSMSforRemoval.getFormattedNumber());
-    }
-    private void ReleaseNum(String number){
-        String releaseNumberUrl = SMSActivity.this.getString(R.string.release_num_url);
-        OkHttpClient client = new OkHttpClient();
-        RequestBody requestBody = new FormBody.Builder()
-                .add("releaseNumber", adapter_sms.selectedSMSforRemoval.getUnformattedNumber())
-                .add("username",xmppConnectionService.getAccounts().get(0).getUsername())
-                .build();
-        Request request = new Request.Builder()
-                .url(releaseNumberUrl)
-                .post(requestBody)
-                .addHeader("API-Key", xmppConnectionService.getApplicationContext().getResources().getString(R.string.twilio_token))
-                .build();
-        Log.d("Glacier", "request " + request);
-        try (Response response = client.newCall(request).execute()) {
-            String responseBody = "";
-            if (response != null && response.body() != null) {
-                responseBody = response.body().string();
-            }
-            Gson gson = new Gson();
-            ReleaseNumResponse releaseNumResponse = gson.fromJson(responseBody, ReleaseNumResponse.class);
-            if(releaseNumResponse.message.equals("success")){
-                Toast.makeText(SMSActivity.this,"Number released successfully",Toast.LENGTH_LONG).show();
-                model.setProxyNumber(null);
-                if(model.getProxyNumber() == null || model.getProxyNumber().equals("") ) {
-                    if(proxyNumbers != null && (proxyNumber == null || proxyNumber.length() > 0)) {
-                        proxyNumbers.remove(number);
-                        if(proxyNumbers.size() > 0) {
-                            model.setProxyNumber(proxyNumbers.get(0));
-                            proxyNumber = proxyNumbers.get(0);
-                        }
-                    }
-                }
-                //onBackPressed();
-            }else{
-                Toast.makeText(SMSActivity.this,"Failed to release. Please try again",Toast.LENGTH_LONG).show();
-            }
-            onBackendConnected();
-            drawer_sms.close();
-            Log.d("Glacier", "Response from server: " + responseBody);
-        }catch (IOException ex){
-            Log.e("Glacier", ex.getLocalizedMessage(), ex);
-            Toast.makeText(SMSActivity.this,"Failed to release. Please try again",Toast.LENGTH_LONG).show();
+    public void OnSMSProfileClick(String id, String number) {
+        xmppConnectionService.updateSmsInfo();
+        number = number.replace("(","").replace(")","").replace("-","").replace(" ","");
+        model.setProxyNumber(number);
+        proxyNumber = number;
+        setColorForNumber(proxyNumber);
+        drawer_sms.closeDrawers();
+        if (messagesAdapter != null) {
+            messagesAdapter.notifyDataSetChanged();
         }
+        checkEmptyView();
     }
 
-    //MESSAGE ADAPTER
-    public void OnSMSConversationClick(String conv_sid,String conv_name) {
-        Log.d("Glacier","OnSMSConversationClick called "+Atoken.getAccessToken()+" conv_sid "+conv_sid);
-        String token = Atoken.getAccessToken();
-        Intent intent = new Intent(this,smsConvActivity.class);
-        String check_group = conv_name.replace("+","");
-        if(check_group.matches("\\d+(?:\\.\\d+)?"))
-            startActivity(intent.putExtra("conv_sid",conv_sid).putExtra("identity",identity).putExtra("conversationToken", token).putExtra("title","New message").putExtra("title",conv_name));
-        else
-            startActivity(intent.putExtra("conv_sid",conv_sid).putExtra("is_group",true).putExtra("identity",identity).putExtra("conversationToken", token).putExtra("title","New message").putExtra("title",conv_name));
-    }
-    @Override
-    public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor,String messageTo) {
-        messagesAdapter.notifyDataSetChanged();
-        Log.d("Glacier","unread_conv_count----"+profileList);
-        reload_adapter_sms(profileList);
-        String checkIdentity = model.getIdentity();
-        if(checkIdentity.equals(identity) && !(messageAuthor.equals(identity))) {
-            Conversation current_conv = model.getConversation();
-            Log.d("Glacier", "receivedNewMessage called----" + current_conv + "----" + messageConversationSid);
-            if (current_conv != null)
-                Log.d("Glacier", "Current Conversation new message " + current_conv.getSid() + " : " + messageConversationSid + " : " + current_conv.getSid().equals(messageConversationSid) + " : " + messageAuthor);
-            Log.d("Glacier", "Current Conversation new message" +identity+" : " + messageAuthor + "---"+identity.equals(messageAuthor));
-            if (current_conv == null)
-                notifyMessage(newMessage, messageAuthor,messageTo);
-            else if (!identity.equals(messageAuthor)) {
-                notifyMessage(newMessage, messageAuthor,messageTo);
-            }
+    public void checkEmptyView(){
+        if( xmppConnectionService == null || ConversationsManager.getConversation(proxyNumber) == null || ConversationsManager.getConversation(proxyNumber).size() == 0){
+            View emptyLayout = findViewById(R.id.empty_list);
+            emptyLayout.setVisibility(View.VISIBLE);
+        } else {
+            View emptyLayout = findViewById(R.id.empty_list);
+            emptyLayout.setVisibility(View.GONE);
         }
-    }
-    public void notifyMessage(String newMessage,String messageAuthor,String messageTo){
-        Log.d("Glacier", "New notification notifyMessage called"+messageTo);
-        Intent intent = new Intent(mContext, SMSActivity.class);
-        intent.removeExtra("ProxyNum");
-        intent.putExtra("ProxyNum",messageTo);
-        //Toast.makeText(mContext, "notifyMessage "+messageTo, Toast.LENGTH_SHORT).show();
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        Intent broadcastIntent = new Intent(this, NotificationReceiver.class);
-        PendingIntent actionIntent = PendingIntent.getBroadcast(this,
-                0, broadcastIntent, PendingIntent.FLAG_MUTABLE);
-
-        Log.d("Glacier", "New notification before remoteInput");
-        RemoteInput remoteInput = new RemoteInput.Builder(KEY_TEXT_REPLY).setLabel("Reply").build();
-        RemoteInput remoteInput2 = new RemoteInput.Builder(MARK_AS_READ).setLabel("Mark as read").build();
-        Intent replyIntent = new Intent(this,RemoteReceiver.class);
-        Log.d("Glacier", "New notification before replyIntent");
-        replyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent replyPendingIntent = PendingIntent.getActivity(this,0,replyIntent,PendingIntent.FLAG_MUTABLE);
-        builder.setContentTitle("Glacier SMS for "+ Tools.lastFourDigits(messageTo));
-        builder.setPriority(NotificationCompat.PRIORITY_HIGH);
-        builder.setContentText(newMessage);
-        Log.d("Glacier", "New notification after newMessage");
-        builder.setSmallIcon(R.drawable.ic_baseline_sms_24);
-        builder.setAutoCancel(true);
-        builder.setContentIntent(pendingIntent);
-        managerCompat = NotificationManagerCompat.from(this);
-        if(messageAuthor.length() > 5) {
-            managerCompat.notify(Integer.parseInt(messageAuthor.substring(2, 5)), builder.build());
-            model.setNotificationManager(managerCompat);
-        }
-    }
-    @Override
-    public void messageSentCallback() {
-        messagesAdapter.notifyDataSetChanged();
-    }
-    @Override
-    public void reloadMessages() {
-        //getContactList();
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // need to modify user interface elements on the UI thread
-                Log.d("Glacier","Reload messages called");
-                messagesAdapter.notifyDataSetChanged();
-            }
-        });
-
-    }
-    @Override
-    public void notifyMessages(String newMessage,String messageAuthor,String messageTo) {
-        notifyMessage(newMessage,messageAuthor,messageTo);
-        reload_adapter_sms(profileList);
     }
     class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder> implements SwipeItemTouchHelper.SwipeHelperAdapter{
         android.text.format.DateFormat df = new android.text.format.DateFormat();

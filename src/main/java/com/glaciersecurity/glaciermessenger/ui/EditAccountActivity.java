@@ -259,9 +259,6 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
 	private String display_name = null;
 	private String extension = null;
     private String connection = noVPN;
-	private boolean securityhub_data_enabled = false;
-	private boolean sms_enabled = false;
-	private boolean upload_enabled = false;
 
 
 	protected IOpenVPNAPIService mService = null;
