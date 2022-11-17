@@ -3,7 +3,7 @@ package com.glaciersecurity.glaciermessenger.ui;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.provider.MediaStore;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
@@ -154,10 +154,12 @@ public class ConversationsManager {
             OkHttpClient client = new OkHttpClient();
             RequestBody requestBody = new FormBody.Builder()
                     .add("identity", conv_identity)
+                    .add("devicetype", "android")
                     .build();
             Request request = new Request.Builder()
                     .url(tokenURL)
                     .post(requestBody)
+                    .addHeader("API-Key", mContext.getString(R.string.twilio_token))
                     .build();
             Log.d("Glacier", "request " + request);
             try (Response response = client.newCall(request).execute()) {
@@ -178,7 +180,7 @@ public class ConversationsManager {
                 Log.d("Glacier", "Retrieved access token from server: " + accessToken + proxyAddress );
                 listener.receivedAccessToken(accessToken, null);
 
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 Log.e("Glacier", ex.getLocalizedMessage(), ex);
                 listener.receivedAccessToken(null, ex);
             }
@@ -513,8 +515,11 @@ public class ConversationsManager {
                                                         e.printStackTrace();
                                                     }
                                                 }
-                                                conversationsManagerListener.notifyMessages(result.get(0).getMessageBody(),result.get(0).getAuthor(),ide_num);
-                                            }
+                                                //TODO revisit
+                                                if (!result.isEmpty()) {
+                                                    conversationsManagerListener.notifyMessages(result.get(0).getMessageBody(), result.get(0).getAuthor(), ide_num);
+                                                }
+                                                }
 
                                             @Override
                                             public void onError(ErrorInfo errorInfo) {

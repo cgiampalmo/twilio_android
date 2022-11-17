@@ -21,7 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.provider.ContactsContract;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -113,7 +113,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        ReleaseNum(adapter_sms.selectedSMSforRemoval.getNumber());
+        ReleaseNum(adapter_sms.selectedSMSforRemoval.getFormattedNumber());
     }
 
     private class ReleaseNumResponse{
@@ -184,10 +184,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         Log.d("Glacier", "New notification before replyIntent");
         replyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent replyPendingIntent = PendingIntent.getActivity(this,0,replyIntent,PendingIntent.FLAG_MUTABLE);
-        NotificationCompat.Action action = new NotificationCompat.Action.Builder(R.drawable.ic_baseline_sms_24,"Reply",replyPendingIntent).addRemoteInput(remoteInput).build();
-        Log.d("Glacier", "New notification before action");
-        //builder.addAction(action);
-        Log.d("Glacier", "New notification after action");
         builder.setContentTitle("Glacier SMS for "+ Tools.lastFourDigits(messageTo));
         builder.setPriority(NotificationCompat.PRIORITY_HIGH);
         builder.setContentText(newMessage);
@@ -195,12 +191,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         builder.setSmallIcon(R.drawable.ic_baseline_sms_24);
         builder.setAutoCancel(true);
         builder.setContentIntent(pendingIntent);
-        NotificationCompat.Action action2 = new NotificationCompat.Action.Builder(R.drawable.ic_baseline_sms_24,"Reply",actionIntent).addRemoteInput(remoteInput2).build();
-        //builder.addAction(action2);
         managerCompat = NotificationManagerCompat.from(this);
         if(messageAuthor.length() > 5) {
-            Log.d("Glacier", "New notification " + Integer.parseInt(messageAuthor.substring(2, 5)));
-            //if()
             managerCompat.notify(Integer.parseInt(messageAuthor.substring(2, 5)), builder.build());
             model.setNotificationManager(managerCompat);
         }
@@ -377,7 +369,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             if (ConversationsManager.unread_conv_count == null || ConversationsManager.unread_conv_count.isEmpty()) {
                 smsProfile.setUnread_count(0);
             } else {
-                String number = smsProfile.getNumber().replaceAll(" ", "").replace("(", "").replace(")", "").replace("-", "");
+                String number = smsProfile.getFormattedNumber().replaceAll(" ", "").replace("(", "").replace(")", "").replace("-", "");
                 Integer unread_count = ConversationsManager.unread_conv_count.get(number);
                 Log.d("Glacier", "unread_conv_count---- " + unread_count);
                 if (unread_count != null) {
@@ -385,7 +377,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 }
             }
 
-            proxyNumbers.add(smsProfile.getNumber());
+            proxyNumbers.add(smsProfile.getFormattedNumber());
             adapter_sms.notifyItemInserted(0);
         }
         if(proxyNumber == null){
@@ -470,6 +462,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         Request request = new Request.Builder()
                 .url(releaseNumberUrl)
                 .post(requestBody)
+                .addHeader("API-Key", xmppConnectionService.getApplicationContext().getResources().getString(R.string.twilio_token))
                 .build();
         Log.d("Glacier", "request " + request);
         try (Response response = client.newCall(request).execute()) {
@@ -488,7 +481,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             }
             //onBackendConnected();
             Log.d("Glacier", "Response from server: " + responseBody);
-        }catch (IOException ex){
+        }catch (Exception ex){
             Log.e("Glacier", ex.getLocalizedMessage(), ex);
             Toast.makeText(SMSActivity.this,"Failed to release. Please try again",Toast.LENGTH_LONG).show();
         }
@@ -816,26 +809,26 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     public void setColorForNumber(String number){
         if (xmppConnectionService == null) {
-            setTitle("SMS");
+            setTitle("Glacier SMS");
             toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
             //fab_contact.setVisibility(View.INVISIBLE);
             return;
         }
         if (!xmppConnectionService.getSmsInfo().isNumberActive(number)) {
-            setTitle("SMS");
+            setTitle("Glacier SMS");
             toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
             //fab_contact.setVisibility(View.INVISIBLE);
             return;
         }
-        String formattedNumber = Tools.reformatNumber(number);
-        if (formattedNumber != null) {
-            setTitle(formattedNumber);
-            toolbar.setBackgroundColor(UIHelper.getColorForSMS(formattedNumber));
+        SmsProfile sp_= xmppConnectionService.getSmsInfo().getSMSProfilefromNumber(number);
+        if (sp_ != null) {
+            setTitle(sp_.getFormattedNumber());
+            toolbar.setBackgroundColor(sp_.getColor());
             fab_contact.setVisibility(View.VISIBLE);
-            fab_contact.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(formattedNumber)));
+            fab_contact.setBackgroundTintList(ColorStateList.valueOf(sp_.getColor()));
         }
         else {
-            setTitle("SMS");
+            setTitle("Glacier SMS");
             toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
             //fab_contact.setVisibility(View.INVISIBLE);
             // fab_contact.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(formattedNumber)));
@@ -965,14 +958,14 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
 
-            TextView conversation_name,sender_name,conversation_lastmsg,dateText,conv_Sid;
+            TextView conversation_name, sender_name, conversation_lastmsg, dateText, conv_Sid;
             RelativeLayout avatar_circle;
             com.glaciersecurity.glaciermessenger.ui.widget.UnreadCountCustomView unreadcount;
             conversations = ConversationsManager.getConversation(proxyNumber);
             Conversation conversation = conversations.get(holder.getAdapterPosition());
             Map conv_last_msg = ConversationsManager.conv_last_msg;
             Map conv_last_msg_sent = ConversationsManager.conv_last_msg_sent;
-            Log.d("Glacier","ConversationsManager "+conversation.getFriendlyName()+"----------"+conversation.getLastMessageDate());
+            Log.d("Glacier", "ConversationsManager " + conversation.getFriendlyName() + "----------" + conversation.getLastMessageDate());
             conversation_name = holder.conView.findViewById(R.id.conversation_name);
             avatar_circle = holder.conView.findViewById(R.id.avatar_circle);
             sender_name = holder.conView.findViewById(R.id.sender_name);
@@ -981,10 +974,13 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             String Contact_name = (cList != null && cList.get(conversation.getFriendlyName()) != null) ? cList.get(conversation.getFriendlyName()) : Tools.reformatNumber(conversation.getFriendlyName());
             avatar_circle.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForName(Contact_name)));
             String sender_name_text = "";
-            if(conv_last_msg_sent.containsKey(conversation.getSid()) && conv_last_msg_sent.get(conversation.getSid()).toString().equals(identity))
+            if (conv_last_msg_sent.containsKey(conversation.getSid()) && conv_last_msg_sent.get(conversation.getSid()).toString().equals(identity)) {
                 sender_name_text = "Me :";
-            else if(conv_last_msg_sent.containsKey(conversation.getSid()) && conv_last_msg_sent.get(conversation.getSid()) != null)
+                sender_name.setVisibility(View.VISIBLE);
+            } else if (conv_last_msg_sent.containsKey(conversation.getSid()) && conv_last_msg_sent.get(conversation.getSid()) != null){
                 sender_name_text = (CharSequence) conv_last_msg_sent.get(conversation.getSid()) +" :";
+                sender_name.setVisibility(View.GONE);
+            }
             sender_name.setText(sender_name_text);
 
             conversation_name.setText(Contact_name);

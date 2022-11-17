@@ -17,12 +17,14 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.NetworkOnMainThreadException;
 import android.provider.MediaStore;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -33,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.ui.util.ViewUtil;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
@@ -115,7 +118,14 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
 
     @Override
     protected void onBackendConnected() {
-
+        if (xmppConnectionService != null){
+            SmsProfile sp = xmppConnectionService.getSmsInfo().getSMSProfilefromNumber(model.getProxyNumber());
+            if (sp != null){
+                toolbar.setBackgroundColor(sp.getColor());
+            } else {
+                toolbar.setBackgroundColor(getColorForNumber(model.getProxyNumber()));
+            }
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -131,7 +141,6 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         actionbar.setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         toolbar.setNavigationOnClickListener(view -> onBackPressed());
-        toolbar.setBackgroundColor(getColorForNumber(model.getProxyNumber()));
         ConversationsManager.setListener(this);
         cameraPermission = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -150,7 +159,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         ConversationsClient conversationsClient = model.getConversationsClient();
         if(getIntent().hasExtra("title")){
             String Contact_name = (cList != null && cList.get(getIntent().getStringExtra("title")) != null) ? cList.get(getIntent().getStringExtra("title")) : Tools.reformatNumber(getIntent().getStringExtra("title"));
-            setTitle(Contact_name);
+            setTitle("SMS with " + Contact_name);
         }
         if(getIntent().hasExtra("phoneNumber")){
             convSid = getIntent().getStringExtra("phoneNumber");
@@ -202,6 +211,17 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         recyclerView.setAdapter(messagesAdapter);
 
         writeMessageEditText = findViewById(R.id.edit_gchat_message);
+        writeMessageEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    onSend();
+                    handled = true;
+                }
+                return handled;
+            }
+        });
         attach = findViewById(R.id.attachbtn);
 
         attach.setOnClickListener(new View.OnClickListener() {
@@ -214,17 +234,22 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         sendChatMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Log.d(TAG,"Button clicked "+writeMessageEditText.getText().toString());
-                String messageBody = writeMessageEditText.getText().toString().trim();
-                if(mediaPreviewAdapter.hasAttachments()){
-                    ConversationsManager.sendMMSMessage(mediaPreviewAdapter.getAttachments());
-                    Toast.makeText(smsConvActivity.this, "Please wait. Sending an image", Toast.LENGTH_LONG).show();
-                }
-                else if (messageBody.length() > 0) {
-                    ConversationsManager.sendMessage(messageBody);
-                }
+                onSend();
             }
         });
+
+    }
+    private void onSend(){
+
+        //Log.d(TAG,"Button clicked "+writeMessageEditText.getText().toString());
+        String messageBody = writeMessageEditText.getText().toString().trim();
+        if(mediaPreviewAdapter.hasAttachments()){
+            ConversationsManager.sendMMSMessage(mediaPreviewAdapter.getAttachments());
+            Toast.makeText(smsConvActivity.this, "Please wait. Sending an image", Toast.LENGTH_LONG).show();
+        }
+        else if (messageBody.length() > 0) {
+            ConversationsManager.sendMessage(messageBody);
+        }
 
     }
 
@@ -337,6 +362,7 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         Request request = new Request.Builder()
                 .url(addParticipantUrl)
                 .post(requestBody)
+                .addHeader("API-Key", xmppConnectionService.getApplicationContext().getResources().getString(R.string.twilio_token))
                 .build();
         //Log.d("Glacier","request "+request);
         try (Response response = client.newCall(request).execute()) {

@@ -1,20 +1,18 @@
 package com.glaciersecurity.glaciermessenger.entities;
-
-import android.content.res.ColorStateList;
-
 import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.internal.LinkedTreeMap;
+import java.util.Objects;
 
 public class SmsProfile {
 
-    protected String number;
+    protected String formattedNumber;
     protected String unformatted_number;
-    protected String location;
     protected String id;
     protected Integer unread_count;
+    protected String nickname;
+    protected Integer color;
+
 
     public Integer getUnread_count() {
         return unread_count;
@@ -24,48 +22,77 @@ public class SmsProfile {
         this.unread_count = unread_count;
     }
 
+    public SmsProfile(LinkedTreeMap<String, String> linkedTreeMap) {
+        unformatted_number = linkedTreeMap.get("text");
+        formattedNumber = Tools.reformatNumber(unformatted_number);
+        id = linkedTreeMap.get("id");
+        nickname = linkedTreeMap.get("nickname");
 
-    public SmsProfile(JSONObject jsmsinfo) throws JSONException, Exception {
-        unformatted_number = (String) jsmsinfo.get("text");
-        number = Tools.reformatNumber(unformatted_number);
-        id = (String) jsmsinfo.get("id");
-
-        /*TODO pull location from db
-        //hardcoded for now
-        location = (String) jsmsinfo.get("location")
-        */
-        location = "City, State";
+    }
+    public SmsProfile(String number, String id){
+        this.unformatted_number = number;
+        this.formattedNumber = Tools.reformatNumber(unformatted_number);
+        this.id = id;
     }
 
-    public String getNumber() {
-        return number;
+    public String getFormattedNumber() {
+        if (formattedNumber == null) {
+            this.formattedNumber = Tools.reformatNumber(unformatted_number);
+        }
+        return formattedNumber;
+    }
+
+    public int getColor() {
+        if (color == null) {
+            if (id != null) {
+                this.color = UIHelper.getColorForSMS(id);
+            } else {
+                this.color = UIHelper.getColorForSMS(unformatted_number);
+            }
+        }
+        return color;
     }
 
     public String getId() {
         return id;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
-    }
-
     public String getUnformattedNumber(){
         return unformatted_number;
     }
 
-    public String getLocation() {
-        return location;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SmsProfile that = (SmsProfile) o;
+        return Objects.equals(formattedNumber, that.formattedNumber) && Objects.equals(unformatted_number, that.unformatted_number) && Objects.equals(id, that.id);
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public boolean equals(String id_, String num_) {
+        if (id_ != null && id_.equals(id)){
+            return true;
+        }
+        else if (num_ != null){
+            if (num_.equals(formattedNumber) || num_.equals(unformatted_number)){
+                return true;
+            }
+        }
+        return false;
     }
 
+    public boolean equals(String num_) {
+        if (num_ != null){
+            if (num_.equals(formattedNumber) || num_.equals(unformatted_number)){
+                return true;
+            }
+        }
+        return false;
+    }
 
-    public String toJsonString() {
-        return "{\"number\":\"" + getNumber() + "\"," +
-                "\"location\":\"" + getLocation() + "}" +
-                "\"id\":\"" + getId() + "}" ;
+    @Override
+    public int hashCode() {
+        return Objects.hash(formattedNumber, unformatted_number, id);
     }
 
 }

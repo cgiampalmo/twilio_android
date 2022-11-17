@@ -502,7 +502,7 @@ public class SystemSecurityInfo {
     private GraphQLCall.Callback<UpdateGlacierUsersMutation.Data> updateUsersCallback = new GraphQLCall.Callback<UpdateGlacierUsersMutation.Data>() {
         @Override
         public void onResponse(@Nonnull Response<UpdateGlacierUsersMutation.Data> response) {
-            if (response != null) {
+            if (response != null  && response.data() != null) {
                 if (response.data().updateGlacierUsers() != null) {
                     Log.d("SecurityInfo", "SecurityInfo updated");
                     needsUpdate = false;

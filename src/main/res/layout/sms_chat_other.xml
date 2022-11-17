@@ -96,7 +96,8 @@
                     android:textColor="@color/grey_40"
                     android:textSize="12sp"
                     app:layout_constraintStart_toEndOf="@+id/image_gchat_profile_other"
-                    app:layout_constraintTop_toBottomOf="@+id/text_gchat_date_other" />
+                    app:layout_constraintTop_toBottomOf="@+id/text_gchat_date_other"
+                    android:visibility="gone"/>
                 <View
                     android:layout_width="@dimen/spacing_medium"
                     android:layout_height="0dp" />

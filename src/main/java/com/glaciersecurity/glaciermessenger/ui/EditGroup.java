@@ -2,7 +2,7 @@ package com.glaciersecurity.glaciermessenger.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;

@@ -3,7 +3,7 @@ package com.glaciersecurity.glaciermessenger.ui;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -100,6 +100,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         Request request = new Request.Builder()
                 .url(getAvailableNumListUrl)
                 .post(requestBody)
+                .addHeader("API-Key", xmppConnectionService.getApplicationContext().getResources().getString(R.string.twilio_token))
                 .build();
         try (Response response = client.newCall(request).execute()) {
             String responseBody = "";
@@ -109,6 +110,12 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             Log.d("Glacier", "Response from server: " + responseBody);
             Gson gson = new Gson();
             AvailableNumberResponse availableNumberResponse = gson.fromJson(responseBody, AvailableNumberResponse.class);
+
+            if (availableNumberResponse == null){
+                Toast.makeText(getApplicationContext(),"SMS not currently available" ,Toast.LENGTH_LONG).show();
+                closeWaitDialog();
+                return;
+            }
             availablePhoneNumbers = availableNumberResponse.available_phone_numbers;
             runOnUiThread(new Runnable() {
                 @Override
@@ -134,7 +141,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             });
 
 
-        }catch (IOException ex){
+        }catch (Exception ex){
             Log.d("Glacier", ex.getLocalizedMessage(), ex);
             closeWaitDialog();
         }
@@ -167,6 +174,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         Request request = new Request.Builder()
                 .url(purchaseNumberUrl)
                 .post(requestBody)
+                .addHeader("API-Key", xmppConnectionService.getApplicationContext().getResources().getString(R.string.twilio_token))
                 .build();
         //Log.d("Glacier", "request " + request);
         try (Response response = client.newCall(request).execute()) {
@@ -176,7 +184,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             }
             Gson gson = new Gson();
             PurchaseNumResponse purchaseNumResponse = gson.fromJson(responseBody, PurchaseNumResponse.class);
-            if(purchaseNumResponse.message.equals("success")){
+            if(purchaseNumResponse.message != null && purchaseNumResponse.message.equals("success")){
                 Toast.makeText(PurchaseNumbers.this,"Number added successfully",Toast.LENGTH_LONG).show();
             }else{
                 Toast.makeText(PurchaseNumbers.this,"Failed to add. Please try again",Toast.LENGTH_LONG).show();
@@ -184,7 +192,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             numberPurchased = true;
             onBackendConnected();
             //Log.d("Glacier", "Response from server: " + responseBody);
-        }catch (IOException ex){
+        }catch (Exception ex){
             Log.e("Glacier", ex.getLocalizedMessage(), ex);
         }
     }

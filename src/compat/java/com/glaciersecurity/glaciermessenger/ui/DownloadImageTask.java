@@ -3,7 +3,7 @@ package com.glaciersecurity.glaciermessenger.ui;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.widget.ImageView;
 
 import java.io.BufferedReader;
