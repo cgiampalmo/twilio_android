@@ -3,7 +3,7 @@ package com.glaciersecurity.glaciermessenger.ui;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.provider.MediaStore;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;

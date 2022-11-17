@@ -612,7 +612,7 @@ public class FileBackend {
     }
 
     private void copyFileToPrivateStorage(File file, Uri uri) throws FileCopyException {
-        android.util.Log.d(Config.LOGTAG, "copy file (" + uri.toString() + ") to private storage " + file.getAbsolutePath());
+        Log.d(Config.LOGTAG, "copy file (" + uri.toString() + ") to private storage " + file.getAbsolutePath());
         file.getParentFile().mkdirs();
         try {
             file.createNewFile();

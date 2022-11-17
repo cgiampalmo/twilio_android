@@ -150,7 +150,7 @@ public class SMSdbInfo {
             if (response != null && response.body() != null) {
                 responseBody = response.body().string();
             }
-            android.util.Log.d("Glacier", "Response from server: " + responseBody);
+            Log.d("Glacier", "Response from server: " + responseBody);
             Gson gson = new Gson();
             SmsResponse twilio_info = gson.fromJson(responseBody, SmsResponse.class);
             if (twilio_info != null && twilio_info.data != null) {
@@ -161,7 +161,7 @@ public class SMSdbInfo {
 
 
         }catch (Exception ex){
-            android.util.Log.d("Glacier", ex.getLocalizedMessage(), ex);
+            Log.d("Glacier", ex.getLocalizedMessage(), ex);
         }
     }
 

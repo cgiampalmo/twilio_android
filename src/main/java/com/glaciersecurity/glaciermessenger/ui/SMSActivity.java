@@ -21,7 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.provider.ContactsContract;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -297,7 +297,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                     pendingActionHelper.execute();
                     int position = viewHolder.getLayoutPosition();
                     try {
-                        swipedSMSConversation.push(conversationList.get(position));
+                       swipedSMSConversation.push(conversationList.get(position));
                     } catch (IndexOutOfBoundsException e) {
                         return;
                     }
@@ -653,18 +653,18 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
 
     private void onDrawerOpened(){
-        if (xmppConnectionService != null) {
-            xmppConnectionService.updateSmsInfo();
-            ArrayList<SmsProfile> smSdbInfo;
-            smSdbInfo = xmppConnectionService.getSmsInfo().getExistingProfs();
-            profileList.clear();
-            proxyNumbers.clear();
-            reload_adapter_sms(smSdbInfo);
-            setColorForNumber(proxyNumber);
-        }
-        adapter_sms.toggleDeleteOff();
-        showPurchaseView();
-        drawer_sms.openDrawer(GravityCompat.START);
+            if (xmppConnectionService != null) {
+                xmppConnectionService.updateSmsInfo();
+                ArrayList<SmsProfile> smSdbInfo;
+                smSdbInfo = xmppConnectionService.getSmsInfo().getExistingProfs();
+                profileList.clear();
+                proxyNumbers.clear();
+                reload_adapter_sms(smSdbInfo);
+                setColorForNumber(proxyNumber);
+            }
+            adapter_sms.toggleDeleteOff();
+            showPurchaseView();
+            drawer_sms.openDrawer(GravityCompat.START);
 
     }
 

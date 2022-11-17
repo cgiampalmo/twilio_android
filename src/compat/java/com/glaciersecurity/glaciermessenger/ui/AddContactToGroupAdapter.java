@@ -1,7 +1,7 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.app.Activity;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
