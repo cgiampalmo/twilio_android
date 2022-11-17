@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import com.google.common.base.Strings;
 
 import com.glaciersecurity.glaciermessenger.Config;

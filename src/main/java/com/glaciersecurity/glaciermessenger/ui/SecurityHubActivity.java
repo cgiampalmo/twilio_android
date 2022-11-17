@@ -40,7 +40,6 @@ public class SecurityHubActivity extends XmppActivity {
         setSupportActionBar(findViewById(R.id.toolbar));
         configureActionBar(getSupportActionBar());
         setTitle(R.string.title_activity_security_hub);
-        //setTitle(Build.MANUFACTURER + " " + Build.MODEL + " " + PhoneHelper.getAndroidId(this));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         initComponent();
@@ -55,21 +54,6 @@ public class SecurityHubActivity extends XmppActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new LineItemDecoration(this, LinearLayout.VERTICAL));
         recyclerView.setHasFixedSize(true);
-
-        /*List<ExpandableListItem> items = new ArrayList<ExpandableListItem>(initSecurityCheck());
-
-
-        //set data and list adapter
-        mAdapter = new AdapterListExpand(this, items);
-        recyclerView.setAdapter(mAdapter);
-
-        // on item list clicked
-        mAdapter.setOnItemClickListener(new AdapterListExpand.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, ExpandableListItem obj, int position) {
-                Snackbar.make(parent_view, "Item " + obj.name + " clicked", Snackbar.LENGTH_SHORT).show();
-            }
-        });*/
 
     }
 

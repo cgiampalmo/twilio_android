@@ -17,7 +17,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.NetworkOnMainThreadException;
 import android.provider.MediaStore;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;

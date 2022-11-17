@@ -21,7 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.provider.ContactsContract;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -481,7 +481,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             }
             //onBackendConnected();
             Log.d("Glacier", "Response from server: " + responseBody);
-        }catch (IOException ex){
+        }catch (Exception ex){
             Log.e("Glacier", ex.getLocalizedMessage(), ex);
             Toast.makeText(SMSActivity.this,"Failed to release. Please try again",Toast.LENGTH_LONG).show();
         }

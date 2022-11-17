@@ -612,7 +612,7 @@ public class FileBackend {
     }
 
     private void copyFileToPrivateStorage(File file, Uri uri) throws FileCopyException {
-        android.util.Log.d(Config.LOGTAG, "copy file (" + uri.toString() + ") to private storage " + file.getAbsolutePath());
+        Log.d(Config.LOGTAG, "copy file (" + uri.toString() + ") to private storage " + file.getAbsolutePath());
         file.getParentFile().mkdirs();
         try {
             file.createNewFile();
@@ -659,10 +659,10 @@ public class FileBackend {
 
     public void copyFileToPrivateStorage(Message message, Uri uri, String type) throws FileCopyException {
         String mime = MimeUtils.guessMimeTypeFromUriAndMime(mXmppConnectionService, uri, type);
-        android.util.Log.d(Config.LOGTAG, "copy " + uri.toString() + " to private storage (mime=" + mime + ")");
+        Log.d(Config.LOGTAG, "copy " + uri.toString() + " to private storage (mime=" + mime + ")");
         String extension = MimeUtils.guessExtensionFromMimeType(mime);
         if (extension == null) {
-            android.util.Log.d(Config.LOGTAG, "extension from mime type was null");
+            Log.d(Config.LOGTAG, "extension from mime type was null");
             extension = getExtensionFromUri(uri);
         }
         if ("ogg".equals(extension) && type != null && type.startsWith("audio/")) {

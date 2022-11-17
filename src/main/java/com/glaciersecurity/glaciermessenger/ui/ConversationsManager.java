@@ -3,7 +3,7 @@ package com.glaciersecurity.glaciermessenger.ui;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.provider.MediaStore;
-import android.util.Log;
+import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
@@ -180,7 +180,7 @@ public class ConversationsManager {
                 Log.d("Glacier", "Retrieved access token from server: " + accessToken + proxyAddress );
                 listener.receivedAccessToken(accessToken, null);
 
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 Log.e("Glacier", ex.getLocalizedMessage(), ex);
                 listener.receivedAccessToken(null, ex);
             }
