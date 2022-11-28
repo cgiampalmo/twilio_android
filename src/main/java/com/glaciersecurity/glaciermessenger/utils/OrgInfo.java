@@ -72,20 +72,20 @@ public class OrgInfo {
         @Override
         public void onResponse(@NonNull Response<GetGlacierOrganizationQuery.Data> response) {
 
-//                    if (response != null) {
-//                        if (response.data().getGlacierOrganization() != null) {
-//                            if (response.data().getGlacierOrganization().securityhub_data_enabled() != null) {
-//                                securityhub_data_enabled = response.data().getGlacierOrganization().securityhub_data_enabled();
-//                            }
-//                            if (response.data().getGlacierOrganization().sms_enabled() != null) {
-//                                sms_enabled = response.data().getGlacierOrganization().sms_enabled();
-//                            }
-//                            if (response.data().getGlacierOrganization().upload_enabled() != null) {
-//                                upload_enabled = response.data().getGlacierOrganization().upload_enabled();
-//                            }
-//                            xmppConnectionService.setOrgInfo(OrgInfo.this);
-//                        }
-//                    }
+                    if (response != null) {
+                        if (response.data().getGlacierOrganization() != null) {
+                            if (response.data().getGlacierOrganization().securityhub_data_enabled() != null) {
+                                securityhub_data_enabled = response.data().getGlacierOrganization().securityhub_data_enabled();
+                            }
+                            if (response.data().getGlacierOrganization().sms_enabled() != null) {
+                                sms_enabled = response.data().getGlacierOrganization().sms_enabled();
+                            }
+                            if (response.data().getGlacierOrganization().upload_enabled() != null) {
+                                upload_enabled = response.data().getGlacierOrganization().upload_enabled();
+                            }
+                            xmppConnectionService.setOrgInfo(OrgInfo.this);
+                        }
+                    }
         }
 
         @Override
