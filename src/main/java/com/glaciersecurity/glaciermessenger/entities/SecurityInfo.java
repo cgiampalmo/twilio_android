@@ -3,6 +3,8 @@ package com.glaciersecurity.glaciermessenger.entities;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Calendar;
+
 public class SecurityInfo {
     private static final String DEVICE_ID = "device";
     private static final String DEVICE = "deviceid";
@@ -16,6 +18,7 @@ public class SecurityInfo {
     private static final String SCREEN_LOCK = "screen_lock";
     private static final String BIOMETRIC_LOCK = "biometric_lock";
     private static final String CORE_ENABLED = "core_enabled";
+    private static final String LAST_UPDATED = "last_updated";
 
     protected String sDeviceId;
     protected String sDevice;
@@ -30,6 +33,7 @@ public class SecurityInfo {
     protected boolean sBiometricLock;
     protected boolean sDeviceLock;
     protected boolean sCoreEnabled;
+    protected String sLastUpdated;
 
 
     public SecurityInfo(String deviceid) {
@@ -69,7 +73,8 @@ public class SecurityInfo {
                 "\"screen_lock\":" + getScreenLock() + "," +
                 "\"biometric_lock\":" + getBiometricLock() + "," +
                 "\"device_lock\":" + getDeviceLock() + "," +
-                "\"core_enabled\":" + getCoreEnabled() + "}";
+                "\"core_enabled\":" + getCoreEnabled() + "," +
+                "\"last_updated\":\"" + setLastUpdated() +  "\"}";
     }
 
     public String getDeviceId() {
@@ -163,8 +168,14 @@ public class SecurityInfo {
     public void setDeviceLock(boolean biolock) {
         sDeviceLock = biolock;
     }
+
     public boolean getCoreEnabled() {
         return sCoreEnabled;
+    }
+
+    public String setLastUpdated() {
+        sLastUpdated = Calendar.getInstance().getTime().toString();
+        return sLastUpdated;
     }
 
     public void setCoreEnabled(boolean coreenabled) {
@@ -184,6 +195,7 @@ public class SecurityInfo {
         newSecinfo.setScreenLock(getScreenLock());
         newSecinfo.setBiometricLock(getBiometricLock());
         newSecinfo.setCoreEnabled(getCoreEnabled());
+        newSecinfo.setLastUpdated();
         return newSecinfo;
     }
 

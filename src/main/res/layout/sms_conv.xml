@@ -93,10 +93,9 @@
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
                     android:hint="Send unencrypted message"
-                    android:imeOptions="actionDone"
                     android:textColor="?attr/edit_text_color"
                     android:padding="@dimen/spacing_middle"
-                    android:inputType="text"
+                    android:inputType="textShortMessage|textMultiLine|textCapSentences|textNoSuggestions"
                     android:maxLines="6"
                     style="@style/Widget.Conversations.EditText"
                     tools:ignore="Autofill"/>

@@ -696,6 +696,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 				if (!accounts.isEmpty()) {
 					runOnUiThread(() -> {
+					xmppConnectionService.updateOrgInfo();
 					showSmsMenuItem();
 
 					mAccount = accounts.get(0);

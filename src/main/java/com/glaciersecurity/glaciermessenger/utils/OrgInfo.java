@@ -72,20 +72,20 @@ public class OrgInfo {
         @Override
         public void onResponse(@NonNull Response<GetGlacierOrganizationQuery.Data> response) {
 
-                    if (response != null) {
-                        if (response.data().getGlacierOrganization() != null) {
-                            if (response.data().getGlacierOrganization().securityhub_data_enabled() != null) {
-                                securityhub_data_enabled = response.data().getGlacierOrganization().securityhub_data_enabled();
-                            }
-                            if (response.data().getGlacierOrganization().sms_enabled() != null) {
-                                sms_enabled = response.data().getGlacierOrganization().sms_enabled();
-                            }
-                            if (response.data().getGlacierOrganization().upload_enabled() != null) {
-                                upload_enabled = response.data().getGlacierOrganization().upload_enabled();
-                            }
-                            xmppConnectionService.setOrgInfo(OrgInfo.this);
-                        }
+            if (response != null) {
+                if (response.data().getGlacierOrganization() != null) {
+                    if (response.data().getGlacierOrganization().securityhub_data_enabled() != null) {
+                        securityhub_data_enabled = response.data().getGlacierOrganization().securityhub_data_enabled();
                     }
+                    if (response.data().getGlacierOrganization().sms_enabled() != null) {
+                        sms_enabled = response.data().getGlacierOrganization().sms_enabled();
+                    }
+                    if (response.data().getGlacierOrganization().upload_enabled() != null) {
+                        upload_enabled = response.data().getGlacierOrganization().upload_enabled();
+                    }
+                    xmppConnectionService.setOrgInfo(OrgInfo.this);
+                }
+            }
         }
 
         @Override
@@ -184,21 +184,21 @@ public class OrgInfo {
     };
 
     public void checkCurrentOrgInfo() {
-            final Account account = xmppConnectionService.getAccounts().get(0);
-            CognitoAccount myCogAccount = xmppConnectionService.databaseBackend.getCognitoAccount(account);
+        final Account account = xmppConnectionService.getAccounts().get(0);
+        CognitoAccount myCogAccount = xmppConnectionService.databaseBackend.getCognitoAccount(account);
 
-            if (myCogAccount == null) {
-                Log.i("Problem", "No Cognito account found");
-                return;
-            }
+        if (myCogAccount == null) {
+            Log.i("Problem", "No Cognito account found");
+            return;
+        }
 
-            if (myCogAccount.getOrganization() == null) {
-                AppHelper.init(xmppConnectionService.getApplicationContext());
-                AppHelper.setUser(myCogAccount.getUserName());
-                AppHelper.getPool().getUser(myCogAccount.getUserName()).getSessionInBackground(orgauthHandler);
-            } else {
-                queryAppSync(myCogAccount);
-            }
+        if (myCogAccount.getOrganization() == null) {
+            AppHelper.init(xmppConnectionService.getApplicationContext());
+            AppHelper.setUser(myCogAccount.getUserName());
+            AppHelper.getPool().getUser(myCogAccount.getUserName()).getSessionInBackground(orgauthHandler);
+        } else {
+            queryAppSync(myCogAccount);
+        }
 
     }
 

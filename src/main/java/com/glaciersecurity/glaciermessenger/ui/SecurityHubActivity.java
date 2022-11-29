@@ -193,6 +193,8 @@ public class SecurityHubActivity extends XmppActivity {
     void onBackendConnected() {
         try {
             if (xmppConnectionService != null) {
+                xmppConnectionService.getOrgInfo().checkCurrentOrgInfo();
+                xmppConnectionService.getSecurityInfo().checkCurrentSecurityInfo();
                 initSecurityComponents();
             }
         } catch (Exception e){

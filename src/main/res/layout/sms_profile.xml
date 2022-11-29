@@ -48,4 +48,19 @@
 
 
     />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/name_sms_btn"
+        android:layout_gravity="center_vertical"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:visibility="invisible"
+        android:src="@drawable/ic_baseline_dynamic_edit_24"
+        android:background="?attr/selectableItemBackground"
+        android:layout_margin="15dp"
+
+
+        />
     </LinearLayout>

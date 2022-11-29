@@ -554,6 +554,7 @@ public class SystemSecurityInfo {
                         if (xmppConnectionService != null) {
                             final Account account = xmppConnectionService.getAccounts().get(0);
                             xmppConnectionService.databaseBackend.updateCognitoAccountOrg(account, org);
+                            account.setOrg(org);
                         }
 
                         queryAppSync(null);

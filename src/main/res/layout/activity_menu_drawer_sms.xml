@@ -86,6 +86,27 @@
 
             />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+        <Button
+            android:id="@+id/name_a_number"
+            android:layout_width="320dp"
+            android:gravity="left"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:background="@color/transparent"
+            android:text="Nickname Number"
+            android:drawablePadding="10dp"
+            android:drawableLeft="@drawable/ic_baseline_dynamic_edit_24"
+            android:textAppearance="@style/TextAppearance.Conversations.Body2"
+            android:textColor="?attr/edit_text_color"
+            android:textSize="20dp"
+
+            />
+
+
     </LinearLayout>
 
 

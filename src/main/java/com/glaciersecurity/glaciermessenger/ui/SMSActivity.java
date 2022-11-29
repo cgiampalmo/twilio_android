@@ -1,6 +1,7 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -90,7 +91,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 
-public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener, OnSMSRemoveClickListener {
+public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener, OnSMSRemoveClickListener, OnSMSNameClickListener {
     private ActionBar actionBar;
     private float mSwipeEscapeVelocity = 0f;
     private PendingActionHelper pendingActionHelper = new PendingActionHelper();
@@ -99,6 +100,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     public FloatingActionButton fab_contact;
     private Button addNumberBtn;
     private Button releaseNumberBtn;
+    private Button nameNumberBtn;
 //    public FloatingActionButton fab_group;
 //    public FloatingActionButton fab_add;
 
@@ -114,6 +116,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     @Override
     public void onClick(DialogInterface dialog, int which) {
         ReleaseNum(adapter_sms.selectedSMSforRemoval.getFormattedNumber());
+    }
+
+    @Override
+    public void OnSMSNameClick(String conv_name) {
+        //TODO
     }
 
     private class ReleaseNumResponse{
@@ -602,6 +609,14 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             }
         });
 
+        nameNumberBtn = (Button) findViewById(R.id.name_a_number);
+        nameNumberBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                adapter_sms.toggleNameVisible();
+            }
+        });
+
         addNumberBtn = (Button) findViewById(R.id.add_number);
         addNumberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -637,6 +652,24 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 addNumberBtn.setVisibility(View.GONE);
                 releaseNumberBtn.setVisibility(View.GONE);
             }
+            if (smSdbInfo.size() > 0) {
+                nameNumberBtn.setVisibility(View.VISIBLE);
+            } else {
+                nameNumberBtn.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    public void showUnimplimentedToash(){
+        if (xmppConnectionService != null) {
+            SMSdbInfo info = xmppConnectionService.getSmsInfo();
+            ArrayList<SmsProfile> smSdbInfo = info.getExistingProfs();
+            PurchaseNumber = info.getUserPurchasePermission();
+            if (!PurchaseNumber) {
+                if (smSdbInfo.size() <= 0) {
+                   Toast.makeText(this, R.string.no_auth_sms, Toast.LENGTH_LONG).show();
+                }
+            }
         }
     }
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -663,6 +696,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 setColorForNumber(proxyNumber);
             }
             adapter_sms.toggleDeleteOff();
+            adapter_sms.toggleNameOff();
             showPurchaseView();
             drawer_sms.openDrawer(GravityCompat.START);
 
@@ -688,6 +722,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             getContactList();
         }
     }
+    @SuppressLint("Range")
     private void getContactList(){
         Uri uri = ContactsContract.Contacts.CONTENT_URI;
         String sort = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME+" ASC";
