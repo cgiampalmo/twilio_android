@@ -11,8 +11,6 @@
         layout="@layout/toolbar" />
 
 
-
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -95,8 +93,11 @@
                     android:hint="Send unencrypted message"
                     android:textColor="?attr/edit_text_color"
                     android:padding="@dimen/spacing_middle"
+                    android:imeOptions="flagNoExtractUi|actionSend"
                     android:inputType="textShortMessage|textMultiLine|textCapSentences|textNoSuggestions"
-                    android:maxLines="6"
+                    android:maxLines="8"
+                    android:minHeight="48dp"
+                    android:minLines="1"
                     style="@style/Widget.Conversations.EditText"
                     tools:ignore="Autofill"/>
 

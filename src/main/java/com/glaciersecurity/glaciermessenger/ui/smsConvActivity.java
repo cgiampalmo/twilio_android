@@ -211,7 +211,6 @@ public class smsConvActivity extends XmppActivity implements ConversationsManage
         recyclerView.setAdapter(messagesAdapter);
 
         writeMessageEditText = findViewById(R.id.edit_gchat_message);
-
         attach = findViewById(R.id.attachbtn);
 
         attach.setOnClickListener(new View.OnClickListener() {

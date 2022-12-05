@@ -102,8 +102,6 @@ public class SMSdbInfo {
         return isSMSEnabled;
     }
 
-
-
     public void trySmsInfoUpload() {
 
         new Thread(() -> {
@@ -172,7 +170,7 @@ public class SMSdbInfo {
             try {
                 if (deviceinfo instanceof LinkedTreeMap){
                     LinkedTreeMap<String, String> treeMap = (LinkedTreeMap<String, String>) deviceinfo;
-                    SmsProfile prof = new SmsProfile(treeMap);
+                    SmsProfile prof = new SmsProfile(treeMap,xmppConnectionService.getAccounts().get(0).getUsername());
                     smsProfList.add(prof);
                 }
 

@@ -22,6 +22,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.provider.ContactsContract;
+
+import com.glaciersecurity.glaciermessenger.databinding.DialogSmsNameBinding;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -91,7 +93,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 
-public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener, OnSMSRemoveClickListener, OnSMSNameClickListener {
+public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener, OnSMSRemoveClickListener {
     private ActionBar actionBar;
     private float mSwipeEscapeVelocity = 0f;
     private PendingActionHelper pendingActionHelper = new PendingActionHelper();
@@ -118,9 +120,9 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         ReleaseNum(adapter_sms.selectedSMSforRemoval.getFormattedNumber());
     }
 
-    @Override
-    public void OnSMSNameClick(String conv_name) {
-        //TODO
+    private class NicknameNumResponse{
+        String message;
+        String data;
     }
 
     private class ReleaseNumResponse{
@@ -516,7 +518,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
-        setTitle("SMS");
+        setTitle("Glacier SMS");
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         model = (ConversationModel) getApplicationContext();
 //        if(model.getPurchaseNumber() != null)
@@ -600,11 +602,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         layoutManagerSMS = new LinearLayoutManager(this);
         recyclerViewSMS.setLayoutManager(layoutManagerSMS);
         drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
-        adapter_sms = new SmsProfileAdapter((OnSMSProfileClickListener) this, (OnSMSRemoveClickListener) this, profileList);
+        adapter_sms = new SmsProfileAdapter(this, identity, (OnSMSProfileClickListener) this, (OnSMSRemoveClickListener) this, profileList);
         releaseNumberBtn = (Button) findViewById(R.id.release_number);
         releaseNumberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                adapter_sms.toggleNameOff();
                 adapter_sms.toggleDeleteVisible();
             }
         });
@@ -613,6 +616,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         nameNumberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                adapter_sms.toggleDeleteOff();
                 adapter_sms.toggleNameVisible();
             }
         });
@@ -636,6 +640,18 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         return super.onCreateOptionsMenu(menu);
     }
 
+    public void showUnimplimentedToast(){
+        if (xmppConnectionService != null) {
+            SMSdbInfo info = xmppConnectionService.getSmsInfo();
+            ArrayList<SmsProfile> smSdbInfo = info.getExistingProfs();
+            PurchaseNumber = info.getUserPurchasePermission();
+            if (!PurchaseNumber) {
+                if (smSdbInfo.size() <= 0) {
+                    Toast.makeText(this, R.string.no_auth_sms, Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
     public void showPurchaseView(){
         if (xmppConnectionService != null) {
             SMSdbInfo info = xmppConnectionService.getSmsInfo();
@@ -651,24 +667,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             } else {
                 addNumberBtn.setVisibility(View.GONE);
                 releaseNumberBtn.setVisibility(View.GONE);
-            }
+                }
             if (smSdbInfo.size() > 0) {
                 nameNumberBtn.setVisibility(View.VISIBLE);
             } else {
                 nameNumberBtn.setVisibility(View.GONE);
-            }
-        }
-    }
-
-    public void showUnimplimentedToash(){
-        if (xmppConnectionService != null) {
-            SMSdbInfo info = xmppConnectionService.getSmsInfo();
-            ArrayList<SmsProfile> smSdbInfo = info.getExistingProfs();
-            PurchaseNumber = info.getUserPurchasePermission();
-            if (!PurchaseNumber) {
-                if (smSdbInfo.size() <= 0) {
-                   Toast.makeText(this, R.string.no_auth_sms, Toast.LENGTH_LONG).show();
-                }
             }
         }
     }
@@ -698,6 +701,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             adapter_sms.toggleDeleteOff();
             adapter_sms.toggleNameOff();
             showPurchaseView();
+            showUnimplimentedToast();
             drawer_sms.openDrawer(GravityCompat.START);
 
     }
