@@ -16,7 +16,7 @@
     android:layout_margin="10dp"
     >
         <TextView
-            android:id="@+id/sms_profile_number"
+            android:id="@+id/sms_profile_primary_view"
             android:minWidth="180dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
             android:textSize="25dp" />
 
     <TextView
-        android:id="@+id/sms_profile_nickname"
+        android:id="@+id/sms_profile_secondary_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="1dp"

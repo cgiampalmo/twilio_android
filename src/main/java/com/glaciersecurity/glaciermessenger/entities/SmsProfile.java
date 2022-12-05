@@ -28,7 +28,7 @@ public class SmsProfile {
         formattedNumber = Tools.reformatNumber(unformatted_number);
         id = linkedTreeMap.get("id");
         nickname = linkedTreeMap.get("nickname");
-        username = username;
+        this.username = username;
 
     }
 //    public SmsProfile(String number, String id){

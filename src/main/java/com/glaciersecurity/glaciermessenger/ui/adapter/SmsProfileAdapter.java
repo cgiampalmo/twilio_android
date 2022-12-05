@@ -3,13 +3,11 @@ package com.glaciersecurity.glaciermessenger.ui.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,17 +21,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 import com.glaciersecurity.glaciermessenger.R;
-import com.glaciersecurity.glaciermessenger.databinding.DialogPresenceBinding;
 import com.glaciersecurity.glaciermessenger.databinding.DialogSmsNameBinding;
-import com.glaciersecurity.glaciermessenger.databinding.RadioBinding;
-import com.glaciersecurity.glaciermessenger.entities.GlacierProfile;
 import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
-import com.glaciersecurity.glaciermessenger.services.XmppConnectionService;
 import com.glaciersecurity.glaciermessenger.ui.OnSMSNameClickListener;
 import com.glaciersecurity.glaciermessenger.ui.OnSMSProfileClickListener;
 import com.glaciersecurity.glaciermessenger.ui.OnSMSRemoveClickListener;
-import com.glaciersecurity.glaciermessenger.ui.SMSActivity;
-import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.ui.widget.UnreadCountCustomView;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import com.google.gson.Gson;
@@ -122,7 +114,9 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 			holder.nicknameView.setVisibility(View.GONE);
 		} else {
 			holder.nicknameView.setVisibility(View.VISIBLE);
-			holder.nicknameView.setText(smsProf.getNickname());
+			holder.nicknameView.setText(smsProf.getFormattedNumber());
+			holder.numberView.setText(smsProf.getNickname());
+
 		}
 		holder.profileView.setBackgroundColor(smsProf.getColor());
 		if(smsProf.getUnread_count() != null && smsProf.getUnread_count() > 0) {
@@ -278,8 +272,8 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 			super(view);
 			this.listener = listener;
 			profileView = (LinearLayout) view.findViewById(R.id.sms_profile_view);
-			numberView = (TextView) view.findViewById(R.id.sms_profile_number);
-			nicknameView = (TextView) view.findViewById(R.id.sms_profile_nickname);
+			numberView = (TextView) view.findViewById(R.id.sms_profile_primary_view);
+			nicknameView = (TextView) view.findViewById(R.id.sms_profile_secondary_view);
 			unreadCount = (UnreadCountCustomView) view.findViewById(R.id.sms_unread_count);
 			removeNumBtn = view.findViewById(R.id.remove_sms_btn);
 			removeNumBtn.setOnClickListener(new View.OnClickListener() {
