@@ -4434,9 +4434,9 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public SystemSecurityInfo getSecurityInfo() {
-		if (secInfo == null) {
+		//if (secInfo == null) {
 			secInfo = new SystemSecurityInfo(this);
-		}
+		//}
 		return secInfo;
 	}
 

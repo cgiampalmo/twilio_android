@@ -22,8 +22,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.provider.ContactsContract;
-
-import com.glaciersecurity.glaciermessenger.databinding.DialogSmsNameBinding;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;

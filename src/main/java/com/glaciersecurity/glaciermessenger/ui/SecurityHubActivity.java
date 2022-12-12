@@ -107,7 +107,7 @@ public class SecurityHubActivity extends XmppActivity {
         return getBooleanPreference(SettingsActivity.USE_BIOMETRICS, R.bool.enable_biometrics);
     }
 
-    private boolean isDevicelock() {
+    private boolean isBioLock() {
         return xmppConnectionService.getSecurityInfo().hasBioLock();
     }
 
@@ -157,7 +157,7 @@ public class SecurityHubActivity extends XmppActivity {
     }
 
     private ExpandableListItem deviceBioLockListItem(){
-        if (isDevicelock()) {
+        if (isBioLock()) {
             return new ExpandableListItem(R.drawable.fingerprint_biometric_lock_128, getString(R.string.biometrics_dev), getString(R.string.bio_lock_enabled));
         } else {
             return new ExpandableListItem(R.drawable.fingerprint_biometric_lock_disabled_128,  getString(R.string.biometrics_dev), getString(R.string.bio_lock_disabled));
