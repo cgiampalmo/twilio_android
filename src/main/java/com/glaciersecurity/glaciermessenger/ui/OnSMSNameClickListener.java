@@ -4,7 +4,7 @@ import android.app.Dialog;
 
 import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 
-public interface OnSMSNameClickListener extends Dialog.OnClickListener {
+public interface OnSMSNameClickListener {
     void OnSMSNameClick(String nickname, SmsProfile smsProfile);
 
 }

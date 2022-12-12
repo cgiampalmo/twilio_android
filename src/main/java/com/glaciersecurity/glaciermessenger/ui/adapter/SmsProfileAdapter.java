@@ -26,6 +26,7 @@ import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.ui.OnSMSNameClickListener;
 import com.glaciersecurity.glaciermessenger.ui.OnSMSProfileClickListener;
 import com.glaciersecurity.glaciermessenger.ui.OnSMSRemoveClickListener;
+import com.glaciersecurity.glaciermessenger.ui.SMSActivity;
 import com.glaciersecurity.glaciermessenger.ui.widget.UnreadCountCustomView;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import com.google.gson.Gson;
@@ -38,7 +39,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SMSRecyclerViewHolder> implements OnSMSProfileClickListener, OnSMSRemoveClickListener, OnSMSNameClickListener {
+public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SMSRecyclerViewHolder> {
 
 	public ArrayList<SmsProfile> smsProfileList = new ArrayList<>();
 	private OnSMSProfileClickListener listener;
@@ -50,10 +51,11 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 	private String identity;
 
 
-	public SmsProfileAdapter(Context mContext, String identity, OnSMSProfileClickListener listener, OnSMSRemoveClickListener removeListener,ArrayList<SmsProfile> smsProfileList) {
+	public SmsProfileAdapter(Context mContext, String identity, OnSMSProfileClickListener listener, OnSMSRemoveClickListener removeListener, OnSMSNameClickListener nameListener, ArrayList<SmsProfile> smsProfileList) {
 		this.smsProfileList = smsProfileList;
 		this.removeListener = removeListener;
 		this.listener = listener;
+		this.nameListener = nameListener;
 		this.mContext = mContext;
 		this.identity = identity;
 	}
@@ -109,13 +111,13 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 	@Override
 	public void onBindViewHolder(@NonNull SMSRecyclerViewHolder holder, @SuppressLint("RecyclerView") int position) {
 		SmsProfile smsProf = smsProfileList.get(position);
-		holder.numberView.setText(smsProf.getFormattedNumber());
+		holder.primaryView.setText(smsProf.getFormattedNumber());
 		if (smsProf.getNickname() == null || smsProf.getNickname().isEmpty()) {
-			holder.nicknameView.setVisibility(View.GONE);
+			holder.secondaryView.setVisibility(View.GONE);
 		} else {
-			holder.nicknameView.setVisibility(View.VISIBLE);
-			holder.nicknameView.setText(smsProf.getFormattedNumber());
-			holder.numberView.setText(smsProf.getNickname());
+			holder.secondaryView.setVisibility(View.VISIBLE);
+			holder.secondaryView.setText(smsProf.getFormattedNumber());
+			holder.primaryView.setText(smsProf.getNickname());
 
 		}
 		holder.profileView.setBackgroundColor(smsProf.getColor());
@@ -154,6 +156,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 							public void onClick(DialogInterface dialog, int id) {
 								// dismiss this dialog
 								NicknameNum(binding.smsNickname.getText().toString(), smsProf);
+								nameListener.OnSMSNameClick(binding.smsNickname.getText().toString(), smsProf);
 							}
 						}
 					);
@@ -185,12 +188,6 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 		return smsProfileList.size();
 	}
 
-	@Override
-	public void OnSMSProfileClick(String id, String number) {
-	}
-	@Override
-	public void OnSMSRemoveClick(String conv_name) {
-	}
 
 
 
@@ -242,23 +239,10 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 		}
 	}
 
-	@Override
-	public void OnSMSNameClick(String nickname, SmsProfile smsProfile) {
-		Log.d("here", "here");
-	}
-
-
-	@Override
-	public void onClick(DialogInterface dialog, int which) {
-		Log.d("here", "here");
-
-
-	}
-
 	public class SMSRecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 		public final View profView;
-		TextView numberView;
-		TextView nicknameView;
+		TextView primaryView;
+		TextView secondaryView;
 		//TextView locationView;
 		UnreadCountCustomView unreadCount;
 		ImageButton removeNumBtn;
@@ -272,15 +256,15 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 			super(view);
 			this.listener = listener;
 			profileView = (LinearLayout) view.findViewById(R.id.sms_profile_view);
-			numberView = (TextView) view.findViewById(R.id.sms_profile_primary_view);
-			nicknameView = (TextView) view.findViewById(R.id.sms_profile_secondary_view);
+			primaryView = (TextView) view.findViewById(R.id.sms_profile_primary_view);
+			secondaryView = (TextView) view.findViewById(R.id.sms_profile_secondary_view);
 			unreadCount = (UnreadCountCustomView) view.findViewById(R.id.sms_unread_count);
 			removeNumBtn = view.findViewById(R.id.remove_sms_btn);
 			removeNumBtn.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					if (removeListener != null){
-						removeListener.OnSMSRemoveClick(numberView.getText().toString());
+						removeListener.OnSMSRemoveClick(primaryView.getText().toString());
 					}
 				}
 			});
@@ -292,8 +276,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 
 		@Override
 		public void onClick(View view) {
-			SmsProfile smsProf = smsProfileList.get(getAdapterPosition());
-			listener.OnSMSProfileClick(numberView.getText().toString(),numberView.getText().toString());
+			listener.OnSMSProfileClick(primaryView.getText().toString(), primaryView.getText().toString());
 		}
 	}
 

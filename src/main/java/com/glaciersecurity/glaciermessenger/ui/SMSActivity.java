@@ -93,7 +93,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 
-public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener, OnSMSRemoveClickListener {
+public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener, OnSMSRemoveClickListener, OnSMSNameClickListener {
     private ActionBar actionBar;
     private float mSwipeEscapeVelocity = 0f;
     private PendingActionHelper pendingActionHelper = new PendingActionHelper();
@@ -119,6 +119,14 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     public void onClick(DialogInterface dialog, int which) {
         ReleaseNum(adapter_sms.selectedSMSforRemoval.getFormattedNumber());
     }
+
+    @Override
+    public void OnSMSNameClick(String nickname, SmsProfile selectedSMSforName) {
+        drawer_sms.close();
+        adapter_sms.notifyDataSetChanged();
+       // NicknameNum(nickname, selectedSMSforName);
+    }
+
 
     private class NicknameNumResponse{
         String message;
@@ -602,7 +610,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         layoutManagerSMS = new LinearLayoutManager(this);
         recyclerViewSMS.setLayoutManager(layoutManagerSMS);
         drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
-        adapter_sms = new SmsProfileAdapter(this, identity, (OnSMSProfileClickListener) this, (OnSMSRemoveClickListener) this, profileList);
+        adapter_sms = new SmsProfileAdapter(this, identity, (OnSMSProfileClickListener) this, (OnSMSRemoveClickListener) this, this,  profileList);
         releaseNumberBtn = (Button) findViewById(R.id.release_number);
         releaseNumberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -697,24 +705,14 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 proxyNumbers.clear();
                 reload_adapter_sms(smSdbInfo);
                 setColorForNumber(proxyNumber);
+                showPurchaseView();
+                showUnimplimentedToast();
             }
             adapter_sms.toggleDeleteOff();
             adapter_sms.toggleNameOff();
-            showPurchaseView();
-            showUnimplimentedToast();
             drawer_sms.openDrawer(GravityCompat.START);
 
     }
-
-//    private void initSMS(){
-//        SmsProfile test = new SmsProfile("purchase twilio number", "Add Number");
-//        if(! (profileList.contains(test))) {
-//            profileList.add(test);
-//        }
-//
-//        /*SmsProfile test2 = new SmsProfile("(000) 000-0000", "City2, State2");
-//        profileList.add(test2);*/
-//    }
 
 
     private void checkPermission() {
