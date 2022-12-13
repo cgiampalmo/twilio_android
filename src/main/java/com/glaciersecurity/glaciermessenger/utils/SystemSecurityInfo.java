@@ -269,14 +269,14 @@ public class SystemSecurityInfo {
         }
 
         boolean hasBioLock = isBiometricPINOn(xmppConnectionService.getApplicationContext());
-        if (hasBioLock != securityInfo.getBiometricLock()) {
-            securityInfo.setBiometricLock(hasBioLock);
+        if (hasBioLock != securityInfo.getApplicationLock()) {
+            securityInfo.setApplicationLock(hasBioLock);
             needsUpdate = true;
         }
 
         boolean hasDeviceLock = hasBioLock();
-        if (hasDeviceLock != securityInfo.getDeviceLock()) {
-            securityInfo.setDeviceLock(hasDeviceLock);
+        if (hasDeviceLock != securityInfo.getBiometricLock()) {
+            securityInfo.setBiometricLock(hasDeviceLock);
             needsUpdate = true;
         }
 

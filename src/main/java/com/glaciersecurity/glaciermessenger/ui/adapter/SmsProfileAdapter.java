@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -247,7 +248,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 		UnreadCountCustomView unreadCount;
 		ImageButton removeNumBtn;
 		ImageButton nameNumBtn;
-		LinearLayout profileView;
+		RelativeLayout profileView;
 		private OnSMSProfileClickListener listener;
 
 
@@ -255,7 +256,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 		public SMSRecyclerViewHolder(View view, OnSMSProfileClickListener listener, OnSMSRemoveClickListener removeListener){
 			super(view);
 			this.listener = listener;
-			profileView = (LinearLayout) view.findViewById(R.id.sms_profile_view);
+			profileView = (RelativeLayout) view.findViewById(R.id.sms_profile_view);
 			primaryView = (TextView) view.findViewById(R.id.sms_profile_primary_view);
 			secondaryView = (TextView) view.findViewById(R.id.sms_profile_secondary_view);
 			unreadCount = (UnreadCountCustomView) view.findViewById(R.id.sms_unread_count);
