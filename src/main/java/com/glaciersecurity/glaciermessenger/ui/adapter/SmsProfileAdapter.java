@@ -1,6 +1,8 @@
 package com.glaciersecurity.glaciermessenger.ui.adapter;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.view.KeyEvent;
@@ -39,6 +41,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+
+import static android.content.Context.CLIPBOARD_SERVICE;
 
 public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SMSRecyclerViewHolder> {
 
@@ -128,6 +132,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 		}else{
 			holder.unreadCount.setVisibility(View.INVISIBLE);
 		}
+
 		holder.removeNumBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -158,6 +163,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 								// dismiss this dialog
 								NicknameNum(binding.smsNickname.getText().toString(), smsProf);
 								nameListener.OnSMSNameClick(binding.smsNickname.getText().toString(), smsProf);
+								notifyDataSetChanged();
 							}
 						}
 					);
@@ -240,7 +246,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 		}
 	}
 
-	public class SMSRecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+	public class SMSRecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 		public final View profView;
 		TextView primaryView;
 		TextView secondaryView;
@@ -272,12 +278,39 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 			nameNumBtn = view.findViewById(R.id.name_sms_btn);
 			profView = view;
 			profView.setOnClickListener(this);
+			profileView.setOnLongClickListener(new View.OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View v) {
+					ClipboardManager clipboard = (ClipboardManager) mContext.getSystemService(CLIPBOARD_SERVICE);
+					ClipData clip = ClipData.newPlainText("Glacier sms:", getNumber());
+					clipboard.setPrimaryClip(clip);
+					Toast.makeText(mContext,"Copied to clipboard: "+ getNumber(), Toast.LENGTH_SHORT).show();
+					return false;
+				}
+			});
+		}
+
+		private String getNumber(){
+			if (secondaryView.getVisibility() == View.GONE){
+				return primaryView.getText().toString();
+			} else {
+				return secondaryView.getText().toString();
+			}
 		}
 
 
 		@Override
 		public void onClick(View view) {
 			listener.OnSMSProfileClick(primaryView.getText().toString(), primaryView.getText().toString());
+		}
+
+		@Override
+		public boolean onLongClick(View v) {
+			ClipboardManager clipboard = (ClipboardManager) mContext.getSystemService(CLIPBOARD_SERVICE);
+			ClipData clip = ClipData.newPlainText(primaryView.getText().toString(), secondaryView.getText().toString());
+			clipboard.setPrimaryClip(clip);
+			Toast.makeText(mContext,"Copied to clipboard: "+ primaryView.getText().toString(), Toast.LENGTH_SHORT).show();
+			return true;
 		}
 	}
 
