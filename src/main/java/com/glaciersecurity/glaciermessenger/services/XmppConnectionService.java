@@ -132,6 +132,7 @@ import com.glaciersecurity.glaciermessenger.utils.CryptoHelper;
 import com.glaciersecurity.glaciermessenger.utils.Compatibility;
 import com.glaciersecurity.glaciermessenger.utils.ExceptionHelper;
 import com.glaciersecurity.glaciermessenger.utils.MimeUtils;
+import com.glaciersecurity.glaciermessenger.utils.OrgInfo;
 import com.glaciersecurity.glaciermessenger.utils.PhoneHelper;
 import com.glaciersecurity.glaciermessenger.utils.QuickLoader;
 import com.glaciersecurity.glaciermessenger.utils.ReplacingSerialSingleThreadExecutor;
@@ -278,6 +279,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	private AtomicLong mLastSecInfoUpdate = new AtomicLong(0);
 	public static final long SECHUB_INTERVAL = 86400L;
 	private SystemSecurityInfo secInfo;
+	private OrgInfo orgInfo;
 	private SMSdbInfo smsInfo;
 	private boolean needsSecurityInfoUpdate = false;
 
@@ -1382,6 +1384,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 		if (accounts.size() > 0) {
 			getSmsInfo();
+			updateOrgInfo();
 		}
 
 		restoreFromDatabase();
@@ -4415,11 +4418,35 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 	}
 
+	public void updateOrgInfo() {
+		if (accounts == null || accounts.size() == 0) {
+			return;
+		}
+
+		long lastupdate = mLastOrgInfoUpdate.get();
+		if (lastupdate == 0L || SystemClock.elapsedRealtime() - lastupdate >= (ORG_INTERVAL*1000)) {
+			mLastOrgInfoUpdate.set(SystemClock.elapsedRealtime());
+			getOrgInfo().checkCurrentOrgInfo();
+		}
+	}
+
 	public SystemSecurityInfo getSecurityInfo() {
 		if (secInfo == null) {
 			secInfo = new SystemSecurityInfo(this);
+		} else {
+			updateSecurityInfo();
 		}
 		return secInfo;
+	}
+
+	public OrgInfo getOrgInfo() {
+		if (orgInfo == null) {
+			orgInfo = new OrgInfo(this);
+		}
+		else {
+			orgInfo.checkCurrentOrgInfo();
+		}
+		return orgInfo;
 	}
 
 	public SMSdbInfo getSmsInfo() {
@@ -4430,18 +4457,23 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public void updateSmsInfo(){
-		if (accounts != null) {
-			try {
-				getSmsInfo().trySmsInfoUpload();
-			}
-			catch (Exception e){
+		if (accounts == null || accounts.size() == 0) {
+			return;
+		}
+		try {
+			getSmsInfo().trySmsInfoUpload();
+		}
+		catch (Exception e){
 
-			}
 		}
 	}
 
 	public void setSmsInfo(SMSdbInfo smsInfo){
 		this.smsInfo = smsInfo;
+	}
+
+	public void setOrgInfo(OrgInfo orgInfo){
+		this.orgInfo = orgInfo;
 	}
 
 
