@@ -4423,11 +4423,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			return;
 		}
 
-		long lastupdate = mLastOrgInfoUpdate.get();
-		if (lastupdate == 0L || SystemClock.elapsedRealtime() - lastupdate >= (ORG_INTERVAL*1000)) {
-			mLastOrgInfoUpdate.set(SystemClock.elapsedRealtime());
-			getOrgInfo().checkCurrentOrgInfo();
-		}
+		getOrgInfo().checkCurrentOrgInfo();
 	}
 
 	public SystemSecurityInfo getSecurityInfo() {
@@ -4450,9 +4446,9 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public SMSdbInfo getSmsInfo() {
-		if (smsInfo == null){
+		//if (smsInfo == null){
 			smsInfo = new SMSdbInfo(this);
-		}
+		//}
 		return smsInfo;
 	}
 
