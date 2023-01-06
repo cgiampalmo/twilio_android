@@ -4446,9 +4446,9 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 	}
 
 	public SMSdbInfo getSmsInfo() {
-		//if (smsInfo == null){
+		if (smsInfo == null){
 			smsInfo = new SMSdbInfo(this);
-		//}
+		}
 		return smsInfo;
 	}
 

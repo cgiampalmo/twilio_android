@@ -9,6 +9,7 @@ import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -93,7 +94,7 @@ public class NewSMSActivity extends XmppActivity implements OnSMSConversationCli
 
             }
         });
-        Button sendChatMessageButton = findViewById(R.id.button_submit_phonenumber);
+        ImageView sendChatMessageButton = findViewById(R.id.button_submit_phonenumber);
         sendChatMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

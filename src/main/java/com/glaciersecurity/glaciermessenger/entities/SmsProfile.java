@@ -10,8 +10,9 @@ public class SmsProfile {
     protected String unformatted_number;
     protected String id;
     protected Integer unread_count;
-    protected String nickname;
+    protected String nickname = "";
     protected Integer color;
+    protected String username = "";
 
 
     public Integer getUnread_count() {
@@ -29,17 +30,20 @@ public class SmsProfile {
         nickname = linkedTreeMap.get("nickname");
 
     }
-    public SmsProfile(String number, String id){
-        this.unformatted_number = number;
-        this.formattedNumber = Tools.reformatNumber(unformatted_number);
-        this.id = id;
-    }
 
     public String getFormattedNumber() {
         if (formattedNumber == null) {
             this.formattedNumber = Tools.reformatNumber(unformatted_number);
         }
         return formattedNumber;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String name){
+        this.nickname = name;
     }
 
     public int getColor() {
@@ -59,6 +63,10 @@ public class SmsProfile {
 
     public String getUnformattedNumber(){
         return unformatted_number;
+    }
+
+    public String getUsername(){
+        return username;
     }
 
     @Override

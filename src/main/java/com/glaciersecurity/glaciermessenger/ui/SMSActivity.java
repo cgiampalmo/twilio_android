@@ -1,6 +1,7 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -409,8 +410,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             SMSdbInfo info = xmppConnectionService.getSmsInfo();
             smSdbInfo = info.getExistingProfs();
             PurchaseNumber = info.getUserPurchasePermission();
-            //SMSdbInfo smsinfo = new SMSdbInfo(xmppConnectionService);
-            //xmppConnectionService.setSmsInfo(info);
             Log.d("Glacier", "onBackendConnected" + xmppConnectionService + smSdbInfo+PurchaseNumber);
             proxyNumbers.clear();
             profileList.clear();
@@ -509,7 +508,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
-        setTitle("SMS");
+        setTitle("Glacier SMS");
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         model = (ConversationModel) getApplicationContext();
 //        if(model.getPurchaseNumber() != null)
@@ -593,7 +592,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         layoutManagerSMS = new LinearLayoutManager(this);
         recyclerViewSMS.setLayoutManager(layoutManagerSMS);
         drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
-        adapter_sms = new SmsProfileAdapter((OnSMSProfileClickListener) this, (OnSMSRemoveClickListener) this, profileList);
+        adapter_sms = new SmsProfileAdapter(this, identity, (OnSMSProfileClickListener) this, (OnSMSRemoveClickListener) this,  profileList);
         releaseNumberBtn = (Button) findViewById(R.id.release_number);
         releaseNumberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -621,6 +620,18 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         return super.onCreateOptionsMenu(menu);
     }
 
+    public void showUnimplimentedToast(){
+        if (xmppConnectionService != null) {
+            SMSdbInfo info = xmppConnectionService.getSmsInfo();
+            ArrayList<SmsProfile> smSdbInfo = info.getExistingProfs();
+            PurchaseNumber = info.getUserPurchasePermission();
+            if (!PurchaseNumber) {
+                if (smSdbInfo.size() <= 0) {
+                    Toast.makeText(this, R.string.no_auth_sms, Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
     public void showPurchaseView(){
         if (xmppConnectionService != null) {
             SMSdbInfo info = xmppConnectionService.getSmsInfo();
@@ -661,22 +672,13 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 proxyNumbers.clear();
                 reload_adapter_sms(smSdbInfo);
                 setColorForNumber(proxyNumber);
+                showPurchaseView();
+                showUnimplimentedToast();
             }
             adapter_sms.toggleDeleteOff();
-            showPurchaseView();
             drawer_sms.openDrawer(GravityCompat.START);
 
     }
-
-//    private void initSMS(){
-//        SmsProfile test = new SmsProfile("purchase twilio number", "Add Number");
-//        if(! (profileList.contains(test))) {
-//            profileList.add(test);
-//        }
-//
-//        /*SmsProfile test2 = new SmsProfile("(000) 000-0000", "City2, State2");
-//        profileList.add(test2);*/
-//    }
 
 
     private void checkPermission() {
@@ -688,6 +690,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             getContactList();
         }
     }
+    @SuppressLint("Range")
     private void getContactList(){
         Uri uri = ContactsContract.Contacts.CONTENT_URI;
         String sort = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME+" ASC";
@@ -865,12 +868,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     @Override
     public void OnSMSProfileClick(String id, String number) {
+        drawer_sms.closeDrawers();
         xmppConnectionService.updateSmsInfo();
         number = number.replace("(","").replace(")","").replace("-","").replace(" ","");
         model.setProxyNumber(number);
         proxyNumber = number;
         setColorForNumber(proxyNumber);
-        drawer_sms.closeDrawers();
         if (messagesAdapter != null) {
             messagesAdapter.notifyDataSetChanged();
         }
