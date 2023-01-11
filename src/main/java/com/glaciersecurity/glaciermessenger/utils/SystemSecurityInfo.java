@@ -420,9 +420,9 @@ public class SystemSecurityInfo {
 
 
         appsyncclient.query(GetGlacierUsersQuery.builder()
-                        .organization(myCogAccount.getOrganization())
-                        .username(myCogAccount.getUserName())
-                        .build())
+                .organization(myCogAccount.getOrganization())
+                .username(myCogAccount.getUserName())
+                .build())
                 .responseFetcher(AppSyncResponseFetchers.NETWORK_ONLY)
                 .enqueue(getUserCallback);
     }

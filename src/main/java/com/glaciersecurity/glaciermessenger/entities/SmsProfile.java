@@ -23,11 +23,12 @@ public class SmsProfile {
         this.unread_count = unread_count;
     }
 
-    public SmsProfile(LinkedTreeMap<String, String> linkedTreeMap) {
+    public SmsProfile(LinkedTreeMap<String, String> linkedTreeMap, String username) {
         unformatted_number = linkedTreeMap.get("text");
         formattedNumber = Tools.reformatNumber(unformatted_number);
         id = linkedTreeMap.get("id");
         nickname = linkedTreeMap.get("nickname");
+        this.username = username;
 
     }
 

@@ -1,38 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:layout_width="325dp"
     android:layout_height="wrap_content"
     android:background="?attr/color_background_secondary"
     android:id="@+id/sms_profile_view"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp"
+    android:padding="10dp"
     >
 
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="start"
+        android:orientation="vertical">
+
         <TextView
-            android:id="@+id/sms_profile_number"
+            android:id="@+id/sms_profile_primary_view"
             android:minWidth="180dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="5dp"
+            android:layout_margin="1dp"
             android:layout_centerVertical="true"
-            android:layout_gravity="center"
+            android:layout_gravity="left"
             android:textAppearance="@style/TextAppearance.Conversations.Body2"
             android:textColor="?attr/edit_text_color"
             android:textSize="25dp" />
 
+    <TextView
+        android:id="@+id/sms_profile_secondary_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="1dp"
+        android:layout_centerVertical="true"
+        android:layout_gravity="left"
+        android:textAppearance="@style/TextAppearance.Conversations.Body2"
+        android:textColor="?attr/edit_text_color"
+        android:textSize="15dp"/>
+</androidx.appcompat.widget.LinearLayoutCompat>
 
-    <com.glaciersecurity.glaciermessenger.ui.widget.UnreadCountCustomView
-        android:id="@+id/sms_unread_count"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_alignParentRight="true"
-        android:layout_gravity="center"
-        android:textStyle="bold"
-        android:visibility="invisible"
-        app:backgroundColor="?attr/colorAccent2" />
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentEnd="true"
+android:layout_centerInParent="true">
+
+        <com.glaciersecurity.glaciermessenger.ui.widget.UnreadCountCustomView
+            android:id="@+id/sms_unread_count"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            android:visibility="invisible"
+            app:backgroundColor="?attr/colorAccent2"
+            android:padding="15dp"/>
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -41,11 +65,29 @@
         android:layout_gravity="center_vertical"
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
-        android:visibility="invisible"
+        android:visibility="gone"
         android:src="@drawable/ic_baseline_delete_dynamic"
         android:background="?attr/selectableItemBackground"
-        android:layout_margin="15dp"
+        android:padding="15dp"
 
 
-    />
-    </LinearLayout>
+            />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/name_sms_btn"
+        android:layout_gravity="center_vertical"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:visibility="gone"
+        android:src="@drawable/ic_baseline_dynamic_edit_24"
+        android:background="?attr/selectableItemBackground"
+        android:padding="15dp"
+
+
+            />
+
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</RelativeLayout>

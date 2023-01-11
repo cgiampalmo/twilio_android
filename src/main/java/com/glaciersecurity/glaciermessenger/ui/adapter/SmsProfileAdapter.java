@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,40 +23,35 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 import com.glaciersecurity.glaciermessenger.R;
+import com.glaciersecurity.glaciermessenger.databinding.DialogSmsNameBinding;
 import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
+import com.glaciersecurity.glaciermessenger.ui.OnSMSNameClickListener;
 import com.glaciersecurity.glaciermessenger.ui.OnSMSProfileClickListener;
 import com.glaciersecurity.glaciermessenger.ui.OnSMSRemoveClickListener;
-import com.glaciersecurity.glaciermessenger.ui.SMSActivity;
 import com.glaciersecurity.glaciermessenger.ui.widget.UnreadCountCustomView;
-import com.glaciersecurity.glaciermessenger.utils.Log;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-
 import static android.content.Context.CLIPBOARD_SERVICE;
 
-public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SMSRecyclerViewHolder> implements OnSMSProfileClickListener, OnSMSRemoveClickListener {
+public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SMSRecyclerViewHolder> {
 
 	public ArrayList<SmsProfile> smsProfileList = new ArrayList<>();
 	private OnSMSProfileClickListener listener;
 	private OnSMSRemoveClickListener removeListener;
+	private OnSMSNameClickListener nameListener;
 	private ViewGroup viewGroup;
-	public SmsProfile selectedSMSforRemoval;
-	public int selectedSMSforRemovalPosition;
+	public SmsProfile selectedProfile;
+	public int selectedPosition;
 	public Context mContext;
 	private String identity;
 
 
-	public SmsProfileAdapter(Context mContext, String identity, OnSMSProfileClickListener listener, OnSMSRemoveClickListener removeListener, ArrayList<SmsProfile> smsProfileList) {
+	public SmsProfileAdapter(Context mContext, String identity, OnSMSProfileClickListener listener, OnSMSRemoveClickListener removeListener, OnSMSNameClickListener nameListener, ArrayList<SmsProfile> smsProfileList) {
 		this.smsProfileList = smsProfileList;
 		this.removeListener = removeListener;
 		this.listener = listener;
+		this.nameListener = nameListener;
 		this.mContext = mContext;
 		this.identity = identity;
 	}
@@ -71,11 +65,22 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 	}
 
 	@Override
-	public void onBindViewHolder(@NonNull SMSRecyclerViewHolder holder, int position) {
-		holder.numberView.setText(smsProfileList.get(position).getFormattedNumber());
-		holder.profileView.setBackgroundColor(smsProfileList.get(position).getColor());
-		if(smsProfileList.get(position).getUnread_count() != null && smsProfileList.get(position).getUnread_count() > 0) {
-			holder.unreadCount.setUnreadCount(smsProfileList.get(position).getUnread_count());
+	public void onBindViewHolder(@NonNull SMSRecyclerViewHolder holder, @SuppressLint("RecyclerView") int position) {
+		SmsProfile smsProf = smsProfileList.get(position);
+		selectedProfile = smsProf;
+		selectedPosition = position;
+		holder.primaryView.setText(smsProf.getFormattedNumber());
+		if (smsProf.getNickname() == null || smsProf.getNickname().isEmpty()) {
+			holder.secondaryView.setVisibility(View.GONE);
+		} else {
+			holder.secondaryView.setVisibility(View.VISIBLE);
+			holder.secondaryView.setText(smsProf.getFormattedNumber());
+			holder.primaryView.setText(smsProf.getNickname());
+
+		}
+		holder.profileView.setBackgroundColor(smsProf.getColor());
+		if(smsProf.getUnread_count() != null && smsProf.getUnread_count() > 0) {
+			holder.unreadCount.setUnreadCount(smsProf.getUnread_count());
 			holder.unreadCount.setVisibility(View.VISIBLE);
 		}else{
 			holder.unreadCount.setVisibility(View.INVISIBLE);
@@ -91,7 +96,46 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 				builder.setNegativeButton( "Cancel", null);
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
-				selectedSMSforRemoval = smsProfileList.get(position);
+
+			}
+		});
+		holder.nameNumBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(view.getContext());
+				builder.setNegativeButton( "No thanks", null);
+				builder.setTitle("Display Name");
+				builder.setCancelable(true);
+
+				DialogSmsNameBinding binding = DataBindingUtil.inflate(LayoutInflater.from(view.getContext()), R.layout.dialog_sms_name, null, false);
+
+				builder.setView(binding.getRoot());
+				builder.setPositiveButton("Add name", new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								String smsNickname = binding.smsNickname.getText().toString();
+								dialog.dismiss();
+
+								nameListener.OnSMSNameClick(smsNickname, smsProf);
+							}
+						}
+					);
+				android.app.AlertDialog dialog = builder.create();
+				binding.smsNickname.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+					@Override
+					public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+						boolean handled = false;
+						if (actionId == EditorInfo.IME_ACTION_DONE) {
+							handled = true;
+							String smsNickname = binding.smsNickname.getText().toString();
+							dialog.dismiss();
+
+							nameListener.OnSMSNameClick(smsNickname, smsProf);
+						}
+						return handled;
+					}
+				});
+				dialog.show();
+
 			}
 		});
 
@@ -102,15 +146,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 		return smsProfileList.size();
 	}
 
-	@Override
-	public void OnSMSProfileClick(String id, String number) {
 
-	}
-	@Override
-	public void OnSMSRemoveClick(String conv_name) {
-
-
-	}
 
 
 	public void toggleDeleteVisible(){
@@ -119,9 +155,23 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 				View v = viewGroup.getChildAt(i);
 				ImageButton removeNumBtn = v.findViewById(R.id.remove_sms_btn);
 				if (removeNumBtn.getVisibility() == View.VISIBLE) {
-					removeNumBtn.setVisibility(View.INVISIBLE);
+					removeNumBtn.setVisibility(View.GONE);
 				} else {
 					removeNumBtn.setVisibility(View.VISIBLE);
+				}
+			}
+		}
+	}
+
+	public void toggleNameVisible(){
+		if (viewGroup != null) {
+			for (int i = 0; i < viewGroup.getChildCount(); i++) {
+				View v = viewGroup.getChildAt(i);
+				ImageButton nameNumBtn = v.findViewById(R.id.name_sms_btn);
+				if (nameNumBtn.getVisibility() == View.VISIBLE) {
+					nameNumBtn.setVisibility(View.GONE);
+				} else {
+					nameNumBtn.setVisibility(View.VISIBLE);
 				}
 			}
 		}
@@ -132,76 +182,86 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 			for (int i = 0; i < viewGroup.getChildCount(); i++) {
 				View v = viewGroup.getChildAt(i);
 				ImageButton removeNumBtn = v.findViewById(R.id.remove_sms_btn);
-				removeNumBtn.setVisibility(View.INVISIBLE);
+				removeNumBtn.setVisibility(View.GONE);
 			}
 		}
 	}
 
-	@Override
-	public void onClick(DialogInterface dialog, int which) {
-
+	public void toggleNameOff(){
+		if (viewGroup != null) {
+			for (int i = 0; i < viewGroup.getChildCount(); i++) {
+				View v = viewGroup.getChildAt(i);
+				ImageButton addNumBtn = v.findViewById(R.id.name_sms_btn);
+				addNumBtn.setVisibility(View.GONE);
+			}
+		}
 	}
 
 	public class SMSRecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 		public final View profView;
-		TextView numberView;
+		TextView primaryView;
+		TextView secondaryView;
 		//TextView locationView;
 		UnreadCountCustomView unreadCount;
 		ImageButton removeNumBtn;
-		LinearLayout profileView;
+		ImageButton nameNumBtn;
+		RelativeLayout profileView;
 		private OnSMSProfileClickListener listener;
-		private OnSMSRemoveClickListener removeListener;
+
 
 
 		public SMSRecyclerViewHolder(View view, OnSMSProfileClickListener listener, OnSMSRemoveClickListener removeListener){
 			super(view);
 			this.listener = listener;
-			this.removeListener = removeListener;
-			profileView = (LinearLayout) view.findViewById(R.id.sms_profile_view);
-			numberView = (TextView) view.findViewById(R.id.sms_profile_number);
-			//locationView = (TextView) view.findViewById(R.id.sms_profile_location);
+			profileView = (RelativeLayout) view.findViewById(R.id.sms_profile_view);
+			primaryView = (TextView) view.findViewById(R.id.sms_profile_primary_view);
+			secondaryView = (TextView) view.findViewById(R.id.sms_profile_secondary_view);
 			unreadCount = (UnreadCountCustomView) view.findViewById(R.id.sms_unread_count);
 			removeNumBtn = view.findViewById(R.id.remove_sms_btn);
 			removeNumBtn.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					removeListener.OnSMSRemoveClick(numberView.getText().toString());
+					if (removeListener != null){
+						removeListener.OnSMSRemoveClick(getNumber());
+						notifyItemChanged(getPosition());
+					}
 				}
 			});
+			nameNumBtn = view.findViewById(R.id.name_sms_btn);
 			profView = view;
 			profView.setOnClickListener(this);
 			profileView.setOnLongClickListener(new View.OnLongClickListener() {
 				@Override
 				public boolean onLongClick(View v) {
 					ClipboardManager clipboard = (ClipboardManager) mContext.getSystemService(CLIPBOARD_SERVICE);
-					ClipData clip = ClipData.newPlainText("Glacier sms:", numberView.getText().toString());
+					ClipData clip = ClipData.newPlainText("Glacier sms:", getNumber());
 					clipboard.setPrimaryClip(clip);
-					Toast.makeText(mContext,"Copied to clipboard: "+ numberView.getText().toString(), Toast.LENGTH_SHORT).show();
+					Toast.makeText(mContext,"Copied to clipboard: "+ getNumber(), Toast.LENGTH_SHORT).show();
 					return false;
 				}
 			});
 		}
 
-//		private String getNumber(){
-//			if (secondaryView.getVisibility() == View.GONE){
-//				return primaryView.getText().toString();
-//			} else {
-//				return secondaryView.getText().toString();
-//			}
-//		}
+		private String getNumber(){
+			if (secondaryView.getVisibility() == View.GONE){
+				return primaryView.getText().toString();
+			} else {
+				return secondaryView.getText().toString();
+			}
+		}
 
 
 		@Override
 		public void onClick(View view) {
-			listener.OnSMSProfileClick(numberView.getText().toString(), numberView.getText().toString());
+			listener.OnSMSProfileClick(getNumber(), getNumber());
 		}
 
 		@Override
 		public boolean onLongClick(View v) {
 			ClipboardManager clipboard = (ClipboardManager) mContext.getSystemService(CLIPBOARD_SERVICE);
-			ClipData clip = ClipData.newPlainText(numberView.getText().toString(), numberView.getText().toString());
+			ClipData clip = ClipData.newPlainText(getNumber(), getNumber());
 			clipboard.setPrimaryClip(clip);
-			Toast.makeText(mContext,"Copied to clipboard: "+ numberView.getText().toString(), Toast.LENGTH_SHORT).show();
+			Toast.makeText(mContext,"Copied to clipboard: "+ getNumber(), Toast.LENGTH_SHORT).show();
 			return true;
 		}
 	}

@@ -1214,6 +1214,8 @@
     <string name="release_num_url">https://radiantmoon.altamonterosa.com/releaseNumber</string>
     <string name="purchase_number_url">https://radiantmoon.altamonterosa.com/PurchaseNumber</string>
     <string name="selected_twilio_numbers_url">https://radiantmoon.altamonterosa.com/getUserSelectedTwilioNumbers</string>
+    <string name="nickname_num_url">https://radiantmoon.altamonterosa.com/nickname</string>
+
     <!--    CMG AM-261-->
     <string name= "mapbox_token">pk.eyJ1IjoiYWxmcmllZG1hbiIsImEiOiJjaXp5YWJxZDQwM2FqMzJxcm9scGh3N3U5In0.NoRKK6Uf4BZz54sZJXwDlA</string>
     <string name="current_location">Current Location</string>
@@ -1232,7 +1234,6 @@
 
     <string name="view_participants">View participants</string>
     <string name="start_chat">Start chat</string>
-
 
     <string-array name="country_codes">
         <item>United States - US</item>

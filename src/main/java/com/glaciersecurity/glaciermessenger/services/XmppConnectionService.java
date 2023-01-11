@@ -46,6 +46,7 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 
 import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
+import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.LruCache;
 import android.util.Pair;
@@ -4466,6 +4467,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	public void setSmsInfo(SMSdbInfo smsInfo){
 		this.smsInfo = smsInfo;
+	}
+
+	public void setSmsProfList(ArrayList<SmsProfile> profList){
+		this.smsInfo.setDbProfs(profList);
 	}
 
 	public void setOrgInfo(OrgInfo orgInfo){
