@@ -66,21 +66,13 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     @Override
     void onBackendConnected() {
         if(xmppConnectionService != null) {
-            xmppConnectionService.getSmsInfo();
+            //xmppConnectionService.updateSmsInfo();
             try {
                 if (numberPurchased) {
                     Thread thread = new Thread();
                     thread.sleep(500);
-                    SMSdbInfo info = xmppConnectionService.getSmsInfo();
-                    ArrayList<SmsProfile> smSdbInfo = info.getExistingProfs();
-                    if (smSdbInfo.size() > 0) {
-                        onBackPressed();
-                    } else {
-                        Thread thread1 = new Thread();
-                        thread1.sleep(500);
-                        if (numberPurchased)
-                            onBackPressed();
-                    }
+                    onBackPressed();
+
                 }
             }catch (InterruptedException ex){
 
@@ -154,8 +146,20 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Toast.makeText(getApplicationContext(),"Adding number "+ Tools.reformatNumber(number),Toast.LENGTH_LONG).show();
-                PurchaseNum(number);
+                showWaitDialog("Purchasing number");
+                new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            PurchaseNum(number);
+                        } catch (Exception e) {
+                            closeWaitDialog();
+
+                        }
+                        closeWaitDialog();
+
+
+                    }
+                }).start();
             }
         });
         builder.setNegativeButton("Cancel", null);
@@ -185,15 +189,23 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             Gson gson = new Gson();
             PurchaseNumResponse purchaseNumResponse = gson.fromJson(responseBody, PurchaseNumResponse.class);
             if(purchaseNumResponse.message != null && purchaseNumResponse.message.equals("success")){
-                Toast.makeText(PurchaseNumbers.this,"Number added successfully",Toast.LENGTH_LONG).show();
+                runOnUiThread(() -> {
+                    Toast.makeText(PurchaseNumbers.this,"Number added successfully",Toast.LENGTH_LONG).show();
+                    closeWaitDialog();
+                });
             }else{
-                Toast.makeText(PurchaseNumbers.this,"Failed to add. Please try again",Toast.LENGTH_LONG).show();
+                runOnUiThread(() -> {
+                    Toast.makeText(PurchaseNumbers.this,"Failed to add. Please try again",Toast.LENGTH_LONG).show();
+                    closeWaitDialog();
+                });
             }
             numberPurchased = true;
             onBackendConnected();
             //Log.d("Glacier", "Response from server: " + responseBody);
         }catch (Exception ex){
             Log.e("Glacier", ex.getLocalizedMessage(), ex);
+            closeWaitDialog();
+
         }
     }
 
@@ -262,6 +274,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         //onBackendConnected();
         finish();
         Intent intent = new Intent(this, SMSActivity.class);
+        intent.putExtra("ProxyNum",model.getProxyNumber());
         startActivity(intent);
     }
     @Override
