@@ -1,7 +1,9 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.KeyEvent;
@@ -41,6 +43,8 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     protected void refreshUiReal() {
 
     }
+
+    private static final int PURCHASE_NUM_REQUEST = 1;
     private String lastWaitMsg = null;
     private TextView waitTextField = null;
     private android.app.AlertDialog waitDialog = null;
@@ -66,9 +70,9 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     @Override
     void onBackendConnected() {
         if(xmppConnectionService != null) {
-            //xmppConnectionService.updateSmsInfo();
             try {
                 if (numberPurchased) {
+                    xmppConnectionService.updateSmsInfo();
                     Thread thread = new Thread();
                     thread.sleep(500);
                     onBackPressed();
@@ -190,17 +194,24 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
             PurchaseNumResponse purchaseNumResponse = gson.fromJson(responseBody, PurchaseNumResponse.class);
             if(purchaseNumResponse.message != null && purchaseNumResponse.message.equals("success")){
                 runOnUiThread(() -> {
-                    Toast.makeText(PurchaseNumbers.this,"Number added successfully",Toast.LENGTH_LONG).show();
                     closeWaitDialog();
-                });
+                    numberPurchased = true;
+                    Toast.makeText(PurchaseNumbers.this,"Number added successfully",Toast.LENGTH_LONG).show();
+                    final Intent result = new Intent();
+                    result.putExtra("result", number);
+                    setResult(RESULT_OK, result);
+                    finish();
+                    });
+
             }else{
                 runOnUiThread(() -> {
                     Toast.makeText(PurchaseNumbers.this,"Failed to add. Please try again",Toast.LENGTH_LONG).show();
                     closeWaitDialog();
+                    setResult(RESULT_CANCELED);
+                    finish();
                 });
             }
-            numberPurchased = true;
-            onBackendConnected();
+
             //Log.d("Glacier", "Response from server: " + responseBody);
         }catch (Exception ex){
             Log.e("Glacier", ex.getLocalizedMessage(), ex);
@@ -274,7 +285,6 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         //onBackendConnected();
         finish();
         Intent intent = new Intent(this, SMSActivity.class);
-        intent.putExtra("ProxyNum",model.getProxyNumber());
         startActivity(intent);
     }
     @Override

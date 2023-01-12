@@ -2,6 +2,7 @@ package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -23,6 +24,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.provider.ContactsContract;
+
+import com.glaciersecurity.glaciermessenger.ui.util.ActivityResult;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -94,6 +97,7 @@ import okhttp3.Response;
 public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener, OnSMSRemoveClickListener, OnSMSNameClickListener {
     private ActionBar actionBar;
     private float mSwipeEscapeVelocity = 0f;
+    private static final int PURCHASE_NUM_REQUEST = 1;
     private PendingActionHelper pendingActionHelper = new PendingActionHelper();
     private final PendingItem<Conversation> swipedSMSConversation = new PendingItem<>();
     private Toolbar toolbar;
@@ -111,20 +115,14 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     RecyclerView recyclerViewConversations;
     RecyclerView recyclerViewSMS;
 
-
     @Override
-    public void OnSMSRemoveClick(String conv_name) {
-        ReleaseNum(conv_name);
-    }
-
-    @Override
-    public void onClick(DialogInterface dialog, int which) {
+    public void OnSMSRemoveClick(SmsProfile selectedSMSforRelease) {
         drawer_sms.close();
         showWaitDialog("Releasing number");
         new Thread(new Runnable() {
             public void run() {
                 try {
-                    ReleaseNum(adapter_sms.selectedProfile.getFormattedNumber());
+                    ReleaseNum(selectedSMSforRelease);
                 } catch (Exception e) {
                 }
                 closeWaitDialog();
@@ -132,9 +130,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
             }
         }).start();
-
     }
-
     @Override
     public void OnSMSNameClick(String nickname, SmsProfile selectedSMSforName) {
         drawer_sms.close();
@@ -175,8 +171,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 responseBody = response.body().string();
             }
             Gson gson = new Gson();
-            NicknameNumResponse releaseNumResponse = gson.fromJson(responseBody, NicknameNumResponse.class);
-            if(releaseNumResponse.message.equals("success")){
+            NicknameNumResponse nicknameNumResponse = gson.fromJson(responseBody, NicknameNumResponse.class);
+            if(nicknameNumResponse.message.equals("success")){
                 //Toast.makeText(mContext,"Nickname updated successfully",Toast.LENGTH_LONG).show();
 
                 runOnUiThread(() -> {
@@ -198,6 +194,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             Toast.makeText(mContext,"Failed to update nickname",Toast.LENGTH_LONG).show();
         }
     }
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        Log.e("Glacier", "onclick");
+    }
+
 
     private class NicknameNumResponse{
         String message;
@@ -445,21 +447,15 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     public void reload_adapter_sms(){
         ArrayList<SmsProfile> smSInfo;
+
+
         if(xmppConnectionService != null) {
-            xmppConnectionService.updateSmsInfo();
+            //xmppConnectionService.updateSmsInfo();
+            proxyNumbers.clear();
+            profileList.clear();
             smSInfo = xmppConnectionService.getSmsInfo().getExistingProfs();
         } else {
             smSInfo = profileList;
-        }
-
-        proxyNumbers.clear();
-        profileList.clear();
-
-        Thread thread1 = new Thread();
-        try {
-            thread1.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
 
         Log.d("Glacier", "unread_conv_count----" + ConversationsManager.unread_conv_count + xmppConnectionService + smSInfo);
@@ -483,11 +479,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             adapter_sms.notifyItemInserted(0);
         }
 
-        try {
-            thread1.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         if(proxyNumber == null){
             if(proxyNumbers.size() > 0) {
                 proxyNumber = proxyNumbers.get(0);
@@ -500,6 +491,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             adapter_sms.notifyDataSetChanged();
         else
             Log.d("Glacier","adapter_sms is null");
+
 
         checkEmptyView();
         showPurchaseView();
@@ -515,16 +507,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     @Override
     protected void onBackendConnected() {
-        ArrayList<SmsProfile> smSdbInfo;
-            xmppConnectionService.updateSmsInfo();
-            SMSdbInfo info = xmppConnectionService.getSmsInfo();
-            smSdbInfo = info.getExistingProfs();
-            PurchaseNumber = info.getUserPurchasePermission();
-            showPurchaseView();
-
-            Log.d("Glacier", "onBackendConnected" + xmppConnectionService + smSdbInfo+PurchaseNumber);
-
-
+        reload_adapter_sms();
 
         //Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation(proxyNumber));
         ConversationsClient conversationsClient = model.getConversationsClient();
@@ -554,16 +537,15 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             retrieveTokenFromServer();
         }
 
-        reload_adapter_sms();
         checkEmptyView();
     }
 
 
 
-    private void ReleaseNum(String number){
+    private void ReleaseNum(SmsProfile releaseProfile){
         String releaseNumberUrl = SMSActivity.this.getString(R.string.release_num_url);
-        String unformattedNumber = adapter_sms.selectedProfile.getUnformattedNumber();
-        String formattedNumber = adapter_sms.selectedProfile.getFormattedNumber();
+        String unformattedNumber = releaseProfile.getUnformattedNumber();
+        String formattedNumber = releaseProfile.getFormattedNumber();
 
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = new FormBody.Builder()
@@ -585,10 +567,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             ReleaseNumResponse releaseNumResponse = gson.fromJson(responseBody, ReleaseNumResponse.class);
             if(releaseNumResponse.message.equals("success")){
                 runOnUiThread(() -> {
-                    Toast.makeText(SMSActivity.this, "Number released successfully", Toast.LENGTH_LONG).show();
-                    proxyNumbers.remove(formattedNumber);
-                    //WRONG NUMBER REMOVED
-                    removeProfile(adapter_sms.selectedProfile);
+                    removeProfile(releaseProfile);
 
                     if (proxyNumber.equals(unformattedNumber)) {
                         proxyNumber = null;
@@ -599,8 +578,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                             drawer_sms.close();
                             OnSMSProfileClick("", proxyNumbers.get(proxyNumbers.size()-1));
                         }
-                    } else {
-                        setColorForNumber(null);
                     }
                 });
 
@@ -762,7 +739,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         layoutManagerSMS = new LinearLayoutManager(this);
         recyclerViewSMS.setLayoutManager(layoutManagerSMS);
         drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
-        adapter_sms = new SmsProfileAdapter(this, identity, (OnSMSProfileClickListener) this, (OnSMSRemoveClickListener) this, this,  profileList);
+        adapter_sms = new SmsProfileAdapter(this, identity,  this, this, this,  profileList);
         releaseNumberBtn = (Button) findViewById(R.id.release_number);
         releaseNumberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -786,7 +763,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(mContext, PurchaseNumbers.class);
-                startActivity(intent);
+                startActivityForResult(intent, PURCHASE_NUM_REQUEST);
             }});
         progressBar = findViewById(R.id.progressBar);
         recyclerViewSMS.setAdapter(adapter_sms);
@@ -794,6 +771,25 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         showPurchaseView();
 
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PURCHASE_NUM_REQUEST) {
+            if(resultCode == Activity.RESULT_OK){
+                String proxyData =data.getStringExtra("result");
+                drawer_sms.close();
+                proxyNumber = proxyData;
+                model.setProxyNumber(proxyData);
+                OnSMSProfileClick("", proxyNumber);
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                // Write your code if there's no result
+            }
+        }
+    }
+
 
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_add_group, menu);
@@ -850,35 +846,40 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     private void onDrawerOpened(){
             if (xmppConnectionService != null) {
-                //reload_adapter_sms();
-                //setColorForNumber(proxyNumber);
+
+                setColorForNumber(proxyNumber);
                 showPurchaseView();
                 showUnimplimentedToast();
             }
             adapter_sms.toggleDeleteOff();
             adapter_sms.toggleNameOff();
+            adapter_sms.notifyDataSetChanged();
             drawer_sms.openDrawer(GravityCompat.START);
-
     }
 
     private void removeProfile(SmsProfile smsProfile){
         for (int i = 0; i < profileList.size(); i++){
             if (smsProfile.equals(profileList.get(i))){
                 profileList.remove(i);
-                adapter_sms.notifyItemRemoved(i);
             }
         }
         xmppConnectionService.setSmsProfList(profileList);
+        adapter_sms.notifyDataSetChanged();
     }
 
+    private void addProfile(SmsProfile smsProfile){
+        profileList.add(smsProfile);
+        xmppConnectionService.setSmsProfList(profileList);
+        adapter_sms.notifyDataSetChanged();
+    }
     private void setUpdateName(SmsProfile smsProfile){
         for (int i = 0; i < profileList.size(); i++){
             if (smsProfile.equals(profileList.get(i))){
                 profileList.set(i,smsProfile);
-                adapter_sms.notifyItemChanged(i);
             }
         }
         xmppConnectionService.setSmsProfList(profileList);
+        adapter_sms.notifyDataSetChanged();
     }
 
 
@@ -1040,7 +1041,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     public SmsProfile getSMSProfilefromNumber(String number){
         for (SmsProfile sp: profileList){
-            if(sp.equals(number)){
+            if(sp.getUnformattedNumber().equals(number) || sp.getFormattedNumber().equals(number)){
                 return sp;
             }
         }

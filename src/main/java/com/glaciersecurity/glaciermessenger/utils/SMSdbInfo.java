@@ -72,7 +72,7 @@ public class SMSdbInfo {
 
     public SmsProfile getSMSProfilefromNumber(String number){
         for (SmsProfile sp: dbProfs){
-            if(sp.equals(number)){
+            if(sp.getUnformattedNumber().equals(number) || sp.getFormattedNumber().equals(number)){
                 return sp;
             }
         }

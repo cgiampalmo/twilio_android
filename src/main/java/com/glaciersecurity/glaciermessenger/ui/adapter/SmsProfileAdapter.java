@@ -42,7 +42,6 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 	private OnSMSNameClickListener nameListener;
 	private ViewGroup viewGroup;
 	public SmsProfile selectedProfile;
-	public int selectedPosition;
 	public Context mContext;
 	private String identity;
 
@@ -61,14 +60,13 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 	public SMSRecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.sms_profile, parent, false);
 		viewGroup = parent;
-		return new SMSRecyclerViewHolder(view, listener, removeListener);
+		return new SMSRecyclerViewHolder(view, listener);
 	}
 
 	@Override
 	public void onBindViewHolder(@NonNull SMSRecyclerViewHolder holder, @SuppressLint("RecyclerView") int position) {
 		SmsProfile smsProf = smsProfileList.get(position);
 		selectedProfile = smsProf;
-		selectedPosition = position;
 		holder.primaryView.setText(smsProf.getFormattedNumber());
 		if (smsProf.getNickname() == null || smsProf.getNickname().isEmpty()) {
 			holder.secondaryView.setVisibility(View.GONE);
@@ -92,7 +90,13 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
                 builder.setMessage("Do you want to release number " + smsProfileList.get(position).getFormattedNumber() + "?");
                 builder.setTitle("Confirmation");
                 builder.setCancelable(true);
-                builder.setPositiveButton("Release", removeListener);
+                builder.setPositiveButton("Release",  new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								dialog.dismiss();
+								removeListener.OnSMSRemoveClick(smsProf);
+							}
+						}
+				);
 				builder.setNegativeButton( "Cancel", null);
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
@@ -197,7 +201,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 		}
 	}
 
-	public class SMSRecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+	public class SMSRecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 		public final View profView;
 		TextView primaryView;
 		TextView secondaryView;
@@ -210,7 +214,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 
 
 
-		public SMSRecyclerViewHolder(View view, OnSMSProfileClickListener listener, OnSMSRemoveClickListener removeListener){
+		public SMSRecyclerViewHolder(View view, OnSMSProfileClickListener listener){
 			super(view);
 			this.listener = listener;
 			profileView = (RelativeLayout) view.findViewById(R.id.sms_profile_view);
@@ -218,15 +222,6 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 			secondaryView = (TextView) view.findViewById(R.id.sms_profile_secondary_view);
 			unreadCount = (UnreadCountCustomView) view.findViewById(R.id.sms_unread_count);
 			removeNumBtn = view.findViewById(R.id.remove_sms_btn);
-			removeNumBtn.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (removeListener != null){
-						removeListener.OnSMSRemoveClick(getNumber());
-						notifyItemChanged(getPosition());
-					}
-				}
-			});
 			nameNumBtn = view.findViewById(R.id.name_sms_btn);
 			profView = view;
 			profView.setOnClickListener(this);
@@ -254,15 +249,6 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 		@Override
 		public void onClick(View view) {
 			listener.OnSMSProfileClick(getNumber(), getNumber());
-		}
-
-		@Override
-		public boolean onLongClick(View v) {
-			ClipboardManager clipboard = (ClipboardManager) mContext.getSystemService(CLIPBOARD_SERVICE);
-			ClipData clip = ClipData.newPlainText(getNumber(), getNumber());
-			clipboard.setPrimaryClip(clip);
-			Toast.makeText(mContext,"Copied to clipboard: "+ getNumber(), Toast.LENGTH_SHORT).show();
-			return true;
 		}
 	}
 
