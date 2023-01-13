@@ -778,11 +778,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
         if (requestCode == PURCHASE_NUM_REQUEST) {
             if(resultCode == Activity.RESULT_OK){
-                String proxyData =data.getStringExtra("result");
+                String proxyData = data.getStringExtra("proxyNum");
+                String sid = data.getStringExtra("sid");
                 drawer_sms.close();
-                proxyNumber = proxyData;
-                model.setProxyNumber(proxyData);
-                OnSMSProfileClick("", proxyNumber);
+                addProfile(new SmsProfile(proxyData, sid));
+                OnSMSProfileClick("", proxyData);
             }
             if (resultCode == Activity.RESULT_CANCELED) {
                 // Write your code if there's no result

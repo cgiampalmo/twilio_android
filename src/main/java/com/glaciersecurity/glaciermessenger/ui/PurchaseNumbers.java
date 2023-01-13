@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import com.glaciersecurity.glaciermessenger.utils.Log;
+
+import android.provider.Telephony;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +24,7 @@ import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.utils.SMSdbInfo;
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,6 +35,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -64,8 +71,12 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     }
     private class PurchaseNumResponse{
         String message;
-        String data;
+        PurchaseData data;
     }
+    protected class PurchaseData {
+        public String sid;
+    }
+
     ConversationModel model;
     @Override
     void onBackendConnected() {
@@ -191,17 +202,26 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
                 responseBody = response.body().string();
             }
             Gson gson = new Gson();
+            String sid = "";
             PurchaseNumResponse purchaseNumResponse = gson.fromJson(responseBody, PurchaseNumResponse.class);
             if(purchaseNumResponse.message != null && purchaseNumResponse.message.equals("success")){
+                if (purchaseNumResponse.data != null && purchaseNumResponse.data.sid != null) {
+                    sid = purchaseNumResponse.data.sid;
+                }
+                String proxyNum = number.replace(" ", "").replace("(", "").replace("-", "").replace(")", "");
+
+
                 runOnUiThread(() -> {
+                    Toast.makeText(PurchaseNumbers.this,"Number added successfully",Toast.LENGTH_LONG).show();
                     closeWaitDialog();
                     numberPurchased = true;
-                    Toast.makeText(PurchaseNumbers.this,"Number added successfully",Toast.LENGTH_LONG).show();
-                    final Intent result = new Intent();
-                    result.putExtra("result", number);
-                    setResult(RESULT_OK, result);
-                    finish();
                     });
+
+                final Intent result = new Intent();
+                result.putExtra("proxyNum", proxyNum);
+                result.putExtra("sid", sid);
+                setResult(RESULT_OK, result);
+                finish();
 
             }else{
                 runOnUiThread(() -> {
