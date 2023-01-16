@@ -528,18 +528,15 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                         proxyNumber = proxyNumbers.get(0);
                     }
                 }
-            }else
-            if (xmppConnectionService.getSmsInfo().isNumberActive(model.getProxyNumber()) ){
-                proxyNumber = model.getProxyNumber();
-            } else {
-                model.setProxyNumber(null);
             }
+
 
 
         }else{
             retrieveTokenFromServer();
         }
 
+        reload_adapter_sms();
         checkEmptyView();
     }
 
@@ -578,8 +575,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                     }
                     if (proxyNumbers != null && (proxyNumber == null || proxyNumber.equals(""))) {
                         if (proxyNumbers.size() > 0) {
+                            String nextProxy = proxyNumbers.get(proxyNumbers.size()-1);
+                            model.setProxyNumber(nextProxy);
+                            proxyNumber = nextProxy;
                             drawer_sms.close();
-                            OnSMSProfileClick("", proxyNumbers.get(proxyNumbers.size()-1));
+                            OnSMSProfileClick("", nextProxy);
                         }
                     }
                 });
@@ -853,7 +853,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             if (xmppConnectionService != null) {
                 xmppConnectionService.updateSmsInfo();
                 try { Thread.sleep(750); } catch (InterruptedException ie) {}
-                reload_adapter_sms();
+
                 if (proxyNumber == null) {
                     proxyNumber = model.getProxyNumber();
                 }
@@ -861,6 +861,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 showPurchaseView();
                 showUnimplimentedToast();
             }
+            reload_adapter_sms();
             adapter_sms.toggleDeleteOff();
             adapter_sms.toggleNameOff();
             adapter_sms.notifyDataSetChanged();

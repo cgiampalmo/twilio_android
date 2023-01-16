@@ -337,34 +337,34 @@ public class ConversationsManager {
                         JSONObject ConvProxyNumber = conversation.getAttributes().getJSONObject();
                         if (ConvProxyNumber != null) {
                             try {
-                                identity_number = ConvProxyNumber.getString("identity_number");Log.d("glacier","identity_number-- "+identity_number+"-- number --"+number+"-- phoneNumber --"+phoneNum);
-                                String proxyNum = number.replace(" ", "").replace("(", "").replace("-", "").replace(")", "");
-                                if(!(identity_number.equals(proxyNum)) && phoneNum.length() > 3 && phoneNum.length() < 15){
-                                    createConversation(phoneNum,proxyNum);
-                                }
-                                else if (conversation.getStatus() == Conversation.ConversationStatus.JOINED
-                                        || conversation.getStatus() == Conversation.ConversationStatus.NOT_PARTICIPATING) {
-                                    Log.d("Glacier", "Already Exists in Conversation: " + DEFAULT_CONVERSATION_NAME);
-                                    ConversationsManager.this.conversation = conversation;
-                                    ConversationsManager.this.conversation.addListener(mDefaultConversationListener);
-                                    if(!lastmsg) {
-                                        ConversationsManager.this.loadPreviousMessages(conversation);
-                                        return;
-                                    }
-                                    else {
-                                        loadlastmsg(conversation);
-                                        return;
-                                    }
-                                } else {
-                                    Log.d("Glacier", "Joining Conversation: " + DEFAULT_CONVERSATION_NAME+" channel sid"+conversation.getSid());
-                                    joinConversation(conversation);
-                                }
-                            } catch (Exception e) {
+                                identity_number = ConvProxyNumber.getString("identity_number");
+                            } catch (JSONException e) {
                                 e.printStackTrace();
                             }
                         }
                     }
-
+                    Log.d("glacier","identity_number-- "+identity_number+"-- number --"+number+"-- phoneNumber --"+phoneNum);
+                    String proxyNum = number.replace(" ", "").replace("(", "").replace("-", "").replace(")", "");
+                    if(!(identity_number.equals(proxyNum)) && phoneNum.length() > 3 && phoneNum.length() < 15){
+                        createConversation(phoneNum,proxyNum);
+                    }
+                    else if (conversation.getStatus() == Conversation.ConversationStatus.JOINED
+                            || conversation.getStatus() == Conversation.ConversationStatus.NOT_PARTICIPATING) {
+                        Log.d("Glacier", "Already Exists in Conversation: " + DEFAULT_CONVERSATION_NAME);
+                        ConversationsManager.this.conversation = conversation;
+                        ConversationsManager.this.conversation.addListener(mDefaultConversationListener);
+                        if(!lastmsg) {
+                            ConversationsManager.this.loadPreviousMessages(conversation);
+                            return;
+                        }
+                        else {
+                            loadlastmsg(conversation);
+                            return;
+                        }
+                    } else {
+                        Log.d("Glacier", "Joining Conversation: " + DEFAULT_CONVERSATION_NAME+" channel sid"+conversation.getSid());
+                        joinConversation(conversation);
+                    }
                     return;
                 }
             }

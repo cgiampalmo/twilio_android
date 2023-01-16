@@ -209,7 +209,7 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
                     sid = purchaseNumResponse.data.sid;
                 }
                 String proxyNum = number.replace(" ", "").replace("(", "").replace("-", "").replace(")", "");
-
+                model.setProxyNumber(proxyNum);
 
                 runOnUiThread(() -> {
                     Toast.makeText(PurchaseNumbers.this,"Number added successfully",Toast.LENGTH_LONG).show();
