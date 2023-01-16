@@ -507,6 +507,9 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     @Override
     protected void onBackendConnected() {
+        xmppConnectionService.updateSmsInfo();
+
+        try { Thread.sleep(750); } catch (InterruptedException ie) {}
         reload_adapter_sms();
 
         //Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation(proxyNumber));
@@ -780,9 +783,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             if(resultCode == Activity.RESULT_OK){
                 String proxyData = data.getStringExtra("proxyNum");
                 String sid = data.getStringExtra("sid");
+                proxyNumber = proxyData;
+                model.setProxyNumber(proxyNumber);
                 drawer_sms.close();
                 addProfile(new SmsProfile(proxyData, sid));
-                OnSMSProfileClick("", proxyData);
+                OnSMSProfileClick(sid, proxyData);
             }
             if (resultCode == Activity.RESULT_CANCELED) {
                 // Write your code if there's no result
@@ -846,7 +851,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     private void onDrawerOpened(){
             if (xmppConnectionService != null) {
-
+                xmppConnectionService.updateSmsInfo();
+                try { Thread.sleep(750); } catch (InterruptedException ie) {}
+                reload_adapter_sms();
+                if (proxyNumber == null) {
+                    proxyNumber = model.getProxyNumber();
+                }
                 setColorForNumber(proxyNumber);
                 showPurchaseView();
                 showUnimplimentedToast();
