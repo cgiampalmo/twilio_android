@@ -114,7 +114,7 @@
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="1dp"
                     android:visibility="invisible"
-                    app:backgroundColor="?attr/colorAccent2" />
+                    app:backgroundColor="?attr/colorAvatarBorderMenu" />
 
             </RelativeLayout>
 

@@ -107,11 +107,12 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 			@Override
 			public void onClick(View view) {
 				android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(view.getContext());
-				builder.setNegativeButton( "No thanks", null);
+				builder.setNegativeButton( "Cancel", null);
 				builder.setTitle("Display Name");
 				builder.setCancelable(true);
 
 				DialogSmsNameBinding binding = DataBindingUtil.inflate(LayoutInflater.from(view.getContext()), R.layout.dialog_sms_name, null, false);
+				binding.smsNickname.setText(smsProf.getNickname());
 
 				builder.setView(binding.getRoot());
 				builder.setPositiveButton("Add name", new DialogInterface.OnClickListener() {
