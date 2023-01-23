@@ -318,7 +318,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             Log.d("Glacier","old Message adapter");
             messagesAdapter.notifyDataSetChanged();
         }
-        reload_adapter_sms();
+        //reload_adapter_sms();
         if(ConversationsManager.conversationsClient.getMyConversations().size() > 0) {
             List<Conversation> conversationList = ConversationsManager.conversationsClient.getMyConversations();
             Map<String, String> aList = new HashMap<>();
@@ -450,9 +450,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
 
         if(xmppConnectionService != null) {
-            //xmppConnectionService.updateSmsInfo();
-            proxyNumbers.clear();
-            profileList.clear();
+//            //xmppConnectionService.updateSmsInfo();
+//            proxyNumbers.clear();
+//            profileList.clear();
+//            xmppConnectionService.updateSmsInfo();
+//            try { Thread.sleep(750); } catch (InterruptedException ie) {}
             smSInfo = xmppConnectionService.getSmsInfo().getExistingProfs();
         } else {
             smSInfo = profileList;
@@ -536,7 +538,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             retrieveTokenFromServer();
         }
 
-        reload_adapter_sms();
         checkEmptyView();
     }
 
@@ -851,20 +852,13 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     private void onDrawerOpened(){
             if (xmppConnectionService != null) {
-                xmppConnectionService.updateSmsInfo();
-                try { Thread.sleep(750); } catch (InterruptedException ie) {}
-
-                if (proxyNumber == null) {
-                    proxyNumber = model.getProxyNumber();
-                }
+                reload_adapter_sms();
                 setColorForNumber(proxyNumber);
                 showPurchaseView();
                 showUnimplimentedToast();
             }
-            reload_adapter_sms();
             adapter_sms.toggleDeleteOff();
             adapter_sms.toggleNameOff();
-            adapter_sms.notifyDataSetChanged();
             drawer_sms.openDrawer(GravityCompat.START);
     }
 
@@ -1097,7 +1091,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         if (messagesAdapter != null) {
             messagesAdapter.notifyDataSetChanged();
         }
-        checkEmptyView();
     }
 
     public void checkEmptyView(){

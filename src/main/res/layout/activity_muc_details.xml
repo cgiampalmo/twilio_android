@@ -215,13 +215,13 @@
                                 android:id="@+id/edit_muc_name_button"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_alignParentEnd="true"
                                 android:layout_alignParentTop="true"
+                                android:layout_alignParentEnd="true"
+                                android:layout_alignParentRight="true"
                                 android:alpha="?attr/icon_alpha"
                                 android:background="?attr/selectableItemBackgroundBorderless"
                                 android:padding="@dimen/image_button_padding"
-                                android:src="?attr/icon_edit_body"
-                                android:layout_alignParentRight="true" />
+                                android:src="?attr/icon_edit_body" />
                         </RelativeLayout>
 
                     </LinearLayout>

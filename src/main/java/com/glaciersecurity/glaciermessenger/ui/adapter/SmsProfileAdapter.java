@@ -113,9 +113,15 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 
 				DialogSmsNameBinding binding = DataBindingUtil.inflate(LayoutInflater.from(view.getContext()), R.layout.dialog_sms_name, null, false);
 				binding.smsNickname.setText(smsProf.getNickname());
+				binding.deleteNicknameBtn.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						binding.smsNickname.setText("");
+					}
+				});
 
 				builder.setView(binding.getRoot());
-				builder.setPositiveButton("Add name", new DialogInterface.OnClickListener() {
+				builder.setPositiveButton("Update name", new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
 								String smsNickname = binding.smsNickname.getText().toString();
 								dialog.dismiss();
