@@ -237,6 +237,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				this.mAccount = null;
 			}
 		}
+		xmppConnectionService.updateSmsInfo();
 		//CMG AM-41
 		updateOfflineStatusBar();
 		xmppConnectionService.getNotificationService().setIsInForeground(true);
@@ -295,7 +296,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 	}
 
 	private void showSmsMenuItem() {
-		xmppConnectionService.updateSmsInfo();
+		//xmppConnectionService.updateSmsInfo();
 		MenuItem item = nav_view.getMenu().findItem(R.id.SMS);
 
 		if(xmppConnectionService.getSmsInfo().isSMSEnabled()){
