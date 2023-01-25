@@ -37,6 +37,7 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.security.KeyChain;
 import androidx.annotation.BoolRes;
+import androidx.annotation.IdRes;
 import androidx.annotation.IntegerRes;
 import androidx.core.app.RemoteInput;
 import androidx.core.content.ContextCompat;
@@ -45,11 +46,14 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 
+import com.glaciersecurity.glaciermessenger.databinding.DialogPresenceBinding;
 import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
 import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.LruCache;
 import android.util.Pair;
+import android.view.View;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import org.conscrypt.Conscrypt;
@@ -170,9 +174,16 @@ import com.glaciersecurity.glaciermessenger.xmpp.stanzas.IqPacket;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.MessagePacket;
 import com.glaciersecurity.glaciermessenger.xmpp.stanzas.PresencePacket;
 
+import androidx.databinding.DataBindingUtil;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import me.leolin.shortcutbadger.ShortcutBadger;
 import com.glaciersecurity.glaciermessenger.xmpp.Jid;
+
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.meetingIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.sickIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.travelIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.StatusMessage.vacationIcon;
+import static com.glaciersecurity.glaciermessenger.entities.Presence.getEmojiByUnicode;
 
 public class XmppConnectionService extends Service implements ServiceConnection, Handler.Callback { //ALF AM-57 placeholder, AM-344
 
@@ -4445,6 +4456,99 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		}
 		return orgInfo;
 	}
+
+	public void disableAccount(Account account) {
+		account.setOption(Account.OPTION_DISABLED, true);
+		if (!this.updateAccount(account)) {
+			Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	public void enableAccount(Account account) {
+		account.setOption(Account.OPTION_DISABLED, false);
+		final XmppConnection connection = account.getXmppConnection();
+		if (connection != null) {
+			connection.resetEverything();
+		}
+		if (!this.updateAccount(account)) {
+			Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
+		}
+	}
+
+
+
+	//CMG AM-354
+	public static void setStatusMessageRadioButton(String statusMessage, DialogPresenceBinding binding) {
+		if (statusMessage == null) {
+			binding.statuses.clearCheck();
+			binding.statusMessage.setEnabled(false);
+			return;
+		}
+		binding.statuses.clearCheck();
+		binding.statusMessage.setEnabled(false);
+		if (statusMessage.equals(getEmojiByUnicode(meetingIcon)+"\tIn a meeting")) {
+			binding.inMeeting.setChecked(true);
+			return;
+		} else if (statusMessage.equals(getEmojiByUnicode(travelIcon)+"\tOn travel")) {
+			binding.onTravel.setChecked(true);
+			return;
+		} else if (statusMessage.equals(getEmojiByUnicode(sickIcon)+"\tOut sick")) {
+			binding.outSick.setChecked(true);
+			return;
+		} else if (statusMessage.equals(getEmojiByUnicode(vacationIcon)+"\tVacation")) {
+			binding.vacation.setChecked(true);
+			return;
+		} else if (!statusMessage.isEmpty()) {
+			binding.custom.setChecked(true);
+			binding.statusMessage.setEnabled(true);
+			return;
+		} else {
+			binding.statuses.clearCheck();
+			binding.statusMessage.setEnabled(false);
+			return;
+		}
+
+	}
+
+
+	public static void setAvailabilityRadioButton(Presence.Status status, DialogPresenceBinding binding) {
+		if (status == null) {
+			binding.online.setChecked(true);
+			return;
+		}
+		switch (status) {
+			case DND:
+				binding.dnd.setChecked(true);
+				break;
+			case OFFLINE:
+				binding.xa.setChecked(true);
+				break;
+			case XA:
+				binding.xa.setChecked(true);
+				break;
+			case AWAY:
+				binding.away.setChecked(true);
+				break;
+			default:
+				binding.online.setChecked(true);
+		}
+	}
+
+
+	//CMG AM-354
+
+	public static Presence.Status getAvailabilityRadioButton(DialogPresenceBinding binding) {
+		if (binding.dnd.isChecked()) {
+			return Presence.Status.DND;
+		} else if (binding.xa.isChecked()) {
+			return Presence.Status.OFFLINE;
+		} else if (binding.away.isChecked()) {
+			return Presence.Status.AWAY;
+		} else {
+			return Presence.Status.ONLINE;
+		}
+	}
+
 
 	public SMSdbInfo getSmsInfo() {
 		if (smsInfo == null){

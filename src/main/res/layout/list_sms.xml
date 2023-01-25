@@ -15,13 +15,19 @@
             android:id="@+id/aToolbar"
             layout="@layout/toolbar"
             />
+
+        <include android:id="@+id/offline_layout"
+            layout="@layout/connection_toolbar"
+            />
+
         <include
             android:id="@+id/empty_list"
             layout="@layout/empty_list"
-            android:layout_marginTop="@dimen/actionBarSize"
             android:visibility="gone"
             android:layout_height="match_parent"
-            android:layout_width="match_parent" />
+            android:layout_width="match_parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/offline_layout" />
 
 
         <androidx.recyclerview.widget.RecyclerView
@@ -33,7 +39,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/aToolbar"
+            app:layout_constraintTop_toBottomOf="@+id/offline_layout"
             app:layout_constraintVertical_bias="0.0" />
 
         <LinearLayout

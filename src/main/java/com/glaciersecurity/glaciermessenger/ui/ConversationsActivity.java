@@ -198,7 +198,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	private boolean initialConnect = true; //ALF AM-78
 	private ConnectivityReceiver connectivityReceiver; //CMG AM-41
-	protected LinearLayout offlineLayout;
+	protected Toolbar offlineLayout;
 	private Toolbar returnToCall;
 
 	public ConversationsActivity() {
@@ -647,7 +647,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 		//CMG AM-41
 		this.offlineLayout = findViewById(R.id.offline_layout);
-
 		this.offlineLayout.setOnClickListener(mRefreshNetworkClickListener);
 		connectivityReceiver = new ConnectivityReceiver(this);
 		checkNetworkStatus();
@@ -865,8 +864,8 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		if (current != null && !current.trim().isEmpty()) {
 			binding.statusMessage.append(current);
 		}
-		setAvailabilityRadioButton(mAccount.getPresenceStatus(), binding);
-		setStatusMessageRadioButton(mAccount.getPresenceStatusMessage(), binding);
+		xmppConnectionService.setAvailabilityRadioButton(mAccount.getPresenceStatus(), binding);
+		xmppConnectionService.setStatusMessageRadioButton(mAccount.getPresenceStatusMessage(), binding);
 		List<PresenceTemplate> templates = xmppConnectionService.getPresenceTemplates(mAccount);
 		//CMG AM-365
 //		PresenceTemplateAdapter presenceTemplateAdapter = new PresenceTemplateAdapter(this, R.layout.simple_list_item, templates);
@@ -917,18 +916,18 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		builder.setView(binding.getRoot());
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
-			PresenceTemplate template = new PresenceTemplate(getAvailabilityRadioButton(binding), binding.statusMessage.getText().toString().trim());
+			PresenceTemplate template = new PresenceTemplate(xmppConnectionService.getAvailabilityRadioButton(binding), binding.statusMessage.getText().toString().trim());
 			//CMG AM-218
 			//if (mAccount.getPgpId() != 0 && hasPgp()) {
 			//	generateSignature(null, template);
 			//} else {
-				xmppConnectionService.changeStatus(mAccount, template, null);
+			xmppConnectionService.changeStatus(mAccount, template, null);
 			//}
 			if (template.getStatus().equals(Presence.Status.OFFLINE)){
-				disableAccount(mAccount);
+				xmppConnectionService.disableAccount(mAccount);
 			} else {
 				if (!template.getStatus().equals(Presence.Status.OFFLINE) && mAccount.getStatus().equals(Account.State.DISABLED)){
-					enableAccount(mAccount);
+					xmppConnectionService.enableAccount(mAccount);
 				}
 			}
 			updateOfflineStatusBar();
@@ -938,74 +937,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		builder.create().show();
 	}
 
-	private static void setAvailabilityRadioButton(Presence.Status status, DialogPresenceBinding binding) {
-		if (status == null) {
-			binding.online.setChecked(true);
-			return;
-		}
-		switch (status) {
-			case DND:
-				binding.dnd.setChecked(true);
-				break;
-			case OFFLINE:
-				binding.xa.setChecked(true);
-				break;
-			case XA:
-				binding.xa.setChecked(true);
-				break;
-			case AWAY:
-				binding.away.setChecked(true);
-				break;
-			default:
-				binding.online.setChecked(true);
-		}
-	}
 
-
-	//CMG AM-354
-	private static void setStatusMessageRadioButton(String statusMessage, DialogPresenceBinding binding) {
-		if (statusMessage == null) {
-			binding.statuses.clearCheck();
-			binding.statusMessage.setEnabled(false);
-			return;
-		}
-		binding.statuses.clearCheck();
-		binding.statusMessage.setEnabled(false);
-		if (statusMessage.equals(getEmojiByUnicode(meetingIcon)+"\tIn a meeting")) {
-			binding.inMeeting.setChecked(true);
-			return;
-		} else if (statusMessage.equals(getEmojiByUnicode(travelIcon)+"\tOn travel")) {
-			binding.onTravel.setChecked(true);
-			return;
-		} else if (statusMessage.equals(getEmojiByUnicode(sickIcon)+"\tOut sick")) {
-			binding.outSick.setChecked(true);
-			return;
-		} else if (statusMessage.equals(getEmojiByUnicode(vacationIcon)+"\tVacation")) {
-			binding.vacation.setChecked(true);
-			return;
-		} else if (!statusMessage.isEmpty()) {
-			binding.custom.setChecked(true);
-			binding.statusMessage.setEnabled(true);
-			return;
-		} else {
-			binding.statuses.clearCheck();
-			binding.statusMessage.setEnabled(false);
-			return;
-		}
-
-	}
-
-	private static Presence.Status getAvailabilityRadioButton(DialogPresenceBinding binding) {
-		if (binding.dnd.isChecked()) {
-			return Presence.Status.DND;
-		} else if (binding.xa.isChecked()) {
-			return Presence.Status.OFFLINE;
-		} else if (binding.away.isChecked()) {
-			return Presence.Status.AWAY;
-		} else {
-			return Presence.Status.ONLINE;
-		}
-	}
 
 
 	//CMG AM-286
@@ -1680,7 +1612,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_enable))) {
 						networkStatus.setText(getResources().getString(R.string.refreshing_connection));
 						if (account.getPresenceStatus().equals(Presence.Status.OFFLINE)){
-							enableAccount(account);
+							xmppConnectionService.enableAccount(account);
 						}
 						PresenceTemplate template = new PresenceTemplate(Presence.Status.ONLINE, account.getPresenceStatusMessage());
 						//if (account.getPgpId() != 0 && hasPgp()) {
@@ -1707,7 +1639,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 					} else if (previousNetworkState.contains(getResources().getString(R.string.disconnect_tap_to_connect))) {
 						networkStatus.setText(getResources().getString(R.string.refreshing_connection));
                         if (!(account.getStatus().equals(Account.State.CONNECTING) || account.getStatus().equals(Account.State.ONLINE))){
-                            enableAccount(account);
+							xmppConnectionService.enableAccount(account);
                         }
                      /*
 				     Case 2. NETWORK) "No internet connection"
@@ -1716,7 +1648,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				      */
 					} else if (previousNetworkState.contains(getResources().getString(R.string.status_no_network))) {
 						networkStatus.setText(getResources().getString(R.string.refreshing_network));
-						enableAccount(account);
+						xmppConnectionService.enableAccount(account);
 					}
 				} else {
 					// should not reach here... Offline status message state should be defined in one of the above cases
@@ -1760,23 +1692,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		}
 	}
 
-	private void disableAccount(Account account) {
-		account.setOption(Account.OPTION_DISABLED, true);
-		if (!xmppConnectionService.updateAccount(account)) {
-			Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
-		}
-	}
 
-	private void enableAccount(Account account) {
-		account.setOption(Account.OPTION_DISABLED, false);
-		final XmppConnection connection = account.getXmppConnection();
-		if (connection != null) {
-			connection.resetEverything();
-		}
-		if (!xmppConnectionService.updateAccount(account)) {
-			Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
-		}
-	}
 
 	private void runStatus(String str, boolean isVisible, boolean withRefresh){
 		final Handler handler = new Handler();
