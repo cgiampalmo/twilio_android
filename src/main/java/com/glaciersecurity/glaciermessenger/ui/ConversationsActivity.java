@@ -198,7 +198,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 	private boolean initialConnect = true; //ALF AM-78
 	private ConnectivityReceiver connectivityReceiver; //CMG AM-41
-	protected Toolbar offlineLayout;
+	protected LinearLayout offlineLayout;
 	private Toolbar returnToCall;
 
 	public ConversationsActivity() {
@@ -649,7 +649,6 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 		this.offlineLayout = findViewById(R.id.offline_layout);
 		this.offlineLayout.setOnClickListener(mRefreshNetworkClickListener);
 		connectivityReceiver = new ConnectivityReceiver(this);
-		checkNetworkStatus();
 		updateOfflineStatusBar();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -1587,10 +1586,7 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 
 
 	}
-	// CMG AM-41
-	private void checkNetworkStatus() {
-		updateOfflineStatusBar();
-	}
+
 
 	private View.OnClickListener mRefreshNetworkClickListener = new View.OnClickListener() {
 		@Override

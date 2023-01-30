@@ -41,8 +41,8 @@
             layout="@layout/toolbar_in_call"
             android:visibility="gone"/>
 
-        <include android:id="@+id/connnection_toolbar"
-            layout="@layout/toolbar_in_call"
+        <include  android:id="@+id/offline_layout"
+            layout="@layout/connection_toolbar"
             android:visibility="gone"/>
 
         <FrameLayout

@@ -10,6 +10,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
@@ -20,6 +21,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -127,7 +129,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     RecyclerView recyclerViewConversations;
     RecyclerView recyclerViewSMS;
     private ConnectivityReceiver connectivityReceiver; //CMG AM-41
-    protected Toolbar offlineLayout;
+    protected LinearLayout offlineLayout;
 
     @Override
     public void OnSMSRemoveClick(SmsProfile selectedSMSforRelease) {
@@ -464,6 +466,17 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         reload_adapter_sms();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+    }
+
+    @Override
+    protected void onStop () {
+        unregisterReceiver(connectivityReceiver);
+        super.onStop();
+    }
     public void reload_adapter_sms(){
         ArrayList<SmsProfile> smSInfo;
 
@@ -557,6 +570,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             retrieveTokenFromServer();
         }
 
+        updateOfflineStatusBar();
         checkEmptyView();
     }
 
@@ -714,6 +728,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         this.offlineLayout = findViewById(R.id.offline_layout);
         this.offlineLayout.setOnClickListener(mRefreshNetworkClickListener);
         connectivityReceiver = new ConnectivityReceiver(this);
+        updateOfflineStatusBar();
+
 
 
         toolbar.setOnClickListener(new View.OnClickListener() {
@@ -1445,6 +1461,12 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                     } else if (accountStatus == Account.State.CONNECTING) {
                         runStatus(getResources().getString(R.string.connecting),true, false);
                         Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + getResources().getString(accountStatus.getReadableId()));
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateOfflineStatusBar();
+                            }
+                        },1000);
                     } else {
                         runStatus(getResources().getString(R.string.disconnect_tap_to_connect),true, true);
                         Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + getResources().getString(accountStatus.getReadableId()));

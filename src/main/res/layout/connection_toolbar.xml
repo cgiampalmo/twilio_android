@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.Toolbar
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/offline_layout"
+<LinearLayout android:id="@+id/offline_layout"
+    android:layout_below="@id/tab_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="?attr/actionBarSize"
-    android:elevation="@dimen/toolbar_elevation"
     android:gravity="center"
     android:padding="4dp"
     android:background="#27a1cb"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-    app:popupTheme="?popupOverlayStyle"
-    >
-
+    android:orientation="horizontal"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <TextView
         android:id="@+id/network_status"
@@ -25,5 +19,5 @@
         android:drawableStart="@drawable/ic_refresh_black_24dp"
         android:drawablePadding="8dp"
         android:textSize="16sp"
-        android:text="@string/disconnect_tap_to_connect"/>
-</androidx.appcompat.widget.Toolbar>
+        android:text="@string/offline_statusBar"/>
+</LinearLayout>
