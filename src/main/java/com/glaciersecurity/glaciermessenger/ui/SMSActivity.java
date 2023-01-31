@@ -1,12 +1,15 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
@@ -16,11 +19,22 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.provider.ContactsContract;
+
+import com.glaciersecurity.glaciermessenger.Config;
+import com.glaciersecurity.glaciermessenger.databinding.DialogPresenceBinding;
+import com.glaciersecurity.glaciermessenger.entities.Account;
+import com.glaciersecurity.glaciermessenger.entities.Presence;
+import com.glaciersecurity.glaciermessenger.entities.PresenceTemplate;
+import com.glaciersecurity.glaciermessenger.services.ConnectivityReceiver;
+import com.glaciersecurity.glaciermessenger.ui.util.ActivityResult;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,11 +43,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
@@ -48,12 +65,12 @@ import androidx.core.view.GravityCompat;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.databinding.DataBindingUtil;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -90,31 +107,125 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 
-public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener, OnSMSRemoveClickListener {
+public class SMSActivity  extends XmppActivity implements ConversationsManagerListener,OnSMSConversationClickListener, OnSMSProfileClickListener, LogoutListener, OnSMSRemoveClickListener, OnSMSNameClickListener, ConnectivityReceiver.ConnectivityReceiverListener {
     private ActionBar actionBar;
     private float mSwipeEscapeVelocity = 0f;
+    private static final int PURCHASE_NUM_REQUEST = 1;
     private PendingActionHelper pendingActionHelper = new PendingActionHelper();
     private final PendingItem<Conversation> swipedSMSConversation = new PendingItem<>();
     private Toolbar toolbar;
     public FloatingActionButton fab_contact;
     private Button addNumberBtn;
     private Button releaseNumberBtn;
+    private Button nameNumberBtn;
+    public  ProgressBar progressBar;
+    private String lastWaitMsg = null;
+    private TextView waitTextField = null;
+    private android.app.AlertDialog waitDialog = null;
 //    public FloatingActionButton fab_group;
 //    public FloatingActionButton fab_add;
 
     RecyclerView recyclerViewConversations;
     RecyclerView recyclerViewSMS;
-
+    private ConnectivityReceiver connectivityReceiver; //CMG AM-41
+    protected LinearLayout offlineLayout;
 
     @Override
-    public void OnSMSRemoveClick(String conv_name) {
-        ReleaseNum(conv_name);
+    public void OnSMSRemoveClick(SmsProfile selectedSMSforRelease) {
+        drawer_sms.close();
+        showWaitDialog("Releasing number");
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    ReleaseNum(selectedSMSforRelease);
+                } catch (Exception e) {
+                }
+                closeWaitDialog();
+
+
+            }
+        }).start();
+    }
+    @Override
+    public void OnSMSNameClick(String nickname, SmsProfile selectedSMSforName) {
+        drawer_sms.close();
+        showWaitDialog("Updating nickname");
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    NicknameNum(nickname, selectedSMSforName);
+                } catch (Exception e) {
+                }
+                closeWaitDialog();
+
+
+            }
+        }).start();
+
+
+
+    }
+
+    private void NicknameNum(String nickname, SmsProfile smsProfile){
+        String nicknameNumberUrl = mContext.getString(R.string.nickname_num_url);
+        OkHttpClient client = new OkHttpClient();
+        RequestBody requestBody = new FormBody.Builder()
+                .add("twilioNumber", smsProfile.getUnformattedNumber())
+                .add("username",identity)
+                .add("nickname",nickname)
+                .build();
+        Request request = new Request.Builder()
+                .url(nicknameNumberUrl)
+                .put(requestBody)
+                .addHeader("API-Key", mContext.getResources().getString(R.string.twilio_token))
+                .build();
+        Log.d("Glacier", "request " + request);
+        try (Response response = client.newCall(request).execute()) {
+            String responseBody = "";
+            if (response != null && response.body() != null) {
+                responseBody = response.body().string();
+            }
+            Gson gson = new Gson();
+            NicknameNumResponse nicknameNumResponse = gson.fromJson(responseBody, NicknameNumResponse.class);
+            if(nicknameNumResponse.message.equals("success")){
+                //Toast.makeText(mContext,"Nickname updated successfully",Toast.LENGTH_LONG).show();
+
+                runOnUiThread(() -> {
+                    smsProfile.setNickname(nickname);
+                    setUpdateName(smsProfile);
+                    xmppConnectionService.setSmsProfList(profileList);
+                    adapter_sms.notifyDataSetChanged();
+                    //reload_adapter_sms();
+                    setColorForNumber(proxyNumber);
+
+                });
+            }else{
+                Toast.makeText(mContext,"Failed to update nickname. Please try again",Toast.LENGTH_LONG).show();
+            }
+            //onBackendConnected();
+            Log.d("Glacier", "Response from server: " + responseBody);
+        }catch (Exception ex){
+            Log.e("Glacier", ex.getLocalizedMessage(), ex);
+            Toast.makeText(mContext,"Failed to update nickname",Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        ReleaseNum(adapter_sms.selectedSMSforRemoval.getFormattedNumber());
+        Log.e("Glacier", "onclick");
     }
+
+    @Override
+    public void onNetworkConnectionChanged(boolean isConnected) {
+        updateOfflineStatusBar();
+    }
+
+
+    private class NicknameNumResponse{
+        String message;
+        String data;
+    }
+
 
     private class ReleaseNumResponse{
         String message;
@@ -151,7 +262,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     public void receivedNewMessage(String newMessage,String messageConversationSid,String messageAuthor,String messageTo) {
         messagesAdapter.notifyDataSetChanged();
         Log.d("Glacier","unread_conv_count----"+profileList);
-        reload_adapter_sms(profileList);
+        reload_adapter_sms();
         String checkIdentity = model.getIdentity();
         if(checkIdentity.equals(identity) && !(messageAuthor.equals(identity))) {
             Conversation current_conv = model.getConversation();
@@ -204,6 +315,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     @Override
     public void reloadMessages() {
+
         //getContactList();
         runOnUiThread(new Runnable() {
             @Override
@@ -227,7 +339,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             Log.d("Glacier","old Message adapter");
             messagesAdapter.notifyDataSetChanged();
         }
-        reload_adapter_sms(profileList);
+        //reload_adapter_sms();
         if(ConversationsManager.conversationsClient.getMyConversations().size() > 0) {
             List<Conversation> conversationList = ConversationsManager.conversationsClient.getMyConversations();
             Map<String, String> aList = new HashMap<>();
@@ -315,7 +427,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 //            Log.d("Glacier","conversationsClient emptyLayout " +conversationList.size() + emptyLayout.getVisibility());
 
         }
-        ProgressBar progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
         /*runOnUiThread(new Runnable() {
             @Override
@@ -352,16 +463,37 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     @Override
     public void notifyMessages(String newMessage,String messageAuthor,String messageTo) {
         notifyMessage(newMessage,messageAuthor,messageTo);
-        reload_adapter_sms(profileList);
+        reload_adapter_sms();
     }
 
-    public void reload_adapter_sms(ArrayList<SmsProfile> smSdbInfo){
+    @Override
+    protected void onStart() {
+        super.onStart();
+        registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+    }
+
+    @Override
+    protected void onStop () {
+        unregisterReceiver(connectivityReceiver);
+        super.onStop();
+    }
+    public void reload_adapter_sms(){
         ArrayList<SmsProfile> smSInfo;
-        Log.d("Glacier", "unread_conv_count----" + ConversationsManager.unread_conv_count + xmppConnectionService + smSdbInfo);
-        smSInfo = smSdbInfo;
-        proxyNumbers.clear();
+
+
+        if(xmppConnectionService != null) {
+//            //xmppConnectionService.updateSmsInfo();
+//            proxyNumbers.clear();
+//            profileList.clear();
+//            xmppConnectionService.updateSmsInfo();
+//            try { Thread.sleep(750); } catch (InterruptedException ie) {}
+            smSInfo = xmppConnectionService.getSmsInfo().getExistingProfs();
+        } else {
+            smSInfo = profileList;
+        }
+
         Log.d("Glacier", "unread_conv_count----" + ConversationsManager.unread_conv_count + xmppConnectionService + smSInfo);
-        for (SmsProfile smsProfile : smSdbInfo) {
+        for (SmsProfile smsProfile : smSInfo) {
             Log.d("Glacier", "unread_conv_count---- " + ConversationsManager.unread_conv_count + profileList.contains(smsProfile));
             if(!(profileList.contains(smsProfile)))
                 profileList.add(0, smsProfile);
@@ -380,17 +512,23 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             proxyNumbers.add(smsProfile.getFormattedNumber());
             adapter_sms.notifyItemInserted(0);
         }
+
         if(proxyNumber == null){
             if(proxyNumbers.size() > 0) {
-                OnSMSProfileClick("", proxyNumbers.get(0));
+                proxyNumber = proxyNumbers.get(0);
+                model.setProxyNumber(proxyNumber);
+                OnSMSProfileClick("", proxyNumber);
             }
         }
+
         if(adapter_sms != null)
             adapter_sms.notifyDataSetChanged();
         else
             Log.d("Glacier","adapter_sms is null");
 
+
         checkEmptyView();
+        showPurchaseView();
     }
 
     private final ConversationsManager ConversationsManager = new ConversationsManager(this);
@@ -403,20 +541,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     @Override
     protected void onBackendConnected() {
-        ArrayList<SmsProfile> smSdbInfo;
-        if(xmppConnectionService != null) {
-            xmppConnectionService.updateSmsInfo();
-            SMSdbInfo info = xmppConnectionService.getSmsInfo();
-            smSdbInfo = info.getExistingProfs();
-            PurchaseNumber = info.getUserPurchasePermission();
-            //SMSdbInfo smsinfo = new SMSdbInfo(xmppConnectionService);
-            //xmppConnectionService.setSmsInfo(info);
-            Log.d("Glacier", "onBackendConnected" + xmppConnectionService + smSdbInfo+PurchaseNumber);
-            proxyNumbers.clear();
-            profileList.clear();
-        }else{
-            smSdbInfo = profileList;
-        }
+        progressBar.setVisibility(View.VISIBLE);
+        xmppConnectionService.updateSmsInfo();
+
+        try { Thread.sleep(750); } catch (InterruptedException ie) {}
+        reload_adapter_sms();
 
         //Log.d("Glacier","ConversationsManager "+ConversationsManager.getConversation(proxyNumber));
         ConversationsClient conversationsClient = model.getConversationsClient();
@@ -434,29 +563,29 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                         proxyNumber = proxyNumbers.get(0);
                     }
                 }
-            }else
-            if (xmppConnectionService.getSmsInfo().isNumberActive(model.getProxyNumber()) ){
-                proxyNumber = model.getProxyNumber();
-            } else {
-                model.setProxyNumber(null);
             }
 
-            if(proxyNumber != null) {
-                setColorForNumber(proxyNumber);
-            }
+
+
         }else{
             retrieveTokenFromServer();
         }
 
-        reload_adapter_sms(smSdbInfo);
+        updateOfflineStatusBar();
         checkEmptyView();
+        progressBar.setVisibility(View.GONE);
     }
 
-    private void ReleaseNum(String number){
+
+
+    private void ReleaseNum(SmsProfile releaseProfile){
         String releaseNumberUrl = SMSActivity.this.getString(R.string.release_num_url);
+        String unformattedNumber = releaseProfile.getUnformattedNumber();
+        String formattedNumber = releaseProfile.getFormattedNumber();
+
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = new FormBody.Builder()
-                .add("releaseNumber", adapter_sms.selectedSMSforRemoval.getUnformattedNumber())
+                .add("releaseNumber", unformattedNumber)
                 .add("username",xmppConnectionService.getAccounts().get(0).getUsername())
                 .build();
         Request request = new Request.Builder()
@@ -473,17 +602,38 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             Gson gson = new Gson();
             ReleaseNumResponse releaseNumResponse = gson.fromJson(responseBody, ReleaseNumResponse.class);
             if(releaseNumResponse.message.equals("success")){
-                Toast.makeText(SMSActivity.this,"Number released successfully",Toast.LENGTH_LONG).show();
-                model.setProxyNumber(null);
-                onBackPressed();
+                runOnUiThread(() -> {
+                    removeProfile(releaseProfile);
+
+                    if (proxyNumber.equals(unformattedNumber)) {
+                        proxyNumber = null;
+                        model.setProxyNumber(null);
+                    }
+                    if (proxyNumbers != null && (proxyNumber == null || proxyNumber.equals(""))) {
+                        if (proxyNumbers.size() > 0) {
+                            String nextProxy = proxyNumbers.get(proxyNumbers.size()-1);
+                            model.setProxyNumber(nextProxy);
+                            proxyNumber = nextProxy;
+                            drawer_sms.close();
+                            OnSMSProfileClick("", nextProxy);
+                        }
+                    }
+                });
+
             }else{
-                Toast.makeText(SMSActivity.this,"Failed to release. Please try again",Toast.LENGTH_LONG).show();
-            }
+                runOnUiThread(() -> {
+                    Toast.makeText(SMSActivity.this, "Failed to release. Please try again", Toast.LENGTH_LONG).show();
+                });
+                }
             //onBackendConnected();
             Log.d("Glacier", "Response from server: " + responseBody);
+            closeWaitDialog();
+
         }catch (Exception ex){
             Log.e("Glacier", ex.getLocalizedMessage(), ex);
             Toast.makeText(SMSActivity.this,"Failed to release. Please try again",Toast.LENGTH_LONG).show();
+            closeWaitDialog();
+
         }
     }
 
@@ -501,6 +651,45 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         }
     }
 
+    public void closeWaitDialog() {
+        if (waitDialog != null) {
+            waitDialog.dismiss();
+            //ALF AM-190
+            waitDialog = null;
+            lastWaitMsg = null;
+            waitTextField = null;
+        }
+    }
+
+    public void showWaitDialog(String message) {
+        //ALF AM-202 extended also check if Activity is finishing
+        if (this.isFinishing()) {
+            return;
+        }
+
+        //ALF AM-190
+        if (lastWaitMsg != null && message.equalsIgnoreCase(lastWaitMsg)) {
+            return;
+        } else if (waitDialog != null && waitTextField != null) {
+            waitTextField.setText(message);
+            return;
+        }
+
+        lastWaitMsg = message;
+        LayoutInflater inflater = getLayoutInflater();
+        View layout = inflater.inflate(R.layout.dialog_wait, null);
+        waitTextField = layout.findViewById(R.id.status_message);
+        waitTextField.setText(message);
+
+        //AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(SMSActivity.this);
+        builder.setView(layout);
+        builder.setCancelable(false); // if you want user to wait for some process to finish,
+        builder.setTitle("Please Wait");
+
+        waitDialog = builder.create();
+        waitDialog.show();
+    }
     @RequiresApi(api = Build.VERSION_CODES.O)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -509,13 +698,9 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
-        setTitle("SMS");
+        setTitle("Glacier SMS");
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         model = (ConversationModel) getApplicationContext();
-//        if(model.getPurchaseNumber() != null)
-//            PurchaseNumber = model.getPurchaseNumber();
-//        else
-//            PurchaseNumber = false;
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -542,6 +727,10 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             }
         });
         actionBar.setHomeButtonEnabled(true);
+        this.offlineLayout = findViewById(R.id.offline_layout);
+        this.offlineLayout.setOnClickListener(mRefreshNetworkClickListener);
+        connectivityReceiver = new ConnectivityReceiver(this);
+        updateOfflineStatusBar();
 
 
 
@@ -593,12 +782,22 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         layoutManagerSMS = new LinearLayoutManager(this);
         recyclerViewSMS.setLayoutManager(layoutManagerSMS);
         drawer_sms = (DrawerLayout) findViewById(R.id.drawer_layout_sms);
-        adapter_sms = new SmsProfileAdapter((OnSMSProfileClickListener) this, (OnSMSRemoveClickListener) this, profileList);
+        adapter_sms = new SmsProfileAdapter(this, identity,  this, this, this,  profileList);
         releaseNumberBtn = (Button) findViewById(R.id.release_number);
         releaseNumberBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                adapter_sms.toggleNameOff();
                 adapter_sms.toggleDeleteVisible();
+            }
+        });
+
+        nameNumberBtn = (Button) findViewById(R.id.name_a_number);
+        nameNumberBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                adapter_sms.toggleDeleteOff();
+                adapter_sms.toggleNameVisible();
             }
         });
 
@@ -607,20 +806,53 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(mContext, PurchaseNumbers.class);
-                startActivity(intent);
+                startActivityForResult(intent, PURCHASE_NUM_REQUEST);
             }});
-
+        progressBar = findViewById(R.id.progressBar);
         recyclerViewSMS.setAdapter(adapter_sms);
         Log.d("Glacier","identity sdns n "+identity);
         showPurchaseView();
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PURCHASE_NUM_REQUEST) {
+            if(resultCode == Activity.RESULT_OK){
+                String proxyData = data.getStringExtra("proxyNum");
+                String sid = data.getStringExtra("sid");
+                proxyNumber = proxyData;
+                model.setProxyNumber(proxyNumber);
+                drawer_sms.close();
+                addProfile(new SmsProfile(proxyData, sid));
+                OnSMSProfileClick(sid, proxyData);
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                // Write your code if there's no result
+            }
+        }
+    }
+
+
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_add_group, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
+    public void showUnimplimentedToast(){
+        if (xmppConnectionService != null) {
+            SMSdbInfo info = xmppConnectionService.getSmsInfo();
+            ArrayList<SmsProfile> smSdbInfo = info.getExistingProfs();
+            PurchaseNumber = info.getUserPurchasePermission();
+            if (!PurchaseNumber) {
+                if (smSdbInfo.size() <= 0) {
+                    Toast.makeText(this, R.string.no_auth_sms, Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
     public void showPurchaseView(){
         if (xmppConnectionService != null) {
             SMSdbInfo info = xmppConnectionService.getSmsInfo();
@@ -636,6 +868,11 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             } else {
                 addNumberBtn.setVisibility(View.GONE);
                 releaseNumberBtn.setVisibility(View.GONE);
+            }
+            if (smSdbInfo.size() > 0) {
+                nameNumberBtn.setVisibility(View.VISIBLE);
+            } else {
+                nameNumberBtn.setVisibility(View.GONE);
             }
         }
     }
@@ -654,29 +891,40 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     private void onDrawerOpened(){
             if (xmppConnectionService != null) {
-                xmppConnectionService.updateSmsInfo();
-                ArrayList<SmsProfile> smSdbInfo;
-                smSdbInfo = xmppConnectionService.getSmsInfo().getExistingProfs();
-                profileList.clear();
-                proxyNumbers.clear();
-                reload_adapter_sms(smSdbInfo);
+                reload_adapter_sms();
                 setColorForNumber(proxyNumber);
+                showPurchaseView();
+                showUnimplimentedToast();
             }
             adapter_sms.toggleDeleteOff();
-            showPurchaseView();
+            adapter_sms.toggleNameOff();
             drawer_sms.openDrawer(GravityCompat.START);
-
     }
 
-//    private void initSMS(){
-//        SmsProfile test = new SmsProfile("purchase twilio number", "Add Number");
-//        if(! (profileList.contains(test))) {
-//            profileList.add(test);
-//        }
-//
-//        /*SmsProfile test2 = new SmsProfile("(000) 000-0000", "City2, State2");
-//        profileList.add(test2);*/
-//    }
+    private void removeProfile(SmsProfile smsProfile){
+        for (int i = 0; i < profileList.size(); i++){
+            if (smsProfile.equals(profileList.get(i))){
+                profileList.remove(i);
+            }
+        }
+        xmppConnectionService.setSmsProfList(profileList);
+        adapter_sms.notifyDataSetChanged();
+    }
+
+    private void addProfile(SmsProfile smsProfile){
+        profileList.add(smsProfile);
+        xmppConnectionService.setSmsProfList(profileList);
+        adapter_sms.notifyDataSetChanged();
+    }
+    private void setUpdateName(SmsProfile smsProfile){
+        for (int i = 0; i < profileList.size(); i++){
+            if (smsProfile.equals(profileList.get(i))){
+                profileList.set(i,smsProfile);
+            }
+        }
+        xmppConnectionService.setSmsProfList(profileList);
+        adapter_sms.notifyDataSetChanged();
+    }
 
 
     private void checkPermission() {
@@ -688,6 +936,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             getContactList();
         }
     }
+    @SuppressLint("Range")
     private void getContactList(){
         Uri uri = ContactsContract.Contacts.CONTENT_URI;
         String sort = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME+" ASC";
@@ -808,21 +1057,20 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
     }
 
     public void setColorForNumber(String number){
-        if (xmppConnectionService == null) {
+        if (xmppConnectionService == null || number == null) {
             setTitle("Glacier SMS");
             toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
             //fab_contact.setVisibility(View.INVISIBLE);
             return;
         }
-        if (!xmppConnectionService.getSmsInfo().isNumberActive(number)) {
-            setTitle("Glacier SMS");
-            toolbar.setBackgroundColor(getColor(R.color.primary_bg_color));
-            //fab_contact.setVisibility(View.INVISIBLE);
-            return;
-        }
+
         SmsProfile sp_= xmppConnectionService.getSmsInfo().getSMSProfilefromNumber(number);
         if (sp_ != null) {
-            setTitle(sp_.getFormattedNumber());
+            if(sp_.getNickname() != null && !sp_.getNickname().isEmpty() ){
+                setTitle(sp_.getNickname());
+            } else {
+                setTitle(sp_.getFormattedNumber());
+            }
             toolbar.setBackgroundColor(sp_.getColor());
             fab_contact.setVisibility(View.VISIBLE);
             fab_contact.setBackgroundTintList(ColorStateList.valueOf(sp_.getColor()));
@@ -833,6 +1081,15 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             //fab_contact.setVisibility(View.INVISIBLE);
             // fab_contact.setBackgroundTintList(ColorStateList.valueOf(UIHelper.getColorForSMS(formattedNumber)));
         }
+    }
+
+    public SmsProfile getSMSProfilefromNumber(String number){
+        for (SmsProfile sp: profileList){
+            if(sp.getUnformattedNumber().equals(number) || sp.getFormattedNumber().equals(number)){
+                return sp;
+            }
+        }
+        return null;
     }
     public void OnSMSConversationClick(String conv_sid,String conv_name) {
         Log.d("Glacier","OnSMSConversationClick called "+Atoken.getAccessToken()+" conv_sid "+conv_sid);
@@ -865,16 +1122,14 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     @Override
     public void OnSMSProfileClick(String id, String number) {
-        xmppConnectionService.updateSmsInfo();
+        drawer_sms.closeDrawers();
         number = number.replace("(","").replace(")","").replace("-","").replace(" ","");
         model.setProxyNumber(number);
         proxyNumber = number;
         setColorForNumber(proxyNumber);
-        drawer_sms.closeDrawers();
         if (messagesAdapter != null) {
             messagesAdapter.notifyDataSetChanged();
         }
-        checkEmptyView();
     }
 
     public void checkEmptyView(){
@@ -1086,9 +1341,233 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         }
 
     }
+    private View.OnClickListener mRefreshNetworkClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            TextView networkStatus = findViewById(R.id.network_status);
+            networkStatus.setCompoundDrawables(null, null, null, null);
+            String previousNetworkState = networkStatus.getText().toString();
+            final Account account = xmppConnectionService.getAccounts().get(0);
+            if (account != null) {
+                // previousNetworkState: ie what string is displayed currently in the offline status bar
+                if (previousNetworkState != null) {
 
+				    /*
+				     Case 1a. PRESENCE -> OFFLINE ) "_____: tap to Reconnect"
+				     -> refresh to "Attempting to Connect"
+				     -> presence is offline, need to reenable account
+				     -> change presence to online
+				      */
+                    if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_enable))) {
+                        networkStatus.setText(getResources().getString(R.string.refreshing_connection));
+                        if (account.getPresenceStatus().equals(Presence.Status.OFFLINE)){
+                            xmppConnectionService.enableAccount(account);
+                        }
+                        PresenceTemplate template = new PresenceTemplate(Presence.Status.ONLINE, account.getPresenceStatusMessage());
+                        //if (account.getPgpId() != 0 && hasPgp()) {
+                        //	generateSignature(null, template);
+                        //} else {
+                        xmppConnectionService.changeStatus(account, template, null);
+                        //}
+                    }
+					/*
+				     Case 1b. PRESENCE) "_____: tap to set to Available"
+				     -> refresh to "Changing status to Available"
+				     -> if was offline need to reenable account
+				     -> change presence to online
+				      */
+                    else if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_available))) {
+                        networkStatus.setText(getResources().getString(R.string.refreshing_status));
+                        changePresence(account);
+
+                     /*
+				     Case 2. ACCOUNT) "Disconnected: tap to connect"
+				     -> refresh to "Attempting to Connect"
+				     -> toggle account connection(ie what used to be manage accounts toggle)
+				      */
+                    } else if (previousNetworkState.contains(getResources().getString(R.string.disconnect_tap_to_connect))) {
+                        networkStatus.setText(getResources().getString(R.string.refreshing_connection));
+                        if (!(account.getStatus().equals(Account.State.CONNECTING) || account.getStatus().equals(Account.State.ONLINE))){
+                            xmppConnectionService.enableAccount(account);
+                        }
+                     /*
+				     Case 2. NETWORK) "No internet connection"
+				     -> refresh to "Checking for signal"
+				     -> ???
+				      */
+                    } else if (previousNetworkState.contains(getResources().getString(R.string.status_no_network))) {
+                        networkStatus.setText(getResources().getString(R.string.refreshing_network));
+                        xmppConnectionService.enableAccount(account);
+                    }
+                } else {
+                    // should not reach here... Offline status message state should be defined in one of the above cases
+                    networkStatus.setText(getResources().getString(R.string.refreshing_connection));
+                }
+
+                updateOfflineStatusBar();
+            }
+
+        }
+    };
+    private void runStatus(String str, boolean isVisible, boolean withRefresh){
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(isVisible){
+                    offlineLayout.setVisibility(View.VISIBLE);
+                } else {
+                    offlineLayout.setVisibility(View.GONE);
+                }
+                reconfigureOfflineText(str, withRefresh);
+            }
+        }, 1000);
+    }
+    private void reconfigureOfflineText(String str, boolean withRefresh) {
+        if (offlineLayout.isShown()) {
+            TextView networkStatus = findViewById(R.id.network_status);
+            if (networkStatus != null) {
+                networkStatus.setText(str);
+                if (withRefresh) {
+                    Drawable refreshIcon =
+                            ContextCompat.getDrawable(this, R.drawable.ic_refresh_black_24dp);
+                    networkStatus.setCompoundDrawablesRelativeWithIntrinsicBounds(refreshIcon, null, null, null);
+                } else {
+                    networkStatus.setCompoundDrawables(null, null, null, null);
+                }
+            }
+        }
+    }
+    protected void updateOfflineStatusBar(){
+        if (ConnectivityReceiver.isConnected(this)) {
+            if (xmppConnectionService != null  && !xmppConnectionService.getAccounts().isEmpty()){
+                final Account account = xmppConnectionService.getAccounts().get(0);
+                Account.State accountStatus = account.getStatus();
+                Presence.Status presenceStatus = account.getPresenceStatus();
+                if (presenceStatus.equals(Presence.Status.OFFLINE)){
+                    runStatus( getResources().getString(R.string.status_tap_to_enable) ,true, true);
+                    Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_enable));
+                } else if (!presenceStatus.equals(Presence.Status.ONLINE)){
+                    runStatus( presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_available) ,true, true);
+                    Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + presenceStatus.toDisplayString()+ getResources().getString(R.string.status_tap_to_available));
+                } else {
+                    if (accountStatus == Account.State.ONLINE ) {
+                        runStatus("", false, false);
+                    } else if (accountStatus == Account.State.CONNECTING) {
+                        runStatus(getResources().getString(R.string.connecting),true, false);
+                        Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + getResources().getString(accountStatus.getReadableId()));
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateOfflineStatusBar();
+                            }
+                        },1000);
+                    } else {
+                        runStatus(getResources().getString(R.string.disconnect_tap_to_connect),true, true);
+                        Log.w(Config.LOGTAG ,"updateOfflineStatusBar " + getResources().getString(accountStatus.getReadableId()));
+                    }
+                }
+            }
+        } else {
+            runStatus(getResources().getString(R.string.status_no_network), true, true);
+            Log.w(Config.LOGTAG ,"updateOfflineStatusBar disconnected from network");
+
+        }
+    }
+    protected void changePresence(Account fragAccount) {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        final DialogPresenceBinding binding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.dialog_presence, null, false);
+
+        String current = fragAccount.getPresenceStatusMessage();
+        if (current != null && !current.trim().isEmpty()) {
+            binding.statusMessage.append(current);
+        }
+        xmppConnectionService.setAvailabilityRadioButton(fragAccount.getPresenceStatus(), binding);
+        xmppConnectionService.setStatusMessageRadioButton(fragAccount.getPresenceStatusMessage(), binding);
+        List<PresenceTemplate> templates = xmppConnectionService.getPresenceTemplates(fragAccount);
+        //CMG AM-365
+//		PresenceTemplateAdapter presenceTemplateAdapter = new PresenceTemplateAdapter(this, R.layout.simple_list_item, templates);
+// 		binding.statusMessage.setAdapter(presenceTemplateAdaptreer);
+//		binding.statusMessage.setOnItemClickListener((parent, view, position, id) -> {
+//			PresenceTemplate template = (PresenceTemplate) parent.getItemAtPosition(position);
+//			setAvailabilityRadioButton(template.getStatus(), binding);
+//			setStatusMessageRadioButton(mAccount.getPresenceStatusMessage(), binding);
+//		});
+
+        binding.clearPrefs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                binding.statuses.clearCheck();
+                binding.statusMessage.setText("");
+            }
+        });
+        binding.statuses.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
+            public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+                switch(checkedId){
+                    case R.id.in_meeting:
+                        binding.statusMessage.setText(Presence.StatusMessage.IN_MEETING.toShowString());
+                        binding.statusMessage.setEnabled(false);
+                        break;
+                    case R.id.on_travel:
+                        binding.statusMessage.setText(Presence.StatusMessage.ON_TRAVEL.toShowString());
+                        binding.statusMessage.setEnabled(false);
+                        break;
+                    case R.id.out_sick:
+                        binding.statusMessage.setText(Presence.StatusMessage.OUT_SICK.toShowString());
+                        binding.statusMessage.setEnabled(false);
+                        break;
+                    case R.id.vacation:
+                        binding.statusMessage.setText(Presence.StatusMessage.VACATION.toShowString());
+                        binding.statusMessage.setEnabled(false);
+                        break;
+                    case R.id.custom:
+                        binding.statusMessage.setEnabled(true);
+                        break;
+                    default:
+                        binding.statusMessage.setEnabled(false);
+                        break;
+                }
+            }
+        });
+
+        builder.setTitle(R.string.edit_status_message_title);
+        builder.setView(binding.getRoot());
+        builder.setNegativeButton(R.string.cancel, null);
+        builder.setPositiveButton(R.string.confirm, (dialog, which) -> {
+            PresenceTemplate template = new PresenceTemplate(getAvailabilityRadioButton(binding), binding.statusMessage.getText().toString().trim());
+            //CMG AM-218
+            //if (mAccount.getPgpId() != 0 && hasPgp()) {
+            //	generateSignature(null, template);
+            //} else {
+            xmppConnectionService.changeStatus(fragAccount, template, null);
+            //}
+            if (template.getStatus().equals(Presence.Status.OFFLINE)){
+                xmppConnectionService.disableAccount(fragAccount);
+            } else {
+                if (!template.getStatus().equals(Presence.Status.OFFLINE) && fragAccount.getStatus().equals(Account.State.DISABLED)){
+                    xmppConnectionService.enableAccount(fragAccount);
+                }
+            }
+            updateOfflineStatusBar();
+
+        });
+        builder.create().show();
+    }
+    private static Presence.Status getAvailabilityRadioButton(DialogPresenceBinding binding) {
+        if (binding.dnd.isChecked()) {
+            return Presence.Status.DND;
+        } else if (binding.xa.isChecked()) {
+            return Presence.Status.OFFLINE;
+        } else if (binding.away.isChecked()) {
+            return Presence.Status.AWAY;
+        } else {
+            return Presence.Status.ONLINE;
+        }
+    }
 
 }
+
+
 interface OnSMSConversationClickListener {
     void OnSMSConversationClick(String connv_sid,String conv_name);
 }

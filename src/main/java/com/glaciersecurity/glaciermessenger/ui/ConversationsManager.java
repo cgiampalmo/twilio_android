@@ -271,6 +271,7 @@ public class ConversationsManager {
     }
 
     protected void loadChannels(ConversationsClient conversationsClient) {
+
         if (conversationsClient == null || conversationsClient.getMyConversations() == null) {
 //            createConversation();
             return;
@@ -340,6 +341,7 @@ public class ConversationsManager {
                                 identity_number = ConvProxyNumber.getString("identity_number");
                             } catch (JSONException e) {
                                 e.printStackTrace();
+
                             }
                         }
                     }

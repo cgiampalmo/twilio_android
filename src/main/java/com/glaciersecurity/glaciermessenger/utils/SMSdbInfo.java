@@ -62,9 +62,17 @@ public class SMSdbInfo {
         return dbProfs;
     }
 
+    public void setDbPurchaseNum(boolean dbPurchaseNum) {
+        this.dbPurchaseNum = dbPurchaseNum;
+    }
+
+    public void setDbProfs(ArrayList<SmsProfile> dbProfs) {
+        this.dbProfs = dbProfs;
+    }
+
     public SmsProfile getSMSProfilefromNumber(String number){
         for (SmsProfile sp: dbProfs){
-            if(sp.equals(number)){
+            if(sp.getUnformattedNumber().equals(number) || sp.getFormattedNumber().equals(number)){
                 return sp;
             }
         }
@@ -101,8 +109,6 @@ public class SMSdbInfo {
     public Boolean isSMSEnabled(){
         return isSMSEnabled;
     }
-
-
 
     public void trySmsInfoUpload() {
 
@@ -172,7 +178,7 @@ public class SMSdbInfo {
             try {
                 if (deviceinfo instanceof LinkedTreeMap){
                     LinkedTreeMap<String, String> treeMap = (LinkedTreeMap<String, String>) deviceinfo;
-                    SmsProfile prof = new SmsProfile(treeMap);
+                    SmsProfile prof = new SmsProfile(treeMap,xmppConnectionService.getAccounts().get(0).getUsername());
                     smsProfList.add(prof);
                 }
 
