@@ -115,7 +115,7 @@
                             android:layout_marginBottom="1dp"
                             android:visibility="gone"
                             android:layout_alignParentRight="true"
-                            app:backgroundColor="?attr/colorAvatarBorderMenu" />
+                            app:backgroundColor="?attr/colorAccent2" />
 
                     </RelativeLayout>
 

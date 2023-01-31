@@ -4,30 +4,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:color="?attr/color_background_primary"
     >
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <include
-            android:id="@+id/aToolbar"
-            layout="@layout/toolbar"
-            />
-
-            <include
-        android:id="@+id/offline_layout"
-        layout="@layout/connection_toolbar"
-        />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/color_background_primary">
+        <include
+            android:id="@+id/aToolbar"
+            layout="@layout/toolbar"
+            />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/add_number"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/aToolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/spacing_small"
@@ -129,7 +119,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/add_number"
             app:layout_constraintVertical_bias="0.0"
-            android:visibility="gone"
             />
 
         <View android:id="@+id/separator"
@@ -167,7 +156,4 @@
             android:visibility="invisible"/>
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </LinearLayout>
-</layout>
+    </androidx.constraintlayout.widget.ConstraintLayout></layout>

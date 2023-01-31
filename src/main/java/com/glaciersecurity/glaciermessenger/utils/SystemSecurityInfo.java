@@ -269,14 +269,14 @@ public class SystemSecurityInfo {
         }
 
         boolean hasBioLock = isBiometricPINOn(xmppConnectionService.getApplicationContext());
-        if (hasBioLock != securityInfo.getApplicationLock()) {
-            securityInfo.setApplicationLock(hasBioLock);
+        if (hasBioLock != securityInfo.getBiometricLock()) {
+            securityInfo.setBiometricLock(hasBioLock);
             needsUpdate = true;
         }
 
         boolean hasDeviceLock = hasBioLock();
-        if (hasDeviceLock != securityInfo.getBiometricLock()) {
-            securityInfo.setBiometricLock(hasDeviceLock);
+        if (hasDeviceLock != securityInfo.getDeviceLock()) {
+            securityInfo.setDeviceLock(hasDeviceLock);
             needsUpdate = true;
         }
 
@@ -386,9 +386,9 @@ public class SystemSecurityInfo {
     }
 
     private void trySecurityInfoUpload() {
-//        if (!needsUpdate) {
-//            return;
-//        }
+        if (!needsUpdate) {
+            return;
+        }
 
         final Account account = xmppConnectionService.getAccounts().get(0);
         CognitoAccount myCogAccount = xmppConnectionService.databaseBackend.getCognitoAccount(account);
@@ -464,11 +464,11 @@ public class SystemSecurityInfo {
                 String deviceid = (String)jsonObject.get("deviceid");
                 if (mydeviceid.equals(deviceid)) {
                     SecurityInfo listdevice = new SecurityInfo(jsonObject);
-//                    if (listdevice.equals(securityInfo)) {
-//                        needsUpdate = false;
-//                        Log.d("SecurityInfo", "No need to update SecurityInfo, data hasn't changed");
-//                        return null; //no update needed
-//                    }
+                    if (listdevice.equals(securityInfo)) {
+                        needsUpdate = false;
+                        Log.d("SecurityInfo", "No need to update SecurityInfo, data hasn't changed");
+                        return null; //no update needed
+                    }
                     seclist.add(securityInfo.toJsonString());
                     foundme = true;
                 } else {
@@ -489,10 +489,6 @@ public class SystemSecurityInfo {
     }
 
     private void updateSecurityHubInfo(GetGlacierUsersQuery.GetGlacierUsers gusers, List<String> seclist) {
-        if (!xmppConnectionService.getOrgInfo().isSecurityhub_data_enabled()){
-            return;
-        }
-
         //String secinfoString = "{\"glacier_version_outdated\":false,\"os_version\":\"12\",\"biometric_lock\":true,\"deviceid\":\"12345\",\"core_enabled\":false,\"screen_lock\":true,\"organization\":\"glacierEast\",\"compromised\":false,\"compromised_detail\":false,\"os_version_outdated\":false,\"device\":\"Pixel 3a\",\"glacier_version\":\"3.4.1-RC11-dev\",\"username\":\"alexsuperadmin\"}";
         UpdateGlacierUsersInput ginput = UpdateGlacierUsersInput.builder().organization(gusers.organization())
                 .username(gusers.username())
@@ -558,7 +554,6 @@ public class SystemSecurityInfo {
                         if (xmppConnectionService != null) {
                             final Account account = xmppConnectionService.getAccounts().get(0);
                             xmppConnectionService.databaseBackend.updateCognitoAccountOrg(account, org);
-                            account.setOrg(org);
                         }
 
                         queryAppSync(null);
