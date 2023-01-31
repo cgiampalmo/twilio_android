@@ -1,42 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:background="?attr/color_background_primary">
+    android:background="?attr/color_background_primary"
+    >
 
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
 
         <include
             android:id="@+id/aToolbar"
             layout="@layout/toolbar"
             />
         <include
-            android:id="@+id/offline_layout"
-            layout="@layout/connection_toolbar"
-            android:visibility="gone"
-            />
-
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/linearLayout2"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                >
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    style="?android:attr/progressBarStyle"
-                    android:layout_width="135dp"
-                    android:layout_height="128dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-            <include
             android:id="@+id/empty_list"
             layout="@layout/empty_list"
             android:layout_marginTop="@dimen/actionBarSize"
@@ -52,8 +31,10 @@
             android:scrollbars="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/aToolbar"
+            app:layout_constraintVertical_bias="0.0" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -189,9 +170,16 @@
 <!--            app:backgroundTint="#27a1cb"-->
 <!--            app:layout_constraintBottom_toBottomOf="parent"-->
 <!--            app:layout_constraintEnd_toEndOf="parent" />-->
-            </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </LinearLayout>
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="135dp"
+            android:layout_height="128dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/aToolbar" />
 
 
-    </layout>
+    </androidx.constraintlayout.widget.ConstraintLayout></layout>

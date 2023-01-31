@@ -3,8 +3,6 @@ package com.glaciersecurity.glaciermessenger.entities;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Calendar;
-
 public class SecurityInfo {
     private static final String DEVICE_ID = "device";
     private static final String DEVICE = "deviceid";
@@ -18,7 +16,6 @@ public class SecurityInfo {
     private static final String SCREEN_LOCK = "screen_lock";
     private static final String BIOMETRIC_LOCK = "biometric_lock";
     private static final String CORE_ENABLED = "core_enabled";
-    private static final String LAST_UPDATED = "last_updated";
 
     protected String sDeviceId;
     protected String sDevice;
@@ -30,10 +27,9 @@ public class SecurityInfo {
     protected boolean sCompromised;
     protected String sCompromisedDetail;
     protected boolean sScreenLock;
-    protected boolean sApplicationLock;
     protected boolean sBiometricLock;
+    protected boolean sDeviceLock;
     protected boolean sCoreEnabled;
-    protected String sLastUpdated;
 
 
     public SecurityInfo(String deviceid) {
@@ -55,12 +51,8 @@ public class SecurityInfo {
         sCompromised = Boolean.parseBoolean(String.valueOf(jsecinfo.get("compromised")));
         sCompromisedDetail = (String) jsecinfo.get("compromised_detail");
         sScreenLock = Boolean.parseBoolean(String.valueOf(jsecinfo.get("screen_lock")));
-        try {
-            sApplicationLock = Boolean.parseBoolean(String.valueOf(jsecinfo.get("app_lock")));
-        } catch (Exception ex) {
-            sApplicationLock = Boolean.parseBoolean(String.valueOf(jsecinfo.get("device_lock")));
-        }
         sBiometricLock = Boolean.parseBoolean(String.valueOf(jsecinfo.get("biometric_lock")));
+        sDeviceLock = Boolean.parseBoolean(String.valueOf(jsecinfo.get("device_lock")));
         sCoreEnabled = Boolean.parseBoolean(String.valueOf(jsecinfo.get("core_enabled")));
     }
 
@@ -76,9 +68,8 @@ public class SecurityInfo {
                 "\"compromised_detail\":\"" + getCompromisedDetail() + "\"," +
                 "\"screen_lock\":" + getScreenLock() + "," +
                 "\"biometric_lock\":" + getBiometricLock() + "," +
-                "\"app_lock\":" + getApplicationLock() + "," +
-                "\"core_enabled\":" + getCoreEnabled() + "," +
-                "\"last_updated\":\"" + setLastUpdated() +  "\"}";
+                "\"device_lock\":" + getDeviceLock() + "," +
+                "\"core_enabled\":" + getCoreEnabled() + "}";
     }
 
     public String getDeviceId() {
@@ -157,14 +148,6 @@ public class SecurityInfo {
         sScreenLock = screenlock;
     }
 
-    public boolean getApplicationLock() {
-        return sApplicationLock;
-    }
-
-    public void setApplicationLock(boolean applock) {
-        sApplicationLock = applock;
-    }
-
     public boolean getBiometricLock() {
         return sBiometricLock;
     }
@@ -173,13 +156,15 @@ public class SecurityInfo {
         sBiometricLock = biolock;
     }
 
-    public boolean getCoreEnabled() {
-        return sCoreEnabled;
+    public boolean getDeviceLock() {
+        return sDeviceLock;
     }
 
-    public String setLastUpdated() {
-        sLastUpdated = Calendar.getInstance().getTime().toString();
-        return sLastUpdated;
+    public void setDeviceLock(boolean biolock) {
+        sDeviceLock = biolock;
+    }
+    public boolean getCoreEnabled() {
+        return sCoreEnabled;
     }
 
     public void setCoreEnabled(boolean coreenabled) {
@@ -197,10 +182,8 @@ public class SecurityInfo {
         newSecinfo.setCompromised(getCompromised());
         newSecinfo.setCompromisedDetail(getCompromisedDetail());
         newSecinfo.setScreenLock(getScreenLock());
-        newSecinfo.setApplicationLock(getApplicationLock());
         newSecinfo.setBiometricLock(getBiometricLock());
         newSecinfo.setCoreEnabled(getCoreEnabled());
-        newSecinfo.setLastUpdated();
         return newSecinfo;
     }
 
@@ -219,8 +202,8 @@ public class SecurityInfo {
                 sinfo.getCompromised() == this.sCompromised &&
                 sinfo.getCompromisedDetail().equals(this.sCompromisedDetail) &&
                 sinfo.getScreenLock() == this.sScreenLock &&
-                sinfo.getApplicationLock() == this.sApplicationLock &&
                 sinfo.getBiometricLock() == this.sBiometricLock &&
+                sinfo.getDeviceLock() == this.sDeviceLock &&
                 sinfo.getCoreEnabled() == this.sCoreEnabled;
     }
 }

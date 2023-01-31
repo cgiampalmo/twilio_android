@@ -851,7 +851,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
                     if (previousNetworkState.contains(getResources().getString(R.string.status_tap_to_enable))) {
                         networkStatus.setText(getResources().getString(R.string.refreshing_connection));
                         if (account.getPresenceStatus().equals(Presence.Status.OFFLINE)){
-                            xmppConnectionService.enableAccount(account);
+                            enableAccount(account);
                         }
                         PresenceTemplate template = new PresenceTemplate(Presence.Status.ONLINE, account.getPresenceStatusMessage());
                         xmppConnectionService.changeStatus(account, template, null);
@@ -875,7 +875,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
                     } else if (previousNetworkState.contains(getResources().getString(R.string.disconnect_tap_to_connect))) {
                         networkStatus.setText(getResources().getString(R.string.refreshing_connection));
                         if (!(account.getStatus().equals(Account.State.CONNECTING) || account.getStatus().equals(Account.State.ONLINE))){
-                            xmppConnectionService.enableAccount(account);
+                            enableAccount(account);
                         }
                      /*
 				     Case 2. NETWORK) "No internet connection"
@@ -884,7 +884,7 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
 				      */
                     } else if (previousNetworkState.contains(getResources().getString(R.string.status_no_network))) {
                         networkStatus.setText(getResources().getString(R.string.refreshing_network));
-                        xmppConnectionService.enableAccount(account);
+                        enableAccount(account);
                     }
                 } else {
                     // should not reach here... Offline status message state should be defined in one of the above cases
@@ -934,23 +934,23 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
         }
     }
 
-//    private void disableAccount(Account account) {
-//        account.setOption(Account.OPTION_DISABLED, true);
-//        if (!xmppConnectionService.updateAccount(account)) {
-//            Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
-//        }
-//    }
-//
-//    private void enableAccount(Account account) {
-//        account.setOption(Account.OPTION_DISABLED, false);
-//        final XmppConnection connection = account.getXmppConnection();
-//        if (connection != null) {
-//            connection.resetEverything();
-//        }
-//        if (!xmppConnectionService.updateAccount(account)) {
-//            Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
-//        }
-//    }
+    private void disableAccount(Account account) {
+        account.setOption(Account.OPTION_DISABLED, true);
+        if (!xmppConnectionService.updateAccount(account)) {
+            Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void enableAccount(Account account) {
+        account.setOption(Account.OPTION_DISABLED, false);
+        final XmppConnection connection = account.getXmppConnection();
+        if (connection != null) {
+            connection.resetEverything();
+        }
+        if (!xmppConnectionService.updateAccount(account)) {
+            Toast.makeText(this, R.string.unable_to_update_account, Toast.LENGTH_SHORT).show();
+        }
+    }
 
     private void runStatus(String str, boolean isVisible, boolean withRefresh){
         final Handler handler = new Handler();
@@ -1048,10 +1048,10 @@ public class FileSafeActivity extends XmppActivity implements ConnectivityReceiv
                 xmppConnectionService.changeStatus(fragAccount, template, null);
             //}
             if (template.getStatus().equals(Presence.Status.OFFLINE)){
-                xmppConnectionService.disableAccount(fragAccount);
+                disableAccount(fragAccount);
             } else {
                 if (!template.getStatus().equals(Presence.Status.OFFLINE) && fragAccount.getStatus().equals(Account.State.DISABLED)){
-                    xmppConnectionService.enableAccount(fragAccount);
+                    enableAccount(fragAccount);
                 }
             }
             updateOfflineStatusBar();

@@ -48,7 +48,7 @@
             android:layout_marginEnd="8dp"
             android:elevation="8dp"
             android:visibility="gone"
-            app:backgroundColor="?attr/colorAvatarBorderMenu"
+            app:backgroundColor="?attr/unread_count"
             android:layout_alignRight="@+id/scroll_to_bottom_button"
             tools:ignore="RtlCompat"
             android:layout_marginRight="8dp" />

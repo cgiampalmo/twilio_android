@@ -156,6 +156,10 @@
             android:parentActivityName=".ui.SMSActivity"
             android:label="@string/app_name"/>
         <activity
+            android:name=".ui.NewSMSActivity"
+            android:parentActivityName=".ui.SMSActivity"
+            android:label="@string/app_name"/>
+        <activity
             android:name=".ui.ContactListActivity"
             android:parentActivityName=".ui.SMSActivity"
             android:label="@string/app_name"/>

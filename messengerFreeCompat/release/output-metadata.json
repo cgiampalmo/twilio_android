@@ -11,9 +11,9 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 522,
-      "versionName": "4.1.1-RC6",
-      "outputFile": "glacierMessenger-4.1.1-RC6-messenger-free-compat-release.apk"
+      "versionCode": 520,
+      "versionName": "4.0.5",
+      "outputFile": "glacierMessenger-4.0.5-messenger-free-compat-release.apk"
     }
   ],
   "elementType": "File"
