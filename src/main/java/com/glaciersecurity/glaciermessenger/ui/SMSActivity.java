@@ -1339,11 +1339,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         }
 
     }
-    // CMG AM-41
-    private void checkNetworkStatus() {
-        updateOfflineStatusBar();
-    }
-
     private View.OnClickListener mRefreshNetworkClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -1412,7 +1407,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
         }
     };
-
     private void runStatus(String str, boolean isVisible, boolean withRefresh){
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -1442,7 +1436,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
             }
         }
     }
-
     protected void updateOfflineStatusBar(){
         if (ConnectivityReceiver.isConnected(this)) {
             if (xmppConnectionService != null  && !xmppConnectionService.getAccounts().isEmpty()){
@@ -1558,7 +1551,6 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         });
         builder.create().show();
     }
-
     private static Presence.Status getAvailabilityRadioButton(DialogPresenceBinding binding) {
         if (binding.dnd.isChecked()) {
             return Presence.Status.DND;
