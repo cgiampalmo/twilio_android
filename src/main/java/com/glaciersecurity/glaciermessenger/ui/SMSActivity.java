@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -316,6 +315,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     @Override
     public void reloadMessages() {
+
         //getContactList();
         runOnUiThread(new Runnable() {
             @Override
@@ -541,6 +541,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     @Override
     protected void onBackendConnected() {
+        progressBar.setVisibility(View.VISIBLE);
         xmppConnectionService.updateSmsInfo();
 
         try { Thread.sleep(750); } catch (InterruptedException ie) {}
@@ -572,6 +573,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
         updateOfflineStatusBar();
         checkEmptyView();
+        progressBar.setVisibility(View.GONE);
     }
 
 

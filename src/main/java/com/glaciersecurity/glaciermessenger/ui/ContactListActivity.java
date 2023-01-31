@@ -1,21 +1,14 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,21 +16,15 @@ import android.widget.Toast;
 
 import com.glaciersecurity.glaciermessenger.R;
 import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
-import com.glaciersecurity.glaciermessenger.ui.NewSMSActivity;
 import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.utils.UIHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 

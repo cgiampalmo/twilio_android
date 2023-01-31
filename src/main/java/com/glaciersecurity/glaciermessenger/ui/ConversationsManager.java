@@ -271,6 +271,7 @@ public class ConversationsManager {
     }
 
     protected void loadChannels(ConversationsClient conversationsClient) {
+
         if (conversationsClient == null || conversationsClient.getMyConversations() == null) {
 //            createConversation();
             return;
