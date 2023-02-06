@@ -46,6 +46,7 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 
 import com.glaciersecurity.glaciermessenger.entities.CognitoAccount;
+import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.util.LruCache;
 import android.util.Pair;
@@ -277,9 +278,7 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	//AM#52, AM#53
 	private AtomicLong mLastSecInfoUpdate = new AtomicLong(0);
-	private AtomicLong mLastOrgInfoUpdate = new AtomicLong(0);
 	public static final long SECHUB_INTERVAL = 86400L;
-	public static final long ORG_INTERVAL = 86400L;
 	private SystemSecurityInfo secInfo;
 	private OrgInfo orgInfo;
 	private SMSdbInfo smsInfo;
@@ -1082,7 +1081,6 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 				ignoreLifecycleUpdate = false; //activity won't need to track return to app this way
 				updateSecurityInfo(); //AM#52, AM#53
 				updateSmsInfo();
-				updateOrgInfo();
 				break;
 			case STOP: // app moved to background
 				mLastGlacierUsage.set(SystemClock.elapsedRealtime());
@@ -4426,17 +4424,15 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 			return;
 		}
 
-		long lastupdate = mLastOrgInfoUpdate.get();
-		if (lastupdate == 0L || SystemClock.elapsedRealtime() - lastupdate >= (ORG_INTERVAL*1000)) {
-			mLastOrgInfoUpdate.set(SystemClock.elapsedRealtime());
-			getOrgInfo().checkCurrentOrgInfo();
-		}
+		getOrgInfo().checkCurrentOrgInfo();
 	}
 
 	public SystemSecurityInfo getSecurityInfo() {
-		//if (secInfo == null) {
+		if (secInfo == null) {
 			secInfo = new SystemSecurityInfo(this);
-		//}
+		} else {
+			updateSecurityInfo();
+		}
 		return secInfo;
 	}
 
@@ -4444,7 +4440,9 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 		if (orgInfo == null) {
 			orgInfo = new OrgInfo(this);
 		}
-		orgInfo.checkCurrentOrgInfo();
+		else {
+			orgInfo.checkCurrentOrgInfo();
+		}
 		return orgInfo;
 	}
 
@@ -4469,6 +4467,10 @@ public class XmppConnectionService extends Service implements ServiceConnection,
 
 	public void setSmsInfo(SMSdbInfo smsInfo){
 		this.smsInfo = smsInfo;
+	}
+
+	public void setSmsProfList(ArrayList<SmsProfile> profList){
+		this.smsInfo.setDbProfs(profList);
 	}
 
 	public void setOrgInfo(OrgInfo orgInfo){

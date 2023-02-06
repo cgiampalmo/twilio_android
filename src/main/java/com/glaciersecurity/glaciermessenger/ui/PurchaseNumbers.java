@@ -1,9 +1,13 @@
 package com.glaciersecurity.glaciermessenger.ui;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import com.glaciersecurity.glaciermessenger.utils.Log;
+
+import android.provider.Telephony;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +24,7 @@ import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.ui.util.Tools;
 import com.glaciersecurity.glaciermessenger.utils.SMSdbInfo;
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,6 +35,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -41,6 +50,8 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     protected void refreshUiReal() {
 
     }
+
+    private static final int PURCHASE_NUM_REQUEST = 1;
     private String lastWaitMsg = null;
     private TextView waitTextField = null;
     private android.app.AlertDialog waitDialog = null;
@@ -60,27 +71,23 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
     }
     private class PurchaseNumResponse{
         String message;
-        String data;
+        PurchaseData data;
     }
+    protected class PurchaseData {
+        public String sid;
+    }
+
     ConversationModel model;
     @Override
     void onBackendConnected() {
         if(xmppConnectionService != null) {
-            xmppConnectionService.getSmsInfo();
             try {
                 if (numberPurchased) {
+                    xmppConnectionService.updateSmsInfo();
                     Thread thread = new Thread();
                     thread.sleep(500);
-                    SMSdbInfo info = xmppConnectionService.getSmsInfo();
-                    ArrayList<SmsProfile> smSdbInfo = info.getExistingProfs();
-                    if (smSdbInfo.size() > 0) {
-                        onBackPressed();
-                    } else {
-                        Thread thread1 = new Thread();
-                        thread1.sleep(500);
-                        if (numberPurchased)
-                            onBackPressed();
-                    }
+                    onBackPressed();
+
                 }
             }catch (InterruptedException ex){
 
@@ -154,8 +161,20 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
         builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Toast.makeText(getApplicationContext(),"Adding number "+ Tools.reformatNumber(number),Toast.LENGTH_LONG).show();
-                PurchaseNum(number);
+                showWaitDialog("Purchasing number");
+                new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            PurchaseNum(number);
+                        } catch (Exception e) {
+                            closeWaitDialog();
+
+                        }
+                        closeWaitDialog();
+
+
+                    }
+                }).start();
             }
         });
         builder.setNegativeButton("Cancel", null);
@@ -183,17 +202,41 @@ public class PurchaseNumbers extends XmppActivity  implements AdapterView.OnItem
                 responseBody = response.body().string();
             }
             Gson gson = new Gson();
+            String sid = "";
             PurchaseNumResponse purchaseNumResponse = gson.fromJson(responseBody, PurchaseNumResponse.class);
             if(purchaseNumResponse.message != null && purchaseNumResponse.message.equals("success")){
-                Toast.makeText(PurchaseNumbers.this,"Number added successfully",Toast.LENGTH_LONG).show();
+                if (purchaseNumResponse.data != null && purchaseNumResponse.data.sid != null) {
+                    sid = purchaseNumResponse.data.sid;
+                }
+                String proxyNum = number.replace(" ", "").replace("(", "").replace("-", "").replace(")", "");
+                model.setProxyNumber(proxyNum);
+
+                runOnUiThread(() -> {
+                    Toast.makeText(PurchaseNumbers.this,"Number added successfully",Toast.LENGTH_LONG).show();
+                    closeWaitDialog();
+                    numberPurchased = true;
+                    });
+
+                final Intent result = new Intent();
+                result.putExtra("proxyNum", proxyNum);
+                result.putExtra("sid", sid);
+                setResult(RESULT_OK, result);
+                finish();
+
             }else{
-                Toast.makeText(PurchaseNumbers.this,"Failed to add. Please try again",Toast.LENGTH_LONG).show();
+                runOnUiThread(() -> {
+                    Toast.makeText(PurchaseNumbers.this,"Failed to add. Please try again",Toast.LENGTH_LONG).show();
+                    closeWaitDialog();
+                    setResult(RESULT_CANCELED);
+                    finish();
+                });
             }
-            numberPurchased = true;
-            onBackendConnected();
+
             //Log.d("Glacier", "Response from server: " + responseBody);
         }catch (Exception ex){
             Log.e("Glacier", ex.getLocalizedMessage(), ex);
+            closeWaitDialog();
+
         }
     }
 

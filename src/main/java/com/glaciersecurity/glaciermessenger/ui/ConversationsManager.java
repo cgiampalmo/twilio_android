@@ -340,6 +340,7 @@ public class ConversationsManager {
                                 identity_number = ConvProxyNumber.getString("identity_number");
                             } catch (JSONException e) {
                                 e.printStackTrace();
+
                             }
                         }
                     }

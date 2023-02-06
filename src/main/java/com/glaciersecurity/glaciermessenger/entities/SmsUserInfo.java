@@ -19,13 +19,6 @@ public class SmsUserInfo {
         String x = responseBody;
     }
 
-//    private ArrayList<SmsProfile> parseString_to_smsProfile(ArrayList<String> selected_twilio_numbers){
-//        ArrayList<SmsProfile> profs = new ArrayList<>();
-//        for (String raw_sms : selected_twilio_numbers){
-//            profs.add(new SmsProfile(raw_sms, raw_sms));
-//        }
-//        return profs;
-//    }
     public boolean is_SMS_enabled() {
         return is_SMS_enabled;
     }

@@ -55,7 +55,7 @@ android:layout_centerInParent="true">
             android:layout_gravity="center"
             android:textStyle="bold"
             android:visibility="invisible"
-            app:backgroundColor="?attr/colorAccent2"
+            app:backgroundColor="?attr/colorAvatarBorderMenu"
             android:padding="15dp"/>
 
     <ImageButton

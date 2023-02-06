@@ -55,7 +55,11 @@ public class SecurityInfo {
         sCompromised = Boolean.parseBoolean(String.valueOf(jsecinfo.get("compromised")));
         sCompromisedDetail = (String) jsecinfo.get("compromised_detail");
         sScreenLock = Boolean.parseBoolean(String.valueOf(jsecinfo.get("screen_lock")));
-        sApplicationLock = Boolean.parseBoolean(String.valueOf(jsecinfo.get("app_lock")));
+        try {
+            sApplicationLock = Boolean.parseBoolean(String.valueOf(jsecinfo.get("app_lock")));
+        } catch (Exception ex) {
+            sApplicationLock = Boolean.parseBoolean(String.valueOf(jsecinfo.get("device_lock")));
+        }
         sBiometricLock = Boolean.parseBoolean(String.valueOf(jsecinfo.get("biometric_lock")));
         sCoreEnabled = Boolean.parseBoolean(String.valueOf(jsecinfo.get("core_enabled")));
     }

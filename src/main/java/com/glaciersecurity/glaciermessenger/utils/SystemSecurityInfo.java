@@ -386,9 +386,9 @@ public class SystemSecurityInfo {
     }
 
     private void trySecurityInfoUpload() {
-        if (!needsUpdate) {
-            return;
-        }
+//        if (!needsUpdate) {
+//            return;
+//        }
 
         final Account account = xmppConnectionService.getAccounts().get(0);
         CognitoAccount myCogAccount = xmppConnectionService.databaseBackend.getCognitoAccount(account);
@@ -420,9 +420,9 @@ public class SystemSecurityInfo {
 
 
         appsyncclient.query(GetGlacierUsersQuery.builder()
-                .organization(myCogAccount.getOrganization())
-                .username(myCogAccount.getUserName())
-                .build())
+                        .organization(myCogAccount.getOrganization())
+                        .username(myCogAccount.getUserName())
+                        .build())
                 .responseFetcher(AppSyncResponseFetchers.NETWORK_ONLY)
                 .enqueue(getUserCallback);
     }
@@ -464,11 +464,11 @@ public class SystemSecurityInfo {
                 String deviceid = (String)jsonObject.get("deviceid");
                 if (mydeviceid.equals(deviceid)) {
                     SecurityInfo listdevice = new SecurityInfo(jsonObject);
-                    if (listdevice.equals(securityInfo)) {
-                        needsUpdate = false;
-                        Log.d("SecurityInfo", "No need to update SecurityInfo, data hasn't changed");
-                        return null; //no update needed
-                    }
+//                    if (listdevice.equals(securityInfo)) {
+//                        needsUpdate = false;
+//                        Log.d("SecurityInfo", "No need to update SecurityInfo, data hasn't changed");
+//                        return null; //no update needed
+//                    }
                     seclist.add(securityInfo.toJsonString());
                     foundme = true;
                 } else {
@@ -489,6 +489,10 @@ public class SystemSecurityInfo {
     }
 
     private void updateSecurityHubInfo(GetGlacierUsersQuery.GetGlacierUsers gusers, List<String> seclist) {
+        if (!xmppConnectionService.getOrgInfo().isSecurityhub_data_enabled()){
+            return;
+        }
+
         //String secinfoString = "{\"glacier_version_outdated\":false,\"os_version\":\"12\",\"biometric_lock\":true,\"deviceid\":\"12345\",\"core_enabled\":false,\"screen_lock\":true,\"organization\":\"glacierEast\",\"compromised\":false,\"compromised_detail\":false,\"os_version_outdated\":false,\"device\":\"Pixel 3a\",\"glacier_version\":\"3.4.1-RC11-dev\",\"username\":\"alexsuperadmin\"}";
         UpdateGlacierUsersInput ginput = UpdateGlacierUsersInput.builder().organization(gusers.organization())
                 .username(gusers.username())

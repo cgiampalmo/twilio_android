@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,18 +28,9 @@ import com.glaciersecurity.glaciermessenger.entities.SmsProfile;
 import com.glaciersecurity.glaciermessenger.ui.OnSMSNameClickListener;
 import com.glaciersecurity.glaciermessenger.ui.OnSMSProfileClickListener;
 import com.glaciersecurity.glaciermessenger.ui.OnSMSRemoveClickListener;
-import com.glaciersecurity.glaciermessenger.ui.SMSActivity;
 import com.glaciersecurity.glaciermessenger.ui.widget.UnreadCountCustomView;
-import com.glaciersecurity.glaciermessenger.utils.Log;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
-
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 
@@ -51,7 +41,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 	private OnSMSRemoveClickListener removeListener;
 	private OnSMSNameClickListener nameListener;
 	private ViewGroup viewGroup;
-	public SmsProfile selectedSMSforRemoval;
+	public SmsProfile selectedProfile;
 	public Context mContext;
 	private String identity;
 
@@ -70,52 +60,13 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 	public SMSRecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.sms_profile, parent, false);
 		viewGroup = parent;
-		return new SMSRecyclerViewHolder(view, listener, removeListener);
-	}
-
-
-	private void NicknameNum(String nickname, SmsProfile smsProfile){
-		String nicknameNumberUrl = mContext.getString(R.string.nickname_num_url);
-		OkHttpClient client = new OkHttpClient();
-		RequestBody requestBody = new FormBody.Builder()
-				.add("twilioNumber", smsProfile.getUnformattedNumber())
-				.add("username",identity)
-				.add("nickname",nickname)
-				.build();
-		Request request = new Request.Builder()
-				.url(nicknameNumberUrl)
-				.put(requestBody)
-				.addHeader("API-Key", mContext.getResources().getString(R.string.twilio_token))
-				.build();
-		Log.d("Glacier", "request " + request);
-		try (Response response = client.newCall(request).execute()) {
-			String responseBody = "";
-			if (response != null && response.body() != null) {
-				responseBody = response.body().string();
-			}
-			Gson gson = new Gson();
-			NicknameNumResponse releaseNumResponse = gson.fromJson(responseBody, NicknameNumResponse.class);
-			if(releaseNumResponse.message.equals("success")){
-				Toast.makeText(mContext,"Nickname updated successfully",Toast.LENGTH_LONG).show();
-			}else{
-				Toast.makeText(mContext,"Failed to update nickname. Please try again",Toast.LENGTH_LONG).show();
-			}
-			//onBackendConnected();
-			Log.d("Glacier", "Response from server: " + responseBody);
-		}catch (Exception ex){
-			Log.e("Glacier", ex.getLocalizedMessage(), ex);
-			Toast.makeText(mContext,"Failed to update nickname",Toast.LENGTH_LONG).show();
-		}
-	}
-
-	private class NicknameNumResponse{
-		String message;
-		String data;
+		return new SMSRecyclerViewHolder(view, listener);
 	}
 
 	@Override
 	public void onBindViewHolder(@NonNull SMSRecyclerViewHolder holder, @SuppressLint("RecyclerView") int position) {
 		SmsProfile smsProf = smsProfileList.get(position);
+		selectedProfile = smsProf;
 		holder.primaryView.setText(smsProf.getFormattedNumber());
 		if (smsProf.getNickname() == null || smsProf.getNickname().isEmpty()) {
 			holder.secondaryView.setVisibility(View.GONE);
@@ -132,7 +83,6 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 		}else{
 			holder.unreadCount.setVisibility(View.INVISIBLE);
 		}
-
 		holder.removeNumBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -140,30 +90,43 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
                 builder.setMessage("Do you want to release number " + smsProfileList.get(position).getFormattedNumber() + "?");
                 builder.setTitle("Confirmation");
                 builder.setCancelable(true);
-                builder.setPositiveButton("Release", removeListener);
+                builder.setPositiveButton("Release",  new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								dialog.dismiss();
+								removeListener.OnSMSRemoveClick(smsProf);
+							}
+						}
+				);
 				builder.setNegativeButton( "Cancel", null);
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
-				selectedSMSforRemoval = smsProfileList.get(position);
+
 			}
 		});
 		holder.nameNumBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(view.getContext());
-				builder.setNegativeButton( "No thanks", null);
+				builder.setNegativeButton( "Cancel", null);
 				builder.setTitle("Display Name");
 				builder.setCancelable(true);
 
 				DialogSmsNameBinding binding = DataBindingUtil.inflate(LayoutInflater.from(view.getContext()), R.layout.dialog_sms_name, null, false);
+				binding.smsNickname.setText(smsProf.getNickname());
+				binding.deleteNicknameBtn.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						binding.smsNickname.setText("");
+					}
+				});
 
 				builder.setView(binding.getRoot());
-				builder.setPositiveButton("Add name", new DialogInterface.OnClickListener() {
+				builder.setPositiveButton("Update name", new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								// dismiss this dialog
-								NicknameNum(binding.smsNickname.getText().toString(), smsProf);
-								nameListener.OnSMSNameClick(binding.smsNickname.getText().toString(), smsProf);
-								notifyDataSetChanged();
+								String smsNickname = binding.smsNickname.getText().toString();
+								dialog.dismiss();
+
+								nameListener.OnSMSNameClick(smsNickname, smsProf);
 							}
 						}
 					);
@@ -174,21 +137,20 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 						boolean handled = false;
 						if (actionId == EditorInfo.IME_ACTION_DONE) {
 							handled = true;
-							NicknameNum(binding.smsNickname.getText().toString(), smsProf);
+							String smsNickname = binding.smsNickname.getText().toString();
 							dialog.dismiss();
+
+							nameListener.OnSMSNameClick(smsNickname, smsProf);
 						}
 						return handled;
 					}
 				});
 				dialog.show();
 
-
 			}
 		});
 
 	}
-
-
 
 	@Override
 	public int getItemCount() {
@@ -246,7 +208,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 		}
 	}
 
-	public class SMSRecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+	public class SMSRecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 		public final View profView;
 		TextView primaryView;
 		TextView secondaryView;
@@ -259,7 +221,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 
 
 
-		public SMSRecyclerViewHolder(View view, OnSMSProfileClickListener listener, OnSMSRemoveClickListener removeListener){
+		public SMSRecyclerViewHolder(View view, OnSMSProfileClickListener listener){
 			super(view);
 			this.listener = listener;
 			profileView = (RelativeLayout) view.findViewById(R.id.sms_profile_view);
@@ -267,14 +229,6 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 			secondaryView = (TextView) view.findViewById(R.id.sms_profile_secondary_view);
 			unreadCount = (UnreadCountCustomView) view.findViewById(R.id.sms_unread_count);
 			removeNumBtn = view.findViewById(R.id.remove_sms_btn);
-			removeNumBtn.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (removeListener != null){
-						removeListener.OnSMSRemoveClick(primaryView.getText().toString());
-					}
-				}
-			});
 			nameNumBtn = view.findViewById(R.id.name_sms_btn);
 			profView = view;
 			profView.setOnClickListener(this);
@@ -301,16 +255,7 @@ public class SmsProfileAdapter extends RecyclerView.Adapter<SmsProfileAdapter.SM
 
 		@Override
 		public void onClick(View view) {
-			listener.OnSMSProfileClick(primaryView.getText().toString(), primaryView.getText().toString());
-		}
-
-		@Override
-		public boolean onLongClick(View v) {
-			ClipboardManager clipboard = (ClipboardManager) mContext.getSystemService(CLIPBOARD_SERVICE);
-			ClipData clip = ClipData.newPlainText(primaryView.getText().toString(), secondaryView.getText().toString());
-			clipboard.setPrimaryClip(clip);
-			Toast.makeText(mContext,"Copied to clipboard: "+ primaryView.getText().toString(), Toast.LENGTH_SHORT).show();
-			return true;
+			listener.OnSMSProfileClick(getNumber(), getNumber());
 		}
 	}
 
