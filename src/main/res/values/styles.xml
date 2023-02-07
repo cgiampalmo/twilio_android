@@ -169,4 +169,28 @@
         <item name="android:colorForeground">#42221f1f
         </item>
     </style>
+
+     <style name="numpad_composed_number_font" parent="@android:style/TextAppearance.Medium">
+         <item name="android:textColor">?attr/edit_text_color</item>
+         <item name="android:textSize">30sp</item>
+     </style>
+     <style name="big_contact_name_font" parent="@android:style/TextAppearance.Medium">
+         <item name="android:textColor">@color/primary_bg_color</item>
+         <item name="android:textSize">30sp</item>
+     </style>
+     <style name="sip_uri_font" parent="@android:style/TextAppearance.Medium">
+         <item name="android:textColor">@color/SelectedBlue</item>
+         <item name="android:textSize">16sp</item>
+     </style>
+     <style name="header_font" parent="@android:style/TextAppearance.Medium">
+         <item name="android:textColor">?attr/edit_text_color</item>
+         <item name="android:textSize">30sp</item>
+     </style>
+     <style name="DialerDigit" parent="@android:style/TextAppearance.Medium">
+         <item name="android:layout_width">50dp</item>
+         <item name="android:layout_height">50dp</item>
+         <item name="android:textColor">?attr/edit_text_color</item>
+         <item name="android:textSize">20sp</item>
+         <item name="android:layout_margin">25dp</item>
+     </style>
 </resources>

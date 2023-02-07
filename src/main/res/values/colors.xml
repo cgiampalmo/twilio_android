@@ -472,4 +472,13 @@
 	<color name="overlay_light_80">#CCFFFFFF</color>
 	<color name="overlay_light_90">#E6FFFFFF</color>
 
+	<color name="disabled_color">#808080</color>
+	<color name="disabled_color_dark">#505050</color>
+	<color name="dark_grey_color">#de000000</color>  <!-- DJF was #444444-->
+	<color name="SelectedBlue">#329AD6</color>
+	<color name="CallBlue">#1681bf</color>
+	<color name="DarkerBlue">#0474B1</color>
+	<color name="green_color">#96c11f</color>
+	<color name="green_coloring">#42B146</color>
+
 </resources>

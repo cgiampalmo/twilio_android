@@ -34,6 +34,10 @@
             android:icon="@drawable/dialer_back"
             android:title="Glacier Dial"/>
         <item
+            android:id="@+id/ExternalDial"
+            android:icon="@drawable/dialer_back"
+            android:title="External Dialer"/>
+        <item
             android:id="@+id/SMS"
             android:icon="@drawable/ic_baseline_sms_24"
             android:title="SMS" />
