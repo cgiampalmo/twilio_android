@@ -1159,6 +1159,11 @@ public class ConversationsActivity extends XmppActivity implements OnConversatio
 				}
 				break;
 			}
+			case R.id.ExternalDial: {
+				Intent dialerActivity = new Intent(getApplicationContext(), DialerActivity.class);
+				startActivity(dialerActivity);
+				break;
+			}
 			case R.id.VoiceApp: {
 				PackageManager pm = getPackageManager();
 				Intent intent = pm.getLaunchIntentForPackage("com.glaciersecurity.glaciervoice");

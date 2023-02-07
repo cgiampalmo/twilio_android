@@ -1300,4 +1300,28 @@
         <item>Argentina - AG</item>
     </string-array>
 
+    <string name="content_description_back_call">Back to call</string>
+    <string name="content_description_transfer">Transfer</string>
+    <string name="connection">Connection</string>
+    <string name="decline">Decline</string>
+    <string name="conference">Conference</string>
+    <string name="outgoing">Outgoing</string>
+    <string name="incoming">Incoming</string>
+    <string name="missed">Missed</string>
+    <string name="content_description_all_calls">All calls</string>
+    <string name="content_description_missed_calls">Missed calls</string>
+    <string name="content_description_switch_video">Switch video</string>
+    <string name="content_description_add_call">Add call</string>
+    <string name="content_description_pause">Pause</string>
+    <string name="content_description_numpad">Numpad</string>
+    <string name="status_not_connected">Not connected</string>
+    <string name="content_description_dialer">Dialer</string>
+    <string name="content_description_menu">Menu</string>
+    <string name="content_description_toggle_micro">Toggle micro</string>
+    <string name="content_description_toggle_speaker">Toggle speaker</string>
+    <string name="content_description_decline">Decline</string>
+    <string name="content_description_hang_up">Hang up</string>
+    <string name="content_description_accept">Accept</string>
+    <string name="voice_title_text">Glacier Dial</string>
+
 </resources>

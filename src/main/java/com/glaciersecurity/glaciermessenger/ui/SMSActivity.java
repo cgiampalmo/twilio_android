@@ -29,6 +29,7 @@ import com.glaciersecurity.glaciermessenger.ui.util.ActivityResult;
 import com.glaciersecurity.glaciermessenger.utils.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -302,6 +303,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
                 // need to modify user interface elements on the UI thread
                 Log.d("Glacier","Reload messages called");
                 messagesAdapter.notifyDataSetChanged();
+                checkEmptyView();
             }
         });
 
@@ -799,6 +801,23 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
 
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_add_group, menu);
+        final MenuItem menuPhoneCall = menu.findItem(R.id.action_call);
+        menuPhoneCall.setOnMenuItemClickListener(menuItem -> {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.start_call);
+            builder.setNegativeButton(R.string.cancel, null);
+            builder.setPositiveButton(getString(R.string.call),
+                    (dialog, which) -> {
+                        //TODO start TWILIO CALL;
+                        Intent callActivity = new Intent(this, CallSMSActivity.class);
+                        startActivity(callActivity);
+                    });
+            builder.create().show();
+
+            return true;
+
+        });
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -849,6 +868,8 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 
     private void onDrawerOpened(){
             if (xmppConnectionService != null) {
@@ -1091,6 +1112,7 @@ public class SMSActivity  extends XmppActivity implements ConversationsManagerLi
         if (messagesAdapter != null) {
             messagesAdapter.notifyDataSetChanged();
         }
+        checkEmptyView();
     }
 
     public void checkEmptyView(){
