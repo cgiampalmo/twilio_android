@@ -117,7 +117,10 @@
             android:label="@string/title_activity_share_location"/>
         <activity
             android:name=".ui.DialerActivity"
-            android:label="@string/title_activity_share_location"/>
+            android:label="Dialer"/>
+        <activity
+            android:name=".ui.CallSMSActivity"
+            android:label="External_dial"/>
         <activity
             android:name=".ui.SecurityHubActivity"
             android:label="@string/title_activity_security_hub"/>
